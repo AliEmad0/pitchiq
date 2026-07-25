@@ -10,7 +10,6 @@ import { FixtureHeader } from "@/features/leagues/components/FixtureHeader";
 import { LineupUnavailable } from "@/features/leagues/components/LineupUnavailable";
 import { PitchLineup } from "@/features/leagues/components/PitchLineup";
 import { StatComparison } from "@/features/leagues/components/StatComparison";
-import { loadFixtures } from "@/data/loaders";
 import { getFixtureDetail } from "@/features/leagues/fixture-detail.api";
 import { revealProps } from "@/utils/reveal";
 import { currentDataSeason, seasonFromFixtureId } from "@/utils/season";
@@ -18,19 +17,13 @@ import { canonicalPath } from "@/utils/canonical";
 
 type Props = { params: Promise<{ locale: string; id: string }> };
 
-// Current-season fixtures are pre-rendered as static (SSG) routes so crawlers
-// hit the CDN, not a live render. Older-season fixtures (ids encode their
-// season) fall through to on-demand rendering.
+// ISR (not build-time SSG): fixtures render on first request, then serve from
+// the CDN for `revalidate` seconds. There are ~380 fixtures × 2 locales per
+// season — pre-rendering them all would balloon build time on Hobby for little
+// gain (fixtures are low-traffic and cheap to render). On-demand + a daily cache
+// keeps runtime Active CPU negligible without the build cost.
 export const dynamicParams = true;
-
-// ISR: refresh the cached page daily, matching the data cron.
 export const revalidate = 86400;
-
-export async function generateStaticParams(): Promise<Array<{ id: string }>> {
-  const fixtures = await loadFixtures(currentDataSeason());
-  if (!fixtures) return [];
-  return fixtures.map((f) => ({ id: String(f.id) }));
-}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, id } = await params;
