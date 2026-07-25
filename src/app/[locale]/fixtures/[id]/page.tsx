@@ -17,6 +17,14 @@ import { canonicalPath } from "@/utils/canonical";
 
 type Props = { params: Promise<{ locale: string; id: string }> };
 
+// ISR (not build-time SSG): fixtures render on first request, then serve from
+// the CDN for `revalidate` seconds. There are ~380 fixtures × 2 locales per
+// season — pre-rendering them all would balloon build time on Hobby for little
+// gain (fixtures are low-traffic and cheap to render). On-demand + a daily cache
+// keeps runtime Active CPU negligible without the build cost.
+export const dynamicParams = true;
+export const revalidate = 86400;
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, id } = await params;
   setRequestLocale(locale);

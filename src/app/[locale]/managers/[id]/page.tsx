@@ -19,6 +19,9 @@ type Props = {
 
 export const dynamicParams = true;
 
+// ISR: refresh cached renders daily, matching the data cron.
+export const revalidate = 86400;
+
 // Pre-render every committed manager's profile (SSG). New managers in future
 // data refreshes render on demand (dynamicParams).
 export async function generateStaticParams() {

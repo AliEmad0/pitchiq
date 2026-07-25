@@ -13,7 +13,9 @@ jobs:
   ci:
     name: Lint · Type-check · Test · Build
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    # Bumped from 10 → 20: the players/[id] static-generation (SSG, ~1k pages)
+    # for the free-tier Active-CPU fix pushed the Next build past the old limit.
+    timeout-minutes: 20
 
     steps:
       - name: Checkout

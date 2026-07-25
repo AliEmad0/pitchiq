@@ -30,6 +30,9 @@ type Props = {
 // `getTeam` resolves to null, so misses still hit `not-found.tsx`.
 export const dynamicParams = true;
 
+// ISR: refresh cached renders daily, matching the data cron.
+export const revalidate = 86400;
+
 // `pnpm build` calls this once and pre-renders every returned id as an
 // SSG route. The 20 current-season PL teams are bounded enough that SSG
 // pays off; older seasons fall through to dynamic rendering under the
