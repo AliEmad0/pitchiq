@@ -1,29 +1,29 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
 
 import { playerOgImagePath } from "@/app/api/og/player-card";
-import { DataUnavailable } from "@/components/DataUnavailable";
-import { EntitySeasonSwitcher } from "@/components/layout/EntitySeasonSwitcher";
 import { findPlayerSeasons, loadClubLogos, loadPlayers } from "@/data/loaders";
-import { getPlayerProfile } from "@/features/players/api";
 import { getEntityNames } from "@/features/i18n/entity-names";
-import { PlayerHero } from "@/features/players/components/PlayerHero";
-import { PlayerSeasonStats } from "@/features/players/components/PlayerSeasonStats";
-import { PlayerSeasonSplits } from "@/features/players/components/PlayerSeasonSplits";
-import { TriviaSection } from "@/features/trivia/components/TriviaSection";
+import { getPlayerProfile } from "@/features/players/api";
+import { PlayerSeasonView } from "@/features/players/components/PlayerSeasonView";
+import { getTrivia } from "@/features/trivia/data";
 import { canonicalPath } from "@/utils/canonical";
-import { currentDataSeason, formatSeasonLabel, parseSeason } from "@/utils/season";
+import { currentDataSeason } from "@/utils/season";
 
 type Props = {
   params: Promise<{ locale: string; id: string }>;
-  searchParams: Promise<{ season?: string | string[] }>;
 };
 
 // Players from older seasons (post-TASK-701) or non-existent ids render on
 // demand and fall through to `notFound()` rather than 404'ing at routing.
 export const dynamicParams = true;
+
+// The page no longer reads `?season=` (that forced dynamic rendering of every
+// view — the Vercel Active-CPU regression). It renders the current season
+// server-side; historical seasons load client-side in <PlayerSeasonView>. ISR
+// refreshes the cached page daily to match the data cron.
+export const revalidate = 86400;
 
 // `pnpm build` pre-renders every current-season PL player as an SSG route.
 // ~570 players today — bounded enough that SSG pays off; older seasons fall
@@ -34,16 +34,17 @@ export async function generateStaticParams(): Promise<Array<{ id: string }>> {
   return players.map((p) => ({ id: String(p.id) }));
 }
 
-export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
-  const [{ locale, id }, sp] = await Promise.all([params, searchParams]);
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale, id } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("players");
   const tNotFound = await getTranslations("notFound");
   const playerId = Number(id);
   if (!Number.isInteger(playerId)) return { title: tNotFound("playerTitle") };
-  // Dynamic OG (magazine cover, TASK-M53): season-pinned; the route falls back
-  // to the player's latest season when they didn't play the requested one.
-  const season = parseSeason(sp.season, currentDataSeason());
+
+  // Only the current season is indexed (matches the sitemap); the OG route
+  // falls back to the player's latest season when they didn't play it.
+  const season = currentDataSeason();
   const url = playerOgImagePath(playerId, season);
   const og = {
     openGraph: {
@@ -51,10 +52,10 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
     },
     twitter: { card: "summary_large_image" as const, images: [url] },
   };
-  const alternates = { canonical: canonicalPath(locale, `/players/${playerId}`, season) };
-  // Metadata is generated against the default data season (SSG-time); the
-  // page body still honours `?season=` for the rendered stats.
-  const profile = await getPlayerProfile(playerId, currentDataSeason());
+  // Season-less canonical: all season variants collapse to one indexable URL.
+  const alternates = { canonical: canonicalPath(locale, `/players/${playerId}`) };
+
+  const profile = await getPlayerProfile(playerId, season, locale);
   if (profile) {
     // Nested route — the layout's title.template appends "— PitchIQ".
     return {
@@ -78,77 +79,42 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
     : { title: tNotFound("playerTitle"), ...og };
 }
 
-export default async function PlayerProfilePage({ params, searchParams }: Props) {
-  const [{ locale, id }, sp] = await Promise.all([params, searchParams]);
+export default async function PlayerProfilePage({ params }: Props) {
+  const { locale, id } = await params;
   setRequestLocale(locale);
   const playerId = Number(id);
   if (!Number.isInteger(playerId)) notFound();
 
-  const season = parseSeason(sp.season, currentDataSeason());
+  const currentSeason = currentDataSeason();
   // `known` powers the page-local season switcher (TASK-M10), scoped to the
-  // seasons this player actually appears in — so the control never offers a
-  // season that would land on the empty-state below. Fetched in parallel since
-  // it's independent of the per-season profile.
-  const [profile, known, clubLogos] = await Promise.all([
-    getPlayerProfile(playerId, season),
+  // seasons this player actually appears in. Fetched in parallel with the
+  // current-season profile since they're independent.
+  const [currentProfile, known, clubLogos] = await Promise.all([
+    getPlayerProfile(playerId, currentSeason, locale),
     findPlayerSeasons(playerId),
     loadClubLogos(),
   ]);
 
-  // No stats for the selected season. Thanks to stable cross-season ids
-  // (TASK-704), a missing profile might still be a real player who just didn't
-  // play that season — show a DataUnavailable card (TASK-703) with a link back
-  // to their most recent season, rather than a hard 404. A genuinely unknown id
-  // appears in no season → real notFound().
-  if (!profile) {
-    if (!known) notFound();
-    const latestSeason = known.seasons[0];
-    const t = await getTranslations("players");
-    // Localize the player name on /ar (TASK-M65 follow-up): the profile hero +
-    // search already resolve the Arabic name, so the empty-state must too — else
-    // the same player reads Latin here and Arabic everywhere else.
-    const displayName = (await getEntityNames(locale)).player(playerId, known.name);
-    return (
-      <main className="container-page space-y-6 py-6 lg:py-10">
-        <DataUnavailable
-          title={t("noSeasonData", {
-            season: formatSeasonLabel(season, locale),
-            name: displayName,
-          })}
-          message={t("noSeasonDataMsg", {
-            name: displayName,
-            season: formatSeasonLabel(season, locale),
-            latest: formatSeasonLabel(latestSeason, locale),
-          })}
-          cta={{
-            href: `/players/${playerId}?season=${latestSeason}`,
-            label: t("viewSeasonStats", { season: formatSeasonLabel(latestSeason, locale) }),
-          }}
-        />
-      </main>
-    );
-  }
+  // A genuinely unknown id appears in no season → real notFound().
+  if (!known) notFound();
+
+  // Seed the view with the current season when the player played it; otherwise
+  // their latest played season (retired players), so the default static page
+  // shows real data and the switcher's value is always a season they played.
+  const initialSeason = currentProfile ? currentSeason : known.seasons[0];
+  const profile = currentProfile ?? (await getPlayerProfile(playerId, initialSeason, locale));
+  const facts = profile ? await getTrivia("player", initialSeason, playerId) : [];
+  const displayName = (await getEntityNames(locale)).player(playerId, known.name);
 
   return (
-    <main className="container-page space-y-6 py-6 lg:py-10">
-      {known && <EntitySeasonSwitcher seasons={known.seasons} />}
-      <PlayerHero player={profile} season={season} />
-      <PlayerSeasonStats metrics={profile.metrics} />
-      {profile.splits && (
-        <PlayerSeasonSplits splits={profile.splits} season={season} clubLogos={clubLogos} />
-      )}
-      <Suspense fallback={null}>
-        {/* Extra top margin (over the page's space-y-6) when a per-club splits
-            table precedes the trivia, so the two sections read as distinct.
-            `!` beats the space-y margin; only applies when splits render, and
-            TriviaSection is null when there are no facts → no phantom gap. */}
-        <TriviaSection
-          scope="player"
-          id={playerId}
-          season={season}
-          className={profile.splits ? "mt-10!" : undefined}
-        />
-      </Suspense>
-    </main>
+    <PlayerSeasonView
+      playerId={playerId}
+      seasons={known.seasons}
+      initialSeason={initialSeason}
+      initialProfile={profile}
+      initialFacts={facts}
+      clubLogos={clubLogos}
+      displayName={displayName}
+    />
   );
 }
