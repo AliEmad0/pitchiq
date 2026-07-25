@@ -57,7 +57,10 @@ export function PlayerSeasonView({
   useEffect(() => {
     const raw = new URLSearchParams(window.location.search).get("season");
     const parsed = raw ? Number(raw) : NaN;
-    if (Number.isInteger(parsed) && parsed !== initialSeason && seasons.includes(parsed)) {
+    // Honour ANY valid season deep link, including one the player never played:
+    // the fetch below 404s → the DataUnavailable empty-state renders (TASK-703 /
+    // TASK-803), preserving the old server-rendered behaviour client-side.
+    if (Number.isInteger(parsed) && parsed !== initialSeason) {
       setSeason(parsed);
     }
     // Mount-only: a shared deep link is honoured once; later changes go through
@@ -118,12 +121,16 @@ export function PlayerSeasonView({
         </>
       ) : (
         <DataUnavailable
-          title={t("noSeasonData", { season: formatSeasonLabel(season, locale) })}
+          title={t("noSeasonData", { season: formatSeasonLabel(season, locale), name })}
           message={t("noSeasonDataMsg", {
             name,
             season: formatSeasonLabel(season, locale),
             latest: formatSeasonLabel(seasons[0], locale),
           })}
+          cta={{
+            href: `/players/${playerId}?season=${seasons[0]}`,
+            label: t("viewSeasonStats", { season: formatSeasonLabel(seasons[0], locale) }),
+          }}
         />
       )}
     </main>
