@@ -7,7 +7,7 @@ import { getSiteUrl } from "@/utils/site-url";
 export default function robots(): MetadataRoute.Robots {
   const base = getSiteUrl().toString().replace(/\/$/, "");
   return {
-    rules: { userAgent: "*", allow: "/", disallow: "/api/" },
+    rules: { userAgent: "*", allow: "/", disallow: ["/api/", "/*?season="] },
     sitemap: `${base}/sitemap.xml`,
   };
 }
