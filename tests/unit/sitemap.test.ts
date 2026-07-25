@@ -32,11 +32,17 @@ describe("sitemap", () => {
 });
 
 describe("robots", () => {
-  it("allows /, disallows /api/, and links the sitemap", () => {
+  it("allows /, disallows /api/ + ?season= crawling, and links the sitemap", () => {
     vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://pitchiq-pl.vercel.app");
     const r = robots();
 
-    expect(r.rules).toMatchObject({ userAgent: "*", allow: "/", disallow: "/api/" });
+    // `/*?season=` stops crawlers rendering the uncached historical-season
+    // permutations (the Vercel Active-CPU regression, 2026-07-25).
+    expect(r.rules).toMatchObject({
+      userAgent: "*",
+      allow: "/",
+      disallow: ["/api/", "/*?season="],
+    });
     expect(r.sitemap).toBe("https://pitchiq-pl.vercel.app/sitemap.xml");
   });
 });

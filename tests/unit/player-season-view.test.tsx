@@ -1,7 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
-import { NuqsTestingAdapter } from "nuqs/adapters/testing";
 import { NextIntlClientProvider } from "next-intl";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PlayerSeasonView } from "@/features/players/components/PlayerSeasonView";
 import type { PlayerProfile } from "@/features/players/api";
@@ -30,24 +29,23 @@ function profile(id: number, name: string): PlayerProfile {
   };
 }
 
-function renderView(initial: PlayerProfile | null, searchParams: Record<string, string> = {}) {
+function renderView(initial: PlayerProfile | null) {
   return render(
-    <NuqsTestingAdapter searchParams={searchParams}>
-      <NextIntlClientProvider locale="en" messages={messages}>
-        <PlayerSeasonView
-          playerId={42}
-          seasons={[2025, 2016]}
-          initialSeason={2025}
-          initialProfile={initial}
-          initialFacts={[]}
-          clubLogos={null}
-          displayName="Test Player"
-        />
-      </NextIntlClientProvider>
-    </NuqsTestingAdapter>,
+    <NextIntlClientProvider locale="en" messages={messages}>
+      <PlayerSeasonView
+        playerId={42}
+        seasons={[2025, 2016]}
+        initialSeason={2025}
+        initialProfile={initial}
+        initialFacts={[]}
+        clubLogos={null}
+        displayName="Test Player"
+      />
+    </NextIntlClientProvider>,
   );
 }
 
+beforeEach(() => window.history.replaceState(null, "", "/players/42"));
 afterEach(() => vi.unstubAllGlobals());
 
 describe("PlayerSeasonView", () => {
@@ -70,7 +68,8 @@ describe("PlayerSeasonView", () => {
     );
     // season=2016 in the URL differs from initialSeason (2025), so the view
     // fetches that season on mount and swaps the subtree.
-    renderView(profile(42, "Initial Player"), { season: "2016" });
+    window.history.replaceState(null, "", "/players/42?season=2016");
+    renderView(profile(42, "Initial Player"));
     await waitFor(() => expect(screen.getByText("Historical Player")).toBeInTheDocument());
   });
 });
