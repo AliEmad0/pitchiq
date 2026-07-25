@@ -46,6 +46,28 @@ historical seasons **client-side** on demand. Only the current season is
 search-indexed — which already matches the sitemap (it excludes historical
 seasons).
 
+### Scope decision (data-driven, 2026-07-25)
+
+The observability per-render costs (CPU ÷ invocations, 12h window):
+
+| Page | Invocations | Total CPU | Per render |
+| --- | --- | --- | --- |
+| `players/[id]` | 511 | 6 min | **~0.70s** |
+| `fixtures/[id]` | 151 | 21s | ~0.14s |
+| `teams/[id]` | 194 | 7s | ~0.036s |
+| `managers/[id]` | 45 | 2.68s | ~0.06s |
+
+`players/[id]` is ~90% of the cost and ~20× heavier per render (the TASK-M65
+66-field accordion). `teams`/`managers` are already dynamic but so cheap per
+render they barely register — and `teams/[id]` is architecturally expensive to
+convert (five Suspense server-loader sections, each fetching its own season
+data). Converting them is high risk for ~1% savings.
+
+**Approved scope:** full client-side season swap on **`players/[id]` only**;
+**`fixtures/[id]`** gets SSG + `revalidate`; **`teams/[id]` and `managers/[id]`
+are NOT refactored** (they keep today's `searchParams`-driven rendering). All
+four detail pages still get the global `robots` + `revalidate` fixes.
+
 ## Goals
 
 1. Detail pages for the current season render statically (SSG) and are served
@@ -66,9 +88,12 @@ seasons).
 
 ## Design
 
-### 1. Static current-season rendering — `players/[id]`, `teams/[id]`, `managers/[id]`
+### 1. Static current-season rendering — `players/[id]` only
 
-For each of the three pages:
+> Scope note: only `players/[id]` gets this refactor (see Scope decision above).
+> `teams/[id]` and `managers/[id]` keep today's `searchParams`-driven rendering.
+
+For the player page:
 
 - Remove `searchParams` from **both** the default page component **and**
   `generateMetadata`. Both always use `currentDataSeason()`.
@@ -85,9 +110,9 @@ For each of the three pages:
 `notFound()`), but the on-demand render path must no longer depend on
 `searchParams`.
 
-### 2. Client-side historical seasons
+### 2. Client-side historical seasons (player page only)
 
-- Introduce a client wrapper (e.g. `EntitySeasonView`) that:
+- Introduce a client wrapper (e.g. `PlayerSeasonView`) that:
   - receives the server-rendered **current-season** data as initial state,
   - renders the same presentational subtree (hero / stats / splits / trivia for
     players; the analogous subtrees for teams and managers),
@@ -104,13 +129,16 @@ For each of the three pages:
   component. The plan still verifies each before wiring, but no server-only
   refactor is expected.
 
-### 3. New per-season APIs
+### 3. New per-season API for the player profile
 
-- `players` already has `/api/players/[id]` (+ `/seasons`). Reuse it.
-- Add `/api/teams/[id]` and `/api/managers/[id]` accepting `?season=`, returning
-  the same shape the respective page consumes (`getTeam`+`getStandings` for
-  teams; `getManagerProfile` for managers). Set cache headers so repeat
-  client fetches are CDN-cached.
+- The existing `/api/players/[id]` returns the **slim** compare-card shape
+  (`getPlayerSlim`), not the full profile — so it can't be reused for the swap.
+- Add `/api/players/[id]/profile?season=&locale=` returning the full
+  `getPlayerProfile(id, season)` shape the page renders.
+- Reuse existing endpoints for the rest of the season-dependent subtree:
+  `/api/players/[id]/seasons` (season-independent known seasons) and
+  `/api/trivia?scope=player&id=&season=` (returns `{ facts }`).
+- No new team/manager endpoints — those pages are out of scope.
 
 ### 4. `fixtures/[id]`
 
