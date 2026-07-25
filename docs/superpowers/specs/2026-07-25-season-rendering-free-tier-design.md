@@ -77,7 +77,7 @@ For each of the three pages:
 - `generateMetadata`:
   - `canonical` → season-less current (`canonicalPath(locale, "/players/${id}")`).
   - OG image → pinned to the current season.
-- Add `export const revalidate = <e.g. 86400>` so the static page refreshes after
+- Add `export const revalidate = 86400` (24h) so the static page refreshes after
   the daily data cron.
 
 `dynamicParams` behavior for non-current / unknown ids: unchanged conceptually
@@ -99,9 +99,10 @@ For each of the three pages:
 - `EntitySeasonSwitcher` switches from the `shallow:false` `useSeason` binding to
   a shallow, client-fetch variant scoped to entity detail pages. The global
   header switcher and list pages keep `useSeason` (`shallow:false`) unchanged.
-- **Implementation unknown to verify in the plan:** the hero / stats / splits /
-  trivia components must be renderable client-side from props. The plan verifies
-  each is presentational (or adapts it) before wiring.
+- **Confirmed by owner:** the hero / stats / splits / trivia components are
+  presentational and receive data via props — none query the database inside the
+  component. The plan still verifies each before wiring, but no server-only
+  refactor is expected.
 
 ### 3. New per-season APIs
 
