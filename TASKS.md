@@ -5479,8 +5479,8 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 
 | ID                      | Title                                                          | Status           | Priority | Est |
 | ----------------------- | -------------------------------------------------------------- | ---------------- | -------- | --- |
-| [TASK-1801](#task-1801) | Game domain model + read-only data adapter                     | 🔴 Blocked (M56) | P2       | L   |
-| [TASK-1802](#task-1802) | Era-aware player rating model (one interface, provenance tier) | 🔴 Blocked (M56) | P2       | L   |
+| [TASK-1801](#task-1801) | Game domain model + read-only data adapter                     | 📋 Ready         | P2       | L   |
+| [TASK-1802](#task-1802) | Era-aware player rating model (one interface, provenance tier) | 📋 Ready         | P2       | L   |
 | [TASK-1803](#task-1803) | Deterministic seeded match engine → `MatchEvent[]`             | 📋 Backlog       | P2       | XL  |
 | [TASK-1804](#task-1804) | Commentary system (ICU keys, en + ar, AST-guard clean)         | 📋 Backlog       | P2       | L   |
 | [TASK-1805](#task-1805) | Hybrid opponent model (modern squad / historical record)       | 📋 Backlog       | P2       | M   |
@@ -5625,7 +5625,8 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-M53](#task-m53) | Distinctive per-page OG share cards (era-aware, design per page)  | ✅ Done        | P3       | L   |
 | [TASK-M54](#task-m54) | Season-accurate club crests (historical logo per era)             | ✅ Done        | P3       | XL  |
 | [TASK-M55](#task-m55) | Returning-player splits (Kepa/Josh King) + auto birth years       | ✅ Done        | P1       | M   |
-| [TASK-M56](#task-m56) | True per-player roles (LB/CB/CDM…) + alt-positions & foot         | 🟡 In progress | P2       | L   |
+| [TASK-M56](#task-m56) | True per-player roles (LB/CB/CDM…) + alt-positions & foot         | ✅ Done        | P2       | L   |
+| [TASK-M69](#task-m69) | Danny Ward same-person id-collapse (emrey-era, deferred)          | 📋 Ready       | P3       | M   |
 | [TASK-M57](#task-m57) | Backfill historical advanced player stats (2003/04–2016/17)       | ✅ Done        | P2       | M   |
 | [TASK-M58](#task-m58) | Search-engine verification tags + indexing-friendly metadata      | ✅ Done        | P2       | S   |
 | [TASK-M59](#task-m59) | Speed Insights observability (Analytics already shipped)          | ✅ Done        | P3       | XS  |
@@ -6839,7 +6840,7 @@ Owner-reported: "Kepa" had TWO player ids — `1005593` (2025-26 Arsenal, sparse
 
 ### TASK-M56
 
-**True per-player positional roles (LB/CB/CDM/…) + alternate positions & foot** · 🟡 In progress · `P2` · `L` · Type: Data / Pipeline
+**True per-player positional roles (LB/CB/CDM/…) + alternate positions & foot** · ✅ Done · `P2` · `L` · Type: Data / Pipeline
 
 **🟡 Foundation shipped (session 1).** The public schema now carries the role fields: `PlayerSchema` gained `role` / `altRoles` / `foot` / `roleSource` / `height` (all additive/optional — existing committed rows validate unchanged), plus `PlayerRoleSchema` (the 13-role enum GK/RB/CB/LB/CDM/CM/CAM/RM/LM/RW/LW/SS/CF), `RoleSourceSchema`, and **`canPlay(player, slot)`** — the game's single eligibility rule (a **hard ban**: a player may occupy only their primary `role` or an `altRole`, nothing else). The enrichment itself runs in the external data pipeline (tested foundation + scrape machinery shipped there; the full crawl + the eventual data PR that populates the committed `data/*.json` are the out-of-band remainder). Until then `role` is null on committed rows.
 
@@ -7017,6 +7018,14 @@ The player profile (`/players/[id]`) renders only 14 of the 66 stat fields the S
 **Category icons for the stat accordion** · ✅ Done · `P3` · `S` · Type: UI
 
 **Done** (pitchiq#21): each accordion category header shows a lucide icon tinted with the category accent (Playing time → clock, Shooting → target, …), replacing the plain colored dot. **Follow-up** (pitchiq#27): the header colour-wash now respects RTL and no longer flashes when switching en↔ar on a player page.
+
+### TASK-M69
+
+**Danny Ward same-person id-collapse (emrey-era)** · 📋 Ready · `P3` · `M` · Type: Data cleanup
+
+**Context** — Danny Ward b.1990 (English, TM 124172) exists under TWO app ids: `1003560` (Bolton 2009, legacy era) and `1000342` (Cardiff 2018, emrey era). His DATA is now correct on both (TASK-M56 fixed `1000342` → England / 1990-12-09), but they remain two profiles for one person. `1000343` = the Welsh GK b.1993 (a different person — leave it).
+
+**Why deferred** — the split spans the **emrey era**, which resolves identity directly from `normalizeName|birthYear` each sync and has **no source-key re-point map** (unlike SDP `player-keys-sdp.json` / legacy `player-keys-legacy.json` that `fix-same-person-splits.ts` re-points). An in-place id rewrite of the 2018 row reverts on the next cron. A durable collapse needs a new **emrey same-person map** (`emrey key → keep-key`) threaded into `transformPlayers`, plus audit handling (the merged id would carry two birth years → `audit:id-collisions` implications). Low urgency — the visible data is already correct.
 
 ---
 
