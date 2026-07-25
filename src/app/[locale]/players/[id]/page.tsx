@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 
 import { playerOgImagePath } from "@/app/api/og/player-card";
 import { findPlayerSeasons, loadClubLogos, loadPlayers } from "@/data/loaders";
 import { getEntityNames } from "@/features/i18n/entity-names";
 import { getPlayerProfile } from "@/features/players/api";
+import { PlayerHero } from "@/features/players/components/PlayerHero";
+import { PlayerSeasonSplits } from "@/features/players/components/PlayerSeasonSplits";
+import { PlayerSeasonStats } from "@/features/players/components/PlayerSeasonStats";
 import { PlayerSeasonView } from "@/features/players/components/PlayerSeasonView";
-import { getTrivia } from "@/features/trivia/data";
+import { TriviaSection } from "@/features/trivia/components/TriviaSection";
 import { canonicalPath } from "@/utils/canonical";
 import { currentDataSeason } from "@/utils/season";
 
@@ -103,18 +107,37 @@ export default async function PlayerProfilePage({ params }: Props) {
   // shows real data and the switcher's value is always a season they played.
   const initialSeason = currentProfile ? currentSeason : known.seasons[0];
   const profile = currentProfile ?? (await getPlayerProfile(playerId, initialSeason, locale));
-  const facts = profile ? await getTrivia("player", initialSeason, playerId) : [];
   const displayName = (await getEntityNames(locale)).player(playerId, known.name);
 
+  // The current-season subtree is rendered server-side (RSC) and handed to the
+  // client wrapper as `children` — so PlayerHero/Splits stay server-rendered and
+  // the page stays statically prerenderable with no hydration cost. The wrapper
+  // only swaps to client-fetched content when a different season is picked.
   return (
     <PlayerSeasonView
       playerId={playerId}
       seasons={known.seasons}
       initialSeason={initialSeason}
-      initialProfile={profile}
-      initialFacts={facts}
       clubLogos={clubLogos}
       displayName={displayName}
-    />
+    >
+      {profile && (
+        <>
+          <PlayerHero player={profile} season={initialSeason} />
+          <PlayerSeasonStats metrics={profile.metrics} />
+          {profile.splits && (
+            <PlayerSeasonSplits splits={profile.splits} season={initialSeason} clubLogos={clubLogos} />
+          )}
+          <Suspense fallback={null}>
+            <TriviaSection
+              scope="player"
+              id={playerId}
+              season={initialSeason}
+              className={profile.splits ? "mt-10!" : undefined}
+            />
+          </Suspense>
+        </>
+      )}
+    </PlayerSeasonView>
   );
 }
