@@ -185,6 +185,7 @@ export type PlayerProfile = {
 export async function getPlayerProfile(
   playerId: number,
   season: number,
+  locale?: string,
 ): Promise<PlayerProfile | null> {
   const player = await loadPlayer(playerId, season);
   if (!player) {
@@ -192,7 +193,7 @@ export async function getPlayerProfile(
     return null;
   }
   const captainId = captainIdFor(await loadCaptains(), season, player.teamId);
-  const names = await getEntityNames();
+  const names = await getEntityNames(locale);
   return {
     id: player.id,
     name: names.player(player.id, player.name),
