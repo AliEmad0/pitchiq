@@ -10,12 +10,27 @@ import { FixtureHeader } from "@/features/leagues/components/FixtureHeader";
 import { LineupUnavailable } from "@/features/leagues/components/LineupUnavailable";
 import { PitchLineup } from "@/features/leagues/components/PitchLineup";
 import { StatComparison } from "@/features/leagues/components/StatComparison";
+import { loadFixtures } from "@/data/loaders";
 import { getFixtureDetail } from "@/features/leagues/fixture-detail.api";
 import { revealProps } from "@/utils/reveal";
 import { currentDataSeason, seasonFromFixtureId } from "@/utils/season";
 import { canonicalPath } from "@/utils/canonical";
 
 type Props = { params: Promise<{ locale: string; id: string }> };
+
+// Current-season fixtures are pre-rendered as static (SSG) routes so crawlers
+// hit the CDN, not a live render. Older-season fixtures (ids encode their
+// season) fall through to on-demand rendering.
+export const dynamicParams = true;
+
+// ISR: refresh the cached page daily, matching the data cron.
+export const revalidate = 86400;
+
+export async function generateStaticParams(): Promise<Array<{ id: string }>> {
+  const fixtures = await loadFixtures(currentDataSeason());
+  if (!fixtures) return [];
+  return fixtures.map((f) => ({ id: String(f.id) }));
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, id } = await params;
