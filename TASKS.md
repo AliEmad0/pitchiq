@@ -5628,6 +5628,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-M55](#task-m55) | Returning-player splits (Kepa/Josh King) + auto birth years       | ✅ Done        | P1       | M   |
 | [TASK-M56](#task-m56) | True per-player roles (LB/CB/CDM…) + alt-positions & foot         | ✅ Done        | P2       | L   |
 | [TASK-M69](#task-m69) | Danny Ward same-person id-collapse (emrey-era)                    | ✅ Done        | P3       | M   |
+| [TASK-M70](#task-m70) | Surface player role / alt-roles / foot / height on the profile page | 📋 Ready       | P2       | M   |
 | [TASK-M57](#task-m57) | Backfill historical advanced player stats (2003/04–2016/17)       | ✅ Done        | P2       | M   |
 | [TASK-M58](#task-m58) | Search-engine verification tags + indexing-friendly metadata      | ✅ Done        | P2       | S   |
 | [TASK-M59](#task-m59) | Speed Insights observability (Analytics already shipped)          | ✅ Done        | P3       | XS  |
@@ -7037,6 +7038,18 @@ The player profile (`/players/[id]`) renders only 14 of the 66 stat fields the S
 Surface the Transfermarkt market value produced by the pipeline (TASK-M68 there → committed `data/market-values.json`, `season → ourId → { valueEur, determined }`; the pipeline builds it on top of M56's existing `player-tm-ids.json`). Add `MarketValueFileSchema` to `src/data/schemas.ts` + `loadMarketValues(season)` to `src/data/loaders.ts`, then read-time-join onto: the **player profile** `/players/[id]` (a "Market value €Xm (as of {date})" line + optional MV-history sparkline), the **players index** `/players` (an MV column + a "most valuable by market value" sort — supersedes the M50 goals+assists proxy where a value exists), **compare** `/compare` (an MV `<StatRow>`), and optionally a **"Most valuable" leaderboard**. **Null-graceful** — pre-2004 seasons + unmatched players render "—"/omit (the existing null-metric pattern). EUR formatting is locale-aware (en/ar, RTL-safe). Additive — no churn where a value is absent.
 
 **⚠️ Coverage caveat + ToS/posture: see the pipeline TASK-M68.** TM market values only exist from ~2004 (so our 1992-93 → 2003-04 seasons show no value), and the data is TM's proprietary editorial estimate via their internal API — the owner-approved third-party stance (as with TM photos) needs an **explicit sign-off** before shipping.
+
+---
+
+### TASK-M70
+
+**Player role / alt-roles / foot / height on the profile page** · 📋 Ready · `P2` · `M` · Type: Data + UI
+
+TASK-M56 enriched every player with a **true positional role** (one of 13 — GK/RB/CB/LB/CDM/CM/CAM/RM/LM/RW/LW/SS/CF), **`altRoles`** (the secondary roles they can play — the game's `canPlay` vocabulary), **`foot`**, and **`height`** — all on `PlayerSchema`. But the public player page still shows only the coarse 4-value `position`. Surface the richer scouting data on `/players/[id]`.
+
+**Two parts:** (1) **Data projection** (small) — add `role` / `altRoles` / `foot` / `height` (+ optional `roleSource` provenance) to the `PlayerProfile` type + `getPlayerProfile` (`src/features/players/api.ts`); the fields already ride the snapshot row. (2) **UI** — display them in/near `PlayerHero`; the **layout + micro-animation are being chosen from a concept shortlist** (30 display concepts → pick → 30 animation concepts → pick), then built via the design-gallery ritual.
+
+**Requirements:** i18n en/ar (role codes + `foot` need translated labels, RTL-safe); **null-graceful** — unenriched players (`role === null`; older seasons / unmatched) omit the block cleanly (the existing null-metric pattern); additive — no churn where a role is absent. Role/altRoles map to pitch positions, so a positional visual is on the table.
 
 ---
 
