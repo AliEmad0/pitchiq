@@ -36,7 +36,21 @@ const SALAH: PlayerProfile = {
   nationality: null,
   nationalityCode: null,
   isCaptain: false,
+  role: null,
+  altRoles: [],
+  foot: null,
+  height: null,
   metrics: metrics(),
+};
+
+// TASK-M70: an enriched profile — drives the role block instead of the plain
+// position line.
+const SALAH_ROLE: PlayerProfile = {
+  ...SALAH,
+  role: "CF",
+  altRoles: ["SS", "RW"],
+  foot: "left",
+  height: 175,
 };
 
 afterEach(cleanup);
@@ -46,6 +60,15 @@ describe("PlayerHero", () => {
     renderWithIntl(<PlayerHero season={2024} player={SALAH} />);
     expect(screen.getByRole("heading", { level: 1, name: "Mohamed Salah" })).toBeInTheDocument();
     expect(screen.getByText("Forward")).toBeInTheDocument();
+  });
+
+  it("renders the enriched role block (role code, alt-roles, foot, height) when role is set", () => {
+    renderWithIntl(<PlayerHero season={2024} player={SALAH_ROLE} />);
+    expect(screen.getByText("CF")).toBeInTheDocument(); // role monogram
+    expect(screen.getByRole("img", { name: "Centre-Forward" })).toBeInTheDocument(); // mini-pitch a11y
+    expect(screen.getByText(/SS · RW/)).toBeInTheDocument(); // alt roles
+    expect(screen.getByText(/Left/)).toBeInTheDocument(); // preferred foot
+    expect(screen.getByText("175 cm")).toBeInTheDocument(); // height
   });
 
   it("links the team to /teams/{id}", () => {

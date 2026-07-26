@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ImageZoom } from "@/components/ImageZoom";
 import { PlayerImage } from "@/features/players/components/PlayerImage";
+import { PlayerRoleBlock } from "@/features/players/components/PlayerRoleBlock";
 import { Flag } from "@/features/players/components/Flag";
 import { PlayerAge } from "@/features/players/components/PlayerAge";
 import { CaptainBadge } from "@/features/players/components/CaptainBadge";
@@ -57,7 +58,19 @@ export function PlayerHero({ player, season }: { player: PlayerProfile; season: 
             <h1 className="text-3xl font-bold tracking-tight lg:text-4xl">{player.name}</h1>
             {player.isCaptain && <CaptainBadge className="size-6 text-xs" />}
           </div>
-          <p className="text-muted-foreground text-sm">{player.position}</p>
+          {/* TASK-M70: enriched role block (mini-pitch + monogram + vitals);
+              falls back to the plain coarse position for unenriched players. */}
+          {player.role ? (
+            <PlayerRoleBlock
+              role={player.role}
+              altRoles={player.altRoles}
+              coarsePosition={player.position}
+              foot={player.foot}
+              height={player.height}
+            />
+          ) : (
+            <p className="text-muted-foreground text-sm">{player.position}</p>
+          )}
           {(player.nationalityCode ||
             player.nationality ||
             player.age !== null ||

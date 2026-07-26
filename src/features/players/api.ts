@@ -10,7 +10,7 @@ import {
   captainIdFor,
   findPlayerSeasons,
 } from "@/data/loaders";
-import type { Player as SnapshotP, PlayerSeasonSplit } from "@/data/schemas";
+import type { Player as SnapshotP, PlayerRole, PlayerSeasonSplit } from "@/data/schemas";
 
 import type { ComparisonMetrics, Player, PlayerLeaderboardEntry, TeamRef } from "@/types/api";
 
@@ -171,6 +171,12 @@ export type PlayerProfile = {
   nationalityCode: string | null;
   // TASK-M41: this player captained their team in the viewed season.
   isCaptain: boolean;
+  // TASK-M70: enriched positional data (from M56). `role` null = unenriched →
+  // the hero falls back to the coarse `position`.
+  role: PlayerRole | null;
+  altRoles: PlayerRole[];
+  foot: "left" | "right" | "both" | null;
+  height: number | null;
   metrics: ComparisonMetrics;
   // TASK-M07: per-club breakdown for a mid-season transferee (2017-24 era);
   // absent for single-club seasons.
@@ -210,6 +216,10 @@ export async function getPlayerProfile(
     nationality: names.nationality(player.nationalityCode ?? null, player.nationality ?? null),
     nationalityCode: player.nationalityCode ?? null,
     isCaptain: captainId !== null && player.id === captainId,
+    role: player.role ?? null,
+    altRoles: player.altRoles ?? [],
+    foot: player.foot ?? null,
+    height: player.height ?? null,
     metrics: player.metrics,
     splits: player.splits,
   };
