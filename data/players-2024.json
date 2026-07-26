@@ -26582,7 +26582,7 @@
     "teamName": "Arsenal"
   },
   {
-    "birthDate": null,
+    "birthDate": "1999-12-31",
     "birthYear": 2000,
     "dateOfDeath": null,
     "id": 1000915,
