@@ -5831,17 +5831,6 @@
       "teamName": "Leicester City"
     },
     {
-      "apps": 14,
-      "ga": 1,
-      "id": 1000342,
-      "latestSeason": 2018,
-      "name": "Danny Ward",
-      "nameAr": "داني وارد",
-      "photo": "https://commons.wikimedia.org/wiki/Special:FilePath/DSC05519%20%2841934770001%29.jpg",
-      "teamId": 43,
-      "teamName": "Cardiff City"
-    },
-    {
       "apps": 31,
       "ga": 0,
       "id": 1000343,
@@ -36707,15 +36696,15 @@
       "teamName": "Manchester City"
     },
     {
-      "apps": 2,
-      "ga": 0,
+      "apps": 16,
+      "ga": 1,
       "id": 1003560,
-      "latestSeason": 2009,
+      "latestSeason": 2018,
       "name": "Danny Ward",
       "nameAr": "داني وارد",
       "photo": "https://commons.wikimedia.org/wiki/Special:FilePath/DSC05519%20%2841934770001%29.jpg",
-      "teamId": 68,
-      "teamName": "Bolton Wanderers"
+      "teamId": 43,
+      "teamName": "Cardiff City"
     },
     {
       "apps": 39,

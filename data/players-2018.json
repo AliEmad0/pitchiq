@@ -10327,35 +10327,6 @@
     "teamName": "Leicester City"
   },
   {
-    "birthDate": null,
-    "birthYear": 1991,
-    "dateOfDeath": null,
-    "id": 1000342,
-    "metrics": {
-      "appearances": 14,
-      "assists": 0,
-      "dribblesCompleted": 0,
-      "duelsWon": 31,
-      "goals": 1,
-      "interceptions": 0,
-      "keyPasses": 7,
-      "passAccuracy": 53.2,
-      "redCards": 0,
-      "shotsOnTarget": 6,
-      "tackles": 2,
-      "xa": 0.3,
-      "xg": 0.6,
-      "yellowCards": 0
-    },
-    "name": "Danny Ward",
-    "nationality": "Wales",
-    "nationalityCode": "gb-wls",
-    "photo": "https://commons.wikimedia.org/wiki/Special:FilePath/DSC05519%20%2841934770001%29.jpg",
-    "position": "Forward",
-    "teamId": 43,
-    "teamName": "Cardiff City"
-  },
-  {
     "birthDate": "1990-11-26",
     "birthYear": 1990,
     "dateOfDeath": null,
@@ -42925,5 +42896,32 @@
     "position": "Midfielder",
     "teamId": 51,
     "teamName": "Brighton"
+  },
+  {
+    "birthDate": "1990-12-09",
+    "birthYear": 1990,
+    "dateOfDeath": null,
+    "id": 1003560,
+    "metrics": {
+      "appearances": 14,
+      "assists": 0,
+      "dribblesCompleted": 0,
+      "duelsWon": 31,
+      "goals": 1,
+      "interceptions": 0,
+      "keyPasses": 7,
+      "passAccuracy": 53.2,
+      "redCards": 0,
+      "shotsOnTarget": 6,
+      "tackles": 2,
+      "yellowCards": 0
+    },
+    "name": "Danny Ward",
+    "nationality": "England",
+    "nationalityCode": "gb-eng",
+    "photo": "https://commons.wikimedia.org/wiki/Special:FilePath/DSC05519%20%2841934770001%29.jpg",
+    "position": "Forward",
+    "teamId": 43,
+    "teamName": "Cardiff City"
   }
 ]
