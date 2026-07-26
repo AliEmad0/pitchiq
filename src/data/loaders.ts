@@ -74,7 +74,7 @@ const DATA_DIR = join(process.cwd(), "data");
  * error, schema violation) — caller checks for null and proceeds with
  * the empty-state UX.
  */
-async function readJsonOrNull<T>(
+async function readJsonUncached<T>(
   filename: string,
   schema: { parse: (input: unknown) => T },
 ): Promise<T | null> {
@@ -105,6 +105,37 @@ async function readJsonOrNull<T>(
     });
     return null;
   }
+}
+
+// Files under `data/` are immutable within a deployment (the sync cron commits
+// new data → a fresh deploy → fresh instances), so a parsed+validated file can
+// be memoized for the lifetime of a warm Fluid instance. This is the fix for
+// the Fluid Active-CPU regression: `findPlayerSeasons` re-reads all 34 season
+// files on every player-page render — caching makes that one parse per file per
+// instance instead of ~35–45 JSON+Zod parses per render.
+//
+// Gated to production: `next dev` and the test suite always read fresh, so a
+// developer editing `data/` locally isn't served a stale in-process copy.
+const _dataFileCache = new Map<string, Promise<unknown>>();
+
+/** Test-only: clear the in-process data-file cache between cases. */
+export function __resetDataFileCache(): void {
+  _dataFileCache.clear();
+}
+
+async function readJsonOrNull<T>(
+  filename: string,
+  schema: { parse: (input: unknown) => T },
+): Promise<T | null> {
+  if (process.env.NODE_ENV !== "production") {
+    return readJsonUncached(filename, schema);
+  }
+  let cached = _dataFileCache.get(filename) as Promise<T | null> | undefined;
+  if (!cached) {
+    cached = readJsonUncached(filename, schema);
+    _dataFileCache.set(filename, cached);
+  }
+  return cached;
 }
 
 // ---------------------------------------------------------------------------
