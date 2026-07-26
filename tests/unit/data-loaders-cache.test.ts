@@ -11,16 +11,15 @@
  * We assert the observable effect — the same parsed instance is returned when
  * cached (one parse), a fresh instance otherwise.
  */
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 describe("loaders — in-process data-file cache (Fluid CPU fix)", () => {
-  const origEnv = process.env.NODE_ENV;
   afterEach(() => {
-    process.env.NODE_ENV = origEnv;
+    vi.unstubAllEnvs();
   });
 
   it("returns the same parsed instance across repeated loads in production", async () => {
-    process.env.NODE_ENV = "production";
+    vi.stubEnv("NODE_ENV", "production");
     const loaders = await import("@/data/loaders");
     loaders.__resetDataFileCache();
 
@@ -34,7 +33,7 @@ describe("loaders — in-process data-file cache (Fluid CPU fix)", () => {
   });
 
   it("returns a fresh instance on every call outside production (dev/test)", async () => {
-    process.env.NODE_ENV = "test";
+    vi.stubEnv("NODE_ENV", "test");
     const loaders = await import("@/data/loaders");
 
     const a = await loaders.loadPlayers(2024);
