@@ -5627,7 +5627,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-M54](#task-m54) | Season-accurate club crests (historical logo per era)             | ✅ Done        | P3       | XL  |
 | [TASK-M55](#task-m55) | Returning-player splits (Kepa/Josh King) + auto birth years       | ✅ Done        | P1       | M   |
 | [TASK-M56](#task-m56) | True per-player roles (LB/CB/CDM…) + alt-positions & foot         | ✅ Done        | P2       | L   |
-| [TASK-M69](#task-m69) | Danny Ward same-person id-collapse (emrey-era, deferred)          | 📋 Ready       | P3       | M   |
+| [TASK-M69](#task-m69) | Danny Ward same-person id-collapse (emrey-era)                    | ✅ Done        | P3       | M   |
 | [TASK-M57](#task-m57) | Backfill historical advanced player stats (2003/04–2016/17)       | ✅ Done        | P2       | M   |
 | [TASK-M58](#task-m58) | Search-engine verification tags + indexing-friendly metadata      | ✅ Done        | P2       | S   |
 | [TASK-M59](#task-m59) | Speed Insights observability (Analytics already shipped)          | ✅ Done        | P3       | XS  |
@@ -7022,11 +7022,11 @@ The player profile (`/players/[id]`) renders only 14 of the 66 stat fields the S
 
 ### TASK-M69
 
-**Danny Ward same-person id-collapse (emrey-era)** · 📋 Ready · `P3` · `M` · Type: Data cleanup
+**Danny Ward same-person id-collapse (emrey-era)** · ✅ Done · `P3` · `M` · Type: Data cleanup
 
 **Context** — Danny Ward b.1990 (English, TM 124172) exists under TWO app ids: `1003560` (Bolton 2009, legacy era) and `1000342` (Cardiff 2018, emrey era). His DATA is now correct on both (TASK-M56 fixed `1000342` → England / 1990-12-09), but they remain two profiles for one person. `1000343` = the Welsh GK b.1993 (a different person — leave it).
 
-**Why deferred** — the split spans the **emrey era**, which resolves identity directly from `normalizeName|birthYear` each sync and has **no source-key re-point map** (unlike SDP `player-keys-sdp.json` / legacy `player-keys-legacy.json` that `fix-same-person-splits.ts` re-points). An in-place id rewrite of the 2018 row reverts on the next cron. A durable collapse needs a new **emrey same-person map** (`emrey key → keep-key`) threaded into `transformPlayers`, plus audit handling (the merged id would carry two birth years → `audit:id-collisions` implications). Low urgency — the visible data is already correct.
+**Resolution** (shipped — pipeline PR #18) — a new committed **emrey same-person map** (`pipeline-data/player-keys-emrey.json`, `danny ward|1991 → danny ward|1990`) now re-points the emrey key at **resolve time**, threaded through the pipeline's `parseSeasonRows` choke point. The Cardiff rows resolve to the kept **legacy id `1003560`** every sync; the emrey key `1000342` stays an inert orphan (append-only registry preserved, `buildBirthYearIndex` single-valued). The Welsh GK `1000343` is untouched, and the name-based `audit:id-collisions` is unaffected (Danny Ward → Danny Ward, no new cluster). Background on why it needed new machinery: the split spans the **emrey era**, which resolves identity directly from `normalizeName|birthYear` each sync with **no source-key re-point map** (unlike SDP/legacy, which `fix-same-person-splits.ts` re-points), so an in-place row rewrite would revert on the next cron.
 
 ---
 
