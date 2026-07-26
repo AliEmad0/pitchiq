@@ -8,27 +8,28 @@ A phased, ticket-level breakdown of the work required to ship **PitchIQ**. Each 
 
 ### Ticket ID prefixes
 
-| Phase                                                                                    | Prefix      | Scope                                                                             |
-| ---------------------------------------------------------------------------------------- | ----------- | --------------------------------------------------------------------------------- |
-| [Phase 0 — Foundation](#-phase-0--foundation)                                            | `TASK-00x`  | CI/CD, deploy, observability, shared test infra, quota guard                      |
-| [Phase 1 — Layout](#-phase-1--layout)                                                    | `TASK-1xx`  | Global app shell, navigation, theming, error/loading boundaries                   |
-| [Phase 2 — Dashboard](#-phase-2--dashboard)                                              | `TASK-2xx`  | Live standings table, top scorers/assists/cards, fixtures panel, match detail     |
-| [Phase 3 — Team Profile](#-phase-3--team-profile)                                        | `TASK-3xx`  | `/teams` index + `/teams/[id]` dynamic SSR routes                                 |
-| [Phase 4 — Comparison Tool](#-phase-4--the-comparison-tool)                              | `TASK-4xx`  | `/compare` — head-to-head player benchmark engine                                 |
-| [Phase 5 — Data Migration](#-phase-5--data-migration)                                    | `TASK-5xx`  | Replace the legacy provider with committed JSON snapshots + daily sync cron       |
-| [Phase 6 — Premium UX](#-phase-6--premium-ux-polish-post-mvp-v03)                        | `TASK-6xx`  | Player images, suggested-players UX, standings colour-coding, nav sweeps          |
-| [Phase 7 — Multi-season](#-phase-7--modern-multi-season-history-2017-18--2023-24)        | `TASK-7xx`  | Activate 2017-18 → 2023-24, season switcher, stable player ids, empty states      |
-| [Phase 8 — Ancient history](#-phase-8--ancient-history--photo-coverage-1992-93--2016-17) | `TASK-8xx`  | 1992-93 → 2016-17 (standings + fixtures) + an external reference photo enrichment |
-| [Phase 9 — Discoverability](#-phase-9--discoverability--perf-polish--visual-identity)    | `TASK-9xx`  | SEO/perf polish + Premier-League visual identity refresh                          |
-| [Phase 10 — Lineup feature](#-phase-10--lineup-feature-research-driven)                  | `TASK-10xx` | Research-driven match lineup + events surface                                     |
-| [Phase 11 — Trivia](#-phase-11--trivia-engagement-layer)                                 | `TASK-11xx` | Trivia engagement layer                                                           |
-| [Phase 12 — 2025-26 season](#-phase-12--2025-26-season-activation-p-b)                   | `TASK-12xx` | Activate the 2025-26 season (P-B) — an external source + upstream data            |
-| [Phase 13 — Match enrich](#-phase-13--match-detail-enrichment-p-c)                       | `TASK-13xx` | Half-time scores + referee on fixture detail (P-C)                                |
-| [Phase 14 — Historical players](#-phase-14--historical-players-p-d)                      | `TASK-14xx` | Player stats + leaderboards for the older seasons (P-D)                           |
-| [Phase 15 — Full redesign](#-phase-15--full-redesign)                                    | `TASK-15xx` | Per-page UI/UX redesign + responsive overhaul + shared shell                      |
-| [Phase 16 — Internationalization](#-phase-16--internationalization)                      | `TASK-16xx` | Multi-language (English + Arabic / RTL) via next-intl                             |
-| [Phase 17 — Animations](#-phase-17--animations)                                          | `TASK-17xx` | Game-like loading screen + page / entrance / micro animations (hybrid)            |
-| [Micro-improvements](#-micro-improvements-no-phase--pick-anytime)                        | `TASK-Mxx`  | No-phase polish items, pick anytime                                               |
+| Phase                                                                                     | Prefix      | Scope                                                                                 |
+| ----------------------------------------------------------------------------------------- | ----------- | ------------------------------------------------------------------------------------- |
+| [Phase 0 — Foundation](#-phase-0--foundation)                                             | `TASK-00x`  | CI/CD, deploy, observability, shared test infra, quota guard                          |
+| [Phase 1 — Layout](#-phase-1--layout)                                                     | `TASK-1xx`  | Global app shell, navigation, theming, error/loading boundaries                       |
+| [Phase 2 — Dashboard](#-phase-2--dashboard)                                               | `TASK-2xx`  | Live standings table, top scorers/assists/cards, fixtures panel, match detail         |
+| [Phase 3 — Team Profile](#-phase-3--team-profile)                                         | `TASK-3xx`  | `/teams` index + `/teams/[id]` dynamic SSR routes                                     |
+| [Phase 4 — Comparison Tool](#-phase-4--the-comparison-tool)                               | `TASK-4xx`  | `/compare` — head-to-head player benchmark engine                                     |
+| [Phase 5 — Data Migration](#-phase-5--data-migration)                                     | `TASK-5xx`  | Replace the legacy provider with committed JSON snapshots + daily sync cron           |
+| [Phase 6 — Premium UX](#-phase-6--premium-ux-polish-post-mvp-v03)                         | `TASK-6xx`  | Player images, suggested-players UX, standings colour-coding, nav sweeps              |
+| [Phase 7 — Multi-season](#-phase-7--modern-multi-season-history-2017-18--2023-24)         | `TASK-7xx`  | Activate 2017-18 → 2023-24, season switcher, stable player ids, empty states          |
+| [Phase 8 — Ancient history](#-phase-8--ancient-history--photo-coverage-1992-93--2016-17)  | `TASK-8xx`  | 1992-93 → 2016-17 (standings + fixtures) + an external reference photo enrichment     |
+| [Phase 9 — Discoverability](#-phase-9--discoverability--perf-polish--visual-identity)     | `TASK-9xx`  | SEO/perf polish + Premier-League visual identity refresh                              |
+| [Phase 10 — Lineup feature](#-phase-10--lineup-feature-research-driven)                   | `TASK-10xx` | Research-driven match lineup + events surface                                         |
+| [Phase 11 — Trivia](#-phase-11--trivia-engagement-layer)                                  | `TASK-11xx` | Trivia engagement layer                                                               |
+| [Phase 12 — 2025-26 season](#-phase-12--2025-26-season-activation-p-b)                    | `TASK-12xx` | Activate the 2025-26 season (P-B) — an external source + upstream data                |
+| [Phase 13 — Match enrich](#-phase-13--match-detail-enrichment-p-c)                        | `TASK-13xx` | Half-time scores + referee on fixture detail (P-C)                                    |
+| [Phase 14 — Historical players](#-phase-14--historical-players-p-d)                       | `TASK-14xx` | Player stats + leaderboards for the older seasons (P-D)                               |
+| [Phase 15 — Full redesign](#-phase-15--full-redesign)                                     | `TASK-15xx` | Per-page UI/UX redesign + responsive overhaul + shared shell                          |
+| [Phase 16 — Internationalization](#-phase-16--internationalization)                       | `TASK-16xx` | Multi-language (English + Arabic / RTL) via next-intl                                 |
+| [Phase 17 — Animations](#-phase-17--animations)                                           | `TASK-17xx` | Game-like loading screen + page / entrance / micro animations (hybrid)                |
+| [Phase 18 — In-app football simulation game](#-phase-18--in-app-football-simulation-game) | `TASK-18xx` | Squad-draft football sim: seeded match engine, commentary, tactical pitch, game modes |
+| [Micro-improvements](#-micro-improvements-no-phase--pick-anytime)                         | `TASK-Mxx`  | No-phase polish items, pick anytime                                                   |
 
 ### Status
 
