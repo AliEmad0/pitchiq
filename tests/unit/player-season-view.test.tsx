@@ -25,6 +25,10 @@ function profile(id: number, name: string): PlayerProfile {
     nationality: null,
     nationalityCode: null,
     isCaptain: false,
+    role: null,
+    altRoles: [],
+    foot: null,
+    height: null,
     metrics: [] as unknown as PlayerProfile["metrics"],
   };
 }
