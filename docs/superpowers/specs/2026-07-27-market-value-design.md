@@ -37,39 +37,66 @@ Findings that shape the design:
   bogus €0 point at the end of their chart.
 - **Coverage starts ~2004.** Henry's history begins at `seasonId 2004` — his 1999–2003 Arsenal years have
   no value at all. Our 1992-93 → 2003-04 seasons therefore get nothing.
-- **Volume:** 5,437 players in `player-tm-ids.json`, averaging 16.4 points each ≈ **89,000 points, ~3.5 MB**
-  as compact JSON.
+- **Volume (as built):** 5,437 players in `player-tm-ids.json` → **4,354 with values, 84,299 points**
+  (~19.4 each). The 1,080 with none are genuine — TM's history starts ~2004, so most pre-2004 careers
+  are empty. Minified, the full history is 5.0 MB.
 
 ## 3. Data file layout — two files, split by access pattern
 
-The 3.5 MB figure drives this. `/players/[id]` is ISR (`revalidate = 86400` + `generateStaticParams`), but
-the season swap goes through the **dynamic** `/api/players/[id]/profile` route, and `/players` + `/compare`
-are also request-time. Handing a 3.5 MB parse to those paths is how the Fluid Active-CPU regressions in
-PR #35 and PR #40 happened. So:
+The size of the history file drives this. `/players/[id]` is ISR (`revalidate = 86400` +
+`generateStaticParams`), but the season swap goes through the **dynamic** `/api/players/[id]/profile` route,
+and `/players` + `/compare` are also request-time. Handing a multi-MB parse to those paths is how the Fluid
+Active-CPU regressions in PR #35 and PR #40 happened. So:
 
-| File                             | Shape                                                            | Size    | Read by                                                                                   |
-| -------------------------------- | ---------------------------------------------------------------- | ------- | ----------------------------------------------------------------------------------------- |
-| `data/market-values.json`        | `season → ourId → { valueEur, determined }` (**last-of-season**) | ~600 KB | profile headline, `/players` column + sort, `/compare` row, the dynamic season-swap route |
-| `data/market-value-history.json` | `ourId → [ { season, valueEur, determined } ]` (**all points**)  | ~3.5 MB | **only** the ISR'd `/players/[id]` render, for the strip                                  |
+| File                             | Shape                                                            | Size       | Read by                                                                                   |
+| -------------------------------- | ---------------------------------------------------------------- | ---------- | ----------------------------------------------------------------------------------------- |
+| `data/market-values.json`        | `season → ourId → { valueEur, determined }` (**last-of-season**) | **624 KB** | profile headline, `/players` column + sort, `/compare` row, the dynamic season-swap route |
+| `data/market-value-history.json` | `ourId → [ { season, valueEur, determined } ]` (**all points**)  | **5.0 MB** | **only** the ISR'd `/players/[id]` render, for the strip                                  |
 
-Accepted cost: the ~12k last-of-season points are duplicated between the two files. Rejected alternatives:
+Sizes are the **as-built** figures (4,354 players / 84,299 points), not estimates.
+
+### 3.1 The season map is CLIPPED to app player-seasons — and must be
+
+TM stores a player's **whole career**, so building the season map from the raw crawl yields **39,699**
+entries — of which only **11,128 (28%)** correspond to a season the app actually holds a player row for. The
+other **72% are non-PL seasons** (Salah at Basel, Henry at Monaco). Every consumer of this file reads it
+season-scoped against seasons we cover, so those entries are unusable — and they take the file from 624 KB to
+**2.2 MB, on every request-time path**. That is precisely the shape behind the #35/#40 CPU regressions, so
+the clip is a correctness requirement, not a size optimisation.
+
+The clip runs **at apply time in the public repo** (`apply-market-values.ts`, given a checkout path), not in
+the builder: the clip needs `players-*.json`, and the pipeline should not depend on a public-repo file.
+This mirrors `applyPlayerRoles`, which likewise runs where public data exists. It also means a data refresh
+reproduces the clip instead of silently re-inflating the file.
+
+The **full career is preserved** in `market-value-history.json` — that is what the chart reads, so nothing
+is lost by clipping the season map.
+
+Accepted cost: the 11,128 last-of-season points are duplicated across the two files. Rejected alternatives:
 
 - **One history file, derive the season index at load** — no duplication, but every request-time surface
-  parses 89k objects to read one number.
+  parses 84k objects to read one number.
 - **Season-sharded files** (`market-values-<season>.json`) — matches the `players-<year>.json` convention,
-  but the career strip would need all 22 shards on the profile page, which is exactly the bug PR #40 fixed.
+  but the career strip would need all 23 shards on the profile page, which is exactly the bug PR #40 fixed.
 
-Both new files are **writer-owned** (`writeJsonStable`) and **must be added to `.prettierignore`**, alongside
-`data/player-history-stats.json` and `data/search-index.json`. Without that, prettier reformats them and the
-cron produces a noise diff on every run.
+Both files are **writer-owned** and written **minified** via `writeJsonStableMin` (the `lineups-*.json`
+policy) — pretty-printing cost 3.2 MB / 7.8 MB for no review benefit. They **must be added to
+`.prettierignore`** (`data/market-value*.json` — note the glob must not be `market-values*.json`, which
+misses the history file), alongside `data/player-history-stats.json` and `data/search-index.json`. Without
+that, prettier re-inflates them ~1.5× and every re-apply produces a prettier-vs-writer diff.
 
 ## 4. Pipeline — `build-market-values.ts`
 
 - New script, exposed as `pnpm sync:data:market-values`. Builds on M56's existing
   `pipeline-data/player-tm-ids.json` (`name|birthYear → tmId`); **no new id resolution**.
 - For each mapped tmId: fetch the history, filter (`seasonId >= 1990 && marketValue.value > 0`), sort by
-  `determined`, and write both output files.
+  `determined`, and write **the history file only** — the clipped season map is derived later by
+  `apply-market-values.ts` (§3.1).
 - **Throttled (~900 ms), cached, resumable, idempotent** — the same discipline as `tm-roles-scrape.ts`.
+  The fetch **retries 3× with backoff**, like `fetchTmHtml`: the endpoint emits sporadic `502`s under a
+  sustained crawl (~2% of requests), and without retries the builder cannot distinguish "TM has no history
+  for this player" from "TM briefly fell over" — in the first crawl that silently filed **102 players** as
+  having no data. A `404` returns immediately without burning retries.
 - **One-off, NOT the daily cron.** Values move slowly; refresh periodically like the roles and photo maps.
 - **Full career is stored** — including non-PL clubs and seasons. This is deliberate: Salah's rise from
   €25k at Mokawloon to €150m at Liverpool is the whole point of the chart, and clipping to our own seasons
