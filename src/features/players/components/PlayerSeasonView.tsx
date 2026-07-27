@@ -35,6 +35,7 @@ export function PlayerSeasonView({
   initialSeason,
   displayName,
   clubLogos,
+  careerBlock,
   children,
 }: {
   playerId: number;
@@ -42,15 +43,24 @@ export function PlayerSeasonView({
   initialSeason: number;
   displayName: string;
   clubLogos: ClubLogosFile | null;
+  /**
+   * TASK-M68: season-INVARIANT content (the career market-value block) rendered
+   * below the season subtree and never replaced by a season swap. It is a
+   * separate slot precisely so the 5 MB market-value history is parsed only in
+   * the ISR'd server render, never by the dynamic `/api/players/[id]/profile`
+   * path that drives the swap.
+   */
+  careerBlock?: ReactNode;
   children: ReactNode;
 }) {
   const t = useTranslations("players");
   const locale = useLocale();
 
   const [season, setSeason] = useState(initialSeason);
-  const [swapped, setSwapped] = useState<{ profile: PlayerProfile | null; facts: TriviaFact[] } | null>(
-    null,
-  );
+  const [swapped, setSwapped] = useState<{
+    profile: PlayerProfile | null;
+    facts: TriviaFact[];
+  } | null>(null);
   const [loading, setLoading] = useState(false);
 
   // Honour a `?season=` deep link on mount (client-only; runs AFTER hydration so
@@ -108,13 +118,20 @@ export function PlayerSeasonView({
           <PlayerHero player={swapped.profile} season={season} />
           <PlayerSeasonStats metrics={swapped.profile.metrics} />
           {swapped.profile.splits && (
-            <PlayerSeasonSplits splits={swapped.profile.splits} season={season} clubLogos={clubLogos} />
+            <PlayerSeasonSplits
+              splits={swapped.profile.splits}
+              season={season}
+              clubLogos={clubLogos}
+            />
           )}
           {swapped.facts.length > 0 && <TriviaCard facts={swapped.facts} className="mt-10!" />}
         </>
       ) : (
         <DataUnavailable
-          title={t("noSeasonData", { season: formatSeasonLabel(season, locale), name: displayName })}
+          title={t("noSeasonData", {
+            season: formatSeasonLabel(season, locale),
+            name: displayName,
+          })}
           message={t("noSeasonDataMsg", {
             name: displayName,
             season: formatSeasonLabel(season, locale),
@@ -126,6 +143,7 @@ export function PlayerSeasonView({
           }}
         />
       )}
+      {careerBlock}
     </main>
   );
 }

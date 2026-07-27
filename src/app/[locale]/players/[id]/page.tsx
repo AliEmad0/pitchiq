@@ -8,6 +8,7 @@ import { findPlayerSeasons, loadClubLogos, loadPlayers } from "@/data/loaders";
 import { getEntityNames } from "@/features/i18n/entity-names";
 import { getPlayerProfile } from "@/features/players/api";
 import { PlayerHero } from "@/features/players/components/PlayerHero";
+import { PlayerMarketValue } from "@/features/players/components/PlayerMarketValue";
 import { PlayerSeasonSplits } from "@/features/players/components/PlayerSeasonSplits";
 import { PlayerSeasonStats } from "@/features/players/components/PlayerSeasonStats";
 import { PlayerSeasonView } from "@/features/players/components/PlayerSeasonView";
@@ -120,13 +121,18 @@ export default async function PlayerProfilePage({ params }: Props) {
       initialSeason={initialSeason}
       clubLogos={clubLogos}
       displayName={displayName}
+      careerBlock={<PlayerMarketValue playerId={playerId} plSeasons={known.seasons} />}
     >
       {profile && (
         <>
           <PlayerHero player={profile} season={initialSeason} />
           <PlayerSeasonStats metrics={profile.metrics} />
           {profile.splits && (
-            <PlayerSeasonSplits splits={profile.splits} season={initialSeason} clubLogos={clubLogos} />
+            <PlayerSeasonSplits
+              splits={profile.splits}
+              season={initialSeason}
+              clubLogos={clubLogos}
+            />
           )}
           <Suspense fallback={null}>
             <TriviaSection
