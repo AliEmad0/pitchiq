@@ -5628,7 +5628,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-M55](#task-m55) | Returning-player splits (Kepa/Josh King) + auto birth years       | ✅ Done        | P1       | M   |
 | [TASK-M56](#task-m56) | True per-player roles (LB/CB/CDM…) + alt-positions & foot         | ✅ Done        | P2       | L   |
 | [TASK-M69](#task-m69) | Danny Ward same-person id-collapse (emrey-era)                    | ✅ Done        | P3       | M   |
-| [TASK-M70](#task-m70) | Surface player role / alt-roles / foot / height on the profile page | 📋 Ready       | P2       | M   |
+| [TASK-M70](#task-m70) | Surface player role / alt-roles / foot / height on the profile page | ✅ Done       | P2       | M   |
 | [TASK-M57](#task-m57) | Backfill historical advanced player stats (2003/04–2016/17)       | ✅ Done        | P2       | M   |
 | [TASK-M58](#task-m58) | Search-engine verification tags + indexing-friendly metadata      | ✅ Done        | P2       | S   |
 | [TASK-M59](#task-m59) | Speed Insights observability (Analytics already shipped)          | ✅ Done        | P3       | XS  |
@@ -7043,7 +7043,7 @@ Surface the Transfermarkt market value produced by the pipeline (TASK-M68 there 
 
 ### TASK-M70
 
-**Player role / alt-roles / foot / height on the profile page** · 📋 Ready · `P2` · `M` · Type: Data + UI
+**Player role / alt-roles / foot / height on the profile page** · ✅ Done · `P2` · `M` · Type: Data + UI
 
 TASK-M56 enriched every player with a **true positional role** (one of 13 — GK/RB/CB/LB/CDM/CM/CAM/RM/LM/RW/LW/SS/CF), **`altRoles`** (the secondary roles they can play — the game's `canPlay` vocabulary), **`foot`**, and **`height`** — all on `PlayerSchema`. But the public player page still shows only the coarse 4-value `position`. Surface the richer scouting data on `/players/[id]`.
 
