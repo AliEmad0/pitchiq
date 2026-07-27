@@ -16,17 +16,31 @@ import {
 } from "@/components/ui/select";
 import { Flag } from "@/features/players/components/Flag";
 import { PlayerImage } from "@/features/players/components/PlayerImage";
+import { formatMarketValue } from "@/features/players/market-value";
 import type { PlayerIndexRow, PlayerPosition } from "@/features/players/players-index.api";
 import { cn } from "@/utils/cn";
 import { localizeDigits } from "@/utils/format";
 import { revealProps } from "@/utils/reveal";
 import { formatSeasonLabel, withSeason } from "@/utils/season";
 
-const SORT_KEYS = ["contributions", "goals", "assists", "appearances", "name"] as const;
+// TASK-M68 added `marketValue`. `contributions` stays the DEFAULT: market value
+// is the truer "most valuable" measure, but no player has one before ~2004, so
+// defaulting to it would leave a dozen seasons sorted arbitrarily.
+const SORT_KEYS = [
+  "contributions",
+  "marketValue",
+  "goals",
+  "assists",
+  "appearances",
+  "name",
+] as const;
 export type SortKey = (typeof SORT_KEYS)[number];
+/** The numeric row fields that sort with a plain descending compare. */
+type NumericSortKey = Exclude<SortKey, "name" | "marketValue">;
 // Translation-key maps (labels localized via the `players` catalog, TASK-1603).
 const SORT_LABEL_KEY: Record<SortKey, string> = {
   contributions: "gaAbbr",
+  marketValue: "sortMarketValue",
   goals: "sortGoals",
   assists: "sortAssists",
   appearances: "apps",
@@ -66,7 +80,23 @@ export function sortPlayerRows(rows: PlayerIndexRow[], key: SortKey): PlayerInde
   const out = [...rows];
   const byName = (a: PlayerIndexRow, b: PlayerIndexRow) => a.name.localeCompare(b.name);
   if (key === "name") out.sort(byName);
-  else out.sort((a, b) => b[key] - a[key] || b.goals - a.goals || byName(a, b));
+  else if (key === "marketValue")
+    // Unvalued players sink, always. No Transfermarkt match means UNKNOWN, not
+    // worthless, so a null must never outrank a real valuation — and treating
+    // it as 0 would also put it above nothing meaningful anyway.
+    out.sort((a, b) => {
+      const av = a.marketValueEur;
+      const bv = b.marketValueEur;
+      if (av === null || bv === null) {
+        if (av === bv) return byName(a, b);
+        return av === null ? 1 : -1;
+      }
+      return bv - av || byName(a, b);
+    });
+  else {
+    const numeric = key as NumericSortKey;
+    out.sort((a, b) => b[numeric] - a[numeric] || b.goals - a.goals || byName(a, b));
+  }
   return out;
 }
 
@@ -231,6 +261,7 @@ export function PlayersTable({ rows, season }: { rows: PlayerIndexRow[]; season:
                   <th className="px-2 py-2 text-end">{t("colGoals")}</th>
                   <th className="px-2 py-2 text-end">{t("colAssists")}</th>
                   <th className="px-2 py-2 text-end font-semibold">{t("gaAbbr")}</th>
+                  <th className="px-2 py-2 text-end">{t("colMarketValue")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -287,6 +318,17 @@ export function PlayersTable({ rows, season }: { rows: PlayerIndexRow[]; season:
                     </td>
                     <td className="text-primary px-2 py-2 text-end font-bold tabular-nums">
                       {localizeDigits(r.contributions, locale)}
+                    </td>
+                    <td className="text-muted-foreground px-2 py-2 text-end tabular-nums">
+                      {r.marketValueEur === null
+                        ? "—"
+                        : localizeDigits(
+                            formatMarketValue(r.marketValueEur, {
+                              k: t("mvUnitK"),
+                              m: t("mvUnitM"),
+                            }),
+                            locale,
+                          )}
                     </td>
                   </tr>
                 ))}

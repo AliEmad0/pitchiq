@@ -10,6 +10,13 @@ import {
 } from "@/features/players/comparison-metrics";
 import { compareOgImagePath } from "@/app/api/og/compare-card";
 import { DataUnavailable } from "@/components/DataUnavailable";
+import { loadMarketValues } from "@/data/loaders";
+import type { MarketValueFile } from "@/data/schemas";
+import {
+  formatMarketValue,
+  marketValueForSeason,
+  peakMarketValue,
+} from "@/features/players/market-value";
 import { ComparisonRadarLazy } from "@/features/players/components/ComparisonRadarLazy";
 import { CopyCompareLink } from "@/features/players/components/CopyCompareLink";
 import { PlayerSlotPicker } from "@/features/players/components/PlayerSlotPicker";
@@ -67,7 +74,17 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
 
 // A slot resolved to its display name + metrics + a season label ("2024-25"
 // for a single season, "Career 2003–2018" for the "All seasons" aggregate).
-type Resolved = { player: Player; metrics: ComparisonMetrics; label: string };
+type Resolved = {
+  player: Player;
+  metrics: ComparisonMetrics;
+  label: string;
+  /**
+   * TASK-M68: the slot's market value — that season's figure, or the career
+   * PEAK for an `?sa=all` slot. Read from the clipped season map; `/compare`
+   * is request-time, so the 5 MB history file is off limits here.
+   */
+  marketValueEur: number | null;
+};
 
 // Resolve one slot: a single season → `getPlayerStats`; "all" → the career
 // aggregate. Returns null when the player has no data for the chosen season.
@@ -77,6 +94,7 @@ async function resolveSlot(
   slotSeason: SlotSeason,
   careerLabel: (from: number, to: number) => string,
   locale: string,
+  marketValues: MarketValueFile | null,
 ): Promise<Resolved | null> {
   if (slotSeason === "all") {
     const career = await getPlayerCareer(id);
@@ -85,6 +103,9 @@ async function resolveSlot(
       player: career.player,
       metrics: career.metrics,
       label: careerLabel(career.span.from, career.span.to),
+      // A career slot shows the PEAK. Summing valuations would be meaningless,
+      // and null would waste the row on the page's most interesting comparison.
+      marketValueEur: peakMarketValue(marketValues, id),
     };
   }
   const stats = await getPlayerStats(id, slotSeason);
@@ -93,6 +114,7 @@ async function resolveSlot(
     player: stats.player,
     metrics: stats.metrics,
     label: formatSeasonLabel(slotSeason, locale),
+    marketValueEur: marketValueForSeason(marketValues, slotSeason, id),
   };
 }
 
@@ -140,9 +162,12 @@ export default async function ComparePage({ params, searchParams }: Props) {
   let bData: Resolved | null = null;
 
   if (aId !== null && bId !== null) {
+    // One read shared by both slots — the CLIPPED season map (624 KB), never
+    // the history file: this page is request-time.
+    const marketValues = await loadMarketValues();
     [aData, bData] = await Promise.all([
-      resolveSlot(aId, saSeason, careerLabel, locale),
-      resolveSlot(bId, sbSeason, careerLabel, locale),
+      resolveSlot(aId, saSeason, careerLabel, locale, marketValues),
+      resolveSlot(bId, sbSeason, careerLabel, locale, marketValues),
     ]);
   }
 
@@ -189,6 +214,9 @@ export default async function ComparePage({ params, searchParams }: Props) {
 function ComparisonView({ a, b }: { a: Resolved; b: Resolved }) {
   const t = useTranslations("compare");
   const tm = useTranslations("metrics");
+  // TASK-M68 market-value keys live in the `players` namespace (shared with the
+  // profile block), not `metrics`.
+  const tp = useTranslations("players");
   // TASK-M24: pairwise radar baseline — each axis is normalized against the
   // larger of the two players' own values, so the chart is coherent for any
   // mix of seasons / careers. Always computable, so the radar always renders.
@@ -263,6 +291,17 @@ function ComparisonView({ a, b }: { a: Resolved; b: Resolved }) {
             a={a.metrics.xa ?? null}
             b={b.metrics.xa ?? null}
             format={(n) => n.toFixed(1)}
+          />
+        )}
+        {/* TASK-M68: market value — era-sparse in the same way (Transfermarkt's
+            history starts ~2004) and absent for unmatched players, so it renders
+            only when at least one slot carries a value. */}
+        {(a.marketValueEur != null || b.marketValueEur != null) && (
+          <StatRow
+            label={tp("marketValue")}
+            a={a.marketValueEur}
+            b={b.marketValueEur}
+            format={(n) => formatMarketValue(n, { k: tp("mvUnitK"), m: tp("mvUnitM") })}
           />
         )}
         {/* TASK-M18: clean sheets (~2000-01+) + GK saves (~2006-07+), shown only

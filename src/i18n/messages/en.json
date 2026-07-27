@@ -358,6 +358,8 @@
     "heightCm": "{cm, number} cm",
     "heightLabel": "Height",
     "marketValue": "Market value",
+    "sortMarketValue": "Market value",
+    "colMarketValue": "Value",
     "mvUnitK": "k",
     "mvUnitM": "m",
     "mvAsOf": "as of {date}",

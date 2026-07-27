@@ -22,6 +22,14 @@ vi.mock("@/features/players/api", async (importActual) => {
   };
 });
 
+// TASK-M68: only the market-value loader is stubbed — everything else on the
+// page keeps reading the committed snapshots.
+vi.mock("@/data/loaders", async (importActual) => {
+  const actual = await importActual<typeof import("@/data/loaders")>();
+  return { ...actual, loadMarketValues: vi.fn(async () => null) };
+});
+
+import { loadMarketValues } from "@/data/loaders";
 import { getPlayerStats, getPlayerCareer } from "@/features/players/api";
 import ComparePage from "@/app/[locale]/compare/page";
 import type { ComparisonMetrics } from "@/types/api";
@@ -95,6 +103,66 @@ describe("/compare page", () => {
     // Default mocks — individual tests override.
     vi.mocked(getPlayerStats).mockResolvedValue(null);
     vi.mocked(getPlayerCareer).mockResolvedValue(null);
+  });
+
+  it("renders a market-value row when a slot has a value (TASK-M68)", async () => {
+    vi.mocked(loadMarketValues).mockResolvedValue({
+      "2025": {
+        "1485": { valueEur: 45_000_000, determined: "2026-05-01" },
+        "1927": { valueEur: 90_000_000, determined: "2026-05-01" },
+      },
+    });
+    vi.mocked(getPlayerStats)
+      .mockResolvedValueOnce(playerWithMetrics(1485, "Bruno Fernandes"))
+      .mockResolvedValueOnce(playerWithMetrics(1927, "Bukayo Saka"));
+
+    const element = await ComparePage({
+      params: Promise.resolve({ locale: "en" }),
+      searchParams: Promise.resolve({ a: "1485", b: "1927" }),
+    });
+    renderPage(element, "?a=1485&b=1927");
+
+    expect(screen.getByText("Market value")).toBeInTheDocument();
+    expect(screen.getByText("€45m")).toBeInTheDocument();
+    expect(screen.getByText("€90m")).toBeInTheDocument();
+  });
+
+  it("omits the market-value row when neither slot has one (TASK-M68)", async () => {
+    // Era-sparse, like the xG/xA rows: Transfermarkt's history starts ~2004.
+    vi.mocked(loadMarketValues).mockResolvedValue({});
+    vi.mocked(getPlayerStats)
+      .mockResolvedValueOnce(playerWithMetrics(1485, "Bruno Fernandes"))
+      .mockResolvedValueOnce(playerWithMetrics(1927, "Bukayo Saka"));
+
+    const element = await ComparePage({
+      params: Promise.resolve({ locale: "en" }),
+      searchParams: Promise.resolve({ a: "1485", b: "1927" }),
+    });
+    renderPage(element, "?a=1485&b=1927");
+
+    expect(screen.queryByText("Market value")).not.toBeInTheDocument();
+  });
+
+  it("shows the career PEAK for an ?sa=all slot (TASK-M68)", async () => {
+    vi.mocked(loadMarketValues).mockResolvedValue({
+      "2019": { "1485": { valueEur: 30_000_000, determined: "2020-05-01" } },
+      "2021": { "1485": { valueEur: 80_000_000, determined: "2022-05-01" } },
+      "2025": { "1927": { valueEur: 90_000_000, determined: "2026-05-01" } },
+    });
+    vi.mocked(getPlayerCareer).mockResolvedValueOnce({
+      ...playerWithMetrics(1485, "Bruno Fernandes"),
+      span: { from: 2019, to: 2025 },
+    } as unknown as Awaited<ReturnType<typeof getPlayerCareer>>);
+    vi.mocked(getPlayerStats).mockResolvedValueOnce(playerWithMetrics(1927, "Bukayo Saka"));
+
+    const element = await ComparePage({
+      params: Promise.resolve({ locale: "en" }),
+      searchParams: Promise.resolve({ a: "1485", sa: "all", b: "1927" }),
+    });
+    renderPage(element, "?a=1485&sa=all&b=1927");
+
+    // Peak across the career, not a sum and not the latest season.
+    expect(screen.getByText("€80m")).toBeInTheDocument();
   });
 
   it("renders the page header + two empty slot pickers when ?a/?b are absent", async () => {

@@ -358,6 +358,8 @@
     "heightCm": "{cm, number} سم",
     "heightLabel": "الطول",
     "marketValue": "القيمة السوقية",
+    "sortMarketValue": "القيمة السوقية",
+    "colMarketValue": "القيمة",
     "mvUnitK": "ألف",
     "mvUnitM": "م",
     "mvAsOf": "حتى {date}",

@@ -5,9 +5,10 @@ vi.mock("../../src/data/loaders", () => ({
   loadTeamColors: vi.fn(async () => null),
   loadPlayers: vi.fn(),
   loadTeams: vi.fn(),
+  loadMarketValues: vi.fn(async () => null),
 }));
 
-import { loadPlayers, loadTeams, loadTeamColors } from "../../src/data/loaders";
+import { loadPlayers, loadTeams, loadTeamColors, loadMarketValues } from "../../src/data/loaders";
 import { getSeasonPlayers, pickClubAccent } from "../../src/features/players/players-index.api";
 
 const mock = (fn: unknown) => fn as ReturnType<typeof vi.fn>;
@@ -114,6 +115,60 @@ describe("getSeasonPlayers", () => {
     mock(loadTeamColors).mockResolvedValue({ "40": { home: "#C8102E", away: "#F6EB61" } });
     const rows = await getSeasonPlayers(2024);
     expect(rows![0].teamColor).toBe("#C8102E");
+  });
+
+  it("joins each row's market value for the season, null when absent (TASK-M68)", async () => {
+    mock(loadPlayers).mockResolvedValue([
+      {
+        id: 1,
+        name: "Valued",
+        teamId: 40,
+        teamName: "Liverpool",
+        position: "Forward",
+        photo: "1",
+        nationality: "Egypt",
+        nationalityCode: "eg",
+        metrics: metrics({ goals: 1 }),
+      },
+      {
+        id: 2,
+        name: "Unmatched",
+        teamId: 40,
+        teamName: "Liverpool",
+        position: "Forward",
+        photo: "2",
+        nationality: "England",
+        nationalityCode: "gb-eng",
+        metrics: metrics({ goals: 0 }),
+      },
+    ]);
+    mock(loadTeamColors).mockResolvedValue(null);
+    mock(loadMarketValues).mockResolvedValue({
+      "2024": { "1": { valueEur: 45_000_000, determined: "2025-05-01" } },
+    });
+    const rows = await getSeasonPlayers(2024);
+    expect(rows!.find((r) => r.id === 1)!.marketValueEur).toBe(45_000_000);
+    expect(rows!.find((r) => r.id === 2)!.marketValueEur).toBeNull();
+  });
+
+  it("leaves every value null when the market-value map is absent (TASK-M68)", async () => {
+    mock(loadPlayers).mockResolvedValue([
+      {
+        id: 1,
+        name: "Striker",
+        teamId: 40,
+        teamName: "Liverpool",
+        position: "Forward",
+        photo: "1",
+        nationality: "Egypt",
+        nationalityCode: "eg",
+        metrics: metrics({ goals: 1 }),
+      },
+    ]);
+    mock(loadTeamColors).mockResolvedValue(null);
+    mock(loadMarketValues).mockResolvedValue(null);
+    const rows = await getSeasonPlayers(2024);
+    expect(rows![0].marketValueEur).toBeNull();
   });
 });
 
