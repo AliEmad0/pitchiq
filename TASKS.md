@@ -5627,8 +5627,6 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-M54](#task-m54) | Season-accurate club crests (historical logo per era)             | ✅ Done        | P3       | XL  |
 | [TASK-M55](#task-m55) | Returning-player splits (Kepa/Josh King) + auto birth years       | ✅ Done        | P1       | M   |
 | [TASK-M56](#task-m56) | True per-player roles (LB/CB/CDM…) + alt-positions & foot         | ✅ Done        | P2       | L   |
-| [TASK-M69](#task-m69) | Danny Ward same-person id-collapse (emrey-era)                    | ✅ Done        | P3       | M   |
-| [TASK-M70](#task-m70) | Surface player role / alt-roles / foot / height on the profile page | ✅ Done       | P2       | M   |
 | [TASK-M57](#task-m57) | Backfill historical advanced player stats (2003/04–2016/17)       | ✅ Done        | P2       | M   |
 | [TASK-M58](#task-m58) | Search-engine verification tags + indexing-friendly metadata      | ✅ Done        | P2       | S   |
 | [TASK-M59](#task-m59) | Speed Insights observability (Analytics already shipped)          | ✅ Done        | P3       | XS  |
@@ -5641,6 +5639,8 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-M66](#task-m66) | Extend the 66-stat history to 2017-18 → 2025-26 (cron-safe)       | ✅ Done        | P2       | L   |
 | [TASK-M67](#task-m67) | Category icons for the stat accordion (replace colored dots)      | ✅ Done        | P3       | S   |
 | [TASK-M68](#task-m68) | Player market value (Transfermarkt) — schema + loader + UI        | 📋 Ready       | P2       | M   |
+| [TASK-M69](#task-m69) | Danny Ward same-person id-collapse (emrey-era)                    | ✅ Done        | P3       | M   |
+| [TASK-M70](#task-m70) | Surface player role / alt-roles / foot / height on the profile page | ✅ Done       | P2       | M   |
 
 ### TASK-M01
 
@@ -7021,16 +7021,6 @@ The player profile (`/players/[id]`) renders only 14 of the 66 stat fields the S
 
 **Done** (pitchiq#21): each accordion category header shows a lucide icon tinted with the category accent (Playing time → clock, Shooting → target, …), replacing the plain colored dot. **Follow-up** (pitchiq#27): the header colour-wash now respects RTL and no longer flashes when switching en↔ar on a player page.
 
-### TASK-M69
-
-**Danny Ward same-person id-collapse (emrey-era)** · ✅ Done · `P3` · `M` · Type: Data cleanup
-
-**Context** — Danny Ward b.1990 (English, TM 124172) exists under TWO app ids: `1003560` (Bolton 2009, legacy era) and `1000342` (Cardiff 2018, emrey era). His DATA is now correct on both (TASK-M56 fixed `1000342` → England / 1990-12-09), but they remain two profiles for one person. `1000343` = the Welsh GK b.1993 (a different person — leave it).
-
-**Resolution** (shipped — pipeline PR #18) — a new committed **emrey same-person map** (`pipeline-data/player-keys-emrey.json`, `danny ward|1991 → danny ward|1990`) now re-points the emrey key at **resolve time**, threaded through the pipeline's `parseSeasonRows` choke point. The Cardiff rows resolve to the kept **legacy id `1003560`** every sync; the emrey key `1000342` stays an inert orphan (append-only registry preserved, `buildBirthYearIndex` single-valued). The Welsh GK `1000343` is untouched, and the name-based `audit:id-collisions` is unaffected (Danny Ward → Danny Ward, no new cluster). Background on why it needed new machinery: the split spans the **emrey era**, which resolves identity directly from `normalizeName|birthYear` each sync with **no source-key re-point map** (unlike SDP/legacy, which `fix-same-person-splits.ts` re-points), so an in-place row rewrite would revert on the next cron.
-
----
-
 ### TASK-M68
 
 **Player market value — schema + loader + UI** · 📋 Ready · `P2` · `M` · Type: Data + UI
@@ -7038,6 +7028,16 @@ The player profile (`/players/[id]`) renders only 14 of the 66 stat fields the S
 Surface the Transfermarkt market value produced by the pipeline (TASK-M68 there → committed `data/market-values.json`, `season → ourId → { valueEur, determined }`; the pipeline builds it on top of M56's existing `player-tm-ids.json`). Add `MarketValueFileSchema` to `src/data/schemas.ts` + `loadMarketValues(season)` to `src/data/loaders.ts`, then read-time-join onto: the **player profile** `/players/[id]` (a "Market value €Xm (as of {date})" line + optional MV-history sparkline), the **players index** `/players` (an MV column + a "most valuable by market value" sort — supersedes the M50 goals+assists proxy where a value exists), **compare** `/compare` (an MV `<StatRow>`), and optionally a **"Most valuable" leaderboard**. **Null-graceful** — pre-2004 seasons + unmatched players render "—"/omit (the existing null-metric pattern). EUR formatting is locale-aware (en/ar, RTL-safe). Additive — no churn where a value is absent.
 
 **⚠️ Coverage caveat + ToS/posture: see the pipeline TASK-M68.** TM market values only exist from ~2004 (so our 1992-93 → 2003-04 seasons show no value), and the data is TM's proprietary editorial estimate via their internal API — the owner-approved third-party stance (as with TM photos) needs an **explicit sign-off** before shipping.
+
+---
+
+### TASK-M69
+
+**Danny Ward same-person id-collapse (emrey-era)** · ✅ Done · `P3` · `M` · Type: Data cleanup
+
+**Context** — Danny Ward b.1990 (English, TM 124172) exists under TWO app ids: `1003560` (Bolton 2009, legacy era) and `1000342` (Cardiff 2018, emrey era). His DATA is now correct on both (TASK-M56 fixed `1000342` → England / 1990-12-09), but they remain two profiles for one person. `1000343` = the Welsh GK b.1993 (a different person — leave it).
+
+**Resolution** (shipped — pipeline PR #18) — a new committed **emrey same-person map** (`pipeline-data/player-keys-emrey.json`, `danny ward|1991 → danny ward|1990`) now re-points the emrey key at **resolve time**, threaded through the pipeline's `parseSeasonRows` choke point. The Cardiff rows resolve to the kept **legacy id `1003560`** every sync; the emrey key `1000342` stays an inert orphan (append-only registry preserved, `buildBirthYearIndex` single-valued). The Welsh GK `1000343` is untouched, and the name-based `audit:id-collisions` is unaffected (Danny Ward → Danny Ward, no new cluster). Background on why it needed new machinery: the split spans the **emrey era**, which resolves identity directly from `normalizeName|birthYear` each sync with **no source-key re-point map** (unlike SDP/legacy, which `fix-same-person-splits.ts` re-points), so an in-place row rewrite would revert on the next cron.
 
 ---
 
