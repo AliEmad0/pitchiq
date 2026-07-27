@@ -7029,6 +7029,10 @@ Surface the Transfermarkt market value produced by the pipeline (TASK-M68 there 
 
 **⚠️ Coverage caveat + ToS/posture: see the pipeline TASK-M68.** TM market values only exist from ~2004 (so our 1992-93 → 2003-04 seasons show no value), and the data is TM's proprietary editorial estimate via their internal API — the owner-approved third-party stance (as with TM photos) needs an **explicit sign-off** before shipping.
 
+**✅ Sign-off given 2026-07-27, and the DATA HAS LANDED** (pitchiq#49) — this ticket stays 📋 Ready because only the app half remains. Committed on `main`: `data/market-values.json` (**624 KB**, `season → ourId → { valueEur, determined }`, clipped to the player-seasons we hold — 11,128 entries) and `data/market-value-history.json` (**5.0 MB**, full career per player, 4,354 players / 84,299 valuations). **Do NOT re-run the crawl** — it is done and committed. Both are prettier-ignored (`data/market-value*.json`) and written minified; a reformat re-inflates them ~1.5×. 
+
+**Remaining (the app half), split into two plans so each is built against the real files:** (a) `MarketValueFileSchema` + `MarketValueHistoryFileSchema`, the two memoized loaders, and the market-value block on `/players/[id]` — the design is settled (heat strip with a value readout, change chip, per-cell values, hover trail; entrance = cascade + count-up + PL-underline draw; full design + the validated magenta ramp in the spec); (b) the `/players` MV column + sort and the `/compare` MV row. **The leaderboard is out of scope** (overlaps the `/players` sort). ⚠️ **The history file must never be read from a request-time path** — only the ISR'd player page; the season map is the one for `/players`, `/compare` and the dynamic season-swap route. ⚠️ The ISR'd HTML **must contain the real value, never `€0`** — the count-up animates from zero after hydration, and server-rendering `€0` would have crawlers index every player as worthless. Full design: `docs/superpowers/specs/2026-07-27-market-value-design.md`.
+
 ---
 
 ### TASK-M69
