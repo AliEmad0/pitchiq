@@ -6,6 +6,8 @@
  * Spec: docs/superpowers/specs/2026-07-27-market-value-design.md §6.
  */
 
+import type { MarketValueFile } from "@/data/schemas";
+
 /** One committed valuation from `market-value-history.json`. */
 export type MarketValuePoint = {
   season: number;
@@ -70,6 +72,37 @@ export function formatMarketValue(valueEur: number, units: MarketValueUnits): st
 
 function trimZero(text: string): string {
   return text.endsWith(".0") ? text.slice(0, -2) : text;
+}
+
+/**
+ * One player's value for one season, from the clipped season map.
+ *
+ * This is the lookup the REQUEST-TIME surfaces use (`/players`, `/compare`).
+ * They must never reach for `loadMarketValueHistory()` — see the ISR-only
+ * warning on that loader.
+ */
+export function marketValueForSeason(
+  file: MarketValueFile | null,
+  season: number,
+  playerId: number,
+): number | null {
+  return file?.[String(season)]?.[String(playerId)]?.valueEur ?? null;
+}
+
+/**
+ * The highest value a player ever reached across the seasons in the map — the
+ * career analogue of a single season's figure, used by a `?sa=all` compare slot.
+ * Summing valuations would be meaningless.
+ */
+export function peakMarketValue(file: MarketValueFile | null, playerId: number): number | null {
+  if (!file) return null;
+  const key = String(playerId);
+  let peak: number | null = null;
+  for (const bySeason of Object.values(file)) {
+    const value = bySeason[key]?.valueEur;
+    if (value != null && (peak === null || value > peak)) peak = value;
+  }
+  return peak;
 }
 
 /**

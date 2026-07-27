@@ -2,7 +2,8 @@ import "server-only";
 
 import { getEntityNames } from "@/features/i18n/entity-names";
 
-import { loadClubLogos, loadPlayers, loadTeamColors } from "@/data/loaders";
+import { loadClubLogos, loadMarketValues, loadPlayers, loadTeamColors } from "@/data/loaders";
+import { marketValueForSeason } from "@/features/players/market-value";
 import { clubLogoFromMap } from "@/utils/club-logo";
 
 export type PlayerPosition = "Goalkeeper" | "Defender" | "Midfielder" | "Forward";
@@ -31,6 +32,13 @@ export type PlayerIndexRow = {
   goals: number;
   assists: number;
   contributions: number;
+  /**
+   * TASK-M68: the season's last market value in EUR, or `null` when the player
+   * has no Transfermarkt match and for every season before ~2004 (TM's history
+   * doesn't reach back further). Read from the CLIPPED season map — `/players`
+   * is a request-time surface, so the 5 MB history file is off limits here.
+   */
+  marketValueEur: number | null;
 };
 
 /**
@@ -58,10 +66,11 @@ export async function getSeasonPlayers(season: number): Promise<PlayerIndexRow[]
   const players = await loadPlayers(season);
   if (!players || players.length === 0) return null;
 
-  const [clubLogos, teamColors, names] = await Promise.all([
+  const [clubLogos, teamColors, names, marketValues] = await Promise.all([
     loadClubLogos(),
     loadTeamColors(),
     getEntityNames(),
+    loadMarketValues(),
   ]);
 
   const rows: PlayerIndexRow[] = players.map((p) => {
@@ -86,6 +95,7 @@ export async function getSeasonPlayers(season: number): Promise<PlayerIndexRow[]
       goals,
       assists,
       contributions: goals + assists,
+      marketValueEur: marketValueForSeason(marketValues, season, p.id),
     };
   });
 

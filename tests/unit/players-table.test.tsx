@@ -25,6 +25,7 @@ const row = (o: Partial<PlayerIndexRow> & { id: number; name: string }): PlayerI
   goals: 0,
   assists: 0,
   contributions: 0,
+  marketValueEur: null,
   ...o,
 });
 
@@ -59,6 +60,29 @@ describe("sortPlayerRows", () => {
     expect(sortPlayerRows(ROWS, "goals").map((r) => r.id)).toEqual([1, 2]);
     expect(sortPlayerRows(ROWS, "name").map((r) => r.id)).toEqual([2, 1]); // Bruno < Mo Salah
     expect(sortPlayerRows(ROWS, "contributions").map((r) => r.id)).toEqual([1, 2]);
+  });
+
+  it("sorts by market value and sinks unvalued players (TASK-M68)", () => {
+    const rows = [
+      row({ id: 1, name: "Unvalued", marketValueEur: null }),
+      row({ id: 2, name: "Cheap", marketValueEur: 1_000_000 }),
+      row({ id: 3, name: "Pricey", marketValueEur: 90_000_000 }),
+    ];
+    // An unvalued player is UNKNOWN, not worthless — no Transfermarkt match must
+    // never be allowed to outrank a real valuation.
+    expect(sortPlayerRows(rows, "marketValue").map((r) => r.name)).toEqual([
+      "Pricey",
+      "Cheap",
+      "Unvalued",
+    ]);
+  });
+
+  it("keeps unvalued players last even when they lead the input (TASK-M68)", () => {
+    const rows = [
+      row({ id: 1, name: "AAA Unvalued", marketValueEur: null }),
+      row({ id: 2, name: "ZZZ Valued", marketValueEur: 500_000 }),
+    ];
+    expect(sortPlayerRows(rows, "marketValue").map((r) => r.id)).toEqual([2, 1]);
   });
 });
 
@@ -117,6 +141,24 @@ describe("<PlayersTable>", () => {
     );
     expect(screen.getByText("GK")).toBeInTheDocument();
     expect(screen.queryByText("Goa")).not.toBeInTheDocument();
+  });
+
+  it("renders a market-value column, with an em dash when unvalued (TASK-M68)", () => {
+    renderWithIntl(
+      <NuqsTestingAdapter>
+        <PlayersTable
+          rows={[
+            row({ id: 1, name: "Rich", marketValueEur: 150_000_000 }),
+            row({ id: 2, name: "Unvalued", marketValueEur: null }),
+          ]}
+          season={2024}
+        />
+      </NuqsTestingAdapter>,
+    );
+    expect(screen.getByText("€150m")).toBeInTheDocument();
+    // Table surfaces render a dash rather than omitting — only the profile
+    // block omits itself entirely (spec §5).
+    expect(screen.getAllByText("—").length).toBeGreaterThan(0);
   });
 
   it("renders a row per player with a season-carrying profile + club link", () => {
