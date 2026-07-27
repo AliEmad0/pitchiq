@@ -1,0 +1,217 @@
+/* TASK-M68 market-value strip. Every keyframe animates transform / opacity
+   only, and every animation sits behind `prefers-reduced-motion: no-preference`
+   — reduced-motion visitors get the finished state immediately (spec §7).
+
+   ⚠️ VALUE RIDES THE FILL COLOUR, NEVER `opacity`. The first prototype encoded
+   both the value and the hover trail in opacity; the trail won and every cell
+   behind the cursor flattened to one shade, destroying the encoding. Dimming
+   and hover ride separate channels (spec §6.2). */
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* ---- readout ---- */
+.readout {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.value {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  border-radius: 999px;
+  padding: 0.1rem 0.45rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid currentColor;
+}
+.up {
+  color: #15803d;
+}
+.down {
+  color: #b91c1c;
+}
+.flat {
+  color: var(--muted-foreground);
+}
+:global(.dark) .up {
+  color: #4ade80;
+}
+:global(.dark) .down {
+  color: #f87171;
+}
+.meta {
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+}
+
+/* ---- strip ----
+   Pinned dir="ltr" in the markup: a career runs oldest → newest left → right
+   regardless of reading direction, the same call the M70 mini-pitch makes. */
+.cells {
+  display: flex;
+  gap: 2px;
+  align-items: stretch;
+}
+.col {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.cell {
+  height: 2.75rem;
+  border-radius: 3px;
+  position: relative;
+  transition:
+    filter 140ms ease-out,
+    opacity 140ms ease-out,
+    transform 140ms ease-out;
+}
+.cell[data-band="1"] {
+  background: var(--mv-1);
+}
+.cell[data-band="2"] {
+  background: var(--mv-2);
+}
+.cell[data-band="3"] {
+  background: var(--mv-3);
+}
+.cell[data-band="4"] {
+  background: var(--mv-4);
+}
+.cell[data-band="5"] {
+  background: var(--mv-5);
+}
+.cell[data-band="6"] {
+  background: var(--mv-6);
+}
+.cell[data-band="7"] {
+  background: var(--mv-7);
+}
+
+/* Hover trail (L): everything AHEAD of the cursor dims; the trail behind stays
+   fully lit. Dimming is the only thing opacity is allowed to express here. */
+.col[data-ahead="true"] .cell {
+  opacity: 0.3;
+}
+.col[data-focus="true"] .cell {
+  filter: brightness(1.22) saturate(1.1);
+  transform: translateY(-4px);
+  box-shadow: 0 0 0 2px var(--foreground);
+}
+
+/* Per-cell value (K) — every season is legible without a pointer, which is what
+   covers mobile, print and crawlers. */
+.cellValue {
+  font-size: 0.625rem;
+  line-height: 1;
+  text-align: center;
+  color: var(--muted-foreground);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The resting dot marks the season the headline refers to. */
+.dot {
+  position: absolute;
+  top: -0.4rem;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  margin-left: -2px;
+  border-radius: 999px;
+  background: var(--foreground);
+}
+
+/* PL underline (#27) — 2px, drawn as the closing beat. */
+.pl {
+  height: 2px;
+  border-radius: 999px;
+  background: var(--foreground);
+  transform-origin: left center;
+}
+.spacer {
+  height: 2px;
+}
+
+/* ---- axis + legend ---- */
+.axis {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted-foreground);
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+}
+.legend {
+  color: var(--muted-foreground);
+  font-size: 0.6875rem;
+}
+.legendMark {
+  display: inline-block;
+  width: 0.9rem;
+  height: 2px;
+  vertical-align: middle;
+  background: var(--foreground);
+  margin-inline-end: 0.3rem;
+}
+
+/* ---- animation (spec §7) ---- */
+@media (prefers-reduced-motion: no-preference) {
+  /* #1 cascade left→right, 26ms stagger, each cell 420ms. */
+  .col {
+    animation: m68-rise 420ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+    animation-delay: calc(var(--i) * 26ms);
+  }
+  .cellValue {
+    animation: m68-fade 300ms ease-out both;
+    animation-delay: calc(var(--i) * 26ms + 90ms);
+  }
+  /* #27 the PL underline draws last — 300ms each, 30ms stagger, from 880ms. */
+  .pl {
+    animation: m68-draw 300ms ease-out both;
+    animation-delay: calc(880ms + var(--i) * 30ms);
+  }
+}
+
+@keyframes m68-rise {
+  from {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes m68-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes m68-draw {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
