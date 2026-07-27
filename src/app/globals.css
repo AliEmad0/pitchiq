@@ -41,6 +41,19 @@
   --destructive-foreground: #ffffff;
   --chart-1: #c91dbb; /* radar series A — magenta */
   --chart-2: #fbbf24; /* radar series B — amber */
+
+  /* TASK-M68 market-value ramp — seven FIXED absolute bands (<€1m … €100m+),
+     stepped from --chart-1 (#c91dbb) against the light card surface (#ffffff).
+     Deliberately theme-invariant, like --chart-*: the M25 era themes must not
+     repaint the strip, and the ramp must never be derived from --accent (a
+     near-neutral surface tint that eras reassign). */
+  --mv-1: #dc9ed2;
+  --mv-2: #ce82c2;
+  --mv-3: #be65b3;
+  --mv-4: #af47a3;
+  --mv-5: #9e2193;
+  --mv-6: #86017c;
+  --mv-7: #690161;
 }
 
 /* Dark theme — PL-purple palette (TASK-909), applied via .dark class. The
@@ -72,6 +85,16 @@
   --destructive-foreground: #ffffff;
   --chart-1: #c91dbb;
   --chart-2: #fbbf24;
+
+  /* Market-value ramp, stepped against the dark card surface (#1a1726) —
+     selected for this mode, not flipped from the light one. */
+  --mv-1: #713b6a;
+  --mv-2: #8e4785;
+  --mv-3: #ab53a0;
+  --mv-4: #ca60bd;
+  --mv-5: #e96dda;
+  --mv-6: #ff87f0;
+  --mv-7: #ffb4f3;
 }
 
 /* Map CSS variables → Tailwind v4 utility classes (`bg-primary`, `text-muted-foreground`, etc.) */
