@@ -52,3 +52,10 @@ data/i18n/names-ar/*.json
 # formatting; prettier must not touch it, so a builder re-run + commit can never
 # produce a prettier-vs-writer diff (matches the search-index/names-ar policy).
 data/player-history-stats.json
+
+# TASK-M68 market-value side-maps — written by apply-market-values.ts via
+# writeJsonStableMin (sorted keys, minified). The writer owns their formatting;
+# prettier must not touch them, or a re-apply produces a prettier-vs-writer diff
+# on every run AND re-inflates them ~1.5x (same policy as search-index.json /
+# player-history-stats.json / lineups-*.json above).
+data/market-value*.json
