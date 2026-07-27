@@ -35,6 +35,8 @@ export function PlayerSeasonView({
   initialSeason,
   displayName,
   clubLogos,
+  hero,
+  careerBlock,
   children,
 }: {
   playerId: number;
@@ -42,15 +44,33 @@ export function PlayerSeasonView({
   initialSeason: number;
   displayName: string;
   clubLogos: ClubLogosFile | null;
+  /**
+   * The server-rendered <PlayerHero> for the initial season. Its own slot (not
+   * part of `children`) so `careerBlock` can sit between the hero and the
+   * season stats at a FIXED position in the tree — see below.
+   */
+  hero: ReactNode;
+  /**
+   * TASK-M68: season-INVARIANT content (the career market-value block). It sits
+   * directly under the hero, above the season stats, and is rendered exactly
+   * ONCE — outside both swap branches — so a season change never unmounts it
+   * and its entrance animation never replays.
+   *
+   * It is a separate slot precisely so the 5 MB market-value history is parsed
+   * only in the ISR'd server render, never by the dynamic
+   * `/api/players/[id]/profile` path that drives the swap.
+   */
+  careerBlock?: ReactNode;
   children: ReactNode;
 }) {
   const t = useTranslations("players");
   const locale = useLocale();
 
   const [season, setSeason] = useState(initialSeason);
-  const [swapped, setSwapped] = useState<{ profile: PlayerProfile | null; facts: TriviaFact[] } | null>(
-    null,
-  );
+  const [swapped, setSwapped] = useState<{
+    profile: PlayerProfile | null;
+    facts: TriviaFact[];
+  } | null>(null);
   const [loading, setLoading] = useState(false);
 
   // Honour a `?season=` deep link on mount (client-only; runs AFTER hydration so
@@ -96,25 +116,30 @@ export function PlayerSeasonView({
     window.history.pushState(null, "", next === initialSeason ? path : `${path}?season=${next}`);
   }
 
+  // The layout is three fixed slots — hero, career block, season subtree — so
+  // that `careerBlock` keeps one stable position in the tree across a swap.
+  // Only the hero and the subtree switch between the server-rendered and the
+  // client-fetched season.
+  const swapping = season !== initialSeason;
+  const swappedProfile = swapped?.profile ?? null;
+
   return (
     <main className="container-page space-y-6 py-6 lg:py-10">
       <PlayerSeasonSelect seasons={seasons} value={season} onChange={changeSeason} />
-      {season === initialSeason ? (
-        children
+
+      {/* Hero slot — or, for a season the player didn't play, the empty state. */}
+      {!swapping ? (
+        hero
       ) : loading ? (
         <Skeleton className="h-64 w-full rounded-xl" />
-      ) : swapped?.profile ? (
-        <>
-          <PlayerHero player={swapped.profile} season={season} />
-          <PlayerSeasonStats metrics={swapped.profile.metrics} />
-          {swapped.profile.splits && (
-            <PlayerSeasonSplits splits={swapped.profile.splits} season={season} clubLogos={clubLogos} />
-          )}
-          {swapped.facts.length > 0 && <TriviaCard facts={swapped.facts} className="mt-10!" />}
-        </>
+      ) : swappedProfile ? (
+        <PlayerHero player={swappedProfile} season={season} />
       ) : (
         <DataUnavailable
-          title={t("noSeasonData", { season: formatSeasonLabel(season, locale), name: displayName })}
+          title={t("noSeasonData", {
+            season: formatSeasonLabel(season, locale),
+            name: displayName,
+          })}
           message={t("noSeasonDataMsg", {
             name: displayName,
             season: formatSeasonLabel(season, locale),
@@ -126,6 +151,28 @@ export function PlayerSeasonView({
           }}
         />
       )}
+
+      {/* Career-wide, season-invariant. Rendered once, never inside a branch. */}
+      {careerBlock}
+
+      {/* Season subtree. */}
+      {!swapping ? (
+        children
+      ) : !loading && swappedProfile ? (
+        <>
+          <PlayerSeasonStats metrics={swappedProfile.metrics} />
+          {swappedProfile.splits && (
+            <PlayerSeasonSplits
+              splits={swappedProfile.splits}
+              season={season}
+              clubLogos={clubLogos}
+            />
+          )}
+          {swapped && swapped.facts.length > 0 && (
+            <TriviaCard facts={swapped.facts} className="mt-10!" />
+          )}
+        </>
+      ) : null}
     </main>
   );
 }

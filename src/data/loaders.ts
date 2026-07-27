@@ -26,6 +26,10 @@ import {
   ManagerBioFileSchema,
   FixtureExtrasFileSchema,
   GoalAttributionSchema,
+  MarketValueFileSchema,
+  MarketValueHistoryFileSchema,
+  type MarketValueFile,
+  type MarketValueHistoryFile,
   type CaptainsFile,
   type ClubMetadataFile,
   type TeamColorsFile,
@@ -180,6 +184,27 @@ export async function loadClubMetadata(): Promise<ClubMetadataFile | null> {
 /** Curated club kit colors (home + away hex) keyed by teamId (TASK-M47). */
 export async function loadTeamColors(): Promise<TeamColorsFile | null> {
   return readJsonOrNull("team-colors.json", TeamColorsFileSchema);
+}
+
+/**
+ * TASK-M68: last-of-season market values, `season → ourId → { valueEur, determined }`.
+ * Clipped to seasons we hold player rows for (~624 KB), so it is safe on the
+ * request-time surfaces (`/players`, `/compare`, the season-swap route).
+ */
+export async function loadMarketValues(): Promise<MarketValueFile | null> {
+  return readJsonOrNull("market-values.json", MarketValueFileSchema);
+}
+
+/**
+ * TASK-M68: the full per-player valuation history (whole career, ~5 MB).
+ *
+ * ⚠️ ISR-ONLY. Call this from the statically-rendered `/players/[id]` page and
+ * nowhere else — parsing 84k objects on a request-time path is exactly the
+ * Fluid Active-CPU shape that PR #35 and PR #40 had to fix. Request-time
+ * surfaces read `loadMarketValues()` instead.
+ */
+export async function loadMarketValueHistory(): Promise<MarketValueHistoryFile | null> {
+  return readJsonOrNull("market-value-history.json", MarketValueHistoryFileSchema);
 }
 
 // TASK-1606: Arabic entity-name sidecar maps (`data/i18n/names-ar/*.json`).
