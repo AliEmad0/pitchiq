@@ -23,6 +23,7 @@ const row = (id: number, name: string, c: number): PlayerIndexRow => ({
   goals: c,
   assists: 0,
   contributions: c,
+  marketValueEur: null,
 });
 
 const ROWS = Array.from({ length: 12 }, (_, i) => row(i + 1, "Player " + (i + 1), 30 - i));
