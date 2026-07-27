@@ -356,6 +356,7 @@
     "footRight": "اليمنى",
     "footBoth": "كلتا القدمين",
     "heightCm": "{cm, number} سم",
+    "heightLabel": "الطول",
     "roleName": {
       "GK": "حارس مرمى",
       "RB": "ظهير أيمن",

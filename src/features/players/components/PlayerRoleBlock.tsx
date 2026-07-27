@@ -85,13 +85,15 @@ export function PlayerRoleBlock({
         {(footLabel || height != null) && (
           <div className={styles.pills}>
             {footLabel && (
-              <span className={styles.pill}>
+              <span className={styles.pill} title={t("preferredFoot")}>
                 <span className="sr-only">{t("preferredFoot")}: </span>
                 {footLabel}
               </span>
             )}
             {height != null && (
-              <span className={styles.pill}>{t("heightCm", { cm: height })}</span>
+              <span className={styles.pill} title={t("heightLabel")}>
+                {t("heightCm", { cm: height })}
+              </span>
             )}
           </div>
         )}
