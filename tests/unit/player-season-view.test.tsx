@@ -46,6 +46,7 @@ function renderView(careerBlock?: ReactNode) {
         initialSeason={2025}
         displayName="Test Player"
         clubLogos={null}
+        hero={<div>Initial Hero</div>}
         careerBlock={careerBlock}
       >
         <div>Initial Content</div>
@@ -82,6 +83,15 @@ describe("PlayerSeasonView", () => {
     await waitFor(() => expect(screen.getByText("Historical Player")).toBeInTheDocument());
     // The server children are replaced once a non-initial season is active.
     expect(screen.queryByText("Initial Content")).not.toBeInTheDocument();
+  });
+
+  it("places the career block between the hero and the season subtree (TASK-M68)", () => {
+    vi.stubGlobal("fetch", vi.fn());
+    const { container } = renderView(<div data-testid="career-block">career</div>);
+    const text = container.querySelector("main")!.textContent!;
+    // Owner-requested order: hero, then market value, then season statistics.
+    expect(text.indexOf("Initial Hero")).toBeLessThan(text.indexOf("career"));
+    expect(text.indexOf("career")).toBeLessThan(text.indexOf("Initial Content"));
   });
 
   it("keeps the career block mounted across a season swap (TASK-M68)", async () => {

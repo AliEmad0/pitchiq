@@ -121,11 +121,11 @@ export default async function PlayerProfilePage({ params }: Props) {
       initialSeason={initialSeason}
       clubLogos={clubLogos}
       displayName={displayName}
+      hero={profile && <PlayerHero player={profile} season={initialSeason} />}
       careerBlock={<PlayerMarketValue playerId={playerId} plSeasons={known.seasons} />}
     >
       {profile && (
         <>
-          <PlayerHero player={profile} season={initialSeason} />
           <PlayerSeasonStats metrics={profile.metrics} />
           {profile.splits && (
             <PlayerSeasonSplits

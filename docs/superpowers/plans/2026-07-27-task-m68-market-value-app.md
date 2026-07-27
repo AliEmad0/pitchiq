@@ -45,7 +45,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
 | `src/features/players/components/MarketValueStrip.tsx` (create)        | `"use client"` island: readout + change chip + meta line + the cells; hover trail + count-up   |
 | `src/features/players/components/MarketValueStrip.module.css` (create) | Cell/ramp/hover styles + the three animation beats                                             |
 | `src/app/globals.css` (modify)                                         | `--mv-1 … --mv-7` ramp tokens in `:root` and `.dark`                                           |
-| `src/features/players/components/PlayerSeasonView.tsx` (modify)        | New optional `careerBlock` prop rendered outside the season-swapped subtree                    |
+| `src/features/players/components/PlayerSeasonView.tsx` (modify)        | New `hero` + `careerBlock` slots; the block sits between them, outside both swap branches      |
 | `src/app/[locale]/players/[id]/page.tsx` (modify)                      | Pass `<PlayerMarketValue …/>` as `careerBlock`                                                 |
 | `src/i18n/messages/{en,ar}.json` (modify)                              | The block's message keys                                                                       |
 | `tests/unit/market-value.test.ts` (create)                             | Pure-logic tests                                                                               |
@@ -1350,6 +1350,16 @@ it("keeps the career block mounted across a season swap (TASK-M68)", async () =>
 RUN `pnpm test tests/unit/player-season-view.test.tsx`
 
 Expected: FAIL — `careerBlock` is not a prop of `PlayerSeasonView` (TS error, or the node never renders).
+
+> **As built (owner call during review):** the block belongs directly under the
+> hero, above Season statistics — not at the foot of the page. Interleaving it
+> there means the hero cannot stay inside the opaque `children` node, so
+> `PlayerSeasonView` grew a second slot. It now renders three fixed positions —
+> `hero`, `careerBlock`, then the season subtree — and only the hero and the
+> subtree switch between the server-rendered and client-fetched season. Keeping
+> `{careerBlock}` outside every branch is what stops a season swap unmounting it
+> and replaying its entrance animation. The steps below show the original
+> bottom-of-page wiring; the shipped code has the three-slot layout.
 
 - [ ] **Step 3: Add the prop**
 
