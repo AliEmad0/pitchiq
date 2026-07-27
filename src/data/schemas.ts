@@ -457,6 +457,44 @@ export const PlayerHistoryStatsFileSchema = z.record(
   ),
 );
 
+// TASK-M68: market-value side-maps, built from Transfermarkt by the external
+// pipeline. Two files, split by access pattern — see
+// docs/superpowers/specs/2026-07-27-market-value-design.md §3.
+
+/**
+ * `data/market-values.json` — season → our player id → the LAST valuation of
+ * that season. Clipped at apply time to seasons the app actually holds a row
+ * for, which keeps it ~624 KB: it is read from request-time paths.
+ */
+export const MarketValueFileSchema = z.record(
+  z.string(),
+  z.record(
+    z.string(),
+    z.object({
+      valueEur: z.number().int(),
+      determined: z.string(),
+    }),
+  ),
+);
+export type MarketValueFile = z.infer<typeof MarketValueFileSchema>;
+
+/**
+ * `data/market-value-history.json` — our player id → every valuation of their
+ * WHOLE career (including non-PL clubs and seasons), oldest first. ~5 MB, so
+ * it must only ever be read from the ISR'd `/players/[id]` render.
+ */
+export const MarketValueHistoryFileSchema = z.record(
+  z.string(),
+  z.array(
+    z.object({
+      season: z.number().int(),
+      valueEur: z.number().int(),
+      determined: z.string(),
+    }),
+  ),
+);
+export type MarketValueHistoryFile = z.infer<typeof MarketValueHistoryFileSchema>;
+
 // Player birth date + nationality, keyed by stable player id.
 export const PlayerBioFileSchema = z.record(
   z.string(),
