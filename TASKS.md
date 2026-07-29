@@ -5641,6 +5641,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-M68](#task-m68) | Player market value (Transfermarkt) — schema + loader + UI          | ✅ Done | P2       | M   |
 | [TASK-M69](#task-m69) | Danny Ward same-person id-collapse (emrey-era)                      | ✅ Done | P3       | M   |
 | [TASK-M70](#task-m70) | Surface player role / alt-roles / foot / height on the profile page | ✅ Done | P2       | M   |
+| [TASK-M71](#task-m71) | Prerender `/teams/[id]` + `/managers/[id]` — drop the server `?season=` read | 📋 Ready | P2       | L   |
 
 ### TASK-M01
 
@@ -7063,6 +7064,33 @@ TASK-M56 enriched every player with a **true positional role** (one of 13 — GK
 **Two parts:** (1) **Data projection** (small) — add `role` / `altRoles` / `foot` / `height` (+ optional `roleSource` provenance) to the `PlayerProfile` type + `getPlayerProfile` (`src/features/players/api.ts`); the fields already ride the snapshot row. (2) **UI** — display them in/near `PlayerHero`; the **layout + micro-animation are being chosen from a concept shortlist** (30 display concepts → pick → 30 animation concepts → pick), then built via the design-gallery ritual.
 
 **Requirements:** i18n en/ar (role codes + `foot` need translated labels, RTL-safe); **null-graceful** — unenriched players (`role === null`; older seasons / unmatched) omit the block cleanly (the existing null-metric pattern); additive — no churn where a role is absent. Role/altRoles map to pitch positions, so a positional visual is on the table.
+
+### TASK-M71
+
+**Prerender `/teams/[id]` + `/managers/[id]` — drop the server `?season=` read** · 📋 Ready · `P2` · `L` · Type: Perf + UI
+
+**The last two uncached entity routes.** [PR #59](https://github.com/AliEmad0/pitchiq/pull/59) made `/players/[id]` and `/fixtures/[id]` CDN-served (`force-static` + ISR); these two are still rendered on demand, so **every view costs a Fluid Active-CPU invocation** on a plan with a 4h/month cap that has already paused the project once.
+
+**Root cause (measured, not inferred).** Both pages read the **server `searchParams` prop** (`?season=`), which opts a page into dynamic rendering because it requires an incoming request. **`export const dynamic = "force-static"` does NOT override this** — its documented coercion covers `cookies()`, `headers()` and `useSearchParams()`, *not* the `searchParams` prop. Adding it to these two routes does nothing; don't. Verified by counting emitted pages on a production build:
+
+```
+players   537/locale prerendered   (no searchParams)
+fixtures  380/locale prerendered   (no searchParams)
+teams       0        prerendered   (reads searchParams)
+managers    0        prerendered   (reads searchParams)
+```
+
+⚠️ The build's route table prints `● (SSG)` for **all four**, including the two that emit nothing — it only means "declares `generateStaticParams`". Count `.next/server/app/<locale>/<route>/*.html` instead. On production, `/teams/42` returns `x-vercel-cache: MISS` + `private, no-store` while `/players/1001119` returns `PRERENDER → HIT` + `public`.
+
+**The fix — port the pattern `/players/[id]` already uses.** Render the current season server-side, move season switching to the client: a `<TeamSeasonView>` / `<ManagerSeasonView>` wrapper holding the season subtree, reading the deep link from `window.location.search` (**never `useSearchParams`** — it bails prerender), syncing via `history.pushState`, and swapping through JSON endpoints. Teams needs endpoints for the season-scoped sections (detail + squad, stats, recent form, manager, trivia); managers needs the season-scoped profile. `/compare` genuinely needs `searchParams` and stays dynamic.
+
+**Watch out for:**
+
+- **Canonicals + SEO.** `/teams/[id]` currently emits a season-pinned canonical (`canonicalPath(locale, "/teams/<id>", season)`) and a season-pinned OG image. Going static collapses these to one indexable URL, as `/players/[id]` already did — confirm that's intended before shipping.
+- **The i18n trap this class of change caused once already.** Making a route static removes the request context next-intl was implicitly using. Any client component calling `useLocale()`/`useFormatter()` must get a locale that survives prerendering — `<NextIntlClientProvider locale={...}>` is now passed explicitly in the layout (fixed in #59), but re-audit consumers. `<EntitySeasonSwitcher>` formats its labels through `useLocale()`, and both these pages render it.
+- **Don't verify with `grep` on rendered HTML.** next-intl serialises the whole message catalog into every page, so any UI string matches whether or not it rendered. Assert on the browser's rendered text / a `data-*` marker.
+
+**Done when:** both routes emit prerendered pages per locale, `/teams/42` and a manager profile return `x-vercel-cache: HIT` + `public` on production, the season switcher still works on both (including a `?season=` deep link, in `ar` as well as `en`), and the full E2E suite is green.
 
 ---
 
