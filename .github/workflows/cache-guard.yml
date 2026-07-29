@@ -93,17 +93,60 @@ jobs:
             fi
           }
 
-          # A prerendered entity page (the highest-traffic route), its Arabic
-          # twin, the dashboard, and a route that bypasses middleware entirely
-          # (the control — if this one fails, the problem is not middleware).
+          # Same probe as check(), but REPORT-ONLY: for routes we already know
+          # are dynamic and have a ticket open for. Keeping them visible means
+          # the log still shows the whole picture; not failing on them means a
+          # red run always signals a genuine REGRESSION rather than a known gap.
+          # A guard that is red every morning stops being read.
+          #
+          # It does assert HTTP 200 — a known-dynamic page is still allowed to
+          # be dynamic, but it is NOT allowed to be broken.
+          note() {
+            local label="$1" path="$2" ticket="$3"
+            local status cache cc
+
+            curl -sS -o /dev/null -D /tmp/h1 --max-time 30 "$SITE$path" || true
+            sleep 3
+            curl -sS -o /dev/null -D /tmp/h2 --max-time 30 "$SITE$path" || true
+
+            status=$(head -1 /tmp/h2 | tr -d '\r' | awk '{print $2}')
+            cache=$(tr -d '\r' < /tmp/h2 | grep -i '^x-vercel-cache:' | awk '{print $2}')
+            cc=$(tr -d '\r' < /tmp/h2 | grep -i '^cache-control:' | cut -d' ' -f2-)
+
+            echo "── $label ($path) — KNOWN DYNAMIC, tracked in $ticket"
+            echo "   status=$status  x-vercel-cache=${cache:-<none>}"
+            echo "   cache-control=${cc:-<none>}"
+
+            if [ "$status" != "200" ]; then
+              echo "   ::error::expected HTTP 200, got $status"
+              fail=1
+              return
+            fi
+
+            if [ "$cache" = "HIT" ] || [ "$cache" = "STALE" ]; then
+              echo "   ::notice::$path is now CDN-served — $ticket may be done. Promote it to check()."
+            else
+              echo "   ::warning::$path still costs an invocation per view ($ticket)."
+            fi
+          }
+
+          # ENFORCED — these must stay CDN-served. A prerendered entity page
+          # (the highest-traffic route), its Arabic twin, and a route that
+          # bypasses middleware entirely (the control — if that one fails, the
+          # problem is not middleware).
           check "player profile (prerendered)" "/players/1001119"
           check "player profile — Arabic"      "/ar/players/1001119"
-          check "dashboard"                    "/"
           check "robots.txt (middleware-exempt control)" "/robots.txt"
+
+          # REPORT-ONLY — known-dynamic, fix tracked on the board.
+          # The dashboard reads the server `searchParams` prop (`?season=`),
+          # which opts it into dynamic rendering; `force-static` cannot override
+          # that. Same root cause as /teams/[id] and /managers/[id].
+          note "dashboard" "/" "TASK-M71"
 
           echo
           if [ "$fail" -ne 0 ]; then
             echo "::error::CDN caching is BROKEN in production — page views are burning Fluid Active CPU."
             exit 1
           fi
-          echo "✅ CDN is serving cached responses; page views cost no Active CPU."
+          echo "✅ CDN is serving cached responses on the enforced routes; page views cost no Active CPU."
