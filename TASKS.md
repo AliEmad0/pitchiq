@@ -5641,7 +5641,8 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-M68](#task-m68) | Player market value (Transfermarkt) — schema + loader + UI          | ✅ Done | P2       | M   |
 | [TASK-M69](#task-m69) | Danny Ward same-person id-collapse (emrey-era)                      | ✅ Done | P3       | M   |
 | [TASK-M70](#task-m70) | Surface player role / alt-roles / foot / height on the profile page | ✅ Done | P2       | M   |
-| [TASK-M71](#task-m71) | Prerender `/teams/[id]`, `/managers/[id]` + the dashboard — drop the server `?season=` read | 📋 Ready | P2       | L   |
+| [TASK-M71](#task-m71) | Prerender `/teams/[id]`, `/managers/[id]` + the dashboard — drop the server `?season=` read | 🚧 In progress | P2       | L   |
+| [TASK-M72](#task-m72) | Fix app-wide soft 404s — the not-found page returns HTTP 200         | 📋 Ready | P2       | S   |
 
 ### TASK-M01
 
@@ -7067,9 +7068,25 @@ TASK-M56 enriched every player with a **true positional role** (one of 13 — GK
 
 ### TASK-M71
 
-**Prerender `/teams/[id]`, `/managers/[id]` + the dashboard — drop the server `?season=` read** · 📋 Ready · `P2` · `L` · Type: Perf + UI
+**Prerender `/teams/[id]`, `/managers/[id]` + the dashboard — drop the server `?season=` read** · 🚧 In progress · `P2` · `L` · Type: Perf + UI
 
-⚠️ **The dashboard (`/`) has the same defect** — found by the `Cache guard` on its first clean run after Attack Challenge Mode was lifted (2026-07-29): `x-vercel-cache: MISS`, `private, no-store`. `src/app/[locale]/page.tsx` reads the server `searchParams` prop in **both** `generateMetadata` and the page body. It is the **highest-traffic page on the site**, so it is the biggest single remaining CPU win — but also the most sensitive to change, since going static collapses its `?season=` server rendering and its canonical. **The guard now reports `/` as report-only** (`note()` rather than `check()`) so a red run means a real regression; when this ticket lands, promote `/` back into the enforced `check()` list.
+> **⭐ START HERE — state as of 2026-07-30.** Decomposed into three sub-projects; **M71a is part-built on a draft PR.**
+>
+> | | Scope | State |
+> | --- | --- | --- |
+> | **M71a** | Season in the path: `/seasons/[year]`, the `/seasons` directory, `/` prerendered, redirect, switcher, sitemap | **Tasks 1–3 of 13 done** — [PR #64](https://github.com/AliEmad0/pitchiq/pull/64), **draft, do not merge yet** |
+> | **M71b** | Section indexes (`/teams`, `/players`, `/fixtures`, `/leaderboards`, `/managers`) under the namespace | Not started |
+> | **M71c** | `/teams/[id]` + `/managers/[id]` client-side season swap | Not started |
+>
+> **Spec:** [`docs/superpowers/specs/2026-07-29-seasons-path-model-design.md`](docs/superpowers/specs/2026-07-29-seasons-path-model-design.md) · **Plan:** [`docs/superpowers/plans/2026-07-29-task-m71a-seasons-path-model.md`](docs/superpowers/plans/2026-07-29-task-m71a-seasons-path-model.md)
+>
+> **Done on PR #64:** `/` no longer reads `searchParams` and prerenders for the first time (`app/{en,ar}.html`); 34 season pages per locale prerender (total app pages 1837 → 1905). tsc + lint clean, 1264 unit tests, all guards green.
+>
+> **⛔ Blocker — resume at Task 5.** `/seasons/2025` currently prerenders and duplicates `/` (both self-canonical, identical content). The edge redirect `/seasons/<current>` → `/` must land before merge, or this ships duplicate content on the site's most important URL.
+>
+> ⚠️ **This is an SEO/product change, not a cost fix.** An earlier claim that `/` was "the biggest single remaining CPU win" was **unverified and probably wrong** — the [2026-07-25 spec](docs/superpowers/specs/2026-07-25-season-rendering-free-tier-design.md) measured list pages as bounded and cheap, and `/` was never shown to be expensive. Justify this work on making 34 seasons crawlable and browsable. M71c is likewise ~1% of CPU by that spec's own table.
+
+**The dashboard (`/`) has the same defect** — found by the `Cache guard` on its first clean run after Attack Challenge Mode was lifted (2026-07-29): `x-vercel-cache: MISS`, `private, no-store`. `src/app/[locale]/page.tsx` read the server `searchParams` prop in **both** `generateMetadata` and the page body. **The guard reports `/` as report-only** (`note()` rather than `check()`) so a red run means a real regression; when M71a lands, promote `/` back into the enforced `check()` list.
 
 **The uncached entity routes.** [PR #59](https://github.com/AliEmad0/pitchiq/pull/59) made `/players/[id]` and `/fixtures/[id]` CDN-served (`force-static` + ISR); these two are still rendered on demand, so **every view costs a Fluid Active-CPU invocation** on a plan with a 4h/month cap that has already paused the project once.
 
@@ -7093,6 +7110,28 @@ managers    0        prerendered   (reads searchParams)
 - **Don't verify with `grep` on rendered HTML.** next-intl serialises the whole message catalog into every page, so any UI string matches whether or not it rendered. Assert on the browser's rendered text / a `data-*` marker.
 
 **Done when:** both routes emit prerendered pages per locale, `/teams/42` and a manager profile return `x-vercel-cache: HIT` + `public` on production, the season switcher still works on both (including a `?season=` deep link, in `ar` as well as `en`), and the full E2E suite is green.
+
+### TASK-M72
+
+**Fix app-wide soft 404s — the not-found page returns HTTP 200** · 📋 Ready · `P2` · `S` · Type: SEO + Bug
+
+**Every unknown URL on this site returns HTTP 200 with the not-found page.** Measured 2026-07-30 against a local production build:
+
+```
+/this-does-not-exist   status=200   renders the not-found page
+/players/999999999     status=200   renders the not-found page
+/seasons/1985          status=200   renders the not-found page
+```
+
+`src/app/[locale]/[...rest]/page.tsx` **correctly calls `notFound()`**, and `src/app/[locale]/not-found.tsx` exists, so the rendered content is right — only the status code is wrong. The cause is not established. Likely suspects, in order: the next-intl middleware rewrite swallowing the status; the catch-all being a *matched* route so Next treats the render as a success; or an interaction with `force-static` on the surrounding tree.
+
+**Why it matters.** Google treats a soft 404 as a low-quality duplicate and can suppress the whole pattern. That is bad on any site and actively counterproductive on this one, where [TASK-M71](#task-m71) is spending real effort to make 34 season pages indexable. Bogus URLs competing with real ones undercuts it.
+
+**Approach.** Reproduce first (`next build && next start`, then `curl -o /dev/null -w "%{http_code}" <path>` — **without `-L`**, which would follow a redirect and mask the status). Then bisect: does a route that calls `notFound()` *without* the catch-all in play return 404? Does disabling the middleware matcher for that path change it? Fix at the layer that is actually swallowing the status.
+
+**Done when:** an unknown URL returns HTTP **404** with the localized not-found page still rendering inside the shell (Header/Footer/VAR panel), in both locales, and an E2E test pins the status so it cannot regress silently.
+
+**Traps.** A soft-404 that returns 200 is exactly what produced two wrong conclusions during the 2026-07-29 Fluid-CPU investigation: probe routes named `__probe-*` were silently private (leading `_`), fell through to this catch-all, and were measured as if they had rendered. Always assert a probe actually rendered before trusting a reading.
 
 ---
 

@@ -231,8 +231,13 @@ Expected: type-check clean; full unit suite green (1259 passing before this chan
 - [ ] **Step 4: Verify `/` now prerenders**
 
 Run: `node_modules/.bin/next build`
-Then: `ls .next/server/app/en/index.html .next/server/app/ar/index.html`
-Expected: both files exist. **This is the acceptance signal for the cost half of the ticket** — before this change they do not.
+Then: `ls .next/server/app/en.html .next/server/app/ar.html`
+Expected: both files exist (~330 KB each). **This is the acceptance signal for the cost half of the ticket** — before this change they do not.
+
+> The route is `/[locale]`, so the locale IS the leaf: the output is
+> `app/en.html`, **not** `app/en/index.html`. (Nested routes do nest —
+> `/[locale]/seasons` emits `app/en/seasons.html`.) Checking the wrong path
+> reads as "still broken" when it is working.
 
 > Do NOT judge this by the build's route table. It prints `● (SSG)` for routes that emit nothing. Count emitted `.html` files.
 
@@ -1262,9 +1267,19 @@ test("the current season's path form redirects to /", async ({ page }) => {
   await expect(page).toHaveURL(/\/$/);
 });
 
-test("an unknown season 404s", async ({ page }) => {
-  const res = await page.goto("/seasons/1985");
-  expect(res?.status()).toBe(404);
+// ⚠️ This asserts the not-found PAGE, not a 404 STATUS. Measured 2026-07-29:
+// this app serves soft 404s app-wide — `/players/999999999` and
+// `/this-does-not-exist` both return HTTP **200** with the not-found page,
+// even though `src/app/[locale]/[...rest]/page.tsx` correctly calls
+// notFound(). The cause is not established and it predates TASK-M71a, so do
+// not "fix" it here and do not assert 404 — the test would fail for a reason
+// unrelated to this ticket. Tracked separately (soft-404s are an SEO problem
+// worth its own ticket, especially on an SEO-motivated change like this one).
+test("an unknown season renders the not-found page", async ({ page }) => {
+  await page.goto("/seasons/1985");
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  // The dashboard must NOT render for a non-existent season.
+  await expect(page.locator("#standings")).toHaveCount(0);
 });
 
 test("/ar renders a season page RTL with Arabic content", async ({ page }) => {
@@ -1343,9 +1358,9 @@ git commit -m "ci: enforce CDN caching on / and the season pages"
 
 ## Done when
 
-- `.next/server/app/{en,ar}/index.html` exists, plus `seasons.html` and 34 `seasons/*.html` per locale.
+- `.next/server/app/{en,ar}.html` exists (the dashboard — note the locale is the leaf, not a directory), plus `{en,ar}/seasons.html` and 34 `{en,ar}/seasons/*.html`.
 - `/` and `/seasons/2003` return `x-vercel-cache: HIT` + `cache-control: public` on production.
-- `/?season=2010` → `/seasons/2010`; `/seasons/2025` → `/`; `/seasons/1985` → 404.
+- `/?season=2010` → `/seasons/2010`; `/seasons/2025` → `/`; `/seasons/1985` renders the not-found page (status is 200 app-wide — see the soft-404 note in Task 11, which predates this ticket).
 - The switcher navigates to paths on the dashboard and still writes `?season=` on section indexes.
 - `motion-audit`, `no-hardcoded-strings`, the unit suite and the full E2E suite are green.
 - The cache guard enforces `/`.
