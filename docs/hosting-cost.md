@@ -50,6 +50,10 @@ Anything that makes a response `private`/`no-store` re-creates the outage:
 - `export const dynamic = "force-dynamic"`,
 - reading `searchParams` in a page that should be static (this is why `/players/[id]` must never read `?season=` — see CLAUDE.md).
 
+**`revalidate` alone is not enough — the render falls back to dynamic.** A page needs `export const dynamic = "force-static"` alongside `revalidate`, or Vercel serves it `private, no-store` with `x-vercel-cache: MISS` and every view costs a function. Proven by a controlled preview experiment: two pages under `[locale]`, no data access, differing only in that line — force-static returned `public` + HIT, `revalidate`-only returned `private, no-store` + MISS.
+
+**But `force-static` does NOT rescue a page that reads the server `searchParams` prop.** Its documented coercion covers `cookies()`, `headers()` and `useSearchParams()` — not `searchParams`. Such a page is opted into dynamic rendering and emits **zero** prerendered pages even with `generateStaticParams`. That is the current state of `/teams/[id]` and `/managers/[id]`; the only real fix is to stop reading `?season=` server-side, as `/players/[id]` already does.
+
 Guarded by `tests/unit/i18n-routing.test.ts` and the daily `.github/workflows/cache-guard.yml` probe.
 
 ### 2. The crawlable surface is enormous — keep the hot set prerendered
@@ -59,11 +63,21 @@ Guarded by `tests/unit/i18n-routing.test.ts` and the daily `.github/workflows/ca
 ```
 players/[id]     total  10,230   prebuilt 1,074   on-demand   9,156
 fixtures/[id]    total  26,332   prebuilt   760   on-demand  25,572
-teams/[id]       total     102   prebuilt    40   on-demand      62
-managers/[id]    total     586   prebuilt   586   on-demand       0
+teams/[id]       total     102   prebuilt     0   on-demand     102   ⚠️
+managers/[id]    total     586   prebuilt     0   on-demand     586   ⚠️
                                     ~35,000 on-demand paths
                        (~351,000 counting ?season= variants)
 ```
+
+⚠️ **`teams` and `managers` prebuild NOTHING**, despite both declaring
+`generateStaticParams`, because both read the server `searchParams` prop (see
+above). Verified by counting `.next/server/app/<locale>/<route>/*.html` after a
+production build: players 537/locale, fixtures 380/locale, teams 0, managers 0.
+
+**Do not trust the build's route table for this.** It prints `● (SSG)` for all
+four routes — including the two that emit no pages at all. The only reliable
+local check is counting the emitted `.html` files; the only reliable production
+check is `x-vercel-cache` on a deployment.
 
 An on-demand ISR path costs one invocation the first time it is requested **after each deploy** (a deploy invalidates the ISR cache). With near-daily deploys, a crawler walking the long tail pays that repeatedly. Prerendering the current season of each entity type keeps everything the app actually links to — dashboard rails, `/fixtures`, the sitemap — on the free path.
 
