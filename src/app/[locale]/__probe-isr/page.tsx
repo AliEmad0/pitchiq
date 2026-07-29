@@ -15,5 +15,7 @@ export function generateStaticParams() {
 export default async function ProbeIsr({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  return <div>probe-isr</div>;
+  // No literal text: this file lives under app/[locale], which the TASK-1603
+  // no-hardcoded-strings guard scans.
+  return <div data-probe="isr" />;
 }
