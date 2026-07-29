@@ -5641,7 +5641,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-M68](#task-m68) | Player market value (Transfermarkt) — schema + loader + UI          | ✅ Done | P2       | M   |
 | [TASK-M69](#task-m69) | Danny Ward same-person id-collapse (emrey-era)                      | ✅ Done | P3       | M   |
 | [TASK-M70](#task-m70) | Surface player role / alt-roles / foot / height on the profile page | ✅ Done | P2       | M   |
-| [TASK-M71](#task-m71) | Prerender `/teams/[id]` + `/managers/[id]` — drop the server `?season=` read | 📋 Ready | P2       | L   |
+| [TASK-M71](#task-m71) | Prerender `/teams/[id]`, `/managers/[id]` + the dashboard — drop the server `?season=` read | 📋 Ready | P2       | L   |
 
 ### TASK-M01
 
@@ -7067,9 +7067,11 @@ TASK-M56 enriched every player with a **true positional role** (one of 13 — GK
 
 ### TASK-M71
 
-**Prerender `/teams/[id]` + `/managers/[id]` — drop the server `?season=` read** · 📋 Ready · `P2` · `L` · Type: Perf + UI
+**Prerender `/teams/[id]`, `/managers/[id]` + the dashboard — drop the server `?season=` read** · 📋 Ready · `P2` · `L` · Type: Perf + UI
 
-**The last two uncached entity routes.** [PR #59](https://github.com/AliEmad0/pitchiq/pull/59) made `/players/[id]` and `/fixtures/[id]` CDN-served (`force-static` + ISR); these two are still rendered on demand, so **every view costs a Fluid Active-CPU invocation** on a plan with a 4h/month cap that has already paused the project once.
+⚠️ **The dashboard (`/`) has the same defect** — found by the `Cache guard` on its first clean run after Attack Challenge Mode was lifted (2026-07-29): `x-vercel-cache: MISS`, `private, no-store`. `src/app/[locale]/page.tsx` reads the server `searchParams` prop in **both** `generateMetadata` and the page body. It is the **highest-traffic page on the site**, so it is the biggest single remaining CPU win — but also the most sensitive to change, since going static collapses its `?season=` server rendering and its canonical. **The guard now reports `/` as report-only** (`note()` rather than `check()`) so a red run means a real regression; when this ticket lands, promote `/` back into the enforced `check()` list.
+
+**The uncached entity routes.** [PR #59](https://github.com/AliEmad0/pitchiq/pull/59) made `/players/[id]` and `/fixtures/[id]` CDN-served (`force-static` + ISR); these two are still rendered on demand, so **every view costs a Fluid Active-CPU invocation** on a plan with a 4h/month cap that has already paused the project once.
 
 **Root cause (measured, not inferred).** Both pages read the **server `searchParams` prop** (`?season=`), which opts a page into dynamic rendering because it requires an incoming request. **`export const dynamic = "force-static"` does NOT override this** — its documented coercion covers `cookies()`, `headers()` and `useSearchParams()`, *not* the `searchParams` prop. Adding it to these two routes does nothing; don't. Verified by counting emitted pages on a production build:
 
