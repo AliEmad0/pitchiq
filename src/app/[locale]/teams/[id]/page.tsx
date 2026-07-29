@@ -31,6 +31,22 @@ type Props = {
 export const dynamicParams = true;
 
 // ISR: refresh cached renders daily, matching the data cron.
+//
+// ⚠️ HOSTING COST — this route is NOT prerendered, and adding
+// `dynamic = "force-static"` will NOT fix that. Do not add it.
+//
+// This page reads the server `searchParams` prop (`?season=`, below), which
+// opts it into dynamic rendering because it needs an incoming request.
+// `force-static` does not override that: its documented coercion covers
+// `cookies()`, `headers()` and `useSearchParams()` — NOT the `searchParams`
+// prop. Measured on this build: /players and /fixtures emit 537 and 380
+// prerendered pages per locale; this route and /managers emit ZERO, while the
+// build's route table still prints "● (SSG)" for all four. So every /teams/*
+// view costs a function invocation.
+//
+// The real fix is the one /players/[id] already had: stop reading `?season=`
+// server-side and move season switching client-side (<PlayerSeasonView>).
+// That is a feature-sized change — tracked separately. See docs/hosting-cost.md.
 export const revalidate = 86400;
 
 // `pnpm build` calls this once and pre-renders every returned id as an

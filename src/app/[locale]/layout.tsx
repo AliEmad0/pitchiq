@@ -160,7 +160,16 @@ export default async function LocaleLayout({
             only apply once <html data-reveal-ready> is stamped, so no-JS and
             reduced-motion visits never see hidden content. */}
         <script dangerouslySetInnerHTML={{ __html: REVEAL_GATE_SCRIPT }} />
-        <NextIntlClientProvider messages={messages}>
+        {/* `locale` MUST be passed explicitly. Without it next-intl infers the
+            locale from request context — which `dynamic = "force-static"`
+            removes — so on a prerendered page `useLocale()` on the CLIENT
+            falls back to `defaultLocale` ("en") even though the server render
+            is correctly Arabic (`<html lang="ar" dir="rtl">`). That silently
+            broke every client-side fetch that forwards the locale: the
+            `?season=` swap in <PlayerSeasonView> requested
+            `/api/players/[id]/profile?locale=en` on /ar and replaced the
+            Arabic name with the Latin one. Caught by tests/e2e/ar-data.spec.ts. */}
+        <NextIntlClientProvider locale={locale} messages={messages}>
           {/* TASK-1702 boot loader — inside the intl provider (the wordmark
               localizes) but outside the theme/query providers it doesn't need.
               SSR-painted; removes itself once per session via its inline

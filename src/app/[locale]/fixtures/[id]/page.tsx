@@ -27,6 +27,10 @@ type Props = { params: Promise<{ locale: string; id: string }> };
 // with zero function invocations from the very first request after a deploy —
 // it no longer has to be paid for once per path per deploy.
 export const dynamicParams = true;
+// ⚠️ HOSTING COST — `force-static` is load-bearing; see docs/hosting-cost.md.
+// `revalidate` alone lets the render fall back to dynamic (`private, no-store`
+// + x-vercel-cache MISS), which made every page view cost a function.
+export const dynamic = "force-static";
 export const revalidate = 86400;
 
 export async function generateStaticParams(): Promise<Array<{ id: string }>> {

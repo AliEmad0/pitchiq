@@ -28,6 +28,16 @@ export const dynamicParams = true;
 // view — the Vercel Active-CPU regression). It renders the current season
 // server-side; historical seasons load client-side in <PlayerSeasonView>. ISR
 // refreshes the cached page daily to match the data cron.
+//
+// ⚠️ HOSTING COST — `force-static` is load-bearing, do not remove.
+//
+// A controlled experiment on a Vercel preview (two pages under [locale] with no
+// data access, differing only in this line) showed that `revalidate` ALONE lets
+// the render fall back to dynamic: it served `private, no-store` with
+// x-vercel-cache MISS, so every view ran a function and the prerendered pages
+// were never served from the CDN. With force-static the same page returns
+// `public` + HIT. See docs/hosting-cost.md.
+export const dynamic = "force-static";
 export const revalidate = 86400;
 
 // `pnpm build` pre-renders every current-season PL player as an SSG route.

@@ -20,6 +20,13 @@ type Props = {
 export const dynamicParams = true;
 
 // ISR: refresh cached renders daily, matching the data cron.
+//
+// ⚠️ HOSTING COST — this route is NOT prerendered, and adding
+// `dynamic = "force-static"` will NOT fix that. Do not add it. Same cause as
+// /teams/[id]: reading the server `searchParams` prop (`?season=`) opts the
+// page into dynamic rendering, and force-static does not coerce that prop.
+// This route emits ZERO prerendered pages despite generateStaticParams and
+// despite the build's route table printing "● (SSG)". See docs/hosting-cost.md.
 export const revalidate = 86400;
 
 // Pre-render every committed manager's profile (SSG). New managers in future
