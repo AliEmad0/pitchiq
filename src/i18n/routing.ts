@@ -12,4 +12,24 @@ export const routing = defineRouting({
   defaultLocale: "en",
   localePrefix: "as-needed",
   localeDetection: false,
+
+  // ⚠️ LOAD-BEARING FOR HOSTING COST — do NOT re-enable.
+  //
+  // By default next-intl's middleware writes `Set-Cookie: NEXT_LOCALE` on every
+  // response it handles. A response carrying `Set-Cookie` is not cacheable by a
+  // shared CDN, so Vercel stamped every page `private, no-cache, no-store` and
+  // returned `x-vercel-cache: MISS` on 100% of requests — meaning all ~1,700
+  // prerendered pages were bypassed and EVERY page view ran a Fluid function.
+  // That was the real cause of the Active-CPU overruns behind the 2026-07
+  // pause (the PR #35 / #40 work cut per-render cost, which never mattered
+  // while nothing could be cached at all).
+  //
+  // Turning the cookie off is safe here precisely because `localeDetection` is
+  // already false: the cookie was never read for detection, no code in `src/`
+  // references NEXT_LOCALE, and the active locale lives in the URL (`/ar/*`)
+  // with <LocaleSwitcher> navigating by path.
+  //
+  // Guarded by tests/unit/i18n-routing.test.ts and the scheduled
+  // .github/workflows/cache-guard.yml probe against production.
+  localeCookie: false,
 });
