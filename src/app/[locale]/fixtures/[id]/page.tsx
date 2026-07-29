@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
 import { fixtureOgImagePath } from "@/app/api/og/fixture-card";
+import { loadFixtures } from "@/data/loaders";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EventsUnavailable } from "@/features/leagues/components/EventsUnavailable";
 import { EventTimeline } from "@/features/leagues/components/EventTimeline";
@@ -17,13 +18,22 @@ import { canonicalPath } from "@/utils/canonical";
 
 type Props = { params: Promise<{ locale: string; id: string }> };
 
-// ISR (not build-time SSG): fixtures render on first request, then serve from
-// the CDN for `revalidate` seconds. There are ~380 fixtures × 2 locales per
-// season — pre-rendering them all would balloon build time on Hobby for little
-// gain (fixtures are low-traffic and cheap to render). On-demand + a daily cache
-// keeps runtime Active CPU negligible without the build cost.
+// The CURRENT season is pre-rendered at build time; the ~26,000 historical
+// fixture paths stay on-demand ISR (pre-rendering all 34 seasons would blow the
+// Hobby build limit for pages nobody links to).
+//
+// The current season is what the dashboard rails, /fixtures and the sitemap
+// actually link to, so pre-building it means the hot set is served from the CDN
+// with zero function invocations from the very first request after a deploy —
+// it no longer has to be paid for once per path per deploy.
 export const dynamicParams = true;
 export const revalidate = 86400;
+
+export async function generateStaticParams(): Promise<Array<{ id: string }>> {
+  const fixtures = await loadFixtures(currentDataSeason());
+  if (!fixtures) return [];
+  return fixtures.map((f) => ({ id: f.id }));
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, id } = await params;

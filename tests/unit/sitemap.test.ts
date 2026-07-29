@@ -32,17 +32,51 @@ describe("sitemap", () => {
 });
 
 describe("robots", () => {
+  const wildcard = (r: ReturnType<typeof robots>) =>
+    (Array.isArray(r.rules) ? r.rules : [r.rules]).find((g) => g.userAgent === "*");
+  const blocked = (r: ReturnType<typeof robots>) =>
+    (Array.isArray(r.rules) ? r.rules : [r.rules]).find((g) => Array.isArray(g.userAgent));
+
   it("allows /, disallows /api/ + ?season= crawling, and links the sitemap", () => {
     vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://pitchiq-pl.vercel.app");
     const r = robots();
 
     // `/*?season=` stops crawlers rendering the uncached historical-season
     // permutations (the Vercel Active-CPU regression, 2026-07-25).
-    expect(r.rules).toMatchObject({
+    expect(wildcard(r)).toMatchObject({
       userAgent: "*",
       allow: "/",
       disallow: ["/api/", "/*?season="],
     });
     expect(r.sitemap).toBe("https://pitchiq-pl.vercel.app/sitemap.xml");
+  });
+
+  // Hosting-cost guard: these agents crawl the ~35,000-URL entity graph hard
+  // and send no traffic back, and each uncached hit costs Fluid Active CPU
+  // against the Hobby cap. See docs/hosting-cost.md.
+  it("blocks the aggressive AI/scraper crawlers outright", () => {
+    const group = blocked(robots());
+    expect(group?.disallow).toBe("/");
+    for (const agent of ["GPTBot", "ClaudeBot", "CCBot", "PerplexityBot", "Bytespider"]) {
+      expect(group?.userAgent).toContain(agent);
+    }
+  });
+
+  // Blocking these would break OG link previews, and they fetch one URL per
+  // share rather than crawling — they must stay on the permissive `*` group.
+  it("does NOT block search engines or social preview unfurlers", () => {
+    const agents = String(blocked(robots())?.userAgent);
+    for (const allowed of [
+      "Googlebot",
+      "Bingbot",
+      "DuckDuckBot",
+      "facebookexternalhit",
+      "Twitterbot",
+      "LinkedInBot",
+      "Slackbot",
+      "Discordbot",
+    ]) {
+      expect(agents).not.toContain(allowed);
+    }
   });
 });
