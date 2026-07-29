@@ -625,5 +625,11 @@
     "factMultiGoal": "{name} has scored 2+ goals in {m} Premier League matches in our data.",
     "factOpponentSpread": "{name} has scored against {n} different Premier League clubs in our match data.",
     "factTransferImpact": "In {season}, {name} turned out for {clubs}, contributing {goals} goals and {assists} assists across them."
+  },
+  "seasons": {
+    "seasonMetaTitle": "Premier League {season}",
+    "seasonMetaDescription": "Standings, top scorers and fixtures for the {season} Premier League season.",
+    "seasonOgAlt": "Premier League {season}",
+    "notFoundTitle": "Season not found"
   }
 }
