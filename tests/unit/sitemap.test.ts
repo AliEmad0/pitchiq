@@ -4,6 +4,7 @@ vi.mock("@/data/loaders", () => ({
   loadTeams: vi.fn(async () => [{ id: 42 }, { id: 35 }]),
   loadPlayers: vi.fn(async () => [{ id: 1000457 }]),
   loadFixtures: vi.fn(async () => [{ id: "2025-08-16-MUN-ARS" }]),
+  getAvailableSeasons: vi.fn(async () => [2025, 2010, 2003]),
 }));
 
 import robots from "@/app/robots";
@@ -28,6 +29,19 @@ describe("sitemap", () => {
     expect(urls).toContain("https://pitchiq-pl.vercel.app/teams/42");
     expect(urls).toContain("https://pitchiq-pl.vercel.app/players/1000457");
     expect(urls).toContain("https://pitchiq-pl.vercel.app/fixtures/2025-08-16-MUN-ARS");
+  });
+
+  // TASK-M71a — every historical season is a real indexable page now.
+  it("lists the seasons hub and every committed season", async () => {
+    vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://pitchiq-pl.vercel.app");
+    const urls = (await sitemap()).map((e) => e.url);
+
+    expect(urls).toContain("https://pitchiq-pl.vercel.app/seasons");
+    expect(urls).toContain("https://pitchiq-pl.vercel.app/seasons/2003");
+    expect(urls).toContain("https://pitchiq-pl.vercel.app/seasons/2010");
+    // The current season lives at `/` and its path form redirects there, so it
+    // must NOT be listed — a sitemap lists canonical URLs only.
+    expect(urls).not.toContain("https://pitchiq-pl.vercel.app/seasons/2025");
   });
 });
 

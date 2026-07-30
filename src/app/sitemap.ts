@@ -1,13 +1,15 @@
 import type { MetadataRoute } from "next";
 
-import { loadFixtures, loadPlayers, loadTeams } from "@/data/loaders";
+import { getAvailableSeasons, loadFixtures, loadPlayers, loadTeams } from "@/data/loaders";
 import { currentDataSeason } from "@/utils/season";
 import { getSiteUrl } from "@/utils/site-url";
 
 // Next 15 file-convention sitemap. Enumerates the current data season in full
 // (~20 teams + ~518 players + ~380 fixtures + static routes ≈ ~920 URLs, well
-// under the 10k threshold). Historical seasons are excluded to keep the sitemap
-// from ballooning to ~30k URLs; the current season is the indexing priority.
+// under the 10k threshold). Historical ENTITY routes are excluded to keep the
+// sitemap from ballooning to ~30k URLs; the current season is the indexing
+// priority. Historical season DASHBOARDS (/seasons/<year>, TASK-M71a) are
+// listed — 33 URLs, each a real prerendered page.
 //
 // TASK-1601: each entry advertises its Arabic alternate via hreflang. The
 // canonical `url` stays the un-prefixed English URL (localePrefix "as-needed");
@@ -49,7 +51,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.5,
     },
     { url: `${base}/map`, alternates: langs("/map"), changeFrequency: "monthly", priority: 0.6 },
+    {
+      url: `${base}/seasons`,
+      alternates: langs("/seasons"),
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
   ];
+
+  // TASK-M71a — every historical season is now a real indexable page. The
+  // current season is excluded: it lives at `/` and `/seasons/<current>`
+  // 308-redirects there.
+  const seasonRoutes: MetadataRoute.Sitemap = (await getAvailableSeasons())
+    .filter((s) => s !== season)
+    .map((s) => ({
+      url: `${base}/seasons/${s}`,
+      alternates: langs(`/seasons/${s}`),
+      changeFrequency: "yearly" as const,
+      priority: 0.5,
+    }));
 
   const teamRoutes: MetadataRoute.Sitemap = (teams ?? []).map((t) => ({
     url: `${base}/teams/${t.id}`,
@@ -72,5 +92,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.4,
   }));
 
-  return [...staticRoutes, ...teamRoutes, ...playerRoutes, ...fixtureRoutes];
+  return [...staticRoutes, ...seasonRoutes, ...teamRoutes, ...playerRoutes, ...fixtureRoutes];
 }
