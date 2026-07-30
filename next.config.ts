@@ -6,9 +6,50 @@ import createNextIntlPlugin from "next-intl/plugin";
 // where our per-request message loader lives — no path arg needed.
 const withNextIntl = createNextIntlPlugin();
 
+/**
+ * TASK-M71a — the current season lives at `/`, so `/seasons/<current>`
+ * redirects there. next.config runs outside the `@` alias and cannot import
+ * `currentDataSeason()`, so the value is inlined and pinned by
+ * tests/unit/next-config-redirects.test.ts — the mirror pattern already used
+ * for sentry-enabled. The `source` patterns below are built from this
+ * constant, so rollover is this one line.
+ */
+export const CURRENT_SEASON_FOR_REDIRECT = 2025;
+
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [{ protocol: "https", hostname: "**" }],
+  },
+  async redirects() {
+    return [
+      // The current season is `/`; its path form must not be a second URL.
+      {
+        source: `/seasons/:year(${CURRENT_SEASON_FOR_REDIRECT})`,
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: `/ar/seasons/:year(${CURRENT_SEASON_FOR_REDIRECT})`,
+        destination: "/ar",
+        permanent: true,
+      },
+      // Back-compat: `?season=` links already shared, bookmarked or indexed.
+      // Next forwards the incoming query onto the destination (`/seasons/2010
+      // ?season=2010`) and offers no way to strip it here; that's fine — the
+      // season page ignores the param and self-canonicalises to the bare path.
+      {
+        source: "/",
+        has: [{ type: "query", key: "season", value: "(?<season>\\d{4})" }],
+        destination: "/seasons/:season",
+        permanent: true,
+      },
+      {
+        source: "/ar",
+        has: [{ type: "query", key: "season", value: "(?<season>\\d{4})" }],
+        destination: "/ar/seasons/:season",
+        permanent: true,
+      },
+    ];
   },
 };
 
