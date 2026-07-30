@@ -1,4 +1,6 @@
-import { getTranslations } from "next-intl/server";
+"use client";
+
+import { useTranslations } from "next-intl";
 import { ScanSearch } from "lucide-react";
 
 // Default App Router loading boundary (TASK-1503 "VAR review" theme). Any
@@ -6,9 +8,16 @@ import { ScanSearch } from "lucide-react";
 // server-rendered children stream in. The Header/Footer chrome stays mounted
 // (this slots inside <main>) so the app frame keeps its identity during
 // navigation. Motion is a gentle pulse only — Phase 17 layers richer animation.
-// Copy localized via getTranslations (TASK-1603).
-export default async function Loading() {
-  const t = await getTranslations("boundaries");
+//
+// ⚠️ MUST be a client component (TASK-M71a). As a server component it called
+// getTranslations() while streaming BEFORE the page — with no params and no
+// request context (force-static), next-intl resolved the locale to undefined,
+// fell back to "en", and its per-request config cache then served the ENGLISH
+// catalog to the entire /ar render (layout, nav, boot loader included). As a
+// client component it reads the layout's <NextIntlClientProvider>, which
+// carries the explicit, correct locale.
+export default function Loading() {
+  const t = useTranslations("boundaries");
   return (
     <div
       role="status"

@@ -11,9 +11,12 @@ vi.mock("@/utils/logger", () => ({
   },
 }));
 
-// loading.tsx + not-found.tsx are Server Components that localize via
-// getTranslations (TASK-1603); error.tsx is a Client Component using
-// useTranslations (rendered under the intl provider via renderWithIntl).
+// not-found.tsx is a Server Component that localizes via getTranslations
+// (TASK-1603); loading.tsx and error.tsx are Client Components using
+// useTranslations (rendered under the intl provider via renderWithIntl) —
+// loading.tsx became one in TASK-M71a: as a server component it streamed
+// before the page with no request context and poisoned next-intl's config
+// cache with the "en" fallback on force-static /ar renders.
 vi.mock("next-intl/server", () => import("./_helpers/intl-server"));
 
 import { logger } from "@/utils/logger";
@@ -33,8 +36,8 @@ afterEach(() => {
 });
 
 describe("loading.tsx", () => {
-  it("renders a live status region with a loading indicator and label", async () => {
-    render(await Loading());
+  it("renders a live status region with a loading indicator and label", () => {
+    renderWithIntl(<Loading />);
 
     const status = screen.getByRole("status");
     expect(status).toBeInTheDocument();
