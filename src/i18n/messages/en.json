@@ -627,9 +627,15 @@
     "factTransferImpact": "In {season}, {name} turned out for {clubs}, contributing {goals} goals and {assists} assists across them."
   },
   "seasons": {
+    "kicker": "Premier League",
+    "title": "Every season",
+    "metaTitle": "Every Premier League season",
+    "metaDescription": "Browse all 34 Premier League seasons, 1992-93 to 2025-26.",
     "seasonMetaTitle": "Premier League {season}",
     "seasonMetaDescription": "Standings, top scorers and fixtures for the {season} Premier League season.",
     "seasonOgAlt": "Premier League {season}",
-    "notFoundTitle": "Season not found"
+    "notFoundTitle": "Season not found",
+    "championLabel": "Champion",
+    "noChampion": "No champion recorded"
   }
 }

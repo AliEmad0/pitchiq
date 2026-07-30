@@ -1,0 +1,112 @@
+/* TASK-M71a — the season card (gallery concept A8 + club logo) and its grid. */
+
+/* Grid: provides the perspective the depth-arrival variant needs, and the
+   neighbours-dim hover (owner pick #10) via :has() — no JS, no per-card state. */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 1rem;
+  perspective: 900px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .grid:has(.card:hover) .card:not(:hover) {
+    opacity: 0.28;
+  }
+  .card {
+    transition: opacity 0.25s ease;
+  }
+}
+
+.card {
+  display: block;
+  padding: 1rem 1.15rem;
+  border-radius: 0.75rem;
+  background: var(--card);
+  color: inherit;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Club-colour bleed (owner pick #4) — radial fill following the cursor.
+   --bleed-x/y are set by the pointer handler; --club is the champion colour. */
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(
+    12rem circle at var(--bleed-x, 50%) var(--bleed-y, 50%),
+    color-mix(in oklch, var(--club, var(--chart-1)) 45%, transparent),
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .card:hover::before,
+  .card:focus-visible::before {
+    opacity: 1;
+  }
+}
+
+.kicker {
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.5;
+}
+/* Per-letter spread (owner pick #14, reworked). letter-spacing animates
+   layout and the motion audit rejects it, so each letter translates instead.
+   `--i` is the letter index, set in the component. */
+.kicker span {
+  display: inline-block;
+  white-space: pre;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .kicker span {
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .card:hover .kicker span,
+  .card:focus-visible .kicker span {
+    transform: translateX(calc(var(--i) * 1.6px));
+  }
+}
+
+.year {
+  font-size: 2.375rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1;
+  margin: 0.3rem 0 0.5rem;
+  display: block;
+}
+.dash {
+  color: var(--chart-1);
+  display: inline-block;
+}
+
+.club {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  /* Manchester United is the longest name — keep it on one line. */
+  min-width: 0;
+}
+.crest {
+  flex: none;
+  width: 1.375rem;
+  height: 1.375rem;
+  object-fit: contain;
+}
+.name {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  opacity: 0.86;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

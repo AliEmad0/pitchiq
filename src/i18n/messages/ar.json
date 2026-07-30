@@ -627,9 +627,15 @@
     "factTransferImpact": "في موسم {season}، لعب {name} لصالح {clubs}، مساهمًا بـ{goals} هدفًا و{assists} تمريرة حاسمة معها."
   },
   "seasons": {
+    "kicker": "الدوري الإنجليزي الممتاز",
+    "title": "كل المواسم",
+    "metaTitle": "كل مواسم الدوري الإنجليزي الممتاز",
+    "metaDescription": "تصفح جميع مواسم الدوري الإنجليزي الممتاز الـ34، من 1992-93 إلى 2025-26.",
     "seasonMetaTitle": "الدوري الإنجليزي الممتاز {season}",
     "seasonMetaDescription": "الترتيب والهدافون والمباريات لموسم {season} من الدوري الإنجليزي الممتاز.",
     "seasonOgAlt": "الدوري الإنجليزي الممتاز {season}",
-    "notFoundTitle": "الموسم غير موجود"
+    "notFoundTitle": "الموسم غير موجود",
+    "championLabel": "البطل",
+    "noChampion": "لا يوجد بطل مسجل"
   }
 }
