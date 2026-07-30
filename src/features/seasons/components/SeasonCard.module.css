@@ -1,0 +1,205 @@
+/* TASK-M71a — the season card (gallery concept A8 + club logo) and its grid. */
+
+/* Grid: provides the perspective the depth-arrival variant needs, and the
+   neighbours-dim hover (owner pick #10) via :has() — no JS, no per-card state. */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 1rem;
+  perspective: 900px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .grid:has(.card:hover) .card:not(:hover) {
+    opacity: 0.28;
+  }
+  .card {
+    transition: opacity 0.25s ease;
+  }
+}
+
+/* The reveal attributes (data-reveal + data-reveal-depth + --rvi) live on the
+   cell, NOT the card link: the depth-arrival rules in globals.css own the
+   revealing element's transform/transition at :root-scoped specificity, which
+   would both override and hijack the card's cursor-driven drift transform. */
+.cell {
+  display: block;
+  min-width: 0;
+}
+
+.card {
+  display: block;
+  padding: 1rem 1.15rem;
+  border-radius: 0.75rem;
+  background: var(--card);
+  color: inherit;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Club-colour bleed (owner pick #4) — radial fill following the cursor.
+   --bleed-x/y are set by the pointer handler; --club is the champion colour. */
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(
+    12rem circle at var(--bleed-x, 50%) var(--bleed-y, 50%),
+    color-mix(in oklch, var(--club, var(--chart-1)) 45%, transparent),
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .card:hover::before,
+  .card:focus-visible::before {
+    opacity: 1;
+  }
+}
+
+.kicker {
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.5;
+}
+/* Per-letter spread (owner pick #14, reworked). letter-spacing animates
+   layout and the motion audit rejects it, so each letter translates instead.
+   `--i` is the letter index, set in the component. */
+.kicker span {
+  display: inline-block;
+  white-space: pre;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .kicker span {
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .card:hover .kicker span,
+  .card:focus-visible .kicker span {
+    transform: translateX(calc(var(--i) * 1.6px));
+  }
+}
+
+.year {
+  font-size: 2.375rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1;
+  margin: 0.3rem 0 0.5rem;
+  display: block;
+}
+.dash {
+  color: var(--chart-1);
+  display: inline-block;
+}
+
+.club {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  /* Manchester United is the longest name — keep it on one line. */
+  min-width: 0;
+}
+.crest {
+  flex: none;
+  width: 1.375rem;
+  height: 1.375rem;
+  object-fit: contain;
+}
+.name {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  opacity: 0.86;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---- Card entrance (owner picks #25 cascade + #7 year flip + #12 dash) ----
+   Driven by the CELL gaining `data-revealed`, which <RevealController> stamps
+   via the DOM — the same trigger as the depth arrival, so the internal
+   cascade plays while the card surfaces. transform/opacity only. */
+@media (prefers-reduced-motion: no-preference) {
+  .cell[data-revealed] .kicker {
+    animation: seasonFade 0.4s both;
+  }
+  .cell[data-revealed] .year {
+    animation: seasonFlip 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .cell[data-revealed] .dash {
+    animation: seasonDash 0.45s 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
+    transform-origin: left center;
+  }
+  .cell[data-revealed] .club {
+    animation: seasonRise 0.45s 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+}
+
+@keyframes seasonFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.5;
+  }
+}
+@keyframes seasonFlip {
+  from {
+    opacity: 0;
+    transform: perspective(600px) rotateX(-72deg);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes seasonDash {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes seasonRise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---- Magnetic drift (owner pick #2) ----
+   --drift-x/y are set by the pointer handler and cleared on leave. Safe on
+   .card because the reveal transform lives on .cell (see above). */
+.card {
+  transform: translate(var(--drift-x, 0), var(--drift-y, 0));
+}
+@media (prefers-reduced-motion: no-preference) {
+  .card {
+    transition:
+      opacity 0.25s ease,
+      transform 0.18s cubic-bezier(0.2, 0.9, 0.2, 1);
+  }
+}
+
+/* ---- Crest spin (owner pick #9) ---- */
+@media (prefers-reduced-motion: no-preference) {
+  .card:hover .crest,
+  .card:focus-visible .crest {
+    animation: seasonSpin 0.7s cubic-bezier(0.5, 0, 0.2, 1);
+  }
+}
+@keyframes seasonSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}

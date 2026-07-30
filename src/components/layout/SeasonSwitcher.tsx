@@ -11,12 +11,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useSeason } from "@/hooks/useSeason";
-import { formatSeasonLabel } from "@/utils/season";
+import { usePathname, useRouter } from "@/i18n/navigation";
+import { currentDataSeason, formatSeasonLabel } from "@/utils/season";
+import { seasonFromPathname, seasonPath } from "@/utils/season-path";
 
-// Shadcn Select bound to the URL's `?season=YYYY` via `useSeason`. Picking
-// an option soft-navigates with `shallow: false`, so every Server Component
-// downstream re-fetches against the new season. Picking the current season
-// drops the param from the URL entirely (clean canonical links).
+// Shadcn Select bound to the active season. On the dashboard routes (`/` and
+// `/seasons/*`, TASK-M71a) the season lives in the PATH: picking an option
+// navigates to `/seasons/<year>` (or `/` for the current season, its only
+// URL), and the displayed value derives from the pathname. Everywhere else
+// the season is still the `?season=YYYY` query param via `useSeason` —
+// picking soft-navigates with `shallow: false`, so every Server Component
+// downstream re-fetches against the new season, and picking the current
+// season drops the param (clean canonical links). Section indexes move to
+// the path form in TASK-M71b; DELETE the query branch when they do.
 //
 // `seasons` is supplied by the server `<SeasonSwitcherLoader>` from
 // `getAvailableSeasons()` (TASK-702) — newest-first — so the dropdown only
@@ -25,16 +32,24 @@ import { formatSeasonLabel } from "@/utils/season";
 export function SeasonSwitcher({ seasons }: { seasons: number[] }) {
   const t = useTranslations("controls");
   const locale = useLocale();
+  const pathname = usePathname();
+  const router = useRouter();
   const [season, setSeason] = useSeason();
+
+  const seasonIsInPath = pathname === "/" || pathname.startsWith("/seasons");
+  const value = seasonIsInPath ? (seasonFromPathname(pathname) ?? currentDataSeason()) : season;
 
   return (
     <Select
-      value={String(season)}
-      onValueChange={(value) => {
-        const next = Number(value);
-        if (Number.isInteger(next)) {
-          void setSeason(next);
+      value={String(value)}
+      onValueChange={(picked) => {
+        const next = Number(picked);
+        if (!Number.isInteger(next)) return;
+        if (seasonIsInPath) {
+          router.push(next === currentDataSeason() ? "/" : seasonPath(next));
+          return;
         }
+        void setSeason(next);
       }}
     >
       {/* Phase 15 redesign: a filled "season chip" — a magenta calendar glyph +

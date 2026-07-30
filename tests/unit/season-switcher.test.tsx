@@ -1,13 +1,26 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, screen } from "@testing-library/react";
 import { renderWithIntl } from "./_helpers/intl";
 import { NuqsTestingAdapter } from "nuqs/adapters/testing";
 
+// TASK-M71a: the switcher reads the pathname (path-mode on `/` and
+// `/seasons/*`) and needs a mounted router to navigate. Default to a
+// query-param route; the path-mode tests override per-test.
+vi.mock("next/navigation", () => ({
+  usePathname: vi.fn(() => "/teams"),
+  useRouter: () => ({ push: vi.fn() }),
+}));
+
+import { usePathname } from "next/navigation";
+
 import { SeasonSwitcher } from "@/components/layout/SeasonSwitcher";
 import { currentDataSeason, formatSeasonLabel } from "@/utils/season";
 
+const mockUsePathname = vi.mocked(usePathname);
+
 afterEach(() => {
   cleanup();
+  mockUsePathname.mockReturnValue("/teams");
 });
 
 // The committed-season list the server `<SeasonSwitcherLoader>` would pass —
@@ -43,6 +56,29 @@ describe("SeasonSwitcher", () => {
   it("falls back to the current season when ?season= is non-numeric", () => {
     renderWithIntl(
       <NuqsTestingAdapter searchParams="?season=not-a-year">
+        <SeasonSwitcher seasons={SEASONS} />
+      </NuqsTestingAdapter>,
+    );
+    const expected = formatSeasonLabel(currentDataSeason());
+    expect(screen.getByRole("combobox", { name: "Season" })).toHaveTextContent(expected);
+  });
+
+  // TASK-M71a — on the dashboard routes the season lives in the PATH, so the
+  // trigger label derives from the pathname, not `?season=`.
+  it("derives the trigger label from /seasons/<year> on the dashboard routes", () => {
+    mockUsePathname.mockReturnValue("/seasons/2018");
+    renderWithIntl(
+      <NuqsTestingAdapter>
+        <SeasonSwitcher seasons={SEASONS} />
+      </NuqsTestingAdapter>,
+    );
+    expect(screen.getByRole("combobox", { name: "Season" })).toHaveTextContent("2018-19");
+  });
+
+  it("shows the current season on `/` even when ?season= lingers", () => {
+    mockUsePathname.mockReturnValue("/");
+    renderWithIntl(
+      <NuqsTestingAdapter searchParams="?season=2018">
         <SeasonSwitcher seasons={SEASONS} />
       </NuqsTestingAdapter>,
     );
