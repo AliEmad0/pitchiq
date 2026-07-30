@@ -538,7 +538,13 @@ curl -s -o /dev/null -w "%{http_code} %{redirect_url}\n" "http://localhost:3137/
 curl -s -o /dev/null -w "%{http_code} %{redirect_url}\n" "http://localhost:3137/?season=2010"
 ```
 
-Expected: `308 http://localhost:3137/` and `308 http://localhost:3137/seasons/2010`.
+Expected: `308 http://localhost:3137/` and `308 http://localhost:3137/seasons/2010?season=2010`.
+
+> **Corrected 2026-07-30 (was `…/seasons/2010` with no query):** Next.js forwards the
+> incoming query string onto the redirect destination and config redirects cannot strip
+> it — a `has` capture named after the query key does not consume it either (verified
+> empirically both ways). The trailing `?season=2010` is expected, not a bug: the season
+> page ignores the param and self-canonicalises to the bare path.
 
 - [ ] **Step 6: Commit**
 
