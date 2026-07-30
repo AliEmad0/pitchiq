@@ -48,59 +48,70 @@ export function SeasonCard({
   const isAr = locale === "ar";
 
   const onMove = (e: PointerEvent<HTMLAnchorElement>) => {
-    const r = e.currentTarget.getBoundingClientRect();
-    e.currentTarget.style.setProperty("--bleed-x", `${((e.clientX - r.left) / r.width) * 100}%`);
-    e.currentTarget.style.setProperty("--bleed-y", `${((e.clientY - r.top) / r.height) * 100}%`);
+    const el = e.currentTarget;
+    const r = el.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width;
+    const py = (e.clientY - r.top) / r.height;
+    // Club-colour bleed origin (#4).
+    el.style.setProperty("--bleed-x", `${px * 100}%`);
+    el.style.setProperty("--bleed-y", `${py * 100}%`);
+    // Magnetic drift (#2) — max 16px x, 12px y.
+    el.style.setProperty("--drift-x", `${(px - 0.5) * 16}px`);
+    el.style.setProperty("--drift-y", `${(py - 0.5) * 12}px`);
   };
 
-  // revealProps carries `--rvi` in `style` for index >= 1, so the club colour
-  // must merge with it rather than sit in a second style prop (per reveal.ts).
+  const onLeave = (e: PointerEvent<HTMLAnchorElement>) => {
+    const el = e.currentTarget;
+    el.style.removeProperty("--drift-x");
+    el.style.removeProperty("--drift-y");
+  };
+
+  // The reveal attributes sit on the cell, not the link: the depth-arrival
+  // rules in globals.css own the revealing element's transform, which would
+  // fight the link's own cursor-driven drift (see the module CSS comment).
   const reveal = revealProps(index);
-  const style = {
-    ...reveal.style,
-    ...(clubColor ? { "--club": clubColor } : null),
-  } as CSSProperties;
 
   return (
-    <Link
-      href={seasonPath(season)}
-      className={styles.card}
-      onPointerMove={onMove}
-      data-reveal-depth=""
-      {...reveal}
-      style={style}
-    >
-      <span className={styles.kicker}>
-        {isAr
-          ? kicker
-          : [...kicker].map((ch, i) => (
-              <span key={i} style={{ "--i": i } as CSSProperties}>
-                {ch}
-              </span>
-            ))}
-      </span>
-      <span className={styles.year}>
-        {start}
-        <span className={styles.dash}>–</span>
-        {end}
-      </span>
-      <span className={styles.club}>
-        {champion ? (
-          <>
-            <Image
-              src={crest ?? `/logos/${champion.id}.png`}
-              alt=""
-              width={22}
-              height={22}
-              className={styles.crest}
-              unoptimized
-            />
-            <span className={styles.name}>{champion.name}</span>
-          </>
-        ) : (
-          <span className={styles.name}>{t("noChampion")}</span>
-        )}
-      </span>
-    </Link>
+    <span className={styles.cell} data-reveal-depth="" {...reveal}>
+      <Link
+        href={seasonPath(season)}
+        className={styles.card}
+        onPointerMove={onMove}
+        onPointerLeave={onLeave}
+        style={clubColor ? ({ "--club": clubColor } as CSSProperties) : undefined}
+      >
+        <span className={styles.kicker}>
+          {isAr
+            ? kicker
+            : [...kicker].map((ch, i) => (
+                <span key={i} style={{ "--i": i } as CSSProperties}>
+                  {ch}
+                </span>
+              ))}
+        </span>
+        <span className={styles.year}>
+          {start}
+          <span className={styles.dash}>–</span>
+          {end}
+        </span>
+        <span className={styles.club}>
+          {champion ? (
+            <>
+              <Image
+                src={crest ?? `/logos/${champion.id}.png`}
+                alt=""
+                width={22}
+                height={22}
+                className={styles.crest}
+                unoptimized
+              />
+              <span className={styles.name}>{champion.name}</span>
+            </>
+          ) : (
+            <span className={styles.name}>{t("noChampion")}</span>
+          )}
+        </span>
+      </Link>
+    </span>
   );
 }

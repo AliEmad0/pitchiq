@@ -18,6 +18,15 @@
   }
 }
 
+/* The reveal attributes (data-reveal + data-reveal-depth + --rvi) live on the
+   cell, NOT the card link: the depth-arrival rules in globals.css own the
+   revealing element's transform/transition at :root-scoped specificity, which
+   would both override and hijack the card's cursor-driven drift transform. */
+.cell {
+  display: block;
+  min-width: 0;
+}
+
 .card {
   display: block;
   padding: 1rem 1.15rem;
@@ -109,4 +118,88 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* ---- Card entrance (owner picks #25 cascade + #7 year flip + #12 dash) ----
+   Driven by the CELL gaining `data-revealed`, which <RevealController> stamps
+   via the DOM — the same trigger as the depth arrival, so the internal
+   cascade plays while the card surfaces. transform/opacity only. */
+@media (prefers-reduced-motion: no-preference) {
+  .cell[data-revealed] .kicker {
+    animation: seasonFade 0.4s both;
+  }
+  .cell[data-revealed] .year {
+    animation: seasonFlip 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .cell[data-revealed] .dash {
+    animation: seasonDash 0.45s 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
+    transform-origin: left center;
+  }
+  .cell[data-revealed] .club {
+    animation: seasonRise 0.45s 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+}
+
+@keyframes seasonFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.5;
+  }
+}
+@keyframes seasonFlip {
+  from {
+    opacity: 0;
+    transform: perspective(600px) rotateX(-72deg);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes seasonDash {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes seasonRise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---- Magnetic drift (owner pick #2) ----
+   --drift-x/y are set by the pointer handler and cleared on leave. Safe on
+   .card because the reveal transform lives on .cell (see above). */
+.card {
+  transform: translate(var(--drift-x, 0), var(--drift-y, 0));
+}
+@media (prefers-reduced-motion: no-preference) {
+  .card {
+    transition:
+      opacity 0.25s ease,
+      transform 0.18s cubic-bezier(0.2, 0.9, 0.2, 1);
+  }
+}
+
+/* ---- Crest spin (owner pick #9) ---- */
+@media (prefers-reduced-motion: no-preference) {
+  .card:hover .crest,
+  .card:focus-visible .crest {
+    animation: seasonSpin 0.7s cubic-bezier(0.5, 0, 0.2, 1);
+  }
+}
+@keyframes seasonSpin {
+  to {
+    transform: rotate(360deg);
+  }
 }
