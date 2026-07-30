@@ -7070,19 +7070,19 @@ TASK-M56 enriched every player with a **true positional role** (one of 13 — GK
 
 **Prerender `/teams/[id]`, `/managers/[id]` + the dashboard — drop the server `?season=` read** · 🚧 In progress · `P2` · `L` · Type: Perf + UI
 
-> **⭐ START HERE — state as of 2026-07-30.** Decomposed into three sub-projects; **M71a is part-built on a draft PR.**
+> **⭐ START HERE — state as of 2026-07-30.** Decomposed into three sub-projects; **M71a is COMPLETE on [PR #64](https://github.com/AliEmad0/pitchiq/pull/64)** (every plan task except the post-deploy cache-guard promotion, which needs production verified first).
 >
 > | | Scope | State |
 > | --- | --- | --- |
-> | **M71a** | Season in the path: `/seasons/[year]`, the `/seasons` directory, `/` prerendered, redirect, switcher, sitemap | **Tasks 1–3 of 13 done** — [PR #64](https://github.com/AliEmad0/pitchiq/pull/64), **draft, do not merge yet** |
+> | **M71a** | Season in the path: `/seasons/[year]`, the `/seasons` directory, `/` prerendered, redirect, switcher, sitemap | **✅ Done** — [PR #64](https://github.com/AliEmad0/pitchiq/pull/64). Remaining: post-deploy cache-guard promotion (plan Task 12) |
 > | **M71b** | Section indexes (`/teams`, `/players`, `/fixtures`, `/leaderboards`, `/managers`) under the namespace | Not started |
 > | **M71c** | `/teams/[id]` + `/managers/[id]` client-side season swap | Not started |
 >
 > **Spec:** [`docs/superpowers/specs/2026-07-29-seasons-path-model-design.md`](docs/superpowers/specs/2026-07-29-seasons-path-model-design.md) · **Plan:** [`docs/superpowers/plans/2026-07-29-task-m71a-seasons-path-model.md`](docs/superpowers/plans/2026-07-29-task-m71a-seasons-path-model.md)
 >
-> **Done on PR #64:** `/` no longer reads `searchParams` and prerenders for the first time (`app/{en,ar}.html`); 34 season pages per locale prerender (total app pages 1837 → 1905). tsc + lint clean, 1264 unit tests, all guards green.
+> **Done on PR #64:** `/` no longer reads `searchParams` and prerenders for the first time (`app/{en,ar}.html`); 34 season pages + the `/seasons` directory prerender per locale (total app pages 1837 → 1907); edge redirects (`/seasons/<current>` → `/`, `?season=` → path form — Next forwards the matched query onto the destination, expected); the season card (A8 + logo, full motion set); switcher + both header navs are path-aware; sitemap lists the hub + 33 historical seasons. tsc + lint clean, 1275 unit tests, 36 e2e (production build), all guards green.
 >
-> **⛔ Blocker — resume at Task 5.** `/seasons/2025` currently prerenders and duplicates `/` (both self-canonical, identical content). The edge redirect `/seasons/<current>` → `/` must land before merge, or this ships duplicate content on the site's most important URL.
+> **Former blocker (Task 5) RESOLVED:** `/seasons/2025` 308s to `/` (both locales), pinned by `tests/unit/next-config-redirects.test.ts`, whose `source` patterns derive from `CURRENT_SEASON_FOR_REDIRECT` — rollover is a one-line change.
 >
 > ⚠️ **This is an SEO/product change, not a cost fix.** An earlier claim that `/` was "the biggest single remaining CPU win" was **unverified and probably wrong** — the [2026-07-25 spec](docs/superpowers/specs/2026-07-25-season-rendering-free-tier-design.md) measured list pages as bounded and cheap, and `/` was never shown to be expensive. Justify this work on making 34 seasons crawlable and browsable. M71c is likewise ~1% of CPU by that spec's own table.
 
