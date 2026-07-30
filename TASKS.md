@@ -7123,7 +7123,7 @@ managers    0        prerendered   (reads searchParams)
 /seasons/1985          status=200   renders the not-found page
 ```
 
-`src/app/[locale]/[...rest]/page.tsx` **correctly calls `notFound()`**, and `src/app/[locale]/not-found.tsx` exists, so the rendered content is right — only the status code is wrong. The cause is not established. Likely suspects, in order: the next-intl middleware rewrite swallowing the status; the catch-all being a *matched* route so Next treats the render as a success; or an interaction with `force-static` on the surrounding tree.
+`src/app/[locale]/[...rest]/page.tsx` **correctly calls `notFound()`**, and `src/app/[locale]/not-found.tsx` exists, so the rendered content is right — only the status code is wrong. **Worse (measured 2026-07-30, Playwright a11y snapshot against `next start`): an ungenerated param on a `dynamicParams: false` route (`/seasons/1985`) serves the app shell with the loading state stuck forever — no not-found copy, no heading at all.** So on that route class the content is wrong too, not just the status. `tests/e2e/seasons.spec.ts` pins only "no dashboard renders" for now — tighten it when this lands. The cause is not established. Likely suspects, in order: the next-intl middleware rewrite swallowing the status; the catch-all being a *matched* route so Next treats the render as a success; or an interaction with `force-static` on the surrounding tree.
 
 **Why it matters.** Google treats a soft 404 as a low-quality duplicate and can suppress the whole pattern. That is bad on any site and actively counterproductive on this one, where [TASK-M71](#task-m71) is spending real effort to make 34 season pages indexable. Bogus URLs competing with real ones undercuts it.
 
