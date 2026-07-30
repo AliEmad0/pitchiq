@@ -23,11 +23,16 @@ export type ManagerProfile = {
   matches: number;
 };
 
-export async function getTeamManagers(season: number, teamId: number): Promise<ManagerProfile[]> {
+export async function getTeamManagers(
+  season: number,
+  teamId: number,
+  // TASK-M71c: explicit locale for Route Handlers (see teams/api.ts getTeam).
+  locale?: string,
+): Promise<ManagerProfile[]> {
   const [managers, bios, names] = await Promise.all([
     loadManagers(),
     loadManagerBios(),
-    getEntityNames(),
+    getEntityNames(locale),
   ]);
   const list = managers?.[String(season)]?.[String(teamId)] ?? [];
   return list.map((m) => {

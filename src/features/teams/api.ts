@@ -40,6 +40,9 @@ import { seedAge } from "@/utils/age";
 export async function getTeam(
   id: number,
   season: number = currentDataSeason(),
+  // TASK-M71c: Route Handlers have no [locale] segment — they pass the locale
+  // explicitly; RSC callers omit it and getEntityNames() reads the request.
+  locale?: string,
 ): Promise<TeamDetail | null> {
   const [teams, clubMeta, clubLogos] = await Promise.all([
     loadTeams(season),
@@ -55,7 +58,13 @@ export async function getTeam(
     logger.info("team.not_found", { id, season });
     return null;
   }
-  return toTeamDetail(team, season, clubLogos, clubMeta?.[String(team.id)], await getEntityNames());
+  return toTeamDetail(
+    team,
+    season,
+    clubLogos,
+    clubMeta?.[String(team.id)],
+    await getEntityNames(locale),
+  );
 }
 
 /**
@@ -79,6 +88,8 @@ export async function getTeam(
 export async function getSquad(
   id: number,
   season: number = currentDataSeason(),
+  // TASK-M71c: explicit locale for Route Handlers (see getTeam).
+  locale?: string,
 ): Promise<SquadPlayer[] | null> {
   const players = await loadSquad(id, season);
   if (!players) {
@@ -91,7 +102,7 @@ export async function getSquad(
   }
   // TASK-M41: mark the season's captain (read-time join; no player-file change).
   const captainId = captainIdFor(await loadCaptains(), season, id);
-  const names = await getEntityNames();
+  const names = await getEntityNames(locale);
   return players.map((p) => toSquadPlayer(p, captainId, names));
 }
 
