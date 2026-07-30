@@ -7113,7 +7113,13 @@ managers    0        prerendered   (reads searchParams)
 
 ### TASK-M72
 
-**Fix app-wide soft 404s — the not-found page returns HTTP 200** · 📋 Ready · `P2` · `S` · Type: SEO + Bug
+**Fix app-wide soft 404s — the not-found page returns HTTP 200** · ✅ Done · `P2` · `S` · Type: SEO + Bug
+
+> **✅ ROOT-CAUSED AND FIXED 2026-07-30.** The cause was none of the suspects below: **any `loading.tsx` boundary above a `notFound()`-throwing segment lets Next flush the 200 shell (status line included) before the page runs** — `notFound()` then fires mid-stream, when Next can only inject `<meta name="robots" content="noindex">` and swap the UI client-side. Proven by bisection on a production build: with the boundaries deleted, every probe flips 200 → 404; `generateMetadata`-`notFound()` does NOT help (tested — under a boundary, metadata resolves after the flush too); the middleware never touches statuses (`/api/*`, outside the matcher, always 404'd).
+>
+> **The fix deleted all six `loading.tsx` files** (the global `[locale]` one + players, players/[id], managers, managers/[id], teams/[id]) and gave `/map` the local `<Suspense>` its nuqs `useSearchParams()` actually needs (it was silently leaning on the global boundary — removing it broke the build until wrapped). Every unknown URL — catch-all, `/players|teams|managers/<bogus>`, `/seasons/1985`, `/ar/*` — now returns a real **404** with the localized VAR panel inside the shell, both locales; `tests/e2e/not-found.spec.ts` pins the statuses plus 200 controls.
+>
+> **Deliberate trade-offs, flag to owner:** (1) client-side navigations no longer show the VAR-check/skeleton fallbacks — the URL commits when the destination responds (measured ~1.5s worst-case in dev, imperceptible on the CDN-served production; all data is local JSON). If the skeletons are missed, the 404-safe shape is per-page `<Suspense>` around the heavy body AFTER a cheap existence check — never a `loading.tsx` above a segment that can 404. (2) A **known** entity viewed on a season it has no data for still renders its not-found UI with HTTP 200 — those are `?season=` URLs, which robots.txt already blocks from crawling.
 
 **Every unknown URL on this site returns HTTP 200 with the not-found page.** Measured 2026-07-30 against a local production build:
 
