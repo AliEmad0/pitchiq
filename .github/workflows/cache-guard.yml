@@ -131,18 +131,17 @@ jobs:
           }
 
           # ENFORCED — these must stay CDN-served. A prerendered entity page
-          # (the highest-traffic route), its Arabic twin, and a route that
+          # (the highest-traffic route), its Arabic twin, a route that
           # bypasses middleware entirely (the control — if that one fails, the
-          # problem is not middleware).
+          # problem is not middleware), and — since TASK-M71a — the dashboard
+          # and the season pages (verified HIT + public on 2026-07-30 after
+          # PR #64 deployed).
           check "player profile (prerendered)" "/players/1001119"
           check "player profile — Arabic"      "/ar/players/1001119"
           check "robots.txt (middleware-exempt control)" "/robots.txt"
-
-          # REPORT-ONLY — known-dynamic, fix tracked on the board.
-          # The dashboard reads the server `searchParams` prop (`?season=`),
-          # which opts it into dynamic rendering; `force-static` cannot override
-          # that. Same root cause as /teams/[id] and /managers/[id].
-          note "dashboard" "/" "TASK-M71"
+          check "dashboard"                    "/"
+          check "seasons directory"            "/seasons"
+          check "a historical season"          "/seasons/2003"
 
           echo
           if [ "$fail" -ne 0 ]; then
