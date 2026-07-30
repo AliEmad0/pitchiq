@@ -5,6 +5,9 @@ import { NuqsTestingAdapter } from "nuqs/adapters/testing";
 
 vi.mock("next/navigation", () => ({
   usePathname: vi.fn(),
+  // TASK-M71a: the inner <SeasonSwitcher> mounts the router for path-mode
+  // navigation on `/` and `/seasons/*`.
+  useRouter: () => ({ push: vi.fn() }),
 }));
 
 import { usePathname } from "next/navigation";
