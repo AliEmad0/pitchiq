@@ -12,16 +12,15 @@ vi.mock("@/utils/logger", () => ({
 }));
 
 // not-found.tsx is a Server Component that localizes via getTranslations
-// (TASK-1603); loading.tsx and error.tsx are Client Components using
-// useTranslations (rendered under the intl provider via renderWithIntl) —
-// loading.tsx became one in TASK-M71a: as a server component it streamed
-// before the page with no request context and poisoned next-intl's config
-// cache with the "en" fallback on force-static /ar renders.
+// (TASK-1603); error.tsx is a Client Component using useTranslations
+// (rendered under the intl provider via renderWithIntl). There is NO
+// loading.tsx: TASK-M72 removed every loading boundary above notFound()-
+// throwing segments — a Suspense boundary lets Next flush the 200 shell
+// before the page runs, which made every unknown URL a soft 404.
 vi.mock("next-intl/server", () => import("./_helpers/intl-server"));
 
 import { logger } from "@/utils/logger";
 
-import Loading from "@/app/[locale]/loading";
 import GlobalError from "@/app/[locale]/error";
 import NotFound from "@/app/[locale]/not-found";
 
@@ -33,18 +32,6 @@ afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
   mockedError.mockClear();
-});
-
-describe("loading.tsx", () => {
-  it("renders a live status region with a loading indicator and label", () => {
-    renderWithIntl(<Loading />);
-
-    const status = screen.getByRole("status");
-    expect(status).toBeInTheDocument();
-    expect(status).toHaveAttribute("aria-live", "polite");
-    // TASK-1503 "VAR review" theme: the loading label reads as a VAR check.
-    expect(status).toHaveTextContent(/VAR check in progress/i);
-  });
 });
 
 describe("error.tsx", () => {

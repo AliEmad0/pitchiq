@@ -40,7 +40,9 @@ test.describe("Player profile page", () => {
   });
 
   test("renders the not-found boundary for an unknown id", async ({ page }) => {
-    await page.goto("/players/9999999");
+    // TASK-M72: a real 404 status, not just the boundary UI.
+    const res = await page.goto("/players/9999999");
+    expect(res?.status()).toBe(404);
     await expect(page.getByText(/player not found/i)).toBeVisible();
   });
 

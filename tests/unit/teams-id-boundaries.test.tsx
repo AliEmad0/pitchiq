@@ -6,51 +6,15 @@ import { cleanup, render, screen } from "@testing-library/react";
 // the real English strings without a request context.
 vi.mock("next-intl/server", () => import("./_helpers/intl-server"));
 
-import TeamProfileLoading from "@/app/[locale]/teams/[id]/loading";
 import TeamNotFound from "@/app/[locale]/teams/[id]/not-found";
-
-import { renderWithIntl } from "./_helpers/intl";
 
 afterEach(() => {
   cleanup();
 });
 
-// loading.tsx renders <SquadGridSkeleton>, which localizes via useTranslations
-// (TASK-1603 batch 4) → wrap in the intl provider. The not-found tests below use
-// bare `render(await …)` since BoundaryPanel is prop-driven (no hooks).
-describe("/teams/[id] loading.tsx", () => {
-  it("renders a live status region announced as the team-profile loader", () => {
-    renderWithIntl(<TeamProfileLoading />);
-
-    const status = screen.getByRole("status", {
-      name: "Loading team profile",
-    });
-    expect(status).toBeTruthy();
-    expect(status.getAttribute("aria-live")).toBe("polite");
-  });
-
-  it("includes a hero placeholder + the three section skeletons (stats / form / squad)", () => {
-    const { container } = renderWithIntl(<TeamProfileLoading />);
-    // Each section skeleton carries role="status" or aria-label; the
-    // section skeletons should appear as descendants of the outer <main>.
-    const main = container.querySelector("main");
-    expect(main).not.toBeNull();
-    // The outer main + 4 nested status regions = 5 total.
-    // (TeamStatsTilesSkeleton ul carries role=status; SquadGridSkeleton
-    // exposes multiple PlayerChipSkeleton role=status regions; the form
-    // skeleton card itself is role=status. We assert the count is at
-    // least 5 to allow for nested skeletons.)
-    const statusNodes = container.querySelectorAll('[role="status"]');
-    expect(statusNodes.length).toBeGreaterThanOrEqual(5);
-  });
-
-  it("uses the same container-page width as the real team page", () => {
-    const { container } = renderWithIntl(<TeamProfileLoading />);
-    const main = container.querySelector("main");
-    expect(main?.className).toContain("container-page");
-  });
-});
-
+// The route's loading.tsx was REMOVED in TASK-M72: its Suspense boundary let
+// Next flush a 200 shell before the page's notFound() ran, so unknown team
+// ids were soft 404s. The page's per-section Suspense skeletons remain.
 describe("/teams/[id] not-found.tsx", () => {
   it("renders the team-specific 404 copy and two routing actions", async () => {
     render(await TeamNotFound());

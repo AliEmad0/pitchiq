@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { Suspense } from "react";
 
 import { GEO_REFERENCE } from "@/data/geo-reference";
 import { getAvailableSeasons, loadClubLogos, loadStandings, loadTeamColors } from "@/data/loaders";
@@ -59,12 +60,17 @@ export default async function MapPage({ params }: Props) {
     // (TASK-1515, concept #30); the map + attribution re-contain themselves.
     <main className="space-y-6 py-6 lg:py-10">
       {/* The page title is the sticky letterbox caption inside <MapExplorer>. */}
-      <MapExplorer
-        clubs={clubs}
-        activeBySeason={activeBySeason}
-        seasons={seasonsAsc}
-        titlesByClub={titlesByClub}
-      />
+      {/* <MapExplorer> reads the URL via nuqs (useSearchParams), which needs a
+          Suspense ancestor to keep this page statically prerenderable — it can
+          no longer lean on a global loading.tsx boundary (TASK-M72). */}
+      <Suspense>
+        <MapExplorer
+          clubs={clubs}
+          activeBySeason={activeBySeason}
+          seasons={seasonsAsc}
+          titlesByClub={titlesByClub}
+        />
+      </Suspense>
       <p className="container-page text-muted-foreground text-xs">
         {t.rich("attribution", {
           link: (chunks) => (
