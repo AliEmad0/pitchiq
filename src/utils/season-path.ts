@@ -26,3 +26,14 @@ export function parseSeasonSegment(segment: string): number | null {
   if (year < EARLIEST_SEASON || year > LATEST_DATA_SEASON) return null;
   return year;
 }
+
+/**
+ * The season a (locale-stripped) pathname is viewing, or null when it isn't a
+ * `/seasons/<year>` page. Client nav components use this so links keep
+ * carrying the viewed season (TASK-M25) now that the dashboard's season lives
+ * in the path instead of `?season=`.
+ */
+export function seasonFromPathname(pathname: string): number | null {
+  const m = /^\/seasons\/([^/]+)$/.exec(pathname);
+  return m ? parseSeasonSegment(m[1]) : null;
+}

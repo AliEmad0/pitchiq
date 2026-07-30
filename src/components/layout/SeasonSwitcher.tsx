@@ -13,7 +13,7 @@ import {
 import { useSeason } from "@/hooks/useSeason";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { currentDataSeason, formatSeasonLabel } from "@/utils/season";
-import { parseSeasonSegment, seasonPath } from "@/utils/season-path";
+import { seasonFromPathname, seasonPath } from "@/utils/season-path";
 
 // Shadcn Select bound to the active season. On the dashboard routes (`/` and
 // `/seasons/*`, TASK-M71a) the season lives in the PATH: picking an option
@@ -37,10 +37,7 @@ export function SeasonSwitcher({ seasons }: { seasons: number[] }) {
   const [season, setSeason] = useSeason();
 
   const seasonIsInPath = pathname === "/" || pathname.startsWith("/seasons");
-  const pathSeason = pathname.startsWith("/seasons/")
-    ? parseSeasonSegment(pathname.split("/")[2] ?? "")
-    : null;
-  const value = seasonIsInPath ? (pathSeason ?? currentDataSeason()) : season;
+  const value = seasonIsInPath ? (seasonFromPathname(pathname) ?? currentDataSeason()) : season;
 
   return (
     <Select

@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/utils/cn";
 import { withSeason } from "@/utils/season";
+import { seasonFromPathname } from "@/utils/season-path";
 
 import { NAV_ITEMS, PRIMARY_NAV_HREFS } from "./nav-items";
 
@@ -102,8 +103,13 @@ function NavList({ season }: { season: string | null }) {
 }
 
 function NavListWithSeason() {
-  const season = useSearchParams().get("season");
-  return <NavList season={season} />;
+  // TASK-M71a: on `/seasons/<year>` the viewed season lives in the PATH, so
+  // links must carry it from there — `?season=` covers the not-yet-migrated
+  // routes. The current season (viewed at `/`) stays bare, as before.
+  const pathname = usePathname();
+  const query = useSearchParams().get("season");
+  const pathSeason = seasonFromPathname(pathname);
+  return <NavList season={pathSeason !== null ? String(pathSeason) : query} />;
 }
 
 export function PrimaryNav() {

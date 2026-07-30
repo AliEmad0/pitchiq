@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/sheet";
 import { cn } from "@/utils/cn";
 import { withSeason } from "@/utils/season";
+import { seasonFromPathname } from "@/utils/season-path";
 
 import { NAV_ITEMS } from "./nav-items";
 
@@ -57,8 +58,17 @@ export function MobileNav() {
 }
 
 function MobileNavLinksWithSeason({ onNavigate }: { onNavigate: () => void }) {
-  const season = useSearchParams().get("season");
-  return <MobileNavLinks season={season} onNavigate={onNavigate} />;
+  // TASK-M71a: mirror of <PrimaryNav> — the path season wins on
+  // `/seasons/<year>`, `?season=` covers the not-yet-migrated routes.
+  const pathname = usePathname();
+  const query = useSearchParams().get("season");
+  const pathSeason = seasonFromPathname(pathname);
+  return (
+    <MobileNavLinks
+      season={pathSeason !== null ? String(pathSeason) : query}
+      onNavigate={onNavigate}
+    />
+  );
 }
 
 function MobileNavLinks({ season, onNavigate }: { season: string | null; onNavigate: () => void }) {

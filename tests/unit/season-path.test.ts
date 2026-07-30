@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { EARLIEST_SEASON, LATEST_DATA_SEASON } from "@/utils/season";
-import { parseSeasonSegment, seasonPath } from "@/utils/season-path";
+import { parseSeasonSegment, seasonFromPathname, seasonPath } from "@/utils/season-path";
 
 describe("seasonPath", () => {
   it("builds the season pathname", () => {
@@ -29,5 +29,19 @@ describe("parseSeasonSegment", () => {
 
   it("round-trips", () => {
     expect(parseSeasonSegment(seasonPath(2010).split("/").pop()!)).toBe(2010);
+  });
+});
+
+// TASK-M71a — the switcher and both navs derive the viewed season from the
+// pathname on the path-model routes.
+describe("seasonFromPathname", () => {
+  it("extracts a committed season from /seasons/<year>", () => {
+    expect(seasonFromPathname("/seasons/2003")).toBe(2003);
+  });
+
+  it("returns null for the directory, the dashboard, and other routes", () => {
+    for (const p of ["/seasons", "/", "/teams", "/seasons/1985", "/seasons/2003/extra"]) {
+      expect(seasonFromPathname(p)).toBeNull();
+    }
   });
 });
