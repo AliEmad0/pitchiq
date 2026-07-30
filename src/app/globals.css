@@ -490,6 +490,10 @@
 :root[data-reveal-ready] [data-reveal][data-reveal-depth][data-revealed] {
   opacity: 1;
   transform: none;
+  /* The base revealed rule would still run reveal-rise here (its `animation`
+     doesn't conflict with these properties, so both rules apply) and the 2D
+     rise masks the depth transition — suppress it. */
+  animation: none;
   transition:
     opacity 0.8s ease,
     transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
