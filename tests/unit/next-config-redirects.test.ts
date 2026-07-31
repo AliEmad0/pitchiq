@@ -31,4 +31,29 @@ describe("next.config redirects", () => {
       expect.objectContaining({ source: "/ar", destination: "/ar/seasons/:season" }),
     );
   });
+
+  // TASK-M71b — the section indexes join the season-path model. Same rollover
+  // guarantee: the current-season literal derives from CURRENT_SEASON_FOR_REDIRECT.
+  const SECTIONS = ["teams", "players", "fixtures", "leaderboards", "managers"];
+
+  it("redirects each section's current-season path form to the bare URL", async () => {
+    const redirects = (await nextConfig.redirects?.()) ?? [];
+    const sources = redirects.map((r) => r.source);
+    for (const s of SECTIONS) {
+      expect(sources).toContain(`/seasons/:year(${CURRENT_SEASON_FOR_REDIRECT})/${s}`);
+      expect(sources).toContain(`/ar/seasons/:year(${CURRENT_SEASON_FOR_REDIRECT})/${s}`);
+    }
+  });
+
+  it("redirects each section's legacy ?season= links to the path form", async () => {
+    const redirects = (await nextConfig.redirects?.()) ?? [];
+    for (const s of SECTIONS) {
+      expect(redirects).toContainEqual(
+        expect.objectContaining({ source: `/${s}`, destination: `/seasons/:season/${s}` }),
+      );
+      expect(redirects).toContainEqual(
+        expect.objectContaining({ source: `/ar/${s}`, destination: `/ar/seasons/:season/${s}` }),
+      );
+    }
+  });
 });

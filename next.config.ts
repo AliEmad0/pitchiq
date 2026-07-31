@@ -21,6 +21,38 @@ const nextConfig: NextConfig = {
     remotePatterns: [{ protocol: "https", hostname: "**" }],
   },
   async redirects() {
+    // TASK-M71b — the section indexes join the season-path model. Kept in sync
+    // with src/features/seasons/section-slugs.ts by
+    // tests/unit/next-config-redirects.test.ts (next.config can't import `@/`).
+    const SECTIONS = ["teams", "players", "fixtures", "leaderboards", "managers"];
+    const sectionRedirects = SECTIONS.flatMap((s) => [
+      // Current season's nested form → the bare section URL (both locales).
+      {
+        source: `/seasons/:year(${CURRENT_SEASON_FOR_REDIRECT})/${s}`,
+        destination: `/${s}`,
+        permanent: true,
+      },
+      {
+        source: `/ar/seasons/:year(${CURRENT_SEASON_FOR_REDIRECT})/${s}`,
+        destination: `/ar/${s}`,
+        permanent: true,
+      },
+      // Legacy `?season=` → the path form (both locales). Next forwards the
+      // query onto the destination; harmless (the page self-canonicalises).
+      {
+        source: `/${s}`,
+        has: [{ type: "query", key: "season", value: "(?<season>\\d{4})" }],
+        destination: `/seasons/:season/${s}`,
+        permanent: true,
+      },
+      {
+        source: `/ar/${s}`,
+        has: [{ type: "query", key: "season", value: "(?<season>\\d{4})" }],
+        destination: `/ar/seasons/:season/${s}`,
+        permanent: true,
+      },
+    ]);
+
     return [
       // The current season is `/`; its path form must not be a second URL.
       {
@@ -49,6 +81,7 @@ const nextConfig: NextConfig = {
         destination: "/ar/seasons/:season",
         permanent: true,
       },
+      ...sectionRedirects,
     ];
   },
 };
