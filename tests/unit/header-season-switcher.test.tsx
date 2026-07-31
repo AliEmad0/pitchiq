@@ -46,9 +46,12 @@ describe("HeaderSeasonSwitcher", () => {
     expect(screen.getByRole("combobox", { name: "Season" })).toBeInTheDocument();
   });
 
-  it("renders the global season switcher on /compare", () => {
+  // TASK-M71b: /compare has its own per-slot season pickers and the global
+  // switcher no longer writes a `?season=` it could consume, so it hides here
+  // (like /map).
+  it("hides the global switcher on /compare", () => {
     renderAt("/compare");
-    expect(screen.getByRole("combobox", { name: "Season" })).toBeInTheDocument();
+    expect(screen.queryByRole("combobox", { name: "Season" })).not.toBeInTheDocument();
   });
 
   it("hides the global switcher on a player detail page", () => {

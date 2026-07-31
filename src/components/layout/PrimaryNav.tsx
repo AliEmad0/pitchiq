@@ -2,8 +2,6 @@
 
 import { ChevronDown } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
 
 import { Link, usePathname } from "@/i18n/navigation";
 
@@ -14,16 +12,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/utils/cn";
-import { withSeason } from "@/utils/season";
-import { seasonFromPathname } from "@/utils/season-path";
+import { currentDataSeason } from "@/utils/season";
+import { navHrefForSeason, seasonFromPathname } from "@/utils/season-path";
 
 import { NAV_ITEMS, PRIMARY_NAV_HREFS } from "./nav-items";
 
 // Phase 15 redesign (TASK-1502): a segmented pill nav. The PRIMARY_NAV_HREFS
-// render inline; the rest fold into a "More ▾" dropdown. Reads the active
-// `?season=` so every link preserves the viewed season (TASK-M25 follow-up);
-// `useSearchParams` is wrapped in <Suspense> so static pages still prerender
-// (the AppShell gotcha) — the fallback renders the bare-href nav.
+// render inline; the rest fold into a "More ▾" dropdown. Since TASK-M71b the
+// viewed season lives entirely in the PATH (no `?season=`), so links carry it
+// in the path form via `navHrefForSeason` — e.g. on `/seasons/2003/teams`,
+// "Players" → `/seasons/2003/players`; on a current-season page links stay bare.
+// No `useSearchParams` anymore, so no Suspense boundary needed (the layout
+// stays statically prerenderable).
 const PRIMARY = NAV_ITEMS.filter((i) => PRIMARY_NAV_HREFS.includes(i.href));
 const OVERFLOW = NAV_ITEMS.filter((i) => !PRIMARY_NAV_HREFS.includes(i.href));
 
@@ -34,15 +34,13 @@ function isActive(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-function linkFor(href: string, season: string | null): string {
-  const n = season ? Number.parseInt(season, 10) : NaN;
-  return Number.isFinite(n) ? withSeason(href, n) : href;
-}
-
-function NavList({ season }: { season: string | null }) {
+export function PrimaryNav() {
   const pathname = usePathname();
   const t = useTranslations("nav");
   const tc = useTranslations("controls");
+  const season = seasonFromPathname(pathname);
+  const current = currentDataSeason();
+  const linkFor = (href: string) => navHrefForSeason(href, season, current);
   const overflowActive = OVERFLOW.some((i) => isActive(pathname, i.href));
 
   return (
@@ -53,7 +51,7 @@ function NavList({ season }: { season: string | null }) {
           return (
             <Link
               key={item.href}
-              href={linkFor(item.href, season)}
+              href={linkFor(item.href)}
               aria-current={active ? "page" : undefined}
               className={cn(
                 "ix-glow rounded-md px-3 py-1.5 text-sm font-medium",
@@ -86,7 +84,7 @@ function NavList({ season }: { season: string | null }) {
               return (
                 <DropdownMenuItem key={item.href} asChild>
                   <Link
-                    href={linkFor(item.href, season)}
+                    href={linkFor(item.href)}
                     aria-current={active ? "page" : undefined}
                     className={cn("w-full cursor-pointer", active && "text-primary font-medium")}
                   >
@@ -99,23 +97,5 @@ function NavList({ season }: { season: string | null }) {
         </DropdownMenu>
       </div>
     </nav>
-  );
-}
-
-function NavListWithSeason() {
-  // TASK-M71a: on `/seasons/<year>` the viewed season lives in the PATH, so
-  // links must carry it from there — `?season=` covers the not-yet-migrated
-  // routes. The current season (viewed at `/`) stays bare, as before.
-  const pathname = usePathname();
-  const query = useSearchParams().get("season");
-  const pathSeason = seasonFromPathname(pathname);
-  return <NavList season={pathSeason !== null ? String(pathSeason) : query} />;
-}
-
-export function PrimaryNav() {
-  return (
-    <Suspense fallback={<NavList season={null} />}>
-      <NavListWithSeason />
-    </Suspense>
   );
 }

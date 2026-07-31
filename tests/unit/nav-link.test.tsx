@@ -60,40 +60,41 @@ describe("NavLink", () => {
     expect(screen.getByRole("link", { name: "Dashboard" })).toHaveAttribute("aria-current", "page");
   });
 
-  it("appends the active season to the href so navigation preserves it", () => {
-    mockUsePathname.mockReturnValue("/");
+  // TASK-M71b — the viewed season is carried in the PATH, not `?season=`.
+  it("carries a historical season into the href as the /seasons/<year> path form", () => {
+    mockUsePathname.mockReturnValue("/seasons/2003/teams");
     render(
-      <NavLink href="/teams" season="2003">
+      <NavLink href="/teams" season={2003}>
         Teams
       </NavLink>,
     );
 
     expect(screen.getByRole("link", { name: "Teams" })).toHaveAttribute(
       "href",
-      "/teams?season=2003",
+      "/seasons/2003/teams",
     );
   });
 
-  it("appends the season to the Dashboard link and still matches the active path", () => {
+  it("carries the season onto the Dashboard link and still matches the active path", () => {
     mockUsePathname.mockReturnValue("/");
     render(
-      <NavLink href="/" season="2003">
+      <NavLink href="/" season={2003}>
         Dashboard
       </NavLink>,
     );
 
     const link = screen.getByRole("link", { name: "Dashboard" });
-    expect(link).toHaveAttribute("href", "/?season=2003");
+    expect(link).toHaveAttribute("href", "/seasons/2003");
     expect(link).toHaveAttribute("aria-current", "page"); // active match uses the bare href
   });
 
-  it("keeps the bare href when no season is set or the season is non-numeric", () => {
+  it("keeps the bare href for the current season or when no season is set", () => {
     mockUsePathname.mockReturnValue("/");
     const { rerender } = render(<NavLink href="/teams">Teams</NavLink>);
     expect(screen.getByRole("link", { name: "Teams" })).toHaveAttribute("href", "/teams");
 
     rerender(
-      <NavLink href="/teams" season="abc">
+      <NavLink href="/teams" season={null}>
         Teams
       </NavLink>,
     );

@@ -33,7 +33,8 @@ import {
 import { TriviaSection } from "@/features/trivia/components/TriviaSection";
 import { isRtl, localizeDigits } from "@/utils/format";
 import { revealProps } from "@/utils/reveal";
-import { withSeason } from "@/utils/season";
+import { currentDataSeason } from "@/utils/season";
+import { navHrefForSeason } from "@/utils/season-path";
 
 /**
  * Phase 15 redesign (TASK-1504) — the "Bento" dashboard. A standings hero tile
@@ -69,7 +70,12 @@ export async function SeasonDashboard({ season, locale }: { season: number; loca
   // an in-progress season keeps "Recent Results". Both render under the
   // "Fixtures" heading (TASK-M21). Reuses the deduped loadFixtures read.
   const showClassicMatches = (await getSeasonStateForSeason(effectiveSeason)) === "ended";
-  const leaderboardsHref = withSeason("/leaderboards", effectiveSeason);
+  // TASK-M71b — the section indexes live in the season path. On `/seasons/<year>`
+  // these link to `/seasons/<year>/<section>`; on the current-season dashboard
+  // they stay bare. (Entity links elsewhere keep `withSeason` — the accepted
+  // index→detail `?season=` crossing.)
+  const seasonForLinks = effectiveSeason === currentDataSeason() ? null : effectiveSeason;
+  const leaderboardsHref = navHrefForSeason("/leaderboards", seasonForLinks, currentDataSeason());
 
   return (
     <div className="container-page py-6 lg:py-10">
@@ -170,7 +176,7 @@ export async function SeasonDashboard({ season, locale }: { season: number; loca
               {/* text-xs to match the Top Scorers / Yellow / Red leaderboard
                   "See all →" links (TASK-1504 — keep every tile's link uniform). */}
               <Link
-                href={withSeason("/fixtures", effectiveSeason)}
+                href={navHrefForSeason("/fixtures", seasonForLinks, currentDataSeason())}
                 className="text-muted-foreground hover:text-foreground shrink-0 text-xs font-medium transition-colors"
               >
                 {tc("seeAll")}

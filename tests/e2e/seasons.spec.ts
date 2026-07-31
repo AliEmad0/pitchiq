@@ -66,11 +66,38 @@ test("/ar renders a season page RTL with Arabic content", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 });
 
-// TASK-M25 under the path model: header links keep carrying the viewed season
-// from a CLEAN /seasons/<year> URL (no lingering ?season= to lean on).
+// TASK-M71b — from a season dashboard, the nav carries the season in the PATH
+// (the section indexes are now season-path pages, not `?season=`).
 test("the header nav carries the season from a clean season path", async ({ page }) => {
   await page.goto("/seasons/2003");
   const nav = page.getByRole("navigation", { name: "Primary" });
   await nav.getByRole("link", { name: "Teams", exact: true }).click();
-  await expect(page).toHaveURL(/\/teams\?season=2003$/);
+  await expect(page).toHaveURL(/\/seasons\/2003\/teams$/);
+});
+
+// TASK-M71b — section indexes as season-path pages.
+test("a historical section index renders and the current season's redirects", async ({ page }) => {
+  await page.goto("/seasons/2003/teams");
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  // Current season's nested form 308s to the bare index.
+  await page.goto("/seasons/2025/teams");
+  await expect(page).toHaveURL(/\/teams$/);
+  // Legacy ?season= 308s to the path form (Next forwards the query — allowed).
+  await page.goto("/players?season=2010");
+  await expect(page).toHaveURL(/\/seasons\/2010\/players(\?season=2010)?$/);
+});
+
+test("/ar renders a season-section page RTL", async ({ page }) => {
+  await page.goto("/ar/seasons/2003/managers");
+  await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+  await expect(page.locator("html")).toHaveAttribute("lang", "ar");
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+});
+
+// TASK-M72 must hold: an unknown section or year 404s (never a soft 404).
+test("an unknown section or year returns 404", async ({ page }) => {
+  const badSection = await page.goto("/seasons/2003/nonsense");
+  expect(badSection?.status()).toBe(404);
+  const badYear = await page.goto("/seasons/1985/teams");
+  expect(badYear?.status()).toBe(404);
 });

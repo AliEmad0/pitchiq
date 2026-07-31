@@ -57,14 +57,22 @@ describe("PrimaryNav — segmented pill (Phase 15)", () => {
     expect(screen.getByRole("link", { name: "Compare" })).not.toHaveAttribute("aria-current");
   });
 
-  it("carries the active season onto the pill links", () => {
-    mockPathname.mockReturnValue("/");
-    mockSearchParams.mockReturnValue(sp("season=2003"));
+  // TASK-M71b — the viewed season comes from the PATH; pill links carry it in
+  // the /seasons/<year>/<section> form.
+  it("carries the viewed season onto the pill links in the path form", () => {
+    mockPathname.mockReturnValue("/seasons/2003/teams");
     renderWithIntl(<PrimaryNav />);
 
-    expect(screen.getByRole("link", { name: "Teams" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Players" })).toHaveAttribute(
       "href",
-      "/teams?season=2003",
+      "/seasons/2003/players",
     );
+  });
+
+  it("keeps bare pill links on the current-season index", () => {
+    mockPathname.mockReturnValue("/teams");
+    renderWithIntl(<PrimaryNav />);
+
+    expect(screen.getByRole("link", { name: "Players" })).toHaveAttribute("href", "/players");
   });
 });
