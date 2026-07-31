@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 
 import { getAvailableSeasons, loadFixtures, loadPlayers, loadTeams } from "@/data/loaders";
+import { SECTION_SLUGS } from "@/features/seasons/section-slugs";
 import { currentDataSeason } from "@/utils/season";
 import { getSiteUrl } from "@/utils/site-url";
 
@@ -71,6 +72,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.5,
     }));
 
+  // TASK-M71b — each historical season's five section indexes. Current season
+  // excluded (it lives at the bare /<section>, and /seasons/<current>/<section>
+  // redirects). ~33 × 5 = 165 URLs, each with its /ar alternate.
+  const seasonSectionRoutes: MetadataRoute.Sitemap = (await getAvailableSeasons())
+    .filter((s) => s !== season)
+    .flatMap((s) =>
+      SECTION_SLUGS.map((sec) => ({
+        url: `${base}/seasons/${s}/${sec}`,
+        alternates: langs(`/seasons/${s}/${sec}`),
+        changeFrequency: "yearly" as const,
+        priority: 0.4,
+      })),
+    );
+
   const teamRoutes: MetadataRoute.Sitemap = (teams ?? []).map((t) => ({
     url: `${base}/teams/${t.id}`,
     alternates: langs(`/teams/${t.id}`),
@@ -92,5 +107,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.4,
   }));
 
-  return [...staticRoutes, ...seasonRoutes, ...teamRoutes, ...playerRoutes, ...fixtureRoutes];
+  return [
+    ...staticRoutes,
+    ...seasonRoutes,
+    ...seasonSectionRoutes,
+    ...teamRoutes,
+    ...playerRoutes,
+    ...fixtureRoutes,
+  ];
 }

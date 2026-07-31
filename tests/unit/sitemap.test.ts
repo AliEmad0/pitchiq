@@ -43,6 +43,19 @@ describe("sitemap", () => {
     // must NOT be listed — a sitemap lists canonical URLs only.
     expect(urls).not.toContain("https://pitchiq-pl.vercel.app/seasons/2025");
   });
+
+  // TASK-M71b — each historical season's section indexes are crawlable pages.
+  it("lists each historical season's section indexes and excludes the current season's", async () => {
+    vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://pitchiq-pl.vercel.app");
+    const urls = (await sitemap()).map((e) => e.url);
+    expect(urls).toContain("https://pitchiq-pl.vercel.app/seasons/2003/teams");
+    expect(urls).toContain("https://pitchiq-pl.vercel.app/seasons/2010/players");
+    expect(urls).toContain("https://pitchiq-pl.vercel.app/seasons/2003/managers");
+    // Current season lives at the bare /teams; its path form redirects.
+    expect(urls).not.toContain("https://pitchiq-pl.vercel.app/seasons/2025/teams");
+    // The bare section index stays listed once.
+    expect(urls).toContain("https://pitchiq-pl.vercel.app/teams");
+  });
 });
 
 describe("robots", () => {
