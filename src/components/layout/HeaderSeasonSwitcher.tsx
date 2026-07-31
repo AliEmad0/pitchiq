@@ -18,6 +18,10 @@ export function HeaderSeasonSwitcher({ seasons }: { seasons: number[] }) {
   const pathname = usePathname();
   // /map owns its own season control (the timeline slider) — TASK-M27.
   if (pathname === "/map") return null;
+  // /compare has its own per-slot season pickers; the global season isn't
+  // meaningful there, and since TASK-M71b the switcher only navigates the
+  // season path (it no longer writes a `?season=` /compare ignored).
+  if (pathname === "/compare") return null;
   if (pathname && ENTITY_DETAIL_ROUTE.test(pathname)) return null;
   return <SeasonSwitcher seasons={seasons} />;
 }

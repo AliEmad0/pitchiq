@@ -1,3 +1,5 @@
+import { SECTION_SLUGS } from "@/features/seasons/section-slugs";
+
 import { EARLIEST_SEASON, LATEST_DATA_SEASON } from "./season";
 
 /**
@@ -34,6 +36,46 @@ export function parseSeasonSegment(segment: string): number | null {
  * in the path instead of `?season=`.
  */
 export function seasonFromPathname(pathname: string): number | null {
-  const m = /^\/seasons\/([^/]+)$/.exec(pathname);
+  // `/seasons/<year>` (dashboard) or `/seasons/<year>/<section>` (TASK-M71b).
+  const m = /^\/seasons\/(\d{4})(?:\/[a-z]+)?$/.exec(pathname);
   return m ? parseSeasonSegment(m[1]) : null;
+}
+
+// The section slug of a (locale-stripped) pathname — `/teams` or
+// `/seasons/<year>/teams` → "teams" — or null when it isn't a section index.
+function sectionOf(pathname: string): string | null {
+  const m = /^\/(?:seasons\/\d{4}\/)?([a-z]+)$/.exec(pathname);
+  return m && (SECTION_SLUGS as readonly string[]).includes(m[1]) ? m[1] : null;
+}
+
+/**
+ * TASK-M71b — where the season switcher navigates when it picks `season` while
+ * viewing `pathname` (locale-stripped; next-intl's router re-adds the locale).
+ * On a section index it stays in that section; elsewhere it goes to the season
+ * dashboard. The current season maps to the bare URL (its single canonical URL).
+ */
+export function seasonNavTarget(pathname: string, season: number, currentSeason: number): string {
+  const section = sectionOf(pathname);
+  if (section) {
+    return season === currentSeason ? `/${section}` : `/seasons/${season}/${section}`;
+  }
+  return season === currentSeason ? "/" : `/seasons/${season}`;
+}
+
+/**
+ * TASK-M71b — the nav href for a bare NAV_ITEMS `href` ("/", "/teams", …) given
+ * the viewed `season`. Current season / no season → the bare href; a historical
+ * season → the `/seasons/<year>/…` path form. Non-season routes (`/compare`,
+ * `/map`) stay bare.
+ */
+export function navHrefForSeason(
+  href: string,
+  season: number | null,
+  currentSeason: number,
+): string {
+  if (season === null || season === currentSeason) return href;
+  if (href === "/") return `/seasons/${season}`;
+  const slug = href.replace(/^\//, "");
+  if ((SECTION_SLUGS as readonly string[]).includes(slug)) return `/seasons/${season}/${slug}`;
+  return href;
 }
