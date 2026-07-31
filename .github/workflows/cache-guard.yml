@@ -146,6 +146,12 @@ jobs:
           # (verified HIT + public on production 2026-07-30).
           check "team profile"                 "/teams/42"
           check "manager profile"              "/managers/58"
+          # TASK-M71b — the section indexes, prerendered as of PR #74 (verified
+          # HIT + public on production 2026-07-30). With these, every route in
+          # the app is CDN-served except /compare (which genuinely needs
+          # searchParams and stays dynamic by design).
+          check "teams index"                  "/teams"
+          check "a historical season-section"  "/seasons/2003/teams"
 
           echo
           if [ "$fail" -ne 0 ]; then

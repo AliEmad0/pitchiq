@@ -5569,80 +5569,80 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 
 ## 🔧 Micro-improvements (no phase — pick anytime)
 
-| ID                    | Title                                                                                       | Status         | Priority | Est |
-| --------------------- | ------------------------------------------------------------------------------------------- | -------------- | -------- | --- |
-| [TASK-M01](#task-m01) | Widen `pnpm lint` to scan `tests/` directory                                                | ✅ Done        | P3       | XS  |
-| [TASK-M02](#task-m02) | Remove orphaned `provider-health` cache-tag reference                                       | ✅ Done        | P3       | XS  |
-| [TASK-M03](#task-m03) | Fix 1993-94/1994-95 standings (an external source)                                          | ✅ Done        | P1       | M   |
-| [TASK-M04](#task-m04) | Era-accurate European qualification for all seasons                                         | ✅ Done        | P1       | L   |
-| [TASK-M05](#task-m05) | Synthesize the standings Form column from fixtures                                          | ✅ Done        | P2       | S   |
-| [TASK-M06](#task-m06) | Rename local working folder to `pitchiq`                                                    | ✅ Done        | P3       | XS  |
-| [TASK-M07](#task-m07) | Additive per-club splits for mid-season transferees                                         | ✅ Done        | P3       | M   |
-| [TASK-M08](#task-m08) | Global search across all seasons (find historical players/teams)                            | ✅ Done        | P2       | M   |
-| [TASK-M09](#task-m09) | Preserve the active season across all entity navigation                                     | ✅ Done        | P2       | S   |
-| [TASK-M10](#task-m10) | Entity-scoped season switcher (only seasons with data)                                      | ✅ Done        | P2       | M   |
-| [TASK-M11](#task-m11) | Compare search dropdown: dedupe + drop the section sub-headers                              | ✅ Done        | P3       | XS  |
-| [TASK-M12](#task-m12) | All-fixtures page for a season + "See all" link                                             | ✅ Done        | P2       | M   |
-| [TASK-M13](#task-m13) | Hide the Upcoming Fixtures section on ended seasons                                         | ✅ Done        | P2       | XS  |
-| [TASK-M14](#task-m14) | "Classic Matches" — deterministic notability rail                                           | ✅ Done        | P2       | M   |
-| [TASK-M15](#task-m15) | Player age + nationality on profiles & squad cards                                          | ✅ Done        | P2       | M   |
-| [TASK-M16](#task-m16) | Match page: attendance + stadium + officials                                                | ✅ Done        | P3       | M   |
-| [TASK-M17](#task-m17) | Season-aggregate team stats (fill the empty tiles)                                          | ✅ Done        | P3       | M   |
-| [TASK-M18](#task-m18) | Expand stat coverage: more ranked metrics + leaderboards                                    | ✅ Done        | P3       | M   |
-| [TASK-M19](#task-m19) | Club metadata (stadium / capacity / founded) on team pages                                  | ✅ Done        | P3       | M   |
-| [TASK-M20](#task-m20) | xG / xA for modern seasons (advanced-stats + the upstream data)                             | ✅ Done        | P3       | M   |
-| [TASK-M21](#task-m21) | Manager + captain + shirt numbers on the lineup view                                        | ✅ Done        | P3       | S   |
-| [TASK-M22](#task-m22) | "Data updated X ago" freshness stamp                                                        | ✅ Done        | P3       | XS  |
-| [TASK-M23](#task-m23) | Move the sync/scraper layer to a private repo (hide sources)                                | ✅ Done        | P3       | L   |
-| [TASK-M24](#task-m24) | Per-player season selection on /compare (+ "All seasons")                                   | ✅ Done        | P2       | L   |
-| [TASK-M25](#task-m25) | Time-Machine Mode — era-specific UI themes by season                                        | ✅ Done        | P3       | L   |
-| [TASK-M26](#task-m26) | Offline pattern-detector → "Did You Know?" insights                                         | ✅ Done        | P3       | XL  |
-| [TASK-M27](#task-m27) | Interactive historic map (`/map`) — SVG + season timeline                                   | ✅ Done        | P3       | XL  |
-| [TASK-M28](#task-m28) | Fix wrong/missing player photos (coverage + correctness)                                    | ✅ Done        | P2       | L   |
-| [TASK-M29](#task-m29) | Rank global-search results by relevance + prominence                                        | ✅ Done        | P2       | S   |
-| [TASK-M30](#task-m30) | Search alias/nickname support (RVP, KDB, CR7) in the index                                  | ✅ Done        | P3       | S   |
-| [TASK-M31](#task-m31) | Highlight the matched substring in the search dropdown                                      | ✅ Done        | P3       | S   |
-| [TASK-M32](#task-m32) | Fix stable-id collisions (one id → two different players)                                   | ✅ Done        | P1       | L   |
-| [TASK-M33](#task-m33) | Fix cross-season player SPLITS (one person → two ids)                                       | ✅ Done        | P1       | S   |
-| [TASK-M34](#task-m34) | Fix same-person splits from spelling/apostrophe/forename drift                              | ✅ Done        | P1       | M   |
-| [TASK-M35](#task-m35) | Add a Fixtures link to the primary nav                                                      | ✅ Done        | P2       | XS  |
-| [TASK-M36](#task-m36) | Order the fixtures page newest matchday first                                               | ✅ Done        | P2       | XS  |
-| [TASK-M37](#task-m37) | Fix stretched team logos (preserve aspect ratio)                                            | ✅ Done        | P2       | S   |
-| [TASK-M38](#task-m38) | Correct 2025-26 player stats from the official PL API                                       | ✅ Done        | P1       | L   |
-| [TASK-M39](#task-m39) | "Appearances (Sub)" breakdown on player profiles                                            | ✅ Done        | P2       | L   |
-| [TASK-M40](#task-m40) | Live age + date of death (deceased treatment) + nationality fill                            | ✅ Done        | P2       | M   |
-| [TASK-M41](#task-m41) | Current/per-season team captain marker                                                      | ✅ Done        | P3       | M   |
-| [TASK-M42](#task-m42) | Short 2025-26 player names + captain overrides (modern gaps)                                | ✅ Done        | P2       | M   |
-| [TASK-M43](#task-m43) | Merge 2025-26 Casemiro/Paquetá/Beto splits + short names                                    | ✅ Done        | P2       | M   |
-| [TASK-M44](#task-m44) | Photo batch + Souza/Jota fixes + DOB overrides + data audit                                 | ✅ Done        | P2       | M   |
-| [TASK-M45](#task-m45) | Photo batch (≈480) + split the 1001051 Pereira id collision                                 | ✅ Done        | P2       | M   |
-| [TASK-M46](#task-m46) | Team-page polish: Stadium label, image fit, OT photo, form links                            | ✅ Done        | P3       | S   |
-| [TASK-M47](#task-m47) | Team kit colors on the lineup pitch                                                         | ✅ Done        | P3       | M   |
-| [TASK-M48](#task-m48) | Manager profiles (bio + photo) on the team page                                             | ✅ Done        | P3       | L   |
-| [TASK-M49](#task-m49) | Managers index + profile pages (results, nationality, titles)                               | ✅ Done        | P3       | L   |
-| [TASK-M50](#task-m50) | Players index page (most valuable + filters/sort)                                           | ✅ Done        | P3       | M   |
-| [TASK-M51](#task-m51) | Legacy managers (1992-2007) — full parity + id-integrity audit                              | ✅ Done        | P3       | L   |
-| [TASK-M52](#task-m52) | Managers in global search + season filter placeholders + DOB fill                           | ✅ Done        | P2       | M   |
-| [TASK-M53](#task-m53) | Distinctive per-page OG share cards (era-aware, design per page)                            | ✅ Done        | P3       | L   |
-| [TASK-M54](#task-m54) | Season-accurate club crests (historical logo per era)                                       | ✅ Done        | P3       | XL  |
-| [TASK-M55](#task-m55) | Returning-player splits (Kepa/Josh King) + auto birth years                                 | ✅ Done        | P1       | M   |
-| [TASK-M56](#task-m56) | True per-player roles (LB/CB/CDM…) + alt-positions & foot                                   | ✅ Done        | P2       | L   |
-| [TASK-M57](#task-m57) | Backfill historical advanced player stats (2003/04–2016/17)                                 | ✅ Done        | P2       | M   |
-| [TASK-M58](#task-m58) | Search-engine verification tags + indexing-friendly metadata                                | ✅ Done        | P2       | S   |
-| [TASK-M59](#task-m59) | Speed Insights observability (Analytics already shipped)                                    | ✅ Done        | P3       | XS  |
-| [TASK-M60](#task-m60) | Player photo/bio batch (11 portraits + 4 bios + 1 tombstone)                                | ✅ Done        | P2       | S   |
-| [TASK-M61](#task-m61) | Self-referencing canonical URLs across every route                                          | ✅ Done        | P2       | M   |
-| [TASK-M62](#task-m62) | Fix wrong club cities (district → city, e.g. Aston Villa)                                   | ✅ Done        | P2       | S   |
-| [TASK-M63](#task-m63) | Audit + correct club stadium names against the official source                              | ✅ Done        | P2       | S   |
-| [TASK-M64](#task-m64) | Add official club website field + surface on the team page                                  | ✅ Done        | P2       | M   |
-| [TASK-M65](#task-m65) | Surface all 66 player stats — Category Accordion profile view                               | ✅ Done        | P2       | XL  |
-| [TASK-M66](#task-m66) | Extend the 66-stat history to 2017-18 → 2025-26 (cron-safe)                                 | ✅ Done        | P2       | L   |
-| [TASK-M67](#task-m67) | Category icons for the stat accordion (replace colored dots)                                | ✅ Done        | P3       | S   |
-| [TASK-M68](#task-m68) | Player market value (Transfermarkt) — schema + loader + UI                                  | ✅ Done        | P2       | M   |
-| [TASK-M69](#task-m69) | Danny Ward same-person id-collapse (emrey-era)                                              | ✅ Done        | P3       | M   |
-| [TASK-M70](#task-m70) | Surface player role / alt-roles / foot / height on the profile page                         | ✅ Done        | P2       | M   |
-| [TASK-M71](#task-m71) | Prerender `/teams/[id]`, `/managers/[id]` + the dashboard — drop the server `?season=` read | 🚧 In progress | P2       | L   |
-| [TASK-M72](#task-m72) | Fix app-wide soft 404s — the not-found page returns HTTP 200                                | ✅ Done        | P2       | S   |
+| ID                    | Title                                                                                       | Status  | Priority | Est |
+| --------------------- | ------------------------------------------------------------------------------------------- | ------- | -------- | --- |
+| [TASK-M01](#task-m01) | Widen `pnpm lint` to scan `tests/` directory                                                | ✅ Done | P3       | XS  |
+| [TASK-M02](#task-m02) | Remove orphaned `provider-health` cache-tag reference                                       | ✅ Done | P3       | XS  |
+| [TASK-M03](#task-m03) | Fix 1993-94/1994-95 standings (an external source)                                          | ✅ Done | P1       | M   |
+| [TASK-M04](#task-m04) | Era-accurate European qualification for all seasons                                         | ✅ Done | P1       | L   |
+| [TASK-M05](#task-m05) | Synthesize the standings Form column from fixtures                                          | ✅ Done | P2       | S   |
+| [TASK-M06](#task-m06) | Rename local working folder to `pitchiq`                                                    | ✅ Done | P3       | XS  |
+| [TASK-M07](#task-m07) | Additive per-club splits for mid-season transferees                                         | ✅ Done | P3       | M   |
+| [TASK-M08](#task-m08) | Global search across all seasons (find historical players/teams)                            | ✅ Done | P2       | M   |
+| [TASK-M09](#task-m09) | Preserve the active season across all entity navigation                                     | ✅ Done | P2       | S   |
+| [TASK-M10](#task-m10) | Entity-scoped season switcher (only seasons with data)                                      | ✅ Done | P2       | M   |
+| [TASK-M11](#task-m11) | Compare search dropdown: dedupe + drop the section sub-headers                              | ✅ Done | P3       | XS  |
+| [TASK-M12](#task-m12) | All-fixtures page for a season + "See all" link                                             | ✅ Done | P2       | M   |
+| [TASK-M13](#task-m13) | Hide the Upcoming Fixtures section on ended seasons                                         | ✅ Done | P2       | XS  |
+| [TASK-M14](#task-m14) | "Classic Matches" — deterministic notability rail                                           | ✅ Done | P2       | M   |
+| [TASK-M15](#task-m15) | Player age + nationality on profiles & squad cards                                          | ✅ Done | P2       | M   |
+| [TASK-M16](#task-m16) | Match page: attendance + stadium + officials                                                | ✅ Done | P3       | M   |
+| [TASK-M17](#task-m17) | Season-aggregate team stats (fill the empty tiles)                                          | ✅ Done | P3       | M   |
+| [TASK-M18](#task-m18) | Expand stat coverage: more ranked metrics + leaderboards                                    | ✅ Done | P3       | M   |
+| [TASK-M19](#task-m19) | Club metadata (stadium / capacity / founded) on team pages                                  | ✅ Done | P3       | M   |
+| [TASK-M20](#task-m20) | xG / xA for modern seasons (advanced-stats + the upstream data)                             | ✅ Done | P3       | M   |
+| [TASK-M21](#task-m21) | Manager + captain + shirt numbers on the lineup view                                        | ✅ Done | P3       | S   |
+| [TASK-M22](#task-m22) | "Data updated X ago" freshness stamp                                                        | ✅ Done | P3       | XS  |
+| [TASK-M23](#task-m23) | Move the sync/scraper layer to a private repo (hide sources)                                | ✅ Done | P3       | L   |
+| [TASK-M24](#task-m24) | Per-player season selection on /compare (+ "All seasons")                                   | ✅ Done | P2       | L   |
+| [TASK-M25](#task-m25) | Time-Machine Mode — era-specific UI themes by season                                        | ✅ Done | P3       | L   |
+| [TASK-M26](#task-m26) | Offline pattern-detector → "Did You Know?" insights                                         | ✅ Done | P3       | XL  |
+| [TASK-M27](#task-m27) | Interactive historic map (`/map`) — SVG + season timeline                                   | ✅ Done | P3       | XL  |
+| [TASK-M28](#task-m28) | Fix wrong/missing player photos (coverage + correctness)                                    | ✅ Done | P2       | L   |
+| [TASK-M29](#task-m29) | Rank global-search results by relevance + prominence                                        | ✅ Done | P2       | S   |
+| [TASK-M30](#task-m30) | Search alias/nickname support (RVP, KDB, CR7) in the index                                  | ✅ Done | P3       | S   |
+| [TASK-M31](#task-m31) | Highlight the matched substring in the search dropdown                                      | ✅ Done | P3       | S   |
+| [TASK-M32](#task-m32) | Fix stable-id collisions (one id → two different players)                                   | ✅ Done | P1       | L   |
+| [TASK-M33](#task-m33) | Fix cross-season player SPLITS (one person → two ids)                                       | ✅ Done | P1       | S   |
+| [TASK-M34](#task-m34) | Fix same-person splits from spelling/apostrophe/forename drift                              | ✅ Done | P1       | M   |
+| [TASK-M35](#task-m35) | Add a Fixtures link to the primary nav                                                      | ✅ Done | P2       | XS  |
+| [TASK-M36](#task-m36) | Order the fixtures page newest matchday first                                               | ✅ Done | P2       | XS  |
+| [TASK-M37](#task-m37) | Fix stretched team logos (preserve aspect ratio)                                            | ✅ Done | P2       | S   |
+| [TASK-M38](#task-m38) | Correct 2025-26 player stats from the official PL API                                       | ✅ Done | P1       | L   |
+| [TASK-M39](#task-m39) | "Appearances (Sub)" breakdown on player profiles                                            | ✅ Done | P2       | L   |
+| [TASK-M40](#task-m40) | Live age + date of death (deceased treatment) + nationality fill                            | ✅ Done | P2       | M   |
+| [TASK-M41](#task-m41) | Current/per-season team captain marker                                                      | ✅ Done | P3       | M   |
+| [TASK-M42](#task-m42) | Short 2025-26 player names + captain overrides (modern gaps)                                | ✅ Done | P2       | M   |
+| [TASK-M43](#task-m43) | Merge 2025-26 Casemiro/Paquetá/Beto splits + short names                                    | ✅ Done | P2       | M   |
+| [TASK-M44](#task-m44) | Photo batch + Souza/Jota fixes + DOB overrides + data audit                                 | ✅ Done | P2       | M   |
+| [TASK-M45](#task-m45) | Photo batch (≈480) + split the 1001051 Pereira id collision                                 | ✅ Done | P2       | M   |
+| [TASK-M46](#task-m46) | Team-page polish: Stadium label, image fit, OT photo, form links                            | ✅ Done | P3       | S   |
+| [TASK-M47](#task-m47) | Team kit colors on the lineup pitch                                                         | ✅ Done | P3       | M   |
+| [TASK-M48](#task-m48) | Manager profiles (bio + photo) on the team page                                             | ✅ Done | P3       | L   |
+| [TASK-M49](#task-m49) | Managers index + profile pages (results, nationality, titles)                               | ✅ Done | P3       | L   |
+| [TASK-M50](#task-m50) | Players index page (most valuable + filters/sort)                                           | ✅ Done | P3       | M   |
+| [TASK-M51](#task-m51) | Legacy managers (1992-2007) — full parity + id-integrity audit                              | ✅ Done | P3       | L   |
+| [TASK-M52](#task-m52) | Managers in global search + season filter placeholders + DOB fill                           | ✅ Done | P2       | M   |
+| [TASK-M53](#task-m53) | Distinctive per-page OG share cards (era-aware, design per page)                            | ✅ Done | P3       | L   |
+| [TASK-M54](#task-m54) | Season-accurate club crests (historical logo per era)                                       | ✅ Done | P3       | XL  |
+| [TASK-M55](#task-m55) | Returning-player splits (Kepa/Josh King) + auto birth years                                 | ✅ Done | P1       | M   |
+| [TASK-M56](#task-m56) | True per-player roles (LB/CB/CDM…) + alt-positions & foot                                   | ✅ Done | P2       | L   |
+| [TASK-M57](#task-m57) | Backfill historical advanced player stats (2003/04–2016/17)                                 | ✅ Done | P2       | M   |
+| [TASK-M58](#task-m58) | Search-engine verification tags + indexing-friendly metadata                                | ✅ Done | P2       | S   |
+| [TASK-M59](#task-m59) | Speed Insights observability (Analytics already shipped)                                    | ✅ Done | P3       | XS  |
+| [TASK-M60](#task-m60) | Player photo/bio batch (11 portraits + 4 bios + 1 tombstone)                                | ✅ Done | P2       | S   |
+| [TASK-M61](#task-m61) | Self-referencing canonical URLs across every route                                          | ✅ Done | P2       | M   |
+| [TASK-M62](#task-m62) | Fix wrong club cities (district → city, e.g. Aston Villa)                                   | ✅ Done | P2       | S   |
+| [TASK-M63](#task-m63) | Audit + correct club stadium names against the official source                              | ✅ Done | P2       | S   |
+| [TASK-M64](#task-m64) | Add official club website field + surface on the team page                                  | ✅ Done | P2       | M   |
+| [TASK-M65](#task-m65) | Surface all 66 player stats — Category Accordion profile view                               | ✅ Done | P2       | XL  |
+| [TASK-M66](#task-m66) | Extend the 66-stat history to 2017-18 → 2025-26 (cron-safe)                                 | ✅ Done | P2       | L   |
+| [TASK-M67](#task-m67) | Category icons for the stat accordion (replace colored dots)                                | ✅ Done | P3       | S   |
+| [TASK-M68](#task-m68) | Player market value (Transfermarkt) — schema + loader + UI                                  | ✅ Done | P2       | M   |
+| [TASK-M69](#task-m69) | Danny Ward same-person id-collapse (emrey-era)                                              | ✅ Done | P3       | M   |
+| [TASK-M70](#task-m70) | Surface player role / alt-roles / foot / height on the profile page                         | ✅ Done | P2       | M   |
+| [TASK-M71](#task-m71) | Prerender `/teams/[id]`, `/managers/[id]` + the dashboard — drop the server `?season=` read | ✅ Done | P2       | L   |
+| [TASK-M72](#task-m72) | Fix app-wide soft 404s — the not-found page returns HTTP 200                                | ✅ Done | P2       | S   |
 
 ### TASK-M01
 
@@ -7068,15 +7068,15 @@ TASK-M56 enriched every player with a **true positional role** (one of 13 — GK
 
 ### TASK-M71
 
-**Prerender `/teams/[id]`, `/managers/[id]` + the dashboard — drop the server `?season=` read** · 🚧 In progress (only M71b remains — spec approved, ready to plan) · `P2` · `L` · Type: Perf + UI
+**Prerender `/teams/[id]`, `/managers/[id]` + the dashboard — drop the server `?season=` read** · ✅ Done (2026-07-30) · `P2` · `L` · Type: Perf + UI
 
-> **⭐ START HERE — state as of 2026-07-30.** Decomposed into three sub-projects. **M71a ([PR #64](https://github.com/AliEmad0/pitchiq/pull/64)) and M71c ([PR #70](https://github.com/AliEmad0/pitchiq/pull/70)) are SHIPPED and production-verified** — every entity DETAIL route (`/`, `/players/[id]`, `/fixtures/[id]`, `/teams/[id]`, `/managers/[id]`) and the season pages are now prerendered + CDN-served, and the cache guard enforces all of them. **The only remaining sub-project is M71b (the section INDEX pages); its design is now approved (season-path model) — see its row below and the spec.**
+> **✅ COMPLETE — all three sub-projects shipped and production-verified 2026-07-30.** M71a ([PR #64](https://github.com/AliEmad0/pitchiq/pull/64)), M71c ([PR #70](https://github.com/AliEmad0/pitchiq/pull/70)) and M71b ([PR #74](https://github.com/AliEmad0/pitchiq/pull/74)) are all live. **Every route in the app is now prerendered + CDN-served except `/compare`** (which genuinely needs `searchParams` and stays dynamic by design). The cache guard enforces `/`, the season dashboards, every entity detail route, and the section indexes. The season model is uniformly path-based: `/seasons/<year>` and `/seasons/<year>/<section>`, bare URLs = current season, with edge redirects keeping each current-season form single-URL. The transitional `?season=` switcher/nav behavior is deleted (entity links keep `?season=` — the accepted index→detail crossing).
 >
-> |          | Scope                                                                                                         | State                                                                                                                                                                                                                                                                                                                                      |
-> | -------- | ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-> | **M71a** | Season in the path: `/seasons/[year]`, the `/seasons` directory, `/` prerendered, redirect, switcher, sitemap | **✅ SHIPPED** — [PR #64](https://github.com/AliEmad0/pitchiq/pull/64), live 2026-07-30: `/`, `/seasons`, `/seasons/2003`, `/ar/seasons/2003` all `x-vercel-cache: HIT` + `public` on production; redirects live; cache guard enforces all three                                                                                           |
-> | **M71b** | Section indexes (`/teams`, `/players`, `/fixtures`, `/leaderboards`, `/managers`) under the namespace         | **📐 Spec approved 2026-07-30** — [`docs/superpowers/specs/2026-07-30-task-m71b-section-index-path-design.md`](docs/superpowers/specs/2026-07-30-task-m71b-section-index-path-design.md). Owner picked the season-path model (`/seasons/<year>/<section>`, bare = current) + accepted the index→detail crossing. Next: implementation plan |
-> | **M71c** | `/teams/[id]` + `/managers/[id]` client-side season swap                                                      | **✅ SHIPPED** — [PR #70](https://github.com/AliEmad0/pitchiq/pull/70), live 2026-07-30: `/teams/[id]` **0 → 51** pages/locale, `/managers/[id]` **0 → 293**; `/teams/42`, `/managers/58` + `/ar` twins all `x-vercel-cache: HIT` + `public` on production; unknown ids still 404; cache guard enforces both                               |
+> |          | Scope                                                                                                         | State                                                                                                                                                                                                                                                                                                                                                      |
+> | -------- | ------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+> | **M71a** | Season in the path: `/seasons/[year]`, the `/seasons` directory, `/` prerendered, redirect, switcher, sitemap | **✅ SHIPPED** — [PR #64](https://github.com/AliEmad0/pitchiq/pull/64), live 2026-07-30: `/`, `/seasons`, `/seasons/2003`, `/ar/seasons/2003` all `x-vercel-cache: HIT` + `public` on production; redirects live; cache guard enforces all three                                                                                                           |
+> | **M71b** | Section indexes (`/teams`, `/players`, `/fixtures`, `/leaderboards`, `/managers`) under the namespace         | **✅ SHIPPED** — [PR #74](https://github.com/AliEmad0/pitchiq/pull/74), live 2026-07-30: 5 bare indexes go dynamic→static + **330 new** `/seasons/<year>/<section>` pages (165/locale); all HIT + public on production; redirects + 404s verified; switcher/nav path-aware (`?season=` behavior deleted); cache guard enforces `/teams` + a season-section |
+> | **M71c** | `/teams/[id]` + `/managers/[id]` client-side season swap                                                      | **✅ SHIPPED** — [PR #70](https://github.com/AliEmad0/pitchiq/pull/70), live 2026-07-30: `/teams/[id]` **0 → 51** pages/locale, `/managers/[id]` **0 → 293**; `/teams/42`, `/managers/58` + `/ar` twins all `x-vercel-cache: HIT` + `public` on production; unknown ids still 404; cache guard enforces both                                               |
 >
 > **Spec:** [`docs/superpowers/specs/2026-07-29-seasons-path-model-design.md`](docs/superpowers/specs/2026-07-29-seasons-path-model-design.md) · **Plan:** [`docs/superpowers/plans/2026-07-29-task-m71a-seasons-path-model.md`](docs/superpowers/plans/2026-07-29-task-m71a-seasons-path-model.md)
 >
