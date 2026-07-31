@@ -4,8 +4,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
 import { teamOgImagePath } from "@/app/api/og/team-card";
-import { EntitySeasonSwitcher } from "@/components/layout/EntitySeasonSwitcher";
-import { findTeamSeasons } from "@/data/loaders";
+import { findTeamSeasons, getAvailableSeasons, loadTeams } from "@/data/loaders";
 import { getStandings } from "@/features/leagues/api";
 import { ManagerSectionLoader } from "@/features/teams/components/ManagerSectionLoader";
 import { RecentFormSection } from "@/features/teams/components/RecentFormSection";
@@ -13,68 +12,64 @@ import { RecentFormStripSkeleton } from "@/features/teams/components/RecentFormS
 import { SquadGridSkeleton } from "@/features/teams/components/SquadGrid";
 import { SquadSection } from "@/features/teams/components/SquadSection";
 import { TeamHero } from "@/features/teams/components/TeamHero";
+import { TeamSeasonView } from "@/features/teams/components/TeamSeasonView";
 import { TeamStatsSection } from "@/features/teams/components/TeamStatsSection";
 import { TeamStatsTilesSkeleton } from "@/features/teams/components/TeamStatsTiles";
-import { getPLTeams, getTeam } from "@/features/teams/api";
+import { getTeam } from "@/features/teams/api";
 import { TriviaSection } from "@/features/trivia/components/TriviaSection";
-import { currentDataSeason, parseSeason } from "@/utils/season";
+import { currentDataSeason } from "@/utils/season";
 import { canonicalPath } from "@/utils/canonical";
 
-type Props = {
-  params: Promise<{ locale: string; id: string }>;
-  searchParams: Promise<{ season?: string | string[] }>;
-};
+type Props = { params: Promise<{ locale: string; id: string }> };
 
-// Non-PL ids (or PL teams from older seasons) render on-demand rather than
-// 404'ing at the routing layer — the page itself returns notFound() when
-// `getTeam` resolves to null, so misses still hit `not-found.tsx`.
+// ⚠️ HOSTING COST — force-static is load-bearing (TASK-M71c). This route must
+// NEVER read the server `searchParams` prop again: that opts it into dynamic
+// rendering, `force-static` does NOT override it, and the route then emits
+// ZERO prerendered pages while the build's route table still prints "● (SSG)"
+// (the 2026-07 Active-CPU pause). Season switching is client-side in
+// <TeamSeasonView>; `?season=` deep links are honoured on the client. See
+// docs/hosting-cost.md.
+export const dynamic = "force-static";
+export const revalidate = 86400;
+// Ids outside the prerendered set (e.g. a future data refresh adds a club)
+// render on demand; the page still notFound()s ids in no committed season.
 export const dynamicParams = true;
 
-// ISR: refresh cached renders daily, matching the data cron.
-//
-// ⚠️ HOSTING COST — this route is NOT prerendered, and adding
-// `dynamic = "force-static"` will NOT fix that. Do not add it.
-//
-// This page reads the server `searchParams` prop (`?season=`, below), which
-// opts it into dynamic rendering because it needs an incoming request.
-// `force-static` does not override that: its documented coercion covers
-// `cookies()`, `headers()` and `useSearchParams()` — NOT the `searchParams`
-// prop. Measured on this build: /players and /fixtures emit 537 and 380
-// prerendered pages per locale; this route and /managers emit ZERO, while the
-// build's route table still prints "● (SSG)" for all four. So every /teams/*
-// view costs a function invocation.
-//
-// The real fix is the one /players/[id] already had: stop reading `?season=`
-// server-side and move season switching client-side (<PlayerSeasonView>).
-// That is a feature-sized change — tracked separately. See docs/hosting-cost.md.
-export const revalidate = 86400;
-
-// `pnpm build` calls this once and pre-renders every returned id as an
-// SSG route. The 20 current-season PL teams are bounded enough that SSG
-// pays off; older seasons fall through to dynamic rendering under the
-// `dynamicParams = true` opt-in above.
+// Every club that ever appeared in a committed season gets a prerendered page
+// (the union across all 34 seasons — historical clubs included), not just the
+// current 20. Bounded (~50 clubs × 2 locales) and read from local JSON.
 export async function generateStaticParams(): Promise<Array<{ id: string }>> {
-  const teams = await getPLTeams(currentDataSeason());
-  if (!teams) return [];
-  return teams.map((entry) => ({ id: String(entry.team.id) }));
+  const seasons = await getAvailableSeasons();
+  const ids = new Set<number>();
+  for (const season of seasons) {
+    for (const t of (await loadTeams(season)) ?? []) ids.add(t.id);
+  }
+  return [...ids].map((id) => ({ id: String(id) }));
 }
 
-export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
-  const [{ locale, id }, sp] = await Promise.all([params, searchParams]);
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale, id } = await params;
   setRequestLocale(locale);
   const teamId = Number(id);
   const tNotFound = await getTranslations("notFound");
   if (!Number.isInteger(teamId)) return { title: tNotFound("teamTitle") };
-  const season = parseSeason(sp.season, currentDataSeason());
-  const detail = await getTeam(teamId, season);
+
+  const teamSeasons = await findTeamSeasons(teamId);
+  if (teamSeasons.length === 0) return { title: tNotFound("teamTitle") };
+  const initialSeason = teamSeasons.includes(currentDataSeason())
+    ? currentDataSeason()
+    : teamSeasons[0];
+  const detail = await getTeam(teamId, initialSeason);
   if (!detail) return { title: tNotFound("teamTitle") };
-  // Dynamic OG (TASK-M53): season-pinned neon (modern/golden) or dossier
-  // (retro) card. Relative url resolves against the layout's metadataBase.
-  const url = teamOgImagePath(teamId, season);
+
+  // Dynamic OG (TASK-M53), pinned to the initial (server-rendered) season.
+  const url = teamOgImagePath(teamId, initialSeason);
   const t = await getTranslations("teams");
   return {
     title: detail.team.name,
-    alternates: { canonical: canonicalPath(locale, `/teams/${teamId}`, season) },
+    // Season-less canonical: one indexable URL per club (the /players/[id]
+    // precedent, PR #59). `?season=` variants are robots-blocked anyway.
+    alternates: { canonical: canonicalPath(locale, `/teams/${teamId}`) },
     openGraph: {
       images: [{ url, width: 1200, height: 630, alt: t("teamOgAlt", { name: detail.team.name }) }],
     },
@@ -82,51 +77,57 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   };
 }
 
-export default async function TeamProfilePage({ params, searchParams }: Props) {
-  const [{ locale, id }, sp] = await Promise.all([params, searchParams]);
+export default async function TeamProfilePage({ params }: Props) {
+  const { locale, id } = await params;
   setRequestLocale(locale);
   const teamId = Number(id);
   if (!Number.isInteger(teamId)) notFound();
 
-  // URL `?season=` drives every per-season fetch — rank in standings, season
-  // stats, recent fixtures, AND (since TASK-701) the team detail + squad, so
-  // historical-only clubs resolve when browsing past seasons.
-  const season = parseSeason(sp.season, currentDataSeason());
+  // Existence first (bounded standings scan) — decided before anything
+  // streams, so unknown ids are REAL 404s (TASK-M72). A historical-only club
+  // renders its latest played season at its bare URL instead of 404ing.
+  const teamSeasons = await findTeamSeasons(teamId);
+  if (teamSeasons.length === 0) notFound();
+  const initialSeason = teamSeasons.includes(currentDataSeason())
+    ? currentDataSeason()
+    : teamSeasons[0];
 
-  // Parallel because all three calls are independent — saves round-trips on
-  // cold-cache. `getStandings` failing (null) is recoverable: the hero just
-  // renders without a rank badge. `teamSeasons` scopes the page-local season
-  // switcher (TASK-M10) to only the seasons the club existed.
-  const [detail, standings, teamSeasons] = await Promise.all([
-    getTeam(teamId, season),
-    getStandings({ season }),
-    findTeamSeasons(teamId),
+  // `getStandings` failing (null) is recoverable: the hero renders without a
+  // rank badge.
+  const [detail, standings] = await Promise.all([
+    getTeam(teamId, initialSeason),
+    getStandings({ season: initialSeason }),
   ]);
   if (!detail) notFound();
 
   const rank = standings?.league.standings[0]?.find((row) => row.team.id === teamId)?.rank ?? null;
 
-  // Each secondary section streams under its own Suspense boundary so
-  // the hero doesn't block on any of them.
+  // The <main> wrapper + season control live inside <TeamSeasonView>; each
+  // secondary section still streams under its own Suspense boundary for the
+  // server-rendered initial season.
   return (
-    <main className="container-page space-y-6 py-6 lg:py-10">
-      <EntitySeasonSwitcher seasons={teamSeasons} />
-      <TeamHero team={detail.team} venue={detail.venue} rank={rank} />
+    <TeamSeasonView
+      teamId={teamId}
+      seasons={teamSeasons}
+      initialSeason={initialSeason}
+      teamName={detail.team.name}
+      hero={<TeamHero team={detail.team} venue={detail.venue} rank={rank} />}
+    >
       <Suspense fallback={null}>
-        <ManagerSectionLoader teamId={teamId} season={season} />
+        <ManagerSectionLoader teamId={teamId} season={initialSeason} />
       </Suspense>
       <Suspense fallback={<TeamStatsTilesSkeleton />}>
-        <TeamStatsSection teamId={teamId} season={season} />
+        <TeamStatsSection teamId={teamId} season={initialSeason} />
       </Suspense>
       <Suspense fallback={<RecentFormStripSkeleton />}>
-        <RecentFormSection teamId={teamId} season={season} />
+        <RecentFormSection teamId={teamId} season={initialSeason} />
       </Suspense>
       <Suspense fallback={<SquadGridSkeleton />}>
-        <SquadSection teamId={teamId} season={season} />
+        <SquadSection teamId={teamId} season={initialSeason} />
       </Suspense>
       <Suspense fallback={null}>
-        <TriviaSection scope="team" id={teamId} season={season} />
+        <TriviaSection scope="team" id={teamId} season={initialSeason} />
       </Suspense>
-    </main>
+    </TeamSeasonView>
   );
 }
