@@ -56,6 +56,8 @@ export type ManagerProfile = {
 export async function getManagerProfile(
   id: string,
   season?: number,
+  // TASK-M71c: explicit locale for Route Handlers (see teams/api.ts getTeam).
+  locale?: string,
 ): Promise<ManagerProfile | null> {
   const managers = await loadManagers();
   if (!managers) return null;
@@ -64,7 +66,7 @@ export async function getManagerProfile(
 
   const bios = await loadManagerBios();
   const bio = bios?.[id];
-  const names = await getEntityNames();
+  const names = await getEntityNames(locale);
 
   // Team name lookup: merge loadTeams across the career seasons (newer wins for
   // clubs that changed name); covers defunct clubs not in the current season.

@@ -93,4 +93,23 @@ test.describe("Teams index → detail navigation", () => {
     await expect(page.getByRole("heading", { level: 1, name: "Manchester United" })).toBeVisible();
     await expect(page.getByText("Alex Ferguson").first()).toBeVisible();
   });
+
+  // TASK-M71c: the page is now prerendered and the season swap is client-side.
+  // A `?season=` deep link must still render that season's content — including
+  // on /ar, which exercises the locale-in-Route-Handler path. Assert on
+  // RENDERED structure, never raw HTML greps (next-intl serialises the whole
+  // catalog into every page). The entity page has exactly one combobox (the
+  // global header switcher hides on detail routes).
+  test("a ?season= deep link renders that season client-side (ar too)", async ({ page }) => {
+    await page.goto("/ar/teams/42?season=2003");
+    // The mount effect swaps to 2003 (fetching the ar season-view); the season
+    // control reflects it in Eastern-Arabic digits.
+    await expect(page.getByRole("combobox")).toContainText("٢٠٠٣");
+    // The swapped 2003 squad renders — its player links carry ?season=2003.
+    // SquadGrid mounts a mobile (md:hidden) + desktop tree; take the visible one.
+    await expect(
+      page.locator('a[href*="/players/"][href*="season=2003"]:visible').first(),
+    ).toBeVisible();
+    await expect(page).toHaveURL(/season=2003/);
+  });
 });

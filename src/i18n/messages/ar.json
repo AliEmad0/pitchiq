@@ -292,6 +292,9 @@
     "statAvgFouls": "متوسط الأخطاء",
     "statYellowCards": "البطاقات الصفراء",
     "statsUnavailable": "إحصائيات الموسم غير متاحة لهذا الفريق.",
+    "noSeasonData": "لا توجد بيانات موسم {season} لـ {name}",
+    "noSeasonDataMsg": "{name} ليس لديه بيانات في الدوري الإنجليزي الممتاز لموسم {season} في بياناتنا. أحدث مواسمه هو {latest}.",
+    "viewSeasonStats": "عرض موسم {season}",
     "noRecentFixtures": "لا توجد مباريات حديثة",
     "recentFormHeading": "الأداء الأخير",
     "recentResults": "أحدث النتائج",
@@ -438,6 +441,8 @@
     "ptsSuffix": "نقطة",
     "careerSubline": "{span} · معدل النقاط {ppg}",
     "profileTitleFallback": "مدرب",
+    "noSeasonData": "لا توجد بيانات موسم {season} لـ {name}",
+    "noSeasonDataMsg": "{name} ليس لديه سجل في الدوري الإنجليزي الممتاز لموسم {season} في بياناتنا. أحدث مواسمه هو {latest}.",
     "metaDescriptionProfile": "{name} — السجل التدريبي في الدوري الإنجليزي الممتاز.",
     "profileOgAlt": "{name} — PitchIQ"
   },

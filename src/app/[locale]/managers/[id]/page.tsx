@@ -3,34 +3,31 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
 import { managerOgImagePath } from "@/app/api/og/manager-card";
-import { EntitySeasonSwitcher } from "@/components/layout/EntitySeasonSwitcher";
-import { findManagerSeasons, loadManagers } from "@/data/loaders";
+import { loadManagers } from "@/data/loaders";
 import { ManagerCareerTable } from "@/features/managers/components/ManagerCareerTable";
 import { ManagerHero } from "@/features/managers/components/ManagerHero";
 import { ManagerHonours } from "@/features/managers/components/ManagerHonours";
+import { ManagerSeasonView } from "@/features/managers/components/ManagerSeasonView";
 import { getManagerProfile } from "@/features/managers/manager-profile.api";
-import { currentDataSeason, parseSeason } from "@/utils/season";
+import { currentDataSeason } from "@/utils/season";
 import { canonicalPath } from "@/utils/canonical";
 
-type Props = {
-  params: Promise<{ locale: string; id: string }>;
-  searchParams: Promise<{ season?: string | string[] }>;
-};
+type Props = { params: Promise<{ locale: string; id: string }> };
 
+// ⚠️ HOSTING COST — force-static is load-bearing (TASK-M71c). This route must
+// NEVER read the server `searchParams` prop again: that opts it into dynamic
+// rendering, `force-static` does NOT override it, and the route then emits
+// ZERO prerendered pages while the build's route table still prints "● (SSG)"
+// (the 2026-07 Active-CPU pause). Season switching is client-side in
+// <ManagerSeasonView>; `?season=` deep links are honoured on the client. See
+// docs/hosting-cost.md.
+export const dynamic = "force-static";
+export const revalidate = 86400;
+// New managers in future data refreshes render on demand; unknown ids still
+// notFound() below.
 export const dynamicParams = true;
 
-// ISR: refresh cached renders daily, matching the data cron.
-//
-// ⚠️ HOSTING COST — this route is NOT prerendered, and adding
-// `dynamic = "force-static"` will NOT fix that. Do not add it. Same cause as
-// /teams/[id]: reading the server `searchParams` prop (`?season=`) opts the
-// page into dynamic rendering, and force-static does not coerce that prop.
-// This route emits ZERO prerendered pages despite generateStaticParams and
-// despite the build's route table printing "● (SSG)". See docs/hosting-cost.md.
-export const revalidate = 86400;
-
-// Pre-render every committed manager's profile (SSG). New managers in future
-// data refreshes render on demand (dynamicParams).
+// Pre-render every committed manager's profile (SSG).
 export async function generateStaticParams() {
   const managers = await loadManagers();
   if (!managers) return [];
@@ -40,19 +37,22 @@ export async function generateStaticParams() {
   return [...ids].map((id) => ({ id }));
 }
 
-export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
-  const [{ locale, id }, sp] = await Promise.all([params, searchParams]);
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale, id } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("managers");
   const profile = await getManagerProfile(id);
   if (!profile) return { title: t("profileTitleFallback") };
-  // Dynamic OG (accreditation pass, TASK-M53): season-pinned so each era link
-  // previews in its era's theme. Relative url resolves against metadataBase.
-  const season = parseSeason(sp.season, currentDataSeason());
-  const url = managerOgImagePath(id, season);
+  const initialSeason = profile.seasons.includes(currentDataSeason())
+    ? currentDataSeason()
+    : (profile.seasons[0] ?? currentDataSeason());
+  // Dynamic OG (accreditation pass, TASK-M53), pinned to the initial season.
+  const url = managerOgImagePath(id, initialSeason);
   return {
     title: profile.name,
-    alternates: { canonical: canonicalPath(locale, `/managers/${id}`, season) },
+    // Season-less canonical: one indexable URL per manager (the /players/[id]
+    // precedent, PR #59). `?season=` variants are robots-blocked anyway.
+    alternates: { canonical: canonicalPath(locale, `/managers/${id}`) },
     description: t("metaDescriptionProfile", { name: profile.name }),
     openGraph: {
       images: [{ url, width: 1200, height: 630, alt: t("profileOgAlt", { name: profile.name }) }],
@@ -61,27 +61,35 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   };
 }
 
-export default async function ManagerProfilePage({ params, searchParams }: Props) {
+export default async function ManagerProfilePage({ params }: Props) {
   const { locale, id } = await params;
   setRequestLocale(locale);
-  const sp = await searchParams;
-  const season = parseSeason(sp.season, currentDataSeason());
-  const [profile, seasons] = await Promise.all([
-    getManagerProfile(id, season),
-    findManagerSeasons(id),
-  ]);
-  if (!profile) notFound();
 
+  // Existence first — decided before anything streams, so unknown ids are
+  // REAL 404s (TASK-M72). A retired manager renders their latest season at
+  // the bare URL.
+  const profile = await getManagerProfile(id);
+  if (!profile) notFound();
+  const initialSeason = profile.seasons.includes(currentDataSeason())
+    ? currentDataSeason()
+    : (profile.seasons[0] ?? currentDataSeason());
+  const initial = (await getManagerProfile(id, initialSeason)) ?? profile;
+
+  // The <main> wrapper + season control live inside <ManagerSeasonView>.
   return (
-    <main className="container-page space-y-6 py-6 lg:py-10">
-      <ManagerHero profile={profile} />
-      {seasons.length > 0 && <EntitySeasonSwitcher seasons={seasons} />}
-      <ManagerHonours honours={profile.honours} season={season} />
+    <ManagerSeasonView
+      managerId={id}
+      seasons={profile.seasons}
+      initialSeason={initialSeason}
+      managerName={profile.name}
+    >
+      <ManagerHero profile={initial} />
+      <ManagerHonours honours={initial.honours} season={initialSeason} />
       <ManagerCareerTable
-        byClub={profile.byClub}
-        season={season}
-        highlightSeason={profile.targetSeason?.season ?? null}
+        byClub={initial.byClub}
+        season={initialSeason}
+        highlightSeason={initial.targetSeason?.season ?? null}
       />
-    </main>
+    </ManagerSeasonView>
   );
 }

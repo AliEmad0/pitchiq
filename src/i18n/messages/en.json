@@ -292,6 +292,9 @@
     "statAvgFouls": "Avg fouls",
     "statYellowCards": "Yellow cards",
     "statsUnavailable": "Season statistics are unavailable for this team.",
+    "noSeasonData": "No {season} data for {name}",
+    "noSeasonDataMsg": "{name} has no Premier League data for the {season} season in our data. Its most recent season is {latest}.",
+    "viewSeasonStats": "View the {season} season",
     "noRecentFixtures": "No recent fixtures available",
     "recentFormHeading": "Recent form",
     "recentResults": "Recent results",
@@ -438,6 +441,8 @@
     "ptsSuffix": "pts",
     "careerSubline": "{span} · {ppg} PPG",
     "profileTitleFallback": "Manager",
+    "noSeasonData": "No {season} data for {name}",
+    "noSeasonDataMsg": "{name} has no Premier League record for the {season} season in our data. Their most recent season is {latest}.",
     "metaDescriptionProfile": "{name} — Premier League managerial record.",
     "profileOgAlt": "{name} — PitchIQ"
   },
