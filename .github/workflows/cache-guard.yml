@@ -142,6 +142,10 @@ jobs:
           check "dashboard"                    "/"
           check "seasons directory"            "/seasons"
           check "a historical season"          "/seasons/2003"
+          # TASK-M71c — the last two entity routes, prerendered as of PR #70
+          # (verified HIT + public on production 2026-07-30).
+          check "team profile"                 "/teams/42"
+          check "manager profile"              "/managers/58"
 
           echo
           if [ "$fail" -ne 0 ]; then
