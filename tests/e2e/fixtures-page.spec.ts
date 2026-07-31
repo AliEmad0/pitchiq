@@ -7,14 +7,15 @@ test.describe("All-fixtures page", () => {
   test("dashboard 'See all' navigates to the grouped season fixtures list", async ({ page }) => {
     await page.goto("/");
 
-    // The Recent Results "See all" link carries the active season. Scoped by its
+    // TASK-M71b: on the current-season dashboard the "See all" link is the bare
+    // /fixtures URL (the current season's canonical form). Scoped by its exact
     // /fixtures href since the dashboard also has a "See all" → /leaderboards on
     // the Top Scorers heading (TASK-M18).
-    const seeAll = page.locator('a[href^="/fixtures?season="]:has-text("See all")');
+    const seeAll = page.locator('a[href="/fixtures"]:has-text("See all")');
     await expect(seeAll).toBeVisible();
     await seeAll.click();
 
-    await expect(page).toHaveURL(/\/fixtures\?season=\d+$/);
+    await expect(page).toHaveURL(/\/fixtures$/);
     await expect(page.getByRole("heading", { level: 1, name: /^Fixtures/i })).toBeVisible();
 
     // Fixtures are grouped into matchday sections (each <section> is labelled
