@@ -3,14 +3,15 @@
 import { Link, usePathname } from "@/i18n/navigation";
 
 import { cn } from "@/utils/cn";
-import { withSeason } from "@/utils/season";
+import { currentDataSeason } from "@/utils/season";
+import { navHrefForSeason } from "@/utils/season-path";
 
 type Props = {
   href: string;
-  // The active `?season=` (raw string from the URL, or null). Appended to the
-  // link so navigating between sections preserves the viewed season. Active-
-  // state matching still uses the bare `href` (path only).
-  season?: string | null;
+  // The viewed season (from the pathname, or null for the current season).
+  // Carried into the link in the PATH form so navigating between sections
+  // preserves the season (TASK-M71b). Active-state matching uses the bare href.
+  season?: number | null;
   children: React.ReactNode;
 };
 
@@ -20,8 +21,7 @@ type Props = {
 export function NavLink({ href, season, children }: Props) {
   const pathname = usePathname();
   const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
-  const seasonNum = season ? Number.parseInt(season, 10) : NaN;
-  const linkHref = Number.isFinite(seasonNum) ? withSeason(href, seasonNum) : href;
+  const linkHref = navHrefForSeason(href, season ?? null, currentDataSeason());
 
   return (
     <Link

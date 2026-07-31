@@ -2,8 +2,7 @@
 
 import { Menu } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { useState } from "react";
 
 import { Link, usePathname } from "@/i18n/navigation";
 
@@ -17,8 +16,8 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { cn } from "@/utils/cn";
-import { withSeason } from "@/utils/season";
-import { seasonFromPathname } from "@/utils/season-path";
+import { currentDataSeason } from "@/utils/season";
+import { navHrefForSeason, seasonFromPathname } from "@/utils/season-path";
 
 import { NAV_ITEMS } from "./nav-items";
 
@@ -46,38 +45,22 @@ export function MobileNav() {
           <SheetTitle>{t("menu")}</SheetTitle>
           <SheetDescription className="sr-only">{t("navDescription")}</SheetDescription>
         </SheetHeader>
-        {/* Links carry the active ?season= so the drawer doesn't reset the
-            season. useSearchParams → wrapped in Suspense (AppShell gotcha); the
-            fallback renders the same links with bare hrefs. */}
-        <Suspense fallback={<MobileNavLinks season={null} onNavigate={() => setOpen(false)} />}>
-          <MobileNavLinksWithSeason onNavigate={() => setOpen(false)} />
-        </Suspense>
+        {/* Links carry the viewed season in the PATH (TASK-M71b) so the drawer
+            doesn't reset it. Season comes from the pathname — no useSearchParams,
+            so no Suspense boundary needed. */}
+        <MobileNavLinks onNavigate={() => setOpen(false)} />
       </SheetContent>
     </Sheet>
   );
 }
 
-function MobileNavLinksWithSeason({ onNavigate }: { onNavigate: () => void }) {
-  // TASK-M71a: mirror of <PrimaryNav> — the path season wins on
-  // `/seasons/<year>`, `?season=` covers the not-yet-migrated routes.
-  const pathname = usePathname();
-  const query = useSearchParams().get("season");
-  const pathSeason = seasonFromPathname(pathname);
-  return (
-    <MobileNavLinks
-      season={pathSeason !== null ? String(pathSeason) : query}
-      onNavigate={onNavigate}
-    />
-  );
-}
-
-function MobileNavLinks({ season, onNavigate }: { season: string | null; onNavigate: () => void }) {
+function MobileNavLinks({ onNavigate }: { onNavigate: () => void }) {
   const pathname = usePathname();
   const t = useTranslations("nav");
   const tc = useTranslations("controls");
-  const seasonNum = season ? Number.parseInt(season, 10) : NaN;
-  const linkFor = (href: string) =>
-    Number.isFinite(seasonNum) ? withSeason(href, seasonNum) : href;
+  const season = seasonFromPathname(pathname);
+  const current = currentDataSeason();
+  const linkFor = (href: string) => navHrefForSeason(href, season, current);
 
   return (
     <nav aria-label={tc("primaryMobileNav")} className="flex flex-col gap-1 px-4">
