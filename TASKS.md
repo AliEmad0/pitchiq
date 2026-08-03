@@ -5480,7 +5480,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 
 | ID                      | Title                                                          | Status     | Priority | Est |
 | ----------------------- | -------------------------------------------------------------- | ---------- | -------- | --- |
-| [TASK-1801](#task-1801) | Game domain model + read-only data adapter                     | 📋 Ready   | P2       | L   |
+| [TASK-1801](#task-1801) | Game domain model + read-only data adapter                     | ✅ Done    | P2       | L   |
 | [TASK-1802](#task-1802) | Era-aware player rating model (one interface, provenance tier) | 📋 Ready   | P2       | L   |
 | [TASK-1803](#task-1803) | Deterministic seeded match engine → `MatchEvent[]`             | 📋 Backlog | P2       | XL  |
 | [TASK-1804](#task-1804) | Commentary system (ICU keys, en + ar, AST-guard clean)         | 📋 Backlog | P2       | L   |
@@ -5495,13 +5495,15 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 
 ### TASK-1801
 
-**Game domain model + read-only data adapter** · 🔴 Blocked (M56) · `P2` · `L` · Type: Feature
+**Game domain model + read-only data adapter** · ✅ Done · `P2` · `L` · Type: Feature
 
 **Description** — Define `src/features/game/domain/` (pure types, no I/O) and `adapter/` (server-only, committed JSON → domain). `GamePlayer` is a **player-season card** carrying `role`/`altRoles`/`foot` (from M56), ratings, and provenance. `Formation`/`GameTeam` model the tactical shape; formation templates are mined from the committed lineup grids per era. The engine and UI consume the domain model only — never raw JSON. **Depends on:** TASK-M56.
 
+**Shipped notes** (branch `feat/task-1801-game-domain-adapter`; plan: [`docs/superpowers/plans/2026-08-03-task-1801-game-domain-adapter.md`](../docs/superpowers/plans/2026-08-03-task-1801-game-domain-adapter.md)) — Pure `domain/` layer: `card-id` (the `id@season` player-season key), `player` (`GamePlayer` card), `eligibility` (hard-ban `canPlay`, mirroring the M56 schema rule), `formation` (`Formation`/`FormationSlot` + `parseGrid`/`formationKey`), `team` (`GameTeam` + `makeGameTeam`), and `ratings` (placeholder `PlayerRatings`/`Provenance`/`RatingTier` seams — **left `null` for TASK-1802 to fill**). Server-only `adapter/` layer (the sole raw-JSON boundary, via `@/data/loaders`): `toGamePlayer`/`loadGamePlayer`, `loadGameSquad`, and `formationFromLineup`/`mineFormationTemplates`/`loadFormationTemplates` (templates mined from the committed lineup `grid` strings, all 34 seasons). 7 unit-test files / 20 tests; full suite green (1310), `tsc` + `eslint` clean.
+
 ### TASK-1802
 
-**Era-aware player rating model** · 🔴 Blocked (M56) · `P2` · `L` · Type: Feature
+**Era-aware player rating model** · 📋 Ready · `P2` · `L` · Type: Feature
 
 **Description** — One `rate(input) → { ratings, provenance }` entry point with two pipelines behind it: a rich-metric pipeline (percentile-normalised advanced stats) and a sparse pipeline (goals/assists/apps/cards/clean-sheets + real team-season context: the club's goals-for/against, points, rank, minutes share). `provenance.tier` is first-class so the UI can honestly badge a sparse-era card. **Depends on:** TASK-1801. **Enriched by:** TASK-M57 (moves most historical seasons into the rich pipeline).
 
