@@ -5475,6 +5475,11 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 - **The seven modes are rule packs (data), not seven code paths.**
 - **Determinism** — a seeded PRNG (no `Math.random`/`Date.now`), so a match is reproducible and shareable from `(teamA, teamB, seed)`.
 - **Commentary is ICU message keys**, never hardcoded strings (the CI AST guard forbids them), so English + Arabic (Eastern-Arabic numerals) work from day one.
+- **The match engine is a pure reducer over `MatchState` with a composable _modifier stack_** (locked 2026-08-03). Tactical counters, momentum, morale/team-talk, chemistry, era-links, and personality traits are all _weight-contributing modifiers_ (data/config) over the per-minute {attack, defense, foul, card} calculation — never bespoke code branches. Each `Modifier` is a pure `(state) → weightDelta`; the seeded PRNG stays the sole entropy source, so every modifier is deterministic. Get this seam right in TASK-1803 and most of the enhancement roadmap (1813-1819) becomes "add a modifier," not "change the engine."
+- **Determinism rule (standing):** real-world date / anniversary / daily-challenge values are `setup` inputs baked into the shareable seed — **never read inside the engine**, or a replay diverges from the original.
+- **100% client-side / static — no backend (decision 2026-08-03, Option A).** Records, streaks, run history, achievements, and the sticker album live in **IndexedDB**; sharing is **URL/seed state (nuqs)** + Wordle-style text + a client-side **Canvas** summary card. No global leaderboards / no server ranking.
+- **Two forward seams reserved:** a `tacticalStyle` on the team/formation setup (TASK-1805/1803, for counters) and an optional data-derived `traits?` on the player-season card (TASK-1802 shapes room; TASK-1814 fills it).
+- **Deliberately deferred:** global/online leaderboards (needs a backend — Option A) and date-based temporary "special event" stat boosts (determinism/repro hazard for low mechanical payoff; only revisit if baked into `setup`).
 
 **⛔ Blocked by [TASK-M56](#task-m56)** (true player roles — the draft needs real positions) and **enriched by [TASK-M57](#task-m57)** (historical advanced stats — shrinks the sparse-rating era to 1992-2002). Start the headless slice (1801-1805) once M56 lands.
 
@@ -5492,6 +5497,15 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1810](#task-1810) | Remaining six modes as rule packs                              | 📋 Backlog | P3       | XL  |
 | [TASK-1811](#task-1811) | Season-mode engine (ghost-of-real-season, Survival, Legacy)    | 📋 Backlog | P3       | L   |
 | [TASK-1812](#task-1812) | Persistence, records, shareable seeded matches                 | 📋 Backlog | P3       | M   |
+| [TASK-1813](#task-1813) | Hall of Fame & retro achievements (IndexedDB, provenance-aware) | 📋 Backlog | P3       | M   |
+| [TASK-1814](#task-1814) | Momentum engine + data-derived personality traits (modifiers)  | 📋 Backlog | P3       | L   |
+| [TASK-1815](#task-1815) | Post-match analytics — xG timeline + retro newspaper headlines  | 📋 Backlog | P3       | M   |
+| [TASK-1816](#task-1816) | "What-If" historical scenario mode (rule pack)                 | 📋 Backlog | P3       | M   |
+| [TASK-1817](#task-1817) | Daily seeded challenge — client-only (streaks, PB, seed replay) | 📋 Backlog | P3       | M   |
+| [TASK-1818](#task-1818) | Rogue-like / Mystery Market mode (local run history)           | 📋 Backlog | P3       | L   |
+| [TASK-1819](#task-1819) | Retro sticker album & collection book (IndexedDB)              | 📋 Backlog | P3       | S   |
+
+_Enhancement roadmap 1813-1819 added 2026-08-03 from the owner's feature proposal (Option A — 100% client-side/static). See the locked-architecture notes above for the modifier-stack + determinism + no-backend decisions that govern them._
 
 ### TASK-1801
 
@@ -5505,13 +5519,13 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 
 **Era-aware player rating model** · 📋 Ready · `P2` · `L` · Type: Feature
 
-**Description** — One `rate(input) → { ratings, provenance }` entry point with two pipelines behind it: a rich-metric pipeline (percentile-normalised advanced stats) and a sparse pipeline (goals/assists/apps/cards/clean-sheets + real team-season context: the club's goals-for/against, points, rank, minutes share). `provenance.tier` is first-class so the UI can honestly badge a sparse-era card. **Depends on:** TASK-1801. **Enriched by:** TASK-M57 (moves most historical seasons into the rich pipeline).
+**Description** — One `rate(input) → { ratings, provenance }` entry point with two pipelines behind it: a rich-metric pipeline (percentile-normalised advanced stats) and a sparse pipeline (goals/assists/apps/cards/clean-sheets + real team-season context: the club's goals-for/against, points, rank, minutes share). `provenance.tier` is first-class so the UI can honestly badge a sparse-era card. **Leave room** for an optional data-derived `traits?` on the card (Big-Match, Hot-Headed, …) that **TASK-1814** fills — shape the `rate()` output so traits can attach without a rewrite; do **not** build traits here. **Depends on:** TASK-1801. **Enriched by:** TASK-M57 (moves most historical seasons into the rich pipeline).
 
 ### TASK-1803
 
 **Deterministic seeded match engine** · 📋 Backlog · `P2` · `XL` · Type: Feature
 
-**Description** — `simulate(setup) → MatchResult` as a pure function: a seeded PRNG (mulberry32; no `Math.random`/`Date.now`), a minute loop weighing Attack vs Defense power with stamina decay, momentum swings, and `aggression`-driven fouls/cards, emitting a `MatchEvent[]` in <100ms. `(setup, seed)` is byte-reproducible. Tune the minute distribution against the committed real-event data (late-half + stoppage clustering). **Depends on:** TASK-1801, TASK-1802.
+**Description** — `simulate(setup) → MatchResult` as a **pure reducer over `MatchState`**: a seeded PRNG (mulberry32; no `Math.random`/`Date.now`), a minute loop weighing Attack vs Defense power with stamina decay and momentum, emitting a `MatchEvent[]` in <100ms; `(setup, seed)` is byte-reproducible. **Architecture (locked 2026-08-03):** the per-minute {attack, defense, foul, card} weights come from a **composable modifier stack** — each `Modifier` is a pure `(state) → weightDelta`, so tactical counters, momentum, morale/team-talk, chemistry, era-links, and personality traits register as data/config rather than engine branches (the PRNG stays the sole entropy source → every modifier is deterministic). Handle in-match **state triggers** (red card, injury, trailing after 70') as reducer transitions that can force emergency subs / mindset shifts, still seed-driven. **Reserve the seams:** `tacticalStyle` (setup) and `traits?` (card). Tune the minute distribution against the committed real-event data (late-half + stoppage clustering). **Depends on:** TASK-1801, TASK-1802. **Enables:** TASK-1814 (momentum/traits), TASK-1816/1818 (modes as modifier + rule-pack config).
 
 ### TASK-1804
 
@@ -5523,7 +5537,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 
 **Hybrid opponent model** · 📋 Backlog · `P2` · `M` · Type: Feature
 
-**Description** — `Opponent` is a discriminated union: `{ kind: "squad", team }` (aggregate the opponent's player ratings, modern era) or `{ kind: "record", record }` (derive attack/defense from the opponent's real standings row that season — works for all 34 seasons). One `powerOf(opponent) → TeamPower` collapses both for the engine. **Depends on:** TASK-1802, TASK-1803.
+**Description** — `Opponent` is a discriminated union: `{ kind: "squad", team }` (aggregate the opponent's player ratings, modern era) or `{ kind: "record", record }` (derive attack/defense from the opponent's real standings row that season — works for all 34 seasons). One `powerOf(opponent) → TeamPower` collapses both for the engine. Each side also carries a `tacticalStyle` so TASK-1803's tactical-counter modifier can compute matchups (Tiki-Taka ⟂ Low Block, High-Press Counter, …). **Depends on:** TASK-1802, TASK-1803.
 
 ### TASK-1806
 
@@ -5565,7 +5579,49 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 
 **Persistence, records, shareable seeded matches** · 📋 Backlog · `P3` · `M` · Type: Feature
 
-**Description** — Persist runs/records and make a match shareable + replayable from its `(teams, seed)` via URL state (nuqs, matching the encyclopedia's URL-state culture). **Depends on:** TASK-1810, TASK-1811.
+**Description** — Persist runs/records and make a match shareable + replayable from its `(teams, seed)` via URL state (nuqs, matching the encyclopedia's URL-state culture). **All local** — IndexedDB for records + URL/seed state for sharing (Option A, no backend). Includes the client-side **Canvas match-summary card** (scoreline, scorers, formations, seed) as a downloadable/shareable image — no server OG render. **Depends on:** TASK-1810, TASK-1811.
+
+### TASK-1813
+
+**Hall of Fame & retro achievements** · 📋 Backlog · `P3` · `M` · Type: Feature
+
+**Description** — A persistent **IndexedDB** achievement layer (no backend) rewarding historical milestones — e.g. **The Invincibles** (win a Classic Season undefeated), **Giant Killer** (beat a powerhouse with a bottom-tier side in Survival), **Hat-trick Hero** (a hat-trick with a **sparse-era** 1992–2002 card — reads `provenance.tier`). Achievement predicates are pure functions over `MatchResult` / run state; unlocks surface as profile badges + retro UI themes. **Depends on:** TASK-1812. **Uses:** TASK-1802 provenance.
+
+### TASK-1814
+
+**Momentum engine + personality traits** · 📋 Backlog · `P3` · `L` · Type: Feature
+
+**Description** — Fills TASK-1803's reserved seams as **modifiers**: a momentum contributor (a late goal boosts the scoring side and pushes the trailing side into a short panic/higher-mispass state) and **data-derived personality traits** on the card (`Big Match Player`, `Hot-Headed`, …) that shift ratings/aggression contextually (finals, derbies, late-trailing). Also the mid-match crisis prompt ("Henry fatigued at 75' — risk injury or sub?"). All deterministic weight deltas; the PRNG stays the sole entropy source. **Depends on:** TASK-1803. **Fills:** the `traits?` seam shaped by TASK-1802.
+
+### TASK-1815
+
+**Post-match analytics — xG timeline + retro headlines** · 📋 Backlog · `P3` · `M` · Type: Feature
+
+**Description** — Post-match visualizations over the already-emitted `MatchEvent[]`: a cumulative **xG timeline** (minute-by-minute, with shot-danger) and a procedurally-generated **retro newspaper headline** matching the match's dramatic arc — via **ICU message keys** (en + ar, Eastern-Arabic numerals), never hardcoded strings, reusing the TASK-1804 commentary key system. **Depends on:** TASK-1804, TASK-1808.
+
+### TASK-1816
+
+**"What-If" historical scenario mode** · 📋 Backlog · `P3` · `M` · Type: Feature
+
+**Description** — Playable historical rescue missions as a **rule pack**: the setup seeds a real mid-match state (e.g. Liverpool 0–3 down at half-time, Istanbul 2005) and the objective is to rewrite it. A `{ startState, objective }` pack over the shared engine — no new code path. Era-authentic rules apply. **Depends on:** TASK-1810, TASK-1811.
+
+### TASK-1817
+
+**Daily seeded challenge — client-only** · 📋 Backlog · `P3` · `M` · Type: Feature
+
+**Description** — One deterministic fixture per day: the seed is **derived client-side from the UTC date** (a `setup` input, never read inside the engine), the same match for everyone, **one attempt/day** tracked in IndexedDB. Local **streaks + personal bests**, **Wordle-style text** share, and **seed-URL replay**. **No global leaderboard** (Option A — would need a backend; deferred as a standalone infra ticket if ever wanted). **Depends on:** TASK-1806, TASK-1812.
+
+### TASK-1818
+
+**Rogue-like / Mystery Market mode** · 📋 Backlog · `P3` · `L` · Type: Feature
+
+**Description** — A permadeath run mode (Hades / Slay-the-Spire shape) as a **rule pack**: start with a bottom-tier XI; each win offers **pick-1-of-3** mystery rewards (a historical card / a tactical consumable / a stat modifier); **3 losses ends the run**. Rewards are modifier / draft-pool mutations over the shared draft + engine. Run history + scores are **strictly local** (IndexedDB) — no global ranking (Option A). **Depends on:** TASK-1810, TASK-1811, TASK-1812.
+
+### TASK-1819
+
+**Retro sticker album & collection book** · 📋 Backlog · `P3` · `S` · Type: Feature
+
+**Description** — Every unique player-season card drafted in any mode auto-populates a personal **collection** (IndexedDB). Completing a historical squad set (e.g. all 2006/07 Milan cards) unlocks profile badges / retro golden UI themes. Pure client-side; no backend. **Depends on:** TASK-1812.
 
 ---
 
