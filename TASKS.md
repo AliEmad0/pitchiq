@@ -5486,7 +5486,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | ID                      | Title                                                          | Status     | Priority | Est |
 | ----------------------- | -------------------------------------------------------------- | ---------- | -------- | --- |
 | [TASK-1801](#task-1801) | Game domain model + read-only data adapter                     | ✅ Done    | P2       | L   |
-| [TASK-1802](#task-1802) | Era-aware player rating model (one interface, provenance tier) | 📋 Ready   | P2       | L   |
+| [TASK-1802](#task-1802) | Era-aware player rating model (one interface, provenance tier) | ✅ Done    | P2       | L   |
 | [TASK-1803](#task-1803) | Deterministic seeded match engine → `MatchEvent[]`             | 📋 Backlog | P2       | XL  |
 | [TASK-1804](#task-1804) | Commentary system (ICU keys, en + ar, AST-guard clean)         | 📋 Backlog | P2       | L   |
 | [TASK-1805](#task-1805) | Hybrid opponent model (modern squad / historical record)       | 📋 Backlog | P2       | M   |
@@ -5517,9 +5517,11 @@ _Enhancement roadmap 1813-1819 added 2026-08-03 from the owner's feature proposa
 
 ### TASK-1802
 
-**Era-aware player rating model** · 📋 Ready · `P2` · `L` · Type: Feature
+**Era-aware player rating model** · ✅ Done · `P2` · `L` · Type: Feature
 
 **Description** — One `rate(input) → { ratings, provenance }` entry point with two pipelines behind it: a rich-metric pipeline (percentile-normalised advanced stats) and a sparse pipeline (goals/assists/apps/cards/clean-sheets + real team-season context: the club's goals-for/against, points, rank, minutes share). `provenance.tier` is first-class so the UI can honestly badge a sparse-era card. **Leave room** for an optional data-derived `traits?` on the card (Big-Match, Hot-Headed, …) that **TASK-1814** fills — shape the `rate()` output so traits can attach without a rewrite; do **not** build traits here. **Depends on:** TASK-1801. **Enriched by:** TASK-M57 (moves most historical seasons into the rich pipeline).
+
+**Shipped notes** (plan: [`docs/superpowers/plans/2026-08-03-task-1802-era-aware-ratings.md`](../docs/superpowers/plans/2026-08-03-task-1802-era-aware-ratings.md)) — Pure `domain/` rating model: `percentile` (`percentileRank` + role-cohort `poolOf`), `rating-weights` (per-role `overall` blends), `rating-rich` (percentile-normalised advanced stats), `rating-sparse` (basic per-appearance rates + real standings context: goalsFor/against, points percentiles), `rate()` (**data-driven** era detection — `hasAdvanced = passAccuracy != null` → rich, else sparse). Six 0–100 dimensions: `attack, creation, defense, physical, discipline, overall`. **Provenance = 2 tiers + honesty basis** (owner decision): `tier: "rich"|"sparse"` + `basis: { hasAdvanced, hasXg }`, so the 3-regime data reality (sparse 1992–2002 / advanced-pre-xG 2003–2016 / full-xG 2017+) is honestly badgeable. Server-only `adapter/ratings.ts` (`buildRatingContext`, `rateGamePlayer`, `loadRatedSquad`) is the sole loader boundary; a rated card = `{ ...toGamePlayer(p, s), ...rate(p, ctx) }`. 5 new test files / 17 tests (incl. real-data: Shearer '95 sparse, Agüero '15 rich-no-xG); full suite 1327 green, `tsc`+`eslint` clean. Model constants (`ROLE_WEIGHTS`, dimension weights) are **v1, tunable** once TASK-1803 lets us feel match outcomes. The `traits?` seam is left for TASK-1814.
 
 ### TASK-1803
 
