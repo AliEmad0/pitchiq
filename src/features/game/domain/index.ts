@@ -1,6 +1,9 @@
 export * from "./card-id";
 export * from "./eligibility";
 export * from "./formation";
+export * from "./match-types";
+export * from "./minute-model";
+export * from "./modifiers";
 export * from "./percentile";
 export * from "./player";
 export * from "./rate";
@@ -8,4 +11,7 @@ export * from "./rating-rich";
 export * from "./rating-sparse";
 export * from "./rating-weights";
 export * from "./ratings";
+export * from "./rng";
+export * from "./simulate";
 export * from "./team";
+export * from "./team-power";

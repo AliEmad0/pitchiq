@@ -5487,7 +5487,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | ----------------------- | -------------------------------------------------------------- | ---------- | -------- | --- |
 | [TASK-1801](#task-1801) | Game domain model + read-only data adapter                     | ✅ Done    | P2       | L   |
 | [TASK-1802](#task-1802) | Era-aware player rating model (one interface, provenance tier) | ✅ Done    | P2       | L   |
-| [TASK-1803](#task-1803) | Deterministic seeded match engine → `MatchEvent[]`             | 📋 Backlog | P2       | XL  |
+| [TASK-1803](#task-1803) | Deterministic seeded match engine → `MatchEvent[]`             | ✅ Done    | P2       | XL  |
 | [TASK-1804](#task-1804) | Commentary system (ICU keys, en + ar, AST-guard clean)         | 📋 Backlog | P2       | L   |
 | [TASK-1805](#task-1805) | Hybrid opponent model (modern squad / historical record)       | 📋 Backlog | P2       | M   |
 | [TASK-1806](#task-1806) | Chaos Draft — first end-to-end vertical slice                  | 📋 Backlog | P2       | L   |
@@ -5525,9 +5525,11 @@ _Enhancement roadmap 1813-1819 added 2026-08-03 from the owner's feature proposa
 
 ### TASK-1803
 
-**Deterministic seeded match engine** · 📋 Backlog · `P2` · `XL` · Type: Feature
+**Deterministic seeded match engine** · ✅ Done (lean vertical) · `P2` · `XL` · Type: Feature
 
 **Description** — `simulate(setup) → MatchResult` as a **pure reducer over `MatchState`**: a seeded PRNG (mulberry32; no `Math.random`/`Date.now`), a minute loop weighing Attack vs Defense power with stamina decay and momentum, emitting a `MatchEvent[]` in <100ms; `(setup, seed)` is byte-reproducible. **Architecture (locked 2026-08-03):** the per-minute {attack, defense, foul, card} weights come from a **composable modifier stack** — each `Modifier` is a pure `(state) → weightDelta`, so tactical counters, momentum, morale/team-talk, chemistry, era-links, and personality traits register as data/config rather than engine branches (the PRNG stays the sole entropy source → every modifier is deterministic). Handle in-match **state triggers** (red card, injury, trailing after 70') as reducer transitions that can force emergency subs / mindset shifts, still seed-driven. **Reserve the seams:** `tacticalStyle` (setup) and `traits?` (card). Tune the minute distribution against the committed real-event data (late-half + stoppage clustering). **Depends on:** TASK-1801, TASK-1802. **Enables:** TASK-1814 (momentum/traits), TASK-1816/1818 (modes as modifier + rule-pack config).
+
+**Shipped notes** (lean vertical; design: [`docs/superpowers/specs/2026-08-03-task-1803-match-engine-design.md`](../docs/superpowers/specs/2026-08-03-task-1803-match-engine-design.md), plan: [`docs/superpowers/plans/2026-08-03-task-1803-match-engine.md`](../docs/superpowers/plans/2026-08-03-task-1803-match-engine.md)) — Pure `domain/` engine: `rng` (mulberry32, sole entropy source), `match-types` (`MatchEvent`/`MatchState`/`Modifier`/`MatchSetup`/`MatchResult` — distinct from the real-data `MatchEventRaw`), `team-power` (`powerOf` — aggregates the XI's ratings by role weight → `{attack, defense, aggression}`), `modifiers` (baseline `staminaModifier` + `momentumModifier` + the `applyModifiers` fold; `setup.modifiers` extends the stack — **1805 counters / 1814 traits push here, no engine change**), `minute-model` (hazard curve tuned to the real `events-*.json` histogram: 45+/90+ spikes; `calibrateK` + `goalChance` + weighted scorer/booked selection), `simulate` (the deterministic minute-loop reducer). **Season-authentic calibration** (owner decision): `targetGoalsPerMatch` is a `setup` input; server-only `adapter/match.ts` `loadSeasonGoalRate(season)` derives it from that season's standings (`2·ΣgoalsFor/Σplayed`), and `simulateSeasonMatch` runs a real fixture (Man City v Arsenal 2020 verified deterministic). 6 new test files / 31 tests (determinism via `toEqual`, `<100ms`, stronger-team-wins, mean-goals≈target); full suite 1358 green, `tsc`+`eslint` clean. **Deferred to their tickets:** tactical counters (1805), rich momentum/panic + personality traits (1814), real-XI draft assembly (1806 — adapter slices first 11 for now), stoppage-time realism + exact histogram fit + constant tuning (**v1**, revisit once 1808 makes matches watchable).
 
 ### TASK-1804
 
