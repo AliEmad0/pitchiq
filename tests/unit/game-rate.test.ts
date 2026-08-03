@@ -3,7 +3,7 @@ import type { Player } from "@/data/schemas";
 import { rate } from "@/features/game/domain/rate";
 import type { RatingContext } from "@/features/game/domain/ratings";
 
-function player(overrides: Partial<Player["metrics"]>, season: number): Player {
+function player(overrides: Partial<Player["metrics"]>): Player {
   return {
     id: 1, name: "P", role: "CF", altRoles: [], teamId: 1,
     metrics: {
@@ -17,7 +17,7 @@ const ctx = (season: number, p: Player): RatingContext => ({ season, cohort: [p]
 
 describe("rate", () => {
   it("sparse tier when no advanced stats (pre-2003)", () => {
-    const p = player({}, 1995);
+    const p = player({});
     const r = rate(p, ctx(1995, p));
     expect(r.provenance.tier).toBe("sparse");
     expect(r.provenance.basis).toEqual({ hasAdvanced: false, hasXg: false });
@@ -25,14 +25,14 @@ describe("rate", () => {
   });
 
   it("rich tier + hasXg false for the 2003–2016 advanced-but-pre-xG era", () => {
-    const p = player({ passAccuracy: 82, keyPasses: 20, tackles: 5, interceptions: 3, duelsWon: 90, dribblesCompleted: 30, shotsOnTarget: 24 }, 2015);
+    const p = player({ passAccuracy: 82, keyPasses: 20, tackles: 5, interceptions: 3, duelsWon: 90, dribblesCompleted: 30, shotsOnTarget: 24 });
     const r = rate(p, ctx(2015, p));
     expect(r.provenance.tier).toBe("rich");
     expect(r.provenance.basis).toEqual({ hasAdvanced: true, hasXg: false });
   });
 
   it("rich tier + hasXg true from 2017", () => {
-    const p = player({ passAccuracy: 85, keyPasses: 30, tackles: 4, interceptions: 2, duelsWon: 95, dribblesCompleted: 40, shotsOnTarget: 30, xg: 14.2, xa: 6.1 }, 2020);
+    const p = player({ passAccuracy: 85, keyPasses: 30, tackles: 4, interceptions: 2, duelsWon: 95, dribblesCompleted: 40, shotsOnTarget: 30, xg: 14.2, xa: 6.1 });
     const r = rate(p, ctx(2020, p));
     expect(r.provenance.tier).toBe("rich");
     expect(r.provenance.basis).toEqual({ hasAdvanced: true, hasXg: true });

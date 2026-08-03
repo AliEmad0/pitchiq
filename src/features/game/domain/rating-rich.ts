@@ -16,7 +16,7 @@ function dim(
   for (const { pick, w } of parts) {
     const v = pick(player.metrics);
     if (v == null) continue;
-    sum += w * percentileRank(v, poolOf(ctx.cohort, player.role, pick));
+    sum += w * percentileRank(v, poolOf(ctx.cohort, player.role ?? null, pick));
     wsum += w;
   }
   return wsum === 0 ? 0 : (sum / wsum) * 100;
@@ -48,8 +48,8 @@ export function rateRich(player: Player, ctx: RatingContext): PlayerRatings {
     (m.yellowCards ?? 0) + 2 * (m.redCards ?? 0);
   const discipline =
     100 *
-    (1 - percentileRank(cardScore(player.metrics), poolOf(ctx.cohort, player.role, cardScore)));
-  const w = weightsFor(player.role);
+    (1 - percentileRank(cardScore(player.metrics), poolOf(ctx.cohort, player.role ?? null, cardScore)));
+  const w = weightsFor(player.role ?? null);
   const overall =
     w.attack * attack + w.creation * creation + w.defense * defense + w.physical * physical;
 

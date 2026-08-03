@@ -24,7 +24,7 @@ function pct(
 ): number {
   const v = pick(player.metrics);
   if (v == null) return 0;
-  return percentileRank(v, poolOf(ctx.cohort, player.role, pick));
+  return percentileRank(v, poolOf(ctx.cohort, player.role ?? null, pick));
 }
 
 export function rateSparse(player: Player, ctx: RatingContext): PlayerRatings {
@@ -41,9 +41,9 @@ export function rateSparse(player: Player, ctx: RatingContext): PlayerRatings {
   const cardScore = (m: ComparisonMetrics) => (m.yellowCards ?? 0) + 2 * (m.redCards ?? 0);
   const discipline =
     100 *
-    (1 - percentileRank(cardScore(player.metrics), poolOf(ctx.cohort, player.role, cardScore)));
+    (1 - percentileRank(cardScore(player.metrics), poolOf(ctx.cohort, player.role ?? null, cardScore)));
 
-  const w = weightsFor(player.role);
+  const w = weightsFor(player.role ?? null);
   const base =
     w.attack * attack + w.creation * creation + w.defense * defense + w.physical * physical;
   const overall = 0.9 * base + 0.1 * (100 * team.quality); // less individual signal → lean on team
