@@ -642,5 +642,27 @@
     "notFoundTitle": "Season not found",
     "championLabel": "Champion",
     "noChampion": "No champion recorded"
+  },
+  "commentary": {
+    "kickoff": "🟢 Kick-off!",
+    "goal": {
+      "0": "⚽ {player} scores! {homeScoreFmt}–{awayScoreFmt} ({minuteFmt}')",
+      "1": "⚽ GOAL — {player} finds the net! {homeScoreFmt}–{awayScoreFmt} ({minuteFmt}')",
+      "2": "⚽ {player} buries it. {homeScoreFmt}–{awayScoreFmt} ({minuteFmt}')",
+      "3": "⚽ What a finish from {player}! {homeScoreFmt}–{awayScoreFmt} ({minuteFmt}')"
+    },
+    "goalAnon": "⚽ Goal! {homeScoreFmt}–{awayScoreFmt} ({minuteFmt}')",
+    "cardYellow": {
+      "0": "🟨 Yellow card for {player} ({minuteFmt}')",
+      "1": "🟨 {player} goes into the book ({minuteFmt}')",
+      "2": "🟨 Booking — {player} ({minuteFmt}')"
+    },
+    "cardRed": {
+      "0": "🟥 Red card! {player} is sent off ({minuteFmt}')",
+      "1": "🟥 {player} sees red and walks ({minuteFmt}')"
+    },
+    "cardAnon": "🟨 A booking ({minuteFmt}')",
+    "halftime": "⏸ Half-time: {homeScoreFmt}–{awayScoreFmt}",
+    "fulltime": "🏁 Full-time: {homeScoreFmt}–{awayScoreFmt}"
   }
 }
