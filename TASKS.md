@@ -5490,7 +5490,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1803](#task-1803) | Deterministic seeded match engine → `MatchEvent[]`             | ✅ Done    | P2       | XL  |
 | [TASK-1804](#task-1804) | Commentary system (ICU keys, en + ar, AST-guard clean)         | ✅ Done    | P2       | L   |
 | [TASK-1805](#task-1805) | Hybrid opponent model (modern squad / historical record)       | 📋 Backlog | P2       | M   |
-| [TASK-1806](#task-1806) | Chaos Draft — first end-to-end vertical slice                  | 📋 Backlog | P2       | L   |
+| [TASK-1806](#task-1806) | Chaos Draft — first end-to-end vertical slice                  | 🟡 WIP     | P2       | L   |
 | [TASK-1807](#task-1807) | Hard-ban squad validation (`canPlay`; block save/lock/start)   | 📋 Backlog | P2       | M   |
 | [TASK-1808](#task-1808) | Live tactical pitch UI + speed controls (1x/2x/skip)           | 📋 Backlog | P3       | L   |
 | [TASK-1809](#task-1809) | Key-event animations (goal/red-card overlays, pulsing nodes)   | 📋 Backlog | P3       | L   |
@@ -5547,9 +5547,13 @@ _Enhancement roadmap 1813-1819 added 2026-08-03 from the owner's feature proposa
 
 ### TASK-1806
 
-**Chaos Draft — first end-to-end vertical slice** · 📋 Backlog · `P2` · `L` · Type: Feature
+**Chaos Draft — first end-to-end vertical slice** · 🟡 In progress (pitch view built) · `P2` · `L` · Type: Feature
 
 **Description** — The simplest mode (fully randomized formation + players) wired the whole way through: draft state machine → engine → a deliberately minimal pitch. Proves the loop and the domain/engine/UI seams before investing in polish. First rule pack. **Depends on:** TASK-1803, TASK-1804, TASK-1805.
+
+**Design + partial build (2026-08-03)** — The **live match / pitch view** is designed (owner's 30-concept → 30-animation ritual) and **built**. Chosen design = **"Broadcast × Win-Probability"** (a TV-broadcast graphic — score bug + live clock + top-down pitch with both XIs + commentary lower-third fed by 1804 — with a three-way win-probability band as a headline element); animation = **"Glow Pulse"** (a synchronized `box-shadow` glow rippling through bug/bar/scorer on each event, riding `var(--primary)`, motion-audit clean + reduce-gated). Shipped this pass: `domain/win-probability.ts` (pure Poisson home/draw/away from power + score + minutes-left), `adapter/lineup.ts` (`assembleGameTeam` — the real XI slot-assembly 1806 needed: rated squad → formation template slots), `view/match-view-model.ts` (serializable props), `src/features/game/components/` (`MatchView` playback + `MatchPitch`/`Scoreboard`/`WinProbBar`/`CommentaryCaption`/`GlowPulse` — the **first game `.tsx`**, all strings via `t()`, `t(ref.key, commentaryArgs(ref, locale))` render wiring live), `game.*` i18n (en+ar), and a **`force-static` `/game` route** (verified prerendered `●` — `/en/game` + `/ar/game`, NOT a lambda) that assembles Arsenal v Man Utd 2020 at build time and plays it minute-by-minute. Plan: `docs/superpowers/plans/2026-08-03-task-1806-pitch-view.md`. **Still to do for full 1806:** the Chaos Draft state machine (assemble your own randomized squad → this view is its playback surface) + TASK-1805 (record-based opponent). Design spec/plan: `docs/superpowers/`.
+
+**Depends on:** TASK-1803, TASK-1804, TASK-1805.
 
 ### TASK-1807
 
