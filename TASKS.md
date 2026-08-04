@@ -5488,7 +5488,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1801](#task-1801) | Game domain model + read-only data adapter                     | ✅ Done    | P2       | L   |
 | [TASK-1802](#task-1802) | Era-aware player rating model (one interface, provenance tier) | ✅ Done    | P2       | L   |
 | [TASK-1803](#task-1803) | Deterministic seeded match engine → `MatchEvent[]`             | ✅ Done    | P2       | XL  |
-| [TASK-1804](#task-1804) | Commentary system (ICU keys, en + ar, AST-guard clean)         | 📋 Backlog | P2       | L   |
+| [TASK-1804](#task-1804) | Commentary system (ICU keys, en + ar, AST-guard clean)         | ✅ Done    | P2       | L   |
 | [TASK-1805](#task-1805) | Hybrid opponent model (modern squad / historical record)       | 📋 Backlog | P2       | M   |
 | [TASK-1806](#task-1806) | Chaos Draft — first end-to-end vertical slice                  | 📋 Backlog | P2       | L   |
 | [TASK-1807](#task-1807) | Hard-ban squad validation (`canPlay`; block save/lock/start)   | 📋 Backlog | P2       | M   |
@@ -5533,9 +5533,11 @@ _Enhancement roadmap 1813-1819 added 2026-08-03 from the owner's feature proposa
 
 ### TASK-1804
 
-**Commentary system** · 📋 Backlog · `P2` · `L` · Type: Feature
+**Commentary system** · ✅ Done · `P2` · `L` · Type: Feature
 
 **Description** — Each `MatchEvent` carries a `CommentaryRef { key, values }`, resolved to localized text at render. **Not** hardcoded strings — the CI AST guard fails the build on any hardcoded user-facing string, and Arabic needs Eastern-Arabic numerals + ICU plurals. Message keys live in `en.json`/`ar.json`. **Depends on:** TASK-1803.
+
+**Shipped notes** (headless; design: [`docs/superpowers/specs/2026-08-03-task-1804-commentary-design.md`](../docs/superpowers/specs/2026-08-03-task-1804-commentary-design.md), plan: [`docs/superpowers/plans/2026-08-03-task-1804-commentary.md`](../docs/superpowers/plans/2026-08-03-task-1804-commentary.md)) — Pure `domain/commentary.ts`: `commentate(result, home, away) → CommentedEvent[]` — a **separate pass** (engine untouched → determinism intact) that folds running score and attaches a `CommentaryRef { key, values }` per event; **pooled phrasing** via an FNV-1a hash of event data (deterministic, no rng), with `player` name resolved from the roster + `*Anon` fallback keys. Locale-aware `view/commentary-view.ts` `commentaryArgs(ref, locale)` adds display digits (`{minuteFmt, homeScoreFmt, awayScoreFmt}` via `localizeDigits` — Eastern-Arabic on `ar`, per the codebase's raw-vs-Fmt convention). New `commentary.*` catalog (~13 keys, **en + ar**, interpolation-only — no plurals needed; minute rendered as `45'` to dodge locale ordinals). 3 test files / 11 tests incl. an **ICU render-validity** pass via `createTranslator` (every message renders in both locales; `ar` output is Eastern-Arabic with zero Western digits). No `.tsx` added → the hardcoded-string AST guard isn't triggered; catalog-parity green. Full suite 1369. **Deferred:** the pitch-UI render (1808) calls `t(ref.key, commentaryArgs(ref, locale))`; Arabic **player-name** resolution via `entity-names` (1808 render override); context-aware phrasing — equaliser/late-winner (1814/1815). Phrasing pools are v1.
 
 ### TASK-1805
 
