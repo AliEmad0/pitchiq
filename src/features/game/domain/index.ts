@@ -1,4 +1,5 @@
 export * from "./card-id";
+export * from "./commentary";
 export * from "./eligibility";
 export * from "./formation";
 export * from "./match-types";

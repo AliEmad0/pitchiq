@@ -642,5 +642,27 @@
     "notFoundTitle": "الموسم غير موجود",
     "championLabel": "البطل",
     "noChampion": "لا يوجد بطل مسجل"
+  },
+  "commentary": {
+    "kickoff": "🟢 انطلاق المباراة!",
+    "goal": {
+      "0": "⚽ {player} يسجّل! {homeScoreFmt}–{awayScoreFmt} ({minuteFmt}')",
+      "1": "⚽ هدف — {player} يهزّ الشباك! {homeScoreFmt}–{awayScoreFmt} ({minuteFmt}')",
+      "2": "⚽ {player} يودعها الشباك. {homeScoreFmt}–{awayScoreFmt} ({minuteFmt}')",
+      "3": "⚽ يا له من هدف من {player}! {homeScoreFmt}–{awayScoreFmt} ({minuteFmt}')"
+    },
+    "goalAnon": "⚽ هدف! {homeScoreFmt}–{awayScoreFmt} ({minuteFmt}')",
+    "cardYellow": {
+      "0": "🟨 بطاقة صفراء لـ {player} ({minuteFmt}')",
+      "1": "🟨 {player} يُسجَّل في مفكرة الحكم ({minuteFmt}')",
+      "2": "🟨 إنذار — {player} ({minuteFmt}')"
+    },
+    "cardRed": {
+      "0": "🟥 بطاقة حمراء! يُطرد {player} ({minuteFmt}')",
+      "1": "🟥 {player} يرى البطاقة الحمراء ويغادر ({minuteFmt}')"
+    },
+    "cardAnon": "🟨 إنذار ({minuteFmt}')",
+    "halftime": "⏸ الشوط الأول: {homeScoreFmt}–{awayScoreFmt}",
+    "fulltime": "🏁 نهاية المباراة: {homeScoreFmt}–{awayScoreFmt}"
   }
 }
