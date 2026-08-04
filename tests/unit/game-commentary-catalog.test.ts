@@ -27,6 +27,12 @@ function lookup(messages: Record<string, unknown>, key: string): unknown {
   return key.split(".").reduce<unknown>((o, part) => (o as Record<string, unknown> | undefined)?.[part], messages);
 }
 
+// next-intl's `t` is typed to known key literals; commentary keys are dynamic strings.
+type Translate = (key: string, values?: Record<string, string | number>) => string;
+function translator(locale: "en" | "ar", messages: unknown): Translate {
+  return createTranslator({ locale, messages: messages as Record<string, never> }) as unknown as Translate;
+}
+
 describe("commentary catalog", () => {
   it("every emittable key exists in en and ar", () => {
     for (const { key } of REFS) {
@@ -37,8 +43,7 @@ describe("commentary catalog", () => {
 
   it("renders every message in both locales with no missing args", () => {
     for (const locale of ["en", "ar"] as const) {
-      const messages = locale === "en" ? en : ar;
-      const t = createTranslator({ locale, messages });
+      const t = translator(locale, locale === "en" ? en : ar);
       for (const ref of REFS) {
         const text = t(ref.key, commentaryArgs(ref, locale));
         expect(text.length, `${locale} ${ref.key}`).toBeGreaterThan(0);
@@ -47,7 +52,7 @@ describe("commentary catalog", () => {
   });
 
   it("renders Eastern-Arabic digits on ar", () => {
-    const t = createTranslator({ locale: "ar", messages: ar });
+    const t = translator("ar", ar);
     const goal = REFS[1]; // minute 10, score 1-0
     const text = t(goal.key, commentaryArgs(goal, "ar"));
     expect(text).toMatch(/[٠-٩]/); // contains at least one Eastern-Arabic digit
