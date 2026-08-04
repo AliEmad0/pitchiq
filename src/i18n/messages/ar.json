@@ -643,6 +643,23 @@
     "championLabel": "البطل",
     "noChampion": "لا يوجد بطل مسجل"
   },
+  "game": {
+    "title": "محاكي المباريات",
+    "subtitle": "مباراة حتمية بأجواء الموسم — تُلعب أمامك مباشرة.",
+    "live": "مباشر",
+    "winProbability": "احتمالية الفوز",
+    "homeShort": "المضيف",
+    "drawShort": "تعادل",
+    "awayShort": "الضيف",
+    "play": "تشغيل",
+    "pause": "إيقاف مؤقت",
+    "restart": "إعادة",
+    "scoreboardAria": "لوحة النتيجة المباشرة",
+    "pitchAria": "أرضية المباراة",
+    "commentaryAria": "التعليق المباشر",
+    "winProbAria": "احتمالية الفوز: {home}٪ {homeName}، {draw}٪ تعادل، {away}٪ {awayName}",
+    "kickoffCaption": "انطلاق المباراة"
+  },
   "commentary": {
     "kickoff": "🟢 انطلاق المباراة!",
     "goal": {

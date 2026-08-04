@@ -643,6 +643,23 @@
     "championLabel": "Champion",
     "noChampion": "No champion recorded"
   },
+  "game": {
+    "title": "Match Simulator",
+    "subtitle": "A deterministic, season-authentic match — played out live.",
+    "live": "LIVE",
+    "winProbability": "Win probability",
+    "homeShort": "Home",
+    "drawShort": "Draw",
+    "awayShort": "Away",
+    "play": "Play",
+    "pause": "Pause",
+    "restart": "Restart",
+    "scoreboardAria": "Live scoreboard",
+    "pitchAria": "Match pitch",
+    "commentaryAria": "Live commentary",
+    "winProbAria": "Win probability: {home}% {homeName}, {draw}% draw, {away}% {awayName}",
+    "kickoffCaption": "Kick-off"
+  },
   "commentary": {
     "kickoff": "🟢 Kick-off!",
     "goal": {
