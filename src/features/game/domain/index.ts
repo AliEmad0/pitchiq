@@ -16,3 +16,4 @@ export * from "./rng";
 export * from "./simulate";
 export * from "./team";
 export * from "./team-power";
+export * from "./win-probability";
