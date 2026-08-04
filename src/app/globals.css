@@ -398,6 +398,33 @@
   animation: slot-filled-pulse var(--motion-duration-slow) var(--ease-out-soft);
 }
 
+/* TASK-1806 — live match view "Glow Pulse": a synchronized glow ripples through
+   the score bug / win-prob bar / scorer as each match event lands. box-shadow
+   only (motion-audit allowlist), rides --primary so it re-skins per era, and is
+   replayed by remounting the overlay via a changing React key. */
+@keyframes pitch-glow-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary) 60%, transparent);
+  }
+  55% {
+    box-shadow: 0 0 14px 4px color-mix(in srgb, var(--primary) 55%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary) 0%, transparent);
+  }
+}
+
+.pitch-glow {
+  border-radius: inherit;
+  animation: pitch-glow-pulse var(--motion-duration-slow) var(--ease-out-soft) 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pitch-glow {
+    animation: none;
+  }
+}
+
 /* TASK-1102 — trivia card: each new fact slides up as it mounts (re-triggered by
    the `key={fact.id}` change on shuffle). Pure CSS, no animation library. */
 @keyframes trivia-slide-up {
