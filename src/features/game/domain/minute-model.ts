@@ -54,12 +54,18 @@ function pickBy(
   return players[weightedIndex(players.map(weight), rng())];
 }
 
-/** Scorer: attacking roles + attack rating. */
+/** Scorer: attacking roles + attack rating. The keeper never scores in open play. */
 export function pickScorer(players: GamePlayer[], rng: () => number): GamePlayer | null {
-  return pickBy(players, rng, (p) => (weightsFor(p.role).attack + 0.1) * (p.ratings?.attack ?? 50));
+  return pickBy(players, rng, (p) =>
+    p.role === "GK" ? 0 : (weightsFor(p.role).attack + 0.1) * (p.ratings?.attack ?? 50),
+  );
 }
 
 /** Booked: defensive/physical roles slightly more likely. */
 export function pickBooked(players: GamePlayer[], rng: () => number): GamePlayer | null {
-  return pickBy(players, rng, (p) => weightsFor(p.role).defense + weightsFor(p.role).physical + 0.2);
+  return pickBy(
+    players,
+    rng,
+    (p) => weightsFor(p.role).defense + weightsFor(p.role).physical + 0.2,
+  );
 }

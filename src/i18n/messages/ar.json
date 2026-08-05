@@ -658,7 +658,14 @@
     "pitchAria": "أرضية المباراة",
     "commentaryAria": "التعليق المباشر",
     "winProbAria": "احتمالية الفوز: {home}٪ {homeName}، {draw}٪ تعادل، {away}٪ {awayName}",
-    "kickoffCaption": "انطلاق المباراة"
+    "kickoffCaption": "انطلاق المباراة",
+    "speedAria": "سرعة التشغيل",
+    "commentaryFeedAria": "سجل التعليق",
+    "goalLabel": "هدف",
+    "redCardLabel": "بطاقة حمراء",
+    "eventAria": "حدث في المباراة",
+    "lineups": "التشكيلة",
+    "rosterAria": "تشكيلة الفريقين"
   },
   "commentary": {
     "kickoff": "🟢 انطلاق المباراة!",

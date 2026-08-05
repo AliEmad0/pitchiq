@@ -8,9 +8,18 @@ vi.mock("@/utils/motion", () => ({ prefersReducedMotion: () => true }));
 
 const { MatchView } = await import("@/features/game/components/MatchView");
 
+const player = {
+  playerId: 1,
+  row: 1,
+  col: 1,
+  role: "CF" as const,
+  name: "Thierry Henry",
+  number: 9,
+  rating: 92,
+};
 const model: MatchViewModel = {
-  home: { name: "Arsenal", abbr: "ARS", slots: [{ row: 1, col: 1, role: "CF" }] },
-  away: { name: "United", abbr: "MUN", slots: [{ row: 1, col: 1, role: "CF" }] },
+  home: { name: "Arsenal", abbr: "ARS", players: [player] },
+  away: { name: "United", abbr: "MUN", players: [{ ...player, playerId: 2 }] },
   homePower: { attack: 60, defense: 55, aggression: 40 },
   awayPower: { attack: 50, defense: 50, aggression: 40 },
   events: [

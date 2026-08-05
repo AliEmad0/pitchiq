@@ -425,6 +425,30 @@
   }
 }
 
+/* TASK-1806 refinement — high-impact event banner (goal / red card): a full-pitch
+   overlay that pops in as the drama lands while playback holds. opacity + transform
+   only (motion-audit allowlist); reduce-gated (and only mounted when motion is on). */
+@keyframes game-event-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.game-event-overlay {
+  animation: game-event-in var(--motion-duration-base) var(--ease-out-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-event-overlay {
+    animation: none;
+  }
+}
+
 /* TASK-1102 — trivia card: each new fact slides up as it mounts (re-triggered by
    the `key={fact.id}` change on shuffle). Pure CSS, no animation library. */
 @keyframes trivia-slide-up {
