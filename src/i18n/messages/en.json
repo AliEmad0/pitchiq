@@ -658,7 +658,14 @@
     "pitchAria": "Match pitch",
     "commentaryAria": "Live commentary",
     "winProbAria": "Win probability: {home}% {homeName}, {draw}% draw, {away}% {awayName}",
-    "kickoffCaption": "Kick-off"
+    "kickoffCaption": "Kick-off",
+    "speedAria": "Playback speed",
+    "commentaryFeedAria": "Commentary history",
+    "goalLabel": "GOAL",
+    "redCardLabel": "RED CARD",
+    "eventAria": "Match event",
+    "lineups": "Line-ups",
+    "rosterAria": "Team line-ups"
   },
   "commentary": {
     "kickoff": "🟢 Kick-off!",

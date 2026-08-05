@@ -1,75 +1,128 @@
-import type { FormationSlot } from "@/features/game/domain/formation";
+import type { Frame, SimDot } from "@/features/game/domain/pitch-sim";
+import { localizeDigits } from "@/utils/format";
 
-const W = 100;
-const H = 140;
+// Landscape broadcast pitch. The sim works in normalised [0,1] coords; we scale
+// to this viewBox. Home defends the LEFT goal, away the RIGHT.
+const W = 140;
+const H = 90;
+const STAGGER_MS = 150;
 
-interface Dot {
-  x: number;
-  y: number;
-  idx: number;
-}
-
-/** Lay a side's slots into its half. Home = bottom (own goal y≈H), away = top, x mirrored. */
-function layout(slots: FormationSlot[], side: "home" | "away"): Dot[] {
-  const byRow = new Map<number, { idx: number }[]>();
-  slots.forEach((slot, idx) => {
-    const arr = byRow.get(slot.row) ?? [];
-    arr.push({ idx });
-    byRow.set(slot.row, arr);
-  });
-  const rows = [...byRow.keys()].sort((a, b) => a - b);
-  const dots: Dot[] = [];
-  rows.forEach((row, r) => {
-    const group = byRow.get(row)!;
-    const frac = rows.length > 1 ? r / (rows.length - 1) : 0; // 0 = own goal
-    const y = side === "home" ? H - 8 - frac * (H / 2 - 12) : 8 + frac * (H / 2 - 12);
-    group.forEach(({ idx }, i) => {
-      const xFrac = (i + 1) / (group.length + 1);
-      const x = side === "away" ? (1 - xFrac) * W : xFrac * W;
-      dots.push({ x, y, idx });
-    });
-  });
-  return dots;
+/** Deterministic [0,1) noise for a stable per-player transition delay. */
+function noise(seed: number): number {
+  const x = Math.sin(seed * 12.9898) * 43758.5453;
+  return x - Math.floor(x);
 }
 
 interface Props {
-  home: FormationSlot[];
-  away: FormationSlot[];
-  highlight?: { side: "home" | "away"; slot: number };
+  frame: Frame;
+  homeNumbers: number[];
+  awayNumbers: number[];
+  animate: boolean;
   label: string;
+  locale: string;
 }
 
-export function MatchPitch({ home, away, highlight, label }: Props) {
-  const dots = [
-    ...layout(home, "home").map((d) => ({ ...d, side: "home" as const })),
-    ...layout(away, "away").map((d) => ({ ...d, side: "away" as const })),
+export function MatchPitch({ frame, homeNumbers, awayNumbers, animate, label, locale }: Props) {
+  const ease = "cubic-bezier(0.45, 0, 0.55, 1)";
+  const rows: Array<{
+    dot: SimDot;
+    number: number;
+    side: "home" | "away";
+    index: number;
+    seed: number;
+  }> = [
+    ...frame.home.map((dot, i) => ({
+      dot,
+      number: homeNumbers[i] ?? 0,
+      side: "home" as const,
+      index: i,
+      seed: i + 1,
+    })),
+    ...frame.away.map((dot, i) => ({
+      dot,
+      number: awayNumbers[i] ?? 0,
+      side: "away" as const,
+      index: i,
+      seed: i + 60,
+    })),
   ];
+  const ballChip = (
+    <circle r="1.7" cx="0" cy="4.4" fill="#ffffff" stroke="#0b1f14" strokeWidth="0.5" />
+  );
+
   return (
     <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={label} className="h-full w-full">
-      {Array.from({ length: 9 }, (_, i) => (
-        <rect key={i} x={(i * W) / 9} y="0" width={W / 9} height={H} fill={i % 2 ? "#0c5a37" : "#0a5230"} />
+      {Array.from({ length: 10 }, (_, i) => (
+        <rect
+          key={i}
+          x={(i * W) / 10}
+          y="0"
+          width={W / 10}
+          height={H}
+          fill={i % 2 ? "#0c5a37" : "#0a5230"}
+        />
       ))}
-      <g stroke="rgba(255,255,255,.6)" strokeWidth="0.7" fill="none">
+      <g stroke="rgba(255,255,255,.55)" strokeWidth="0.6" fill="none">
         <rect x="3" y="3" width={W - 6} height={H - 6} />
-        <line x1="3" y1={H / 2} x2={W - 3} y2={H / 2} />
+        <line x1={W / 2} y1="3" x2={W / 2} y2={H - 3} />
         <circle cx={W / 2} cy={H / 2} r="9" />
-        <rect x={W / 2 - 18} y="3" width="36" height="16" />
-        <rect x={W / 2 - 18} y={H - 19} width="36" height="16" />
+        <rect x="3" y={H / 2 - 18} width="16" height="36" />
+        <rect x={W - 19} y={H / 2 - 18} width="16" height="36" />
+        <rect x="3" y={H / 2 - 9} width="6" height="18" />
+        <rect x={W - 9} y={H / 2 - 9} width="6" height="18" />
       </g>
-      {dots.map((d, i) => {
-        const on = highlight && highlight.side === d.side && highlight.slot === d.idx;
+
+      {rows.map(({ dot, number, side, index, seed }, i) => {
+        const isHome = side === "home";
+        const delay = Math.floor(noise(seed * 7 + 2) * STAGGER_MS);
+        const hasBall =
+          frame.ballOnHolder && frame.holderSide === side && frame.holderIndex === index;
         return (
-          <circle
+          <g
             key={i}
-            cx={d.x}
-            cy={d.y}
-            r={on ? 3.4 : 2.6}
-            className={d.side === "home" ? "fill-primary" : "fill-[#20242b]"}
-            stroke={on ? "#ffe14d" : "rgba(255,255,255,.85)"}
-            strokeWidth={on ? 1.4 : 0.8}
-          />
+            style={{
+              transform: `translate(${dot.x * W}px, ${dot.y * H}px) scale(${dot.scale})`,
+              transformOrigin: "0px 0px",
+              transition: animate ? `transform 1100ms ${ease} ${delay}ms` : "none",
+            }}
+          >
+            <circle
+              r={3}
+              className={isHome ? "fill-primary" : "fill-[#23272f]"}
+              stroke="rgba(255,255,255,.85)"
+              strokeWidth={0.5}
+            />
+            <text
+              textAnchor="middle"
+              dominantBaseline="central"
+              fontSize="3"
+              fontWeight="700"
+              fill="#ffffff"
+            >
+              {localizeDigits(number, locale)}
+            </text>
+            {/* Ball rides the holder — it is never left in empty space during play. */}
+            {hasBall && ballChip}
+          </g>
         );
       })}
+
+      {/* Ball in flight (shot) / in the net (goal) / on the centre spot (rest). */}
+      {!frame.ballOnHolder && (
+        <circle
+          cx="0"
+          cy="0"
+          r="1.7"
+          fill="#ffffff"
+          stroke="#0b1f14"
+          strokeWidth="0.5"
+          style={{
+            transform: `translate(${frame.ball.x * W}px, ${frame.ball.y * H}px)`,
+            transformOrigin: "0px 0px",
+            transition: animate ? `transform 380ms ${ease}` : "none",
+          }}
+        />
+      )}
     </svg>
   );
 }

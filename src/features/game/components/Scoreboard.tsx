@@ -26,10 +26,18 @@ export function Scoreboard({
 }: Props) {
   const d = (n: number) => localizeDigits(n, locale);
   return (
-    <div role="group" aria-label={ariaLabel} className="relative flex items-stretch gap-2 text-white">
+    <div
+      role="group"
+      aria-label={ariaLabel}
+      className="relative flex items-stretch gap-2 text-white"
+    >
       <div className="relative flex items-stretch overflow-hidden rounded-md text-sm font-extrabold shadow-lg">
-        <span className="bg-primary grid place-items-center px-2 py-1 tabular-nums">{homeAbbr}</span>
-        <span className="grid place-items-center bg-[#06140d] px-2 tabular-nums text-[#f6c000]">{d(home)}</span>
+        <span className="bg-primary grid place-items-center px-2 py-1 tabular-nums">
+          {homeAbbr}
+        </span>
+        <span className="grid place-items-center bg-[#06140d] px-2 tabular-nums text-[#f6c000]">
+          {d(home)}
+        </span>
         <span className="grid place-items-center bg-[#06140d] px-2 tabular-nums">{d(away)}</span>
         <span className="grid place-items-center bg-[#20242b] px-2">{awayAbbr}</span>
         <GlowPulse key={pulseKey} />
