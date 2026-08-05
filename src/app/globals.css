@@ -449,6 +449,42 @@
   }
 }
 
+/* TASK-1806 — Chaos Draft: cards are dealt in from the deck (poker entrance) and
+   ride off on the conveyor (exit). transform + opacity only (motion-audit
+   allowlist); per-card stagger via inline animation-delay; reduce-gated. */
+@keyframes chaos-deal-in {
+  0% {
+    opacity: 0;
+    transform: translate(-32vw, 34vh) rotate(-42deg) scale(0.5);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes chaos-deal-out {
+  0% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(118vw) rotate(6deg);
+  }
+}
+.chaos-card {
+  animation: chaos-deal-in var(--motion-duration-base) var(--ease-out-soft) both;
+}
+.chaos-card[data-exit="true"] {
+  animation: chaos-deal-out var(--motion-duration-base) cubic-bezier(0.5, 0, 0.9, 0.4) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .chaos-card,
+  .chaos-card[data-exit="true"] {
+    animation: none !important;
+  }
+}
+
 /* TASK-1102 — trivia card: each new fact slides up as it mounts (re-triggered by
    the `key={fact.id}` change on shuffle). Pure CSS, no animation library. */
 @keyframes trivia-slide-up {

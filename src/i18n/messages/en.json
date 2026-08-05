@@ -665,7 +665,20 @@
     "redCardLabel": "RED CARD",
     "eventAria": "Match event",
     "lineups": "Line-ups",
-    "rosterAria": "Team line-ups"
+    "rosterAria": "Team line-ups",
+    "chaosTitle": "Chaos Draft",
+    "chaosSubtitle": "A random XI from every era — dealt, then played.",
+    "reroll": "↻ Re-roll",
+    "playMatch": "Play Match ▶",
+    "newDraft": "← New draft",
+    "opponentLabel": "Opponent",
+    "avgLabel": "avg {rating}",
+    "draftAria": "Drafted XI",
+    "yourXi": "Your XI",
+    "rivals": "Rivals",
+    "eraSparse": "SPARSE",
+    "eraRich": "RICH",
+    "eraXg": "xG"
   },
   "commentary": {
     "kickoff": "🟢 Kick-off!",
