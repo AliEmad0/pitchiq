@@ -665,7 +665,20 @@
     "redCardLabel": "بطاقة حمراء",
     "eventAria": "حدث في المباراة",
     "lineups": "التشكيلة",
-    "rosterAria": "تشكيلة الفريقين"
+    "rosterAria": "تشكيلة الفريقين",
+    "chaosTitle": "التشكيل العشوائي",
+    "chaosSubtitle": "تشكيلة عشوائية من كل الحِقب — تُوزَّع ثم تُلعب.",
+    "reroll": "↻ إعادة السحب",
+    "playMatch": "العب المباراة ▶",
+    "newDraft": "→ تشكيلة جديدة",
+    "opponentLabel": "الخصم",
+    "avgLabel": "المتوسط {rating}",
+    "draftAria": "التشكيلة المُختارة",
+    "yourXi": "تشكيلتك",
+    "rivals": "الخصوم",
+    "eraSparse": "أساسي",
+    "eraRich": "متقدّم",
+    "eraXg": "xG"
   },
   "commentary": {
     "kickoff": "🟢 انطلاق المباراة!",

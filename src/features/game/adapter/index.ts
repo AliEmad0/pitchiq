@@ -1,4 +1,5 @@
 import "server-only";
+export * from "./chaos-pool";
 export * from "./formation";
 export * from "./match";
 export * from "./opponent";
