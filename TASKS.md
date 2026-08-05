@@ -5489,7 +5489,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1802](#task-1802) | Era-aware player rating model (one interface, provenance tier) | ✅ Done    | P2       | L   |
 | [TASK-1803](#task-1803) | Deterministic seeded match engine → `MatchEvent[]`             | ✅ Done    | P2       | XL  |
 | [TASK-1804](#task-1804) | Commentary system (ICU keys, en + ar, AST-guard clean)         | ✅ Done    | P2       | L   |
-| [TASK-1805](#task-1805) | Hybrid opponent model (modern squad / historical record)       | 📋 Backlog | P2       | M   |
+| [TASK-1805](#task-1805) | Hybrid opponent model (modern squad / historical record)       | ✅ Done    | P2       | M   |
 | [TASK-1806](#task-1806) | Chaos Draft — first end-to-end vertical slice                  | 🟡 WIP     | P2       | L   |
 | [TASK-1807](#task-1807) | Hard-ban squad validation (`canPlay`; block save/lock/start)   | 📋 Backlog | P2       | M   |
 | [TASK-1808](#task-1808) | Live tactical pitch UI + speed controls (1x/2x/skip)           | 📋 Backlog | P3       | L   |
@@ -5541,9 +5541,11 @@ _Enhancement roadmap 1813-1819 added 2026-08-03 from the owner's feature proposa
 
 ### TASK-1805
 
-**Hybrid opponent model** · 📋 Backlog · `P2` · `M` · Type: Feature
+**Hybrid opponent model** · ✅ Done (2026-08-05) · `P2` · `M` · Type: Feature
 
 **Description** — `Opponent` is a discriminated union: `{ kind: "squad", team }` (aggregate the opponent's player ratings, modern era) or `{ kind: "record", record }` (derive attack/defense from the opponent's real standings row that season — works for all 34 seasons). One `powerOf(opponent) → TeamPower` collapses both for the engine. Each side also carries a `tacticalStyle` so TASK-1803's tactical-counter modifier can compute matchups (Tiki-Taka ⟂ Low Block, High-Press Counter, …). **Depends on:** TASK-1802, TASK-1803.
+
+**Shipped** — `domain/opponent.ts`: `Opponent` union + `TacticalStyle` (6 styles) + `OpponentRecord`; `opponentPower(opp)` collapses both kinds (record → per-game goals for/against mapped to attack/defense, clamped 15–95; squad → existing `powerOf`); `styleEdge` (a 5-cycle counter matrix, `balanced` neutral) + `tacticalStyleModifier(home, away)` pushed into the 1803 `setup.modifiers` stack; `opponentSetup(...)` builds the `MatchSetup` (record opponent → XI-less `GameTeam` + `awayPower` override + tactical modifier). Engine seam: `MatchSetup.homePower?/awayPower?` overrides let a record opponent (no XI to aggregate) feed the engine — a record opponent scores "anonymously" (1804's `goalAnon`/`cardAnon` fallbacks). `adapter/opponent.ts`: `loadRecordOpponent` (from standings) + `loadSquadOpponent` (assembled XI). 8 unit tests (determinism, stronger-record-concedes-fewer, style cycle); full suite 1410 green.
 
 ### TASK-1806
 

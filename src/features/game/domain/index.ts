@@ -5,6 +5,7 @@ export * from "./formation";
 export * from "./match-types";
 export * from "./minute-model";
 export * from "./modifiers";
+export * from "./opponent";
 export * from "./percentile";
 export * from "./player";
 export * from "./rate";

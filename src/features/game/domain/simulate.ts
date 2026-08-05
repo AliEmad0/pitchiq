@@ -19,8 +19,8 @@ export function simulate(setup: MatchSetup): MatchResult {
 
   const state: MatchState = {
     minute: 0,
-    home: { power: powerOf(setup.home), score: 0, stamina: 1, momentum: 0 },
-    away: { power: powerOf(setup.away), score: 0, stamina: 1, momentum: 0 },
+    home: { power: setup.homePower ?? powerOf(setup.home), score: 0, stamina: 1, momentum: 0 },
+    away: { power: setup.awayPower ?? powerOf(setup.away), score: 0, stamina: 1, momentum: 0 },
     events: [{ minute: 0, kind: "kickoff" }],
   };
   const sides: Side[] = ["home", "away"];
