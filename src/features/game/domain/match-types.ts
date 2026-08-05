@@ -53,6 +53,9 @@ export interface MatchSetup {
   seed: number;
   targetGoalsPerMatch: number; // season-authentic, from the adapter
   modifiers?: Modifier[]; // layered after the baseline set
+  /** Override a side's power (a record-based opponent has no XI to aggregate). */
+  homePower?: TeamPower;
+  awayPower?: TeamPower;
 }
 
 export interface MatchResult {
