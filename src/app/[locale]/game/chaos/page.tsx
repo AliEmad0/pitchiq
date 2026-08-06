@@ -21,7 +21,7 @@ export default async function ChaosDraftPage({ params }: Props) {
   const pool = await loadChaosPool();
 
   return (
-    <main className="mx-auto w-full max-w-4xl px-4 py-10">
+    <main className="mx-auto w-full max-w-6xl px-4 py-10">
       <ChaosDraft pool={pool} locale={locale} />
     </main>
   );

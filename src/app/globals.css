@@ -1091,3 +1091,669 @@
 [lang="ar"] :is(h1, h2, h3, h4) {
   font-family: var(--font-arabic), system-ui, sans-serif;
 }
+
+/* === PR#2 — FUT card system (PlayerCard). A resolver in card-design.ts picks a
+   family per card; these are the visual treatments. Self-contained (gold/onyx/
+   etc. — theme-independent by design). Display text uses Oswald (condensed);
+   stats/labels use the mono face. All classes prefixed `pc-`. === */
+.pc-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+  isolation: isolate;
+  color: var(--pc-ink, #241a05);
+  box-shadow:
+    0 16px 34px -16px rgba(0, 0, 0, 0.6),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+.pc-card * {
+  position: relative;
+}
+.pc-mat {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.pc-fill {
+  position: absolute;
+  inset: 0;
+  object-fit: cover;
+  object-position: 50% 12%;
+  z-index: 1;
+}
+.pc-sct {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(to bottom, rgba(6, 8, 12, 0.72), transparent 36%);
+}
+.pc-cut {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 7%;
+  height: 64%;
+  aspect-ratio: 110 / 140;
+  filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.35));
+}
+.pc-cut :is(img) {
+  object-fit: contain;
+  object-position: center bottom;
+}
+.pc-wm {
+  position: absolute;
+  z-index: 4;
+  font-family: var(--font-oswald), var(--font-sans), sans-serif;
+  font-weight: 700;
+  pointer-events: none;
+}
+.pc-crest {
+  width: 15px;
+  height: 15px;
+  object-fit: contain;
+  flex: none;
+}
+.pc-stats {
+  display: flex;
+  gap: 2px;
+}
+.pc-stat {
+  flex: 1;
+  text-align: center;
+}
+.pc-sv {
+  font-family: var(--font-oswald), var(--font-sans), sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1;
+}
+.pc-sk {
+  font-family: var(--font-mono), monospace;
+  font-size: 7.5px;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  opacity: 0.72;
+  margin-top: 2px;
+}
+
+/* --- Family A: Vault (A1 gold / A2 onyx) --- */
+.pc-fam-a .pc-mat {
+  background: var(--pc-fmat);
+}
+.pc-fam-a .pc-fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 56%;
+  z-index: 3;
+  background: var(--pc-fade);
+  pointer-events: none;
+}
+.pc-fam-a.pc-cut-s .pc-cut {
+  top: 7%;
+  height: 66%;
+  max-width: 92%;
+}
+.pc-a-ovr {
+  position: absolute;
+  left: 11px;
+  top: 10px;
+  width: 38px;
+  text-align: center;
+  z-index: 6;
+}
+.pc-ovr {
+  font-family: var(--font-oswald), var(--font-sans), sans-serif;
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 0.82;
+  color: var(--pc-ink);
+  text-shadow: var(--pc-osh, none);
+}
+.pc-role {
+  font-family: var(--font-oswald), var(--font-sans), sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--pc-ink);
+  opacity: 0.94;
+  text-shadow: var(--pc-osh, none);
+}
+.pc-alts {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 6px;
+  align-items: center;
+}
+.pc-altchip {
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  font-family: var(--font-mono), monospace;
+  font-size: 8.5px;
+  font-weight: 700;
+  background: var(--pc-chip);
+  color: var(--pc-ink);
+  border: 1px solid rgba(0, 0, 0, 0.14);
+}
+.pc-fam-a .pc-wm {
+  right: 9px;
+  top: 8px;
+  font-size: 15px;
+  opacity: 0.72;
+  color: var(--pc-ink);
+  text-shadow: var(--pc-osh, none);
+}
+.pc-a-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 6;
+  padding: 0 12px 11px;
+}
+.pc-a-name {
+  font-family: var(--font-oswald), var(--font-sans), sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.02;
+  text-align: center;
+  text-wrap: balance;
+  text-transform: uppercase;
+  color: var(--pc-ink);
+  min-height: 2em;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  text-shadow: var(--pc-tsh, none);
+}
+.pc-a-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 5px 0 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--pc-ink);
+  opacity: 0.95;
+  text-shadow: var(--pc-tsh, none);
+}
+.pc-a-meta .pc-cl {
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+.pc-a-stats {
+  border-top: 1px solid var(--pc-rule);
+  padding-top: 7px;
+}
+.pc-fam-a .pc-sv {
+  color: var(--pc-ink);
+  text-shadow: var(--pc-tsh, none);
+}
+.pc-fam-a .pc-sk {
+  color: var(--pc-ink);
+  opacity: 0.66;
+}
+.pc-dot {
+  opacity: 0.5;
+}
+.pc-gold {
+  --pc-fmat: radial-gradient(
+    120% 74% at 50% 6%,
+    #fff2c8,
+    #f6d572 26%,
+    #eebf4c 52%,
+    #d59e30 78%,
+    #b97f1f
+  );
+  --pc-fade: linear-gradient(to top, #eabf52 0 30%, rgba(234, 191, 82, 0.62) 55%, transparent 84%);
+  --pc-ink: #2a1f04;
+  --pc-chip: rgba(58, 44, 5, 0.14);
+  --pc-rule: rgba(58, 44, 5, 0.32);
+}
+.pc-onyx {
+  --pc-fmat: radial-gradient(120% 74% at 50% 6%, #3a4152, #232936 46%, #141922 82%, #0c0f16);
+  --pc-fade: linear-gradient(to top, #0b0e15 0 32%, rgba(11, 14, 21, 0.74) 56%, transparent 86%);
+  --pc-ink: #f0d488;
+  --pc-chip: rgba(231, 193, 91, 0.18);
+  --pc-rule: rgba(231, 193, 91, 0.3);
+  --pc-osh: 0 1px 6px rgba(0, 0, 0, 0.6);
+  --pc-tsh: 0 1px 6px rgba(0, 0, 0, 0.7);
+}
+
+/* --- Family B: Cinematic --- */
+.pc-fam-b {
+  --pc-ink: #fff;
+}
+.pc-fam-b .pc-mat {
+  background: var(--pc-bmat);
+}
+.pc-fam-b.pc-cut-s .pc-cut {
+  top: 5%;
+  height: auto;
+  width: 96%;
+  max-width: 96%;
+}
+.pc-b-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(
+    to top,
+    rgba(4, 6, 10, 0.96) 3%,
+    rgba(4, 6, 10, 0.7) 24%,
+    rgba(4, 6, 10, 0.05) 50%,
+    transparent 66%
+  );
+}
+.pc-b-ovr {
+  position: absolute;
+  left: 12px;
+  top: 10px;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  line-height: 0.82;
+}
+.pc-b-ovr .pc-ovr {
+  font-size: 36px;
+  color: var(--pc-acc);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+}
+.pc-b-ovr .pc-role {
+  color: #fff;
+  opacity: 0.92;
+  margin-top: 1px;
+}
+.pc-b-tags {
+  position: absolute;
+  left: 13px;
+  top: 66px;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.pc-b-tags span {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  font-family: var(--font-mono), monospace;
+  font-size: 9px;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.17);
+  backdrop-filter: blur(3px);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+}
+.pc-fam-b .pc-wm {
+  right: 10px;
+  top: 10px;
+  font-size: 16px;
+  color: var(--pc-acc);
+  opacity: 0.9;
+}
+.pc-b-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 6;
+  padding: 0 13px 12px;
+}
+.pc-b-name {
+  font-family: var(--font-oswald), var(--font-sans), sans-serif;
+  font-weight: 700;
+  font-size: 21px;
+  line-height: 0.94;
+  text-transform: uppercase;
+  color: #fff;
+}
+.pc-b-sub {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 4px 0 9px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #dfe6f2;
+}
+.pc-b-sub .pc-crest {
+  margin-top: 1px;
+}
+.pc-b-club {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.14;
+}
+.pc-b-cn {
+  white-space: nowrap;
+  font-weight: 700;
+}
+.pc-b-ag {
+  color: #aebbd0;
+  font-size: 10px;
+}
+.pc-b-line {
+  height: 2px;
+  width: 32px;
+  background: var(--pc-acc);
+  margin-bottom: 8px;
+  border-radius: 2px;
+}
+.pc-fam-b .pc-sv {
+  color: #fff;
+}
+.pc-fam-b .pc-sk {
+  color: #cdd6e6;
+}
+.pc-bgold {
+  --pc-acc: #f4d987;
+  --pc-bmat: radial-gradient(120% 80% at 50% 0%, #5a4715, #1a1508);
+}
+.pc-bmid {
+  --pc-acc: #7fb2ff;
+  --pc-bmat: radial-gradient(120% 80% at 50% 0%, #1c2740, #080b12);
+}
+.pc-bbrand {
+  --pc-acc: #ff6fb6;
+  --pc-bmat: radial-gradient(120% 80% at 50% 0%, #3a1030, #0a0710);
+}
+
+/* --- Family C: Dossier --- */
+.pc-c-photo {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 60%;
+  z-index: 1;
+  overflow: hidden;
+  background: var(--pc-cph);
+}
+.pc-c-photo .pc-fill {
+  object-position: 50% 18%;
+}
+.pc-fam-c.pc-cut-s .pc-cut {
+  top: auto;
+  bottom: 0;
+  height: 99%;
+  width: auto;
+  max-width: 100%;
+}
+.pc-c-panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 44%;
+  z-index: 5;
+  background: var(--pc-cpan);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  color: var(--pc-ink);
+}
+.pc-c-top {
+  position: absolute;
+  left: 11px;
+  top: 10px;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  line-height: 0.82;
+}
+.pc-c-top .pc-ovr {
+  font-size: 28px;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+}
+.pc-c-top .pc-role {
+  color: #fff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+  margin-top: 1px;
+}
+.pc-c-name {
+  font-family: var(--font-oswald), var(--font-sans), sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 0.92;
+  text-transform: uppercase;
+  color: var(--pc-ink);
+}
+.pc-c-meta {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--pc-csub);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 3px 0 7px;
+}
+.pc-c-stats {
+  margin-top: auto;
+  display: flex;
+  gap: 2px;
+  border-top: 1px solid var(--pc-crule);
+  padding-top: 6px;
+}
+.pc-fam-c .pc-wm {
+  right: 10px;
+  top: 10px;
+  z-index: 6;
+  font-size: 14px;
+  color: #fff;
+  opacity: 0.8;
+}
+.pc-fam-c .pc-sv {
+  color: var(--pc-ink);
+}
+.pc-fam-c .pc-sk {
+  color: var(--pc-csub);
+}
+.pc-cream {
+  --pc-cpan: #f4efe4;
+  --pc-ink: #241d12;
+  --pc-csub: #7b6c52;
+  --pc-crule: #d8cdb4;
+  --pc-cph: #cbb68f;
+}
+
+/* --- Family D: Index --- */
+.pc-fam-d {
+  background: var(--pc-dbg);
+  color: var(--pc-dink);
+}
+.pc-fam-d .pc-mat {
+  background: var(--pc-dbg);
+}
+.pc-d-frame {
+  position: absolute;
+  inset: 8px;
+  z-index: 6;
+  border: 1px solid var(--pc-dline);
+  border-radius: 6px;
+  pointer-events: none;
+}
+.pc-d-photo {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 60%;
+  z-index: 1;
+  overflow: hidden;
+}
+.pc-fam-d.pc-cut-s .pc-cut {
+  top: auto;
+  bottom: 0;
+  height: 99%;
+  width: auto;
+  max-width: 100%;
+  filter: grayscale(0.12) drop-shadow(0 6px 10px rgba(0, 0, 0, 0.3));
+}
+.pc-fam-d.pc-photo-s .pc-fill {
+  object-position: 50% 16%;
+  filter: grayscale(0.22);
+}
+.pc-d-fade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, var(--pc-dbg) 2%, transparent 46%);
+}
+.pc-d-ovr {
+  position: absolute;
+  right: 14px;
+  top: 13px;
+  z-index: 7;
+  text-align: right;
+}
+.pc-d-ovr .pc-ovr {
+  font-size: 32px;
+  line-height: 0.9;
+  color: var(--pc-dacc);
+}
+.pc-d-ovr .pc-role {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--pc-dsub);
+  margin-top: 5px;
+}
+.pc-d-num {
+  position: absolute;
+  left: 14px;
+  top: 13px;
+  z-index: 7;
+  font-family: var(--font-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  color: var(--pc-dsub);
+  font-weight: 700;
+}
+.pc-d-info {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  top: 61%;
+  z-index: 7;
+}
+.pc-d-name {
+  font-family: var(--font-oswald), var(--font-sans), sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 0.9;
+  text-transform: uppercase;
+  color: var(--pc-dink);
+}
+.pc-d-meta {
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--pc-dsub);
+  margin-top: 6px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.pc-d-meta .pc-tsep {
+  letter-spacing: 0.14em;
+}
+.pc-d-stats {
+  position: absolute;
+  left: 11px;
+  right: 11px;
+  bottom: 12px;
+  z-index: 7;
+  display: flex;
+  gap: 2px;
+}
+.pc-fam-d .pc-sv {
+  color: var(--pc-dink);
+}
+.pc-fam-d .pc-sk {
+  color: var(--pc-dsub);
+  opacity: 1;
+}
+.pc-fam-d .pc-wm {
+  right: 14px;
+  bottom: 42px;
+  font-size: 12px;
+  color: var(--pc-dsub);
+  opacity: 0.8;
+}
+.pc-paper {
+  --pc-dbg: #efe9dd;
+  --pc-dink: #1c1c1a;
+  --pc-dsub: #8a8375;
+  --pc-dline: #cdc4b0;
+  --pc-dacc: #b8863b;
+}
+.pc-noir {
+  --pc-dbg: #0c0d10;
+  --pc-dink: #f2f3f6;
+  --pc-dsub: #7d8595;
+  --pc-dline: #2a2e39;
+  --pc-dacc: #e7c15b;
+}
+
+/* --- Card backs (face-down pool) --- */
+.pc-back {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow:
+    0 16px 34px -16px rgba(0, 0, 0, 0.6),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+.pc-back-ov {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+.pc-back-wm {
+  font-family: var(--font-oswald), var(--font-sans), sans-serif;
+  font-weight: 700;
+  font-size: 42px;
+  line-height: 1;
+  z-index: 3;
+  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.4));
+}
+.pc-back-word {
+  font-size: 9px;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  font-weight: 700;
+  z-index: 3;
+  opacity: 0.9;
+}
+.pc-back-yr {
+  position: absolute;
+  bottom: 9px;
+  font-family: var(--font-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  font-weight: 700;
+  opacity: 0.7;
+  z-index: 3;
+}

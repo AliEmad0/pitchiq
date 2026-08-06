@@ -32,6 +32,7 @@ export async function loadChaosPool(): Promise<EnrichedCard[]> {
           (p): EnrichedCard => ({
             ...p,
             club: row.teamName,
+            teamId: row.teamId,
             ...cardBio(byId.get(p.playerId), p.playerId, season, career),
           }),
         );

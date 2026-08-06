@@ -39,7 +39,7 @@ export function DraftScreen({
   let dealIndex = 0;
 
   return (
-    <div className="mx-auto w-full max-w-5xl">
+    <div className="mx-auto w-full max-w-6xl">
       <div className="flex items-center gap-3">
         <h1 className="text-2xl font-extrabold tracking-tight">{t("chaosTitle")}</h1>
         <span className="bg-primary text-primary-foreground rounded px-2 py-0.5 font-mono text-[11px] font-bold">
@@ -48,34 +48,32 @@ export function DraftScreen({
       </div>
       <p className="text-muted-foreground mb-5 mt-1 text-sm">{t("chaosSubtitle")}</p>
 
-      <div className="overflow-x-auto">
-        <div
-          role="group"
-          aria-label={t("draftAria")}
-          className="min-w-max rounded-2xl bg-[radial-gradient(120%_80%_at_50%_-10%,#12202c,#080c11)] p-5 shadow-2xl ring-1 ring-white/10"
-        >
-          {rows.map((row) => (
-            <div key={row} className="my-4 flex justify-center gap-3">
-              {byRow.get(row)!.map((i) => {
-                const idx = dealIndex++;
-                return (
-                  <div
-                    key={home.players[i].playerId}
-                    data-exit={exiting}
-                    style={{ animationDelay: reduced ? undefined : `${idx * 90}ms` }}
-                    className="chaos-card"
-                  >
-                    <PlayerCard
-                      card={home.players[i] as EnrichedCard}
-                      locale={locale}
-                      reduced={reduced}
-                    />
-                  </div>
-                );
-              })}
-            </div>
-          ))}
-        </div>
+      <div
+        role="group"
+        aria-label={t("draftAria")}
+        className="rounded-2xl bg-[radial-gradient(120%_80%_at_50%_-10%,#12202c,#080c11)] p-5 shadow-2xl ring-1 ring-white/10"
+      >
+        {rows.map((row) => (
+          <div key={row} className="my-4 flex flex-wrap justify-center gap-3">
+            {byRow.get(row)!.map((i) => {
+              const idx = dealIndex++;
+              return (
+                <div
+                  key={home.players[i].playerId}
+                  data-exit={exiting}
+                  style={{ animationDelay: reduced ? undefined : `${idx * 90}ms` }}
+                  className="chaos-card"
+                >
+                  <PlayerCard
+                    card={home.players[i] as EnrichedCard}
+                    locale={locale}
+                    reduced={reduced}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        ))}
       </div>
 
       <div className="mt-4 flex items-center gap-3">
