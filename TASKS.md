@@ -5573,6 +5573,12 @@ New modules: `domain/pitch-sim.ts`, `view/pitch-model.ts`, `components/{EventOve
 
 **Depends on:** TASK-1803, TASK-1804, TASK-1805.
 
+### Phase-18 UI/gameplay expansion (owner spec 2026-08-06)
+
+Owner requested a unified flow with clear separation of concerns, mapped onto the existing tickets: an **interactive draft/setup hub** (`/draft`, click-to-place `TacticalPitch` + eligibility highlight + hard-ban → TASK-1807), a **pre-match showcase** (`/pre-match`, your XI vs opponent XI on mini-pitches), **dual simulation paths** (Single Match → the `/game` broadcast; **Full 38-week Season** with league table, stat hub [top scorers/assists/clean sheets/cards], matchweek control [play vs fast-sim], and a champions finale → TASK-1810/1811), plus a redesigned **player card**. Season engine is **opponent-agnostic**: the active mode's rule pack supplies the league (Chaos Season → 19 auto-drafted Chaos XIs; Classic Season → real clubs + real "ghost" results). Persistence/records/seed-share → TASK-1812; HoF finale badges → TASK-1813. Build order: card → `/draft` → `/pre-match` → single-match wiring → season → persistence.
+
+**✅ PR #1 (of the plan) SHIPPED 2026-08-06 (PR #91) — the FUT-style `PlayerCard`.** Owner picked design "Classic Gold" (concept 01) via the 30-card ritual, reworked to a modern FUT layout: **large player portrait (not a monogram circle)** via `<PlayerImage>` (photo → monogram fallback), OVR + position + alt-role marker, left icon strip (altRoles + foot), era badge, `<Flag>` from `nationalityCode`, current club, age, the six ratings (ATT/CRE/DEF/PHY/DIS + OVR headline), and a **flip-to-back** with career-clubs history + key stats + height/provenance. New: `domain/player-card.ts` (`EnrichedCard`, `eraOf`, `CARD_DIMS`), `adapter/card-enrich.ts` (`loadCareerIndex` cross-season + `cardBio`), `components/PlayerCard.tsx`; `loadChaosPool` now emits `EnrichedCard[]` (bio + career + headline stats), wired into the Chaos Draft. en+ar (Eastern-Arabic digits, RTL); flip reduce-gated. **Deferred:** the full 66-field extended-stats panel (lazy per-player route) — the flip shows the core headline stats for now.
+
 ### TASK-1807
 
 **Hard-ban squad validation** · 📋 Backlog · `P2` · `M` · Type: Feature
