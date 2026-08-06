@@ -678,7 +678,12 @@
     "rivals": "الخصوم",
     "eraSparse": "أساسي",
     "eraRich": "متقدّم",
-    "eraXg": "xG"
+    "eraXg": "xG",
+    "cardAria": "{name} — بطاقة اللاعب",
+    "cardDetailsAria": "{name} — التفاصيل",
+    "career": "المسيرة",
+    "keyStats": "أبرز الإحصاءات",
+    "heightCm": "{n} سم"
   },
   "commentary": {
     "kickoff": "🟢 انطلاق المباراة!",

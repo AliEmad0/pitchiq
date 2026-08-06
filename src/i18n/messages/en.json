@@ -678,7 +678,12 @@
     "rivals": "Rivals",
     "eraSparse": "SPARSE",
     "eraRich": "RICH",
-    "eraXg": "xG"
+    "eraXg": "xG",
+    "cardAria": "{name} — player card",
+    "cardDetailsAria": "{name} — details",
+    "career": "Career",
+    "keyStats": "Key stats",
+    "heightCm": "{n} cm"
   },
   "commentary": {
     "kickoff": "🟢 Kick-off!",

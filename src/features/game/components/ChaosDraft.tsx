@@ -1,7 +1,8 @@
 "use client";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
-import { type PoolCard, chaosMatchup } from "@/features/game/domain/chaos-draft";
+import { chaosMatchup } from "@/features/game/domain/chaos-draft";
+import type { EnrichedCard } from "@/features/game/domain/player-card";
 import { opponentSetup } from "@/features/game/domain/opponent";
 import { simulate } from "@/features/game/domain/simulate";
 import { buildMatchViewModel } from "@/features/game/view/match-view-model";
@@ -15,7 +16,7 @@ const DEFAULT_RATE = 2.7; // squad spans seasons → neutral goal rate
 
 type Phase = "draft" | "exiting" | "play";
 
-export function ChaosDraft({ pool, locale }: { pool: PoolCard[]; locale: string }) {
+export function ChaosDraft({ pool, locale }: { pool: EnrichedCard[]; locale: string }) {
   const t = useTranslations("game");
   const reduced = prefersReducedMotion();
   const [seed, setSeed] = useState(INITIAL_SEED);
