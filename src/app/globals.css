@@ -1160,9 +1160,11 @@
 .pc-stats {
   display: flex;
   gap: 2px;
+  width: 100%;
 }
 .pc-stat {
   flex: 1;
+  min-width: 0;
   text-align: center;
 }
 .pc-sv {
@@ -1238,8 +1240,10 @@
   place-items: center;
   border-radius: 6px;
   font-family: var(--font-mono), monospace;
-  font-size: 8.5px;
+  font-size: 7.5px;
+  letter-spacing: -0.02em;
   font-weight: 700;
+  overflow: hidden;
   background: var(--pc-chip);
   color: var(--pc-ink);
   border: 1px solid rgba(0, 0, 0, 0.14);
@@ -1263,16 +1267,11 @@
 .pc-a-name {
   font-family: var(--font-oswald), var(--font-sans), sans-serif;
   font-weight: 700;
-  font-size: 16px;
-  line-height: 1.02;
+  font-size: 17px;
+  line-height: 1.05;
   text-align: center;
-  text-wrap: balance;
   text-transform: uppercase;
   color: var(--pc-ink);
-  min-height: 2em;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
   text-shadow: var(--pc-tsh, none);
 }
 .pc-a-meta {
@@ -1384,13 +1383,15 @@
   gap: 4px;
 }
 .pc-b-tags span {
-  width: 22px;
-  height: 22px;
+  width: 21px;
+  height: 21px;
   display: grid;
   place-items: center;
   border-radius: 6px;
   font-family: var(--font-mono), monospace;
-  font-size: 9px;
+  font-size: 8px;
+  letter-spacing: -0.02em;
+  overflow: hidden;
   font-weight: 700;
   background: rgba(255, 255, 255, 0.17);
   backdrop-filter: blur(3px);
@@ -1538,14 +1539,23 @@
   color: var(--pc-csub);
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  overflow: hidden;
   gap: 4px;
-  margin: 3px 0 7px;
+  margin: 3px 0 2px;
+}
+.pc-c-tags {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--pc-csub);
+  margin: 0 0 6px;
+  white-space: nowrap;
+  overflow: hidden;
 }
 .pc-c-stats {
   margin-top: auto;
-  display: flex;
-  gap: 2px;
   border-top: 1px solid var(--pc-crule);
   padding-top: 6px;
 }
@@ -1615,38 +1625,36 @@
 }
 .pc-d-ovr {
   position: absolute;
-  right: 14px;
-  top: 13px;
+  left: 14px;
+  top: 12px;
   z-index: 7;
-  text-align: right;
+  text-align: left;
 }
 .pc-d-ovr .pc-ovr {
   font-size: 32px;
   line-height: 0.9;
   color: var(--pc-dacc);
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.45);
 }
 .pc-d-ovr .pc-role {
   font-size: 10px;
   letter-spacing: 0.2em;
   color: var(--pc-dsub);
   margin-top: 5px;
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.45);
 }
-.pc-d-num {
-  position: absolute;
-  left: 14px;
-  top: 13px;
-  z-index: 7;
-  font-family: var(--font-mono), monospace;
-  font-size: 9px;
-  letter-spacing: 0.22em;
-  color: var(--pc-dsub);
-  font-weight: 700;
+.pc-fam-d .pc-wm {
+  right: 13px;
+  top: 12px;
+  font-size: 15px;
+  color: var(--pc-dacc);
+  opacity: 0.85;
 }
 .pc-d-info {
   position: absolute;
   left: 14px;
   right: 14px;
-  top: 61%;
+  top: 57%;
   z-index: 7;
 }
 .pc-d-name {
@@ -1666,10 +1674,18 @@
   display: flex;
   gap: 6px;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  overflow: hidden;
 }
-.pc-d-meta .pc-tsep {
-  letter-spacing: 0.14em;
+.pc-d-tags {
+  font-size: 8.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--pc-dsub);
+  margin-top: 3px;
+  white-space: nowrap;
+  overflow: hidden;
 }
 .pc-d-stats {
   position: absolute;
@@ -1677,8 +1693,6 @@
   right: 11px;
   bottom: 12px;
   z-index: 7;
-  display: flex;
-  gap: 2px;
 }
 .pc-fam-d .pc-sv {
   color: var(--pc-dink);
@@ -1686,13 +1700,6 @@
 .pc-fam-d .pc-sk {
   color: var(--pc-dsub);
   opacity: 1;
-}
-.pc-fam-d .pc-wm {
-  right: 14px;
-  bottom: 42px;
-  font-size: 12px;
-  color: var(--pc-dsub);
-  opacity: 0.8;
 }
 .pc-paper {
   --pc-dbg: #efe9dd;

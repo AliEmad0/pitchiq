@@ -2,6 +2,7 @@ import "server-only";
 import { loadPlayers, loadStandings } from "@/data/loaders";
 import type { EnrichedCard } from "@/features/game/domain/player-card";
 import { cardBio, loadCareerIndex } from "./card-enrich";
+import { resolvePhotos } from "./photo-kind";
 import { loadRatedSquad } from "./ratings";
 
 // The Chaos Draft card pool, assembled at BUILD TIME (the /game/chaos route is
@@ -39,5 +40,12 @@ export async function loadChaosPool(): Promise<EnrichedCard[]> {
       pool.push(...cards);
     }
   }
+  // Pixel-inspect each photo to tell a transparent cutout from a background
+  // shot (the URL alone lies for older players). Best-effort at build time.
+  const resolved = await resolvePhotos(pool.map((c) => c.photo));
+  resolved.forEach((r, i) => {
+    pool[i]!.photoKind = r.kind;
+    pool[i]!.photoUrl = r.url;
+  });
   return pool;
 }

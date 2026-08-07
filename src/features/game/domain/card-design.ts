@@ -41,10 +41,13 @@ export function imageKind(photo: string | null | undefined): ImageKind {
   return "none";
 }
 
-export function pickFront(card: EnrichedCard): FrontDesign {
+export function pickFront(
+  card: EnrichedCard,
+  kind: ImageKind = imageKind(card.photo),
+): FrontDesign {
   const overall = card.ratings?.overall ?? 0;
   if (overall >= PREMIUM_MIN) return pick(PREMIUM, String(card.cardId));
-  return imageKind(card.photo) === "photo" ? "A2" : "A1";
+  return kind === "photo" ? "A2" : "A1";
 }
 
 export function pickBack(card: EnrichedCard): BackDesign {

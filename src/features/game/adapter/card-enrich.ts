@@ -2,6 +2,7 @@ import "server-only";
 import { loadPlayers } from "@/data/loaders";
 import type { Player } from "@/data/schemas";
 import type { CardBio, CardStats } from "@/features/game/domain/player-card";
+import { playerPhotoCandidates } from "@/features/players/player-photo";
 
 // Build-time enrichment for the FUT-style card: the bio the game domain drops
 // (photo/age/nationality) plus a cross-season CAREER-CLUB history and a few
@@ -48,8 +49,19 @@ export function cardBio(
   season: number,
   career: Map<number, string[]>,
 ): CardBio {
+  const photo = row?.photo ?? null;
   return {
-    photo: row?.photo ?? null,
+    photo,
+    // Sync default; loadChaosPool overrides with a pixel-accurate probe.
+    photoKind:
+      photo == null
+        ? "none"
+        : /^\d+$/.test(photo)
+          ? "cutout"
+          : /^https?:\/\//i.test(photo)
+            ? "photo"
+            : "none",
+    photoUrl: playerPhotoCandidates(photo)[0] ?? null,
     age: row?.birthYear != null ? season - row.birthYear : null,
     nationality: row?.nationality ?? null,
     nationalityCode: row?.nationalityCode ?? null,

@@ -1,12 +1,19 @@
 "use client";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { type CSSProperties, type ReactElement, useState } from "react";
+import {
+  type CSSProperties,
+  type ReactElement,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { Flag } from "@/features/players/components/Flag";
 import {
   type BackDesign,
   type FrontDesign,
-  imageKind,
+  type ImageKind,
   pickBack,
   pickFront,
 } from "@/features/game/domain/card-design";
@@ -22,13 +29,19 @@ interface Props {
   reduced?: boolean;
 }
 
-// Rendered as data (never a translatable string): a brand mark and catalogue tag.
+// Rendered as data (never a translatable string): the brand mark.
 const BRAND = "φ";
 const WORDMARK = "PitchIQ";
-const CAT_TAG = "PIQ";
+
+// The modern PL cutout base (transparent). Any other resolved URL — the legacy
+// 250x250 fallback or a Wikimedia photo — carries a background.
+const CUTOUT_BASE = "/premierleague25/photos/players/110x140/";
+
+const useIsoLayout = typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 type Fmt = (n: number | null | undefined) => string;
-type Face = { card: EnrichedCard; d: Fmt; name: string };
+type Photo = { src: string | null; kind: ImageKind; onError: () => void };
+type Face = { card: EnrichedCard; d: Fmt; name: string; photo: Photo };
 
 const clubAbbr = (name: string) =>
   (name.replace(/[^A-Za-z]/g, "").slice(0, 3) || "TBD").toUpperCase();
@@ -36,31 +49,61 @@ const footLetter = (f: string | null) =>
   f === "left" ? "L" : f === "right" ? "R" : f === "both" ? "B" : "";
 const roleTags = (card: EnrichedCard): string[] =>
   [...card.altRoles.slice(0, 2), footLetter(card.foot)].filter(Boolean);
-const stateClass = (photo: string | null) => {
-  const k = imageKind(photo);
-  return k === "cutout" ? "pc-cut-s" : k === "photo" ? "pc-photo-s" : "pc-none-s";
-};
+const stateClass = (k: ImageKind) =>
+  k === "cutout" ? "pc-cut-s" : k === "photo" ? "pc-photo-s" : "pc-none-s";
 
-/** Photo layer with the same candidate fallback as PlayerImage, but no initials —
- *  a missing image resolves to nothing (the card material shows through). */
-function CardImage({ photo, variant }: { photo: string | null; variant: "fill" | "cut" }) {
+/**
+ * Resolves the player photo AND its kind reactively: a numeric FPL code is
+ * assumed a transparent cutout, but if that modern image 404s we fall back to
+ * the legacy candidate — which has a background — and report the kind as
+ * "photo" so the card can switch from the floating-cutout layout to a full
+ * bleed. A missing image resolves to nothing (no initials monogram).
+ */
+function usePlayerPhoto(photo: string | null): Photo {
   const candidates = playerPhotoCandidates(photo);
   const [idx, setIdx] = useState(0);
-  const src = candidates[idx];
-  if (!src) return null;
+  useEffect(() => setIdx(0), [photo]);
+  const src = candidates[idx] ?? null;
+  const kind: ImageKind = src == null ? "none" : src.includes(CUTOUT_BASE) ? "cutout" : "photo";
+  return { src, kind, onError: () => setIdx((i) => i + 1) };
+}
+
+/** Shrinks the font until the (single-line) text fits its box — never wraps. */
+function FitText({ text, className }: { text: string; className: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useIsoLayout(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.fontSize = "";
+    const avail = el.clientWidth;
+    const full = el.scrollWidth;
+    if (avail > 0 && full > avail) {
+      const base = parseFloat(getComputedStyle(el).fontSize);
+      el.style.fontSize = `${Math.max(7, (base * avail) / full - 0.4)}px`;
+    }
+  }, [text]);
+  return (
+    <div ref={ref} className={className} style={{ whiteSpace: "nowrap", overflow: "hidden" }}>
+      {text}
+    </div>
+  );
+}
+
+function CardImg({ photo }: { photo: Photo }) {
+  if (photo.src == null || photo.kind === "none") return null;
   const img = (
     <Image
-      src={src}
+      src={photo.src}
       alt=""
       fill
       sizes="200px"
       unoptimized
       draggable={false}
-      onError={() => setIdx((i) => i + 1)}
-      className={variant === "fill" ? "pc-fill" : undefined}
+      onError={photo.onError}
+      className={photo.kind === "photo" ? "pc-fill" : undefined}
     />
   );
-  return variant === "cut" ? <span className="pc-cut">{img}</span> : img;
+  return photo.kind === "cutout" ? <span className="pc-cut">{img}</span> : img;
 }
 
 function Crest({ card }: { card: EnrichedCard }) {
@@ -90,22 +133,13 @@ const Stats = ({ card, d }: { card: EnrichedCard; d: Fmt }) => (
   </div>
 );
 
-const Photo = ({ card, variant }: { card: EnrichedCard; variant: "fill" | "cut" }) => {
-  const k = imageKind(card.photo);
-  if (variant === "fill" && k === "photo") return <CardImage photo={card.photo} variant="fill" />;
-  if (variant === "cut" && k === "cutout") return <CardImage photo={card.photo} variant="cut" />;
-  return null;
-};
-
 /* ---------- Family A — Vault (gold / onyx) ---------- */
-function FamilyA({ card, d, name, skin }: Face & { skin: string }) {
-  const photo = imageKind(card.photo);
+function FamilyA({ card, d, name, photo, skin }: Face & { skin: string }) {
   return (
-    <div className={`pc-card pc-fam-a ${skin} ${stateClass(card.photo)}`}>
+    <div className={`pc-card pc-fam-a ${skin} ${stateClass(photo.kind)}`}>
       <div className="pc-mat" />
-      <Photo card={card} variant="fill" />
-      {photo === "photo" && <div className="pc-sct" />}
-      <Photo card={card} variant="cut" />
+      <CardImg photo={photo} />
+      {photo.kind === "photo" && <div className="pc-sct" />}
       <div className="pc-fade" />
       <div className="pc-a-ovr">
         <div className="pc-ovr">{d(card.ratings?.overall)}</div>
@@ -120,7 +154,7 @@ function FamilyA({ card, d, name, skin }: Face & { skin: string }) {
       </div>
       <div className="pc-wm">{BRAND}</div>
       <div className="pc-a-bottom">
-        <div className="pc-a-name">{name}</div>
+        <FitText text={name} className="pc-a-name" />
         <div className="pc-a-meta">
           <Flag code={card.nationalityCode} name={card.nationality} />
           <Crest card={card} />
@@ -137,12 +171,11 @@ function FamilyA({ card, d, name, skin }: Face & { skin: string }) {
 }
 
 /* ---------- Family B — Cinematic ---------- */
-function FamilyB({ card, d, name, skin }: Face & { skin: string }) {
+function FamilyB({ card, d, name, photo, skin }: Face & { skin: string }) {
   return (
-    <div className={`pc-card pc-fam-b ${skin} ${stateClass(card.photo)}`}>
+    <div className={`pc-card pc-fam-b ${skin} ${stateClass(photo.kind)}`}>
       <div className="pc-mat" />
-      <Photo card={card} variant="fill" />
-      <Photo card={card} variant="cut" />
+      <CardImg photo={photo} />
       <div className="pc-b-scrim" />
       <div className="pc-b-ovr">
         <span className="pc-ovr">{d(card.ratings?.overall)}</span>
@@ -155,7 +188,7 @@ function FamilyB({ card, d, name, skin }: Face & { skin: string }) {
       </div>
       <div className="pc-wm">{BRAND}</div>
       <div className="pc-b-bottom">
-        <div className="pc-b-name">{name}</div>
+        <FitText text={name} className="pc-b-name" />
         <div className="pc-b-sub">
           <Flag code={card.nationalityCode} name={card.nationality} />
           <Crest card={card} />
@@ -174,14 +207,13 @@ function FamilyB({ card, d, name, skin }: Face & { skin: string }) {
 }
 
 /* ---------- Family C — Dossier ---------- */
-function FamilyC({ card, d, name, skin }: Face & { skin: string }) {
-  const tagline = roleTags(card).join(" ");
+function FamilyC({ card, d, name, photo, skin }: Face & { skin: string }) {
+  const tagline = roleTags(card).join(" · ");
   return (
-    <div className={`pc-card pc-fam-c ${skin} ${stateClass(card.photo)}`}>
+    <div className={`pc-card pc-fam-c ${skin} ${stateClass(photo.kind)}`}>
       <div className="pc-mat" style={{ background: "var(--pc-cpan)" }} />
       <div className="pc-c-photo">
-        <Photo card={card} variant="fill" />
-        <Photo card={card} variant="cut" />
+        <CardImg photo={photo} />
       </div>
       <div className="pc-c-top">
         <span className="pc-ovr">{d(card.ratings?.overall)}</span>
@@ -189,15 +221,15 @@ function FamilyC({ card, d, name, skin }: Face & { skin: string }) {
       </div>
       <div className="pc-wm">{BRAND}</div>
       <div className="pc-c-panel">
-        <div className="pc-c-name">{name}</div>
+        <FitText text={name} className="pc-c-name" />
         <div className="pc-c-meta">
           <Flag code={card.nationalityCode} name={card.nationality} />
           <Crest card={card} />
-          <span>{card.club}</span>
+          <span>{clubAbbr(card.club)}</span>
           {card.age != null && <span>· {d(card.age)}</span>}
-          {tagline && <span>· {tagline}</span>}
           <span>· {d(card.season)}</span>
         </div>
+        {tagline && <div className="pc-c-tags">{tagline}</div>}
         <div className="pc-c-stats">
           <Stats card={card} d={d} />
         </div>
@@ -207,37 +239,35 @@ function FamilyC({ card, d, name, skin }: Face & { skin: string }) {
 }
 
 /* ---------- Family D — Index ---------- */
-function FamilyD({ card, d, name, skin }: Face & { skin: string }) {
+function FamilyD({ card, d, name, photo, skin }: Face & { skin: string }) {
   const tagline = roleTags(card).join(" · ");
   return (
-    <div className={`pc-card pc-fam-d ${skin} ${stateClass(card.photo)}`}>
+    <div className={`pc-card pc-fam-d ${skin} ${stateClass(photo.kind)}`}>
       <div className="pc-mat" />
       <div className="pc-d-photo">
-        <Photo card={card} variant="fill" />
-        <Photo card={card} variant="cut" />
+        <CardImg photo={photo} />
         <div className="pc-d-fade" />
       </div>
       <div className="pc-d-frame" />
-      <div className="pc-d-num">
-        {CAT_TAG} · {d(card.season)}
-      </div>
       <div className="pc-d-ovr">
         <div className="pc-ovr">{d(card.ratings?.overall)}</div>
         <div className="pc-role">{card.role ?? ""}</div>
       </div>
+      <div className="pc-wm">{BRAND}</div>
       <div className="pc-d-info">
-        <div className="pc-d-name">{name}</div>
+        <FitText text={name} className="pc-d-name" />
         <div className="pc-d-meta">
           <Flag code={card.nationalityCode} name={card.nationality} />
           <Crest card={card} />
-          <span>{card.club}</span>
-          {tagline && <span className="pc-tsep">{tagline}</span>}
+          <span>{clubAbbr(card.club)}</span>
+          {card.age != null && <span>· {d(card.age)}</span>}
+          <span>· {d(card.season)}</span>
         </div>
+        {tagline && <div className="pc-d-tags">{tagline}</div>}
       </div>
       <div className="pc-d-stats">
         <Stats card={card} d={d} />
       </div>
-      <div className="pc-wm">{BRAND}</div>
     </div>
   );
 }
@@ -305,7 +335,13 @@ export function PlayerCard({ card, locale, reduced }: Props) {
   const [flipped, setFlipped] = useState(false);
   const d: Fmt = (n) => localizeDigits(n ?? 0, locale);
   const name = displayName(card.name);
-  const front = FRONTS[pickFront(card)]({ card, d, name });
+  const reactive = usePlayerPhoto(card.photo);
+  // Prefer the build-time pixel-accurate kind/url; fall back to runtime resolve.
+  const photo: Photo =
+    card.photoKind != null
+      ? { src: card.photoUrl ?? null, kind: card.photoKind, onError: reactive.onError }
+      : reactive;
+  const front = FRONTS[pickFront(card, photo.kind)]({ card, d, name, photo });
 
   return (
     <button
