@@ -34,3 +34,15 @@ export const ROLE_WEIGHTS: Record<PlayerRole, RoleWeights> = {
 export function weightsFor(role: PlayerRole | null): RoleWeights {
   return role == null ? DEFAULT_WEIGHTS : ROLE_WEIGHTS[role];
 }
+
+/**
+ * A single monotonic scale on `overall`, applied to every player in every season.
+ *
+ * Monotonic means it CANNOT reorder anyone — it only decides where the 90 line
+ * falls, which drives the premium card families in `card-design.ts`. Per-season
+ * counts float freely, so a stacked season yields more premium cards.
+ *
+ * Never turn this into a per-season quota: that would deny a deserving player a
+ * premium card purely because their season was crowded.
+ */
+export const OVERALL_SCALE = 1.0;
