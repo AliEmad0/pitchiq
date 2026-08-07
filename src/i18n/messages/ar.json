@@ -683,7 +683,8 @@
     "cardDetailsAria": "{name} — التفاصيل",
     "career": "المسيرة",
     "keyStats": "أبرز الإحصاءات",
-    "heightCm": "{n} سم"
+    "heightCm": "{n} سم",
+    "generating": "جارٍ توليد التشكيلة"
   },
   "commentary": {
     "kickoff": "🟢 انطلاق المباراة!",

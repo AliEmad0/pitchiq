@@ -64,11 +64,7 @@ export function DraftScreen({
                   style={{ animationDelay: reduced ? undefined : `${idx * 90}ms` }}
                   className="chaos-card"
                 >
-                  <PlayerCard
-                    card={home.players[i] as EnrichedCard}
-                    locale={locale}
-                    reduced={reduced}
-                  />
+                  <PlayerCard card={home.players[i] as EnrichedCard} reduced={reduced} />
                 </div>
               );
             })}
