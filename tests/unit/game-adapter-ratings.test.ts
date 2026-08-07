@@ -18,7 +18,12 @@ describe("rateGamePlayer (committed data)", () => {
     const card = await rateGamePlayer(1001412, 2015);
     expect(card).not.toBeNull();
     expect(card!.provenance?.tier).toBe("rich");
-    expect(card!.provenance?.basis).toEqual({ hasAdvanced: true, hasXg: false });
+    // hasSaves is false for an outfielder in every era — the field is GK-only.
+    expect(card!.provenance?.basis).toEqual({
+      hasAdvanced: true,
+      hasXg: false,
+      hasSaves: false,
+    });
     expect(card!.ratings!.attack).toBeGreaterThan(0);
   });
 

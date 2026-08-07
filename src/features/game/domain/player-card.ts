@@ -40,11 +40,39 @@ export function eraOf(p: Provenance | null): { key: EraKey; color: string } | nu
   return p.basis.hasXg ? { key: "eraXg", color: "#2ec5b6" } : { key: "eraRich", color: "#a35bd6" };
 }
 
-/** The six FUT-style face dimensions, in display order (OVR is the headline). */
-export const CARD_DIMS = [
-  { key: "attack", label: "ATT" },
-  { key: "creation", label: "CRE" },
-  { key: "defense", label: "DEF" },
-  { key: "physical", label: "PHY" },
-  { key: "discipline", label: "DIS" },
-] as const;
+/** Where a card dimension's number comes from. */
+export type DimSource = "ratings" | "gk";
+
+export interface CardDim {
+  key: string;
+  label: string;
+  source: DimSource;
+}
+
+/** The five FUT-style face dimensions, in display order (OVR is the headline). */
+export const CARD_DIMS: readonly CardDim[] = [
+  { key: "attack", label: "ATT", source: "ratings" },
+  { key: "creation", label: "CRE", source: "ratings" },
+  { key: "defense", label: "DEF", source: "ratings" },
+  { key: "physical", label: "PHY", source: "ratings" },
+  { key: "discipline", label: "DIS", source: "ratings" },
+];
+
+/**
+ * Goalkeeper face dimensions, read from `ratings.gk` (TASK-1820).
+ *
+ * KIC, not DIS: the outfield card already uses DIS for discipline, and one label
+ * meaning two different things is a bug waiting to happen.
+ */
+export const GK_CARD_DIMS: readonly CardDim[] = [
+  { key: "reflexes", label: "REF", source: "gk" },
+  { key: "handling", label: "HAN", source: "gk" },
+  { key: "kicking", label: "KIC", source: "gk" },
+  { key: "positioning", label: "POS", source: "gk" },
+  { key: "command", label: "CMD", source: "gk" },
+];
+
+/** Which five numbers a card shows, by role. */
+export function dimsFor(role: string | null): readonly CardDim[] {
+  return role === "GK" ? GK_CARD_DIMS : CARD_DIMS;
+}

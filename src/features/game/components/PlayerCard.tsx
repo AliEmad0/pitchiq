@@ -18,7 +18,7 @@ import {
   pickFront,
 } from "@/features/game/domain/card-design";
 import { displayName } from "@/features/game/domain/display-name";
-import { CARD_DIMS, type EnrichedCard } from "@/features/game/domain/player-card";
+import { type CardDim, type EnrichedCard, dimsFor } from "@/features/game/domain/player-card";
 import { playerPhotoCandidates } from "@/features/players/player-photo";
 import { clubLogo } from "@/utils/club-logo";
 
@@ -120,11 +120,26 @@ function Crest({ card }: { card: EnrichedCard }) {
   );
 }
 
-const Stats = ({ card, d }: { card: EnrichedCard; d: Fmt }) => (
+// An era with no input for a dimension shows this, never a fabricated 0 — a
+// goalkeeper before 2008 has no `saves`, and 0 would read as "terrible".
+const EM_DASH = "–";
+
+/** One face number, from either the shared ratings or the goalkeeper block. */
+function dimValue(card: EnrichedCard, dim: CardDim): string {
+  const source =
+    dim.source === "gk"
+      ? (card.ratings?.gk as Record<string, number | null> | undefined)
+      : (card.ratings as unknown as Record<string, number | null> | undefined);
+  const v = source?.[dim.key];
+  return v == null ? EM_DASH : String(v);
+}
+
+// Goalkeepers get REF/HAN/KIC/POS/CMD; everyone else ATT/CRE/DEF/PHY/DIS.
+const Stats = ({ card }: { card: EnrichedCard }) => (
   <div className="pc-stats">
-    {CARD_DIMS.map((dim) => (
+    {dimsFor(card.role).map((dim) => (
       <div key={dim.key} className="pc-stat">
-        <div className="pc-sv">{d(card.ratings?.[dim.key])}</div>
+        <div className="pc-sv">{dimValue(card, dim)}</div>
         <div className="pc-sk">{dim.label}</div>
       </div>
     ))}
@@ -161,7 +176,7 @@ function FamilyA({ card, d, name, photo, skin }: Face & { skin: string }) {
           <span>· {d(card.season)}</span>
         </div>
         <div className="pc-a-stats">
-          <Stats card={card} d={d} />
+          <Stats card={card} />
         </div>
       </div>
     </div>
@@ -198,7 +213,7 @@ function FamilyB({ card, d, name, photo, skin }: Face & { skin: string }) {
           </span>
         </div>
         <div className="pc-b-line" />
-        <Stats card={card} d={d} />
+        <Stats card={card} />
       </div>
     </div>
   );
@@ -229,7 +244,7 @@ function FamilyC({ card, d, name, photo, skin }: Face & { skin: string }) {
         </div>
         {tagline && <div className="pc-c-tags">{tagline}</div>}
         <div className="pc-c-stats">
-          <Stats card={card} d={d} />
+          <Stats card={card} />
         </div>
       </div>
     </div>
@@ -264,7 +279,7 @@ function FamilyD({ card, d, name, photo, skin }: Face & { skin: string }) {
         {tagline && <div className="pc-d-tags">{tagline}</div>}
       </div>
       <div className="pc-d-stats">
-        <Stats card={card} d={d} />
+        <Stats card={card} />
       </div>
     </div>
   );

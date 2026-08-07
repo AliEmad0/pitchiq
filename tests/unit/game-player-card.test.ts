@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { ComparisonMetrics, Player } from "@/data/schemas";
 import { cardBio } from "@/features/game/adapter/card-enrich";
-import { eraOf } from "@/features/game/domain/player-card";
+import { dimsFor, eraOf } from "@/features/game/domain/player-card";
 
 const metrics = (over: Partial<ComparisonMetrics> = {}): ComparisonMetrics => ({
   appearances: 37,
@@ -69,7 +69,7 @@ describe("eraOf", () => {
   const prov = (tier: "rich" | "sparse", hasXg: boolean) => ({
     tier,
     season: 2010,
-    basis: { hasAdvanced: tier === "rich", hasXg },
+    basis: { hasAdvanced: tier === "rich", hasXg, hasSaves: false },
   });
   it("labels the three provenance regimes", () => {
     expect(eraOf(prov("sparse", false))?.key).toBe("eraSparse");
@@ -78,5 +78,36 @@ describe("eraOf", () => {
   });
   it("returns null when provenance is absent", () => {
     expect(eraOf(null)).toBeNull();
+  });
+});
+
+describe("dimsFor", () => {
+  it("gives goalkeepers their own labels, reading the gk block", () => {
+    const dims = dimsFor("GK");
+    expect(dims.map((d) => d.label)).toEqual(["REF", "HAN", "KIC", "POS", "CMD"]);
+    expect(dims.map((d) => d.key)).toEqual([
+      "reflexes",
+      "handling",
+      "kicking",
+      "positioning",
+      "command",
+    ]);
+  });
+
+  it("gives outfielders the existing labels", () => {
+    expect(dimsFor("CB").map((d) => d.label)).toEqual(["ATT", "CRE", "DEF", "PHY", "DIS"]);
+  });
+
+  it("falls back to the outfield set for an unenriched null role", () => {
+    expect(dimsFor(null).map((d) => d.label)).toEqual(["ATT", "CRE", "DEF", "PHY", "DIS"]);
+  });
+
+  it("marks which set reads the gk block so the card knows where to look", () => {
+    expect(dimsFor("GK")[0].source).toBe("gk");
+    expect(dimsFor("CB")[0].source).toBe("ratings");
+  });
+
+  it("never labels a goalkeeper dimension DIS — that means discipline on the outfield card", () => {
+    expect(dimsFor("GK").map((d) => d.label)).not.toContain("DIS");
   });
 });
