@@ -8,31 +8,41 @@ import { simulate } from "@/features/game/domain/simulate";
 import { buildMatchViewModel } from "@/features/game/view/match-view-model";
 import { randomSeed } from "@/features/game/view/seed";
 import { prefersReducedMotion } from "@/utils/motion";
+import { ChaosGenerating } from "./ChaosGenerating";
 import { DraftScreen } from "./DraftScreen";
 import { MatchView } from "./MatchView";
 
-// The route is `force-static`: the prerendered HTML is built once and served from
-// the CDN to everyone, so the SERVER render must be a fixed seed. Drawing a random
-// one during render would also break hydration. Entropy therefore arrives in a
-// mount effect (below) — the cards deal in from opacity 0, so the swap lands
-// before anything is visible.
-const INITIAL_SEED = 20260805; // fixed → deterministic prerender
+// The route is `force-static`: the prerendered HTML is built once and served from the
+// CDN to everyone, so the SERVER render cannot contain a per-visitor squad, and drawing
+// entropy during render would break hydration.
+//
+// So the server renders the GENERATING state instead of a squad. Entropy arrives in a
+// mount effect and the first XI the visitor ever sees is already their own — an earlier
+// attempt kept a placeholder XI on screen and the swap was plainly visible.
+const INITIAL_SEED = 20260805; // only ever used for the pre-hydration render
+const GENERATE_MS = 1200; // how long the generating bar runs before the reveal
 const EXIT_MS = 700; // conveyor-out before the match mounts
 const DEFAULT_RATE = 2.7; // squad spans seasons → neutral goal rate
 
-type Phase = "draft" | "exiting" | "play";
+type Phase = "generating" | "draft" | "exiting" | "play";
 
 export function ChaosDraft({ pool, locale }: { pool: EnrichedCard[]; locale: string }) {
   const t = useTranslations("game");
   const reduced = prefersReducedMotion();
   const [seed, setSeed] = useState(INITIAL_SEED);
-  const [phase, setPhase] = useState<Phase>("draft");
+  const [phase, setPhase] = useState<Phase>("generating");
 
-  // Post-hydration: give this visitor their own draft. Without it every visitor
-  // shares INITIAL_SEED and sees the identical XI on first load.
+  // Post-hydration: draw this visitor's own seed, then reveal. Without it every
+  // visitor shares INITIAL_SEED and sees the identical XI on first load.
   useEffect(() => {
     setSeed(randomSeed());
-  }, []);
+    if (reduced) {
+      setPhase("draft");
+      return;
+    }
+    const id = window.setTimeout(() => setPhase("draft"), GENERATE_MS);
+    return () => window.clearTimeout(id);
+  }, [reduced]);
 
   const names = useMemo(() => ({ home: t("yourXi"), away: t("rivals") }), [t]);
   const matchup = useMemo(() => chaosMatchup(pool, seed, names), [pool, seed, names]);
@@ -66,6 +76,10 @@ export function ChaosDraft({ pool, locale }: { pool: EnrichedCard[]; locale: str
     setPhase("exiting");
     window.setTimeout(() => setPhase("play"), reduced ? 0 : EXIT_MS);
   };
+
+  if (phase === "generating") {
+    return <ChaosGenerating reduced={reduced} />;
+  }
 
   if (phase === "play") {
     return (

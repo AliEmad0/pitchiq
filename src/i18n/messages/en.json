@@ -683,7 +683,8 @@
     "cardDetailsAria": "{name} — details",
     "career": "Career",
     "keyStats": "Key stats",
-    "heightCm": "{n} cm"
+    "heightCm": "{n} cm",
+    "generating": "Generating squad"
   },
   "commentary": {
     "kickoff": "🟢 Kick-off!",

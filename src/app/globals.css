@@ -485,6 +485,31 @@
   }
 }
 
+/* Chaos Draft: the generating bar shown while this visitor's own seed is drawn.
+   Animates transform (scaleX), never width — the motion audit fails any keyframe
+   that animates a layout property. Reduce-gated to a filled bar. */
+@keyframes chaos-generate {
+  0% {
+    transform: scaleX(0);
+  }
+  100% {
+    transform: scaleX(1);
+  }
+}
+.chaos-generate-bar {
+  animation: chaos-generate 1200ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+.chaos-generate-bar[data-reduced="true"] {
+  animation: none;
+  transform: scaleX(1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .chaos-generate-bar {
+    animation: none !important;
+    transform: scaleX(1);
+  }
+}
+
 /* TASK-1102 — trivia card: each new fact slides up as it mounts (re-triggered by
    the `key={fact.id}` change on shuffle). Pure CSS, no animation library. */
 @keyframes trivia-slide-up {
