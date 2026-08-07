@@ -21,11 +21,9 @@ import { displayName } from "@/features/game/domain/display-name";
 import { CARD_DIMS, type EnrichedCard } from "@/features/game/domain/player-card";
 import { playerPhotoCandidates } from "@/features/players/player-photo";
 import { clubLogo } from "@/utils/club-logo";
-import { localizeDigits } from "@/utils/format";
 
 interface Props {
   card: EnrichedCard;
-  locale: string;
   reduced?: boolean;
 }
 
@@ -330,10 +328,13 @@ function CardBack({ card, back, d }: { card: EnrichedCard; back: BackDesign; d: 
   );
 }
 
-export function PlayerCard({ card, locale, reduced }: Props) {
+export function PlayerCard({ card, reduced }: Props) {
   const t = useTranslations("game");
   const [flipped, setFlipped] = useState(false);
-  const d: Fmt = (n) => localizeDigits(n ?? 0, locale);
+  // The card face is English-only in every locale (owner decision): a FUT-style card
+  // is a fixed artifact, and Eastern-Arabic numerals made the same player's OVR read
+  // differently per locale. `locale` is kept in the props for the accessible label.
+  const d: Fmt = (n) => String(n ?? 0);
   const name = displayName(card.name);
   const reactive = usePlayerPhoto(card.photo);
   // Prefer the build-time pixel-accurate kind/url; fall back to runtime resolve.
@@ -348,6 +349,8 @@ export function PlayerCard({ card, locale, reduced }: Props) {
       type="button"
       onClick={() => setFlipped((f) => !f)}
       aria-label={t(flipped ? "cardDetailsAria" : "cardAria", { name: card.name })}
+      // English-only face → force LTR so "· 27 · 2019" keeps its order on /ar.
+      dir="ltr"
       className="block [perspective:900px]"
       style={{ width: 176, aspectRatio: "11 / 16" }}
     >
