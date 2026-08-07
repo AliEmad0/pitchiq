@@ -81,10 +81,15 @@ describe("rating model — real-data regressions", () => {
   it("keeps zero-goal outfielders low on attack", async () => {
     const cohort = await load(2018);
     const ctx = await ctxFor(2018);
+    // Restricted to full-season players: a low-minute player is deliberately pulled
+    // toward neutral ("not enough evidence"), which would mask the property here.
     const atts = outfielders(cohort)
-      .filter((p) => (p.metrics.goals ?? 0) === 0)
+      .filter(
+        (p) => (p.metrics.goals ?? 0) === 0 && (p.metrics.extended?.minutesPlayed ?? 0) >= 1800,
+      )
       .map((p) => rate(p, ctx).ratings.attack)
       .sort((a, b) => a - b);
+    expect(atts.length).toBeGreaterThan(10);
     expect(atts[Math.floor(atts.length / 2)]).toBeLessThan(25);
   });
 

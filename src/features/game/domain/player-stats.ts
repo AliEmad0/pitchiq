@@ -20,6 +20,14 @@ import { type StatBag, minutesOf, per90, successRate } from "./stat-pool";
 
 export const OUTFIELD_KEYS = [
   "minutes",
+  // Season TOTALS sit alongside the per-90 rates. Rate alone crowned the efficient
+  // rotation striker over the prolific starter (Gabriel Jesus '19 rated 90, Salah
+  // 74); totals alone reward mere availability. Ranking both makes the top attacker
+  // one who is efficient AND prolific.
+  "goals",
+  "assists",
+  "keyPasses",
+  "sot",
   "goals90",
   "xg90",
   "sot90",
@@ -74,6 +82,10 @@ export function outfieldStats(p: Player): StatBag {
   const minutes = minutesOf(p);
   return {
     minutes,
+    goals: m.goals ?? null,
+    assists: m.assists ?? null,
+    keyPasses: m.keyPasses ?? null,
+    sot: m.shotsOnTarget ?? null,
     goals90: per90(m.goals, minutes),
     xg90: per90(m.xg ?? null, minutes),
     sot90: per90(m.shotsOnTarget, minutes),

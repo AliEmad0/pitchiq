@@ -102,9 +102,23 @@ describe("dimOf", () => {
     ).toBeCloseTo(68.75);
   });
 
-  it("renormalises over the parts that are present", () => {
+  it("shrinks toward neutral when the player is missing an available part", () => {
+    // Plain renormalisation would score 87.5 — better than a player measured on
+    // everything. Missing data must never be an advantage (the Kuijt '08 defect).
+    // coverage = 3/4 -> 50 + (87.5 - 50) * 0.75
     expect(
       dimOf({ minutes: 900, a: 3, b: null }, pools, [
+        ["a", 3],
+        ["b", 1],
+      ]),
+    ).toBeCloseTo(78.125);
+  });
+
+  it("does not penalise a part that no one in the era has", () => {
+    // An empty pool means the stat does not exist this season (no 2008 xG), so it
+    // must not count against anyone — otherwise whole eras drift downward.
+    expect(
+      dimOf({ minutes: 900, a: 3, b: null }, { a: [0, 1, 2, 3], b: [] }, [
         ["a", 3],
         ["b", 1],
       ]),

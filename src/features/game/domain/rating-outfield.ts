@@ -2,22 +2,33 @@ import type { Player, PlayerRole, Standing } from "@/data/schemas";
 import { outfieldStats } from "./player-stats";
 import type { PlayerRatings, RatingContext } from "./ratings";
 import { OVERALL_SCALE, weightsFor } from "./rating-weights";
-import { type DimPart, dimOf, pctile } from "./stat-pool";
+import { type DimPart, dimOf, pctile, shrink } from "./stat-pool";
 
 const clamp100 = (x: number) => Math.max(0, Math.min(100, Math.round(x)));
 
 /** Roles whose DEF earns the structural on-pitch goals-conceded signal. */
 export const DEFENSIVE_ROLES: ReadonlySet<string> = new Set(["GK", "CB", "RB", "LB", "CDM"]);
 
+/**
+ * Rate AND volume, equally weighted on the headline stat.
+ *
+ * Rate alone crowns the efficient rotation striker (Gabriel Jesus '19 rated 90 while
+ * Salah rated 74); volume alone rewards availability. Requiring both means the top
+ * attacker is efficient *and* prolific.
+ */
 const ATTACK: DimPart[] = [
   ["goals90", 2],
+  ["goals", 2],
   ["xg90", 1],
   ["sot90", 1],
+  ["sot", 1],
 ];
 
 const CREATION: DimPart[] = [
   ["assists90", 2],
+  ["assists", 2],
   ["keyPasses90", 1],
+  ["keyPasses", 1],
   ["passAccuracy", 1],
 ];
 
@@ -77,19 +88,25 @@ export function rateOutfield(player: Player, ctx: RatingContext): PlayerRatings 
   const role = (player.role ?? null) as PlayerRole | null;
   const isDefensive = role != null && DEFENSIVE_ROLES.has(role);
 
-  const attack = dimOf(bag, pools, ATTACK) ?? 0;
-  const creation = dimOf(bag, pools, CREATION) ?? 0;
-  const physical = dimOf(bag, pools, PHYSICAL) ?? 0;
+  // Every dimension is shrunk toward neutral by minutes played. Without this a
+  // 400-minute cameo posts a huge per-90 rate and out-ranks the whole league — it
+  // put a backup keeper top of the card pool at 94.
+  const s = (v: number | null) => shrink(v ?? 0, bag.minutes);
+
+  const attack = s(dimOf(bag, pools, ATTACK));
+  const creation = s(dimOf(bag, pools, CREATION));
+  const physical = s(dimOf(bag, pools, PHYSICAL));
 
   const defenseParts = isDefensive ? [...DEFENSE, ...DEFENSE_STRUCTURAL] : DEFENSE;
-  const rawDefense = dimOf(bag, pools, defenseParts) ?? 0;
+  const rawDefense = s(dimOf(bag, pools, defenseParts));
   // Team credit scaled by how much of the season the player actually anchored, so a
   // rotation defender doesn't inherit a full season's back-line record.
   const share = isDefensive ? TEAM_DEF_SHARE * Math.min(1, bag.minutes / FULL_SEASON_MINUTES) : 0;
   const defense = (1 - share) * rawDefense + share * 100 * teamDefense(player, ctx.standings);
 
-  // Fewer cards → higher. Percentile of the card score, inverted.
-  const discipline = 100 * (1 - pctile(bag.cardScore ?? 0, pools.cardScore ?? []));
+  // Fewer cards → higher. Percentile of the card score, inverted. Shrunk too: a
+  // player with 200 clean minutes has not earned a 100.
+  const discipline = s(100 * (1 - pctile(bag.cardScore ?? 0, pools.cardScore ?? [])));
 
   const w = weightsFor(role);
   const blended =

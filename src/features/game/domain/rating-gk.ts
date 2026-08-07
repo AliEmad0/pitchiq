@@ -3,7 +3,7 @@ import { gkStats } from "./player-stats";
 import type { GkRatings, PlayerRatings, RatingContext } from "./ratings";
 import { teamDefense } from "./rating-outfield";
 import { OVERALL_SCALE, weightsFor } from "./rating-weights";
-import { type DimPart, dimOf, pctile } from "./stat-pool";
+import { type DimPart, dimOf, pctile, shrink } from "./stat-pool";
 
 const clamp100 = (x: number) => Math.max(0, Math.min(100, Math.round(x)));
 const clampNullable = (x: number | null) => (x == null ? null : clamp100(x));
@@ -55,12 +55,20 @@ export function rateGk(player: Player, ctx: RatingContext): PlayerRatings {
   const bag = gkStats(player);
   const pools = ctx.pools.gk;
 
+  // Shrunk toward neutral by minutes: a backup keeper with a handful of starts and
+  // a flattering save% rated 94 — the highest card in the game — without this.
+  // Null stays null; a missing input must not become a middling number.
+  const dim = (parts: DimPart[]) => {
+    const raw = dimOf(bag, pools, parts);
+    return raw == null ? null : clampNullable(shrink(raw, bag.minutes));
+  };
+
   const gk: GkRatings = {
-    reflexes: clampNullable(dimOf(bag, pools, REFLEXES)),
-    handling: clampNullable(dimOf(bag, pools, HANDLING)),
-    kicking: clampNullable(dimOf(bag, pools, KICKING)),
-    positioning: clampNullable(dimOf(bag, pools, POSITIONING)),
-    command: clampNullable(dimOf(bag, pools, COMMAND)),
+    reflexes: dim(REFLEXES),
+    handling: dim(HANDLING),
+    kicking: dim(KICKING),
+    positioning: dim(POSITIONING),
+    command: dim(COMMAND),
   };
 
   // Shot-stopping drives the engine-facing `defense`, so powerOf() finally sees a
@@ -69,7 +77,10 @@ export function rateGk(player: Player, ctx: RatingContext): PlayerRatings {
   const share = TEAM_DEF_SHARE * Math.min(1, bag.minutes / FULL_SEASON_MINUTES);
   const defense = (1 - share) * stopping + share * 100 * teamDefense(player, ctx.standings);
 
-  const discipline = 100 * (1 - pctile(bag.cardScore ?? 0, pools.cardScore ?? []));
+  const discipline = shrink(
+    100 * (1 - pctile(bag.cardScore ?? 0, pools.cardScore ?? [])),
+    bag.minutes,
+  );
   // A keeper's outfield dims are honestly near-zero rather than a percentile of a
   // cohort where everyone scored zero. Distribution and area command are the two
   // that genuinely map onto the shared axes.

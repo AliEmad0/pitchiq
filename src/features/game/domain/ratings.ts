@@ -61,6 +61,13 @@ export interface RatingContext {
   cohort: Player[];
   standings: Standing[];
   pools: SeasonPools;
+  /**
+   * Which pipeline this SEASON gets. Detected once from the cohort, never per
+   * player: an individual missing one stat must not drop onto a different scale.
+   * Kuijt '08 has no recorded pass accuracy and was being scored by the pre-2003
+   * pipeline, where `physical` is just minutes played — so he rated PHY 100.
+   */
+  tier: RatingTier;
 }
 
 export interface RatedResult {
@@ -92,5 +99,20 @@ export function makeRatingContext(
       outfield: buildPools(outfielders.map(outfieldStats), OUTFIELD_KEYS),
       gk: buildPools(keepers.map(gkStats), GK_KEYS),
     },
+    tier: seasonTier(cohort),
   };
+}
+
+/**
+ * Does this SEASON carry advanced data? Decided by the cohort, not by one player.
+ *
+ * The split is sharp in practice — pre-2003 has no pass data at all, 2003+ has it
+ * for ~98% of players — so a simple majority is unambiguous, and the handful of
+ * players missing the stat inside a rich season stay on the rich scale (their
+ * missing inputs are handled by coverage shrinkage in `dimOf`).
+ */
+function seasonTier(cohort: Player[]): RatingTier {
+  if (cohort.length === 0) return "sparse";
+  const withAdvanced = cohort.filter((p) => p.metrics.passAccuracy != null).length;
+  return withAdvanced * 2 > cohort.length ? "rich" : "sparse";
 }

@@ -15,6 +15,29 @@ import type { Player } from "@/data/schemas";
  */
 export const MIN_MINUTES = 600;
 
+/**
+ * Minutes at which a player's own rating is trusted in full.
+ *
+ * The floor above governs who DEFINES the scale; this governs how far an
+ * individual is allowed to move along it. Per-90 rates are wildly noisy in small
+ * samples — a striker with 400 minutes and 3 goals out-rates every regular in the
+ * league — so a short season is pulled toward the middle instead of the extremes.
+ */
+export const FULL_CREDIT_MINUTES = 1800;
+
+/** 0–1: how much of their own rating a player has earned, by minutes played. */
+export function reliability(minutes: number): number {
+  return Math.max(0, Math.min(1, minutes / FULL_CREDIT_MINUTES));
+}
+
+/**
+ * Pull a dimension toward the neutral middle in proportion to how little the player
+ * actually played. A full season is untouched; a cameo lands near 50.
+ */
+export function shrink(value: number, minutes: number, neutral = 50): number {
+  return neutral + (value - neutral) * reliability(minutes);
+}
+
 /** One player's stats for one season, keyed by stat name. `minutes` is always present. */
 export interface StatBag {
   minutes: number;
@@ -86,17 +109,40 @@ export function buildPools(bags: StatBag[], keys: readonly string[]): Pools {
   return pools;
 }
 
-/** Weighted mean of each present part's percentile, 0–100. Null when nothing is present. */
-export function dimOf(bag: StatBag, pools: Pools, parts: readonly DimPart[]): number | null {
+/**
+ * Weighted mean of each present part's percentile, 0–100. Null when nothing is present.
+ *
+ * Two subtleties, both load-bearing:
+ *
+ * A part whose POOL is empty is not available in this era (no 2008 player has xG),
+ * so it is excluded from the coverage denominator — an era-wide absence must not
+ * penalise anyone, or cards would drift by era rather than by ability.
+ *
+ * A part that IS available but missing for THIS player shrinks the result toward
+ * neutral. Plain renormalisation made missing data an advantage: Kuijt '08 has no
+ * recorded key passes, so his creation was computed from pass accuracy alone and
+ * scored 95 — above Salah's 87 on 10 assists and 60 key passes.
+ */
+export function dimOf(
+  bag: StatBag,
+  pools: Pools,
+  parts: readonly DimPart[],
+  neutral = 50,
+): number | null {
   let sum = 0;
-  let weight = 0;
+  let present = 0;
+  let available = 0;
   for (const [key, w] of parts) {
+    const pool = pools[key];
+    if (pool == null || pool.length === 0) continue; // absent for the whole era
+    available += w;
     const v = bag[key];
     if (v == null) continue;
-    const pool = pools[key];
-    if (pool == null || pool.length === 0) continue;
     sum += w * pctile(v, pool);
-    weight += w;
+    present += w;
   }
-  return weight === 0 ? null : (sum / weight) * 100;
+  if (present === 0) return null;
+  const value = (sum / present) * 100;
+  const coverage = available === 0 ? 1 : present / available;
+  return neutral + (value - neutral) * coverage;
 }
