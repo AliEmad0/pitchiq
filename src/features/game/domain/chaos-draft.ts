@@ -10,7 +10,7 @@ import { type GameTeam, makeGameTeam } from "./team";
 // card pool, seeded so a draft replays from its seed. Pure + client-safe.
 
 /** A poolable card = a rated player-season plus its club (for the card face). */
-export type PoolCard = GamePlayer & { club: string };
+export type PoolCard = GamePlayer & { club: string; teamId?: number };
 
 const slot = (row: number, col: number, role: PlayerRole): FormationSlot => ({ row, col, role });
 const formation = (name: string, slots: FormationSlot[]): Formation => ({ name, season: 0, slots });

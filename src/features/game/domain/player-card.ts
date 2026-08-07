@@ -16,6 +16,11 @@ export interface CardStats {
 
 export interface CardBio {
   photo: string | null;
+  // Resolved at build time (see adapter/photo-kind): "cutout" = transparent PNG,
+  // "photo" = photo-with-background, "none" = no usable image. photoUrl is the
+  // exact image to render.
+  photoKind: "cutout" | "photo" | "none";
+  photoUrl: string | null;
   age: number | null; // during that season
   nationality: string | null;
   nationalityCode: string | null; // flag-icons key
