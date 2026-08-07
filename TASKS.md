@@ -5504,10 +5504,11 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1817](#task-1817) | Daily seeded challenge — client-only (streaks, PB, seed replay) | 📋 Backlog | P3       | M   |
 | [TASK-1818](#task-1818) | Rogue-like / Mystery Market mode (local run history)            | 📋 Backlog | P3       | L   |
 | [TASK-1819](#task-1819) | Retro sticker album & collection book (IndexedDB)               | 📋 Backlog | P3       | S   |
+| [TASK-1820](#task-1820) | Rating model — absolute/cross-position stats + GK pipeline      | ✅ Done    | P2       | L   |
 
 _Enhancement roadmap 1813-1819 added 2026-08-03 from the owner's feature proposal (Option A — 100% client-side/static). See the locked-architecture notes above for the modifier-stack + determinism + no-backend decisions that govern them._
 
-_**Card system (2026-08-06/07, shipped).** The FUT-style `PlayerCard` (PR #91) was reworked into a resolver-driven family system (PR #93): `pickFront` chooses **A1 Gold / A2 Onyx** for sub-90 cards (by image kind) and a seeded **B/C/D premium pool** for 90+; club crests (`clubLogo(teamId)`), surname display (`display-name.ts`), one-line auto-fit names, and **build-time cutout-vs-photo detection** — `adapter/photo-kind.ts` pixel-probes each image with `sharp` (corner-alpha, robust to old photos' stray alpha) and stores `photoKind`/`photoUrl` on the card, so a transparent PNG floats and a photo-with-background fills, automatically. Fix any player's card image via `CARD_PHOTO_OVERRIDES` in `adapter/photo-overrides.ts` (id → FPL code or URL). The Chaos board is now full-width (no h-scroll). Next in the owner's UI-expansion arc: the interactive `/draft` hub ([TASK-1807](#task-1807)). A separate ticket will fix the rating model (per-stat numbers are position-relative percentiles → misleading cross-position; move to absolute + a GK-specific pipeline)._
+_**Card system (2026-08-06/07, shipped).** The FUT-style `PlayerCard` (PR #91) was reworked into a resolver-driven family system (PR #93): `pickFront` chooses **A1 Gold / A2 Onyx** for sub-90 cards (by image kind) and a seeded **B/C/D premium pool** for 90+; club crests (`clubLogo(teamId)`), surname display (`display-name.ts`), one-line auto-fit names, and **build-time cutout-vs-photo detection** — `adapter/photo-kind.ts` pixel-probes each image with `sharp` (corner-alpha, robust to old photos' stray alpha) and stores `photoKind`/`photoUrl` on the card, so a transparent PNG floats and a photo-with-background fills, automatically. Fix any player's card image via `CARD_PHOTO_OVERRIDES` in `adapter/photo-overrides.ts` (id → FPL code or URL). The Chaos board is now full-width (no h-scroll). Next in the owner's UI-expansion arc: the interactive `/draft` hub ([TASK-1807](#task-1807)). The rating model has since been rebuilt onto absolute cross-position stats with a dedicated goalkeeper pipeline — see [TASK-1820](#task-1820)._
 
 ### TASK-1801
 
@@ -5658,6 +5659,26 @@ Owner requested a unified flow with clear separation of concerns, mapped onto th
 **Retro sticker album & collection book** · 📋 Backlog · `P3` · `S` · Type: Feature
 
 **Description** — Every unique player-season card drafted in any mode auto-populates a personal **collection** (IndexedDB). Completing a historical squad set (e.g. all 2006/07 Milan cards) unlocks profile badges / retro golden UI themes. Pure client-side; no backend. **Depends on:** TASK-1812.
+
+### TASK-1820
+
+**Rating model — absolute/cross-position stats + goalkeeper pipeline** · ✅ Done · `P2` · `L` · Type: Fix
+
+**Description** — TASK-1802 ranked every dimension as a percentile **within the player's own role cohort**, so card numbers didn't compare across positions and degenerate cohorts broke outright: every goalkeeper has 0 goals, so `percentileRank(0, [0,0…]) = 1.0` and **Van der Sar rated ATT 100**. `cleanSheets` (a team outcome) fed individual DEF for everyone, and `duelsWon` was counted twice.
+
+**Shipped** (design: [`docs/superpowers/specs/2026-08-07-rating-model-absolute-design.md`](../docs/superpowers/specs/2026-08-07-rating-model-absolute-design.md); plan: [`docs/superpowers/plans/2026-08-07-task-1820-rating-model-absolute.md`](../docs/superpowers/plans/2026-08-07-task-1820-rating-model-absolute.md)) — New `domain/stat-pool.ts` (per-90 rates, a 600' pool floor, **ties-averaged percentile**, minutes shrinkage, coverage shrinkage) and `domain/player-stats.ts` (stat bags; the sole place the dataset's denominator rules live). Two pipelines split at the pool so cohorts never mix: `rating-outfield.ts` and `rating-gk.ts`, plus a rebuilt `rating-sparse.ts`. `PlayerRatings` keeps its six numeric keys — the TASK-1803 engine contract — with keeper numbers in an optional `gk` block; the card shows **REF/HAN/KIC/POS/CMD** for goalkeepers via `dimsFor(role)`, dashing any dimension the era can't support. `rating-rich.ts` and `poolOf` deleted.
+
+**⚠️ Five dataset/model traps found by MEASURING real card output** — none were catchable by unit tests, only by an implausible NAME at the top of the board:
+
+1. **`duels` ≠ `duelsWon` + `duelsLost`** (Wan-Bissaka '18: 377 vs 171) — duel rates must divide by won+lost.
+2. **`tackles` IS `tacklesWon` + `tacklesLost`** — tackle rate is `tacklesWon / tackles`.
+3. **Aerial duels are NOT derivable** (`duelsWon − groundDuelsWon` goes negative for 16 of 49 qualifying CBs), and dribbled-past doesn't exist in the data at all.
+4. **Missing data was an advantage** — renormalising over present inputs let Kuijt '08 (no key passes) score CRE 95 from pass accuracy alone. Now shrunk by coverage, while a stat absent for the WHOLE era costs nobody.
+5. **Era detection was per-player** — `passAccuracy != null` dropped anyone missing that one stat onto the pre-2003 pipeline, where `physical` is merely minutes played (Kuijt PHY 100, OVR 90). The tier is now a property of the **season**.
+
+Also: per-90 alone crowns the efficient rotation player (Jesus '19 90 vs Salah 74) → totals now rank alongside rates; and dimensions are shrunk toward neutral by minutes (full credit 1800') or a backup keeper tops the board (Kuszczak '08 rated 94).
+
+**Results** — Van Dijk '18/19 DEF **68 → 89** (3rd of ~350 outfielders), Ronaldo '07 DEF 89 → 39, goalkeeper ATT 100 gone, top-30 now Cantona/Shearer/Ferdinand/Bergkamp/Ronaldo/Henry. Premium (90+) share 3.2%. 1515 tests green. **Accepted limitation:** percentile saturation compresses the very top, so Van Dijk sits level with Matip despite leading every validated rate — closing it needs non-linear stretching of the top decile, which is its own ticket. **Depends on:** TASK-1802.
 
 ---
 
