@@ -5483,29 +5483,31 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 
 **⛔ Blocked by [TASK-M56](#task-m56)** (true player roles — the draft needs real positions) and **enriched by [TASK-M57](#task-m57)** (historical advanced stats — shrinks the sparse-rating era to 1992-2002). Start the headless slice (1801-1805) once M56 lands.
 
-| ID                      | Title                                                          | Status     | Priority | Est |
-| ----------------------- | -------------------------------------------------------------- | ---------- | -------- | --- |
-| [TASK-1801](#task-1801) | Game domain model + read-only data adapter                     | ✅ Done    | P2       | L   |
-| [TASK-1802](#task-1802) | Era-aware player rating model (one interface, provenance tier) | ✅ Done    | P2       | L   |
-| [TASK-1803](#task-1803) | Deterministic seeded match engine → `MatchEvent[]`             | ✅ Done    | P2       | XL  |
-| [TASK-1804](#task-1804) | Commentary system (ICU keys, en + ar, AST-guard clean)         | ✅ Done    | P2       | L   |
-| [TASK-1805](#task-1805) | Hybrid opponent model (modern squad / historical record)       | ✅ Done    | P2       | M   |
-| [TASK-1806](#task-1806) | Chaos Draft — first end-to-end vertical slice                  | ✅ Done    | P2       | L   |
-| [TASK-1807](#task-1807) | Hard-ban squad validation (`canPlay`; block save/lock/start)   | 📋 Backlog | P2       | M   |
-| [TASK-1808](#task-1808) | Live tactical pitch UI + speed controls (1x/2x/skip)           | 📋 Backlog | P3       | L   |
-| [TASK-1809](#task-1809) | Key-event animations (goal/red-card overlays, pulsing nodes)   | 📋 Backlog | P3       | L   |
-| [TASK-1810](#task-1810) | Remaining six modes as rule packs                              | 📋 Backlog | P3       | XL  |
-| [TASK-1811](#task-1811) | Season-mode engine (ghost-of-real-season, Survival, Legacy)    | 📋 Backlog | P3       | L   |
-| [TASK-1812](#task-1812) | Persistence, records, shareable seeded matches                 | 📋 Backlog | P3       | M   |
+| ID                      | Title                                                           | Status     | Priority | Est |
+| ----------------------- | --------------------------------------------------------------- | ---------- | -------- | --- |
+| [TASK-1801](#task-1801) | Game domain model + read-only data adapter                      | ✅ Done    | P2       | L   |
+| [TASK-1802](#task-1802) | Era-aware player rating model (one interface, provenance tier)  | ✅ Done    | P2       | L   |
+| [TASK-1803](#task-1803) | Deterministic seeded match engine → `MatchEvent[]`              | ✅ Done    | P2       | XL  |
+| [TASK-1804](#task-1804) | Commentary system (ICU keys, en + ar, AST-guard clean)          | ✅ Done    | P2       | L   |
+| [TASK-1805](#task-1805) | Hybrid opponent model (modern squad / historical record)        | ✅ Done    | P2       | M   |
+| [TASK-1806](#task-1806) | Chaos Draft — first end-to-end vertical slice                   | ✅ Done    | P2       | L   |
+| [TASK-1807](#task-1807) | Hard-ban squad validation (`canPlay`; block save/lock/start)    | 📋 Backlog | P2       | M   |
+| [TASK-1808](#task-1808) | Live tactical pitch UI + speed controls (1x/2x/skip)            | 📋 Backlog | P3       | L   |
+| [TASK-1809](#task-1809) | Key-event animations (goal/red-card overlays, pulsing nodes)    | 📋 Backlog | P3       | L   |
+| [TASK-1810](#task-1810) | Remaining six modes as rule packs                               | 📋 Backlog | P3       | XL  |
+| [TASK-1811](#task-1811) | Season-mode engine (ghost-of-real-season, Survival, Legacy)     | 📋 Backlog | P3       | L   |
+| [TASK-1812](#task-1812) | Persistence, records, shareable seeded matches                  | 📋 Backlog | P3       | M   |
 | [TASK-1813](#task-1813) | Hall of Fame & retro achievements (IndexedDB, provenance-aware) | 📋 Backlog | P3       | M   |
-| [TASK-1814](#task-1814) | Momentum engine + data-derived personality traits (modifiers)  | 📋 Backlog | P3       | L   |
+| [TASK-1814](#task-1814) | Momentum engine + data-derived personality traits (modifiers)   | 📋 Backlog | P3       | L   |
 | [TASK-1815](#task-1815) | Post-match analytics — xG timeline + retro newspaper headlines  | 📋 Backlog | P3       | M   |
-| [TASK-1816](#task-1816) | "What-If" historical scenario mode (rule pack)                 | 📋 Backlog | P3       | M   |
+| [TASK-1816](#task-1816) | "What-If" historical scenario mode (rule pack)                  | 📋 Backlog | P3       | M   |
 | [TASK-1817](#task-1817) | Daily seeded challenge — client-only (streaks, PB, seed replay) | 📋 Backlog | P3       | M   |
-| [TASK-1818](#task-1818) | Rogue-like / Mystery Market mode (local run history)           | 📋 Backlog | P3       | L   |
-| [TASK-1819](#task-1819) | Retro sticker album & collection book (IndexedDB)              | 📋 Backlog | P3       | S   |
+| [TASK-1818](#task-1818) | Rogue-like / Mystery Market mode (local run history)            | 📋 Backlog | P3       | L   |
+| [TASK-1819](#task-1819) | Retro sticker album & collection book (IndexedDB)               | 📋 Backlog | P3       | S   |
 
 _Enhancement roadmap 1813-1819 added 2026-08-03 from the owner's feature proposal (Option A — 100% client-side/static). See the locked-architecture notes above for the modifier-stack + determinism + no-backend decisions that govern them._
+
+_**Card system (2026-08-06/07, shipped).** The FUT-style `PlayerCard` (PR #91) was reworked into a resolver-driven family system (PR #93): `pickFront` chooses **A1 Gold / A2 Onyx** for sub-90 cards (by image kind) and a seeded **B/C/D premium pool** for 90+; club crests (`clubLogo(teamId)`), surname display (`display-name.ts`), one-line auto-fit names, and **build-time cutout-vs-photo detection** — `adapter/photo-kind.ts` pixel-probes each image with `sharp` (corner-alpha, robust to old photos' stray alpha) and stores `photoKind`/`photoUrl` on the card, so a transparent PNG floats and a photo-with-background fills, automatically. Fix any player's card image via `CARD_PHOTO_OVERRIDES` in `adapter/photo-overrides.ts` (id → FPL code or URL). The Chaos board is now full-width (no h-scroll). Next in the owner's UI-expansion arc: the interactive `/draft` hub ([TASK-1807](#task-1807)). A separate ticket will fix the rating model (per-stat numbers are position-relative percentiles → misleading cross-position; move to absolute + a GK-specific pipeline)._
 
 ### TASK-1801
 
@@ -5561,7 +5563,7 @@ _Enhancement roadmap 1813-1819 added 2026-08-03 from the owner's feature proposa
 
 - [x] **1. Horizontal pitch** — `MatchPitch` rebuilt landscape (home left, away right; `viewBox 0 0 140 90`).
 - [x] **2. Jersey numbers + names off the pitch** — synthetic role-aware, DIVERSE + asymmetric numbers (per-role pools rotated by player id; GK = 1; realistic highs like 22/33/66/77). Player names removed from the pitch and moved to a two-column **`RosterPanel`** (number, name, position, rating) below it.
-- [x] **3. Living tactical mini-map** (grew well past a pulse) — a seeded **ambient possession sim** (`domain/pitch-sim.ts`): continuous passing / pushing up / retreating / shots → GK saves across the whole 90'. It is *flavour* layered over the authoritative engine (real goals/cards still drive score/commentary/overlay). The **ball is always anchored to a real player** (rides the holder — never in empty space); only shots fly to goal. A real goal injects a **build-up** (scoring side pushed into the opponent half with the ball) then a celebration — no teleported goals. **Full-time resets** both teams to formation, ball on the centre spot.
+- [x] **3. Living tactical mini-map** (grew well past a pulse) — a seeded **ambient possession sim** (`domain/pitch-sim.ts`): continuous passing / pushing up / retreating / shots → GK saves across the whole 90'. It is _flavour_ layered over the authoritative engine (real goals/cards still drive score/commentary/overlay). The **ball is always anchored to a real player** (rides the holder — never in empty space); only shots fly to goal. A real goal injects a **build-up** (scoring side pushed into the opponent half with the ball) then a celebration — no teleported goals. **Full-time resets** both teams to formation, ball on the centre spot.
 - [x] **4. Win-prob bar out of the pitch canvas** — moved above the pitch; narrow segments drop their `%` label.
 - [x] **5. Commentary timing + feed** — goals/cards hold a ~2.5s dwell (playback pauses); scrollable history feed (`CommentaryFeed`).
 - [x] **6. Playback speed** — `1x / 2x / 4x` toggle.
