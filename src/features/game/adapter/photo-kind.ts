@@ -47,8 +47,25 @@ export async function resolvePhoto(photo: string | null | undefined): Promise<Re
       result = { kind: "photo", url: candidates[1] ?? candidates[0]! }; // 404 → legacy 250x250 (bg)
     } else {
       try {
-        const { isOpaque } = await sharp(buf).stats();
-        result = { kind: isOpaque ? "photo" : "cutout", url: candidates[0]! };
+        // Judge by CORNER transparency, not whole-image opacity: a cutout
+        // isolates the player on a transparent field (transparent corners),
+        // while a background shot fills them. `isOpaque` is fooled by old
+        // photos that carry a stray non-opaque alpha channel yet no real
+        // transparency (Scholes/Keane).
+        const { data, info } = await sharp(buf)
+          .ensureAlpha()
+          .raw()
+          .toBuffer({ resolveWithObject: true });
+        const { width: w, height: h, channels: ch } = info;
+        const alphaAt = (x: number, y: number) => data[(y * w + x) * ch + (ch - 1)] ?? 255;
+        const corners = [
+          alphaAt(2, 2),
+          alphaAt(w - 3, 2),
+          alphaAt(2, h - 3),
+          alphaAt(w - 3, h - 3),
+        ];
+        const clear = corners.filter((a) => a < 40).length;
+        result = { kind: clear >= 3 ? "cutout" : "photo", url: candidates[0]! };
       } catch {
         result = { kind: "photo", url: candidates[0]! };
       }
