@@ -3,6 +3,7 @@ import { loadPlayers } from "@/data/loaders";
 import type { Player } from "@/data/schemas";
 import type { CardBio, CardStats } from "@/features/game/domain/player-card";
 import { playerPhotoCandidates } from "@/features/players/player-photo";
+import { CARD_PHOTO_OVERRIDES } from "./photo-overrides";
 
 // Build-time enrichment for the FUT-style card: the bio the game domain drops
 // (photo/age/nationality) plus a cross-season CAREER-CLUB history and a few
@@ -49,7 +50,7 @@ export function cardBio(
   season: number,
   career: Map<number, string[]>,
 ): CardBio {
-  const photo = row?.photo ?? null;
+  const photo = CARD_PHOTO_OVERRIDES[playerId] ?? row?.photo ?? null;
   return {
     photo,
     // Sync default; loadChaosPool overrides with a pixel-accurate probe.
