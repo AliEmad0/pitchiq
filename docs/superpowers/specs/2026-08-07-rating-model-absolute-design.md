@@ -29,7 +29,9 @@ Two smaller defects compound it:
 2. **Goalkeepers get their own pipeline** and leave the outfield pools entirely.
 3. **GK cards get GK-specific stat labels** (REF/HAN/KIC/POS/CMD), not ATT/CRE/DEF/PHY/DIS.
 4. **Per-90 rates with a minutes floor**, not raw season totals.
-5. **DEF carries ~25% team defensive context — for defensive roles only.**
+5. **DEF values quality over volume** — success rates dominate, clearances and blocks are
+   demoted, and structural impact enters via per-player on-pitch goals conceded plus a
+   reduced team blend, both for defensive roles only.
 6. **`overall` is calibrated with a single monotonic scale**, never a per-season quota.
 
 ## Data reality
@@ -46,8 +48,10 @@ So the GK pipeline degrades in three grades, and `extended.minutesPlayed` makes 
 rates possible league-wide from 2004 (`appearances × 90` is the pre-2004 fallback).
 
 `extended` also carries the fields the current model never reads: `clearances`, `blocks`,
-`tacklesWon`/`tacklesLost`, `duels`/`groundDuels`/`groundDuelsWon` (aerial duels are
-derivable as `duels − groundDuels`), `foulsWon`, `goalsConceded`, `successfulLongPasses`.
+`tacklesWon`/`tacklesLost`, `duels`/`duelsLost`/`groundDuels`/`groundDuelsWon`/`groundDuelsLost`,
+`foulsWon`, `goalsConceded`, `goalsConcededOutsideBox`, `successfulLongPasses`. See the data
+defects below before using any of the duel fields — several combinations that look derivable
+are not.
 
 ## Architecture
 
@@ -74,30 +78,55 @@ degenerate cohort can form.
 
 ### Outfield dimensions
 
-| Dim | Inputs (weights)                                                                                             |
-| --- | ------------------------------------------------------------------------------------------------------------ |
-| ATT | goals/90 (2), xG/90 (1), shots-on-target/90 (1)                                                              |
-| CRE | assists/90 (2), key passes/90 (1), pass accuracy (1)                                                         |
-| DEF | tackles/90, interceptions/90, clearances/90, blocks/90 (1 each) **+ tackle-success % (2), aerial-win % (2)** |
-| PHY | duel-win % (2), duels won/90 (1), fouls won/90 (1)                                                           |
+| Dim | Inputs (weights)                                                                                                                  |
+| --- | --------------------------------------------------------------------------------------------------------------------------------- |
+| ATT | goals/90 (2), xG/90 (1), shots-on-target/90 (1)                                                                                   |
+| CRE | assists/90 (2), key passes/90 (1), pass accuracy (1)                                                                              |
+| DEF | **duel-win % (3), ground-duel % (3), tackle % (2)** · interceptions/90 (1), tackles/90 (1) · clearances/90 (0.5), blocks/90 (0.5) |
+| PHY | duels won/90 (2), fouls won/90 (1), fouls conceded/90 (1)                                                                         |
 
-DEF deliberately splits weight evenly between **volume** and **success rate**. Volume alone
-is a role-and-team artifact: a dominant side's centre-back makes fewer defensive actions,
-so a pure-volume DEF ranks journeymen at leaky clubs top.
+**DEF is 8/11 quality, 2/11 proactive volume, 1/11 reactive volume.** Clearances and blocks
+are deliberately demoted to half weight: a high clearance count signals a team under siege,
+not a good defender. Interceptions and tackle volume keep full weight because they are
+_proactive_ — a defender chooses them; nobody chooses to be pinned in their own box.
 
-`cleanSheets` is removed from outfield DEF. `duelsWon` now appears only in PHY.
+`cleanSheets` is removed from outfield DEF. DEF now uses duel **rate** while PHY uses duel
+**volume** — a deliberate split ("do you win them" vs "do you contest many"), not the
+identical-stat double count that existed before.
 
-### Team defensive context
+### Data defects that constrain these inputs
 
-For **GK, CB, RB, LB, CDM only**:
+Found while prototyping; encoded as rules, not comments:
 
-```
-DEF = 0.75 × individual + 0.25 × teamGoalsAgainstPercentile
-```
+1. **`duels` ≠ `duelsWon` + `duelsLost`.** Wan-Bissaka '18: `duels` 377, won+lost 171. The
+   `duels` field counts total involvements; only won+lost is the resolved set. Duel rate
+   **must** use `duelsWon / (duelsWon + duelsLost)`.
+2. **`tackles` is already `tacklesWon` + `tacklesLost`** (Wan-Bissaka 129 = 129). Tackle
+   success is `tacklesWon / tackles`; computing `tackles / (tackles + tacklesLost)`
+   double-counts.
+3. **Aerial duels cannot be derived, and dribbled-past does not exist.**
+   `duelsWon − groundDuelsWon` goes **negative for 16 of 49 qualifying CBs in 2018/19**
+   (Ben Davies −29, Holgate −35) — the fields use different definitions and are not subsets.
+   The dataset also has no take-ons-faced field; `unsuccessfulDribbles` is the player's _own_
+   failed dribbles. Neither input is available, however desirable.
 
-from the season's standings row. This is deliberately narrower than the bug it replaces:
-the old `cleanSheets` term gave _every_ player DEF credit for their team, including
-forwards.
+Only three success rates survive validation: all-duel %, ground-duel %, tackle %.
+`groundDuelsWon + groundDuelsLost = groundDuels` holds exactly, making ground-duel % the most
+trustworthy of the three.
+
+### Structural defensive impact (defensive roles only)
+
+`extended.goalsConceded` is **per-player** — goals conceded while that player was on the
+pitch, not a team total. That makes it a genuine individual measure of structural impact, and
+it enters DEF at **weight 3** (inverted, per 90) for **GK, CB, RB, LB, CDM only**.
+
+The role restriction is not optional. Applied league-wide it lifted **Salah '18/19 from DEF 6
+to 26** and **Ronaldo '07/08 from 39 to 51** — forwards inheriting their back line's record,
+which is precisely the pollution this ticket exists to remove.
+
+A **team** goals-against blend from the standings row is retained on top, but reduced to
+**15%** and scaled by `min(1, minutes / 2700)`, so only a defender who actually anchored the
+season gets full structural credit. The per-player signal now does most of that work.
 
 ### GK dimensions
 
@@ -110,12 +139,12 @@ note **KIC**, not DIS, because the outfield card already uses DIS for discipline
 | handling    | HAN   | goals-conceded/90 inverted (2), clean-sheet rate (1)                                   | 2003+ (CS-rate only pre-2003) |
 | kicking     | KIC   | pass accuracy (2), successful long passes/90 (1)                                       | 2003+                         |
 | positioning | POS   | goals-conceded-**outside-box**/90 inverted (2), penalty goals conceded/90 inverted (1) | 2003+                         |
-| command     | CMD   | aerial duels won/90 (2), clearances/90 (1)                                             | 2003+                         |
+| command     | CMD   | duels won/90 (2), clearances/90 (1)                                                    | 2003+                         |
 
 Each input is a real committed field, not a proxy invented for the table. POS reads
 `goalsConcededOutsideBox` on the reasoning that a keeper beaten from distance was
-mispositioned; CMD reads aerial duels and clearances, which is a keeper leaving their line
-for crosses.
+mispositioned; CMD reads duels won and clearances, which is a keeper leaving their line for
+crosses. CMD uses duel **counts**, never a derived aerial split — see the data defects above.
 
 Where an era lacks an input the dimension returns **null** and the card renders a dash —
 never a fabricated number. `provenance.basis` gains `hasSaves` so a GK card can be honest
@@ -157,28 +186,40 @@ share is comparable, then lock a **wide** regression band (premium share roughly
 future change can't silently make everyone a 95. The band is a guard, not a quota.
 
 **Acceptance is a name check, not a percentage.** Print every 90+ card across the six pool
-seasons for owner review. If Henry '03, Ronaldo '07, Shearer '95, Salah '19 or Van Dijk '19
+seasons for owner review. If Henry '03, Ronaldo '07, Shearer '95, Salah '19 or Van Dijk '18
 are missing, that is a model bug to fix — not a knob to turn.
-
-## Known limitation (accepted)
-
-Van Dijk 2019 lands at DEF 68 while Matip rates 87. Elite defenders on dominant teams
-genuinely make fewer defensive actions, and **no stat in this dataset measures defensive
-quality directly**. Team context narrows the gap (58 → 68) but does not close it. Recorded
-deliberately rather than fitting the model to one player.
 
 ## Prototype evidence
 
-A throwaway prototype of this model over real committed data:
+A throwaway prototype over real committed data. **Note the season key: 2018/19 is `2018`** —
+the first prototype pass measured `2019` (= 2019/20) and drew the wrong conclusion about Van
+Dijk's peak season.
 
-| Case                          | Before  | After                                      |
-| ----------------------------- | ------- | ------------------------------------------ |
-| Van der Sar '05 ATT           | **100** | _n/a_ — GK pipeline, no ATT dimension      |
-| Van Dijk '19 ATT              | **99**  | 61                                         |
-| Ronaldo '07 DEF               | **89**  | 37                                         |
-| Salah '19 DEF                 | —       | 12                                         |
-| Zero-goal players, median ATT | —       | 17                                         |
-| 2007 top-DEF                  | —       | Hargreaves, Silva, Ferdinand, Terry, Vidic |
+| Case                            | Original model | Revised model                                  |
+| ------------------------------- | -------------- | ---------------------------------------------- |
+| **Van Dijk '18/19 DEF**         | **68**         | **89** — 3rd in the league                     |
+| Van Dijk '18/19 duel / ground % | —              | 70% / 81% — best in the league                 |
+| Tarkowski '18/19 DEF            | 84             | 56 — high clearance volume correctly demoted   |
+| Maguire '18/19 DEF              | 76             | 68                                             |
+| Van der Sar '05 ATT             | **100**        | _n/a_ — GK pipeline, no ATT dimension          |
+| Van Dijk '19 ATT                | **99**         | 61                                             |
+| Ronaldo '07 DEF                 | **89**         | 39                                             |
+| Salah '18 DEF                   | —              | 6                                              |
+| Zero-goal players, median ATT   | —              | 17                                             |
+| 2007/08 top-DEF                 | —              | Gabbidon, Ferdinand, Skrtel, Hargreaves, Vidic |
+
+## Known limitation (accepted)
+
+Van Dijk '18/19 lands at DEF 89, effectively tied with Matip's 90 despite leading him on
+every validated quality rate (duel 70% vs 55%, ground 81% vs 70%, tackle 74% vs 67%, on-pitch
+goals conceded 0.58 vs 0.70). The cause is **percentile saturation**: once two players are
+both above the 95th percentile on the quality inputs, the ranking gap between them collapses,
+and the remaining 3/14 volume weight decides the order.
+
+Closing this would mean either non-linear stretching at the top of each pool or raising the
+quality weights until one player ranks first — the latter is fitting the model to a single
+name. Recorded rather than tuned. The headline defect is fixed: Van Dijk moved from 68
+(mid-table) to 89 (elite tier, 3rd of ~350 outfielders).
 
 ## Testing
 
@@ -187,8 +228,13 @@ A throwaway prototype of this model over real committed data:
 - **Structural invariants over real data** (the tests that would have caught the bug):
   no goalkeeper appears in an outfield pool; a season's top-8 DEF are defensive roles; the
   median ATT of zero-goal players sits below 25.
-- **Regression cases as named assertions** — Van Dijk '19 ATT < 70, Ronaldo '07 DEF < 50,
-  and every rated goalkeeper's `attack` below 20 (the Van der Sar case).
+- **Regression cases as named assertions** — **Van Dijk '18 DEF > 85 and top-5 in the
+  season**, Tarkowski '18 DEF < Van Dijk '18, Ronaldo '07 DEF < 50, Salah '18 DEF < 15
+  (guards the structural-signal leak), Van Dijk '19 ATT < 70, and every rated goalkeeper's
+  `attack` below 20 (the Van der Sar case).
+- **Data-defect guards** — a duel rate never uses `duels` as its denominator; no aerial-duel
+  input exists anywhere in the model. Both are the kind of thing a future edit would
+  reintroduce innocently.
 - **Era degradation** — a 1996 GK yields null REF rather than a number; a 2019 GK does not.
 - **Calibration band** — premium share of the chaos pool within 2–15%.
 - **i18n parity** — the five GK label keys exist in `en` and `ar`.
