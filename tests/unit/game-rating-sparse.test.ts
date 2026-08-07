@@ -1,41 +1,67 @@
 import { describe, expect, it } from "vitest";
 import type { Player, Standing } from "@/data/schemas";
 import { rateSparse } from "@/features/game/domain/rating-sparse";
-import type { RatingContext } from "@/features/game/domain/ratings";
+import { makeRatingContext } from "@/features/game/domain/ratings";
 
-function fwd(id: number, teamId: number, goals: number): Player {
-  return {
-    id, name: `F${id}`, teamId, role: "CF", altRoles: [],
-    metrics: {
-      appearances: 34, goals, assists: 4, yellowCards: 2, redCards: 0, cleanSheets: 0,
-      passAccuracy: null, keyPasses: null, tackles: null, interceptions: null,
-      duelsWon: null, dribblesCompleted: null, shotsOnTarget: null,
-    },
-  } as unknown as Player;
-}
-const standings: Standing[] = [
-  { rank: 1, teamId: 67, teamName: "A", played: 38, won: 27, drawn: 8, lost: 3, goalsFor: 80, goalsAgainst: 30, goalsDiff: 50, points: 89 },
-  { rank: 2, teamId: 68, teamName: "B", played: 38, won: 10, drawn: 8, lost: 20, goalsFor: 35, goalsAgainst: 70, goalsDiff: -35, points: 38 },
+// Pre-2003 seasons carry ONLY appearances, goals, assists, cards and clean sheets —
+// verified across 1996/2000/2002. No tackles, duels or passing data exists at all.
+const mk = (id: number, role: string, goals: number, assists: number, cs = 5): Player =>
+  ({
+    id,
+    name: `P${id}`,
+    teamId: id <= 4 ? 1 : 2,
+    teamName: "T",
+    position: "Midfielder",
+    role,
+    metrics: { appearances: 38, goals, assists, cleanSheets: cs, yellowCards: 2, redCards: 0 },
+  }) as unknown as Player;
+
+const cohort = [
+  mk(1, "CF", 30, 5),
+  mk(2, "CB", 1, 0, 18),
+  mk(3, "CM", 8, 12),
+  mk(4, "RB", 2, 6),
+  mk(5, "CF", 4, 2),
+  mk(6, "CB", 0, 1, 3),
+  mk(7, "CM", 3, 3),
+  mk(8, "LB", 1, 2),
+];
+const standings = [
+  { teamId: 1, goalsFor: 80, goalsAgainst: 20, points: 90 },
+  { teamId: 2, goalsFor: 30, goalsAgainst: 70, points: 30 },
 ] as unknown as Standing[];
+const ctx = makeRatingContext(1996, cohort, standings);
 
 describe("rateSparse", () => {
-  const cohort: Player[] = [fwd(1, 67, 31), fwd(2, 68, 6), fwd(3, 67, 12), fwd(4, 68, 3)];
-  const ctx: RatingContext = { season: 1995, cohort, standings };
-
-  it("scores the prolific striker's attack above a low scorer", () => {
-    expect(rateSparse(cohort[0], ctx).attack).toBeGreaterThan(rateSparse(cohort[3], ctx).attack);
+  it("ranks the league's top scorer highest on attack, across all positions", () => {
+    const top = rateSparse(cohort[0], ctx).attack;
+    for (const p of cohort.slice(1)) expect(rateSparse(p, ctx).attack).toBeLessThan(top);
   });
 
-  it("produces all six dimensions in 0–100 with no advanced stats", () => {
-    const r = rateSparse(cohort[0], ctx);
-    for (const key of ["attack", "creation", "defense", "physical", "discipline", "overall"] as const) {
-      expect(r[key]).toBeGreaterThanOrEqual(0);
-      expect(r[key]).toBeLessThanOrEqual(100);
+  it("gives a near-goalless defender a low attack", () => {
+    expect(rateSparse(cohort[5], ctx).attack).toBeLessThan(40);
+  });
+
+  it("gives a defender at the best defence a higher defense than one at the worst", () => {
+    expect(rateSparse(cohort[1], ctx).defense).toBeGreaterThan(rateSparse(cohort[5], ctx).defense);
+  });
+
+  it("does not hand a forward the back line's defensive credit", () => {
+    // Both play for team 1 (the best defence); the forward must still rate low.
+    expect(rateSparse(cohort[0], ctx).defense).toBeLessThan(rateSparse(cohort[1], ctx).defense);
+  });
+
+  it("clamps every dimension into 0-100", () => {
+    for (const p of cohort) {
+      const r = rateSparse(p, ctx);
+      for (const v of [r.attack, r.creation, r.defense, r.physical, r.discipline, r.overall]) {
+        expect(v).toBeGreaterThanOrEqual(0);
+        expect(v).toBeLessThanOrEqual(100);
+      }
     }
   });
 
-  it("does not crash when the team is missing from the table", () => {
-    const orphan = fwd(9, 999, 10);
-    expect(() => rateSparse(orphan, { ...ctx, cohort: [...cohort, orphan] })).not.toThrow();
+  it("attaches no goalkeeper block", () => {
+    expect(rateSparse(cohort[0], ctx).gk).toBeUndefined();
   });
 });

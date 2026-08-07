@@ -1,40 +1,65 @@
 import { describe, expect, it } from "vitest";
 import type { Player } from "@/data/schemas";
 import { rate } from "@/features/game/domain/rate";
-import type { RatingContext } from "@/features/game/domain/ratings";
+import { makeRatingContext } from "@/features/game/domain/ratings";
 
-function player(overrides: Partial<Player["metrics"]>): Player {
-  return {
-    id: 1, name: "P", role: "CF", altRoles: [], teamId: 1,
-    metrics: {
-      appearances: 30, goals: 12, assists: 5, yellowCards: 2, redCards: 0, cleanSheets: 0,
-      passAccuracy: null, keyPasses: null, tackles: null, interceptions: null,
-      duelsWon: null, dribblesCompleted: null, shotsOnTarget: null, ...overrides,
-    },
-  } as unknown as Player;
-}
-const ctx = (season: number, p: Player): RatingContext => ({ season, cohort: [p], standings: [] });
+const mk = (id: number, role: string, extra: Record<string, unknown> = {}): Player =>
+  ({
+    id,
+    name: `P${id}`,
+    teamId: 1,
+    teamName: "T",
+    position: "Midfielder",
+    role,
+    metrics: { appearances: 38, goals: 5, assists: 5, yellowCards: 1, redCards: 0, ...extra },
+  }) as unknown as Player;
+
+const rich = { passAccuracy: 85, extended: { minutesPlayed: 3420, goalsConceded: 40 } };
 
 describe("rate", () => {
-  it("sparse tier when no advanced stats (pre-2003)", () => {
-    const p = player({});
-    const r = rate(p, ctx(1995, p));
-    expect(r.provenance.tier).toBe("sparse");
-    expect(r.provenance.basis).toEqual({ hasAdvanced: false, hasXg: false });
-    expect(r.provenance.season).toBe(1995);
+  it("routes a goalkeeper to the GK pipeline and attaches the gk block", () => {
+    const cohort = [mk(1, "GK", { ...rich, saves: 100, cleanSheets: 10 }), mk(2, "CF", rich)];
+    const ctx = makeRatingContext(2019, cohort, []);
+    const result = rate(cohort[0], ctx);
+    expect(result.ratings.gk).toBeDefined();
+    expect(result.ratings.attack).toBeLessThan(20);
   });
 
-  it("rich tier + hasXg false for the 2003–2016 advanced-but-pre-xG era", () => {
-    const p = player({ passAccuracy: 82, keyPasses: 20, tackles: 5, interceptions: 3, duelsWon: 90, dribblesCompleted: 30, shotsOnTarget: 24 });
-    const r = rate(p, ctx(2015, p));
-    expect(r.provenance.tier).toBe("rich");
-    expect(r.provenance.basis).toEqual({ hasAdvanced: true, hasXg: false });
+  it("does not attach a gk block to an outfielder", () => {
+    const cohort = [mk(1, "GK", rich), mk(2, "CF", rich)];
+    const ctx = makeRatingContext(2019, cohort, []);
+    expect(rate(cohort[1], ctx).ratings.gk).toBeUndefined();
   });
 
-  it("rich tier + hasXg true from 2017", () => {
-    const p = player({ passAccuracy: 85, keyPasses: 30, tackles: 4, interceptions: 2, duelsWon: 95, dribblesCompleted: 40, shotsOnTarget: 30, xg: 14.2, xa: 6.1 });
-    const r = rate(p, ctx(2020, p));
-    expect(r.provenance.tier).toBe("rich");
-    expect(r.provenance.basis).toEqual({ hasAdvanced: true, hasXg: true });
+  it("detects the era from the data, not from a year constant", () => {
+    const richCohort = [mk(1, "CF", rich)];
+    expect(rate(richCohort[0], makeRatingContext(2019, richCohort, [])).provenance.tier).toBe(
+      "rich",
+    );
+    const sparseCohort = [mk(1, "CF")];
+    expect(rate(sparseCohort[0], makeRatingContext(1996, sparseCohort, [])).provenance.tier).toBe(
+      "sparse",
+    );
+  });
+
+  it("reports hasXg so a 2003-16 card stays honest", () => {
+    const withXg = [mk(1, "CF", { ...rich, xg: 12.4 })];
+    expect(rate(withXg[0], makeRatingContext(2019, withXg, [])).provenance.basis.hasXg).toBe(true);
+    const noXg = [mk(1, "CF", rich)];
+    expect(rate(noXg[0], makeRatingContext(2010, noXg, [])).provenance.basis.hasXg).toBe(false);
+  });
+
+  it("reports hasSaves so a keeper card can be honest about its grade", () => {
+    const modern = [mk(1, "GK", { ...rich, saves: 100 })];
+    expect(rate(modern[0], makeRatingContext(2019, modern, [])).provenance.basis.hasSaves).toBe(
+      true,
+    );
+    const old = [mk(1, "GK", rich)];
+    expect(rate(old[0], makeRatingContext(2004, old, [])).provenance.basis.hasSaves).toBe(false);
+  });
+
+  it("carries the season through on provenance", () => {
+    const cohort = [mk(1, "CF", rich)];
+    expect(rate(cohort[0], makeRatingContext(2012, cohort, [])).provenance.season).toBe(2012);
   });
 });

@@ -69,7 +69,7 @@ describe("eraOf", () => {
   const prov = (tier: "rich" | "sparse", hasXg: boolean) => ({
     tier,
     season: 2010,
-    basis: { hasAdvanced: tier === "rich", hasXg },
+    basis: { hasAdvanced: tier === "rich", hasXg, hasSaves: false },
   });
   it("labels the three provenance regimes", () => {
     expect(eraOf(prov("sparse", false))?.key).toBe("eraSparse");
