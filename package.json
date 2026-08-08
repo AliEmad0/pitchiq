@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
+    "build:anchors": "node scripts/build-player-anchors.mjs",
     "start": "next start",
     "lint": "next lint --dir src --dir tests",
     "type-check": "tsc --noEmit",
