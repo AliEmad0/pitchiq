@@ -26,8 +26,8 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 
 - player-seasons anchored: **1603**
 - distinct players: **185**
-- Icon seasons: 292
-- Legend seasons: 459
+- Icon seasons: 309
+- Legend seasons: 442
 - Elite seasons: 852
 
 ## Every anchored season
@@ -51,6 +51,7 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     88 | Dennis Bergkamp           | 1996-97 | SS   | Arsenal                 |  27 | 2610 | Icon   |    −0 |                |
 |     88 | Dennis Bergkamp           | 1997-98 | SS   | Arsenal                 |  28 | 2520 | Icon   |    −0 |                |
 |     88 | Dennis Bergkamp           | 1998-99 | SS   | Arsenal                 |  29 | 2610 | Icon   |    −0 |                |
+|     88 | Didier Drogba             | 2006-07 | CF   | Chelsea                 |  28 | 2944 | Icon   |    −0 |                |
 |     88 | Edwin van der Sar         | 2003-04 | GK   | Fulham                  |  33 | 3330 | Icon   |    −0 |       ✅       |
 |     88 | Edwin van der Sar         | 2005-06 | GK   | Manchester United       |  35 | 3377 | Icon   |    −0 |       ✅       |
 |     88 | Edwin van der Sar         | 2007-08 | GK   | Manchester United       |  37 | 2565 | Icon   |    −0 |       ✅       |
@@ -65,6 +66,12 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     88 | Frank Lampard             | 2005-06 | CM   | Chelsea                 |  27 | 3150 | Icon   |    −0 |                |
 |     88 | Frank Lampard             | 2006-07 | CM   | Chelsea                 |  28 | 3244 | Icon   |    −0 |                |
 |     88 | Frank Lampard             | 2011-12 | CM   | Chelsea                 |  33 | 2250 | Icon   |  −0.5 |       ✅       |
+|     88 | Harry Kane                | 2017-18 | CF   | Tottenham               |  24 | 3083 | Icon   |    −0 |                |
+|     88 | Harry Kane                | 2018-19 | CF   | Tottenham               |  25 | 2427 | Icon   |  −0.1 |                |
+|     88 | Harry Kane                | 2019-20 | CF   | Tottenham               |  26 | 2589 | Icon   |    −0 |                |
+|     88 | Harry Kane                | 2020-21 | CF   | Tottenham               |  27 | 3085 | Icon   |    −0 |                |
+|     88 | Harry Kane                | 2021-22 | CF   | Tottenham               |  28 | 3232 | Icon   |    −0 |                |
+|     88 | Harry Kane                | 2022-23 | CF   | Tottenham               |  29 | 3406 | Icon   |    −0 |                |
 |     88 | John Terry                | 2004-05 | CB   | Chelsea                 |  24 | 3240 | Icon   |    −0 |                |
 |     88 | John Terry                | 2005-06 | CB   | Chelsea                 |  25 | 3240 | Icon   |    −0 |                |
 |     88 | John Terry                | 2006-07 | CB   | Chelsea                 |  26 | 2414 | Icon   |  −0.2 |                |
@@ -148,6 +155,7 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     87 | David Silva               | 2015-16 | CAM  | Manchester City         |  29 | 1800 | Icon   |  −1.3 |                |
 |     87 | David Silva               | 2016-17 | CAM  | Manchester City         |  30 | 2766 | Icon   |    −1 |                |
 |     87 | Dennis Bergkamp           | 1999-00 | SS   | Arsenal                 |  30 | 2520 | Icon   |    −1 |                |
+|     87 | Didier Drogba             | 2005-06 | CF   | Chelsea                 |  27 | 1994 | Icon   |  −0.9 |                |
 |     87 | Edwin van der Sar         | 2009-10 | GK   | Manchester United       |  39 | 1890 | Icon   |  −1.1 |       ✅       |
 |     87 | Eric Cantona              | 1994-95 | SS   | Manchester United       |  28 | 1890 | Icon   |  −1.1 |                |
 |     87 | Eric Cantona              | 1996-97 | SS   | Manchester United       |  30 | 3240 | Icon   |    −1 |                |
@@ -155,6 +163,7 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     87 | Frank Lampard             | 2007-08 | CM   | Chelsea                 |  29 | 1956 | Icon   |    −1 |                |
 |     87 | Frank Lampard             | 2008-09 | CM   | Chelsea                 |  30 | 3259 | Icon   |    −1 |                |
 |     87 | Frank Lampard             | 2012-13 | CM   | Chelsea                 |  34 | 1901 | Icon   |  −1.1 |       ✅       |
+|     87 | Harry Kane                | 2016-17 | CF   | Tottenham Hotspur       |  23 | 2531 | Icon   |    −1 |                |
 |     87 | John Terry                | 2003-04 | CB   | Chelsea                 |  23 | 2965 | Icon   |    −1 |                |
 |     87 | John Terry                | 2007-08 | CB   | Chelsea                 |  27 | 1974 | Icon   |    −1 |                |
 |     87 | John Terry                | 2010-11 | CB   | Chelsea                 |  30 | 2962 | Icon   |    −1 |                |
@@ -201,9 +210,13 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     86 | Cristiano Ronaldo         | 2007-08 | CF   | Manchester United       |  22 | 2747 | Icon   |    −2 |                |
 |     86 | David Silva               | 2017-18 | CAM  | Manchester City         |  31 | 2435 | Icon   |  −2.1 |                |
 |     86 | Dennis Bergkamp           | 2000-01 | SS   | Arsenal                 |  31 | 2250 | Icon   |  −2.5 |                |
+|     86 | Didier Drogba             | 2004-05 | CF   | Chelsea                 |  26 | 1631 | Icon   |  −1.6 |                |
+|     86 | Didier Drogba             | 2007-08 | CF   | Chelsea                 |  29 | 1529 | Icon   |  −1.8 |                |
+|     86 | Didier Drogba             | 2009-10 | CF   | Chelsea                 |  31 | 2774 | Icon   |    −2 |                |
 |     86 | Edwin van der Sar         | 2001-02 | GK   | Fulham                  |  31 | 3330 | Icon   |    −2 |                |
 |     86 | Frank Lampard             | 2000-01 | CM   | West Ham United         |  22 | 2700 | Icon   |    −2 |                |
 |     86 | Frank Lampard             | 2009-10 | CM   | Chelsea                 |  31 | 3220 | Icon   |    −2 |                |
+|     86 | Harry Kane                | 2015-16 | CF   | Tottenham Hotspur       |  22 | 3279 | Icon   |    −2 |                |
 |     86 | John Terry                | 2011-12 | CB   | Chelsea                 |  31 | 2790 | Icon   |    −2 |                |
 |     86 | Kevin De Bruyne           | 2021-22 | CAM  | Manchester City         |  30 | 2205 | Icon   |  −1.6 |                |
 |     86 | Kevin De Bruyne           | 2022-23 | CAM  | Manchester City         |  31 | 2425 | Icon   |  −2.1 |                |
@@ -266,7 +279,8 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     85 | Denis Irwin               | 1993-94 | LB   | Manchester United       |  28 | 3780 | Legend |    −0 |                |
 |     85 | Denis Irwin               | 1994-95 | LB   | Manchester United       |  29 | 3600 | Legend |    −0 |                |
 |     85 | Dennis Bergkamp           | 2001-02 | SS   | Arsenal                 |  32 | 2970 | Icon   |    −3 |                |
-|     85 | Didier Drogba             | 2006-07 | CF   | Chelsea                 |  28 | 2944 | Legend |    −0 |                |
+|     85 | Didier Drogba             | 2008-09 | CF   | Chelsea                 |  30 | 1549 | Icon   |  −2.8 |                |
+|     85 | Didier Drogba             | 2010-11 | CF   | Chelsea                 |  32 | 2793 | Icon   |    −3 |                |
 |     85 | Diego Costa               | 2015-16 | CF   | Chelsea                 |  27 | 2379 | Legend |  −0.2 |                |
 |     85 | Diego Costa               | 2016-17 | CF   | Chelsea                 |  28 | 3089 | Legend |    −0 |                |
 |     85 | Dwight Yorke              | 1995-96 | CF   | Aston Villa             |  24 | 3150 | Legend |    −0 |                |
@@ -295,12 +309,7 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     85 | Gary Neville              | 2001-02 | RB   | Manchester United       |  26 | 3060 | Legend |    −0 |                |
 |     85 | Gary Neville              | 2002-03 | RB   | Manchester United       |  27 | 2340 | Legend |  −0.3 |                |
 |     85 | Gary Neville              | 2003-04 | RB   | Manchester United       |  28 | 2690 | Legend |    −0 |                |
-|     85 | Harry Kane                | 2017-18 | CF   | Tottenham               |  24 | 3083 | Legend |    −0 |                |
-|     85 | Harry Kane                | 2018-19 | CF   | Tottenham               |  25 | 2427 | Legend |  −0.1 |                |
-|     85 | Harry Kane                | 2019-20 | CF   | Tottenham               |  26 | 2589 | Legend |    −0 |                |
-|     85 | Harry Kane                | 2020-21 | CF   | Tottenham               |  27 | 3085 | Legend |    −0 |                |
-|     85 | Harry Kane                | 2021-22 | CF   | Tottenham               |  28 | 3232 | Legend |    −0 |                |
-|     85 | Harry Kane                | 2022-23 | CF   | Tottenham               |  29 | 3406 | Legend |    −0 |                |
+|     85 | Harry Kane                | 2014-15 | CF   | Tottenham Hotspur       |  21 | 2581 | Icon   |    −3 |                |
 |     85 | Ian Wright                | 1992-93 | CF   | Arsenal                 |  29 | 2790 | Legend |    −0 |                |
 |     85 | Ian Wright                | 1996-97 | CF   | Arsenal                 |  33 | 3150 | Legend |    −0 |       ✅       |
 |     85 | Jaap Stam                 | 1998-99 | CB   | Manchester United       |  26 | 2700 | Legend |    −0 |                |
@@ -446,7 +455,6 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     84 | Denis Irwin               | 1995-96 | LB   | Manchester United       |  30 | 2790 | Legend |    −1 |                |
 |     84 | Denis Irwin               | 2000-01 | LB   | Manchester United       |  35 | 1890 | Legend |  −1.1 |       ✅       |
 |     84 | Dennis Bergkamp           | 2002-03 | SS   | Arsenal                 |  33 | 2610 | Icon   |    −4 |                |
-|     84 | Didier Drogba             | 2005-06 | CF   | Chelsea                 |  27 | 1994 | Legend |  −0.9 |                |
 |     84 | Diego Costa               | 2014-15 | CF   | Chelsea                 |  26 | 2082 | Legend |  −0.8 |                |
 |     84 | Dwight Yorke              | 1994-95 | CF   | Aston Villa             |  23 | 3330 | Legend |    −1 |                |
 |     84 | Dwight Yorke              | 2000-01 | CF   | Manchester United       |  29 | 1980 | Legend |    −1 |                |
@@ -467,7 +475,6 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     84 | Gary Neville              | 1998-99 | RB   | Manchester United       |  23 | 3060 | Legend |    −1 |                |
 |     84 | Gary Neville              | 1999-00 | RB   | Manchester United       |  24 | 1980 | Legend |    −1 |                |
 |     84 | Gary Neville              | 2004-05 | RB   | Manchester United       |  29 | 1891 | Legend |  −1.1 |                |
-|     84 | Harry Kane                | 2016-17 | CF   | Tottenham Hotspur       |  23 | 2531 | Legend |    −1 |                |
 |     84 | Ian Wright                | 1993-94 | CF   | Arsenal                 |  30 | 3510 | Legend |    −1 |                |
 |     84 | Jamie Carragher           | 2001-02 | CB   | Liverpool               |  23 | 2970 | Legend |    −1 |                |
 |     84 | Jamie Carragher           | 2003-04 | CB   | Liverpool               |  25 | 1907 | Legend |  −1.1 |                |
@@ -560,9 +567,6 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     83 | David Seaman              | 2001-02 | GK   | Arsenal                 |  38 | 1530 | Legend |  −1.8 |       ✅       |
 |     83 | David Silva               | 2019-20 | CAM  | Manchester City         |  33 | 1832 | Icon   |  −5.3 |                |
 |     83 | Denis Irwin               | 1996-97 | LB   | Manchester United       |  31 | 2790 | Legend |    −2 |                |
-|     83 | Didier Drogba             | 2004-05 | CF   | Chelsea                 |  26 | 1631 | Legend |  −1.6 |                |
-|     83 | Didier Drogba             | 2007-08 | CF   | Chelsea                 |  29 | 1529 | Legend |  −1.8 |                |
-|     83 | Didier Drogba             | 2009-10 | CF   | Chelsea                 |  31 | 2774 | Legend |    −2 |                |
 |     83 | Dwight Yorke              | 2002-03 | CF   | Blackburn Rovers        |  31 | 2970 | Legend |    −2 |                |
 |     83 | Eden Hazard               | 2013-14 | LW   | Chelsea                 |  22 | 2895 | Legend |    −2 |                |
 |     83 | Ederson                   | 2024-25 | GK   | Manchester City         |  31 | 2321 | Legend |  −2.3 |                |
@@ -576,7 +580,6 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     83 | Gary Neville              | 2009-10 | RB   | Manchester United       |  34 | 1355 | Legend |  −2.1 |       ✅       |
 |     83 | Gianfranco Zola           | 1996-97 | SS   | Chelsea                 |  30 | 2070 | Legend |  −1.8 |                |
 |     83 | Gianfranco Zola           | 1997-98 | SS   | Chelsea                 |  31 | 2430 | Legend |  −2.1 |                |
-|     83 | Harry Kane                | 2015-16 | CF   | Tottenham Hotspur       |  22 | 3279 | Legend |    −2 |                |
 |     83 | Ian Wright                | 1994-95 | CF   | Arsenal                 |  31 | 2790 | Legend |    −2 |                |
 |     83 | Jaap Stam                 | 2000-01 | CB   | Manchester United       |  28 | 1350 | Legend |  −2.2 |                |
 |     83 | Jamie Carragher           | 2000-01 | CB   | Liverpool               |  22 | 3060 | Legend |    −2 |                |
@@ -635,8 +638,7 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     82 | David Seaman              | 1995-96 | GK   | Arsenal                 |  32 | 3420 | Legend |    −3 |                |
 |     82 | Denis Irwin               | 1997-98 | LB   | Manchester United       |  32 | 2250 | Legend |  −3.5 |                |
 |     82 | Dennis Bergkamp           | 2003-04 | SS   | Arsenal                 |  34 | 1770 | Icon   |  −6.4 |                |
-|     82 | Didier Drogba             | 2008-09 | CF   | Chelsea                 |  30 | 1549 | Legend |  −2.8 |                |
-|     82 | Didier Drogba             | 2010-11 | CF   | Chelsea                 |  32 | 2793 | Legend |    −3 |                |
+|     82 | Didier Drogba             | 2011-12 | CF   | Chelsea                 |  33 | 1480 | Icon   |  −5.9 |                |
 |     82 | Dwight Yorke              | 1992-93 | CF   | Aston Villa             |  21 | 2430 | Legend |  −3.1 |                |
 |     82 | Eden Hazard               | 2012-13 | LW   | Chelsea                 |  21 | 2636 | Legend |    −3 |                |
 |     82 | Fernandinho               | 2017-18 | CDM  | Manchester City         |  32 | 2885 | Legend |    −3 |                |
@@ -645,7 +647,6 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     82 | Gary Neville              | 1996-97 | RB   | Manchester United       |  21 | 2790 | Legend |    −3 |                |
 |     82 | Gary Neville              | 2006-07 | RB   | Manchester United       |  31 | 1979 | Legend |    −3 |                |
 |     82 | Gianfranco Zola           | 1998-99 | SS   | Chelsea                 |  32 | 3330 | Legend |    −3 |                |
-|     82 | Harry Kane                | 2014-15 | CF   | Tottenham Hotspur       |  21 | 2581 | Legend |    −3 |                |
 |     82 | Ian Wright                | 1995-96 | CF   | Arsenal                 |  32 | 2790 | Legend |    −3 |                |
 |     82 | Jamie Carragher           | 1999-00 | CB   | Liverpool               |  21 | 3240 | Legend |    −3 |                |
 |     82 | Jamie Carragher           | 2010-11 | CB   | Liverpool               |  32 | 2489 | Legend |    −3 |                |
@@ -1062,7 +1063,6 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     79 | David Raya                | 2021-22 | GK   | Brentford               |  26 | 2160 | Elite  |  −0.6 |                |
 |     79 | David Raya                | 2025-26 | GK   | Arsenal                 |  30 | 3330 | Elite  |    −1 |                |
 |     79 | Dean Holdsworth           | 1996-97 | CF   | Wimbledon               |  28 | 2160 | Elite  |  −0.6 |                |
-|     79 | Didier Drogba             | 2011-12 | CF   | Chelsea                 |  33 | 1480 | Legend |  −5.9 |                |
 |     79 | Dimitar Berbatov          | 2009-10 | CF   | Manchester United       |  28 | 2096 | Elite  |  −0.8 |                |
 |     79 | Dimitar Berbatov          | 2010-11 | CF   | Manchester United       |  29 | 2210 | Elite  |  −0.5 |                |
 |     79 | Dion Dublin               | 1999-00 | CF   | Aston Villa             |  30 | 2340 | Elite  |  −1.3 |                |

@@ -5505,6 +5505,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1818](#task-1818) | Rogue-like / Mystery Market mode (local run history)            | 📋 Backlog | P3       | L   |
 | [TASK-1819](#task-1819) | Retro sticker album & collection book (IndexedDB)               | 📋 Backlog | P3       | S   |
 | [TASK-1820](#task-1820) | Rating model — absolute/cross-position stats + GK pipeline      | ✅ Done    | P2       | L   |
+| [TASK-1821](#task-1821) | Tier-Anchored Hybrid rating engine (anchors + delta + team)     | 🔄 Partial | P2       | L   |
 
 _Enhancement roadmap 1813-1819 added 2026-08-03 from the owner's feature proposal (Option A — 100% client-side/static). See the locked-architecture notes above for the modifier-stack + determinism + no-backend decisions that govern them._
 
@@ -5678,7 +5679,31 @@ Owner requested a unified flow with clear separation of concerns, mapped onto th
 
 Also: per-90 alone crowns the efficient rotation player (Jesus '19 90 vs Salah 74) → totals now rank alongside rates; and dimensions are shrunk toward neutral by minutes (full credit 1800') or a backup keeper tops the board (Kuszczak '08 rated 94).
 
-**Results** — Van Dijk '18/19 DEF **68 → 89** (3rd of ~350 outfielders), Ronaldo '07 DEF 89 → 39, goalkeeper ATT 100 gone, top-30 now Cantona/Shearer/Ferdinand/Bergkamp/Ronaldo/Henry. Premium (90+) share 3.2%. 1515 tests green. **Accepted limitation:** percentile saturation compresses the very top, so Van Dijk sits level with Matip despite leading every validated rate — closing it needs non-linear stretching of the top decile, which is its own ticket. **Depends on:** TASK-1802.
+**Results** — Van Dijk '18/19 DEF **68 → 89** (3rd of ~350 outfielders), Ronaldo '07 DEF 89 → 39, goalkeeper ATT 100 gone, top-30 now Cantona/Shearer/Ferdinand/Bergkamp/Ronaldo/Henry. Premium (90+) share 3.2%. 1515 tests green. **Accepted limitation:** percentile saturation compresses the very top, so Van Dijk sits level with Matip despite leading every validated rate. **Depends on:** TASK-1802. **Superseded in part by:** [TASK-1821](#task-1821).
+
+### TASK-1821
+
+**Tier-Anchored Hybrid rating engine** · 🔄 Partial (Layer 1 done) · `P2` · `L` · Type: Feature
+
+**Why** — TASK-1820 made the dimensions honest but left `overall` derived purely from statistics, and league-wide dimensions structurally cap defenders: a centre-back scores low on attack, creation and physical no matter how good they are. An attempt to fix that with **per-position normalisation shipped and had to be reverted** (PR #99 → #100): it divided by each role's median→p95 spread with no floor, so amplification ran **1.0×–5.0×** and destabilised the scale in both directions — Barry '11 and Ben White '23 at 96, Campbell '04 at 67, Valencia '12 at 65. Thin cohorts (LM n=8) cannot support a p95 estimate, and `MIN_ROLE_PEERS = 8` was far too permissive.
+
+**The owner-designed replacement** is a bounded, three-layer engine. Its key property is that **output is bounded by construction** — a rating is an anchor ± a small delta, so the worst possible bug moves a player a few points, not thirty.
+
+1. **Heritage anchors (Layer 1)** — a curated per-player tier drives a per-season anchor. Tiers: **icon 88 / legend 85 / elite 80 / regular 74**, with `icon` **curation-only** (the scoring never assigns it). Each season decays from the tier base by **age** (zero through the 25–29 peak) and **minutes**, capped at −7, so a legend's late years scale down instead of freezing at their peak — "legends never age" was the explicit failure mode to avoid. A player aged **33+ with a top-decile season bypasses the age penalty entirely** (Ronaldo '21-22 anchors 85 at age 36); minutes decay still applies.
+2. **Bounded season delta ±6 (Layer 2)** — statistics shift a player within ±6 of their anchor rather than generating a rating from scratch, with strict minutes shrinkage under 1,500' to stop rotation inflation (Benayoun '08 out-ranked Rooney on per-90 rates alone).
+3. **Team achievement boost (Layer 3)** — champions +3/+4, top-four +1.5, from the committed standings.
+
+Un-anchored players fall back to the statistical model with a **role amplifier hard-clamped to 0.8×–1.2×** — the floor whose absence caused the revert.
+
+**Layer 1 shipped** — `scripts/build-player-anchors.mjs` (`pnpm build:anchors`) scores career impact from the committed record and emits `src/features/game/data/player-anchors.json` (1,603 seasons) plus a review report. `src/features/game/data/player-tiers.json` is the **curated source of truth**: 158 players (26 icon / 51 legend / 81 elite), seeded once from the scoring and never overwritten, so hand-tuning survives regeneration.
+
+**Four scoring defects were caught by reading the output, not the code:** silverware at 0.3 put squad players from dynasty clubs in the top tier while Shearer and Henry missed it (now minutes-weighted); flat accolade counting gave goalkeepers 8 of 27 Legend places, since a Golden Glove is guaranteed to one of ~25 keepers while a Golden Boot is contested by every attacker (now ranked within role); central midfielders were judged on their team's clean-sheet share, which says nothing about Lampard or Scholes (CM moved to the production roles); and a higher minutes floor for elite players excluded exactly the late-career part-seasons the decay exists for (floor now 900 for both).
+
+**⚠️ Validation is mandatory on any curated edit.** A hand-supplied tier list contained **17 fabricated ids** in a sequential block — every one resolved to a different, obscure player (Tony Adams' id was Neil Finn's, Carragher's was Richard Cresswell's). Merged unchecked, Neil Finn would have been anchored as an icon. The file now takes name/role/seasons/apps from the registry so only `tier` is human-supplied.
+
+**Not available:** PFA Player of the Year and Team of the Season are not in this repo's data — they are the missing signal behind defenders and holding midfielders never reaching the top tier automatically, and adding them is a new pipeline source. Anchors are deliberately **not** sourced from EA/FIFA ratings (proprietary, public repo, no per-season coverage).
+
+**⛔ Gate:** every change to the rating model must pass [`tests/unit/game-rating-harness.test.ts`](../tests/unit/game-rating-harness.test.ts) — 11,716 player-seasons swept across every role and era. **Depends on:** TASK-1820. **Next:** Layers 2 and 3.
 
 ---
 
