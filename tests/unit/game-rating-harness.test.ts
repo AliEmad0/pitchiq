@@ -1,4 +1,5 @@
 import { beforeAll, describe, expect, it } from "vitest";
+import { MAX_DELTA } from "@/features/game/domain/rating-anchor";
 import {
   MIN_COHORT,
   type RatedRow,
@@ -101,6 +102,42 @@ describe("harness — per-role stability across every era", () => {
 
   it("reports a cohort size for every judged role-season", () => {
     for (const s of stats) expect(s.count).toBeGreaterThanOrEqual(MIN_COHORT);
+  });
+});
+
+describe("harness — TASK-1821 anchoring is bounded by construction", () => {
+  it("keeps EVERY anchored season inside its ±6 window", () => {
+    // The property the whole three-layer design rests on: a rating is an anchor plus a
+    // small delta, so the worst possible bug in the delta moves a player six points,
+    // not thirty. PR #99's unbounded per-role amplifier is the failure this forbids.
+    const anchored = rows.filter((r) => r.anchor != null);
+    expect(anchored.length).toBeGreaterThan(1000);
+    const escaped = anchored
+      .filter((r) => Math.abs(r.overall - (r.anchor as number)) > MAX_DELTA)
+      .map((r) => `${r.name} ${r.season} ovr=${r.overall} anchor=${r.anchor}`);
+    expect(escaped).toEqual([]);
+  });
+
+  it("does not pile the anchored population up on the edges of the window", () => {
+    // THE DEGENERACY GATE. Bounding the delta is not enough on its own — a delta that
+    // saturates is bounded and useless. Reading the spec literally as
+    // `clamp(modelOverall - anchor, ±6)` puts 63% of anchored seasons on exactly
+    // `anchor - 6`, because the two numbers are on different scales (raw gap: median
+    // -10, 67% outside the window). The relative delta shipped here leaves 0% on the
+    // floor and 82% in the interior.
+    //
+    // Every OTHER assertion in this file passes under that degenerate implementation —
+    // including a "seasons of one career still differ" test that looked discriminating
+    // and was not. This is the one that separates them, so do not weaken it.
+    const anchored = rows.filter((r) => r.anchor != null);
+    const deltas = anchored.map((r) => r.overall - (r.anchor as number));
+    const onEdge = (sign: number) =>
+      deltas.filter((d) => d * sign >= MAX_DELTA).length / deltas.length;
+    const interior = deltas.filter((d) => Math.abs(d) < MAX_DELTA).length / deltas.length;
+
+    expect(onEdge(-1)).toBeLessThan(0.25);
+    expect(onEdge(1)).toBeLessThan(0.25);
+    expect(interior).toBeGreaterThan(0.6);
   });
 });
 
