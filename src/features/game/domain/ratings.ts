@@ -1,9 +1,6 @@
 import type { Player, Standing } from "@/data/schemas";
 import { GK_KEYS, OUTFIELD_KEYS, gkStats, outfieldStats } from "./player-stats";
-import { rateGk } from "./rating-gk";
-import { rateOutfield } from "./rating-outfield";
-import { rateSparse } from "./rating-sparse";
-import { MIN_MINUTES, type Pools, buildPools, minutesOf, quantileOf } from "./stat-pool";
+import { type Pools, buildPools } from "./stat-pool";
 
 /** Which pipeline produced the rating. */
 export type RatingTier = "rich" | "sparse";
@@ -71,30 +68,6 @@ export interface RatingContext {
    * pipeline, where `physical` is just minutes played — so he rated PHY 100.
    */
   tier: RatingTier;
-  /**
-   * Per-position normalisation data (TASK-1820). Absent while the context is being
-   * built — the pipelines that produce the raw overalls must run first.
-   */
-  norm?: OverallNorm;
-}
-
-/**
- * The raw `overall` distribution, league-wide and per role.
- *
- * The four dimensions are league-wide percentiles, so a centre-back scores
- * structurally low on attack, creation and physical no matter how good they are —
- * capping the whole position. Ferdinand '08/09 rated 63 against a 24-goal defence.
- * Mapping a player's standing WITHIN their position onto the league distribution
- * lets each position's best rate like the league's best, without singling anyone out.
- */
-export interface RoleAnchors {
-  median: number; // raw overall at the role's 50th percentile
-  top: number; // raw overall at the role's 95th percentile
-  count: number;
-}
-
-export interface OverallNorm {
-  byRole: Record<string, RoleAnchors>;
 }
 
 export interface RatedResult {
@@ -118,7 +91,7 @@ export function makeRatingContext(
 ): RatingContext {
   const keepers = cohort.filter((p) => p.role === "GK");
   const outfielders = cohort.filter((p) => p.role !== "GK");
-  const base: RatingContext = {
+  return {
     season,
     cohort,
     standings,
@@ -128,85 +101,29 @@ export function makeRatingContext(
     },
     tier: seasonTier(cohort),
   };
-  // Second pass: the pipelines need `base` to produce raw overalls, and the
-  // normalisation needs those overalls — so it cannot be built in one go.
-  return { ...base, norm: buildOverallNorm(base) };
 }
 
-/** Roles thinner than this keep their raw overall — too few peers to rank against. */
-const MIN_ROLE_PEERS = 8;
-
-export const UNKNOWN_ROLE = "UNK";
-
-/**
- * Where each position's median and elite player should land on the shared scale.
+/*
+ * REVERTED — per-position `overall` normalisation (PR #99).
  *
- * Anchoring rather than percentile-mapping is deliberate: mapping a role's standing
- * onto the LEAGUE distribution flattens the elite, because that distribution is
- * dominated by average players (it dropped Salah from 85 to 77). Anchors give every
- * position the same headroom while preserving the spread inside it.
- */
-const TARGET_MEDIAN = 62;
-const TARGET_TOP = 90;
-
-function buildOverallNorm(base: RatingContext): OverallNorm {
-  const raws: Record<string, number[]> = {};
-  for (const p of base.cohort) {
-    // Only players who actually played define the scale, matching the stat pools.
-    if (minutesOf(p) < MIN_MINUTES) continue;
-    (raws[p.role ?? UNKNOWN_ROLE] ??= []).push(rawOverall(p, base));
-  }
-  const byRole: Record<string, RoleAnchors> = {};
-  for (const [role, values] of Object.entries(raws)) {
-    values.sort((a, b) => a - b);
-    byRole[role] = {
-      median: quantileOf(values, 0.5) ?? 0,
-      top: quantileOf(values, 0.95) ?? 0,
-      count: values.length,
-    };
-  }
-  return { byRole };
-}
-
-/** The pre-normalisation overall. Kept private — `rate()` is the public entry point. */
-function rawOverall(player: Player, base: RatingContext): number {
-  if (player.role === "GK") return rateGk(player, base).overall;
-  return base.tier === "rich"
-    ? rateOutfield(player, base).overall
-    : rateSparse(player, base).overall;
-}
-
-/**
- * Rescale a raw overall against its own position's anchors.
+ * It rescaled each player's raw overall against their own role's median→p95 spread.
+ * The intent was sound (league-wide dimensions cap defenders as a class), but the
+ * implementation divided by that spread with no floor on it, and the spread varies
+ * enormously by role and season:
  *
- * A linear map, so it never reorders players within a position — it only moves
- * where that position sits on the shared scale. A player above their role's 95th
- * percentile extrapolates past TARGET_TOP, which is intended: the genuinely
- * exceptional should clear the elite line rather than pile up on it.
- */
-export function normalizeOverall(raw: number, role: string | null, ctx: RatingContext): number {
-  const anchors = ctx.norm?.byRole[role ?? UNKNOWN_ROLE];
-  if (anchors == null || anchors.count < MIN_ROLE_PEERS) return raw;
-  const spread = anchors.top - anchors.median;
-  if (spread <= 0) return raw; // degenerate role — leave it alone
-  const scaled = TARGET_MEDIAN + ((raw - anchors.median) * (TARGET_TOP - TARGET_MEDIAN)) / spread;
-  return Math.max(0, Math.min(CEILING, Math.round(softCap(scaled))));
-}
-
-/**
- * Compress everything above the elite anchor.
+ *   2011 LM  n=8   spread  5.6  →  5.0x amplification
+ *   2019 CM  n=55  spread 11.6  →  2.4x
+ *   2008 GK  n=25  spread 27.0  →  1.0x
  *
- * A player far beyond their role's 95th percentile would otherwise extrapolate
- * straight to 100, and a board where four cards share a perfect score says nothing.
- * Above TARGET_TOP the scale tightens so the exceptional separate from the elite
- * without saturating.
+ * A 5x amplifier on a noisy raw score destabilised the whole scale: Barry '11 and
+ * Ben White '23 hit 96, Neville '96 90, while Giggs '12 fell to 70, Campbell '04 to
+ * 67 and Valencia '12 to 65. Thin cohorts (LM n=8, LW n=9) cannot support a p95
+ * estimate at all, and MIN_ROLE_PEERS = 8 was far too permissive.
+ *
+ * Any retry needs: a floor on the divisor, a much higher peer minimum, role groups
+ * pooled across seasons rather than per-season, and validation across EVERY role and
+ * era — not the handful of named players that were spot-checked.
  */
-const ABOVE_TOP_COMPRESSION = 0.35;
-const CEILING = 99;
-
-function softCap(value: number): number {
-  return value <= TARGET_TOP ? value : TARGET_TOP + (value - TARGET_TOP) * ABOVE_TOP_COMPRESSION;
-}
 
 /**
  * Does this SEASON carry advanced data? Decided by the cohort, not by one player.

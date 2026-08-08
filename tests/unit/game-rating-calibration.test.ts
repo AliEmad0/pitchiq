@@ -45,16 +45,14 @@ async function leagueOveralls(season: number): Promise<number[]> {
 }
 
 describe("overall calibration", () => {
-  it("keeps premium (90+) players rare across a whole league season", async () => {
-    // Measured league-wide, NOT on the chaos pool: that pool is the best 14 players
-    // of the top 3 clubs, so it is elite by construction and skews high by design.
-    // A WIDE regression guard, not a quota — it exists so a future change cannot
-    // silently make everyone a 95, never to deny a deserving player a card.
+  it("keeps a 90 genuinely exceptional league-wide", async () => {
+    // On the un-normalised scale a 90 is a generational season, so the league-wide
+    // share is well under 1%. The guard is WIDE and one-sided: it exists so a future
+    // change cannot silently make everyone a 95, never to deny anyone a card.
     for (const season of [2008, 2018, 2023]) {
-      const share = (await leagueOveralls(season)).filter((o) => o >= 90).length;
-      const total = (await leagueOveralls(season)).length;
-      expect(share / total).toBeGreaterThan(0.005);
-      expect(share / total).toBeLessThan(0.15);
+      const overalls = await leagueOveralls(season);
+      const share = overalls.filter((o) => o >= 90).length / overalls.length;
+      expect(share).toBeLessThan(0.05);
     }
   });
 
@@ -76,13 +74,12 @@ describe("overall calibration", () => {
     expect(share).toBeLessThan(0.2);
   });
 
-  it("records that the chaos pool skews far above the league (by design)", async () => {
-    // Pinned so the consequence stays visible: raising a position's elite anchor
-    // moves this sharply, and it drives which cards get the premium card families.
+  it("still reaches the top of the scale for the very best cards", async () => {
+    // The counterpart to the rarity guard: 90+ must remain REACHABLE, or the
+    // premium card families would never appear at all.
     const overalls = await chaosPoolOveralls();
-    const share = overalls.filter((o) => o >= 90).length / overalls.length;
-    expect(share).toBeGreaterThan(0.15);
-    expect(share).toBeLessThan(0.6);
+    expect(overalls.filter((o) => o >= 90).length).toBeGreaterThan(0);
+    expect(Math.max(...overalls)).toBeGreaterThan(88);
   });
 
   it("does not let one era dominate the board", async () => {
