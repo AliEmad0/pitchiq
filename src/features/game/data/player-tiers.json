@@ -1,6 +1,545 @@
 {
   "_comment": "CURATED. Edit `tier` freely (legend | elite | regular) - this file is the source of truth and the generator never overwrites it. Re-run `pnpm build:anchors` to re-derive anchors. Adding a player here anchors them; setting `regular` drops them. Every id is validated against the committed player registry.",
   "players": {
+    "1003185": {
+      "name": "Alan Shearer",
+      "role": "CF",
+      "seasons": "1992-2005",
+      "apps": 441,
+      "tier": "icon"
+    },
+    "1000308": {
+      "name": "Cristiano Ronaldo",
+      "role": "CF",
+      "seasons": "2003-2022",
+      "apps": 236,
+      "tier": "icon"
+    },
+    "1003673": {
+      "name": "Dennis Bergkamp",
+      "role": "SS",
+      "seasons": "1995-2005",
+      "apps": 315,
+      "tier": "icon"
+    },
+    "1003744": {
+      "name": "Eric Cantona",
+      "role": "SS",
+      "seasons": "1992-1996",
+      "apps": 156,
+      "tier": "icon"
+    },
+    "1002288": {
+      "name": "Frank Lampard",
+      "role": "CM",
+      "seasons": "1995-2014",
+      "apps": 609,
+      "tier": "icon"
+    },
+    "1000868": {
+      "name": "Kevin De Bruyne",
+      "role": "CAM",
+      "seasons": "2013-2024",
+      "apps": 288,
+      "tier": "icon"
+    },
+    "1001119": {
+      "name": "Mohamed Salah",
+      "role": "RW",
+      "seasons": "2013-2025",
+      "apps": 328,
+      "tier": "icon"
+    },
+    "1002852": {
+      "name": "Paul Scholes",
+      "role": "CM",
+      "seasons": "1994-2012",
+      "apps": 499,
+      "tier": "icon"
+    },
+    "1004839": {
+      "name": "Peter Schmeichel",
+      "role": "GK",
+      "seasons": "1992-2002",
+      "apps": 310,
+      "tier": "icon"
+    },
+    "1004974": {
+      "name": "Roy Keane",
+      "role": "CM",
+      "seasons": "1992-2005",
+      "apps": 366,
+      "tier": "icon"
+    },
+    "1002939": {
+      "name": "Ryan Giggs",
+      "role": "LM",
+      "seasons": "1992-2013",
+      "apps": 632,
+      "tier": "icon"
+    },
+    "1001412": {
+      "name": "Sergio Agüero",
+      "role": "CF",
+      "seasons": "2011-2020",
+      "apps": 275,
+      "tier": "icon"
+    },
+    "1003033": {
+      "name": "Steven Gerrard",
+      "role": "CM",
+      "seasons": "1998-2014",
+      "apps": 504,
+      "tier": "icon"
+    },
+    "1003061": {
+      "name": "Thierry Henry",
+      "role": "CF",
+      "seasons": "1999-2011",
+      "apps": 258,
+      "tier": "icon"
+    },
+    "1001545": {
+      "name": "Virgil van Dijk",
+      "role": "CB",
+      "seasons": "2015-2025",
+      "apps": 339,
+      "tier": "icon"
+    },
+    "1001555": {
+      "name": "Wayne Rooney",
+      "role": "CF",
+      "seasons": "2002-2017",
+      "apps": 491,
+      "tier": "icon"
+    },
+    "1000068": {
+      "name": "Alisson Becker",
+      "role": "GK",
+      "seasons": "2018-2025",
+      "apps": 255,
+      "tier": "legend"
+    },
+    "1003242": {
+      "name": "Andrew Cole",
+      "role": "CF",
+      "seasons": "1993-2007",
+      "apps": 414,
+      "tier": "legend"
+    },
+    "1000098": {
+      "name": "Andy Robertson",
+      "role": "LB",
+      "seasons": "2014-2025",
+      "apps": 332,
+      "tier": "legend"
+    },
+    "1002003": {
+      "name": "Ashley Cole",
+      "role": "LB",
+      "seasons": "1999-2013",
+      "apps": 385,
+      "tier": "legend"
+    },
+    "1002073": {
+      "name": "Carlos Tévez",
+      "role": "CF",
+      "seasons": "2006-2012",
+      "apps": 201,
+      "tier": "legend"
+    },
+    "1000248": {
+      "name": "Cesc Fàbregas",
+      "role": "CM",
+      "seasons": "2004-2018",
+      "apps": 350,
+      "tier": "legend"
+    },
+    "1003475": {
+      "name": "Claude Makelele",
+      "role": "CDM",
+      "seasons": "2003-2007",
+      "apps": 144,
+      "tier": "legend"
+    },
+    "1003603": {
+      "name": "David Beckham",
+      "role": "RM",
+      "seasons": "1994-2002",
+      "apps": 265,
+      "tier": "legend"
+    },
+    "1003615": {
+      "name": "David Ginola",
+      "role": "LW",
+      "seasons": "1995-2001",
+      "apps": 195,
+      "tier": "legend"
+    },
+    "1003646": {
+      "name": "David Seaman",
+      "role": "GK",
+      "seasons": "1992-2003",
+      "apps": 344,
+      "tier": "legend"
+    },
+    "1000363": {
+      "name": "David Silva",
+      "role": "CAM",
+      "seasons": "2010-2019",
+      "apps": 309,
+      "tier": "legend"
+    },
+    "1000356": {
+      "name": "David de Gea",
+      "role": "GK",
+      "seasons": "2011-2022",
+      "apps": 415,
+      "tier": "legend"
+    },
+    "1003672": {
+      "name": "Denis Irwin",
+      "role": "LB",
+      "seasons": "1992-2003",
+      "apps": 328,
+      "tier": "legend"
+    },
+    "1002187": {
+      "name": "Didier Drogba",
+      "role": "CF",
+      "seasons": "2004-2014",
+      "apps": 254,
+      "tier": "legend"
+    },
+    "1000389": {
+      "name": "Diego Costa",
+      "role": "CF",
+      "seasons": "2014-2022",
+      "apps": 112,
+      "tier": "legend"
+    },
+    "1003713": {
+      "name": "Dwight Yorke",
+      "role": "CF",
+      "seasons": "1992-2008",
+      "apps": 375,
+      "tier": "legend"
+    },
+    "1000418": {
+      "name": "Eden Hazard",
+      "role": "LW",
+      "seasons": "2012-2018",
+      "apps": 245,
+      "tier": "legend"
+    },
+    "1000419": {
+      "name": "Ederson",
+      "role": "GK",
+      "seasons": "2017-2024",
+      "apps": 276,
+      "tier": "legend"
+    },
+    "1002224": {
+      "name": "Edwin Van der Sar",
+      "role": "GK",
+      "seasons": "2001-2010",
+      "apps": 313,
+      "tier": "legend"
+    },
+    "1000457": {
+      "name": "Erling Haaland",
+      "role": "CF",
+      "seasons": "2022-2025",
+      "apps": 132,
+      "tier": "legend"
+    },
+    "1000485": {
+      "name": "Fernandinho",
+      "role": "CDM",
+      "seasons": "2013-2021",
+      "apps": 264,
+      "tier": "legend"
+    },
+    "1002272": {
+      "name": "Fernando Torres",
+      "role": "CF",
+      "seasons": "2007-2013",
+      "apps": 212,
+      "tier": "legend"
+    },
+    "1000518": {
+      "name": "Gareth Bale",
+      "role": "RW",
+      "seasons": "2007-2020",
+      "apps": 166,
+      "tier": "legend"
+    },
+    "1002313": {
+      "name": "Gary Neville",
+      "role": "RB",
+      "seasons": "1993-2010",
+      "apps": 400,
+      "tier": "legend"
+    },
+    "1003878": {
+      "name": "Gianfranco Zola",
+      "role": "SS",
+      "seasons": "1996-2002",
+      "apps": 229,
+      "tier": "legend"
+    },
+    "1000572": {
+      "name": "Harry Kane",
+      "role": "CF",
+      "seasons": "2012-2022",
+      "apps": 320,
+      "tier": "legend"
+    },
+    "1003984": {
+      "name": "Ian Wright",
+      "role": "CF",
+      "seasons": "1992-1998",
+      "apps": 213,
+      "tier": "legend"
+    },
+    "1004011": {
+      "name": "Jaap Stam",
+      "role": "CB",
+      "seasons": "1998-2001",
+      "apps": 79,
+      "tier": "legend"
+    },
+    "1002412": {
+      "name": "Jamie Carragher",
+      "role": "CB",
+      "seasons": "1996-2012",
+      "apps": 508,
+      "tier": "legend"
+    },
+    "1000684": {
+      "name": "Jamie Vardy",
+      "role": "CF",
+      "seasons": "2014-2024",
+      "apps": 342,
+      "tier": "legend"
+    },
+    "1002480": {
+      "name": "John Terry",
+      "role": "CB",
+      "seasons": "1998-2016",
+      "apps": 492,
+      "tier": "legend"
+    },
+    "1004223": {
+      "name": "Jürgen Klinsmann",
+      "role": "CF",
+      "seasons": "1994-1997",
+      "apps": 56,
+      "tier": "legend"
+    },
+    "1000902": {
+      "name": "Kyle Walker",
+      "role": "RB",
+      "seasons": "2009-2025",
+      "apps": 446,
+      "tier": "legend"
+    },
+    "1002589": {
+      "name": "Ledley King",
+      "role": "CB",
+      "seasons": "1998-2011",
+      "apps": 268,
+      "tier": "legend"
+    },
+    "1002627": {
+      "name": "Luis Suarez",
+      "role": "CF",
+      "seasons": "2010-2013",
+      "apps": 110,
+      "tier": "legend"
+    },
+    "1002628": {
+      "name": "Luka Modric",
+      "role": "CM",
+      "seasons": "2008-2011",
+      "apps": 127,
+      "tier": "legend"
+    },
+    "1004536": {
+      "name": "Matthew Le Tissier",
+      "role": "CAM",
+      "seasons": "1992-2001",
+      "apps": 270,
+      "tier": "legend"
+    },
+    "1001091": {
+      "name": "Michael Carrick",
+      "role": "CDM",
+      "seasons": "1999-2017",
+      "apps": 481,
+      "tier": "legend"
+    },
+    "1002746": {
+      "name": "Michael Owen",
+      "role": "CF",
+      "seasons": "1996-2012",
+      "apps": 326,
+      "tier": "legend"
+    },
+    "1001142": {
+      "name": "N'Golo Kanté",
+      "role": "CDM",
+      "seasons": "2015-2022",
+      "apps": 227,
+      "tier": "legend"
+    },
+    "1002788": {
+      "name": "Nemanja Vidic",
+      "role": "CB",
+      "seasons": "2005-2013",
+      "apps": 211,
+      "tier": "legend"
+    },
+    "1001239": {
+      "name": "Patrice Evra",
+      "role": "LB",
+      "seasons": "2005-2017",
+      "apps": 278,
+      "tier": "legend"
+    },
+    "1002844": {
+      "name": "Patrick Vieira",
+      "role": "CDM",
+      "seasons": "1996-2010",
+      "apps": 307,
+      "tier": "legend"
+    },
+    "1001262": {
+      "name": "Petr Cech",
+      "role": "GK",
+      "seasons": "2004-2018",
+      "apps": 443,
+      "tier": "legend"
+    },
+    "1002899": {
+      "name": "Rio Ferdinand",
+      "role": "CB",
+      "seasons": "1995-2014",
+      "apps": 504,
+      "tier": "legend"
+    },
+    "1001313": {
+      "name": "Riyad Mahrez",
+      "role": "RW",
+      "seasons": "2014-2022",
+      "apps": 284,
+      "tier": "legend"
+    },
+    "1004932": {
+      "name": "Robbie Fowler",
+      "role": "CF",
+      "seasons": "1993-2008",
+      "apps": 379,
+      "tier": "legend"
+    },
+    "1002910": {
+      "name": "Robert Pires",
+      "role": "LM",
+      "seasons": "2000-2010",
+      "apps": 198,
+      "tier": "legend"
+    },
+    "1001320": {
+      "name": "Roberto Firmino",
+      "role": "CF",
+      "seasons": "2015-2022",
+      "apps": 256,
+      "tier": "legend"
+    },
+    "1002912": {
+      "name": "Robin van Persie",
+      "role": "CF",
+      "seasons": "2004-2014",
+      "apps": 280,
+      "tier": "legend"
+    },
+    "1001330": {
+      "name": "Rodri",
+      "role": "CDM",
+      "seasons": "2019-2025",
+      "apps": 196,
+      "tier": "legend"
+    },
+    "1004984": {
+      "name": "Ruud van Nistelrooij",
+      "role": "CF",
+      "seasons": "2001-2005",
+      "apps": 150,
+      "tier": "legend"
+    },
+    "1001344": {
+      "name": "Rúben Dias",
+      "role": "CB",
+      "seasons": "2020-2025",
+      "apps": 170,
+      "tier": "legend"
+    },
+    "1001364": {
+      "name": "Sadio Mané",
+      "role": "LW",
+      "seasons": "2014-2021",
+      "apps": 263,
+      "tier": "legend"
+    },
+    "1003002": {
+      "name": "Sol Campbell",
+      "role": "CB",
+      "seasons": "1992-2010",
+      "apps": 503,
+      "tier": "legend"
+    },
+    "1001436": {
+      "name": "Son Heung-min",
+      "role": "LW",
+      "seasons": "2015-2024",
+      "apps": 333,
+      "tier": "legend"
+    },
+    "1005243": {
+      "name": "Tony Adams",
+      "role": "CB",
+      "seasons": "1992-2001",
+      "apps": 255,
+      "tier": "legend"
+    },
+    "1001512": {
+      "name": "Trent Alexander-Arnold",
+      "role": "RB",
+      "seasons": "2016-2024",
+      "apps": 259,
+      "tier": "legend"
+    },
+    "1001543": {
+      "name": "Vincent Kompany",
+      "role": "CB",
+      "seasons": "2008-2018",
+      "apps": 265,
+      "tier": "legend"
+    },
+    "1005323": {
+      "name": "Xabi Alonso",
+      "role": "CDM",
+      "seasons": "2004-2008",
+      "apps": 143,
+      "tier": "legend"
+    },
+    "1001595": {
+      "name": "Yaya Touré",
+      "role": "CM",
+      "seasons": "2010-2017",
+      "apps": 230,
+      "tier": "legend"
+    },
     "1000054": {
       "name": "Alexander Isak",
       "role": "CF",
@@ -567,545 +1106,6 @@
       "seasons": "2016-2024",
       "apps": 221,
       "tier": "elite"
-    },
-    "1003185": {
-      "name": "Alan Shearer",
-      "role": "CF",
-      "seasons": "1992-2005",
-      "apps": 441,
-      "tier": "legend"
-    },
-    "1000068": {
-      "name": "Alisson Becker",
-      "role": "GK",
-      "seasons": "2018-2025",
-      "apps": 255,
-      "tier": "legend"
-    },
-    "1003242": {
-      "name": "Andrew Cole",
-      "role": "CF",
-      "seasons": "1993-2007",
-      "apps": 414,
-      "tier": "legend"
-    },
-    "1000098": {
-      "name": "Andy Robertson",
-      "role": "LB",
-      "seasons": "2014-2025",
-      "apps": 332,
-      "tier": "legend"
-    },
-    "1002003": {
-      "name": "Ashley Cole",
-      "role": "LB",
-      "seasons": "1999-2013",
-      "apps": 385,
-      "tier": "legend"
-    },
-    "1002073": {
-      "name": "Carlos Tévez",
-      "role": "CF",
-      "seasons": "2006-2012",
-      "apps": 201,
-      "tier": "legend"
-    },
-    "1000248": {
-      "name": "Cesc Fàbregas",
-      "role": "CM",
-      "seasons": "2004-2018",
-      "apps": 350,
-      "tier": "legend"
-    },
-    "1003475": {
-      "name": "Claude Makelele",
-      "role": "CDM",
-      "seasons": "2003-2007",
-      "apps": 144,
-      "tier": "legend"
-    },
-    "1000308": {
-      "name": "Cristiano Ronaldo",
-      "role": "CF",
-      "seasons": "2003-2022",
-      "apps": 236,
-      "tier": "legend"
-    },
-    "1003603": {
-      "name": "David Beckham",
-      "role": "RM",
-      "seasons": "1994-2002",
-      "apps": 265,
-      "tier": "legend"
-    },
-    "1003615": {
-      "name": "David Ginola",
-      "role": "LW",
-      "seasons": "1995-2001",
-      "apps": 195,
-      "tier": "legend"
-    },
-    "1003646": {
-      "name": "David Seaman",
-      "role": "GK",
-      "seasons": "1992-2003",
-      "apps": 344,
-      "tier": "legend"
-    },
-    "1000363": {
-      "name": "David Silva",
-      "role": "CAM",
-      "seasons": "2010-2019",
-      "apps": 309,
-      "tier": "legend"
-    },
-    "1000356": {
-      "name": "David de Gea",
-      "role": "GK",
-      "seasons": "2011-2022",
-      "apps": 415,
-      "tier": "legend"
-    },
-    "1003672": {
-      "name": "Denis Irwin",
-      "role": "LB",
-      "seasons": "1992-2003",
-      "apps": 328,
-      "tier": "legend"
-    },
-    "1003673": {
-      "name": "Dennis Bergkamp",
-      "role": "SS",
-      "seasons": "1995-2005",
-      "apps": 315,
-      "tier": "legend"
-    },
-    "1002187": {
-      "name": "Didier Drogba",
-      "role": "CF",
-      "seasons": "2004-2014",
-      "apps": 254,
-      "tier": "legend"
-    },
-    "1000389": {
-      "name": "Diego Costa",
-      "role": "CF",
-      "seasons": "2014-2022",
-      "apps": 112,
-      "tier": "legend"
-    },
-    "1003713": {
-      "name": "Dwight Yorke",
-      "role": "CF",
-      "seasons": "1992-2008",
-      "apps": 375,
-      "tier": "legend"
-    },
-    "1000418": {
-      "name": "Eden Hazard",
-      "role": "LW",
-      "seasons": "2012-2018",
-      "apps": 245,
-      "tier": "legend"
-    },
-    "1000419": {
-      "name": "Ederson",
-      "role": "GK",
-      "seasons": "2017-2024",
-      "apps": 276,
-      "tier": "legend"
-    },
-    "1002224": {
-      "name": "Edwin Van der Sar",
-      "role": "GK",
-      "seasons": "2001-2010",
-      "apps": 313,
-      "tier": "legend"
-    },
-    "1003744": {
-      "name": "Eric Cantona",
-      "role": "SS",
-      "seasons": "1992-1996",
-      "apps": 156,
-      "tier": "legend"
-    },
-    "1000457": {
-      "name": "Erling Haaland",
-      "role": "CF",
-      "seasons": "2022-2025",
-      "apps": 132,
-      "tier": "legend"
-    },
-    "1000485": {
-      "name": "Fernandinho",
-      "role": "CDM",
-      "seasons": "2013-2021",
-      "apps": 264,
-      "tier": "legend"
-    },
-    "1002272": {
-      "name": "Fernando Torres",
-      "role": "CF",
-      "seasons": "2007-2013",
-      "apps": 212,
-      "tier": "legend"
-    },
-    "1002288": {
-      "name": "Frank Lampard",
-      "role": "CM",
-      "seasons": "1995-2014",
-      "apps": 609,
-      "tier": "legend"
-    },
-    "1000518": {
-      "name": "Gareth Bale",
-      "role": "RW",
-      "seasons": "2007-2020",
-      "apps": 166,
-      "tier": "legend"
-    },
-    "1002313": {
-      "name": "Gary Neville",
-      "role": "RB",
-      "seasons": "1993-2010",
-      "apps": 400,
-      "tier": "legend"
-    },
-    "1003878": {
-      "name": "Gianfranco Zola",
-      "role": "SS",
-      "seasons": "1996-2002",
-      "apps": 229,
-      "tier": "legend"
-    },
-    "1000572": {
-      "name": "Harry Kane",
-      "role": "CF",
-      "seasons": "2012-2022",
-      "apps": 320,
-      "tier": "legend"
-    },
-    "1003984": {
-      "name": "Ian Wright",
-      "role": "CF",
-      "seasons": "1992-1998",
-      "apps": 213,
-      "tier": "legend"
-    },
-    "1004011": {
-      "name": "Jaap Stam",
-      "role": "CB",
-      "seasons": "1998-2001",
-      "apps": 79,
-      "tier": "legend"
-    },
-    "1002412": {
-      "name": "Jamie Carragher",
-      "role": "CB",
-      "seasons": "1996-2012",
-      "apps": 508,
-      "tier": "legend"
-    },
-    "1000684": {
-      "name": "Jamie Vardy",
-      "role": "CF",
-      "seasons": "2014-2024",
-      "apps": 342,
-      "tier": "legend"
-    },
-    "1002480": {
-      "name": "John Terry",
-      "role": "CB",
-      "seasons": "1998-2016",
-      "apps": 492,
-      "tier": "legend"
-    },
-    "1004223": {
-      "name": "Jürgen Klinsmann",
-      "role": "CF",
-      "seasons": "1994-1997",
-      "apps": 56,
-      "tier": "legend"
-    },
-    "1000868": {
-      "name": "Kevin De Bruyne",
-      "role": "CAM",
-      "seasons": "2013-2024",
-      "apps": 288,
-      "tier": "legend"
-    },
-    "1000902": {
-      "name": "Kyle Walker",
-      "role": "RB",
-      "seasons": "2009-2025",
-      "apps": 446,
-      "tier": "legend"
-    },
-    "1002589": {
-      "name": "Ledley King",
-      "role": "CB",
-      "seasons": "1998-2011",
-      "apps": 268,
-      "tier": "legend"
-    },
-    "1002627": {
-      "name": "Luis Suarez",
-      "role": "CF",
-      "seasons": "2010-2013",
-      "apps": 110,
-      "tier": "legend"
-    },
-    "1002628": {
-      "name": "Luka Modric",
-      "role": "CM",
-      "seasons": "2008-2011",
-      "apps": 127,
-      "tier": "legend"
-    },
-    "1004536": {
-      "name": "Matthew Le Tissier",
-      "role": "CAM",
-      "seasons": "1992-2001",
-      "apps": 270,
-      "tier": "legend"
-    },
-    "1001091": {
-      "name": "Michael Carrick",
-      "role": "CDM",
-      "seasons": "1999-2017",
-      "apps": 481,
-      "tier": "legend"
-    },
-    "1002746": {
-      "name": "Michael Owen",
-      "role": "CF",
-      "seasons": "1996-2012",
-      "apps": 326,
-      "tier": "legend"
-    },
-    "1001119": {
-      "name": "Mohamed Salah",
-      "role": "RW",
-      "seasons": "2013-2025",
-      "apps": 328,
-      "tier": "legend"
-    },
-    "1001142": {
-      "name": "N'Golo Kanté",
-      "role": "CDM",
-      "seasons": "2015-2022",
-      "apps": 227,
-      "tier": "legend"
-    },
-    "1002788": {
-      "name": "Nemanja Vidic",
-      "role": "CB",
-      "seasons": "2005-2013",
-      "apps": 211,
-      "tier": "legend"
-    },
-    "1001239": {
-      "name": "Patrice Evra",
-      "role": "LB",
-      "seasons": "2005-2017",
-      "apps": 278,
-      "tier": "legend"
-    },
-    "1002844": {
-      "name": "Patrick Vieira",
-      "role": "CDM",
-      "seasons": "1996-2010",
-      "apps": 307,
-      "tier": "legend"
-    },
-    "1002852": {
-      "name": "Paul Scholes",
-      "role": "CM",
-      "seasons": "1994-2012",
-      "apps": 499,
-      "tier": "legend"
-    },
-    "1004839": {
-      "name": "Peter Schmeichel",
-      "role": "GK",
-      "seasons": "1992-2002",
-      "apps": 310,
-      "tier": "legend"
-    },
-    "1001262": {
-      "name": "Petr Cech",
-      "role": "GK",
-      "seasons": "2004-2018",
-      "apps": 443,
-      "tier": "legend"
-    },
-    "1002899": {
-      "name": "Rio Ferdinand",
-      "role": "CB",
-      "seasons": "1995-2014",
-      "apps": 504,
-      "tier": "legend"
-    },
-    "1001313": {
-      "name": "Riyad Mahrez",
-      "role": "RW",
-      "seasons": "2014-2022",
-      "apps": 284,
-      "tier": "legend"
-    },
-    "1004932": {
-      "name": "Robbie Fowler",
-      "role": "CF",
-      "seasons": "1993-2008",
-      "apps": 379,
-      "tier": "legend"
-    },
-    "1002910": {
-      "name": "Robert Pires",
-      "role": "LM",
-      "seasons": "2000-2010",
-      "apps": 198,
-      "tier": "legend"
-    },
-    "1001320": {
-      "name": "Roberto Firmino",
-      "role": "CF",
-      "seasons": "2015-2022",
-      "apps": 256,
-      "tier": "legend"
-    },
-    "1002912": {
-      "name": "Robin van Persie",
-      "role": "CF",
-      "seasons": "2004-2014",
-      "apps": 280,
-      "tier": "legend"
-    },
-    "1001330": {
-      "name": "Rodri",
-      "role": "CDM",
-      "seasons": "2019-2025",
-      "apps": 196,
-      "tier": "legend"
-    },
-    "1004974": {
-      "name": "Roy Keane",
-      "role": "CM",
-      "seasons": "1992-2005",
-      "apps": 366,
-      "tier": "legend"
-    },
-    "1004984": {
-      "name": "Ruud van Nistelrooij",
-      "role": "CF",
-      "seasons": "2001-2005",
-      "apps": 150,
-      "tier": "legend"
-    },
-    "1002939": {
-      "name": "Ryan Giggs",
-      "role": "LM",
-      "seasons": "1992-2013",
-      "apps": 632,
-      "tier": "legend"
-    },
-    "1001344": {
-      "name": "Rúben Dias",
-      "role": "CB",
-      "seasons": "2020-2025",
-      "apps": 170,
-      "tier": "legend"
-    },
-    "1001364": {
-      "name": "Sadio Mané",
-      "role": "LW",
-      "seasons": "2014-2021",
-      "apps": 263,
-      "tier": "legend"
-    },
-    "1001412": {
-      "name": "Sergio Agüero",
-      "role": "CF",
-      "seasons": "2011-2020",
-      "apps": 275,
-      "tier": "legend"
-    },
-    "1003002": {
-      "name": "Sol Campbell",
-      "role": "CB",
-      "seasons": "1992-2010",
-      "apps": 503,
-      "tier": "legend"
-    },
-    "1001436": {
-      "name": "Son Heung-min",
-      "role": "LW",
-      "seasons": "2015-2024",
-      "apps": 333,
-      "tier": "legend"
-    },
-    "1003033": {
-      "name": "Steven Gerrard",
-      "role": "CM",
-      "seasons": "1998-2014",
-      "apps": 504,
-      "tier": "legend"
-    },
-    "1003061": {
-      "name": "Thierry Henry",
-      "role": "CF",
-      "seasons": "1999-2011",
-      "apps": 258,
-      "tier": "legend"
-    },
-    "1005243": {
-      "name": "Tony Adams",
-      "role": "CB",
-      "seasons": "1992-2001",
-      "apps": 255,
-      "tier": "legend"
-    },
-    "1001512": {
-      "name": "Trent Alexander-Arnold",
-      "role": "RB",
-      "seasons": "2016-2024",
-      "apps": 259,
-      "tier": "legend"
-    },
-    "1001543": {
-      "name": "Vincent Kompany",
-      "role": "CB",
-      "seasons": "2008-2018",
-      "apps": 265,
-      "tier": "legend"
-    },
-    "1001545": {
-      "name": "Virgil van Dijk",
-      "role": "CB",
-      "seasons": "2015-2025",
-      "apps": 339,
-      "tier": "legend"
-    },
-    "1001555": {
-      "name": "Wayne Rooney",
-      "role": "CF",
-      "seasons": "2002-2017",
-      "apps": 491,
-      "tier": "legend"
-    },
-    "1005323": {
-      "name": "Xabi Alonso",
-      "role": "CDM",
-      "seasons": "2004-2008",
-      "apps": 143,
-      "tier": "legend"
-    },
-    "1001595": {
-      "name": "Yaya Touré",
-      "role": "CM",
-      "seasons": "2010-2017",
-      "apps": 230,
-      "tier": "legend"
     }
   }
 }

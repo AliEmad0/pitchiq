@@ -42,6 +42,11 @@ const OUT_REPORT = path.join(ROOT, "docs/superpowers/reports/player-anchors-draf
 // ---------------------------------------------------------------- tiers
 
 const TIERS = {
+  // `icon` is CURATION-ONLY: the automated scoring never awards it. Whether someone
+  // belongs among the greatest in the league's history is not a judgement
+  // appearances and goals can make, and with 77 legends the top of the game needed
+  // separation between an all-time great and a very good long career.
+  icon: { base: 88, label: "Icon" },
   legend: { base: 85, label: "Legend" },
   elite: { base: 80, label: "Elite" },
   regular: { base: 74, label: "Regular" },
@@ -55,7 +60,7 @@ const ELITE_SHARE = 0.06;
 // 900 minutes = ten full matches, a real season. A HIGHER floor for elite players
 // excluded exactly the late-career part-seasons the age decay exists to handle
 // (Giggs 12-13, Campbell 04-05 both vanished from the draft).
-const MIN_SEASON_MINUTES = { legend: 900, elite: 900, regular: Infinity };
+const MIN_SEASON_MINUTES = { icon: 900, legend: 900, elite: 900, regular: Infinity };
 
 /**
  * Regular-tier players are deliberately NOT anchored. A 74 base tells the model
@@ -399,6 +404,7 @@ if (curated != null) {
 if (curated == null) {
   const players = {};
   for (const c of scored) {
+    // Never seeds `icon` - that tier is only ever set by hand.
     if (c.autoTier === "regular") continue;
     players[String(c.id)] = {
       name: c.name,
@@ -491,6 +497,7 @@ const lines = [
   "## How a number is reached",
   "",
   "1. A career impact score buckets each player into **Legend (85) / Elite (80) / Regular (74)**.",
+  "   **Icon (88)** exists above them but is only ever assigned by hand.",
   "2. Each SEASON then decays from that base by **age** (zero through the 25–29 peak, rising",
   "   either side) and **minutes** (zero for a full season, up to −6 for a part season).",
   "3. Total decay is capped at −7, so a legend's worst year still reads as a legend's.",
