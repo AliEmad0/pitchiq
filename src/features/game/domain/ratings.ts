@@ -1,6 +1,7 @@
 import type { Player, Standing } from "@/data/schemas";
 import { GK_KEYS, OUTFIELD_KEYS, gkStats, outfieldStats } from "./player-stats";
-import { type Pools, buildPools } from "./stat-pool";
+import { rawRatings } from "./rate";
+import { MIN_MINUTES, type Pools, buildPools, minutesOf } from "./stat-pool";
 
 /** Which pipeline produced the rating. */
 export type RatingTier = "rich" | "sparse";
@@ -68,6 +69,18 @@ export interface RatingContext {
    * pipeline, where `physical` is just minutes played — so he rated PHY 100.
    */
   tier: RatingTier;
+  /**
+   * Raw statistical `overall`s for the season, grouped by role — the ranking TASK-1821
+   * Layer 2 measures its ±6 delta against.
+   *
+   * Ranking WITHIN a role is what stops the delta re-importing the league-wide
+   * defender cap: a centre-back is compared to centre-backs, not to strikers. It is
+   * also what PR #99 did before it was reverted — the difference is that the result
+   * here is bounded to ±6 by construction, not multiplied by an unbounded per-role
+   * spread. Ranking within the SEASON additionally normalises the era, which matters
+   * because the pre-2003 sparse pipeline sits several points hot.
+   */
+  roleOveralls: Record<string, number[]>;
 }
 
 export interface RatedResult {
@@ -91,7 +104,7 @@ export function makeRatingContext(
 ): RatingContext {
   const keepers = cohort.filter((p) => p.role === "GK");
   const outfielders = cohort.filter((p) => p.role !== "GK");
-  return {
+  const ctx: RatingContext = {
     season,
     cohort,
     standings,
@@ -100,7 +113,27 @@ export function makeRatingContext(
       gk: buildPools(keepers.map(gkStats), GK_KEYS),
     },
     tier: seasonTier(cohort),
+    roleOveralls: {},
   };
+  // Second pass: the raw overalls can only be computed once the pools above exist.
+  ctx.roleOveralls = buildRoleOveralls(ctx);
+  return ctx;
+}
+
+/**
+ * Group the season's raw statistical overalls by role.
+ *
+ * Uses the same `MIN_MINUTES` gate as the stat pools, and for the same reason: a
+ * bit-part player is still RATED, they just don't get to define the scale the rest of
+ * their role is ranked against.
+ */
+function buildRoleOveralls(ctx: RatingContext): Record<string, number[]> {
+  const out: Record<string, number[]> = {};
+  for (const p of ctx.cohort) {
+    if (p.role == null || minutesOf(p) < MIN_MINUTES) continue;
+    (out[p.role] ??= []).push(rawRatings(p, ctx).overall);
+  }
+  return out;
 }
 
 /*

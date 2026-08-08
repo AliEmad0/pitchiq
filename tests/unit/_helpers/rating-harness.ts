@@ -2,6 +2,7 @@ import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import type { Player, Standing } from "@/data/schemas";
 import { rate } from "@/features/game/domain/rate";
+import { anchorOf } from "@/features/game/domain/rating-anchor";
 import { makeRatingContext } from "@/features/game/domain/ratings";
 import { minutesOf } from "@/features/game/domain/stat-pool";
 
@@ -26,10 +27,13 @@ export const MIN_COHORT = 8;
 export const QUALIFYING_MINUTES = 900;
 
 export interface RatedRow {
+  id: number;
   season: number;
   name: string;
   role: string;
   minutes: number;
+  /** The TASK-1821 heritage anchor for this player-season, or null if un-anchored. */
+  anchor: number | null;
   attack: number;
   creation: number;
   defense: number;
@@ -73,10 +77,12 @@ export async function rateSeason(season: number): Promise<RatedRow[]> {
     if (minutes < QUALIFYING_MINUTES) continue;
     const r = rate(p, ctx).ratings;
     rows.push({
+      id: p.id,
       season,
       name: p.name,
       role: p.role,
       minutes,
+      anchor: anchorOf(p.id, season),
       attack: r.attack,
       creation: r.creation,
       defense: r.defense,
