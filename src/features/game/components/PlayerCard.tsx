@@ -21,6 +21,7 @@ import { displayName } from "@/features/game/domain/display-name";
 import { type CardDim, type EnrichedCard, dimsFor } from "@/features/game/domain/player-card";
 import { playerPhotoCandidates } from "@/features/players/player-photo";
 import { clubLogo } from "@/utils/club-logo";
+import { formatSeasonLabel } from "@/utils/season";
 
 interface Props {
   card: EnrichedCard;
@@ -40,6 +41,14 @@ const useIsoLayout = typeof window === "undefined" ? useEffect : useLayoutEffect
 type Fmt = (n: number | null | undefined) => string;
 type Photo = { src: string | null; kind: ImageKind; onError: () => void };
 type Face = { card: EnrichedCard; d: Fmt; name: string; photo: Photo };
+
+/**
+ * A season key is the START year, so a bare "2008" is ambiguous — it means 2008-09.
+ * Always render the range, matching every other surface in the app. Locale is
+ * pinned to English: the card face is English-only, and `bidiIsolate` is a no-op
+ * for LTR so this stays a clean "2008-09".
+ */
+const seasonLabel = (season: number) => formatSeasonLabel(season, "en");
 
 const clubAbbr = (name: string) =>
   (name.replace(/[^A-Za-z]/g, "").slice(0, 3) || "TBD").toUpperCase();
@@ -173,7 +182,7 @@ function FamilyA({ card, d, name, photo, skin }: Face & { skin: string }) {
           <Crest card={card} />
           <span className="pc-cl">{clubAbbr(card.club)}</span>
           {card.age != null && <span>· {d(card.age)}</span>}
-          <span>· {d(card.season)}</span>
+          <span>· {seasonLabel(card.season)}</span>
         </div>
         <div className="pc-a-stats">
           <Stats card={card} />
@@ -208,7 +217,9 @@ function FamilyB({ card, d, name, photo, skin }: Face & { skin: string }) {
           <span className="pc-b-club">
             <span className="pc-b-cn">{card.club}</span>
             <span className="pc-b-ag">
-              {card.age != null ? `${d(card.age)} · ${d(card.season)}` : d(card.season)}
+              {card.age != null
+                ? `${d(card.age)} · ${seasonLabel(card.season)}`
+                : seasonLabel(card.season)}
             </span>
           </span>
         </div>
@@ -240,7 +251,7 @@ function FamilyC({ card, d, name, photo, skin }: Face & { skin: string }) {
           <Crest card={card} />
           <span>{clubAbbr(card.club)}</span>
           {card.age != null && <span>· {d(card.age)}</span>}
-          <span>· {d(card.season)}</span>
+          <span>· {seasonLabel(card.season)}</span>
         </div>
         {tagline && <div className="pc-c-tags">{tagline}</div>}
         <div className="pc-c-stats">
@@ -274,7 +285,7 @@ function FamilyD({ card, d, name, photo, skin }: Face & { skin: string }) {
           <Crest card={card} />
           <span>{clubAbbr(card.club)}</span>
           {card.age != null && <span>· {d(card.age)}</span>}
-          <span>· {d(card.season)}</span>
+          <span>· {seasonLabel(card.season)}</span>
         </div>
         {tagline && <div className="pc-d-tags">{tagline}</div>}
       </div>
@@ -329,7 +340,7 @@ const BACK_STYLES: Record<BackDesign, { root: CSSProperties; ov: CSSProperties; 
   },
 };
 
-function CardBack({ card, back, d }: { card: EnrichedCard; back: BackDesign; d: Fmt }) {
+function CardBack({ card, back }: { card: EnrichedCard; back: BackDesign }) {
   const s = BACK_STYLES[back];
   return (
     <div className="pc-back" style={s.root}>
@@ -338,7 +349,7 @@ function CardBack({ card, back, d }: { card: EnrichedCard; back: BackDesign; d: 
         {BRAND}
       </div>
       <div className="pc-back-word">{WORDMARK}</div>
-      <div className="pc-back-yr">{d(card.season)}</div>
+      <div className="pc-back-yr">{seasonLabel(card.season)}</div>
     </div>
   );
 }
@@ -381,7 +392,7 @@ export function PlayerCard({ card, reduced }: Props) {
           className="absolute inset-0 [backface-visibility:hidden]"
           style={{ transform: "rotateY(180deg)" }}
         >
-          <CardBack card={card} back={pickBack(card)} d={d} />
+          <CardBack card={card} back={pickBack(card)} />
         </div>
       </div>
     </button>

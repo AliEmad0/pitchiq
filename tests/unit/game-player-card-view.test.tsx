@@ -82,6 +82,14 @@ describe("PlayerCard goalkeeper face", () => {
     expect(screen.queryByText("0")).toBeNull();
   });
 
+  it("shows the season as a range, not a bare start year", () => {
+    // The season key is the START year, so a bare "2019" is ambiguous — it means
+    // 2019-20. Everywhere else in the app uses formatSeasonLabel.
+    renderWithIntl(<PlayerCard card={outfielder} />);
+    expect(screen.getAllByText(/2019-20/).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/·\s*2019\s*$/)).toBeNull();
+  });
+
   it("leaves the outfield card unchanged", () => {
     renderWithIntl(<PlayerCard card={outfielder} />);
     expect(screen.getByText("ATT")).toBeTruthy();

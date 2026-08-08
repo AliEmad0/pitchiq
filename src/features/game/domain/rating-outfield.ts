@@ -51,21 +51,50 @@ const DEFENSE: DimPart[] = [
 ];
 
 /**
- * Defensive roles ONLY. `extended.goalsConceded` is per-player (conceded while on
- * the pitch), so for a defender it measures real structural impact — but on a
- * forward it is pure team inheritance. Applied league-wide it lifted Salah '18/19
- * from DEF 6 to 26, recreating the exact `cleanSheets` pollution this ticket removes.
+ * Defensive roles ONLY — the OUTCOME block, and the heaviest thing in a defender's
+ * DEF by design.
+ *
+ * Event counts measure how much defending a player was FORCED into, which is a
+ * property of their team, not their quality: an elite positional centre-back at a
+ * dominant side prevents chances rather than reacting to them, so Ferdinand '08/09
+ * (PFA Team of the Year, 24 goals conceded) rated 63 on volume-led inputs. What a
+ * defender is actually for is goals not being conceded while they play — and both
+ * inputs here are PER-PLAYER (`goalsConceded` is on-pitch; clean sheets are games
+ * the player appeared in), not team totals.
+ *
+ * Restricted to defensive roles: on a forward these are pure team inheritance.
+ * Applied league-wide, `gcPrevented90` alone lifted Salah '18/19 from DEF 6 to 26,
+ * recreating the `cleanSheets` pollution this ticket exists to remove.
  */
-const DEFENSE_STRUCTURAL: DimPart[] = [["gcPrevented90", 3]];
-
-/** Duel VOLUME here; DEF takes duel RATE. Deliberately not the same input twice. */
-const PHYSICAL: DimPart[] = [
-  ["duelsWon90", 2],
-  ["foulsWon90", 1],
-  ["foulsConceded90", 1],
+const DEFENSE_STRUCTURAL: DimPart[] = [
+  ["gcPrevented90", 4],
+  ["cleanSheetRate", 2],
 ];
 
-const TEAM_DEF_SHARE = 0.15;
+/**
+ * Duel volume AND duel success, equally weighted.
+ *
+ * Volume alone measured how often a player is DRAGGED into contests, not how
+ * physical they are — it is a function of role and team style. Centre-backs sit at
+ * the 46th percentile on duel volume league-wide because midfielders dominate it,
+ * so Anton Ferdinand '08 rated PHY 13 despite the 98th-percentile ground-duel
+ * success rate, and with PHY at 20% of a centre-back's overall that cost ~7 points.
+ */
+const PHYSICAL: DimPart[] = [
+  ["duelPct", 3],
+  ["duelsWon90", 2],
+  ["foulsWon90", 1],
+];
+// `foulsConceded90` was removed: committing fewer fouls is a VIRTUE for a positional
+// defender, so counting it as physicality penalised exactly the profile we want to
+// reward, and discipline already accounts for cards.
+
+/**
+ * How much of a defender's DEF is the team's defensive record. Raised from 0.15:
+ * for a positional centre-back the team conceding little IS the evidence of the job
+ * being done, and no event count in this dataset captures it.
+ */
+const TEAM_DEF_SHARE = 0.25;
 const FULL_SEASON_MINUTES = 2700;
 
 /** 0–1: how good the player's team was defensively that season. 0.5 with no standings. */
