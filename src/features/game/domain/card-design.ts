@@ -25,7 +25,7 @@ export type BackDesign = "K01" | "K02" | "K07" | "K09";
  *
  * Changing this alters ONLY which artwork a card wears; the ratings are untouched.
  */
-export const PREMIUM_MIN = 92;
+export const PREMIUM_MIN = 90;
 const PREMIUM: readonly FrontDesign[] = ["B1", "B2", "B3", "C1", "D1", "D2"];
 const BACKS: readonly BackDesign[] = ["K01", "K02", "K07", "K09"];
 

@@ -97,23 +97,6 @@ export function pctile(value: number, pool: number[]): number {
   return (below + equal / 2) / pool.length;
 }
 
-/**
- * The value at percentile `p` of an ASCENDING-sorted distribution, interpolated.
- *
- * The inverse of `pctile`, used to map a player's standing within their own
- * position onto the league-wide scale (TASK-1820 per-position normalisation).
- */
-export function quantileOf(sorted: number[], p: number): number | null {
-  if (sorted.length === 0) return null;
-  if (sorted.length === 1) return sorted[0];
-  const clamped = Math.max(0, Math.min(1, p));
-  const idx = clamped * (sorted.length - 1);
-  const lo = Math.floor(idx);
-  const hi = Math.ceil(idx);
-  if (lo === hi) return sorted[lo];
-  return sorted[lo] + (sorted[hi] - sorted[lo]) * (idx - lo);
-}
-
 export function buildPools(bags: StatBag[], keys: readonly string[]): Pools {
   const pools: Pools = Object.fromEntries(keys.map((k) => [k, [] as number[]]));
   for (const bag of bags) {
