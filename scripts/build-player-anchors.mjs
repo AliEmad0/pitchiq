@@ -26,6 +26,17 @@ import path from "node:path";
 const ROOT = process.cwd();
 const DATA = path.join(ROOT, "data");
 const OUT_JSON = path.join(ROOT, "src/features/game/data/player-anchors.json");
+/**
+ * The CURATED tier file — the one a human edits, and the source of truth.
+ *
+ * Seeded from the automated scoring on first run, then never overwritten: rerunning
+ * the generator preserves every hand-tuned tier and just re-derives the anchors from
+ * it. Pass --reseed to deliberately regenerate it from the scoring.
+ *
+ * The review report is OUTPUT and is rewritten every run — editing it does nothing.
+ */
+const TIERS_FILE = path.join(ROOT, "src/features/game/data/player-tiers.json");
+const RESEED = process.argv.includes("--reseed");
 const OUT_REPORT = path.join(ROOT, "docs/superpowers/reports/player-anchors-draft.md");
 
 // ---------------------------------------------------------------- tiers
@@ -358,8 +369,61 @@ scored.sort((a, b) => b.score - a.score);
 const legendCut = Math.max(1, Math.round(scored.length * LEGEND_SHARE));
 const eliteCut = Math.max(1, Math.round(scored.length * ELITE_SHARE));
 scored.forEach((c, i) => {
-  c.tier = i < legendCut ? "legend" : i < legendCut + eliteCut ? "elite" : "regular";
+  c.autoTier = i < legendCut ? "legend" : i < legendCut + eliteCut ? "elite" : "regular";
+  c.tier = c.autoTier;
 });
+
+// A hand-tuned tier always wins over the scoring. The automation exists to save the
+// first 90% of the work, not to overrule a human on the last 10%.
+let curated = null;
+if (!RESEED) {
+  try {
+    curated = JSON.parse(await readFile(TIERS_FILE, "utf8"));
+  } catch {
+    curated = null;
+  }
+}
+let curatedApplied = 0;
+if (curated != null) {
+  for (const c of scored) {
+    const entry = curated.players?.[String(c.id)];
+    if (entry?.tier != null && TIERS[entry.tier] != null) {
+      if (entry.tier !== c.autoTier) curatedApplied++;
+      c.tier = entry.tier;
+    }
+  }
+}
+
+// Seed the curated file on first run (or on --reseed) with every player the scoring
+// considers notable, so the whole tuning surface is one short, editable list.
+if (curated == null) {
+  const players = {};
+  for (const c of scored) {
+    if (c.autoTier === "regular") continue;
+    players[String(c.id)] = {
+      name: c.name,
+      role: c.role,
+      seasons: `${c.seasons[0].season}-${c.seasons[c.seasons.length - 1].season}`,
+      apps: c.apps,
+      tier: c.autoTier,
+    };
+  }
+  await mkdir(path.dirname(TIERS_FILE), { recursive: true });
+  await writeFile(
+    TIERS_FILE,
+    `${JSON.stringify(
+      {
+        _comment:
+          "CURATED. Edit `tier` freely (legend | elite | regular) — this file is the source of truth and the generator never overwrites it. Re-run `pnpm build:anchors` to re-derive anchors. Adding a player here anchors them; setting `regular` drops them.",
+        players,
+      },
+      null,
+      2,
+    )}\n`,
+    "utf8",
+  );
+  console.log(`seeded ${path.relative(ROOT, TIERS_FILE)} with ${Object.keys(players).length} players`);
+}
 
 // ---------------------------------------------------------------- anchors
 
@@ -460,5 +524,8 @@ await writeFile(OUT_REPORT, lines.join("\n"), "utf8");
 console.log(`scored players: ${scored.length}`);
 console.log(`  legend ${legendCut} / elite ${eliteCut} / regular ${scored.length - legendCut - eliteCut}`);
 console.log(`anchored player-seasons: ${sortedKeys.length}`);
+if (curated != null) {
+  console.log(`curated tiers applied: ${Object.keys(curated.players ?? {}).length} (${curatedApplied} differ from the scoring)`);
+}
 console.log(`wrote ${path.relative(ROOT, OUT_JSON)}`);
 console.log(`wrote ${path.relative(ROOT, OUT_REPORT)}`);
