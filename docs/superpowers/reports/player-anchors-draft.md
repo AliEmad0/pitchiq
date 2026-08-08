@@ -23,10 +23,10 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 
 ## Coverage
 
-- player-seasons anchored: **1487**
-- distinct players: **163**
-- Legend seasons: 291
-- Elite seasons: 1196
+- player-seasons anchored: **1603**
+- distinct players: **185**
+- Legend seasons: 751
+- Elite seasons: 852
 
 ## Every anchored season
 
@@ -37,6 +37,10 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     85 | Alan Shearer              | 1996-97 | CF   | Newcastle United        |  26 | 2790 | Legend |    −0 |                |
 |     85 | Alan Shearer              | 1998-99 | CF   | Newcastle United        |  28 | 2700 | Legend |    −0 |                |
 |     85 | Alan Shearer              | 1999-00 | CF   | Newcastle United        |  29 | 3330 | Legend |    −0 |                |
+|     85 | Alisson                   | 2018-19 | GK   | Liverpool               |  26 | 3420 | Legend |    −0 |                |
+|     85 | Alisson                   | 2019-20 | GK   | Liverpool               |  27 | 2545 | Legend |    −0 |                |
+|     85 | Alisson                   | 2020-21 | GK   | Liverpool               |  28 | 2970 | Legend |    −0 |                |
+|     85 | Alisson                   | 2021-22 | GK   | Liverpool               |  29 | 3240 | Legend |    −0 |                |
 |     85 | Andrew Cole               | 1995-96 | CF   | Manchester United       |  24 | 3060 | Legend |    −0 |                |
 |     85 | Andrew Cole               | 1997-98 | CF   | Manchester United       |  26 | 2970 | Legend |    −0 |                |
 |     85 | Andrew Cole               | 1998-99 | CF   | Manchester United       |  27 | 2880 | Legend |    −0 |                |
@@ -46,20 +50,43 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     85 | Andrew Robertson          | 2020-21 | LB   | Liverpool               |  26 | 3385 | Legend |    −0 |                |
 |     85 | Andrew Robertson          | 2021-22 | LB   | Liverpool               |  27 | 2541 | Legend |    −0 |                |
 |     85 | Andrew Robertson          | 2022-23 | LB   | Liverpool               |  28 | 2588 | Legend |    −0 |                |
+|     85 | Ashley Cole               | 2004-05 | LB   | Arsenal                 |  24 | 3150 | Legend |    −0 |                |
+|     85 | Ashley Cole               | 2007-08 | LB   | Chelsea                 |  27 | 2415 | Legend |  −0.2 |                |
+|     85 | Ashley Cole               | 2008-09 | LB   | Chelsea                 |  28 | 2941 | Legend |    −0 |                |
+|     85 | Carlos Tevez              | 2009-10 | CF   | Manchester City         |  25 | 2868 | Legend |    −0 |                |
+|     85 | Carlos Tevez              | 2010-11 | CF   | Manchester City         |  26 | 2531 | Legend |    −0 |                |
+|     85 | Carlos Tevez              | 2012-13 | CF   | Manchester City         |  28 | 2408 | Legend |  −0.2 |                |
 |     85 | Cesc Fàbregas             | 2014-15 | CM   | Chelsea                 |  27 | 2886 | Legend |    −0 |                |
 |     85 | Cesc Fàbregas             | 2015-16 | CM   | Chelsea                 |  28 | 2896 | Legend |    −0 |                |
+|     85 | Claude Makelele           | 2006-07 | CDM  | Chelsea                 |  33 | 2283 | Legend |  −0.4 |       ✅       |
 |     85 | Cristiano Ronaldo         | 2021-22 | CF   | Manchester Utd          |  36 | 2458 | Legend |  −0.1 |       ✅       |
 |     85 | David Beckham             | 1999-00 | RM   | Manchester United       |  24 | 2790 | Legend |    −0 |                |
 |     85 | David Beckham             | 2000-01 | RM   | Manchester United       |  25 | 2790 | Legend |    −0 |                |
 |     85 | David Beckham             | 2001-02 | RM   | Manchester United       |  26 | 2520 | Legend |    −0 |                |
 |     85 | David Beckham             | 2002-03 | RM   | Manchester United       |  27 | 2790 | Legend |    −0 |                |
+|     85 | David De Gea              | 2014-15 | GK   | Manchester United       |  24 | 3314 | Legend |    −0 |                |
+|     85 | David De Gea              | 2015-16 | GK   | Manchester United       |  25 | 3060 | Legend |    −0 |                |
+|     85 | David De Gea              | 2016-17 | GK   | Manchester United       |  26 | 3150 | Legend |    −0 |                |
+|     85 | David De Gea              | 2017-18 | GK   | Manchester Utd          |  27 | 3330 | Legend |    −0 |                |
+|     85 | David De Gea              | 2018-19 | GK   | Manchester Utd          |  28 | 3420 | Legend |    −0 |                |
+|     85 | David De Gea              | 2019-20 | GK   | Manchester Utd          |  29 | 3420 | Legend |    −0 |                |
+|     85 | David Ginola              | 1995-96 | LW   | Newcastle United        |  28 | 3060 | Legend |    −0 |                |
 |     85 | David Seaman              | 1992-93 | GK   | Arsenal                 |  29 | 3510 | Legend |    −0 |                |
 |     85 | David Seaman              | 1998-99 | GK   | Arsenal                 |  35 | 2880 | Legend |    −0 |       ✅       |
 |     85 | David Silva               | 2010-11 | CAM  | Manchester City         |  24 | 2563 | Legend |    −0 |                |
 |     85 | David Silva               | 2011-12 | CAM  | Manchester City         |  25 | 2817 | Legend |    −0 |                |
 |     85 | David Silva               | 2012-13 | CAM  | Manchester City         |  26 | 2521 | Legend |    −0 |                |
 |     85 | David Silva               | 2014-15 | CAM  | Manchester City         |  28 | 2659 | Legend |    −0 |                |
+|     85 | Denis Irwin               | 1992-93 | LB   | Manchester United       |  27 | 3600 | Legend |    −0 |                |
+|     85 | Denis Irwin               | 1993-94 | LB   | Manchester United       |  28 | 3780 | Legend |    −0 |                |
+|     85 | Denis Irwin               | 1994-95 | LB   | Manchester United       |  29 | 3600 | Legend |    −0 |                |
+|     85 | Dennis Bergkamp           | 1995-96 | SS   | Arsenal                 |  26 | 2970 | Legend |    −0 |                |
+|     85 | Dennis Bergkamp           | 1996-97 | SS   | Arsenal                 |  27 | 2610 | Legend |    −0 |                |
+|     85 | Dennis Bergkamp           | 1997-98 | SS   | Arsenal                 |  28 | 2520 | Legend |    −0 |                |
+|     85 | Dennis Bergkamp           | 1998-99 | SS   | Arsenal                 |  29 | 2610 | Legend |    −0 |                |
 |     85 | Didier Drogba             | 2006-07 | CF   | Chelsea                 |  28 | 2944 | Legend |    −0 |                |
+|     85 | Diego Costa               | 2015-16 | CF   | Chelsea                 |  27 | 2379 | Legend |  −0.2 |                |
+|     85 | Diego Costa               | 2016-17 | CF   | Chelsea                 |  28 | 3089 | Legend |    −0 |                |
 |     85 | Dwight Yorke              | 1995-96 | CF   | Aston Villa             |  24 | 3150 | Legend |    −0 |                |
 |     85 | Dwight Yorke              | 1996-97 | CF   | Aston Villa             |  25 | 3330 | Legend |    −0 |                |
 |     85 | Dwight Yorke              | 1997-98 | CF   | Aston Villa             |  26 | 2700 | Legend |    −0 |                |
@@ -79,30 +106,100 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     85 | Edwin van der Sar         | 2007-08 | GK   | Manchester United       |  37 | 2565 | Legend |    −0 |       ✅       |
 |     85 | Edwin van der Sar         | 2008-09 | GK   | Manchester United       |  38 | 2913 | Legend |    −0 |       ✅       |
 |     85 | Edwin van der Sar         | 2010-11 | GK   | Manchester United       |  40 | 2970 | Legend |    −0 |       ✅       |
+|     85 | Eric Cantona              | 1992-93 | SS   | Manchester United       |  26 | 3150 | Legend |    −0 |                |
+|     85 | Eric Cantona              | 1993-94 | SS   | Manchester United       |  27 | 3060 | Legend |    −0 |                |
+|     85 | Eric Cantona              | 1995-96 | SS   | Manchester United       |  29 | 2700 | Legend |    −0 |                |
+|     85 | Erling Haaland            | 2024-25 | CF   | Manchester City         |  24 | 2741 | Legend |    −0 |                |
+|     85 | Erling Haaland            | 2025-26 | CF   | Manchester City         |  25 | 2958 | Legend |    −0 |                |
+|     85 | Fernandinho               | 2013-14 | CDM  | Manchester City         |  28 | 2608 | Legend |    −0 |                |
+|     85 | Fernandinho               | 2014-15 | CDM  | Manchester City         |  29 | 2273 | Legend |  −0.4 |                |
+|     85 | Fernando Torres           | 2010-11 | CF   | Liverpool               |  26 | 2658 | Legend |    −0 |                |
+|     85 | Fernando Torres           | 2012-13 | CF   | Chelsea                 |  28 | 2570 | Legend |    −0 |                |
 |     85 | Frank Lampard             | 2002-03 | CM   | Chelsea                 |  24 | 3420 | Legend |    −0 |                |
 |     85 | Frank Lampard             | 2003-04 | CM   | Chelsea                 |  25 | 3380 | Legend |    −0 |                |
 |     85 | Frank Lampard             | 2004-05 | CM   | Chelsea                 |  26 | 3413 | Legend |    −0 |                |
 |     85 | Frank Lampard             | 2005-06 | CM   | Chelsea                 |  27 | 3150 | Legend |    −0 |                |
 |     85 | Frank Lampard             | 2006-07 | CM   | Chelsea                 |  28 | 3244 | Legend |    −0 |                |
 |     85 | Frank Lampard             | 2011-12 | CM   | Chelsea                 |  33 | 2250 | Legend |  −0.5 |       ✅       |
-|     85 | James Milner              | 2015-16 | CM   | Liverpool               |  29 | 2414 | Legend |  −0.2 |                |
-|     85 | Joe Hart                  | 2011-12 | GK   | Manchester City         |  24 | 3420 | Legend |    −0 |                |
-|     85 | Joe Hart                  | 2012-13 | GK   | Manchester City         |  25 | 3420 | Legend |    −0 |                |
-|     85 | Joe Hart                  | 2013-14 | GK   | Manchester City         |  26 | 2790 | Legend |    −0 |                |
-|     85 | Joe Hart                  | 2014-15 | GK   | Manchester City         |  27 | 3240 | Legend |    −0 |                |
-|     85 | Joe Hart                  | 2015-16 | GK   | Manchester City         |  28 | 3110 | Legend |    −0 |                |
+|     85 | Gary Neville              | 2000-01 | RB   | Manchester United       |  25 | 2880 | Legend |    −0 |                |
+|     85 | Gary Neville              | 2001-02 | RB   | Manchester United       |  26 | 3060 | Legend |    −0 |                |
+|     85 | Gary Neville              | 2002-03 | RB   | Manchester United       |  27 | 2340 | Legend |  −0.3 |                |
+|     85 | Gary Neville              | 2003-04 | RB   | Manchester United       |  28 | 2690 | Legend |    −0 |                |
+|     85 | Harry Kane                | 2017-18 | CF   | Tottenham               |  24 | 3083 | Legend |    −0 |                |
+|     85 | Harry Kane                | 2018-19 | CF   | Tottenham               |  25 | 2427 | Legend |  −0.1 |                |
+|     85 | Harry Kane                | 2019-20 | CF   | Tottenham               |  26 | 2589 | Legend |    −0 |                |
+|     85 | Harry Kane                | 2020-21 | CF   | Tottenham               |  27 | 3085 | Legend |    −0 |                |
+|     85 | Harry Kane                | 2021-22 | CF   | Tottenham               |  28 | 3232 | Legend |    −0 |                |
+|     85 | Harry Kane                | 2022-23 | CF   | Tottenham               |  29 | 3406 | Legend |    −0 |                |
+|     85 | Ian Wright                | 1992-93 | CF   | Arsenal                 |  29 | 2790 | Legend |    −0 |                |
+|     85 | Ian Wright                | 1996-97 | CF   | Arsenal                 |  33 | 3150 | Legend |    −0 |       ✅       |
+|     85 | Jaap Stam                 | 1998-99 | CB   | Manchester United       |  26 | 2700 | Legend |    −0 |                |
+|     85 | Jaap Stam                 | 1999-00 | CB   | Manchester United       |  27 | 2970 | Legend |    −0 |                |
+|     85 | Jamie Carragher           | 2002-03 | CB   | Liverpool               |  24 | 3150 | Legend |    −0 |                |
+|     85 | Jamie Carragher           | 2004-05 | CB   | Liverpool               |  26 | 3420 | Legend |    −0 |                |
+|     85 | Jamie Carragher           | 2005-06 | CB   | Liverpool               |  27 | 3240 | Legend |    −0 |                |
+|     85 | Jamie Carragher           | 2006-07 | CB   | Liverpool               |  28 | 2982 | Legend |    −0 |                |
+|     85 | Jamie Carragher           | 2007-08 | CB   | Liverpool               |  29 | 3044 | Legend |    −0 |                |
+|     85 | Jamie Vardy               | 2014-15 | CF   | Leicester City          |  27 | 2245 | Legend |  −0.5 |                |
+|     85 | Jamie Vardy               | 2015-16 | CF   | Leicester City          |  28 | 3139 | Legend |    −0 |                |
+|     85 | Jamie Vardy               | 2016-17 | CF   | Leicester City          |  29 | 2808 | Legend |    −0 |                |
+|     85 | Jamie Vardy               | 2020-21 | CF   | Leicester City          |  33 | 2844 | Legend |    −0 |       ✅       |
+|     85 | John Terry                | 2004-05 | CB   | Chelsea                 |  24 | 3240 | Legend |    −0 |                |
+|     85 | John Terry                | 2005-06 | CB   | Chelsea                 |  25 | 3240 | Legend |    −0 |                |
+|     85 | John Terry                | 2006-07 | CB   | Chelsea                 |  26 | 2414 | Legend |  −0.2 |                |
+|     85 | John Terry                | 2008-09 | CB   | Chelsea                 |  28 | 3078 | Legend |    −0 |                |
+|     85 | John Terry                | 2009-10 | CB   | Chelsea                 |  29 | 3260 | Legend |    −0 |                |
+|     85 | John Terry                | 2013-14 | CB   | Chelsea                 |  33 | 3060 | Legend |    −0 |       ✅       |
+|     85 | John Terry                | 2014-15 | CB   | Chelsea                 |  34 | 3420 | Legend |    −0 |       ✅       |
 |     85 | Kevin De Bruyne           | 2016-17 | CAM  | Manchester City         |  25 | 2883 | Legend |    −0 |                |
 |     85 | Kevin De Bruyne           | 2017-18 | CAM  | Manchester City         |  26 | 3083 | Legend |    −0 |                |
 |     85 | Kevin De Bruyne           | 2019-20 | CAM  | Manchester City         |  28 | 2798 | Legend |    −0 |                |
+|     85 | Kyle Walker               | 2015-16 | RB   | Tottenham Hotspur       |  25 | 2854 | Legend |    −0 |                |
+|     85 | Kyle Walker               | 2016-17 | RB   | Tottenham Hotspur       |  26 | 2704 | Legend |    −0 |                |
+|     85 | Kyle Walker               | 2017-18 | RB   | Manchester City         |  27 | 2787 | Legend |    −0 |                |
+|     85 | Kyle Walker               | 2018-19 | RB   | Manchester City         |  28 | 2777 | Legend |    −0 |                |
+|     85 | Kyle Walker               | 2019-20 | RB   | Manchester City         |  29 | 2395 | Legend |  −0.2 |                |
+|     85 | Ledley King               | 2004-05 | CB   | Tottenham Hotspur       |  24 | 3420 | Legend |    −0 |                |
+|     85 | Ledley King               | 2005-06 | CB   | Tottenham Hotspur       |  25 | 2316 | Legend |  −0.3 |                |
+|     85 | Luis Suárez               | 2011-12 | CF   | Liverpool               |  24 | 2556 | Legend |    −0 |                |
+|     85 | Luis Suárez               | 2012-13 | CF   | Liverpool               |  25 | 2955 | Legend |    −0 |                |
+|     85 | Luis Suárez               | 2013-14 | CF   | Liverpool               |  26 | 2964 | Legend |    −0 |                |
+|     85 | Luka Modric               | 2010-11 | CM   | Tottenham Hotspur       |  25 | 2800 | Legend |    −0 |                |
+|     85 | Luka Modric               | 2011-12 | CM   | Tottenham Hotspur       |  26 | 3215 | Legend |    −0 |                |
+|     85 | Matthew Le Tissier        | 1992-93 | CAM  | Southampton             |  24 | 3600 | Legend |    −0 |                |
+|     85 | Matthew Le Tissier        | 1993-94 | CAM  | Southampton             |  25 | 3420 | Legend |    −0 |                |
+|     85 | Matthew Le Tissier        | 1994-95 | CAM  | Southampton             |  26 | 3690 | Legend |    −0 |                |
+|     85 | Matthew Le Tissier        | 1995-96 | CAM  | Southampton             |  27 | 3060 | Legend |    −0 |                |
+|     85 | Matthew Le Tissier        | 1996-97 | CAM  | Southampton             |  28 | 2790 | Legend |    −0 |                |
+|     85 | Matthew Le Tissier        | 1997-98 | CAM  | Southampton             |  29 | 2340 | Legend |  −0.3 |                |
+|     85 | Michael Carrick           | 2005-06 | CDM  | Tottenham Hotspur       |  24 | 3123 | Legend |    −0 |                |
+|     85 | Michael Carrick           | 2006-07 | CDM  | Manchester United       |  25 | 2512 | Legend |    −0 |                |
+|     85 | Michael Owen              | 2003-04 | CF   | Liverpool               |  24 | 2487 | Legend |    −0 |                |
 |     85 | Mohamed Salah             | 2017-18 | RW   | Liverpool               |  25 | 2921 | Legend |    −0 |                |
 |     85 | Mohamed Salah             | 2018-19 | RW   | Liverpool               |  26 | 3256 | Legend |    −0 |                |
 |     85 | Mohamed Salah             | 2019-20 | RW   | Liverpool               |  27 | 2884 | Legend |    −0 |                |
 |     85 | Mohamed Salah             | 2020-21 | RW   | Liverpool               |  28 | 3079 | Legend |    −0 |                |
 |     85 | Mohamed Salah             | 2021-22 | RW   | Liverpool               |  29 | 2761 | Legend |    −0 |                |
-|     85 | Ole Gunnar Solskjær       | 1999-00 | CF   | Manchester United       |  26 | 2520 | Legend |    −0 |                |
-|     85 | Ole Gunnar Solskjær       | 2000-01 | CF   | Manchester United       |  27 | 2790 | Legend |    −0 |                |
-|     85 | Ole Gunnar Solskjær       | 2001-02 | CF   | Manchester United       |  28 | 2700 | Legend |    −0 |                |
-|     85 | Ole Gunnar Solskjær       | 2002-03 | CF   | Manchester United       |  29 | 3330 | Legend |    −0 |                |
+|     85 | N'Golo Kanté              | 2015-16 | CDM  | Leicester City          |  24 | 3020 | Legend |    −0 |                |
+|     85 | N'Golo Kanté              | 2016-17 | CDM  | Chelsea                 |  25 | 3139 | Legend |    −0 |                |
+|     85 | N'Golo Kanté              | 2017-18 | CDM  | Chelsea                 |  26 | 2998 | Legend |    −0 |                |
+|     85 | N'Golo Kanté              | 2018-19 | CDM  | Chelsea                 |  27 | 3095 | Legend |    −0 |                |
+|     85 | Nemanja Vidic             | 2007-08 | CB   | Manchester United       |  26 | 2673 | Legend |    −0 |                |
+|     85 | Nemanja Vidic             | 2008-09 | CB   | Manchester United       |  27 | 2984 | Legend |    −0 |                |
+|     85 | Nemanja Vidic             | 2010-11 | CB   | Manchester United       |  29 | 3117 | Legend |    −0 |                |
+|     85 | Patrice Evra              | 2007-08 | LB   | Manchester United       |  26 | 2823 | Legend |    −0 |                |
+|     85 | Patrice Evra              | 2008-09 | LB   | Manchester United       |  27 | 2411 | Legend |  −0.2 |                |
+|     85 | Patrice Evra              | 2009-10 | LB   | Manchester United       |  28 | 3288 | Legend |    −0 |                |
+|     85 | Patrice Evra              | 2010-11 | LB   | Manchester United       |  29 | 2961 | Legend |    −0 |                |
+|     85 | Patrick Vieira            | 2000-01 | CDM  | Arsenal                 |  24 | 2700 | Legend |    −0 |                |
+|     85 | Patrick Vieira            | 2001-02 | CDM  | Arsenal                 |  25 | 3240 | Legend |    −0 |                |
+|     85 | Patrick Vieira            | 2003-04 | CDM  | Arsenal                 |  27 | 2535 | Legend |    −0 |                |
+|     85 | Patrick Vieira            | 2004-05 | CDM  | Arsenal                 |  28 | 2796 | Legend |    −0 |                |
+|     85 | Paul Scholes              | 1998-99 | CM   | Manchester United       |  24 | 2790 | Legend |    −0 |                |
+|     85 | Paul Scholes              | 1999-00 | CM   | Manchester United       |  25 | 2790 | Legend |    −0 |                |
+|     85 | Paul Scholes              | 2000-01 | CM   | Manchester United       |  26 | 2880 | Legend |    −0 |                |
+|     85 | Paul Scholes              | 2001-02 | CM   | Manchester United       |  27 | 3150 | Legend |    −0 |                |
+|     85 | Paul Scholes              | 2002-03 | CM   | Manchester United       |  28 | 2970 | Legend |    −0 |                |
 |     85 | Peter Schmeichel          | 1992-93 | GK   | Manchester United       |  29 | 3780 | Legend |    −0 |                |
 |     85 | Peter Schmeichel          | 1997-98 | GK   | Manchester United       |  34 | 2880 | Legend |    −0 |       ✅       |
 |     85 | Petr Cech                 | 2007-08 | GK   | Chelsea                 |  25 | 2314 | Legend |  −0.3 |                |
@@ -111,80 +208,244 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     85 | Petr Cech                 | 2010-11 | GK   | Chelsea                 |  28 | 3420 | Legend |    −0 |                |
 |     85 | Petr Cech                 | 2011-12 | GK   | Chelsea                 |  29 | 3060 | Legend |    −0 |                |
 |     85 | Petr Cech                 | 2015-16 | GK   | Arsenal                 |  33 | 3060 | Legend |    −0 |       ✅       |
+|     85 | Rio Ferdinand             | 2002-03 | CB   | Manchester United       |  24 | 2520 | Legend |    −0 |                |
+|     85 | Rio Ferdinand             | 2004-05 | CB   | Manchester United       |  26 | 2790 | Legend |    −0 |                |
+|     85 | Rio Ferdinand             | 2005-06 | CB   | Manchester United       |  27 | 3301 | Legend |    −0 |                |
+|     85 | Rio Ferdinand             | 2006-07 | CB   | Manchester United       |  28 | 2925 | Legend |    −0 |                |
+|     85 | Rio Ferdinand             | 2007-08 | CB   | Manchester United       |  29 | 3052 | Legend |    −0 |                |
+|     85 | Riyad Mahrez              | 2015-16 | RW   | Leicester City          |  24 | 3052 | Legend |    −0 |                |
+|     85 | Riyad Mahrez              | 2016-17 | RW   | Leicester City          |  25 | 2835 | Legend |    −0 |                |
+|     85 | Riyad Mahrez              | 2017-18 | RW   | Leicester City          |  26 | 2960 | Legend |    −0 |                |
+|     85 | Robbie Fowler             | 2000-01 | CF   | Liverpool               |  25 | 2430 | Legend |  −0.1 |                |
+|     85 | Robbie Fowler             | 2001-02 | CF   | Leeds United            |  26 | 2880 | Legend |    −0 |                |
+|     85 | Robbie Fowler             | 2004-05 | CF   | Manchester City         |  29 | 2499 | Legend |    −0 |                |
+|     85 | Robert Pirès              | 2000-01 | LM   | Arsenal                 |  27 | 2970 | Legend |    −0 |                |
+|     85 | Robert Pirès              | 2001-02 | LM   | Arsenal                 |  28 | 2520 | Legend |    −0 |                |
+|     85 | Robert Pirès              | 2002-03 | LM   | Arsenal                 |  29 | 2340 | Legend |  −0.3 |                |
+|     85 | Roberto Firmino           | 2016-17 | CF   | Liverpool               |  25 | 3068 | Legend |    −0 |                |
+|     85 | Roberto Firmino           | 2017-18 | CF   | Liverpool               |  26 | 2776 | Legend |    −0 |                |
+|     85 | Roberto Firmino           | 2018-19 | CF   | Liverpool               |  27 | 2617 | Legend |    −0 |                |
+|     85 | Roberto Firmino           | 2019-20 | CF   | Liverpool               |  28 | 3001 | Legend |    −0 |                |
+|     85 | Roberto Firmino           | 2020-21 | CF   | Liverpool               |  29 | 2849 | Legend |    −0 |                |
+|     85 | Robin van Persie          | 2011-12 | CF   | Arsenal                 |  28 | 3334 | Legend |    −0 |                |
+|     85 | Robin van Persie          | 2012-13 | CF   | Manchester United       |  29 | 3123 | Legend |    −0 |                |
+|     85 | Rodri                     | 2020-21 | CDM  | Manchester City         |  24 | 2747 | Legend |    −0 |                |
+|     85 | Rodri                     | 2021-22 | CDM  | Manchester City         |  25 | 2887 | Legend |    −0 |                |
+|     85 | Rodri                     | 2022-23 | CDM  | Manchester City         |  26 | 2920 | Legend |    −0 |                |
+|     85 | Rodri                     | 2023-24 | CDM  | Manchester City         |  27 | 2938 | Legend |    −0 |                |
+|     85 | Roy Keane                 | 1995-96 | CM   | Manchester United       |  24 | 2610 | Legend |    −0 |                |
+|     85 | Roy Keane                 | 1998-99 | CM   | Manchester United       |  27 | 3150 | Legend |    −0 |                |
+|     85 | Roy Keane                 | 1999-00 | CM   | Manchester United       |  28 | 2610 | Legend |    −0 |                |
+|     85 | Roy Keane                 | 2000-01 | CM   | Manchester United       |  29 | 2520 | Legend |    −0 |                |
+|     85 | Rúben Dias                | 2021-22 | CB   | Manchester City         |  24 | 2403 | Legend |  −0.2 |                |
+|     85 | Rúben Dias                | 2023-24 | CB   | Manchester City         |  26 | 2557 | Legend |    −0 |                |
+|     85 | Rúben Dias                | 2024-25 | CB   | Manchester City         |  27 | 2269 | Legend |  −0.4 |                |
+|     85 | Ruud van Nistelrooij      | 2001-02 | CF   | Manchester United       |  25 | 2880 | Legend |    −0 |                |
+|     85 | Ruud van Nistelrooij      | 2002-03 | CF   | Manchester United       |  26 | 3060 | Legend |    −0 |                |
+|     85 | Ruud van Nistelrooij      | 2003-04 | CF   | Manchester United       |  27 | 2753 | Legend |    −0 |                |
+|     85 | Ruud van Nistelrooij      | 2005-06 | CF   | Manchester United       |  29 | 2595 | Legend |    −0 |                |
+|     85 | Ryan Giggs                | 1997-98 | LM   | Manchester United       |  24 | 2610 | Legend |    −0 |                |
+|     85 | Ryan Giggs                | 1999-00 | LM   | Manchester United       |  26 | 2700 | Legend |    −0 |                |
+|     85 | Ryan Giggs                | 2000-01 | LM   | Manchester United       |  27 | 2790 | Legend |    −0 |                |
+|     85 | Ryan Giggs                | 2001-02 | LM   | Manchester United       |  28 | 2250 | Legend |  −0.5 |                |
+|     85 | Ryan Giggs                | 2002-03 | LM   | Manchester United       |  29 | 3240 | Legend |    −0 |                |
+|     85 | Sadio Mané                | 2016-17 | LW   | Liverpool               |  24 | 2240 | Legend |  −0.5 |                |
+|     85 | Sadio Mané                | 2018-19 | LW   | Liverpool               |  26 | 3085 | Legend |    −0 |                |
+|     85 | Sadio Mané                | 2019-20 | LW   | Liverpool               |  27 | 2753 | Legend |    −0 |                |
+|     85 | Sadio Mané                | 2020-21 | LW   | Liverpool               |  28 | 2810 | Legend |    −0 |                |
+|     85 | Sadio Mané                | 2021-22 | LW   | Liverpool               |  29 | 2824 | Legend |    −0 |                |
 |     85 | Sergio Agüero             | 2014-15 | CF   | Manchester City         |  26 | 2539 | Legend |    −0 |                |
 |     85 | Sergio Agüero             | 2015-16 | CF   | Manchester City         |  27 | 2373 | Legend |  −0.2 |                |
 |     85 | Sergio Agüero             | 2016-17 | CF   | Manchester City         |  28 | 2403 | Legend |  −0.2 |                |
-|     85 | Teddy Sheringham          | 1992-93 | CF   | Tottenham Hotspur       |  26 | 3690 | Legend |    −0 |                |
-|     85 | Teddy Sheringham          | 1994-95 | CF   | Tottenham Hotspur       |  28 | 3780 | Legend |    −0 |                |
-|     85 | Teddy Sheringham          | 1995-96 | CF   | Tottenham Hotspur       |  29 | 3420 | Legend |    −0 |                |
-|     85 | Teddy Sheringham          | 2000-01 | CF   | Manchester United       |  34 | 2610 | Legend |    −0 |       ✅       |
+|     85 | Sol Campbell              | 1998-99 | CB   | Tottenham Hotspur       |  24 | 3330 | Legend |    −0 |                |
+|     85 | Sol Campbell              | 1999-00 | CB   | Tottenham Hotspur       |  25 | 2610 | Legend |    −0 |                |
+|     85 | Sol Campbell              | 2001-02 | CB   | Arsenal                 |  27 | 2790 | Legend |    −0 |                |
+|     85 | Sol Campbell              | 2002-03 | CB   | Arsenal                 |  28 | 2970 | Legend |    −0 |                |
+|     85 | Sol Campbell              | 2003-04 | CB   | Arsenal                 |  29 | 3085 | Legend |    −0 |                |
+|     85 | Sol Campbell              | 2007-08 | CB   | Portsmouth              |  33 | 2790 | Legend |    −0 |       ✅       |
+|     85 | Son Heung-Min             | 2017-18 | LW   | Tottenham               |  25 | 2309 | Legend |  −0.4 |                |
+|     85 | Son Heung-Min             | 2019-20 | LW   | Tottenham               |  27 | 2485 | Legend |    −0 |                |
+|     85 | Son Heung-Min             | 2020-21 | LW   | Tottenham               |  28 | 3121 | Legend |    −0 |                |
+|     85 | Son Heung-Min             | 2021-22 | LW   | Tottenham               |  29 | 3019 | Legend |    −0 |                |
+|     85 | Steven Gerrard            | 2004-05 | CM   | Liverpool               |  24 | 2461 | Legend |  −0.1 |                |
+|     85 | Steven Gerrard            | 2005-06 | CM   | Liverpool               |  25 | 2727 | Legend |    −0 |                |
+|     85 | Steven Gerrard            | 2006-07 | CM   | Liverpool               |  26 | 3083 | Legend |    −0 |                |
+|     85 | Steven Gerrard            | 2007-08 | CM   | Liverpool               |  27 | 2843 | Legend |    −0 |                |
+|     85 | Steven Gerrard            | 2008-09 | CM   | Liverpool               |  28 | 2630 | Legend |    −0 |                |
+|     85 | Steven Gerrard            | 2009-10 | CM   | Liverpool               |  29 | 2850 | Legend |    −0 |                |
+|     85 | Steven Gerrard            | 2013-14 | CM   | Liverpool               |  33 | 2900 | Legend |    −0 |       ✅       |
 |     85 | Thierry Henry             | 2001-02 | CF   | Arsenal                 |  24 | 2970 | Legend |    −0 |                |
 |     85 | Thierry Henry             | 2002-03 | CF   | Arsenal                 |  25 | 3330 | Legend |    −0 |                |
 |     85 | Thierry Henry             | 2003-04 | CF   | Arsenal                 |  26 | 3330 | Legend |    −0 |                |
 |     85 | Thierry Henry             | 2004-05 | CF   | Arsenal                 |  27 | 2827 | Legend |    −0 |                |
 |     85 | Thierry Henry             | 2005-06 | CF   | Arsenal                 |  28 | 2670 | Legend |    −0 |                |
+|     85 | Tony Adams                | 1992-93 | CB   | Arsenal                 |  26 | 3150 | Legend |    −0 |                |
+|     85 | Tony Adams                | 1993-94 | CB   | Arsenal                 |  27 | 3150 | Legend |    −0 |                |
+|     85 | Tony Adams                | 1994-95 | CB   | Arsenal                 |  28 | 2430 | Legend |  −0.1 |                |
+|     85 | Tony Adams                | 2000-01 | CB   | Arsenal                 |  34 | 2340 | Legend |  −0.3 |       ✅       |
 |     85 | Trent Alexander-Arnold    | 2022-23 | RB   | Liverpool               |  24 | 2931 | Legend |    −0 |                |
 |     85 | Trent Alexander-Arnold    | 2024-25 | RB   | Liverpool               |  26 | 2377 | Legend |  −0.2 |                |
+|     85 | Vincent Kompany           | 2010-11 | CB   | Manchester City         |  24 | 3330 | Legend |    −0 |                |
+|     85 | Vincent Kompany           | 2011-12 | CB   | Manchester City         |  25 | 2774 | Legend |    −0 |                |
+|     85 | Vincent Kompany           | 2012-13 | CB   | Manchester City         |  26 | 2239 | Legend |  −0.5 |                |
+|     85 | Vincent Kompany           | 2013-14 | CB   | Manchester City         |  27 | 2365 | Legend |  −0.3 |                |
+|     85 | Virgil van Dijk           | 2015-16 | CB   | Southampton             |  24 | 3060 | Legend |    −0 |                |
+|     85 | Virgil van Dijk           | 2017-18 | CB   | Liverpool               |  26 | 2253 | Legend |  −0.5 |                |
+|     85 | Virgil van Dijk           | 2018-19 | CB   | Liverpool               |  27 | 3385 | Legend |    −0 |                |
+|     85 | Virgil van Dijk           | 2019-20 | CB   | Liverpool               |  28 | 3420 | Legend |    −0 |                |
+|     85 | Virgil van Dijk           | 2024-25 | CB   | Liverpool               |  33 | 3330 | Legend |    −0 |       ✅       |
 |     85 | Wayne Rooney              | 2009-10 | CF   | Manchester United       |  24 | 2723 | Legend |    −0 |                |
 |     85 | Wayne Rooney              | 2011-12 | CF   | Manchester United       |  26 | 2839 | Legend |    −0 |                |
 |     85 | Wayne Rooney              | 2013-14 | CF   | Manchester United       |  28 | 2448 | Legend |  −0.1 |                |
 |     85 | Wayne Rooney              | 2014-15 | CF   | Manchester United       |  29 | 2876 | Legend |    −0 |                |
+|     85 | Xabi Alonso               | 2005-06 | CDM  | Liverpool               |  24 | 2571 | Legend |    −0 |                |
+|     85 | Xabi Alonso               | 2006-07 | CDM  | Liverpool               |  25 | 2661 | Legend |    −0 |                |
+|     85 | Xabi Alonso               | 2008-09 | CDM  | Liverpool               |  27 | 2561 | Legend |    −0 |                |
 |     85 | Yaya Touré                | 2010-11 | CM   | Manchester City         |  27 | 2976 | Legend |    −0 |                |
 |     85 | Yaya Touré                | 2011-12 | CM   | Manchester City         |  28 | 2651 | Legend |    −0 |                |
 |     85 | Yaya Touré                | 2012-13 | CM   | Manchester City         |  29 | 2829 | Legend |    −0 |                |
 |     84 | Alan Shearer              | 1993-94 | CF   | Blackburn Rovers        |  23 | 3600 | Legend |    −1 |                |
+|     84 | Alisson                   | 2022-23 | GK   | Liverpool               |  30 | 3330 | Legend |    −1 |                |
 |     84 | Andrew Cole               | 1994-95 | CF   | Manchester United       |  23 | 3240 | Legend |    −1 |                |
 |     84 | Andrew Cole               | 1996-97 | CF   | Manchester United       |  25 | 1800 | Legend |  −1.3 |                |
 |     84 | Andrew Cole               | 2000-01 | CF   | Manchester United       |  29 | 1710 | Legend |  −1.5 |                |
 |     84 | Andrew Cole               | 2001-02 | CF   | Blackburn Rovers        |  30 | 2340 | Legend |  −1.3 |                |
 |     84 | Andrew Robertson          | 2023-24 | LB   | Liverpool               |  29 | 2070 | Legend |  −0.8 |                |
 |     84 | Andrew Robertson          | 2024-25 | LB   | Liverpool               |  30 | 2970 | Legend |    −1 |                |
+|     84 | Ashley Cole               | 2003-04 | LB   | Arsenal                 |  23 | 2823 | Legend |    −1 |                |
+|     84 | Ashley Cole               | 2006-07 | LB   | Chelsea                 |  26 | 1848 | Legend |  −1.2 |                |
+|     84 | Ashley Cole               | 2009-10 | LB   | Chelsea                 |  29 | 2155 | Legend |  −0.6 |                |
+|     84 | Ashley Cole               | 2010-11 | LB   | Chelsea                 |  30 | 3387 | Legend |    −1 |                |
+|     84 | Carlos Tevez              | 2007-08 | CF   | Manchester United       |  23 | 2686 | Legend |    −1 |                |
+|     84 | Carlos Tevez              | 2008-09 | CF   | Manchester United       |  24 | 1859 | Legend |  −1.2 |                |
 |     84 | Cesc Fàbregas             | 2017-18 | CM   | Chelsea                 |  30 | 2308 | Legend |  −1.4 |                |
+|     84 | Claude Makelele           | 2003-04 | CDM  | Chelsea                 |  30 | 2391 | Legend |  −1.2 |                |
 |     84 | Cristiano Ronaldo         | 2008-09 | CF   | Manchester United       |  23 | 2749 | Legend |    −1 |                |
 |     84 | David Beckham             | 1998-99 | RM   | Manchester United       |  23 | 3060 | Legend |    −1 |                |
+|     84 | David De Gea              | 2013-14 | GK   | Manchester United       |  23 | 3330 | Legend |    −1 |                |
+|     84 | David De Gea              | 2020-21 | GK   | Manchester Utd          |  30 | 2295 | Legend |  −1.4 |                |
+|     84 | David Ginola              | 1996-97 | LW   | Newcastle United        |  29 | 2160 | Legend |  −0.6 |                |
+|     84 | David Ginola              | 1997-98 | LW   | Tottenham Hotspur       |  30 | 3060 | Legend |    −1 |                |
 |     84 | David Seaman              | 1993-94 | GK   | Arsenal                 |  30 | 3510 | Legend |    −1 |                |
 |     84 | David Seaman              | 1996-97 | GK   | Arsenal                 |  33 | 1980 | Legend |    −1 |       ✅       |
 |     84 | David Seaman              | 2000-01 | GK   | Arsenal                 |  37 | 2160 | Legend |  −0.6 |       ✅       |
 |     84 | David Silva               | 2013-14 | CAM  | Manchester City         |  27 | 2173 | Legend |  −0.6 |                |
 |     84 | David Silva               | 2015-16 | CAM  | Manchester City         |  29 | 1800 | Legend |  −1.3 |                |
 |     84 | David Silva               | 2016-17 | CAM  | Manchester City         |  30 | 2766 | Legend |    −1 |                |
+|     84 | Denis Irwin               | 1995-96 | LB   | Manchester United       |  30 | 2790 | Legend |    −1 |                |
+|     84 | Denis Irwin               | 2000-01 | LB   | Manchester United       |  35 | 1890 | Legend |  −1.1 |       ✅       |
+|     84 | Dennis Bergkamp           | 1999-00 | SS   | Arsenal                 |  30 | 2520 | Legend |    −1 |                |
 |     84 | Didier Drogba             | 2005-06 | CF   | Chelsea                 |  27 | 1994 | Legend |  −0.9 |                |
+|     84 | Diego Costa               | 2014-15 | CF   | Chelsea                 |  26 | 2082 | Legend |  −0.8 |                |
 |     84 | Dwight Yorke              | 1994-95 | CF   | Aston Villa             |  23 | 3330 | Legend |    −1 |                |
 |     84 | Dwight Yorke              | 2000-01 | CF   | Manchester United       |  29 | 1980 | Legend |    −1 |                |
 |     84 | Eden Hazard               | 2014-15 | LW   | Chelsea                 |  23 | 3372 | Legend |    −1 |                |
 |     84 | Eden Hazard               | 2015-16 | LW   | Chelsea                 |  24 | 2190 | Legend |  −0.6 |                |
 |     84 | Ederson                   | 2023-24 | GK   | Manchester City         |  30 | 2788 | Legend |    −1 |                |
 |     84 | Edwin van der Sar         | 2009-10 | GK   | Manchester United       |  39 | 1890 | Legend |  −1.1 |       ✅       |
+|     84 | Eric Cantona              | 1994-95 | SS   | Manchester United       |  28 | 1890 | Legend |  −1.1 |                |
+|     84 | Eric Cantona              | 1996-97 | SS   | Manchester United       |  30 | 3240 | Legend |    −1 |                |
+|     84 | Erling Haaland            | 2023-24 | CF   | Manchester City         |  23 | 2556 | Legend |    −1 |                |
+|     84 | Fernandinho               | 2015-16 | CDM  | Manchester City         |  30 | 2732 | Legend |    −1 |                |
+|     84 | Fernando Torres           | 2007-08 | CF   | Liverpool               |  23 | 2542 | Legend |    −1 |                |
+|     84 | Fernando Torres           | 2008-09 | CF   | Liverpool               |  24 | 1733 | Legend |  −1.4 |                |
+|     84 | Fernando Torres           | 2009-10 | CF   | Liverpool               |  25 | 1715 | Legend |  −1.5 |                |
+|     84 | Fernando Torres           | 2011-12 | CF   | Chelsea                 |  27 | 1904 | Legend |  −1.1 |                |
 |     84 | Frank Lampard             | 2001-02 | CM   | Chelsea                 |  23 | 3330 | Legend |    −1 |                |
 |     84 | Frank Lampard             | 2007-08 | CM   | Chelsea                 |  29 | 1956 | Legend |    −1 |                |
 |     84 | Frank Lampard             | 2008-09 | CM   | Chelsea                 |  30 | 3259 | Legend |    −1 |                |
 |     84 | Frank Lampard             | 2012-13 | CM   | Chelsea                 |  34 | 1901 | Legend |  −1.1 |       ✅       |
-|     84 | James Milner              | 2009-10 | CM   | Aston Villa             |  23 | 3174 | Legend |    −1 |                |
-|     84 | James Milner              | 2010-11 | CM   | Manchester City         |  24 | 2134 | Legend |  −0.7 |                |
-|     84 | James Milner              | 2012-13 | CM   | Manchester City         |  26 | 1720 | Legend |  −1.5 |                |
-|     84 | James Milner              | 2014-15 | CM   | Manchester City         |  28 | 1742 | Legend |  −1.4 |                |
-|     84 | James Milner              | 2016-17 | CM   | Liverpool               |  30 | 3159 | Legend |    −1 |                |
-|     84 | Joe Hart                  | 2010-11 | GK   | Manchester City         |  23 | 3420 | Legend |    −1 |                |
+|     84 | Gareth Bale               | 2012-13 | RW   | Tottenham Hotspur       |  23 | 2924 | Legend |    −1 |                |
+|     84 | Gary Neville              | 1998-99 | RB   | Manchester United       |  23 | 3060 | Legend |    −1 |                |
+|     84 | Gary Neville              | 1999-00 | RB   | Manchester United       |  24 | 1980 | Legend |    −1 |                |
+|     84 | Gary Neville              | 2004-05 | RB   | Manchester United       |  29 | 1891 | Legend |  −1.1 |                |
+|     84 | Harry Kane                | 2016-17 | CF   | Tottenham Hotspur       |  23 | 2531 | Legend |    −1 |                |
+|     84 | Ian Wright                | 1993-94 | CF   | Arsenal                 |  30 | 3510 | Legend |    −1 |                |
+|     84 | Jamie Carragher           | 2001-02 | CB   | Liverpool               |  23 | 2970 | Legend |    −1 |                |
+|     84 | Jamie Carragher           | 2003-04 | CB   | Liverpool               |  25 | 1907 | Legend |  −1.1 |                |
+|     84 | Jamie Carragher           | 2008-09 | CB   | Liverpool               |  30 | 3401 | Legend |    −1 |                |
+|     84 | Jamie Vardy               | 2017-18 | CF   | Leicester City          |  30 | 3255 | Legend |    −1 |                |
+|     84 | Jamie Vardy               | 2021-22 | CF   | Leicester City          |  34 | 1805 | Legend |  −1.3 |       ✅       |
+|     84 | John Terry                | 2003-04 | CB   | Chelsea                 |  23 | 2965 | Legend |    −1 |                |
+|     84 | John Terry                | 2007-08 | CB   | Chelsea                 |  27 | 1974 | Legend |    −1 |                |
+|     84 | John Terry                | 2010-11 | CB   | Chelsea                 |  30 | 2962 | Legend |    −1 |                |
+|     84 | Jürgen Klinsmann          | 1994-95 | CF   | Tottenham Hotspur       |  30 | 3690 | Legend |    −1 |                |
 |     84 | Kevin De Bruyne           | 2015-16 | CAM  | Manchester City         |  24 | 2003 | Legend |  −0.9 |                |
 |     84 | Kevin De Bruyne           | 2020-21 | CAM  | Manchester City         |  29 | 2001 | Legend |  −0.9 |                |
+|     84 | Kyle Walker               | 2013-14 | RB   | Tottenham Hotspur       |  23 | 2298 | Legend |  −1.4 |                |
+|     84 | Ledley King               | 2003-04 | CB   | Tottenham Hotspur       |  23 | 2442 | Legend |  −1.1 |                |
+|     84 | Ledley King               | 2006-07 | CB   | Tottenham Hotspur       |  26 | 1881 | Legend |  −1.2 |                |
+|     84 | Ledley King               | 2008-09 | CB   | Tottenham Hotspur       |  28 | 2114 | Legend |  −0.7 |                |
+|     84 | Luka Modric               | 2008-09 | CM   | Tottenham Hotspur       |  23 | 2789 | Legend |    −1 |                |
+|     84 | Luka Modric               | 2009-10 | CM   | Tottenham Hotspur       |  24 | 1916 | Legend |  −1.1 |                |
+|     84 | Matthew Le Tissier        | 1998-99 | CAM  | Southampton             |  30 | 2700 | Legend |    −1 |                |
+|     84 | Michael Carrick           | 2004-05 | CDM  | Tottenham Hotspur       |  23 | 2371 | Legend |  −1.2 |                |
+|     84 | Michael Carrick           | 2007-08 | CDM  | Manchester United       |  26 | 2199 | Legend |  −0.6 |                |
+|     84 | Michael Carrick           | 2008-09 | CDM  | Manchester United       |  27 | 2041 | Legend |  −0.9 |                |
+|     84 | Michael Carrick           | 2009-10 | CDM  | Manchester United       |  28 | 2111 | Legend |  −0.7 |                |
+|     84 | Michael Carrick           | 2010-11 | CDM  | Manchester United       |  29 | 1975 | Legend |    −1 |                |
+|     84 | Michael Carrick           | 2011-12 | CDM  | Manchester United       |  30 | 2513 | Legend |    −1 |                |
+|     84 | Michael Owen              | 2002-03 | CF   | Liverpool               |  23 | 3150 | Legend |    −1 |                |
+|     84 | Michael Owen              | 2007-08 | CF   | Newcastle United        |  28 | 2177 | Legend |  −0.6 |                |
+|     84 | Michael Owen              | 2008-09 | CF   | Newcastle United        |  29 | 1894 | Legend |  −1.1 |                |
 |     84 | Mohamed Salah             | 2022-23 | RW   | Liverpool               |  30 | 3294 | Legend |    −1 |                |
 |     84 | Mohamed Salah             | 2025-26 | RW   | Liverpool               |  33 | 2148 | Legend |  −0.7 |       ✅       |
-|     84 | Ole Gunnar Solskjær       | 1996-97 | CF   | Manchester United       |  23 | 2970 | Legend |    −1 |                |
-|     84 | Ole Gunnar Solskjær       | 1997-98 | CF   | Manchester United       |  24 | 1980 | Legend |    −1 |                |
-|     84 | Ole Gunnar Solskjær       | 1998-99 | CF   | Manchester United       |  25 | 1710 | Legend |  −1.5 |                |
+|     84 | N'Golo Kanté              | 2019-20 | CDM  | Chelsea                 |  28 | 1733 | Legend |  −1.4 |                |
+|     84 | N'Golo Kanté              | 2020-21 | CDM  | Chelsea                 |  29 | 2145 | Legend |  −0.7 |                |
+|     84 | Nemanja Vidic             | 2006-07 | CB   | Manchester United       |  25 | 2142 | Legend |  −0.7 |                |
+|     84 | Nemanja Vidic             | 2009-10 | CB   | Manchester United       |  28 | 2107 | Legend |  −0.7 |                |
+|     84 | Patrice Evra              | 2006-07 | LB   | Manchester United       |  25 | 1860 | Legend |  −1.2 |                |
+|     84 | Patrice Evra              | 2011-12 | LB   | Manchester United       |  30 | 3239 | Legend |    −1 |                |
+|     84 | Patrick Vieira            | 1999-00 | CDM  | Arsenal                 |  23 | 2700 | Legend |    −1 |                |
+|     84 | Patrick Vieira            | 2002-03 | CDM  | Arsenal                 |  26 | 2160 | Legend |  −0.6 |                |
+|     84 | Paul Scholes              | 1997-98 | CM   | Manchester United       |  23 | 2790 | Legend |    −1 |                |
+|     84 | Paul Scholes              | 2003-04 | CM   | Manchester United       |  29 | 2187 | Legend |  −0.6 |                |
+|     84 | Paul Scholes              | 2004-05 | CM   | Manchester United       |  30 | 2613 | Legend |    −1 |                |
 |     84 | Peter Schmeichel          | 1993-94 | GK   | Manchester United       |  30 | 3600 | Legend |    −1 |                |
 |     84 | Petr Cech                 | 2005-06 | GK   | Chelsea                 |  23 | 3022 | Legend |    −1 |                |
 |     84 | Petr Cech                 | 2006-07 | GK   | Chelsea                 |  24 | 1715 | Legend |  −1.5 |                |
 |     84 | Petr Cech                 | 2012-13 | GK   | Chelsea                 |  30 | 3195 | Legend |    −1 |                |
+|     84 | Rio Ferdinand             | 2001-02 | CB   | Leeds United            |  23 | 2790 | Legend |    −1 |                |
+|     84 | Rio Ferdinand             | 2003-04 | CB   | Manchester United       |  25 | 1760 | Legend |  −1.4 |                |
+|     84 | Riyad Mahrez              | 2019-20 | RW   | Manchester City         |  28 | 1940 | Legend |  −1.1 |                |
+|     84 | Riyad Mahrez              | 2020-21 | RW   | Manchester City         |  29 | 1954 | Legend |    −1 |                |
+|     84 | Robbie Fowler             | 1998-99 | CF   | Liverpool               |  23 | 2250 | Legend |  −1.5 |                |
+|     84 | Robbie Fowler             | 2002-03 | CF   | Manchester City         |  27 | 1890 | Legend |  −1.1 |                |
+|     84 | Robbie Fowler             | 2003-04 | CF   | Manchester City         |  28 | 1949 | Legend |    −1 |                |
+|     84 | Robert Pirès              | 2003-04 | LM   | Arsenal                 |  30 | 2847 | Legend |    −1 |                |
+|     84 | Roberto Firmino           | 2015-16 | CF   | Liverpool               |  24 | 1981 | Legend |    −1 |                |
+|     84 | Robin van Persie          | 2008-09 | CF   | Arsenal                 |  25 | 2198 | Legend |  −0.6 |                |
+|     84 | Robin van Persie          | 2010-11 | CF   | Arsenal                 |  27 | 1768 | Legend |  −1.4 |                |
+|     84 | Rodri                     | 2019-20 | CDM  | Manchester City         |  23 | 2486 | Legend |    −1 |                |
+|     84 | Roy Keane                 | 1994-95 | CM   | Manchester United       |  23 | 2250 | Legend |  −1.5 |                |
+|     84 | Roy Keane                 | 1996-97 | CM   | Manchester United       |  25 | 1890 | Legend |  −1.1 |                |
+|     84 | Roy Keane                 | 2001-02 | CM   | Manchester United       |  30 | 2520 | Legend |    −1 |                |
+|     84 | Rúben Dias                | 2020-21 | CB   | Manchester City         |  23 | 2845 | Legend |    −1 |                |
+|     84 | Rúben Dias                | 2022-23 | CB   | Manchester City         |  25 | 1997 | Legend |  −0.9 |                |
+|     84 | Rúben Dias                | 2025-26 | CB   | Manchester City         |  28 | 2140 | Legend |  −0.7 |                |
+|     84 | Ryan Giggs                | 1996-97 | LM   | Manchester United       |  23 | 2340 | Legend |  −1.3 |                |
+|     84 | Ryan Giggs                | 1998-99 | LM   | Manchester United       |  25 | 2160 | Legend |  −0.6 |                |
+|     84 | Ryan Giggs                | 2003-04 | LM   | Manchester United       |  30 | 2537 | Legend |    −1 |                |
+|     84 | Sadio Mané                | 2015-16 | LW   | Southampton             |  23 | 2604 | Legend |    −1 |                |
+|     84 | Sadio Mané                | 2017-18 | LW   | Liverpool               |  25 | 2206 | Legend |  −0.6 |                |
 |     84 | Sergio Agüero             | 2011-12 | CF   | Manchester City         |  23 | 2600 | Legend |    −1 |                |
 |     84 | Sergio Agüero             | 2012-13 | CF   | Manchester City         |  24 | 1941 | Legend |    −1 |                |
 |     84 | Sergio Agüero             | 2017-18 | CF   | Manchester City         |  29 | 1969 | Legend |    −1 |                |
 |     84 | Sergio Agüero             | 2018-19 | CF   | Manchester City         |  30 | 2478 | Legend |    −1 |                |
-|     84 | Teddy Sheringham          | 1993-94 | CF   | Tottenham Hotspur       |  27 | 1710 | Legend |  −1.5 |                |
-|     84 | Teddy Sheringham          | 1996-97 | CF   | Tottenham Hotspur       |  30 | 2610 | Legend |    −1 |                |
+|     84 | Sol Campbell              | 1997-98 | CB   | Tottenham Hotspur       |  23 | 3060 | Legend |    −1 |                |
+|     84 | Sol Campbell              | 2000-01 | CB   | Tottenham Hotspur       |  26 | 1890 | Legend |  −1.1 |                |
+|     84 | Son Heung-Min             | 2016-17 | LW   | Tottenham Hotspur       |  24 | 2068 | Legend |  −0.8 |                |
+|     84 | Son Heung-Min             | 2018-19 | LW   | Tottenham               |  26 | 2045 | Legend |  −0.9 |                |
+|     84 | Son Heung-Min             | 2022-23 | LW   | Tottenham               |  30 | 2899 | Legend |    −1 |                |
+|     84 | Steven Gerrard            | 2003-04 | CM   | Liverpool               |  23 | 3007 | Legend |    −1 |                |
 |     84 | Thierry Henry             | 2000-01 | CF   | Arsenal                 |  23 | 3150 | Legend |    −1 |                |
+|     84 | Tony Adams                | 1995-96 | CB   | Arsenal                 |  29 | 1890 | Legend |  −1.1 |                |
+|     84 | Tony Adams                | 1996-97 | CB   | Arsenal                 |  30 | 2520 | Legend |    −1 |                |
 |     84 | Trent Alexander-Arnold    | 2021-22 | RB   | Liverpool               |  23 | 2853 | Legend |    −1 |                |
 |     84 | Trent Alexander-Arnold    | 2023-24 | RB   | Liverpool               |  25 | 2159 | Legend |  −0.6 |                |
+|     84 | Vincent Kompany           | 2014-15 | CB   | Manchester City         |  28 | 2032 | Legend |  −0.9 |                |
+|     84 | Virgil van Dijk           | 2016-17 | CB   | Southampton             |  25 | 1854 | Legend |  −1.2 |                |
+|     84 | Virgil van Dijk           | 2021-22 | CB   | Liverpool               |  30 | 3060 | Legend |    −1 |                |
 |     84 | Wayne Rooney              | 2008-09 | CF   | Manchester United       |  23 | 2264 | Legend |  −1.4 |                |
 |     84 | Wayne Rooney              | 2010-11 | CF   | Manchester United       |  25 | 2226 | Legend |  −0.5 |                |
 |     84 | Wayne Rooney              | 2012-13 | CF   | Manchester United       |  27 | 2019 | Legend |  −0.9 |                |
@@ -193,17 +454,27 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     83 | Alan Shearer              | 1997-98 | CF   | Newcastle United        |  27 | 1530 | Legend |  −1.8 |                |
 |     83 | Alan Shearer              | 2000-01 | CF   | Newcastle United        |  30 | 1710 | Legend |  −2.5 |                |
 |     83 | Alan Shearer              | 2001-02 | CF   | Newcastle United        |  31 | 3330 | Legend |    −2 |                |
+|     83 | Alisson                   | 2023-24 | GK   | Liverpool               |  31 | 2520 | Legend |    −2 |                |
 |     83 | Andrew Cole               | 1993-94 | CF   | Newcastle United        |  22 | 3600 | Legend |    −2 |                |
 |     83 | Andrew Cole               | 2002-03 | CF   | Blackburn Rovers        |  31 | 3060 | Legend |    −2 |                |
 |     83 | Andrew Robertson          | 2016-17 | LB   | Hull City               |  22 | 2736 | Legend |    −2 |                |
 |     83 | Andrew Robertson          | 2017-18 | LB   | Liverpool               |  23 | 1943 | Legend |    −2 |                |
+|     83 | Ashley Cole               | 2002-03 | LB   | Arsenal                 |  22 | 2790 | Legend |    −2 |                |
+|     83 | Ashley Cole               | 2011-12 | LB   | Chelsea                 |  31 | 2786 | Legend |    −2 |                |
+|     83 | Ashley Cole               | 2013-14 | LB   | Chelsea                 |  33 | 1386 | Legend |  −2.1 |       ✅       |
 |     83 | Cesc Fàbregas             | 2010-11 | CM   | Arsenal                 |  23 | 1887 | Legend |  −2.1 |                |
 |     83 | Cesc Fàbregas             | 2016-17 | CM   | Chelsea                 |  29 | 1327 | Legend |  −2.2 |                |
+|     83 | Claude Makelele           | 2004-05 | CDM  | Chelsea                 |  31 | 3238 | Legend |    −2 |                |
 |     83 | Cristiano Ronaldo         | 2007-08 | CF   | Manchester United       |  22 | 2747 | Legend |    −2 |                |
 |     83 | David Beckham             | 1997-98 | RM   | Manchester United       |  22 | 3330 | Legend |    −2 |                |
+|     83 | David De Gea              | 2012-13 | GK   | Manchester United       |  22 | 2520 | Legend |    −2 |                |
+|     83 | David De Gea              | 2021-22 | GK   | Manchester Utd          |  31 | 3420 | Legend |    −2 |                |
+|     83 | David Ginola              | 1998-99 | LW   | Tottenham Hotspur       |  31 | 2700 | Legend |    −2 |                |
 |     83 | David Seaman              | 1994-95 | GK   | Arsenal                 |  31 | 2790 | Legend |    −2 |                |
 |     83 | David Seaman              | 2001-02 | GK   | Arsenal                 |  38 | 1530 | Legend |  −1.8 |       ✅       |
 |     83 | David Silva               | 2017-18 | CAM  | Manchester City         |  31 | 2435 | Legend |  −2.1 |                |
+|     83 | Denis Irwin               | 1996-97 | LB   | Manchester United       |  31 | 2790 | Legend |    −2 |                |
+|     83 | Dennis Bergkamp           | 2000-01 | SS   | Arsenal                 |  31 | 2250 | Legend |  −2.5 |                |
 |     83 | Didier Drogba             | 2004-05 | CF   | Chelsea                 |  26 | 1631 | Legend |  −1.6 |                |
 |     83 | Didier Drogba             | 2007-08 | CF   | Chelsea                 |  29 | 1529 | Legend |  −1.8 |                |
 |     83 | Didier Drogba             | 2009-10 | CF   | Chelsea                 |  31 | 2774 | Legend |    −2 |                |
@@ -211,51 +482,149 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     83 | Eden Hazard               | 2013-14 | LW   | Chelsea                 |  22 | 2895 | Legend |    −2 |                |
 |     83 | Ederson                   | 2024-25 | GK   | Manchester City         |  31 | 2321 | Legend |  −2.3 |                |
 |     83 | Edwin van der Sar         | 2001-02 | GK   | Fulham                  |  31 | 3330 | Legend |    −2 |                |
+|     83 | Erling Haaland            | 2022-23 | CF   | Manchester City         |  22 | 2776 | Legend |    −2 |                |
+|     83 | Fernandinho               | 2016-17 | CDM  | Manchester City         |  31 | 2754 | Legend |    −2 |                |
+|     83 | Fernando Torres           | 2013-14 | CF   | Chelsea                 |  29 | 1571 | Legend |  −1.7 |                |
 |     83 | Frank Lampard             | 2000-01 | CM   | West Ham United         |  22 | 2700 | Legend |    −2 |                |
 |     83 | Frank Lampard             | 2009-10 | CM   | Chelsea                 |  31 | 3220 | Legend |    −2 |                |
-|     83 | James Milner              | 2008-09 | CM   | Aston Villa             |  22 | 3058 | Legend |    −2 |                |
-|     83 | James Milner              | 2011-12 | CM   | Manchester City         |  25 | 1579 | Legend |  −1.7 |                |
-|     83 | James Milner              | 2013-14 | CM   | Manchester City         |  27 | 1358 | Legend |  −2.1 |                |
-|     83 | Joe Hart                  | 2009-10 | GK   | Birmingham City         |  22 | 3240 | Legend |    −2 |                |
-|     83 | Joe Hart                  | 2017-18 | GK   | West Ham                |  30 | 1710 | Legend |  −2.5 |                |
+|     83 | Gareth Bale               | 2011-12 | RW   | Tottenham Hotspur       |  22 | 3217 | Legend |    −2 |                |
+|     83 | Gary Neville              | 1997-98 | RB   | Manchester United       |  22 | 3060 | Legend |    −2 |                |
+|     83 | Gary Neville              | 2005-06 | RB   | Manchester United       |  30 | 2163 | Legend |  −1.6 |                |
+|     83 | Gary Neville              | 2009-10 | RB   | Manchester United       |  34 | 1355 | Legend |  −2.1 |       ✅       |
+|     83 | Gianfranco Zola           | 1996-97 | SS   | Chelsea                 |  30 | 2070 | Legend |  −1.8 |                |
+|     83 | Gianfranco Zola           | 1997-98 | SS   | Chelsea                 |  31 | 2430 | Legend |  −2.1 |                |
+|     83 | Harry Kane                | 2015-16 | CF   | Tottenham Hotspur       |  22 | 3279 | Legend |    −2 |                |
+|     83 | Ian Wright                | 1994-95 | CF   | Arsenal                 |  31 | 2790 | Legend |    −2 |                |
+|     83 | Jaap Stam                 | 2000-01 | CB   | Manchester United       |  28 | 1350 | Legend |  −2.2 |                |
+|     83 | Jamie Carragher           | 2000-01 | CB   | Liverpool               |  22 | 3060 | Legend |    −2 |                |
+|     83 | Jamie Carragher           | 2009-10 | CB   | Liverpool               |  31 | 3254 | Legend |    −2 |                |
+|     83 | Jamie Vardy               | 2018-19 | CF   | Leicester City          |  31 | 2728 | Legend |    −2 |                |
+|     83 | John Terry                | 2011-12 | CB   | Chelsea                 |  31 | 2790 | Legend |    −2 |                |
+|     83 | Jürgen Klinsmann          | 1997-98 | CF   | Tottenham Hotspur       |  33 | 1350 | Legend |  −2.2 |       ✅       |
 |     83 | Kevin De Bruyne           | 2021-22 | CAM  | Manchester City         |  30 | 2205 | Legend |  −1.6 |                |
 |     83 | Kevin De Bruyne           | 2022-23 | CAM  | Manchester City         |  31 | 2425 | Legend |  −2.1 |                |
+|     83 | Kyle Walker               | 2012-13 | RB   | Tottenham Hotspur       |  22 | 3160 | Legend |    −2 |                |
+|     83 | Kyle Walker               | 2014-15 | RB   | Tottenham Hotspur       |  24 | 1307 | Legend |  −2.2 |                |
+|     83 | Kyle Walker               | 2020-21 | RB   | Manchester City         |  30 | 1946 | Legend |    −2 |                |
+|     83 | Ledley King               | 2002-03 | CB   | Tottenham Hotspur       |  22 | 2250 | Legend |  −2.5 |                |
+|     83 | Ledley King               | 2009-10 | CB   | Tottenham Hotspur       |  29 | 1547 | Legend |  −1.8 |                |
+|     83 | Michael Carrick           | 2012-13 | CDM  | Manchester United       |  31 | 3045 | Legend |    −2 |                |
+|     83 | Michael Owen              | 2001-02 | CF   | Liverpool               |  22 | 2610 | Legend |    −2 |                |
 |     83 | Mohamed Salah             | 2023-24 | RW   | Liverpool               |  31 | 2535 | Legend |    −2 |                |
+|     83 | N'Golo Kanté              | 2021-22 | CDM  | Chelsea                 |  30 | 1777 | Legend |  −2.4 |                |
+|     83 | Patrice Evra              | 2012-13 | LB   | Manchester United       |  31 | 3060 | Legend |    −2 |                |
+|     83 | Patrick Vieira            | 1998-99 | CDM  | Arsenal                 |  22 | 3060 | Legend |    −2 |                |
 |     83 | Peter Schmeichel          | 1994-95 | GK   | Manchester United       |  31 | 2880 | Legend |    −2 |                |
 |     83 | Petr Cech                 | 2004-05 | GK   | Chelsea                 |  22 | 3150 | Legend |    −2 |                |
 |     83 | Petr Cech                 | 2013-14 | GK   | Chelsea                 |  31 | 3060 | Legend |    −2 |                |
+|     83 | Rio Ferdinand             | 2000-01 | CB   | Leeds United            |  22 | 3150 | Legend |    −2 |                |
+|     83 | Rio Ferdinand             | 2008-09 | CB   | Manchester United       |  30 | 2140 | Legend |  −1.7 |                |
+|     83 | Riyad Mahrez              | 2014-15 | RW   | Leicester City          |  23 | 2082 | Legend |  −1.8 |                |
+|     83 | Riyad Mahrez              | 2018-19 | RW   | Manchester City         |  27 | 1336 | Legend |  −2.2 |                |
+|     83 | Robbie Fowler             | 1999-00 | CF   | Liverpool               |  24 | 1260 | Legend |  −2.3 |                |
+|     83 | Robert Pirès              | 2004-05 | LM   | Arsenal                 |  31 | 2318 | Legend |  −2.3 |                |
+|     83 | Robin van Persie          | 2009-10 | CF   | Arsenal                 |  26 | 1256 | Legend |  −2.3 |                |
+|     83 | Rodri                     | 2025-26 | CDM  | Manchester City         |  29 | 1513 | Legend |  −1.9 |                |
+|     83 | Roy Keane                 | 1993-94 | CM   | Manchester United       |  22 | 3330 | Legend |    −2 |                |
+|     83 | Ruud van Nistelrooij      | 2004-05 | CF   | Manchester United       |  28 | 1371 | Legend |  −2.1 |                |
+|     83 | Ryan Giggs                | 1995-96 | LM   | Manchester United       |  22 | 2970 | Legend |    −2 |                |
+|     83 | Ryan Giggs                | 2004-05 | LM   | Manchester United       |  31 | 2325 | Legend |  −2.3 |                |
 |     83 | Sergio Agüero             | 2013-14 | CF   | Manchester City         |  25 | 1539 | Legend |  −1.8 |                |
-|     83 | Teddy Sheringham          | 1997-98 | CF   | Manchester United       |  31 | 2790 | Legend |    −2 |                |
+|     83 | Sol Campbell              | 1996-97 | CB   | Tottenham Hotspur       |  22 | 3420 | Legend |    −2 |                |
+|     83 | Son Heung-Min             | 2023-24 | LW   | Tottenham               |  31 | 2946 | Legend |    −2 |                |
+|     83 | Steven Gerrard            | 2002-03 | CM   | Liverpool               |  22 | 3060 | Legend |    −2 |                |
+|     83 | Steven Gerrard            | 2010-11 | CM   | Liverpool               |  30 | 1869 | Legend |  −2.2 |                |
 |     83 | Thierry Henry             | 1999-00 | CF   | Arsenal                 |  22 | 2790 | Legend |    −2 |                |
 |     83 | Thierry Henry             | 2006-07 | CF   | Arsenal                 |  29 | 1475 | Legend |  −1.9 |                |
+|     83 | Tony Adams                | 1997-98 | CB   | Arsenal                 |  31 | 2340 | Legend |  −2.3 |                |
 |     83 | Trent Alexander-Arnold    | 2020-21 | RB   | Liverpool               |  22 | 3033 | Legend |    −2 |                |
+|     83 | Vincent Kompany           | 2008-09 | CB   | Manchester City         |  22 | 2994 | Legend |    −2 |                |
+|     83 | Vincent Kompany           | 2009-10 | CB   | Manchester City         |  23 | 1913 | Legend |  −2.1 |                |
+|     83 | Vincent Kompany           | 2015-16 | CB   | Manchester City         |  29 | 1179 | Legend |  −2.5 |                |
+|     83 | Virgil van Dijk           | 2022-23 | CB   | Liverpool               |  31 | 2835 | Legend |    −2 |                |
+|     83 | Xabi Alonso               | 2004-05 | CDM  | Liverpool               |  23 | 1813 | Legend |  −2.3 |                |
+|     83 | Xabi Alonso               | 2007-08 | CDM  | Liverpool               |  26 | 1469 | Legend |  −1.9 |                |
 |     83 | Yaya Touré                | 2014-15 | CM   | Manchester City         |  31 | 2355 | Legend |  −2.3 |                |
 |     82 | Alan Shearer              | 1992-93 | CF   | Blackburn Rovers        |  22 | 1890 | Legend |  −3.1 |                |
 |     82 | Alan Shearer              | 2002-03 | CF   | Newcastle United        |  32 | 3150 | Legend |    −3 |                |
+|     82 | Alisson                   | 2024-25 | GK   | Liverpool               |  32 | 2520 | Legend |    −3 |                |
 |     82 | Andrew Cole               | 2003-04 | CF   | Blackburn Rovers        |  32 | 2616 | Legend |    −3 |                |
+|     82 | Ashley Cole               | 2001-02 | LB   | Arsenal                 |  21 | 2610 | Legend |    −3 |                |
+|     82 | Ashley Cole               | 2012-13 | LB   | Chelsea                 |  32 | 2790 | Legend |    −3 |                |
+|     82 | Carlos Tevez              | 2006-07 | CF   | West Ham United         |  22 | 1702 | Legend |  −3.5 |                |
 |     82 | Cesc Fàbregas             | 2009-10 | CM   | Arsenal                 |  22 | 2193 | Legend |  −2.6 |                |
+|     82 | Claude Makelele           | 2005-06 | CDM  | Chelsea                 |  32 | 2544 | Legend |    −3 |                |
 |     82 | Cristiano Ronaldo         | 2006-07 | CF   | Manchester United       |  21 | 2790 | Legend |    −3 |                |
 |     82 | David Beckham             | 1996-97 | RM   | Manchester United       |  21 | 3240 | Legend |    −3 |                |
+|     82 | David De Gea              | 2011-12 | GK   | Manchester United       |  21 | 2610 | Legend |    −3 |                |
+|     82 | David De Gea              | 2022-23 | GK   | Manchester Utd          |  32 | 3420 | Legend |    −3 |                |
+|     82 | David Ginola              | 1999-00 | LW   | Tottenham Hotspur       |  32 | 3240 | Legend |    −3 |                |
 |     82 | David Seaman              | 1995-96 | GK   | Arsenal                 |  32 | 3420 | Legend |    −3 |                |
 |     82 | David Silva               | 2018-19 | CAM  | Manchester City         |  32 | 2409 | Legend |  −3.2 |                |
+|     82 | Denis Irwin               | 1997-98 | LB   | Manchester United       |  32 | 2250 | Legend |  −3.5 |                |
+|     82 | Dennis Bergkamp           | 2001-02 | SS   | Arsenal                 |  32 | 2970 | Legend |    −3 |                |
 |     82 | Didier Drogba             | 2008-09 | CF   | Chelsea                 |  30 | 1549 | Legend |  −2.8 |                |
 |     82 | Didier Drogba             | 2010-11 | CF   | Chelsea                 |  32 | 2793 | Legend |    −3 |                |
 |     82 | Dwight Yorke              | 1992-93 | CF   | Aston Villa             |  21 | 2430 | Legend |  −3.1 |                |
 |     82 | Eden Hazard               | 2012-13 | LW   | Chelsea                 |  21 | 2636 | Legend |    −3 |                |
+|     82 | Fernandinho               | 2017-18 | CDM  | Manchester City         |  32 | 2885 | Legend |    −3 |                |
 |     82 | Frank Lampard             | 1999-00 | CM   | West Ham United         |  21 | 3060 | Legend |    −3 |                |
 |     82 | Frank Lampard             | 2014-15 | CM   | Manchester City         |  36 |  989 | Legend |  −2.8 |       ✅       |
-|     82 | James Milner              | 2017-18 | CM   | Liverpool               |  31 | 1762 | Legend |  −3.4 |                |
-|     82 | James Milner              | 2019-20 | CM   | Liverpool               |  33 |  926 | Legend |    −3 |       ✅       |
-|     82 | Joe Hart                  | 2018-19 | GK   | Burnley                 |  31 | 1710 | Legend |  −3.5 |                |
+|     82 | Gareth Bale               | 2010-11 | RW   | Tottenham Hotspur       |  21 | 2451 | Legend |  −3.1 |                |
+|     82 | Gary Neville              | 1996-97 | RB   | Manchester United       |  21 | 2790 | Legend |    −3 |                |
+|     82 | Gary Neville              | 2006-07 | RB   | Manchester United       |  31 | 1979 | Legend |    −3 |                |
+|     82 | Gianfranco Zola           | 1998-99 | SS   | Chelsea                 |  32 | 3330 | Legend |    −3 |                |
+|     82 | Harry Kane                | 2014-15 | CF   | Tottenham Hotspur       |  21 | 2581 | Legend |    −3 |                |
+|     82 | Ian Wright                | 1995-96 | CF   | Arsenal                 |  32 | 2790 | Legend |    −3 |                |
+|     82 | Jamie Carragher           | 1999-00 | CB   | Liverpool               |  21 | 3240 | Legend |    −3 |                |
+|     82 | Jamie Carragher           | 2010-11 | CB   | Liverpool               |  32 | 2489 | Legend |    −3 |                |
+|     82 | Jamie Vardy               | 2019-20 | CF   | Leicester City          |  32 | 3034 | Legend |    −3 |                |
+|     82 | John Terry                | 2001-02 | CB   | Chelsea                 |  21 | 2970 | Legend |    −3 |                |
+|     82 | John Terry                | 2002-03 | CB   | Chelsea                 |  22 | 1800 | Legend |  −3.3 |                |
 |     82 | Kevin De Bruyne           | 2018-19 | CAM  | Manchester City         |  27 |  945 | Legend |  −2.9 |                |
+|     82 | Kyle Walker               | 2011-12 | RB   | Tottenham Hotspur       |  21 | 3230 | Legend |    −3 |                |
+|     82 | Kyle Walker               | 2021-22 | RB   | Manchester City         |  31 | 1755 | Legend |  −3.4 |                |
+|     82 | Ledley King               | 2001-02 | CB   | Tottenham Hotspur       |  21 | 2880 | Legend |    −3 |                |
+|     82 | Ledley King               | 2011-12 | CB   | Tottenham Hotspur       |  31 | 1795 | Legend |  −3.3 |                |
+|     82 | Michael Carrick           | 2002-03 | CDM  | West Ham United         |  21 | 2700 | Legend |    −3 |                |
+|     82 | Michael Carrick           | 2013-14 | CDM  | Manchester United       |  32 | 2413 | Legend |  −3.2 |                |
+|     82 | Michael Owen              | 2000-01 | CF   | Liverpool               |  21 | 2520 | Legend |    −3 |                |
 |     82 | Mohamed Salah             | 2024-25 | RW   | Liverpool               |  32 | 3377 | Legend |    −3 |                |
+|     82 | Patrice Evra              | 2013-14 | LB   | Manchester United       |  32 | 2884 | Legend |    −3 |                |
+|     82 | Patrick Vieira            | 1997-98 | CDM  | Arsenal                 |  21 | 2970 | Legend |    −3 |                |
+|     82 | Paul Scholes              | 1995-96 | CM   | Manchester United       |  21 | 2340 | Legend |  −3.3 |                |
+|     82 | Paul Scholes              | 1996-97 | CM   | Manchester United       |  22 | 2160 | Legend |  −2.6 |                |
+|     82 | Paul Scholes              | 2006-07 | CM   | Manchester United       |  32 | 2596 | Legend |    −3 |                |
 |     82 | Peter Schmeichel          | 1995-96 | GK   | Manchester United       |  32 | 3240 | Legend |    −3 |                |
+|     82 | Rio Ferdinand             | 1999-00 | CB   | West Ham United         |  21 | 2970 | Legend |    −3 |                |
+|     82 | Riyad Mahrez              | 2021-22 | RW   | Manchester City         |  30 | 1491 | Legend |  −2.9 |                |
+|     82 | Riyad Mahrez              | 2022-23 | RW   | Manchester City         |  31 | 1923 | Legend |  −3.1 |                |
+|     82 | Robbie Fowler             | 1996-97 | CF   | Liverpool               |  21 | 2880 | Legend |    −3 |                |
+|     82 | Robbie Fowler             | 1997-98 | CF   | Liverpool               |  22 | 1800 | Legend |  −3.3 |                |
+|     82 | Robin van Persie          | 2006-07 | CF   | Arsenal                 |  23 | 1460 | Legend |    −3 |                |
+|     82 | Robin van Persie          | 2007-08 | CF   | Arsenal                 |  24 | 1079 | Legend |  −2.7 |                |
+|     82 | Robin van Persie          | 2013-14 | CF   | Manchester United       |  30 | 1584 | Legend |  −2.7 |                |
+|     82 | Robin van Persie          | 2014-15 | CF   | Manchester United       |  31 | 2114 | Legend |  −2.7 |                |
+|     82 | Roy Keane                 | 1992-93 | CM   | Nottingham Forest       |  21 | 3600 | Legend |    −3 |                |
+|     82 | Roy Keane                 | 2002-03 | CM   | Manchester United       |  31 | 1890 | Legend |  −3.1 |                |
+|     82 | Ryan Giggs                | 1994-95 | LM   | Manchester United       |  21 | 2610 | Legend |    −3 |                |
+|     82 | Sadio Mané                | 2014-15 | LW   | Southampton             |  22 | 2135 | Legend |  −2.7 |                |
+|     82 | Sol Campbell              | 1995-96 | CB   | Tottenham Hotspur       |  21 | 2790 | Legend |    −3 |                |
+|     82 | Sol Campbell              | 2004-05 | CB   | Arsenal                 |  30 | 1420 | Legend |    −3 |                |
+|     82 | Sol Campbell              | 2005-06 | CB   | Arsenal                 |  31 | 1754 | Legend |  −3.4 |                |
+|     82 | Sol Campbell              | 2006-07 | CB   | Portsmouth              |  32 | 2880 | Legend |    −3 |                |
+|     82 | Steven Gerrard            | 2001-02 | CM   | Liverpool               |  21 | 2520 | Legend |    −3 |                |
+|     82 | Steven Gerrard            | 2012-13 | CM   | Liverpool               |  32 | 3223 | Legend |    −3 |                |
+|     82 | Tony Adams                | 1998-99 | CB   | Arsenal                 |  32 | 2340 | Legend |  −3.3 |                |
+|     82 | Tony Adams                | 2001-02 | CB   | Arsenal                 |  35 |  900 | Legend |    −3 |       ✅       |
 |     82 | Trent Alexander-Arnold    | 2019-20 | RB   | Liverpool               |  21 | 3176 | Legend |    −3 |                |
+|     82 | Virgil van Dijk           | 2023-24 | CB   | Liverpool               |  32 | 3178 | Legend |    −3 |                |
 |     82 | Wayne Rooney              | 2006-07 | CF   | Manchester United       |  21 | 2931 | Legend |    −3 |                |
 |     82 | Wayne Rooney              | 2007-08 | CF   | Manchester United       |  22 | 2184 | Legend |  −2.6 |                |
 |     82 | Wayne Rooney              | 2017-18 | CF   | Everton                 |  32 | 2282 | Legend |  −3.4 |                |
 |     82 | Yaya Touré                | 2015-16 | CM   | Manchester City         |  32 | 2331 | Legend |  −3.3 |                |
 |     81 | Alan Shearer              | 2003-04 | CF   | Newcastle United        |  33 | 3295 | Legend |    −4 |                |
+|     81 | Alisson                   | 2025-26 | GK   | Liverpool               |  33 | 2340 | Legend |  −4.3 |                |
 |     81 | Andrew Cole               | 2004-05 | CF   | Fulham                  |  33 | 2510 | Legend |    −4 |                |
 |     81 | Andrew Robertson          | 2025-26 | LB   | Liverpool               |  31 | 1172 | Legend |  −4.5 |                |
 |     81 | Cesc Fàbregas             | 2005-06 | CM   | Arsenal                 |  18 | 2631 | Legend |    −4 |                |
@@ -265,22 +634,59 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     81 | Cristiano Ronaldo         | 2004-05 | CF   | Manchester United       |  19 | 2424 | Legend |  −4.1 |                |
 |     81 | Cristiano Ronaldo         | 2005-06 | CF   | Manchester United       |  20 | 2284 | Legend |  −4.4 |                |
 |     81 | David Beckham             | 1995-96 | RM   | Manchester United       |  20 | 2970 | Legend |    −4 |                |
+|     81 | David Ginola              | 2000-01 | LW   | Aston Villa             |  33 | 2430 | Legend |  −4.1 |                |
+|     81 | Denis Irwin               | 1998-99 | LB   | Manchester United       |  33 | 2610 | Legend |    −4 |                |
+|     81 | Dennis Bergkamp           | 2002-03 | SS   | Arsenal                 |  33 | 2610 | Legend |    −4 |                |
 |     81 | Dwight Yorke              | 2001-02 | CF   | Manchester United       |  30 |  900 | Legend |    −4 |                |
 |     81 | Edwin van der Sar         | 2002-03 | GK   | Fulham                  |  32 | 1710 | Legend |  −4.5 |                |
+|     81 | Fernandinho               | 2018-19 | CDM  | Manchester City         |  33 | 2381 | Legend |  −4.2 |                |
 |     81 | Frank Lampard             | 1997-98 | CM   | West Ham United         |  19 | 2790 | Legend |    −4 |                |
 |     81 | Frank Lampard             | 1998-99 | CM   | West Ham United         |  20 | 3420 | Legend |    −4 |                |
 |     81 | Frank Lampard             | 2010-11 | CM   | Chelsea                 |  32 | 2026 | Legend |  −3.9 |                |
-|     81 | James Milner              | 2003-04 | CM   | Leeds United            |  17 | 2381 | Legend |  −4.2 |                |
-|     81 | James Milner              | 2005-06 | CM   | Aston Villa             |  19 | 2469 | Legend |  −4.1 |                |
-|     81 | James Milner              | 2006-07 | CM   | Newcastle United        |  20 | 2682 | Legend |    −4 |                |
-|     81 | James Milner              | 2007-08 | CM   | Newcastle United        |  21 | 2232 | Legend |  −3.5 |                |
-|     81 | James Milner              | 2018-19 | CM   | Liverpool               |  32 | 1786 | Legend |  −4.3 |                |
-|     81 | Joe Hart                  | 2007-08 | GK   | Manchester City         |  20 | 2340 | Legend |  −4.3 |                |
-|     81 | Joe Hart                  | 2008-09 | GK   | Manchester City         |  21 | 1999 | Legend |  −3.9 |                |
+|     81 | Gary Neville              | 1995-96 | RB   | Manchester United       |  20 | 2790 | Legend |    −4 |                |
+|     81 | Gianfranco Zola           | 1999-00 | SS   | Chelsea                 |  33 | 2970 | Legend |    −4 |                |
+|     81 | Jamie Carragher           | 1998-99 | CB   | Liverpool               |  20 | 3060 | Legend |    −4 |                |
+|     81 | Kyle Walker               | 2022-23 | RB   | Manchester City         |  32 | 1956 | Legend |    −4 |                |
+|     81 | Kyle Walker               | 2023-24 | RB   | Manchester City         |  33 | 2767 | Legend |    −4 |                |
+|     81 | Luis Suárez               | 2010-11 | CF   | Liverpool               |  23 | 1102 | Legend |  −3.6 |                |
+|     81 | Matthew Le Tissier        | 1999-00 | CAM  | Southampton             |  31 | 1620 | Legend |  −3.6 |                |
+|     81 | Michael Carrick           | 2000-01 | CDM  | West Ham United         |  19 | 2970 | Legend |    −4 |                |
+|     81 | Michael Carrick           | 2001-02 | CDM  | West Ham United         |  20 | 2700 | Legend |    −4 |                |
+|     81 | Michael Owen              | 1997-98 | CF   | Liverpool               |  18 | 3240 | Legend |    −4 |                |
+|     81 | Michael Owen              | 1998-99 | CF   | Liverpool               |  19 | 2700 | Legend |    −4 |                |
+|     81 | Michael Owen              | 1999-00 | CF   | Liverpool               |  20 | 2430 | Legend |  −4.1 |                |
+|     81 | Nemanja Vidic             | 2012-13 | CB   | Manchester United       |  31 | 1619 | Legend |  −3.7 |                |
+|     81 | Nemanja Vidic             | 2013-14 | CB   | Manchester United       |  32 | 2082 | Legend |  −3.8 |                |
+|     81 | Patrick Vieira            | 1996-97 | CDM  | Arsenal                 |  20 | 2790 | Legend |    −4 |                |
+|     81 | Paul Scholes              | 2005-06 | CM   | Manchester United       |  31 | 1617 | Legend |  −3.7 |                |
 |     81 | Peter Schmeichel          | 1996-97 | GK   | Manchester United       |  33 | 3240 | Legend |    −4 |                |
+|     81 | Rio Ferdinand             | 1997-98 | CB   | West Ham United         |  19 | 3150 | Legend |    −4 |                |
+|     81 | Rio Ferdinand             | 1998-99 | CB   | West Ham United         |  20 | 2790 | Legend |    −4 |                |
+|     81 | Rio Ferdinand             | 2010-11 | CB   | Manchester United       |  32 | 1710 | Legend |  −4.5 |                |
+|     81 | Rio Ferdinand             | 2011-12 | CB   | Manchester United       |  33 | 2565 | Legend |    −4 |                |
+|     81 | Robbie Fowler             | 1993-94 | CF   | Liverpool               |  18 | 2520 | Legend |    −4 |                |
+|     81 | Robbie Fowler             | 1994-95 | CF   | Liverpool               |  19 | 3780 | Legend |    −4 |                |
+|     81 | Robbie Fowler             | 1995-96 | CF   | Liverpool               |  20 | 3420 | Legend |    −4 |                |
+|     81 | Robert Pirès              | 2005-06 | LM   | Arsenal                 |  32 | 2183 | Legend |  −3.6 |                |
+|     81 | Roberto Firmino           | 2021-22 | CF   | Liverpool               |  30 |  985 | Legend |  −3.8 |                |
+|     81 | Roberto Firmino           | 2022-23 | CF   | Liverpool               |  31 | 1212 | Legend |  −4.4 |                |
+|     81 | Robin van Persie          | 2005-06 | CF   | Arsenal                 |  22 | 1211 | Legend |  −4.4 |                |
+|     81 | Roy Keane                 | 2003-04 | CM   | Manchester United       |  32 | 2197 | Legend |  −3.6 |                |
+|     81 | Roy Keane                 | 2004-05 | CM   | Manchester United       |  33 | 2607 | Legend |    −4 |                |
+|     81 | Ryan Giggs                | 1992-93 | LM   | Manchester United       |  19 | 3690 | Legend |    −4 |                |
+|     81 | Ryan Giggs                | 1993-94 | LM   | Manchester United       |  20 | 3420 | Legend |    −4 |                |
+|     81 | Ryan Giggs                | 2005-06 | LM   | Manchester United       |  32 | 1865 | Legend |  −4.2 |                |
+|     81 | Ryan Giggs                | 2006-07 | LM   | Manchester United       |  33 | 2314 | Legend |  −4.3 |                |
 |     81 | Sergio Agüero             | 2019-20 | CF   | Manchester City         |  31 | 1456 | Legend |    −4 |                |
-|     81 | Teddy Sheringham          | 1999-00 | CF   | Manchester United       |  33 | 2430 | Legend |  −4.1 |                |
+|     81 | Sol Campbell              | 1993-94 | CB   | Tottenham Hotspur       |  19 | 3060 | Legend |    −4 |                |
+|     81 | Sol Campbell              | 1994-95 | CB   | Tottenham Hotspur       |  20 | 2700 | Legend |    −4 |                |
+|     81 | Son Heung-Min             | 2015-16 | LW   | Tottenham Hotspur       |  23 | 1105 | Legend |  −3.6 |                |
+|     81 | Son Heung-Min             | 2024-25 | LW   | Tottenham               |  32 | 2116 | Legend |  −3.7 |                |
+|     81 | Steven Gerrard            | 1999-00 | CM   | Liverpool               |  19 | 2610 | Legend |    −4 |                |
+|     81 | Steven Gerrard            | 2000-01 | CM   | Liverpool               |  20 | 2970 | Legend |    −4 |                |
+|     81 | Steven Gerrard            | 2011-12 | CM   | Liverpool               |  31 | 1212 | Legend |  −4.4 |                |
 |     81 | Trent Alexander-Arnold    | 2018-19 | RB   | Liverpool               |  20 | 2466 | Legend |  −4.1 |                |
+|     81 | Vincent Kompany           | 2017-18 | CB   | Manchester City         |  31 | 1396 | Legend |  −4.1 |                |
 |     81 | Wayne Rooney              | 2002-03 | CF   | Everton                 |  17 | 2970 | Legend |    −4 |                |
 |     81 | Wayne Rooney              | 2003-04 | CF   | Everton                 |  18 | 2440 | Legend |  −4.1 |                |
 |     81 | Wayne Rooney              | 2005-06 | CF   | Manchester United       |  20 | 3076 | Legend |    −4 |                |
@@ -288,10 +694,10 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     80 | Alan Shearer              | 2004-05 | CF   | Newcastle United        |  34 | 2261 | Legend |  −5.4 |                |
 |     80 | Alexander Isak            | 2023-24 | CF   | Newcastle Utd           |  24 | 2266 | Elite  |  −0.4 |                |
 |     80 | Alexander Isak            | 2024-25 | CF   | Newcastle Utd           |  25 | 2769 | Elite  |    −0 |                |
-|     80 | Alisson                   | 2018-19 | GK   | Liverpool               |  26 | 3420 | Elite  |    −0 |                |
-|     80 | Alisson                   | 2019-20 | GK   | Liverpool               |  27 | 2545 | Elite  |    −0 |                |
-|     80 | Alisson                   | 2020-21 | GK   | Liverpool               |  28 | 2970 | Elite  |    −0 |                |
-|     80 | Alisson                   | 2021-22 | GK   | Liverpool               |  29 | 3240 | Elite  |    −0 |                |
+|     80 | Alexis Sánchez            | 2014-15 | SS   | Arsenal                 |  26 | 2949 | Elite  |    −0 |                |
+|     80 | Alexis Sánchez            | 2015-16 | SS   | Arsenal                 |  27 | 2446 | Elite  |  −0.1 |                |
+|     80 | Alexis Sánchez            | 2016-17 | SS   | Arsenal                 |  28 | 3223 | Elite  |    −0 |                |
+|     80 | Alexis Sánchez            | 2017-18 | SS   | Arsenal                 |  29 | 2553 | Elite  |    −0 |                |
 |     80 | Andrei Kanchelskis        | 1993-94 | RM   | Manchester United       |  24 | 2790 | Elite  |    −0 |                |
 |     80 | Andrei Kanchelskis        | 1994-95 | RM   | Manchester United       |  25 | 2700 | Elite  |    −0 |                |
 |     80 | Andrei Kanchelskis        | 1995-96 | RM   | Everton                 |  26 | 2880 | Elite  |    −0 |                |
@@ -306,13 +712,11 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     80 | Antoine Semenyo           | 2025-26 | RW   | Manchester City         |  25 | 3200 | Elite  |    −0 |                |
 |     80 | Antonio Valencia          | 2009-10 | RB   | Manchester United       |  24 | 2615 | Elite  |    −0 |                |
 |     80 | Antonio Valencia          | 2014-15 | RB   | Manchester United       |  29 | 2583 | Elite  |    −0 |                |
-|     80 | Ashley Cole               | 2004-05 | LB   | Arsenal                 |  24 | 3150 | Elite  |    −0 |                |
-|     80 | Ashley Cole               | 2007-08 | LB   | Chelsea                 |  27 | 2415 | Elite  |  −0.2 |                |
-|     80 | Ashley Cole               | 2008-09 | LB   | Chelsea                 |  28 | 2941 | Elite  |    −0 |                |
 |     80 | Ashley Young              | 2009-10 | RB   | Aston Villa             |  24 | 3304 | Elite  |    −0 |                |
 |     80 | Ashley Young              | 2010-11 | RB   | Aston Villa             |  25 | 3054 | Elite  |    −0 |                |
 |     80 | Aymeric Laporte           | 2018-19 | CB   | Manchester City         |  24 | 3057 | Elite  |    −0 |                |
 |     80 | Aymeric Laporte           | 2021-22 | CB   | Manchester City         |  27 | 2834 | Elite  |    −0 |                |
+|     80 | Benjani                   | 2007-08 | CF   | Portsmouth              |  29 | 2908 | Elite  |    −0 |                |
 |     80 | Benni McCarthy            | 2006-07 | CF   | Blackburn Rovers        |  29 | 3067 | Elite  |    −0 |                |
 |     80 | Bernardo Silva            | 2018-19 | CAM  | Manchester City         |  24 | 2853 | Elite  |    −0 |                |
 |     80 | Bernardo Silva            | 2021-22 | CAM  | Manchester City         |  27 | 2859 | Elite  |    −0 |                |
@@ -336,9 +740,6 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     80 | Bruno Fernandes           | 2021-22 | CAM  | Manchester Utd          |  27 | 3118 | Elite  |    −0 |                |
 |     80 | Bruno Fernandes           | 2022-23 | CAM  | Manchester Utd          |  28 | 3318 | Elite  |    −0 |                |
 |     80 | Bruno Fernandes           | 2023-24 | CAM  | Manchester Utd          |  29 | 3119 | Elite  |    −0 |                |
-|     80 | Carlos Tevez              | 2009-10 | CF   | Manchester City         |  25 | 2868 | Elite  |    −0 |                |
-|     80 | Carlos Tevez              | 2010-11 | CF   | Manchester City         |  26 | 2531 | Elite  |    −0 |                |
-|     80 | Carlos Tevez              | 2012-13 | CF   | Manchester City         |  28 | 2408 | Elite  |  −0.2 |                |
 |     80 | César Azpilicueta         | 2013-14 | CB   | Chelsea                 |  24 | 2325 | Elite  |  −0.3 |                |
 |     80 | César Azpilicueta         | 2014-15 | CB   | Chelsea                 |  25 | 2484 | Elite  |    −0 |                |
 |     80 | César Azpilicueta         | 2015-16 | CB   | Chelsea                 |  26 | 3202 | Elite  |    −0 |                |
@@ -364,12 +765,6 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     80 | Darren Bent               | 2009-10 | CF   | Sunderland              |  25 | 3388 | Elite  |    −0 |                |
 |     80 | Darren Bent               | 2010-11 | CF   | Sunderland              |  26 | 3149 | Elite  |    −0 |                |
 |     80 | Darren Fletcher           | 2009-10 | CM   | Manchester United       |  25 | 2576 | Elite  |    −0 |                |
-|     80 | David De Gea              | 2014-15 | GK   | Manchester United       |  24 | 3314 | Elite  |    −0 |                |
-|     80 | David De Gea              | 2015-16 | GK   | Manchester United       |  25 | 3060 | Elite  |    −0 |                |
-|     80 | David De Gea              | 2016-17 | GK   | Manchester United       |  26 | 3150 | Elite  |    −0 |                |
-|     80 | David De Gea              | 2017-18 | GK   | Manchester Utd          |  27 | 3330 | Elite  |    −0 |                |
-|     80 | David De Gea              | 2018-19 | GK   | Manchester Utd          |  28 | 3420 | Elite  |    −0 |                |
-|     80 | David De Gea              | 2019-20 | GK   | Manchester Utd          |  29 | 3420 | Elite  |    −0 |                |
 |     80 | David Raya                | 2022-23 | GK   | Brentford               |  27 | 3420 | Elite  |    −0 |                |
 |     80 | David Raya                | 2023-24 | GK   | Arsenal                 |  28 | 2880 | Elite  |    −0 |                |
 |     80 | David Raya                | 2024-25 | GK   | Arsenal                 |  29 | 3420 | Elite  |    −0 |                |
@@ -380,18 +775,11 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     80 | Dean Holdsworth           | 1994-95 | CF   | Wimbledon               |  26 | 2520 | Elite  |    −0 |                |
 |     80 | Dean Holdsworth           | 1995-96 | CF   | Wimbledon               |  27 | 2970 | Elite  |    −0 |                |
 |     80 | Dean Holdsworth           | 1997-98 | CF   | Bolton Wanderers        |  29 | 2250 | Elite  |  −0.5 |                |
-|     80 | Denis Irwin               | 1992-93 | LB   | Manchester United       |  27 | 3600 | Elite  |    −0 |                |
-|     80 | Denis Irwin               | 1993-94 | LB   | Manchester United       |  28 | 3780 | Elite  |    −0 |                |
-|     80 | Denis Irwin               | 1994-95 | LB   | Manchester United       |  29 | 3600 | Elite  |    −0 |                |
-|     80 | Dennis Bergkamp           | 1995-96 | SS   | Arsenal                 |  26 | 2970 | Elite  |    −0 |                |
-|     80 | Dennis Bergkamp           | 1996-97 | SS   | Arsenal                 |  27 | 2610 | Elite  |    −0 |                |
-|     80 | Dennis Bergkamp           | 1997-98 | SS   | Arsenal                 |  28 | 2520 | Elite  |    −0 |                |
-|     80 | Dennis Bergkamp           | 1998-99 | SS   | Arsenal                 |  29 | 2610 | Elite  |    −0 |                |
-|     80 | Diego Costa               | 2015-16 | CF   | Chelsea                 |  27 | 2379 | Elite  |  −0.2 |                |
-|     80 | Diego Costa               | 2016-17 | CF   | Chelsea                 |  28 | 3089 | Elite  |    −0 |                |
+|     80 | Denis Irwin               | 1999-00 | LB   | Manchester United       |  34 | 2250 | Legend |  −5.5 |                |
 |     80 | Dimitar Berbatov          | 2006-07 | CF   | Tottenham Hotspur       |  25 | 2716 | Elite  |    −0 |                |
 |     80 | Dimitar Berbatov          | 2007-08 | CF   | Tottenham Hotspur       |  26 | 2992 | Elite  |    −0 |                |
 |     80 | Dimitar Berbatov          | 2008-09 | CF   | Manchester United       |  27 | 2567 | Elite  |    −0 |                |
+|     80 | Dimitri Payet             | 2015-16 | CAM  | West Ham United         |  28 | 2571 | Elite  |    −0 |                |
 |     80 | Dion Dublin               | 1994-95 | CF   | Coventry City           |  25 | 2790 | Elite  |    −0 |                |
 |     80 | Dion Dublin               | 1995-96 | CF   | Coventry City           |  26 | 3060 | Elite  |    −0 |                |
 |     80 | Dion Dublin               | 1996-97 | CF   | Coventry City           |  27 | 3060 | Elite  |    −0 |                |
@@ -405,17 +793,11 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     80 | Ed de Goey                | 1999-00 | GK   | Chelsea                 |  33 | 3330 | Elite  |    −0 |       ✅       |
 |     80 | Edwin van der Sar         | 2004-05 | GK   | Fulham                  |  34 | 2986 | Legend |    −5 |                |
 |     80 | Emmanuel Adebayor         | 2011-12 | CF   | Tottenham Hotspur       |  27 | 2840 | Elite  |    −0 |                |
-|     80 | Eric Cantona              | 1992-93 | SS   | Manchester United       |  26 | 3150 | Elite  |    −0 |                |
-|     80 | Eric Cantona              | 1993-94 | SS   | Manchester United       |  27 | 3060 | Elite  |    −0 |                |
-|     80 | Eric Cantona              | 1995-96 | SS   | Manchester United       |  29 | 2700 | Elite  |    −0 |                |
-|     80 | Erling Haaland            | 2024-25 | CF   | Manchester City         |  24 | 2741 | Elite  |    −0 |                |
-|     80 | Erling Haaland            | 2025-26 | CF   | Manchester City         |  25 | 2958 | Elite  |    −0 |                |
-|     80 | Fernandinho               | 2013-14 | CDM  | Manchester City         |  28 | 2608 | Elite  |    −0 |                |
-|     80 | Fernandinho               | 2014-15 | CDM  | Manchester City         |  29 | 2273 | Elite  |  −0.4 |                |
-|     80 | Fernando Torres           | 2010-11 | CF   | Liverpool               |  26 | 2658 | Elite  |    −0 |                |
-|     80 | Fernando Torres           | 2012-13 | CF   | Chelsea                 |  28 | 2570 | Elite  |    −0 |                |
+|     80 | Fernandinho               | 2019-20 | CDM  | Manchester City         |  34 | 2399 | Legend |  −5.2 |                |
 |     80 | Freddie Ljungberg         | 2001-02 | RM   | Arsenal                 |  24 | 2250 | Elite  |  −0.5 |                |
 |     80 | Freddie Ljungberg         | 2003-04 | RM   | Arsenal                 |  26 | 2235 | Elite  |  −0.5 |                |
+|     80 | Gareth Bale               | 2009-10 | RW   | Tottenham Hotspur       |  20 | 1707 | Legend |  −5.5 |                |
+|     80 | Gareth Bale               | 2020-21 | RW   | Tottenham               |  31 |  923 | Legend |    −5 |                |
 |     80 | Gareth Barry              | 2005-06 | CDM  | Aston Villa             |  24 | 3130 | Elite  |    −0 |                |
 |     80 | Gareth Barry              | 2006-07 | CDM  | Aston Villa             |  25 | 3120 | Elite  |    −0 |                |
 |     80 | Gareth Barry              | 2007-08 | CDM  | Aston Villa             |  26 | 3320 | Elite  |    −0 |                |
@@ -427,13 +809,10 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     80 | Gary Cahill               | 2011-12 | CB   | Bolton Wanderers        |  26 | 2493 | Elite  |    −0 |                |
 |     80 | Gary Cahill               | 2013-14 | CB   | Chelsea                 |  28 | 2623 | Elite  |    −0 |                |
 |     80 | Gary Cahill               | 2014-15 | CB   | Chelsea                 |  29 | 2985 | Elite  |    −0 |                |
-|     80 | Gary Neville              | 2000-01 | RB   | Manchester United       |  25 | 2880 | Elite  |    −0 |                |
-|     80 | Gary Neville              | 2001-02 | RB   | Manchester United       |  26 | 3060 | Elite  |    −0 |                |
-|     80 | Gary Neville              | 2002-03 | RB   | Manchester United       |  27 | 2340 | Elite  |  −0.3 |                |
-|     80 | Gary Neville              | 2003-04 | RB   | Manchester United       |  28 | 2690 | Elite  |    −0 |                |
 |     80 | Gary Pallister            | 1992-93 | CB   | Manchester United       |  27 | 3780 | Elite  |    −0 |                |
 |     80 | Gary Pallister            | 1993-94 | CB   | Manchester United       |  28 | 3690 | Elite  |    −0 |                |
 |     80 | Gary Pallister            | 1994-95 | CB   | Manchester United       |  29 | 3780 | Elite  |    −0 |                |
+|     80 | Gianfranco Zola           | 2000-01 | SS   | Chelsea                 |  34 | 3240 | Legend |    −5 |                |
 |     80 | Graeme Le Saux            | 1993-94 | LB   | Blackburn Rovers        |  25 | 3690 | Elite  |    −0 |                |
 |     80 | Graeme Le Saux            | 1994-95 | LB   | Blackburn Rovers        |  26 | 3510 | Elite  |    −0 |                |
 |     80 | Graeme Le Saux            | 1996-97 | LB   | Blackburn Rovers        |  28 | 2340 | Elite  |  −0.3 |                |
@@ -443,29 +822,20 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     80 | Gylfi Sigurdsson          | 2016-17 | CAM  | Swansea City            |  27 | 3328 | Elite  |    −0 |                |
 |     80 | Gylfi Sigurdsson          | 2017-18 | CAM  | Everton                 |  28 | 2430 | Elite  |  −0.1 |                |
 |     80 | Gylfi Sigurdsson          | 2018-19 | CAM  | Everton                 |  29 | 3420 | Elite  |    −0 |                |
-|     80 | Harry Kane                | 2017-18 | CF   | Tottenham               |  24 | 3083 | Elite  |    −0 |                |
-|     80 | Harry Kane                | 2018-19 | CF   | Tottenham               |  25 | 2427 | Elite  |  −0.1 |                |
-|     80 | Harry Kane                | 2019-20 | CF   | Tottenham               |  26 | 2589 | Elite  |    −0 |                |
-|     80 | Harry Kane                | 2020-21 | CF   | Tottenham               |  27 | 3085 | Elite  |    −0 |                |
-|     80 | Harry Kane                | 2021-22 | CF   | Tottenham               |  28 | 3232 | Elite  |    −0 |                |
-|     80 | Harry Kane                | 2022-23 | CF   | Tottenham               |  29 | 3406 | Elite  |    −0 |                |
 |     80 | Henning Berg              | 1993-94 | RB   | Blackburn Rovers        |  24 | 3690 | Elite  |    −0 |                |
 |     80 | Henning Berg              | 1994-95 | RB   | Blackburn Rovers        |  25 | 3600 | Elite  |    −0 |                |
 |     80 | Henning Berg              | 1995-96 | RB   | Blackburn Rovers        |  26 | 3420 | Elite  |    −0 |                |
 |     80 | Henning Berg              | 1996-97 | RB   | Blackburn Rovers        |  27 | 3240 | Elite  |    −0 |                |
 |     80 | Henning Berg              | 1997-98 | RB   | Manchester United       |  28 | 2430 | Elite  |  −0.1 |                |
-|     80 | Ian Wright                | 1992-93 | CF   | Arsenal                 |  29 | 2790 | Elite  |    −0 |                |
-|     80 | Ian Wright                | 1996-97 | CF   | Arsenal                 |  33 | 3150 | Elite  |    −0 |       ✅       |
 |     80 | Ivan Toney                | 2021-22 | CF   | Brentford               |  25 | 2908 | Elite  |    −0 |                |
 |     80 | Ivan Toney                | 2022-23 | CF   | Brentford               |  26 | 2953 | Elite  |    −0 |                |
 |     80 | Jacob Murphy              | 2024-25 | RW   | Newcastle Utd           |  29 | 2379 | Elite  |  −0.2 |                |
 |     80 | James Beattie             | 2002-03 | CF   | Southampton             |  24 | 3420 | Elite  |    −0 |                |
 |     80 | James Beattie             | 2003-04 | CF   | Southampton             |  25 | 2964 | Elite  |    −0 |                |
 |     80 | James Beattie             | 2005-06 | CF   | Everton                 |  27 | 2511 | Elite  |    −0 |                |
-|     80 | Jamie Vardy               | 2014-15 | CF   | Leicester City          |  27 | 2245 | Elite  |  −0.5 |                |
-|     80 | Jamie Vardy               | 2015-16 | CF   | Leicester City          |  28 | 3139 | Elite  |    −0 |                |
-|     80 | Jamie Vardy               | 2016-17 | CF   | Leicester City          |  29 | 2808 | Elite  |    −0 |                |
-|     80 | Jamie Vardy               | 2020-21 | CF   | Leicester City          |  33 | 2844 | Elite  |    −0 |       ✅       |
+|     80 | James Milner              | 2015-16 | CM   | Liverpool               |  29 | 2414 | Elite  |  −0.2 |                |
+|     80 | Jamie Carragher           | 1997-98 | CB   | Liverpool               |  19 | 1800 | Legend |  −5.3 |                |
+|     80 | Jamie Carragher           | 2011-12 | CB   | Liverpool               |  33 | 1725 | Legend |  −5.5 |                |
 |     80 | Jarrod Bowen              | 2020-21 | RW   | West Ham                |  24 | 2576 | Elite  |    −0 |                |
 |     80 | Jarrod Bowen              | 2021-22 | RW   | West Ham                |  25 | 2987 | Elite  |    −0 |                |
 |     80 | Jarrod Bowen              | 2022-23 | RW   | West Ham                |  26 | 3236 | Elite  |    −0 |                |
@@ -476,30 +846,25 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     80 | Jimmy Floyd Hasselbaink   | 1998-99 | CF   | Leeds United            |  26 | 3240 | Elite  |    −0 |                |
 |     80 | Jimmy Floyd Hasselbaink   | 2000-01 | CF   | Chelsea                 |  28 | 3150 | Elite  |    −0 |                |
 |     80 | Jimmy Floyd Hasselbaink   | 2001-02 | CF   | Chelsea                 |  29 | 3150 | Elite  |    −0 |                |
+|     80 | Joe Hart                  | 2011-12 | GK   | Manchester City         |  24 | 3420 | Elite  |    −0 |                |
+|     80 | Joe Hart                  | 2012-13 | GK   | Manchester City         |  25 | 3420 | Elite  |    −0 |                |
+|     80 | Joe Hart                  | 2013-14 | GK   | Manchester City         |  26 | 2790 | Elite  |    −0 |                |
+|     80 | Joe Hart                  | 2014-15 | GK   | Manchester City         |  27 | 3240 | Elite  |    −0 |                |
+|     80 | Joe Hart                  | 2015-16 | GK   | Manchester City         |  28 | 3110 | Elite  |    −0 |                |
 |     80 | John O'Shea               | 2005-06 | CB   | Manchester United       |  24 | 2834 | Elite  |    −0 |                |
-|     80 | John Terry                | 2004-05 | CB   | Chelsea                 |  24 | 3240 | Elite  |    −0 |                |
-|     80 | John Terry                | 2005-06 | CB   | Chelsea                 |  25 | 3240 | Elite  |    −0 |                |
-|     80 | John Terry                | 2006-07 | CB   | Chelsea                 |  26 | 2414 | Elite  |  −0.2 |                |
-|     80 | John Terry                | 2008-09 | CB   | Chelsea                 |  28 | 3078 | Elite  |    −0 |                |
-|     80 | John Terry                | 2009-10 | CB   | Chelsea                 |  29 | 3260 | Elite  |    −0 |                |
-|     80 | John Terry                | 2013-14 | CB   | Chelsea                 |  33 | 3060 | Elite  |    −0 |       ✅       |
-|     80 | John Terry                | 2014-15 | CB   | Chelsea                 |  34 | 3420 | Elite  |    −0 |       ✅       |
+|     80 | John Terry                | 2000-01 | CB   | Chelsea                 |  20 | 1980 | Legend |    −5 |                |
 |     80 | Jordan Henderson          | 2014-15 | CDM  | Liverpool               |  24 | 3255 | Elite  |    −0 |                |
 |     80 | Jordan Henderson          | 2019-20 | CDM  | Liverpool               |  29 | 2244 | Elite  |  −0.5 |                |
 |     80 | Juan Mata                 | 2012-13 | CAM  | Chelsea                 |  24 | 2744 | Elite  |    −0 |                |
 |     80 | Juan Mata                 | 2014-15 | CAM  | Manchester United       |  26 | 2307 | Elite  |  −0.4 |                |
 |     80 | Juan Mata                 | 2015-16 | CAM  | Manchester United       |  27 | 2898 | Elite  |    −0 |                |
+|     80 | Kasper Schmeichel         | 2015-16 | GK   | Leicester City          |  29 | 3420 | Elite  |    −0 |                |
 |     80 | Kevin De Bruyne           | 2023-24 | CAM  | Manchester City         |  32 | 1227 | Legend |  −5.4 |                |
 |     80 | Kevin De Bruyne           | 2024-25 | CAM  | Manchester City         |  33 | 1704 | Legend |  −5.5 |                |
 |     80 | Kevin Phillips            | 1999-00 | CF   | Sunderland              |  26 | 3240 | Elite  |    −0 |                |
 |     80 | Kevin Phillips            | 2000-01 | CF   | Sunderland              |  27 | 3060 | Elite  |    −0 |                |
 |     80 | Kevin Phillips            | 2001-02 | CF   | Sunderland              |  28 | 3330 | Elite  |    −0 |                |
 |     80 | Kevin Phillips            | 2002-03 | CF   | Sunderland              |  29 | 2880 | Elite  |    −0 |                |
-|     80 | Kyle Walker               | 2015-16 | RB   | Tottenham Hotspur       |  25 | 2854 | Elite  |    −0 |                |
-|     80 | Kyle Walker               | 2016-17 | RB   | Tottenham Hotspur       |  26 | 2704 | Elite  |    −0 |                |
-|     80 | Kyle Walker               | 2017-18 | RB   | Manchester City         |  27 | 2787 | Elite  |    −0 |                |
-|     80 | Kyle Walker               | 2018-19 | RB   | Manchester City         |  28 | 2777 | Elite  |    −0 |                |
-|     80 | Kyle Walker               | 2019-20 | RB   | Manchester City         |  29 | 2395 | Elite  |  −0.2 |                |
 |     80 | Leandro Trossard          | 2020-21 | LW   | Brighton                |  26 | 2620 | Elite  |    −0 |                |
 |     80 | Leandro Trossard          | 2021-22 | LW   | Brighton                |  27 | 2810 | Elite  |    −0 |                |
 |     80 | Leandro Trossard          | 2022-23 | LW   | Arsenal                 |  28 | 2254 | Elite  |  −0.5 |                |
@@ -508,22 +873,11 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     80 | Les Ferdinand             | 1994-95 | CF   | Queens Park Rangers     |  28 | 3330 | Elite  |    −0 |                |
 |     80 | Les Ferdinand             | 1995-96 | CF   | Newcastle United        |  29 | 3330 | Elite  |    −0 |                |
 |     80 | Louis Saha                | 2003-04 | CF   | Fulham                  |  25 | 2565 | Elite  |    −0 |                |
-|     80 | Luis Suárez               | 2011-12 | CF   | Liverpool               |  24 | 2556 | Elite  |    −0 |                |
-|     80 | Luis Suárez               | 2012-13 | CF   | Liverpool               |  25 | 2955 | Elite  |    −0 |                |
-|     80 | Luis Suárez               | 2013-14 | CF   | Liverpool               |  26 | 2964 | Elite  |    −0 |                |
 |     80 | Marcus Stewart            | 2000-01 | CF   | Ipswich Town            |  28 | 3060 | Elite  |    −0 |                |
 |     80 | Marcus Stewart            | 2001-02 | CF   | Ipswich Town            |  29 | 2520 | Elite  |    −0 |                |
-|     80 | Matthew Le Tissier        | 1992-93 | CAM  | Southampton             |  24 | 3600 | Elite  |    −0 |                |
-|     80 | Matthew Le Tissier        | 1993-94 | CAM  | Southampton             |  25 | 3420 | Elite  |    −0 |                |
-|     80 | Matthew Le Tissier        | 1994-95 | CAM  | Southampton             |  26 | 3690 | Elite  |    −0 |                |
-|     80 | Matthew Le Tissier        | 1995-96 | CAM  | Southampton             |  27 | 3060 | Elite  |    −0 |                |
-|     80 | Matthew Le Tissier        | 1996-97 | CAM  | Southampton             |  28 | 2790 | Elite  |    −0 |                |
-|     80 | Matthew Le Tissier        | 1997-98 | CAM  | Southampton             |  29 | 2340 | Elite  |  −0.3 |                |
 |     80 | Mesut Özil                | 2015-16 | CAM  | Arsenal                 |  27 | 3047 | Elite  |    −0 |                |
 |     80 | Mesut Özil                | 2016-17 | CAM  | Arsenal                 |  28 | 2847 | Elite  |    −0 |                |
-|     80 | Michael Carrick           | 2005-06 | CDM  | Tottenham Hotspur       |  24 | 3123 | Elite  |    −0 |                |
-|     80 | Michael Carrick           | 2006-07 | CDM  | Manchester United       |  25 | 2512 | Elite  |    −0 |                |
-|     80 | Michael Owen              | 2003-04 | CF   | Liverpool               |  24 | 2487 | Elite  |    −0 |                |
+|     80 | Michu                     | 2012-13 | SS   | Swansea City            |  26 | 3017 | Elite  |    −0 |                |
 |     80 | Mikaël Silvestre          | 2001-02 | LB   | Manchester United       |  24 | 3150 | Elite  |    −0 |                |
 |     80 | Mikaël Silvestre          | 2002-03 | LB   | Manchester United       |  25 | 3060 | Elite  |    −0 |                |
 |     80 | Mikaël Silvestre          | 2003-04 | LB   | Manchester United       |  26 | 2850 | Elite  |    −0 |                |
@@ -534,10 +888,6 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     80 | Muzzy Izzet               | 2000-01 | RM   | Leicester City          |  26 | 2430 | Elite  |  −0.1 |                |
 |     80 | Muzzy Izzet               | 2001-02 | RM   | Leicester City          |  27 | 2790 | Elite  |    −0 |                |
 |     80 | Muzzy Izzet               | 2003-04 | RM   | Leicester City          |  29 | 2659 | Elite  |    −0 |                |
-|     80 | N'Golo Kanté              | 2015-16 | CDM  | Leicester City          |  24 | 3020 | Elite  |    −0 |                |
-|     80 | N'Golo Kanté              | 2016-17 | CDM  | Chelsea                 |  25 | 3139 | Elite  |    −0 |                |
-|     80 | N'Golo Kanté              | 2017-18 | CDM  | Chelsea                 |  26 | 2998 | Elite  |    −0 |                |
-|     80 | N'Golo Kanté              | 2018-19 | CDM  | Chelsea                 |  27 | 3095 | Elite  |    −0 |                |
 |     80 | Nani                      | 2010-11 | LW   | Manchester United       |  24 | 2668 | Elite  |    −0 |                |
 |     80 | Neal Ardley               | 1996-97 | RM   | Wimbledon               |  24 | 2970 | Elite  |    −0 |                |
 |     80 | Neal Ardley               | 1997-98 | RM   | Wimbledon               |  25 | 3060 | Elite  |    −0 |                |
@@ -545,9 +895,6 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     80 | Nemanja Matic             | 2015-16 | CDM  | Chelsea                 |  27 | 2421 | Elite  |  −0.1 |                |
 |     80 | Nemanja Matic             | 2016-17 | CDM  | Chelsea                 |  28 | 2697 | Elite  |    −0 |                |
 |     80 | Nemanja Matic             | 2017-18 | CDM  | Manchester Utd          |  29 | 3119 | Elite  |    −0 |                |
-|     80 | Nemanja Vidic             | 2007-08 | CB   | Manchester United       |  26 | 2673 | Elite  |    −0 |                |
-|     80 | Nemanja Vidic             | 2008-09 | CB   | Manchester United       |  27 | 2984 | Elite  |    −0 |                |
-|     80 | Nemanja Vidic             | 2010-11 | CB   | Manchester United       |  29 | 3117 | Elite  |    −0 |                |
 |     80 | Niall Quinn               | 1992-93 | CF   | Manchester City         |  26 | 3510 | Elite  |    −0 |                |
 |     80 | Niall Quinn               | 1994-95 | CF   | Manchester City         |  28 | 3150 | Elite  |    −0 |                |
 |     80 | Niall Quinn               | 1995-96 | CF   | Manchester City         |  29 | 2880 | Elite  |    −0 |                |
@@ -561,11 +908,20 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     80 | Nigel Martyn              | 1992-93 | GK   | Crystal Palace          |  26 | 3780 | Elite  |    −0 |                |
 |     80 | Nigel Martyn              | 1994-95 | GK   | Crystal Palace          |  28 | 3330 | Elite  |    −0 |                |
 |     80 | Nigel Martyn              | 2001-02 | GK   | Leeds United            |  35 | 3420 | Elite  |    −0 |       ✅       |
+|     80 | Nikica Jelavic            | 2012-13 | CF   | Everton                 |  27 | 2427 | Elite  |  −0.1 |                |
 |     80 | Nolberto Solano           | 1998-99 | RM   | Newcastle United        |  24 | 2610 | Elite  |    −0 |                |
 |     80 | Nolberto Solano           | 1999-00 | RM   | Newcastle United        |  25 | 2700 | Elite  |    −0 |                |
 |     80 | Nolberto Solano           | 2000-01 | RM   | Newcastle United        |  26 | 2970 | Elite  |    −0 |                |
 |     80 | Nolberto Solano           | 2001-02 | RM   | Newcastle United        |  27 | 3330 | Elite  |    −0 |                |
 |     80 | Nolberto Solano           | 2002-03 | RM   | Newcastle United        |  28 | 2790 | Elite  |    −0 |                |
+|     80 | Odion Ighalo              | 2015-16 | CF   | Watford                 |  26 | 3151 | Elite  |    −0 |                |
+|     80 | Ole Gunnar Solskjær       | 1999-00 | CF   | Manchester United       |  26 | 2520 | Elite  |    −0 |                |
+|     80 | Ole Gunnar Solskjær       | 2000-01 | CF   | Manchester United       |  27 | 2790 | Elite  |    −0 |                |
+|     80 | Ole Gunnar Solskjær       | 2001-02 | CF   | Manchester United       |  28 | 2700 | Elite  |    −0 |                |
+|     80 | Ole Gunnar Solskjær       | 2002-03 | CF   | Manchester United       |  29 | 3330 | Elite  |    −0 |                |
+|     80 | Olivier Giroud            | 2012-13 | CF   | Arsenal                 |  26 | 2323 | Elite  |  −0.3 |                |
+|     80 | Olivier Giroud            | 2013-14 | CF   | Arsenal                 |  27 | 3081 | Elite  |    −0 |                |
+|     80 | Olivier Giroud            | 2015-16 | CF   | Arsenal                 |  29 | 2424 | Elite  |  −0.1 |                |
 |     80 | Ollie Watkins             | 2020-21 | CF   | Aston Villa             |  25 | 3329 | Elite  |    −0 |                |
 |     80 | Ollie Watkins             | 2021-22 | CF   | Aston Villa             |  26 | 2955 | Elite  |    −0 |                |
 |     80 | Ollie Watkins             | 2022-23 | CF   | Aston Villa             |  27 | 3134 | Elite  |    −0 |                |
@@ -575,23 +931,12 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     80 | Pablo Zabaleta            | 2013-14 | RB   | Manchester City         |  28 | 3079 | Elite  |    −0 |                |
 |     80 | Pablo Zabaleta            | 2014-15 | RB   | Manchester City         |  29 | 2586 | Elite  |    −0 |                |
 |     80 | Paolo Di Canio            | 1997-98 | CF   | Sheffield Wednesday     |  29 | 3150 | Elite  |    −0 |                |
-|     80 | Patrice Evra              | 2007-08 | LB   | Manchester United       |  26 | 2823 | Elite  |    −0 |                |
-|     80 | Patrice Evra              | 2008-09 | LB   | Manchester United       |  27 | 2411 | Elite  |  −0.2 |                |
-|     80 | Patrice Evra              | 2009-10 | LB   | Manchester United       |  28 | 3288 | Elite  |    −0 |                |
-|     80 | Patrice Evra              | 2010-11 | LB   | Manchester United       |  29 | 2961 | Elite  |    −0 |                |
-|     80 | Patrick Vieira            | 2000-01 | CDM  | Arsenal                 |  24 | 2700 | Elite  |    −0 |                |
-|     80 | Patrick Vieira            | 2001-02 | CDM  | Arsenal                 |  25 | 3240 | Elite  |    −0 |                |
-|     80 | Patrick Vieira            | 2003-04 | CDM  | Arsenal                 |  27 | 2535 | Elite  |    −0 |                |
-|     80 | Patrick Vieira            | 2004-05 | CDM  | Arsenal                 |  28 | 2796 | Elite  |    −0 |                |
+|     80 | Papiss Demba Cissé        | 2012-13 | CF   | Newcastle United        |  27 | 3005 | Elite  |    −0 |                |
 |     80 | Paul Ince                 | 1992-93 | CM   | Manchester United       |  25 | 3690 | Elite  |    −0 |                |
 |     80 | Paul Ince                 | 1993-94 | CM   | Manchester United       |  26 | 3510 | Elite  |    −0 |                |
 |     80 | Paul Ince                 | 1994-95 | CM   | Manchester United       |  27 | 3240 | Elite  |    −0 |                |
 |     80 | Paul Jones                | 2000-01 | GK   | Southampton             |  33 | 3150 | Elite  |    −0 |       ✅       |
-|     80 | Paul Scholes              | 1998-99 | CM   | Manchester United       |  24 | 2790 | Elite  |    −0 |                |
-|     80 | Paul Scholes              | 1999-00 | CM   | Manchester United       |  25 | 2790 | Elite  |    −0 |                |
-|     80 | Paul Scholes              | 2000-01 | CM   | Manchester United       |  26 | 2880 | Elite  |    −0 |                |
-|     80 | Paul Scholes              | 2001-02 | CM   | Manchester United       |  27 | 3150 | Elite  |    −0 |                |
-|     80 | Paul Scholes              | 2002-03 | CM   | Manchester United       |  28 | 2970 | Elite  |    −0 |                |
+|     80 | Paul Scholes              | 2007-08 | CM   | Manchester United       |  33 | 1842 | Legend |  −5.2 |                |
 |     80 | Pepe Reina                | 2006-07 | GK   | Liverpool               |  24 | 3150 | Elite  |    −0 |                |
 |     80 | Pepe Reina                | 2007-08 | GK   | Liverpool               |  25 | 3420 | Elite  |    −0 |                |
 |     80 | Pepe Reina                | 2008-09 | GK   | Liverpool               |  26 | 3420 | Elite  |    −0 |                |
@@ -608,66 +953,15 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     80 | Raheem Sterling           | 2018-19 | RW   | Manchester City         |  24 | 2775 | Elite  |    −0 |                |
 |     80 | Raheem Sterling           | 2019-20 | RW   | Manchester City         |  25 | 2660 | Elite  |    −0 |                |
 |     80 | Raheem Sterling           | 2020-21 | RW   | Manchester City         |  26 | 2537 | Elite  |    −0 |                |
-|     80 | Rio Ferdinand             | 2002-03 | CB   | Manchester United       |  24 | 2520 | Elite  |    −0 |                |
-|     80 | Rio Ferdinand             | 2004-05 | CB   | Manchester United       |  26 | 2790 | Elite  |    −0 |                |
-|     80 | Rio Ferdinand             | 2005-06 | CB   | Manchester United       |  27 | 3301 | Elite  |    −0 |                |
-|     80 | Rio Ferdinand             | 2006-07 | CB   | Manchester United       |  28 | 2925 | Elite  |    −0 |                |
-|     80 | Rio Ferdinand             | 2007-08 | CB   | Manchester United       |  29 | 3052 | Elite  |    −0 |                |
-|     80 | Riyad Mahrez              | 2015-16 | RW   | Leicester City          |  24 | 3052 | Elite  |    −0 |                |
-|     80 | Riyad Mahrez              | 2016-17 | RW   | Leicester City          |  25 | 2835 | Elite  |    −0 |                |
-|     80 | Riyad Mahrez              | 2017-18 | RW   | Leicester City          |  26 | 2960 | Elite  |    −0 |                |
-|     80 | Robbie Fowler             | 2000-01 | CF   | Liverpool               |  25 | 2430 | Elite  |  −0.1 |                |
-|     80 | Robbie Fowler             | 2001-02 | CF   | Leeds United            |  26 | 2880 | Elite  |    −0 |                |
-|     80 | Robbie Fowler             | 2004-05 | CF   | Manchester City         |  29 | 2499 | Elite  |    −0 |                |
-|     80 | Robert Pirès              | 2000-01 | LM   | Arsenal                 |  27 | 2970 | Elite  |    −0 |                |
-|     80 | Robert Pirès              | 2001-02 | LM   | Arsenal                 |  28 | 2520 | Elite  |    −0 |                |
-|     80 | Robert Pirès              | 2002-03 | LM   | Arsenal                 |  29 | 2340 | Elite  |  −0.3 |                |
-|     80 | Roberto Firmino           | 2016-17 | CF   | Liverpool               |  25 | 3068 | Elite  |    −0 |                |
-|     80 | Roberto Firmino           | 2017-18 | CF   | Liverpool               |  26 | 2776 | Elite  |    −0 |                |
-|     80 | Roberto Firmino           | 2018-19 | CF   | Liverpool               |  27 | 2617 | Elite  |    −0 |                |
-|     80 | Roberto Firmino           | 2019-20 | CF   | Liverpool               |  28 | 3001 | Elite  |    −0 |                |
-|     80 | Roberto Firmino           | 2020-21 | CF   | Liverpool               |  29 | 2849 | Elite  |    −0 |                |
-|     80 | Robin van Persie          | 2011-12 | CF   | Arsenal                 |  28 | 3334 | Elite  |    −0 |                |
-|     80 | Robin van Persie          | 2012-13 | CF   | Manchester United       |  29 | 3123 | Elite  |    −0 |                |
-|     80 | Rodri                     | 2020-21 | CDM  | Manchester City         |  24 | 2747 | Elite  |    −0 |                |
-|     80 | Rodri                     | 2021-22 | CDM  | Manchester City         |  25 | 2887 | Elite  |    −0 |                |
-|     80 | Rodri                     | 2022-23 | CDM  | Manchester City         |  26 | 2920 | Elite  |    −0 |                |
-|     80 | Rodri                     | 2023-24 | CDM  | Manchester City         |  27 | 2938 | Elite  |    −0 |                |
+|     80 | Rio Ferdinand             | 2009-10 | CB   | Manchester United       |  31 | 1083 | Legend |  −4.7 |                |
+|     80 | Rio Ferdinand             | 2012-13 | CB   | Manchester United       |  34 | 2323 | Legend |  −5.3 |                |
 |     80 | Romelu Lukaku             | 2017-18 | CF   | Manchester Utd          |  24 | 2869 | Elite  |    −0 |                |
-|     80 | Roy Keane                 | 1995-96 | CM   | Manchester United       |  24 | 2610 | Elite  |    −0 |                |
-|     80 | Roy Keane                 | 1998-99 | CM   | Manchester United       |  27 | 3150 | Elite  |    −0 |                |
-|     80 | Roy Keane                 | 1999-00 | CM   | Manchester United       |  28 | 2610 | Elite  |    −0 |                |
-|     80 | Roy Keane                 | 2000-01 | CM   | Manchester United       |  29 | 2520 | Elite  |    −0 |                |
-|     80 | Rúben Dias                | 2021-22 | CB   | Manchester City         |  24 | 2403 | Elite  |  −0.2 |                |
-|     80 | Rúben Dias                | 2023-24 | CB   | Manchester City         |  26 | 2557 | Elite  |    −0 |                |
-|     80 | Rúben Dias                | 2024-25 | CB   | Manchester City         |  27 | 2269 | Elite  |  −0.4 |                |
-|     80 | Ruud van Nistelrooij      | 2001-02 | CF   | Manchester United       |  25 | 2880 | Elite  |    −0 |                |
-|     80 | Ruud van Nistelrooij      | 2002-03 | CF   | Manchester United       |  26 | 3060 | Elite  |    −0 |                |
-|     80 | Ruud van Nistelrooij      | 2003-04 | CF   | Manchester United       |  27 | 2753 | Elite  |    −0 |                |
-|     80 | Ruud van Nistelrooij      | 2005-06 | CF   | Manchester United       |  29 | 2595 | Elite  |    −0 |                |
+|     80 | Roque Santa Cruz          | 2007-08 | CF   | Blackburn Rovers        |  26 | 3191 | Elite  |    −0 |                |
 |     80 | Ryan Fraser               | 2018-19 | LW   | Bournemouth             |  24 | 3171 | Elite  |    −0 |                |
-|     80 | Ryan Giggs                | 1997-98 | LM   | Manchester United       |  24 | 2610 | Elite  |    −0 |                |
-|     80 | Ryan Giggs                | 1999-00 | LM   | Manchester United       |  26 | 2700 | Elite  |    −0 |                |
-|     80 | Ryan Giggs                | 2000-01 | LM   | Manchester United       |  27 | 2790 | Elite  |    −0 |                |
-|     80 | Ryan Giggs                | 2001-02 | LM   | Manchester United       |  28 | 2250 | Elite  |  −0.5 |                |
-|     80 | Ryan Giggs                | 2002-03 | LM   | Manchester United       |  29 | 3240 | Elite  |    −0 |                |
-|     80 | Sadio Mané                | 2016-17 | LW   | Liverpool               |  24 | 2240 | Elite  |  −0.5 |                |
-|     80 | Sadio Mané                | 2018-19 | LW   | Liverpool               |  26 | 3085 | Elite  |    −0 |                |
-|     80 | Sadio Mané                | 2019-20 | LW   | Liverpool               |  27 | 2753 | Elite  |    −0 |                |
-|     80 | Sadio Mané                | 2020-21 | LW   | Liverpool               |  28 | 2810 | Elite  |    −0 |                |
-|     80 | Sadio Mané                | 2021-22 | LW   | Liverpool               |  29 | 2824 | Elite  |    −0 |                |
+|     80 | Ryan Giggs                | 2007-08 | LM   | Manchester United       |  34 | 2235 | Legend |  −5.5 |                |
 |     80 | Santi Cazorla             | 2012-13 | CM   | Arsenal                 |  28 | 3308 | Elite  |    −0 |                |
 |     80 | Santi Cazorla             | 2013-14 | CM   | Arsenal                 |  29 | 2597 | Elite  |    −0 |                |
-|     80 | Sol Campbell              | 1998-99 | CB   | Tottenham Hotspur       |  24 | 3330 | Elite  |    −0 |                |
-|     80 | Sol Campbell              | 1999-00 | CB   | Tottenham Hotspur       |  25 | 2610 | Elite  |    −0 |                |
-|     80 | Sol Campbell              | 2001-02 | CB   | Arsenal                 |  27 | 2790 | Elite  |    −0 |                |
-|     80 | Sol Campbell              | 2002-03 | CB   | Arsenal                 |  28 | 2970 | Elite  |    −0 |                |
-|     80 | Sol Campbell              | 2003-04 | CB   | Arsenal                 |  29 | 3085 | Elite  |    −0 |                |
-|     80 | Sol Campbell              | 2007-08 | CB   | Portsmouth              |  33 | 2790 | Elite  |    −0 |       ✅       |
-|     80 | Son Heung-Min             | 2017-18 | LW   | Tottenham               |  25 | 2309 | Elite  |  −0.4 |                |
-|     80 | Son Heung-Min             | 2019-20 | LW   | Tottenham               |  27 | 2485 | Elite  |    −0 |                |
-|     80 | Son Heung-Min             | 2020-21 | LW   | Tottenham               |  28 | 3121 | Elite  |    −0 |                |
-|     80 | Son Heung-Min             | 2021-22 | LW   | Tottenham               |  29 | 3019 | Elite  |    −0 |                |
+|     80 | Sol Campbell              | 2008-09 | CB   | Portsmouth              |  34 | 2835 | Legend |    −5 |                |
 |     80 | Stan Collymore            | 1995-96 | CF   | Liverpool               |  24 | 2790 | Elite  |    −0 |                |
 |     80 | Stan Collymore            | 1996-97 | CF   | Liverpool               |  25 | 2700 | Elite  |    −0 |                |
 |     80 | Stan Collymore            | 1997-98 | CF   | Aston Villa             |  26 | 2250 | Elite  |  −0.5 |                |
@@ -675,26 +969,17 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     80 | Steve McManaman           | 1996-97 | RM   | Liverpool               |  24 | 3330 | Elite  |    −0 |                |
 |     80 | Steve McManaman           | 1997-98 | RM   | Liverpool               |  25 | 3240 | Elite  |    −0 |                |
 |     80 | Steve McManaman           | 1998-99 | RM   | Liverpool               |  26 | 2520 | Elite  |    −0 |                |
-|     80 | Steven Gerrard            | 2004-05 | CM   | Liverpool               |  24 | 2461 | Elite  |  −0.1 |                |
-|     80 | Steven Gerrard            | 2005-06 | CM   | Liverpool               |  25 | 2727 | Elite  |    −0 |                |
-|     80 | Steven Gerrard            | 2006-07 | CM   | Liverpool               |  26 | 3083 | Elite  |    −0 |                |
-|     80 | Steven Gerrard            | 2007-08 | CM   | Liverpool               |  27 | 2843 | Elite  |    −0 |                |
-|     80 | Steven Gerrard            | 2008-09 | CM   | Liverpool               |  28 | 2630 | Elite  |    −0 |                |
-|     80 | Steven Gerrard            | 2009-10 | CM   | Liverpool               |  29 | 2850 | Elite  |    −0 |                |
-|     80 | Steven Gerrard            | 2013-14 | CM   | Liverpool               |  33 | 2900 | Elite  |    −0 |       ✅       |
-|     80 | Teddy Sheringham          | 1998-99 | CF   | Manchester United       |  32 | 1530 | Legend |  −4.8 |                |
+|     80 | Steven Gerrard            | 2014-15 | CM   | Liverpool               |  34 | 2236 | Legend |  −5.5 |                |
+|     80 | Teddy Sheringham          | 1992-93 | CF   | Tottenham Hotspur       |  26 | 3690 | Elite  |    −0 |                |
+|     80 | Teddy Sheringham          | 1994-95 | CF   | Tottenham Hotspur       |  28 | 3780 | Elite  |    −0 |                |
+|     80 | Teddy Sheringham          | 1995-96 | CF   | Tottenham Hotspur       |  29 | 3420 | Elite  |    −0 |                |
+|     80 | Teddy Sheringham          | 2000-01 | CF   | Manchester United       |  34 | 2610 | Elite  |    −0 |       ✅       |
 |     80 | Thiago                    | 2025-26 | CF   | Brentford               |  24 | 3284 | Elite  |    −0 |                |
 |     80 | Thibaut Courtois          | 2016-17 | GK   | Chelsea                 |  24 | 3240 | Elite  |    −0 |                |
 |     80 | Thibaut Courtois          | 2017-18 | GK   | Chelsea                 |  25 | 3150 | Elite  |    −0 |                |
-|     80 | Vincent Kompany           | 2010-11 | CB   | Manchester City         |  24 | 3330 | Elite  |    −0 |                |
-|     80 | Vincent Kompany           | 2011-12 | CB   | Manchester City         |  25 | 2774 | Elite  |    −0 |                |
-|     80 | Vincent Kompany           | 2012-13 | CB   | Manchester City         |  26 | 2239 | Elite  |  −0.5 |                |
-|     80 | Vincent Kompany           | 2013-14 | CB   | Manchester City         |  27 | 2365 | Elite  |  −0.3 |                |
-|     80 | Virgil van Dijk           | 2015-16 | CB   | Southampton             |  24 | 3060 | Elite  |    −0 |                |
-|     80 | Virgil van Dijk           | 2017-18 | CB   | Liverpool               |  26 | 2253 | Elite  |  −0.5 |                |
-|     80 | Virgil van Dijk           | 2018-19 | CB   | Liverpool               |  27 | 3385 | Elite  |    −0 |                |
-|     80 | Virgil van Dijk           | 2019-20 | CB   | Liverpool               |  28 | 3420 | Elite  |    −0 |                |
-|     80 | Virgil van Dijk           | 2024-25 | CB   | Liverpool               |  33 | 3330 | Elite  |    −0 |       ✅       |
+|     80 | Tony Adams                | 1999-00 | CB   | Arsenal                 |  33 | 1890 | Legend |  −5.1 |                |
+|     80 | Vincent Kompany           | 2018-19 | CB   | Manchester City         |  32 | 1223 | Legend |  −5.4 |                |
+|     80 | Virgil van Dijk           | 2025-26 | CB   | Liverpool               |  34 | 3420 | Legend |    −5 |                |
 |     80 | Wayne Rooney              | 2004-05 | CF   | Manchester United       |  19 | 2181 | Legend |  −4.6 |                |
 |     80 | Wes Brown                 | 2007-08 | CB   | Manchester United       |  28 | 3034 | Elite  |    −0 |                |
 |     80 | William Gallas            | 2001-02 | CB   | Chelsea                 |  24 | 2700 | Elite  |    −0 |                |
@@ -703,7 +988,6 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     80 | William Gallas            | 2005-06 | CB   | Chelsea                 |  28 | 2926 | Elite  |    −0 |                |
 |     80 | Yaya Touré                | 2016-17 | CM   | Manchester City         |  33 | 1947 | Legend |    −5 |                |
 |     79 | Alan Shearer              | 2005-06 | CF   | Newcastle United        |  35 | 2746 | Legend |    −6 |                |
-|     79 | Alisson                   | 2022-23 | GK   | Liverpool               |  30 | 3330 | Elite  |    −1 |                |
 |     79 | Andrei Kanchelskis        | 1992-93 | RM   | Manchester United       |  23 | 2430 | Elite  |  −1.1 |                |
 |     79 | Andrei Kanchelskis        | 1996-97 | RM   | Everton                 |  27 | 1800 | Elite  |  −1.3 |                |
 |     79 | Andrew Cole               | 2005-06 | CF   | Manchester City         |  34 | 1761 | Legend |  −6.4 |                |
@@ -718,12 +1002,10 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     79 | Antonio Valencia          | 2011-12 | RB   | Manchester United       |  26 | 2120 | Elite  |  −0.7 |                |
 |     79 | Antonio Valencia          | 2012-13 | RB   | Manchester United       |  27 | 2210 | Elite  |  −0.5 |                |
 |     79 | Antonio Valencia          | 2013-14 | RB   | Manchester United       |  28 | 1940 | Elite  |  −1.1 |                |
-|     79 | Ashley Cole               | 2003-04 | LB   | Arsenal                 |  23 | 2823 | Elite  |    −1 |                |
-|     79 | Ashley Cole               | 2006-07 | LB   | Chelsea                 |  26 | 1848 | Elite  |  −1.2 |                |
-|     79 | Ashley Cole               | 2009-10 | LB   | Chelsea                 |  29 | 2155 | Elite  |  −0.6 |                |
-|     79 | Ashley Cole               | 2010-11 | LB   | Chelsea                 |  30 | 3387 | Elite  |    −1 |                |
+|     79 | Ashley Cole               | 2000-01 | LB   | Arsenal                 |  20 | 1530 | Legend |  −5.8 |                |
 |     79 | Ashley Young              | 2008-09 | RB   | Aston Villa             |  23 | 3194 | Elite  |    −1 |                |
 |     79 | Ashley Young              | 2014-15 | RB   | Manchester United       |  29 | 2068 | Elite  |  −0.8 |                |
+|     79 | Benjani                   | 2006-07 | CF   | Portsmouth              |  28 | 2040 | Elite  |  −0.9 |                |
 |     79 | Bernardo Silva            | 2019-20 | CAM  | Manchester City         |  25 | 2029 | Elite  |  −0.9 |                |
 |     79 | Bernardo Silva            | 2020-21 | CAM  | Manchester City         |  26 | 2071 | Elite  |  −0.8 |                |
 |     79 | Bernardo Silva            | 2022-23 | CAM  | Manchester City         |  28 | 2203 | Elite  |  −0.6 |                |
@@ -732,8 +1014,6 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     79 | Branislav Ivanovic        | 2014-15 | RB   | Chelsea                 |  30 | 3419 | Elite  |    −1 |                |
 |     79 | Brian Deane               | 1998-99 | CF   | Middlesbrough           |  30 | 2340 | Elite  |  −1.3 |                |
 |     79 | Bruno Fernandes           | 2024-25 | CAM  | Manchester Utd          |  30 | 3024 | Elite  |    −1 |                |
-|     79 | Carlos Tevez              | 2007-08 | CF   | Manchester United       |  23 | 2686 | Elite  |    −1 |                |
-|     79 | Carlos Tevez              | 2008-09 | CF   | Manchester United       |  24 | 1859 | Elite  |  −1.2 |                |
 |     79 | César Azpilicueta         | 2019-20 | CB   | Chelsea                 |  30 | 3230 | Elite  |    −1 |                |
 |     79 | Chris Brunt               | 2012-13 | CM   | West Bromwich Albion    |  28 | 2179 | Elite  |  −0.6 |                |
 |     79 | Chris Brunt               | 2014-15 | CM   | West Bromwich Albion    |  30 | 2895 | Elite  |    −1 |                |
@@ -751,16 +1031,11 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     79 | Darren Bent               | 2011-12 | CF   | Aston Villa             |  27 | 1862 | Elite  |  −1.2 |                |
 |     79 | Darren Fletcher           | 2008-09 | CM   | Manchester United       |  24 | 2060 | Elite  |  −0.8 |                |
 |     79 | Darren Fletcher           | 2010-11 | CM   | Manchester United       |  26 | 2108 | Elite  |  −0.7 |                |
-|     79 | David De Gea              | 2013-14 | GK   | Manchester United       |  23 | 3330 | Elite  |    −1 |                |
-|     79 | David De Gea              | 2020-21 | GK   | Manchester Utd          |  30 | 2295 | Elite  |  −1.4 |                |
 |     79 | David Raya                | 2021-22 | GK   | Brentford               |  26 | 2160 | Elite  |  −0.6 |                |
 |     79 | David Raya                | 2025-26 | GK   | Arsenal                 |  30 | 3330 | Elite  |    −1 |                |
 |     79 | Dean Holdsworth           | 1996-97 | CF   | Wimbledon               |  28 | 2160 | Elite  |  −0.6 |                |
-|     79 | Denis Irwin               | 1995-96 | LB   | Manchester United       |  30 | 2790 | Elite  |    −1 |                |
-|     79 | Denis Irwin               | 2000-01 | LB   | Manchester United       |  35 | 1890 | Elite  |  −1.1 |       ✅       |
-|     79 | Dennis Bergkamp           | 1999-00 | SS   | Arsenal                 |  30 | 2520 | Elite  |    −1 |                |
+|     79 | Dennis Bergkamp           | 2003-04 | SS   | Arsenal                 |  34 | 1770 | Legend |  −6.4 |                |
 |     79 | Didier Drogba             | 2011-12 | CF   | Chelsea                 |  33 | 1480 | Legend |  −5.9 |                |
-|     79 | Diego Costa               | 2014-15 | CF   | Chelsea                 |  26 | 2082 | Elite  |  −0.8 |                |
 |     79 | Dimitar Berbatov          | 2009-10 | CF   | Manchester United       |  28 | 2096 | Elite  |  −0.8 |                |
 |     79 | Dimitar Berbatov          | 2010-11 | CF   | Manchester United       |  29 | 2210 | Elite  |  −0.5 |                |
 |     79 | Dion Dublin               | 1999-00 | CF   | Aston Villa             |  30 | 2340 | Elite  |  −1.3 |                |
@@ -769,14 +1044,6 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     79 | Emmanuel Adebayor         | 2008-09 | CF   | Arsenal                 |  24 | 1879 | Elite  |  −1.2 |                |
 |     79 | Emmanuel Adebayor         | 2009-10 | CF   | Manchester City         |  25 | 2212 | Elite  |  −0.5 |                |
 |     79 | Emmanuel Adebayor         | 2013-14 | CF   | Tottenham Hotspur       |  29 | 1808 | Elite  |  −1.3 |                |
-|     79 | Eric Cantona              | 1994-95 | SS   | Manchester United       |  28 | 1890 | Elite  |  −1.1 |                |
-|     79 | Eric Cantona              | 1996-97 | SS   | Manchester United       |  30 | 3240 | Elite  |    −1 |                |
-|     79 | Erling Haaland            | 2023-24 | CF   | Manchester City         |  23 | 2556 | Elite  |    −1 |                |
-|     79 | Fernandinho               | 2015-16 | CDM  | Manchester City         |  30 | 2732 | Elite  |    −1 |                |
-|     79 | Fernando Torres           | 2007-08 | CF   | Liverpool               |  23 | 2542 | Elite  |    −1 |                |
-|     79 | Fernando Torres           | 2008-09 | CF   | Liverpool               |  24 | 1733 | Elite  |  −1.4 |                |
-|     79 | Fernando Torres           | 2009-10 | CF   | Liverpool               |  25 | 1715 | Elite  |  −1.5 |                |
-|     79 | Fernando Torres           | 2011-12 | CF   | Chelsea                 |  27 | 1904 | Elite  |  −1.1 |                |
 |     79 | Frank Lampard             | 1996-97 | CM   | West Ham United         |  18 | 1170 | Legend |  −6.5 |                |
 |     79 | Freddie Ljungberg         | 2000-01 | RM   | Arsenal                 |  23 | 2700 | Elite  |    −1 |                |
 |     79 | Freddie Ljungberg         | 2002-03 | RM   | Arsenal                 |  25 | 1800 | Elite  |  −1.3 |                |
@@ -784,36 +1051,33 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     79 | Freddie Ljungberg         | 2005-06 | RM   | Arsenal                 |  28 | 1756 | Elite  |  −1.4 |                |
 |     79 | Gabriel Jesus             | 2021-22 | CF   | Manchester City         |  24 | 1878 | Elite  |  −1.2 |                |
 |     79 | Gabriel Jesus             | 2022-23 | CF   | Arsenal                 |  25 | 2074 | Elite  |  −0.8 |                |
-|     79 | Gareth Bale               | 2012-13 | RW   | Tottenham Hotspur       |  23 | 2924 | Elite  |    −1 |                |
 |     79 | Gareth Barry              | 2004-05 | CDM  | Aston Villa             |  23 | 2840 | Elite  |    −1 |                |
 |     79 | Gareth Barry              | 2011-12 | CDM  | Manchester City         |  30 | 2739 | Elite  |    −1 |                |
 |     79 | Gary Cahill               | 2008-09 | CB   | Bolton Wanderers        |  23 | 2970 | Elite  |    −1 |                |
 |     79 | Gary Cahill               | 2012-13 | CB   | Chelsea                 |  27 | 2216 | Elite  |  −0.5 |                |
-|     79 | Gary Neville              | 1998-99 | RB   | Manchester United       |  23 | 3060 | Elite  |    −1 |                |
-|     79 | Gary Neville              | 1999-00 | RB   | Manchester United       |  24 | 1980 | Elite  |    −1 |                |
-|     79 | Gary Neville              | 2004-05 | RB   | Manchester United       |  29 | 1891 | Elite  |  −1.1 |                |
+|     79 | Gary Neville              | 1994-95 | RB   | Manchester United       |  19 | 1620 | Legend |  −5.7 |                |
+|     79 | Gianfranco Zola           | 2001-02 | SS   | Chelsea                 |  35 | 3150 | Legend |    −6 |                |
 |     79 | Graeme Le Saux            | 1992-93 | LB   | Chelsea                 |  24 | 2070 | Elite  |  −0.8 |                |
 |     79 | Graeme Le Saux            | 1998-99 | LB   | Chelsea                 |  30 | 2790 | Elite  |    −1 |                |
 |     79 | Gylfi Sigurdsson          | 2019-20 | CAM  | Everton                 |  30 | 3150 | Elite  |    −1 |                |
-|     79 | Harry Kane                | 2016-17 | CF   | Tottenham Hotspur       |  23 | 2531 | Elite  |    −1 |                |
-|     79 | Ian Wright                | 1993-94 | CF   | Arsenal                 |  30 | 3510 | Elite  |    −1 |                |
+|     79 | Ian Wright                | 1997-98 | CF   | Arsenal                 |  34 | 2160 | Legend |  −5.6 |                |
 |     79 | Ilkay Gündogan            | 2018-19 | CM   | Manchester City         |  28 | 2135 | Elite  |  −0.7 |                |
 |     79 | Ilkay Gündogan            | 2019-20 | CM   | Manchester City         |  29 | 2017 | Elite  |  −0.9 |                |
 |     79 | James Beattie             | 2001-02 | CF   | Southampton             |  23 | 2520 | Elite  |    −1 |                |
-|     79 | James Milner              | 2002-03 | CM   | Leeds United            |  16 | 1620 | Legend |  −5.7 |                |
-|     79 | James Milner              | 2004-05 | CM   | Newcastle United        |  18 | 1260 | Legend |  −6.3 |                |
-|     79 | Jamie Vardy               | 2017-18 | CF   | Leicester City          |  30 | 3255 | Elite  |    −1 |                |
-|     79 | Jamie Vardy               | 2021-22 | CF   | Leicester City          |  34 | 1805 | Elite  |  −1.3 |       ✅       |
+|     79 | James Milner              | 2009-10 | CM   | Aston Villa             |  23 | 3174 | Elite  |    −1 |                |
+|     79 | James Milner              | 2010-11 | CM   | Manchester City         |  24 | 2134 | Elite  |  −0.7 |                |
+|     79 | James Milner              | 2012-13 | CM   | Manchester City         |  26 | 1720 | Elite  |  −1.5 |                |
+|     79 | James Milner              | 2014-15 | CM   | Manchester City         |  28 | 1742 | Elite  |  −1.4 |                |
+|     79 | James Milner              | 2016-17 | CM   | Liverpool               |  30 | 3159 | Elite  |    −1 |                |
 |     79 | Jimmy Floyd Hasselbaink   | 2002-03 | CF   | Chelsea                 |  30 | 3240 | Elite  |    −1 |                |
+|     79 | Joe Hart                  | 2010-11 | GK   | Manchester City         |  23 | 3420 | Elite  |    −1 |                |
 |     79 | John O'Shea               | 2006-07 | CB   | Manchester United       |  25 | 1719 | Elite  |  −1.5 |                |
 |     79 | John O'Shea               | 2008-09 | CB   | Manchester United       |  27 | 1986 | Elite  |    −1 |                |
 |     79 | John O'Shea               | 2011-12 | CB   | Sunderland              |  30 | 2441 | Elite  |  −1.1 |                |
 |     79 | John Stones               | 2018-19 | CB   | Manchester City         |  24 | 1763 | Elite  |  −1.4 |                |
 |     79 | John Stones               | 2020-21 | CB   | Manchester City         |  26 | 1934 | Elite  |  −1.1 |                |
 |     79 | John Stones               | 2022-23 | CB   | Manchester City         |  28 | 1848 | Elite  |  −1.2 |                |
-|     79 | John Terry                | 2003-04 | CB   | Chelsea                 |  23 | 2965 | Elite  |    −1 |                |
-|     79 | John Terry                | 2007-08 | CB   | Chelsea                 |  27 | 1974 | Elite  |    −1 |                |
-|     79 | John Terry                | 2010-11 | CB   | Chelsea                 |  30 | 2962 | Elite  |    −1 |                |
+|     79 | John Terry                | 2012-13 | CB   | Chelsea                 |  32 |  950 | Legend |  −5.9 |                |
 |     79 | Jordan Henderson          | 2013-14 | CDM  | Liverpool               |  23 | 3128 | Elite  |    −1 |                |
 |     79 | Jordan Henderson          | 2016-17 | CDM  | Liverpool               |  26 | 2118 | Elite  |  −0.7 |                |
 |     79 | Jordan Henderson          | 2017-18 | CDM  | Liverpool               |  27 | 2172 | Elite  |  −0.6 |                |
@@ -821,52 +1085,43 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     79 | Juan Mata                 | 2011-12 | CAM  | Chelsea                 |  23 | 2531 | Elite  |    −1 |                |
 |     79 | Juan Mata                 | 2013-14 | CAM  | Chelsea                 |  25 | 2064 | Elite  |  −0.8 |                |
 |     79 | Juan Mata                 | 2017-18 | CAM  | Manchester Utd          |  29 | 1930 | Elite  |  −1.1 |                |
+|     79 | Kasper Schmeichel         | 2014-15 | GK   | Leicester City          |  28 | 2160 | Elite  |  −0.6 |                |
+|     79 | Kasper Schmeichel         | 2016-17 | GK   | Leicester City          |  30 | 2667 | Elite  |    −1 |                |
 |     79 | Kevin Phillips            | 2003-04 | CF   | Southampton             |  30 | 2591 | Elite  |    −1 |                |
-|     79 | Kyle Walker               | 2013-14 | RB   | Tottenham Hotspur       |  23 | 2298 | Elite  |  −1.4 |                |
+|     79 | Kyle Walker               | 2010-11 | RB   | Aston Villa             |  20 | 1341 | Legend |  −6.2 |                |
+|     79 | Kyle Walker               | 2025-26 | RB   | Burnley                 |  35 | 3097 | Legend |    −6 |                |
 |     79 | Leandro Trossard          | 2019-20 | LW   | Brighton                |  25 | 2013 | Elite  |  −0.9 |                |
 |     79 | Leandro Trossard          | 2024-25 | LW   | Arsenal                 |  30 | 2550 | Elite  |    −1 |                |
+|     79 | Ledley King               | 2000-01 | CB   | Tottenham Hotspur       |  20 | 1620 | Legend |  −5.7 |                |
 |     79 | Les Ferdinand             | 1996-97 | CF   | Newcastle United        |  30 | 2790 | Elite  |    −1 |                |
 |     79 | Louis Saha                | 2001-02 | CF   | Fulham                  |  23 | 3240 | Elite  |    −1 |                |
-|     79 | Matthew Le Tissier        | 1998-99 | CAM  | Southampton             |  30 | 2700 | Elite  |    −1 |                |
 |     79 | Mesut Özil                | 2013-14 | CAM  | Arsenal                 |  25 | 2149 | Elite  |  −0.7 |                |
 |     79 | Mesut Özil                | 2014-15 | CAM  | Arsenal                 |  26 | 1859 | Elite  |  −1.2 |                |
 |     79 | Mesut Özil                | 2017-18 | CAM  | Arsenal                 |  29 | 2164 | Elite  |  −0.6 |                |
-|     79 | Michael Carrick           | 2004-05 | CDM  | Tottenham Hotspur       |  23 | 2371 | Elite  |  −1.2 |                |
-|     79 | Michael Carrick           | 2007-08 | CDM  | Manchester United       |  26 | 2199 | Elite  |  −0.6 |                |
-|     79 | Michael Carrick           | 2008-09 | CDM  | Manchester United       |  27 | 2041 | Elite  |  −0.9 |                |
-|     79 | Michael Carrick           | 2009-10 | CDM  | Manchester United       |  28 | 2111 | Elite  |  −0.7 |                |
-|     79 | Michael Carrick           | 2010-11 | CDM  | Manchester United       |  29 | 1975 | Elite  |    −1 |                |
-|     79 | Michael Carrick           | 2011-12 | CDM  | Manchester United       |  30 | 2513 | Elite  |    −1 |                |
-|     79 | Michael Owen              | 2002-03 | CF   | Liverpool               |  23 | 3150 | Elite  |    −1 |                |
-|     79 | Michael Owen              | 2007-08 | CF   | Newcastle United        |  28 | 2177 | Elite  |  −0.6 |                |
-|     79 | Michael Owen              | 2008-09 | CF   | Newcastle United        |  29 | 1894 | Elite  |  −1.1 |                |
+|     79 | Michael Carrick           | 2014-15 | CDM  | Manchester United       |  33 | 1454 | Legend |    −6 |                |
+|     79 | Michael Carrick           | 2015-16 | CDM  | Manchester United       |  34 | 1975 | Legend |    −6 |                |
 |     79 | Mikaël Silvestre          | 2000-01 | LB   | Manchester United       |  23 | 2700 | Elite  |    −1 |                |
 |     79 | Muzzy Izzet               | 1997-98 | RM   | Leicester City          |  23 | 3240 | Elite  |    −1 |                |
-|     79 | N'Golo Kanté              | 2019-20 | CDM  | Chelsea                 |  28 | 1733 | Elite  |  −1.4 |                |
-|     79 | N'Golo Kanté              | 2020-21 | CDM  | Chelsea                 |  29 | 2145 | Elite  |  −0.7 |                |
 |     79 | Nani                      | 2011-12 | LW   | Manchester United       |  25 | 2111 | Elite  |  −0.7 |                |
 |     79 | Neal Ardley               | 1998-99 | RM   | Wimbledon               |  26 | 2070 | Elite  |  −0.8 |                |
 |     79 | Nemanja Matic             | 2018-19 | CDM  | Manchester Utd          |  30 | 2440 | Elite  |  −1.1 |                |
-|     79 | Nemanja Vidic             | 2006-07 | CB   | Manchester United       |  25 | 2142 | Elite  |  −0.7 |                |
-|     79 | Nemanja Vidic             | 2009-10 | CB   | Manchester United       |  28 | 2107 | Elite  |  −0.7 |                |
 |     79 | Nicky Butt                | 1998-99 | CDM  | Manchester United       |  23 | 2790 | Elite  |    −1 |                |
 |     79 | Nicolas Anelka            | 2002-03 | CF   | Manchester City         |  23 | 3420 | Elite  |    −1 |                |
 |     79 | Nicolas Anelka            | 2009-10 | CF   | Chelsea                 |  30 | 2701 | Elite  |    −1 |                |
 |     79 | Nigel Martyn              | 1996-97 | GK   | Leeds United            |  30 | 3330 | Elite  |    −1 |                |
+|     79 | Nikica Jelavic            | 2014-15 | CF   | Hull City               |  29 | 1810 | Elite  |  −1.3 |                |
 |     79 | Nolberto Solano           | 2004-05 | RM   | Aston Villa             |  30 | 2810 | Elite  |    −1 |                |
+|     79 | Ole Gunnar Solskjær       | 1996-97 | CF   | Manchester United       |  23 | 2970 | Elite  |    −1 |                |
+|     79 | Ole Gunnar Solskjær       | 1997-98 | CF   | Manchester United       |  24 | 1980 | Elite  |    −1 |                |
+|     79 | Ole Gunnar Solskjær       | 1998-99 | CF   | Manchester United       |  25 | 1710 | Elite  |  −1.5 |                |
+|     79 | Olivier Giroud            | 2014-15 | CF   | Arsenal                 |  28 | 1867 | Elite  |  −1.2 |                |
 |     79 | Ollie Watkins             | 2025-26 | CF   | Aston Villa             |  30 | 2852 | Elite  |    −1 |                |
 |     79 | Pablo Zabaleta            | 2008-09 | RB   | Manchester City         |  23 | 2376 | Elite  |  −1.2 |                |
 |     79 | Pablo Zabaleta            | 2009-10 | RB   | Manchester City         |  24 | 2101 | Elite  |  −0.7 |                |
 |     79 | Pablo Zabaleta            | 2010-11 | RB   | Manchester City         |  25 | 1945 | Elite  |    −1 |                |
-|     79 | Patrice Evra              | 2006-07 | LB   | Manchester United       |  25 | 1860 | Elite  |  −1.2 |                |
-|     79 | Patrice Evra              | 2011-12 | LB   | Manchester United       |  30 | 3239 | Elite  |    −1 |                |
-|     79 | Patrick Vieira            | 1999-00 | CDM  | Arsenal                 |  23 | 2700 | Elite  |    −1 |                |
-|     79 | Patrick Vieira            | 2002-03 | CDM  | Arsenal                 |  26 | 2160 | Elite  |  −0.6 |                |
 |     79 | Paul Ince                 | 1997-98 | CM   | Liverpool               |  30 | 2790 | Elite  |    −1 |                |
 |     79 | Paul Jones                | 1997-98 | GK   | Southampton             |  30 | 3420 | Elite  |    −1 |                |
-|     79 | Paul Scholes              | 1997-98 | CM   | Manchester United       |  23 | 2790 | Elite  |    −1 |                |
-|     79 | Paul Scholes              | 2003-04 | CM   | Manchester United       |  29 | 2187 | Elite  |  −0.6 |                |
-|     79 | Paul Scholes              | 2004-05 | CM   | Manchester United       |  30 | 2613 | Elite  |    −1 |                |
+|     79 | Paul Scholes              | 1994-95 | CM   | Manchester United       |  20 | 1530 | Legend |  −5.8 |                |
 |     79 | Pepe Reina                | 2005-06 | GK   | Liverpool               |  23 | 2962 | Elite  |    −1 |                |
 |     79 | Pepe Reina                | 2012-13 | GK   | Liverpool               |  30 | 2790 | Elite  |    −1 |                |
 |     79 | Peter Schmeichel          | 1998-99 | GK   | Manchester United       |  35 | 3060 | Legend |    −6 |                |
@@ -881,51 +1136,21 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     79 | Raheem Sterling           | 2021-22 | RW   | Manchester City         |  27 | 2127 | Elite  |  −0.7 |                |
 |     79 | Raheem Sterling           | 2022-23 | RW   | Chelsea                 |  28 | 1904 | Elite  |  −1.1 |                |
 |     79 | Raheem Sterling           | 2023-24 | RW   | Chelsea                 |  29 | 1981 | Elite  |    −1 |                |
-|     79 | Rio Ferdinand             | 2001-02 | CB   | Leeds United            |  23 | 2790 | Elite  |    −1 |                |
-|     79 | Rio Ferdinand             | 2003-04 | CB   | Manchester United       |  25 | 1760 | Elite  |  −1.4 |                |
-|     79 | Riyad Mahrez              | 2019-20 | RW   | Manchester City         |  28 | 1940 | Elite  |  −1.1 |                |
-|     79 | Riyad Mahrez              | 2020-21 | RW   | Manchester City         |  29 | 1954 | Elite  |    −1 |                |
-|     79 | Robbie Fowler             | 1998-99 | CF   | Liverpool               |  23 | 2250 | Elite  |  −1.5 |                |
-|     79 | Robbie Fowler             | 2002-03 | CF   | Manchester City         |  27 | 1890 | Elite  |  −1.1 |                |
-|     79 | Robbie Fowler             | 2003-04 | CF   | Manchester City         |  28 | 1949 | Elite  |    −1 |                |
-|     79 | Robert Pirès              | 2003-04 | LM   | Arsenal                 |  30 | 2847 | Elite  |    −1 |                |
-|     79 | Roberto Firmino           | 2015-16 | CF   | Liverpool               |  24 | 1981 | Elite  |    −1 |                |
-|     79 | Robin van Persie          | 2008-09 | CF   | Arsenal                 |  25 | 2198 | Elite  |  −0.6 |                |
-|     79 | Robin van Persie          | 2010-11 | CF   | Arsenal                 |  27 | 1768 | Elite  |  −1.4 |                |
-|     79 | Rodri                     | 2019-20 | CDM  | Manchester City         |  23 | 2486 | Elite  |    −1 |                |
+|     79 | Rio Ferdinand             | 1996-97 | CB   | West Ham United         |  18 | 1350 | Legend |  −6.2 |                |
+|     79 | Robin van Persie          | 2004-05 | CF   | Arsenal                 |  21 |  988 | Legend |  −5.8 |                |
 |     79 | Romelu Lukaku             | 2016-17 | CF   | Everton                 |  23 | 3267 | Elite  |    −1 |                |
 |     79 | Romelu Lukaku             | 2018-19 | CF   | Manchester Utd          |  25 | 2130 | Elite  |  −0.7 |                |
-|     79 | Roy Keane                 | 1994-95 | CM   | Manchester United       |  23 | 2250 | Elite  |  −1.5 |                |
-|     79 | Roy Keane                 | 1996-97 | CM   | Manchester United       |  25 | 1890 | Elite  |  −1.1 |                |
-|     79 | Roy Keane                 | 2001-02 | CM   | Manchester United       |  30 | 2520 | Elite  |    −1 |                |
-|     79 | Rúben Dias                | 2020-21 | CB   | Manchester City         |  23 | 2845 | Elite  |    −1 |                |
-|     79 | Rúben Dias                | 2022-23 | CB   | Manchester City         |  25 | 1997 | Elite  |  −0.9 |                |
-|     79 | Rúben Dias                | 2025-26 | CB   | Manchester City         |  28 | 2140 | Elite  |  −0.7 |                |
 |     79 | Ryan Fraser               | 2019-20 | LW   | Bournemouth             |  25 | 2063 | Elite  |  −0.8 |                |
-|     79 | Ryan Giggs                | 1996-97 | LM   | Manchester United       |  23 | 2340 | Elite  |  −1.3 |                |
-|     79 | Ryan Giggs                | 1998-99 | LM   | Manchester United       |  25 | 2160 | Elite  |  −0.6 |                |
-|     79 | Ryan Giggs                | 2003-04 | LM   | Manchester United       |  30 | 2537 | Elite  |    −1 |                |
-|     79 | Sadio Mané                | 2015-16 | LW   | Southampton             |  23 | 2604 | Elite  |    −1 |                |
-|     79 | Sadio Mané                | 2017-18 | LW   | Liverpool               |  25 | 2206 | Elite  |  −0.6 |                |
 |     79 | Santi Cazorla             | 2014-15 | CM   | Arsenal                 |  30 | 2992 | Elite  |    −1 |                |
-|     79 | Sol Campbell              | 1997-98 | CB   | Tottenham Hotspur       |  23 | 3060 | Elite  |    −1 |                |
-|     79 | Sol Campbell              | 2000-01 | CB   | Tottenham Hotspur       |  26 | 1890 | Elite  |  −1.1 |                |
-|     79 | Son Heung-Min             | 2016-17 | LW   | Tottenham Hotspur       |  24 | 2068 | Elite  |  −0.8 |                |
-|     79 | Son Heung-Min             | 2018-19 | LW   | Tottenham               |  26 | 2045 | Elite  |  −0.9 |                |
-|     79 | Son Heung-Min             | 2022-23 | LW   | Tottenham               |  30 | 2899 | Elite  |    −1 |                |
 |     79 | Stan Collymore            | 1994-95 | CF   | Nottingham Forest       |  23 | 3330 | Elite  |    −1 |                |
 |     79 | Stan Collymore            | 1998-99 | CF   | Aston Villa             |  27 | 1800 | Elite  |  −1.3 |                |
 |     79 | Steve McManaman           | 1995-96 | RM   | Liverpool               |  23 | 3420 | Elite  |    −1 |                |
-|     79 | Steven Gerrard            | 2003-04 | CM   | Liverpool               |  23 | 3007 | Elite  |    −1 |                |
-|     79 | Teddy Sheringham          | 2001-02 | CF   | Tottenham Hotspur       |  35 | 3060 | Legend |    −6 |                |
+|     79 | Teddy Sheringham          | 1993-94 | CF   | Tottenham Hotspur       |  27 | 1710 | Elite  |  −1.5 |                |
+|     79 | Teddy Sheringham          | 1996-97 | CF   | Tottenham Hotspur       |  30 | 2610 | Elite  |    −1 |                |
 |     79 | Trent Alexander-Arnold    | 2017-18 | RB   | Liverpool               |  19 | 1575 | Legend |  −5.7 |                |
-|     79 | Vincent Kompany           | 2014-15 | CB   | Manchester City         |  28 | 2032 | Elite  |  −0.9 |                |
-|     79 | Virgil van Dijk           | 2016-17 | CB   | Southampton             |  25 | 1854 | Elite  |  −1.2 |                |
-|     79 | Virgil van Dijk           | 2021-22 | CB   | Liverpool               |  30 | 3060 | Elite  |    −1 |                |
 |     79 | William Gallas            | 2003-04 | CB   | Chelsea                 |  26 | 2094 | Elite  |  −0.8 |                |
 |     79 | William Gallas            | 2006-07 | CB   | Arsenal                 |  29 | 1881 | Elite  |  −1.2 |                |
 |     79 | William Gallas            | 2007-08 | CB   | Arsenal                 |  30 | 2725 | Elite  |    −1 |                |
-|     78 | Alisson                   | 2023-24 | GK   | Liverpool               |  31 | 2520 | Elite  |    −2 |                |
 |     78 | Andrew Johnson            | 2010-11 | CF   | Fulham                  |  29 | 1549 | Elite  |  −1.8 |                |
 |     78 | Andy Hinchcliffe          | 1996-97 | LB   | Everton                 |  27 | 1620 | Elite  |  −1.6 |                |
 |     78 | Anthony Elanga            | 2024-25 | RW   | Nott'ham Forest         |  22 | 2507 | Elite  |    −2 |                |
@@ -933,13 +1158,11 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     78 | Antoine Semenyo           | 2023-24 | RW   | Bournemouth             |  23 | 2110 | Elite  |  −1.7 |                |
 |     78 | Antonio Valencia          | 2007-08 | RB   | Wigan Athletic          |  22 | 2712 | Elite  |    −2 |                |
 |     78 | Antonio Valencia          | 2016-17 | RB   | Manchester United       |  31 | 2483 | Elite  |    −2 |                |
-|     78 | Ashley Cole               | 2002-03 | LB   | Arsenal                 |  22 | 2790 | Elite  |    −2 |                |
-|     78 | Ashley Cole               | 2011-12 | LB   | Chelsea                 |  31 | 2786 | Elite  |    −2 |                |
-|     78 | Ashley Cole               | 2013-14 | LB   | Chelsea                 |  33 | 1386 | Elite  |  −2.1 |       ✅       |
 |     78 | Ashley Young              | 2007-08 | RB   | Aston Villa             |  22 | 3289 | Elite  |    −2 |                |
 |     78 | Ashley Young              | 2011-12 | RB   | Manchester United       |  26 | 1572 | Elite  |  −1.7 |                |
 |     78 | Ashley Young              | 2012-13 | RB   | Manchester United       |  27 | 1372 | Elite  |  −2.1 |                |
 |     78 | Aymeric Laporte           | 2020-21 | CB   | Manchester City         |  26 | 1343 | Elite  |  −2.2 |                |
+|     78 | Benjani                   | 2005-06 | CF   | Portsmouth              |  27 | 1284 | Elite  |  −2.3 |                |
 |     78 | Bernardo Silva            | 2025-26 | CAM  | Manchester City         |  31 | 2886 | Elite  |    −2 |                |
 |     78 | Brad Friedel              | 2002-03 | GK   | Blackburn Rovers        |  31 | 3330 | Elite  |    −2 |                |
 |     78 | Branislav Ivanovic        | 2015-16 | RB   | Chelsea                 |  31 | 2918 | Elite  |    −2 |                |
@@ -952,6 +1175,7 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     78 | Chris Sutton              | 1998-99 | CF   | Blackburn Rovers        |  25 | 1530 | Elite  |  −1.8 |                |
 |     78 | Christian Eriksen         | 2014-15 | CAM  | Tottenham Hotspur       |  22 | 3139 | Elite  |    −2 |                |
 |     78 | Christian Eriksen         | 2022-23 | CAM  | Manchester Utd          |  30 | 2061 | Elite  |  −1.8 |                |
+|     78 | Claude Makelele           | 2007-08 | CDM  | Chelsea                 |  34 | 1266 | Legend |    −7 |                |
 |     78 | Cole Palmer               | 2024-25 | CAM  | Chelsea                 |  22 | 3195 | Elite  |    −2 |                |
 |     78 | Cole Palmer               | 2025-26 | CAM  | Chelsea                 |  23 | 1965 | Elite  |    −2 |                |
 |     78 | Damien Duff               | 2001-02 | RM   | Blackburn Rovers        |  22 | 2880 | Elite  |    −2 |                |
@@ -968,46 +1192,46 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     78 | Darren Bent               | 2013-14 | CF   | Fulham                  |  29 | 1239 | Elite  |  −2.4 |                |
 |     78 | Darren Fletcher           | 2014-15 | CM   | Manchester United       |  30 | 1714 | Elite  |  −2.5 |                |
 |     78 | Darren Fletcher           | 2015-16 | CM   | West Bromwich Albion    |  31 | 3374 | Elite  |    −2 |                |
-|     78 | David De Gea              | 2012-13 | GK   | Manchester United       |  22 | 2520 | Elite  |    −2 |                |
-|     78 | David De Gea              | 2021-22 | GK   | Manchester Utd          |  31 | 3420 | Elite  |    −2 |                |
+|     78 | David Ginola              | 2001-02 | LW   | Everton                 |  34 |  900 | Legend |    −7 |                |
 |     78 | David Seaman              | 1999-00 | GK   | Arsenal                 |  36 | 2160 | Legend |    −7 |                |
 |     78 | David Seaman              | 2002-03 | GK   | Arsenal                 |  39 | 2520 | Legend |    −7 |                |
 |     78 | David Seaman              | 2003-04 | GK   | Manchester City         |  40 | 1594 | Legend |    −7 |                |
-|     78 | Denis Irwin               | 1996-97 | LB   | Manchester United       |  31 | 2790 | Elite  |    −2 |                |
-|     78 | Dennis Bergkamp           | 2000-01 | SS   | Arsenal                 |  31 | 2250 | Elite  |  −2.5 |                |
+|     78 | Denis Irwin               | 2001-02 | LB   | Manchester United       |  36 | 1080 | Legend |    −7 |                |
+|     78 | Denis Irwin               | 2003-04 | LB   | Wolverhampton Wanderers |  38 | 2662 | Legend |    −7 |                |
+|     78 | Dennis Bergkamp           | 2004-05 | SS   | Arsenal                 |  35 | 1917 | Legend |    −7 |                |
+|     78 | Dennis Bergkamp           | 2005-06 | SS   | Arsenal                 |  36 | 1013 | Legend |    −7 |                |
+|     78 | Diego Costa               | 2022-23 | CF   | Wolves                  |  34 | 1245 | Legend |    −7 |                |
 |     78 | Dimitar Berbatov          | 2012-13 | CF   | Fulham                  |  31 | 2847 | Elite  |    −2 |                |
+|     78 | Dimitri Payet             | 2016-17 | CAM  | West Ham United         |  29 | 1513 | Elite  |  −1.9 |                |
 |     78 | Dion Dublin               | 2000-01 | CF   | Aston Villa             |  31 | 2970 | Elite  |    −2 |                |
 |     78 | Dwight Yorke              | 2007-08 | CF   | Sunderland              |  36 | 1254 | Legend |    −7 |                |
 |     78 | Ed de Goey                | 1997-98 | GK   | Chelsea                 |  31 | 2520 | Elite  |    −2 |                |
 |     78 | Edwin van der Sar         | 2006-07 | GK   | Manchester United       |  36 | 2876 | Legend |    −7 |                |
 |     78 | Emmanuel Adebayor         | 2012-13 | CF   | Tottenham Hotspur       |  28 | 1597 | Elite  |  −1.7 |                |
-|     78 | Erling Haaland            | 2022-23 | CF   | Manchester City         |  22 | 2776 | Elite  |    −2 |                |
-|     78 | Fernandinho               | 2016-17 | CDM  | Manchester City         |  31 | 2754 | Elite  |    −2 |                |
-|     78 | Fernando Torres           | 2013-14 | CF   | Chelsea                 |  29 | 1571 | Elite  |  −1.7 |                |
+|     78 | Fernandinho               | 2020-21 | CDM  | Manchester City         |  35 | 1184 | Legend |    −7 |                |
+|     78 | Fernandinho               | 2021-22 | CDM  | Manchester City         |  36 |  958 | Legend |    −7 |                |
 |     78 | Frank Lampard             | 2013-14 | CM   | Chelsea                 |  35 | 1702 | Legend |    −7 |                |
 |     78 | Freddie Ljungberg         | 1999-00 | RM   | Arsenal                 |  22 | 2340 | Elite  |  −2.3 |                |
 |     78 | Freddie Ljungberg         | 2006-07 | RM   | Arsenal                 |  29 | 1204 | Elite  |  −2.4 |                |
 |     78 | Freddie Ljungberg         | 2007-08 | RM   | West Ham United         |  30 | 1856 | Elite  |  −2.2 |                |
 |     78 | Gabriel Jesus             | 2020-21 | CF   | Manchester City         |  23 | 2059 | Elite  |  −1.8 |                |
 |     78 | Gabriel Jesus             | 2023-24 | CF   | Arsenal                 |  26 | 1482 | Elite  |  −1.9 |                |
-|     78 | Gareth Bale               | 2011-12 | RW   | Tottenham Hotspur       |  22 | 3217 | Elite  |    −2 |                |
+|     78 | Gareth Bale               | 2008-09 | RW   | Tottenham Hotspur       |  19 |  993 | Legend |  −6.8 |                |
 |     78 | Gareth Barry              | 2003-04 | CDM  | Aston Villa             |  22 | 3020 | Elite  |    −2 |                |
 |     78 | Gareth Barry              | 2012-13 | CDM  | Manchester City         |  31 | 2397 | Elite  |  −2.2 |                |
 |     78 | Gary Cahill               | 2015-16 | CB   | Chelsea                 |  30 | 1955 | Elite  |    −2 |                |
 |     78 | Gary Cahill               | 2016-17 | CB   | Chelsea                 |  31 | 3296 | Elite  |    −2 |                |
-|     78 | Gary Neville              | 1997-98 | RB   | Manchester United       |  22 | 3060 | Elite  |    −2 |                |
-|     78 | Gary Neville              | 2005-06 | RB   | Manchester United       |  30 | 2163 | Elite  |  −1.6 |                |
-|     78 | Gary Neville              | 2009-10 | RB   | Manchester United       |  34 | 1355 | Elite  |  −2.1 |       ✅       |
+|     78 | Gary Neville              | 2008-09 | RB   | Manchester United       |  33 | 1073 | Legend |  −6.7 |                |
 |     78 | Gary Pallister            | 1995-96 | CB   | Manchester United       |  30 | 1890 | Elite  |  −2.1 |                |
 |     78 | Gary Pallister            | 1996-97 | CB   | Manchester United       |  31 | 2430 | Elite  |  −2.1 |                |
+|     78 | Gianfranco Zola           | 2002-03 | SS   | Chelsea                 |  36 | 3420 | Legend |    −7 |                |
 |     78 | Graeme Le Saux            | 1995-96 | LB   | Blackburn Rovers        |  27 | 1260 | Elite  |  −2.3 |                |
 |     78 | Gylfi Sigurdsson          | 2013-14 | CAM  | Tottenham Hotspur       |  24 | 1276 | Elite  |  −2.3 |                |
 |     78 | Gylfi Sigurdsson          | 2020-21 | CAM  | Everton                 |  31 | 3240 | Elite  |    −2 |                |
-|     78 | Harry Kane                | 2015-16 | CF   | Tottenham Hotspur       |  22 | 3279 | Elite  |    −2 |                |
 |     78 | Henning Berg              | 1998-99 | RB   | Manchester United       |  29 | 1440 | Elite  |    −2 |                |
 |     78 | Henning Berg              | 1999-00 | RB   | Manchester United       |  30 | 1980 | Elite  |    −2 |                |
 |     78 | Henning Berg              | 2002-03 | RB   | Blackburn Rovers        |  33 | 1440 | Elite  |    −2 |       ✅       |
-|     78 | Ian Wright                | 1994-95 | CF   | Arsenal                 |  31 | 2790 | Elite  |    −2 |                |
+|     78 | Ian Wright                | 1998-99 | CF   | West Ham United         |  35 | 1980 | Legend |    −7 |                |
 |     78 | Ilkay Gündogan            | 2017-18 | CM   | Manchester City         |  27 | 1510 | Elite  |  −1.9 |                |
 |     78 | Ilkay Gündogan            | 2020-21 | CM   | Manchester City         |  30 | 2030 | Elite  |  −1.9 |                |
 |     78 | Ivan Toney                | 2023-24 | CF   | Brentford               |  27 | 1449 | Elite  |    −2 |                |
@@ -1018,19 +1242,24 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     78 | James Beattie             | 2000-01 | CF   | Southampton             |  22 | 3330 | Elite  |    −2 |                |
 |     78 | James Beattie             | 2004-05 | CF   | Southampton             |  26 | 1376 | Elite  |  −2.1 |                |
 |     78 | James Beattie             | 2006-07 | CF   | Everton                 |  28 | 1457 | Elite  |    −2 |                |
-|     78 | James Milner              | 2020-21 | CM   | Liverpool               |  34 | 1062 | Legend |    −7 |                |
-|     78 | Jamie Vardy               | 2018-19 | CF   | Leicester City          |  31 | 2728 | Elite  |    −2 |                |
+|     78 | James Milner              | 2008-09 | CM   | Aston Villa             |  22 | 3058 | Elite  |    −2 |                |
+|     78 | James Milner              | 2011-12 | CM   | Manchester City         |  25 | 1579 | Elite  |  −1.7 |                |
+|     78 | James Milner              | 2013-14 | CM   | Manchester City         |  27 | 1358 | Elite  |  −2.1 |                |
+|     78 | Jamie Carragher           | 2012-13 | CB   | Liverpool               |  34 | 1528 | Legend |  −6.8 |                |
+|     78 | Jamie Vardy               | 2022-23 | CF   | Leicester City          |  35 | 1851 | Legend |    −7 |                |
+|     78 | Jamie Vardy               | 2024-25 | CF   | Leicester City          |  37 | 2839 | Legend |    −7 |                |
+|     78 | Joe Hart                  | 2009-10 | GK   | Birmingham City         |  22 | 3240 | Elite  |    −2 |                |
+|     78 | Joe Hart                  | 2017-18 | GK   | West Ham                |  30 | 1710 | Elite  |  −2.5 |                |
 |     78 | John O'Shea               | 2003-04 | CB   | Manchester United       |  22 | 2818 | Elite  |    −2 |                |
 |     78 | John O'Shea               | 2010-11 | CB   | Manchester United       |  29 | 1541 | Elite  |  −1.8 |                |
 |     78 | John O'Shea               | 2012-13 | CB   | Sunderland              |  31 | 2993 | Elite  |    −2 |                |
-|     78 | John Terry                | 2011-12 | CB   | Chelsea                 |  31 | 2790 | Elite  |    −2 |                |
+|     78 | John Terry                | 2015-16 | CB   | Chelsea                 |  35 | 1989 | Legend |    −7 |                |
 |     78 | Jordan Henderson          | 2015-16 | CDM  | Liverpool               |  25 | 1293 | Elite  |  −2.3 |                |
 |     78 | Jordan Henderson          | 2020-21 | CDM  | Liverpool               |  30 | 1707 | Elite  |  −2.5 |                |
 |     78 | Jordan Henderson          | 2021-22 | CDM  | Liverpool               |  31 | 2603 | Elite  |    −2 |                |
 |     78 | Juan Mata                 | 2016-17 | CAM  | Manchester United       |  28 | 1628 | Elite  |  −1.6 |                |
-|     78 | Kyle Walker               | 2012-13 | RB   | Tottenham Hotspur       |  22 | 3160 | Elite  |    −2 |                |
-|     78 | Kyle Walker               | 2014-15 | RB   | Tottenham Hotspur       |  24 | 1307 | Elite  |  −2.2 |                |
-|     78 | Kyle Walker               | 2020-21 | RB   | Manchester City         |  30 | 1946 | Elite  |    −2 |                |
+|     78 | Kasper Schmeichel         | 2017-18 | GK   | Leicester City          |  31 | 2966 | Elite  |    −2 |                |
+|     78 | Kyle Walker               | 2024-25 | RB   | Manchester City         |  34 |  967 | Legend |    −7 |                |
 |     78 | Leandro Trossard          | 2023-24 | LW   | Arsenal                 |  29 | 1645 | Elite  |  −1.6 |                |
 |     78 | Les Ferdinand             | 2003-04 | CF   | Leicester City          |  37 | 1543 | Elite  |  −1.8 |       ✅       |
 |     78 | Louis Saha                | 2002-03 | CF   | Fulham                  |  24 | 1530 | Elite  |  −1.8 |                |
@@ -1038,11 +1267,11 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     78 | Louis Saha                | 2009-10 | CF   | Everton                 |  31 | 2328 | Elite  |  −2.3 |                |
 |     78 | Marcus Stewart            | 2002-03 | CF   | Sunderland              |  30 | 1710 | Elite  |  −2.5 |                |
 |     78 | Mesut Özil                | 2018-19 | CAM  | Arsenal                 |  30 | 1741 | Elite  |  −2.4 |                |
-|     78 | Michael Carrick           | 2012-13 | CDM  | Manchester United       |  31 | 3045 | Elite  |    −2 |                |
-|     78 | Michael Owen              | 2001-02 | CF   | Liverpool               |  22 | 2610 | Elite  |    −2 |                |
+|     78 | Michael Ballack           | 2006-07 | CM   | Chelsea                 |  30 | 2016 | Elite  |  −1.9 |                |
+|     78 | Michael Carrick           | 2016-17 | CDM  | Manchester United       |  35 | 1599 | Legend |    −7 |                |
+|     78 | Michu                     | 2013-14 | SS   | Swansea City            |  27 | 1289 | Elite  |  −2.3 |                |
 |     78 | Mikaël Silvestre          | 1999-00 | LB   | Manchester United       |  22 | 2790 | Elite  |    −2 |                |
 |     78 | Muzzy Izzet               | 1996-97 | RM   | Leicester City          |  22 | 3150 | Elite  |    −2 |                |
-|     78 | N'Golo Kanté              | 2021-22 | CDM  | Chelsea                 |  30 | 1777 | Elite  |  −2.4 |                |
 |     78 | Neal Ardley               | 1999-00 | RM   | Wimbledon               |  27 | 1530 | Elite  |  −1.8 |                |
 |     78 | Nemanja Matic             | 2013-14 | CDM  | Chelsea                 |  25 | 1364 | Elite  |  −2.1 |                |
 |     78 | Niall Quinn               | 1993-94 | CF   | Manchester City         |  27 | 1350 | Elite  |  −2.2 |                |
@@ -1054,56 +1283,48 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     78 | Nicolas Anelka            | 2004-05 | CF   | Manchester City         |  25 | 1511 | Elite  |  −1.9 |                |
 |     78 | Nicolas Anelka            | 2010-11 | CF   | Chelsea                 |  31 | 2362 | Elite  |  −2.3 |                |
 |     78 | Nigel Martyn              | 1997-98 | GK   | Leeds United            |  31 | 3330 | Elite  |    −2 |                |
+|     78 | Nikica Jelavic            | 2013-14 | CF   | Everton                 |  28 | 1696 | Elite  |  −1.5 |                |
 |     78 | Nolberto Solano           | 2003-04 | RM   | Newcastle United        |  29 | 1516 | Elite  |  −1.8 |                |
 |     78 | Nolberto Solano           | 2005-06 | RM   | Newcastle United        |  31 | 2340 | Elite  |  −2.3 |                |
-|     78 | Ole Gunnar Solskjær       | 2006-07 | CF   | Manchester United       |  33 |  916 | Legend |    −7 |                |
+|     78 | Odion Ighalo              | 2016-17 | CF   | Watford                 |  27 | 1291 | Elite  |  −2.3 |                |
 |     78 | Pablo Zabaleta            | 2011-12 | RB   | Manchester City         |  26 | 1549 | Elite  |  −1.8 |                |
 |     78 | Paolo Di Canio            | 1998-99 | CF   | West Ham United         |  30 | 1710 | Elite  |  −2.5 |                |
 |     78 | Paolo Di Canio            | 1999-00 | CF   | West Ham United         |  31 | 2700 | Elite  |    −2 |                |
 |     78 | Paolo Di Canio            | 2002-03 | CF   | West Ham United         |  34 | 1620 | Elite  |  −1.6 |       ✅       |
-|     78 | Patrice Evra              | 2012-13 | LB   | Manchester United       |  31 | 3060 | Elite  |    −2 |                |
-|     78 | Patrick Vieira            | 1998-99 | CDM  | Arsenal                 |  22 | 3060 | Elite  |    −2 |                |
+|     78 | Papiss Demba Cissé        | 2013-14 | CF   | Newcastle United        |  28 | 1383 | Elite  |  −2.1 |                |
 |     78 | Paul Ince                 | 1998-99 | CM   | Liverpool               |  31 | 3060 | Elite  |    −2 |                |
 |     78 | Paul Jones                | 1998-99 | GK   | Southampton             |  31 | 2790 | Elite  |    −2 |                |
+|     78 | Paul Scholes              | 2008-09 | CM   | Manchester United       |  34 | 1263 | Legend |    −7 |                |
+|     78 | Paul Scholes              | 2009-10 | CM   | Manchester United       |  35 | 1946 | Legend |    −7 |                |
+|     78 | Paul Scholes              | 2010-11 | CM   | Manchester United       |  36 | 1536 | Legend |    −7 |                |
+|     78 | Paul Scholes              | 2011-12 | CM   | Manchester United       |  37 | 1169 | Legend |    −7 |                |
 |     78 | Peter Schmeichel          | 2001-02 | GK   | Aston Villa             |  38 | 2610 | Legend |    −7 |                |
 |     78 | Peter Schmeichel          | 2002-03 | GK   | Manchester City         |  39 | 2610 | Legend |    −7 |                |
 |     78 | Phil Neville              | 1999-00 | RB   | Manchester United       |  22 | 2610 | Elite  |    −2 |                |
 |     78 | Phil Neville              | 2008-09 | RB   | Everton                 |  31 | 3227 | Elite  |    −2 |                |
 |     78 | Pierre-Emerick Aubameyang | 2020-21 | CF   | Arsenal                 |  31 | 2336 | Elite  |  −2.3 |                |
 |     78 | Raheem Sterling           | 2016-17 | RW   | Manchester City         |  22 | 2515 | Elite  |    −2 |                |
-|     78 | Rio Ferdinand             | 2000-01 | CB   | Leeds United            |  22 | 3150 | Elite  |    −2 |                |
-|     78 | Rio Ferdinand             | 2008-09 | CB   | Manchester United       |  30 | 2140 | Elite  |  −1.7 |                |
-|     78 | Riyad Mahrez              | 2014-15 | RW   | Leicester City          |  23 | 2082 | Elite  |  −1.8 |                |
-|     78 | Riyad Mahrez              | 2018-19 | RW   | Manchester City         |  27 | 1336 | Elite  |  −2.2 |                |
-|     78 | Robbie Fowler             | 1999-00 | CF   | Liverpool               |  24 | 1260 | Elite  |  −2.3 |                |
-|     78 | Robert Pirès              | 2004-05 | LM   | Arsenal                 |  31 | 2318 | Elite  |  −2.3 |                |
-|     78 | Robin van Persie          | 2009-10 | CF   | Arsenal                 |  26 | 1256 | Elite  |  −2.3 |                |
-|     78 | Rodri                     | 2025-26 | CDM  | Manchester City         |  29 | 1513 | Elite  |  −1.9 |                |
+|     78 | Rio Ferdinand             | 2013-14 | CB   | Manchester United       |  35 | 1128 | Legend |    −7 |                |
+|     78 | Rio Ferdinand             | 2014-15 | CB   | Queens Park Rangers     |  36 |  990 | Legend |    −7 |                |
 |     78 | Romelu Lukaku             | 2015-16 | CF   | Everton                 |  22 | 3174 | Elite  |    −2 |                |
 |     78 | Romelu Lukaku             | 2021-22 | CF   | Chelsea                 |  28 | 1585 | Elite  |  −1.7 |                |
-|     78 | Roy Keane                 | 1993-94 | CM   | Manchester United       |  22 | 3330 | Elite  |    −2 |                |
-|     78 | Ruud van Nistelrooij      | 2004-05 | CF   | Manchester United       |  28 | 1371 | Elite  |  −2.1 |                |
+|     78 | Roque Santa Cruz          | 2008-09 | CF   | Blackburn Rovers        |  27 | 1489 | Elite  |  −1.9 |                |
 |     78 | Ryan Fraser               | 2017-18 | LW   | Bournemouth             |  23 | 2009 | Elite  |  −1.9 |                |
 |     78 | Ryan Fraser               | 2021-22 | LW   | Newcastle Utd           |  27 | 1470 | Elite  |  −1.9 |                |
-|     78 | Ryan Giggs                | 1995-96 | LM   | Manchester United       |  22 | 2970 | Elite  |    −2 |                |
-|     78 | Ryan Giggs                | 2004-05 | LM   | Manchester United       |  31 | 2325 | Elite  |  −2.3 |                |
-|     78 | Sol Campbell              | 1996-97 | CB   | Tottenham Hotspur       |  22 | 3420 | Elite  |    −2 |                |
-|     78 | Son Heung-Min             | 2023-24 | LW   | Tottenham               |  31 | 2946 | Elite  |    −2 |                |
+|     78 | Ryan Giggs                | 2008-09 | LM   | Manchester United       |  35 | 1500 | Legend |    −7 |                |
+|     78 | Ryan Giggs                | 2009-10 | LM   | Manchester United       |  36 | 1814 | Legend |    −7 |                |
+|     78 | Ryan Giggs                | 2010-11 | LM   | Manchester United       |  37 | 1678 | Legend |    −7 |                |
+|     78 | Ryan Giggs                | 2011-12 | LM   | Manchester United       |  38 | 1466 | Legend |    −7 |                |
+|     78 | Ryan Giggs                | 2012-13 | LM   | Manchester United       |  39 | 1159 | Legend |    −7 |                |
+|     78 | Sol Campbell              | 2009-10 | CB   | Arsenal                 |  35 |  955 | Legend |    −7 |                |
 |     78 | Stephen Ireland           | 2008-09 | CAM  | Manchester City         |  22 | 3033 | Elite  |    −2 |                |
 |     78 | Stephen Ireland           | 2011-12 | CAM  | Aston Villa             |  25 | 1589 | Elite  |  −1.7 |                |
 |     78 | Stephen Ireland           | 2013-14 | CAM  | Stoke City              |  27 | 1388 | Elite  |  −2.1 |                |
 |     78 | Steve McManaman           | 1994-95 | RM   | Liverpool               |  22 | 3600 | Elite  |    −2 |                |
-|     78 | Steven Gerrard            | 2002-03 | CM   | Liverpool               |  22 | 3060 | Elite  |    −2 |                |
-|     78 | Steven Gerrard            | 2010-11 | CM   | Liverpool               |  30 | 1869 | Elite  |  −2.2 |                |
-|     78 | Teddy Sheringham          | 2002-03 | CF   | Tottenham Hotspur       |  36 | 3240 | Legend |    −7 |                |
-|     78 | Teddy Sheringham          | 2003-04 | CF   | Portsmouth              |  37 | 2217 | Legend |    −7 |                |
-|     78 | Teddy Sheringham          | 2005-06 | CF   | West Ham United         |  39 | 1456 | Legend |    −7 |                |
+|     78 | Steven Gerrard            | 1998-99 | CM   | Liverpool               |  18 | 1080 | Legend |  −6.7 |                |
+|     78 | Teddy Sheringham          | 1997-98 | CF   | Manchester United       |  31 | 2790 | Elite  |    −2 |                |
 |     78 | Thibaut Courtois          | 2014-15 | GK   | Chelsea                 |  22 | 2814 | Elite  |    −2 |                |
 |     78 | Thibaut Courtois          | 2015-16 | GK   | Chelsea                 |  23 | 2020 | Elite  |  −1.9 |                |
-|     78 | Vincent Kompany           | 2008-09 | CB   | Manchester City         |  22 | 2994 | Elite  |    −2 |                |
-|     78 | Vincent Kompany           | 2009-10 | CB   | Manchester City         |  23 | 1913 | Elite  |  −2.1 |                |
-|     78 | Vincent Kompany           | 2015-16 | CB   | Manchester City         |  29 | 1179 | Elite  |  −2.5 |                |
-|     78 | Virgil van Dijk           | 2022-23 | CB   | Liverpool               |  31 | 2835 | Elite  |    −2 |                |
 |     78 | Wes Brown                 | 2002-03 | CB   | Manchester United       |  23 | 1980 | Elite  |    −2 |                |
 |     78 | Wes Brown                 | 2003-04 | CB   | Manchester United       |  24 | 1412 | Elite  |    −2 |                |
 |     78 | Wes Brown                 | 2004-05 | CB   | Manchester United       |  25 | 1640 | Elite  |  −1.6 |                |
@@ -1111,13 +1332,10 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     78 | Wes Brown                 | 2006-07 | CB   | Manchester United       |  27 | 1600 | Elite  |  −1.7 |                |
 |     78 | William Gallas            | 2011-12 | CB   | Tottenham Hotspur       |  34 | 1325 | Elite  |  −2.2 |       ✅       |
 |     77 | Alexander Isak            | 2022-23 | CF   | Newcastle Utd           |  23 | 1524 | Elite  |  −2.8 |                |
-|     77 | Alisson                   | 2024-25 | GK   | Liverpool               |  32 | 2520 | Elite  |    −3 |                |
 |     77 | Andrew Johnson            | 2011-12 | CF   | Fulham                  |  30 | 1244 | Elite  |  −3.4 |                |
 |     77 | Anthony Elanga            | 2023-24 | RW   | Nott'ham Forest         |  21 | 2433 | Elite  |  −3.1 |                |
 |     77 | Anthony Elanga            | 2025-26 | RW   | Newcastle United        |  23 | 1313 | Elite  |  −3.2 |                |
 |     77 | Antonio Valencia          | 2017-18 | RB   | Manchester Utd          |  32 | 2742 | Elite  |    −3 |                |
-|     77 | Ashley Cole               | 2001-02 | LB   | Arsenal                 |  21 | 2610 | Elite  |    −3 |                |
-|     77 | Ashley Cole               | 2012-13 | LB   | Chelsea                 |  32 | 2790 | Elite  |    −3 |                |
 |     77 | Ashley Young              | 2006-07 | RB   | Watford                 |  21 | 2781 | Elite  |    −3 |                |
 |     77 | Ashley Young              | 2013-14 | RB   | Manchester United       |  28 | 1030 | Elite  |  −2.8 |                |
 |     77 | Ashley Young              | 2017-18 | RB   | Manchester Utd          |  32 | 2445 | Elite  |  −3.1 |                |
@@ -1133,7 +1351,6 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     77 | Brett Emerton             | 2009-10 | RM   | Blackburn Rovers        |  30 | 1419 | Elite  |    −3 |                |
 |     77 | Brett Emerton             | 2010-11 | RM   | Blackburn Rovers        |  31 | 2193 | Elite  |  −2.6 |                |
 |     77 | Brian Deane               | 2000-01 | CF   | Middlesbrough           |  32 | 2250 | Elite  |  −3.5 |                |
-|     77 | Carlos Tevez              | 2006-07 | CF   | West Ham United         |  22 | 1702 | Elite  |  −3.5 |                |
 |     77 | César Azpilicueta         | 2020-21 | CB   | Chelsea                 |  31 | 2191 | Elite  |  −2.6 |                |
 |     77 | Chris Brunt               | 2015-16 | CM   | West Bromwich Albion    |  31 | 1803 | Elite  |  −3.3 |                |
 |     77 | Chris Brunt               | 2016-17 | CM   | West Bromwich Albion    |  32 | 2478 | Elite  |    −3 |                |
@@ -1149,32 +1366,24 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     77 | Darren Anderton           | 1993-94 | RM   | Tottenham Hotspur       |  21 | 3330 | Elite  |    −3 |                |
 |     77 | Darren Bent               | 2005-06 | CF   | Charlton Athletic       |  21 | 3162 | Elite  |    −3 |                |
 |     77 | Darren Fletcher           | 2016-17 | CM   | West Bromwich Albion    |  32 | 3235 | Elite  |    −3 |                |
-|     77 | David De Gea              | 2011-12 | GK   | Manchester United       |  21 | 2610 | Elite  |    −3 |                |
-|     77 | David De Gea              | 2022-23 | GK   | Manchester Utd          |  32 | 3420 | Elite  |    −3 |                |
-|     77 | Denis Irwin               | 1997-98 | LB   | Manchester United       |  32 | 2250 | Elite  |  −3.5 |                |
-|     77 | Dennis Bergkamp           | 2001-02 | SS   | Arsenal                 |  32 | 2970 | Elite  |    −3 |                |
 |     77 | Ed de Goey                | 1998-99 | GK   | Chelsea                 |  32 | 3150 | Elite  |    −3 |                |
 |     77 | Emmanuel Adebayor         | 2006-07 | CF   | Arsenal                 |  22 | 1987 | Elite  |    −3 |                |
-|     77 | Fernandinho               | 2017-18 | CDM  | Manchester City         |  32 | 2885 | Elite  |    −3 |                |
 |     77 | Gabriel Jesus             | 2019-20 | CF   | Manchester City         |  22 | 2027 | Elite  |  −2.9 |                |
-|     77 | Gareth Bale               | 2010-11 | RW   | Tottenham Hotspur       |  21 | 2451 | Elite  |  −3.1 |                |
 |     77 | Gareth Barry              | 2002-03 | CDM  | Aston Villa             |  21 | 3150 | Elite  |    −3 |                |
 |     77 | Gareth Barry              | 2013-14 | CDM  | Everton                 |  32 | 2849 | Elite  |    −3 |                |
-|     77 | Gary Neville              | 1996-97 | RB   | Manchester United       |  21 | 2790 | Elite  |    −3 |                |
-|     77 | Gary Neville              | 2006-07 | RB   | Manchester United       |  31 | 1979 | Elite  |    −3 |                |
 |     77 | Gary Pallister            | 1997-98 | CB   | Manchester United       |  32 | 2970 | Elite  |    −3 |                |
 |     77 | Gylfi Sigurdsson          | 2012-13 | CAM  | Tottenham Hotspur       |  23 | 1219 | Elite  |  −3.4 |                |
-|     77 | Harry Kane                | 2014-15 | CF   | Tottenham Hotspur       |  21 | 2581 | Elite  |    −3 |                |
 |     77 | Henning Berg              | 2001-02 | RB   | Blackburn Rovers        |  32 | 3060 | Elite  |    −3 |                |
-|     77 | Ian Wright                | 1995-96 | CF   | Arsenal                 |  32 | 2790 | Elite  |    −3 |                |
 |     77 | Ilkay Gündogan            | 2021-22 | CM   | Manchester City         |  31 | 1856 | Elite  |  −3.2 |                |
 |     77 | Ilkay Gündogan            | 2022-23 | CM   | Manchester City         |  32 | 2357 | Elite  |  −3.3 |                |
 |     77 | Jacob Murphy              | 2025-26 | RW   | Newcastle United        |  30 | 1618 | Elite  |  −2.7 |                |
 |     77 | James Beattie             | 2008-09 | CF   | Stoke City              |  30 | 1374 | Elite  |  −3.1 |                |
-|     77 | Jamie Vardy               | 2019-20 | CF   | Leicester City          |  32 | 3034 | Elite  |    −3 |                |
+|     77 | James Milner              | 2017-18 | CM   | Liverpool               |  31 | 1762 | Elite  |  −3.4 |                |
+|     77 | James Milner              | 2019-20 | CM   | Liverpool               |  33 |  926 | Elite  |    −3 |       ✅       |
 |     77 | Jimmy Floyd Hasselbaink   | 2003-04 | CF   | Chelsea                 |  31 | 1992 | Elite  |    −3 |                |
 |     77 | Jimmy Floyd Hasselbaink   | 2004-05 | CF   | Middlesbrough           |  32 | 3225 | Elite  |    −3 |                |
 |     77 | Jimmy Floyd Hasselbaink   | 2005-06 | CF   | Middlesbrough           |  33 | 1101 | Elite  |  −2.6 |       ✅       |
+|     77 | Joe Hart                  | 2018-19 | GK   | Burnley                 |  31 | 1710 | Elite  |  −3.5 |                |
 |     77 | John O'Shea               | 2002-03 | CB   | Manchester United       |  21 | 2880 | Elite  |    −3 |                |
 |     77 | John O'Shea               | 2004-05 | CB   | Manchester United       |  23 | 1482 | Elite  |  −2.9 |                |
 |     77 | John O'Shea               | 2007-08 | CB   | Manchester United       |  26 | 1132 | Elite  |  −2.6 |                |
@@ -1186,74 +1395,46 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     77 | John Stones               | 2019-20 | CB   | Manchester City         |  25 | 1119 | Elite  |  −2.6 |                |
 |     77 | John Stones               | 2021-22 | CB   | Manchester City         |  27 | 1118 | Elite  |  −2.6 |                |
 |     77 | John Stones               | 2023-24 | CB   | Manchester City         |  29 | 1064 | Elite  |  −2.7 |                |
-|     77 | John Terry                | 2001-02 | CB   | Chelsea                 |  21 | 2970 | Elite  |    −3 |                |
-|     77 | John Terry                | 2002-03 | CB   | Chelsea                 |  22 | 1800 | Elite  |  −3.3 |                |
 |     77 | Jordan Henderson          | 2011-12 | CDM  | Liverpool               |  21 | 2663 | Elite  |    −3 |                |
 |     77 | Juan Mata                 | 2018-19 | CAM  | Manchester Utd          |  30 | 1293 | Elite  |  −3.3 |                |
+|     77 | Kasper Schmeichel         | 2018-19 | GK   | Leicester City          |  32 | 3420 | Elite  |    −3 |                |
 |     77 | Kevin Phillips            | 2004-05 | CF   | Southampton             |  31 | 2081 | Elite  |  −2.8 |                |
-|     77 | Kyle Walker               | 2011-12 | RB   | Tottenham Hotspur       |  21 | 3230 | Elite  |    −3 |                |
-|     77 | Kyle Walker               | 2021-22 | RB   | Manchester City         |  31 | 1755 | Elite  |  −3.4 |                |
 |     77 | Leandro Trossard          | 2025-26 | LW   | Arsenal                 |  31 | 2006 | Elite  |  −2.9 |                |
 |     77 | Leroy Sané                | 2017-18 | RW   | Manchester City         |  21 | 2422 | Elite  |  −3.1 |                |
 |     77 | Leroy Sané                | 2018-19 | RW   | Manchester City         |  22 | 1865 | Elite  |  −3.2 |                |
 |     77 | Les Ferdinand             | 1997-98 | CF   | Tottenham Hotspur       |  31 | 1890 | Elite  |  −3.1 |                |
 |     77 | Louis Saha                | 2005-06 | CF   | Manchester United       |  27 | 1143 | Elite  |  −2.5 |                |
-|     77 | Michael Carrick           | 2002-03 | CDM  | West Ham United         |  21 | 2700 | Elite  |    −3 |                |
-|     77 | Michael Carrick           | 2013-14 | CDM  | Manchester United       |  32 | 2413 | Elite  |  −3.2 |                |
-|     77 | Michael Owen              | 2000-01 | CF   | Liverpool               |  21 | 2520 | Elite  |    −3 |                |
 |     77 | Nani                      | 2009-10 | LW   | Manchester United       |  23 | 1588 | Elite  |  −2.7 |                |
 |     77 | Nicky Butt                | 1996-97 | CDM  | Manchester United       |  21 | 2340 | Elite  |  −3.3 |                |
 |     77 | Nicky Butt                | 2003-04 | CDM  | Manchester United       |  28 | 1104 | Elite  |  −2.6 |                |
 |     77 | Nicky Butt                | 2007-08 | CDM  | Newcastle United        |  32 | 3003 | Elite  |    −3 |                |
 |     77 | Nicolas Anelka            | 2001-02 | CF   | Liverpool               |  22 | 1800 | Elite  |  −3.3 |                |
 |     77 | Nigel Martyn              | 1998-99 | GK   | Leeds United            |  32 | 3060 | Elite  |    −3 |                |
+|     77 | Nikica Jelavic            | 2011-12 | CF   | Everton                 |  26 |  957 | Elite  |  −2.9 |                |
+|     77 | Olivier Giroud            | 2016-17 | CF   | Arsenal                 |  30 | 1194 | Elite  |  −3.4 |                |
 |     77 | Pablo Zabaleta            | 2017-18 | RB   | West Ham                |  32 | 3291 | Elite  |    −3 |                |
 |     77 | Paolo Di Canio            | 2000-01 | CF   | West Ham United         |  32 | 2790 | Elite  |    −3 |                |
-|     77 | Patrice Evra              | 2013-14 | LB   | Manchester United       |  32 | 2884 | Elite  |    −3 |                |
-|     77 | Patrick Vieira            | 1997-98 | CDM  | Arsenal                 |  21 | 2970 | Elite  |    −3 |                |
+|     77 | Papiss Demba Cissé        | 2011-12 | CF   | Newcastle United        |  26 | 1113 | Elite  |  −2.6 |                |
+|     77 | Papiss Demba Cissé        | 2014-15 | CF   | Newcastle United        |  29 | 1152 | Elite  |  −2.5 |                |
 |     77 | Paul Ince                 | 1999-00 | CM   | Middlesbrough           |  32 | 2880 | Elite  |    −3 |                |
 |     77 | Paul Jones                | 1999-00 | GK   | Southampton             |  32 | 2790 | Elite  |    −3 |                |
-|     77 | Paul Scholes              | 1995-96 | CM   | Manchester United       |  21 | 2340 | Elite  |  −3.3 |                |
-|     77 | Paul Scholes              | 1996-97 | CM   | Manchester United       |  22 | 2160 | Elite  |  −2.6 |                |
-|     77 | Paul Scholes              | 2006-07 | CM   | Manchester United       |  32 | 2596 | Elite  |    −3 |                |
 |     77 | Phil Foden                | 2022-23 | CAM  | Manchester City         |  22 | 1843 | Elite  |  −3.2 |                |
 |     77 | Phil Neville              | 1998-99 | RB   | Manchester United       |  21 | 2520 | Elite  |    −3 |                |
 |     77 | Phil Neville              | 2004-05 | RB   | Manchester United       |  27 | 1069 | Elite  |  −2.7 |                |
 |     77 | Pierre-Emerick Aubameyang | 2017-18 | CF   | Arsenal                 |  28 | 1058 | Elite  |  −2.7 |                |
-|     77 | Rio Ferdinand             | 1999-00 | CB   | West Ham United         |  21 | 2970 | Elite  |    −3 |                |
-|     77 | Riyad Mahrez              | 2021-22 | RW   | Manchester City         |  30 | 1491 | Elite  |  −2.9 |                |
-|     77 | Riyad Mahrez              | 2022-23 | RW   | Manchester City         |  31 | 1923 | Elite  |  −3.1 |                |
-|     77 | Robbie Fowler             | 1996-97 | CF   | Liverpool               |  21 | 2880 | Elite  |    −3 |                |
-|     77 | Robbie Fowler             | 1997-98 | CF   | Liverpool               |  22 | 1800 | Elite  |  −3.3 |                |
-|     77 | Robin van Persie          | 2006-07 | CF   | Arsenal                 |  23 | 1460 | Elite  |    −3 |                |
-|     77 | Robin van Persie          | 2007-08 | CF   | Arsenal                 |  24 | 1079 | Elite  |  −2.7 |                |
-|     77 | Robin van Persie          | 2013-14 | CF   | Manchester United       |  30 | 1584 | Elite  |  −2.7 |                |
-|     77 | Robin van Persie          | 2014-15 | CF   | Manchester United       |  31 | 2114 | Elite  |  −2.7 |                |
 |     77 | Romelu Lukaku             | 2014-15 | CF   | Everton                 |  21 | 2875 | Elite  |    −3 |                |
-|     77 | Roy Keane                 | 1992-93 | CM   | Nottingham Forest       |  21 | 3600 | Elite  |    −3 |                |
-|     77 | Roy Keane                 | 2002-03 | CM   | Manchester United       |  31 | 1890 | Elite  |  −3.1 |                |
 |     77 | Ryan Fraser               | 2016-17 | LW   | AFC Bournemouth         |  22 | 1767 | Elite  |  −3.4 |                |
 |     77 | Ryan Fraser               | 2020-21 | LW   | Newcastle Utd           |  26 |  925 | Elite  |    −3 |                |
-|     77 | Ryan Giggs                | 1994-95 | LM   | Manchester United       |  21 | 2610 | Elite  |    −3 |                |
-|     77 | Sadio Mané                | 2014-15 | LW   | Southampton             |  22 | 2135 | Elite  |  −2.7 |                |
-|     77 | Sol Campbell              | 1995-96 | CB   | Tottenham Hotspur       |  21 | 2790 | Elite  |    −3 |                |
-|     77 | Sol Campbell              | 2004-05 | CB   | Arsenal                 |  30 | 1420 | Elite  |    −3 |                |
-|     77 | Sol Campbell              | 2005-06 | CB   | Arsenal                 |  31 | 1754 | Elite  |  −3.4 |                |
-|     77 | Sol Campbell              | 2006-07 | CB   | Portsmouth              |  32 | 2880 | Elite  |    −3 |                |
 |     77 | Stan Collymore            | 2000-01 | CF   | Bradford City           |  29 | 1080 | Elite  |  −2.7 |                |
 |     77 | Stephen Ireland           | 2007-08 | CAM  | Manchester City         |  21 | 2568 | Elite  |    −3 |                |
 |     77 | Stephen Ireland           | 2009-10 | CAM  | Manchester City         |  23 | 1452 | Elite  |    −3 |                |
 |     77 | Stephen Ireland           | 2014-15 | CAM  | Stoke City              |  28 |  933 | Elite  |  −2.9 |                |
 |     77 | Steve Bruce               | 1992-93 | CB   | Manchester United       |  32 | 3780 | Elite  |    −3 |                |
 |     77 | Steve McManaman           | 1993-94 | RM   | Liverpool               |  21 | 2700 | Elite  |    −3 |                |
-|     77 | Steven Gerrard            | 2001-02 | CM   | Liverpool               |  21 | 2520 | Elite  |    −3 |                |
-|     77 | Steven Gerrard            | 2012-13 | CM   | Liverpool               |  32 | 3223 | Elite  |    −3 |                |
-|     77 | Virgil van Dijk           | 2023-24 | CB   | Liverpool               |  32 | 3178 | Elite  |    −3 |                |
 |     77 | Wes Brown                 | 2000-01 | CB   | Manchester United       |  21 | 2520 | Elite  |    −3 |                |
 |     77 | Wes Brown                 | 2009-10 | CB   | Manchester United       |  30 | 1570 | Elite  |  −2.7 |                |
 |     77 | William Gallas            | 2008-09 | CB   | Arsenal                 |  31 | 2070 | Elite  |  −2.8 |                |
 |     77 | William Gallas            | 2009-10 | CB   | Arsenal                 |  32 | 2340 | Elite  |  −3.3 |                |
-|     76 | Alisson                   | 2025-26 | GK   | Liverpool               |  33 | 2340 | Elite  |  −4.3 |                |
 |     76 | Anthony Gordon            | 2021-22 | LW   | Everton                 |  20 | 2283 | Elite  |  −4.4 |                |
 |     76 | Ashley Young              | 2015-16 | RB   | Manchester United       |  30 | 1063 | Elite  |  −3.7 |                |
 |     76 | Ashley Young              | 2018-19 | RB   | Manchester Utd          |  33 | 2569 | Elite  |    −4 |                |
@@ -1274,11 +1455,8 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     76 | Darren Fletcher           | 2005-06 | CM   | Manchester United       |  21 | 1903 | Elite  |  −4.1 |                |
 |     76 | Darren Fletcher           | 2006-07 | CM   | Manchester United       |  22 | 1426 | Elite  |    −4 |                |
 |     76 | Dean Holdsworth           | 2001-02 | CF   | Bolton Wanderers        |  33 | 2790 | Elite  |    −4 |                |
-|     76 | Denis Irwin               | 1998-99 | LB   | Manchester United       |  33 | 2610 | Elite  |    −4 |                |
-|     76 | Dennis Bergkamp           | 2002-03 | SS   | Arsenal                 |  33 | 2610 | Elite  |    −4 |                |
 |     76 | Dion Dublin               | 2001-02 | CF   | Aston Villa             |  32 | 1890 | Elite  |  −4.1 |                |
 |     76 | Dion Dublin               | 2002-03 | CF   | Aston Villa             |  33 | 2520 | Elite  |    −4 |                |
-|     76 | Fernandinho               | 2018-19 | CDM  | Manchester City         |  33 | 2381 | Elite  |  −4.2 |                |
 |     76 | Gareth Barry              | 1998-99 | CDM  | Aston Villa             |  17 | 2880 | Elite  |    −4 |                |
 |     76 | Gareth Barry              | 1999-00 | CDM  | Aston Villa             |  18 | 2700 | Elite  |    −4 |                |
 |     76 | Gareth Barry              | 2000-01 | CDM  | Aston Villa             |  19 | 2700 | Elite  |    −4 |                |
@@ -1286,34 +1464,33 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     76 | Gary Cahill               | 2006-07 | CB   | Aston Villa             |  21 | 1744 | Elite  |  −4.4 |                |
 |     76 | Gary Cahill               | 2007-08 | CB   | Bolton Wanderers        |  22 | 1194 | Elite  |  −4.4 |                |
 |     76 | Gary Cahill               | 2017-18 | CB   | Chelsea                 |  32 | 2084 | Elite  |  −3.8 |                |
-|     76 | Gary Neville              | 1995-96 | RB   | Manchester United       |  20 | 2790 | Elite  |    −4 |                |
 |     76 | Gary Pallister            | 1998-99 | CB   | Middlesbrough           |  33 | 2340 | Elite  |  −4.3 |                |
 |     76 | Graeme Le Saux            | 2000-01 | LB   | Chelsea                 |  32 | 1800 | Elite  |  −4.3 |                |
 |     76 | Graeme Le Saux            | 2001-02 | LB   | Chelsea                 |  33 | 2430 | Elite  |  −4.1 |                |
 |     76 | Gylfi Sigurdsson          | 2011-12 | CAM  | Swansea City            |  22 | 1499 | Elite  |  −3.9 |                |
 |     76 | James Beattie             | 1998-99 | CF   | Southampton             |  20 | 3150 | Elite  |    −4 |                |
+|     76 | James Milner              | 2003-04 | CM   | Leeds United            |  17 | 2381 | Elite  |  −4.2 |                |
+|     76 | James Milner              | 2005-06 | CM   | Aston Villa             |  19 | 2469 | Elite  |  −4.1 |                |
+|     76 | James Milner              | 2006-07 | CM   | Newcastle United        |  20 | 2682 | Elite  |    −4 |                |
+|     76 | James Milner              | 2007-08 | CM   | Newcastle United        |  21 | 2232 | Elite  |  −3.5 |                |
+|     76 | James Milner              | 2018-19 | CM   | Liverpool               |  32 | 1786 | Elite  |  −4.3 |                |
 |     76 | Jarrod Bowen              | 2019-20 | RW   | West Ham                |  23 |  919 | Elite  |    −4 |                |
+|     76 | Joe Hart                  | 2007-08 | GK   | Manchester City         |  20 | 2340 | Elite  |  −4.3 |                |
+|     76 | Joe Hart                  | 2008-09 | GK   | Manchester City         |  21 | 1999 | Elite  |  −3.9 |                |
 |     76 | John O'Shea               | 2014-15 | CB   | Sunderland              |  33 | 3271 | Elite  |    −4 |                |
 |     76 | Jordan Henderson          | 2010-11 | CDM  | Sunderland              |  20 | 3219 | Elite  |    −4 |                |
 |     76 | Jordan Henderson          | 2012-13 | CDM  | Liverpool               |  22 | 1527 | Elite  |  −3.8 |                |
 |     76 | Jordan Henderson          | 2022-23 | CDM  | Liverpool               |  32 | 2075 | Elite  |  −3.8 |                |
-|     76 | Kyle Walker               | 2022-23 | RB   | Manchester City         |  32 | 1956 | Elite  |    −4 |                |
-|     76 | Kyle Walker               | 2023-24 | RB   | Manchester City         |  33 | 2767 | Elite  |    −4 |                |
+|     76 | Kasper Schmeichel         | 2019-20 | GK   | Leicester City          |  33 | 3420 | Elite  |    −4 |                |
 |     76 | Les Ferdinand             | 1998-99 | CF   | Tottenham Hotspur       |  32 | 2160 | Elite  |  −3.6 |                |
 |     76 | Louis Saha                | 2008-09 | CF   | Everton                 |  30 | 1141 | Elite  |  −3.5 |                |
-|     76 | Luis Suárez               | 2010-11 | CF   | Liverpool               |  23 | 1102 | Elite  |  −3.6 |                |
-|     76 | Matthew Le Tissier        | 1999-00 | CAM  | Southampton             |  31 | 1620 | Elite  |  −3.6 |                |
 |     76 | Mesut Özil                | 2019-20 | CAM  | Arsenal                 |  31 | 1448 | Elite  |    −4 |                |
-|     76 | Michael Carrick           | 2000-01 | CDM  | West Ham United         |  19 | 2970 | Elite  |    −4 |                |
-|     76 | Michael Carrick           | 2001-02 | CDM  | West Ham United         |  20 | 2700 | Elite  |    −4 |                |
-|     76 | Michael Owen              | 1997-98 | CF   | Liverpool               |  18 | 3240 | Elite  |    −4 |                |
-|     76 | Michael Owen              | 1998-99 | CF   | Liverpool               |  19 | 2700 | Elite  |    −4 |                |
-|     76 | Michael Owen              | 1999-00 | CF   | Liverpool               |  20 | 2430 | Elite  |  −4.1 |                |
+|     76 | Michael Ballack           | 2007-08 | CM   | Chelsea                 |  31 | 1414 | Elite  |    −4 |                |
+|     76 | Michael Ballack           | 2008-09 | CM   | Chelsea                 |  32 | 2026 | Elite  |  −3.9 |                |
+|     76 | Michael Ballack           | 2009-10 | CM   | Chelsea                 |  33 | 2366 | Elite  |  −4.3 |                |
 |     76 | Neal Ardley               | 1992-93 | RM   | Wimbledon               |  20 | 2340 | Elite  |  −4.3 |                |
 |     76 | Neal Ardley               | 1994-95 | RM   | Wimbledon               |  22 | 1260 | Elite  |  −4.3 |                |
 |     76 | Nemanja Matic             | 2019-20 | CDM  | Manchester Utd          |  31 | 1583 | Elite  |  −3.7 |                |
-|     76 | Nemanja Vidic             | 2012-13 | CB   | Manchester United       |  31 | 1619 | Elite  |  −3.7 |                |
-|     76 | Nemanja Vidic             | 2013-14 | CB   | Manchester United       |  32 | 2082 | Elite  |  −3.8 |                |
 |     76 | Niall Quinn               | 1996-97 | CF   | Sunderland              |  30 | 1080 | Elite  |  −3.7 |                |
 |     76 | Niall Quinn               | 1999-00 | CF   | Sunderland              |  33 | 3330 | Elite  |    −4 |                |
 |     76 | Nicky Butt                | 1995-96 | CDM  | Manchester United       |  20 | 2880 | Elite  |    −4 |                |
@@ -1324,45 +1501,20 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     76 | Nolberto Solano           | 2006-07 | RM   | Newcastle United        |  32 | 2116 | Elite  |  −3.7 |                |
 |     76 | Pablo Zabaleta            | 2015-16 | RB   | Manchester City         |  30 | 1062 | Elite  |  −3.7 |                |
 |     76 | Paolo Di Canio            | 2001-02 | CF   | West Ham United         |  33 | 2340 | Elite  |  −4.3 |                |
-|     76 | Patrick Vieira            | 1996-97 | CDM  | Arsenal                 |  20 | 2790 | Elite  |    −4 |                |
+|     76 | Papiss Demba Cissé        | 2015-16 | CF   | Newcastle United        |  30 | 1070 | Elite  |  −3.7 |                |
 |     76 | Paul Ince                 | 2000-01 | CM   | Middlesbrough           |  33 | 2700 | Elite  |    −4 |                |
-|     76 | Paul Scholes              | 2005-06 | CM   | Manchester United       |  31 | 1617 | Elite  |  −3.7 |                |
 |     76 | Phil Foden                | 2021-22 | CAM  | Manchester City         |  21 | 2133 | Elite  |  −3.7 |                |
 |     76 | Phil Neville              | 1997-98 | RB   | Manchester United       |  20 | 2700 | Elite  |    −4 |                |
 |     76 | Phil Neville              | 2009-10 | RB   | Everton                 |  32 | 1955 | Elite  |    −4 |                |
 |     76 | Phil Neville              | 2010-11 | RB   | Everton                 |  33 | 2665 | Elite  |    −4 |                |
 |     76 | Raheem Sterling           | 2014-15 | RW   | Liverpool               |  20 | 3050 | Elite  |    −4 |                |
 |     76 | Raheem Sterling           | 2015-16 | RW   | Manchester City         |  21 | 1925 | Elite  |  −4.1 |                |
-|     76 | Rio Ferdinand             | 1997-98 | CB   | West Ham United         |  19 | 3150 | Elite  |    −4 |                |
-|     76 | Rio Ferdinand             | 1998-99 | CB   | West Ham United         |  20 | 2790 | Elite  |    −4 |                |
-|     76 | Rio Ferdinand             | 2010-11 | CB   | Manchester United       |  32 | 1710 | Elite  |  −4.5 |                |
-|     76 | Rio Ferdinand             | 2011-12 | CB   | Manchester United       |  33 | 2565 | Elite  |    −4 |                |
-|     76 | Robbie Fowler             | 1993-94 | CF   | Liverpool               |  18 | 2520 | Elite  |    −4 |                |
-|     76 | Robbie Fowler             | 1994-95 | CF   | Liverpool               |  19 | 3780 | Elite  |    −4 |                |
-|     76 | Robbie Fowler             | 1995-96 | CF   | Liverpool               |  20 | 3420 | Elite  |    −4 |                |
-|     76 | Robert Pirès              | 2005-06 | LM   | Arsenal                 |  32 | 2183 | Elite  |  −3.6 |                |
-|     76 | Roberto Firmino           | 2021-22 | CF   | Liverpool               |  30 |  985 | Elite  |  −3.8 |                |
-|     76 | Roberto Firmino           | 2022-23 | CF   | Liverpool               |  31 | 1212 | Elite  |  −4.4 |                |
-|     76 | Robin van Persie          | 2005-06 | CF   | Arsenal                 |  22 | 1211 | Elite  |  −4.4 |                |
 |     76 | Romelu Lukaku             | 2013-14 | CF   | Everton                 |  20 | 2602 | Elite  |    −4 |                |
-|     76 | Roy Keane                 | 2003-04 | CM   | Manchester United       |  32 | 2197 | Elite  |  −3.6 |                |
-|     76 | Roy Keane                 | 2004-05 | CM   | Manchester United       |  33 | 2607 | Elite  |    −4 |                |
-|     76 | Ryan Giggs                | 1992-93 | LM   | Manchester United       |  19 | 3690 | Elite  |    −4 |                |
-|     76 | Ryan Giggs                | 1993-94 | LM   | Manchester United       |  20 | 3420 | Elite  |    −4 |                |
-|     76 | Ryan Giggs                | 2005-06 | LM   | Manchester United       |  32 | 1865 | Elite  |  −4.2 |                |
-|     76 | Ryan Giggs                | 2006-07 | LM   | Manchester United       |  33 | 2314 | Elite  |  −4.3 |                |
 |     76 | Santi Cazorla             | 2015-16 | CM   | Arsenal                 |  31 | 1292 | Elite  |  −4.3 |                |
-|     76 | Sol Campbell              | 1993-94 | CB   | Tottenham Hotspur       |  19 | 3060 | Elite  |    −4 |                |
-|     76 | Sol Campbell              | 1994-95 | CB   | Tottenham Hotspur       |  20 | 2700 | Elite  |    −4 |                |
-|     76 | Son Heung-Min             | 2015-16 | LW   | Tottenham Hotspur       |  23 | 1105 | Elite  |  −3.6 |                |
-|     76 | Son Heung-Min             | 2024-25 | LW   | Tottenham               |  32 | 2116 | Elite  |  −3.7 |                |
 |     76 | Steve Bruce               | 1993-94 | CB   | Manchester United       |  33 | 3690 | Elite  |    −4 |                |
 |     76 | Steve McManaman           | 1992-93 | RM   | Liverpool               |  20 | 2790 | Elite  |    −4 |                |
 |     76 | Steve McManaman           | 2003-04 | RM   | Manchester City         |  31 | 1618 | Elite  |  −3.7 |                |
-|     76 | Steven Gerrard            | 1999-00 | CM   | Liverpool               |  19 | 2610 | Elite  |    −4 |                |
-|     76 | Steven Gerrard            | 2000-01 | CM   | Liverpool               |  20 | 2970 | Elite  |    −4 |                |
-|     76 | Steven Gerrard            | 2011-12 | CM   | Liverpool               |  31 | 1212 | Elite  |  −4.4 |                |
-|     76 | Vincent Kompany           | 2017-18 | CB   | Manchester City         |  31 | 1396 | Elite  |  −4.1 |                |
+|     76 | Teddy Sheringham          | 1999-00 | CF   | Manchester United       |  33 | 2430 | Elite  |  −4.1 |                |
 |     76 | Wes Brown                 | 2001-02 | CB   | Manchester United       |  22 | 1530 | Elite  |  −3.8 |                |
 |     76 | Wes Brown                 | 2011-12 | CB   | Sunderland              |  32 | 1736 | Elite  |  −4.4 |                |
 |     76 | William Gallas            | 2010-11 | CB   | Tottenham Hotspur       |  33 | 2339 | Elite  |  −4.3 |                |
@@ -1374,20 +1526,16 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     75 | Chris Brunt               | 2017-18 | CM   | West Brom               |  33 | 1921 | Elite  |  −5.1 |                |
 |     75 | Christian Eriksen         | 2023-24 | CAM  | Manchester Utd          |  31 | 1139 | Elite  |  −4.6 |                |
 |     75 | Darren Fletcher           | 2017-18 | CM   | Stoke City              |  33 | 2222 | Elite  |  −4.5 |                |
-|     75 | Denis Irwin               | 1999-00 | LB   | Manchester United       |  34 | 2250 | Elite  |  −5.5 |                |
 |     75 | Dimitar Berbatov          | 2013-14 | CF   | Fulham                  |  32 | 1568 | Elite  |  −4.7 |                |
-|     75 | Fernandinho               | 2019-20 | CDM  | Manchester City         |  34 | 2399 | Elite  |  −5.2 |                |
 |     75 | Freddie Ljungberg         | 1998-99 | RM   | Arsenal                 |  21 | 1440 | Elite  |    −5 |                |
-|     75 | Gareth Bale               | 2009-10 | RW   | Tottenham Hotspur       |  20 | 1707 | Elite  |  −5.5 |                |
-|     75 | Gareth Bale               | 2020-21 | RW   | Tottenham               |  31 |  923 | Elite  |    −5 |                |
 |     75 | Gareth Barry              | 2001-02 | CDM  | Aston Villa             |  20 | 1800 | Elite  |  −5.3 |                |
 |     75 | Gareth Barry              | 2015-16 | CDM  | Everton                 |  34 | 2835 | Elite  |    −5 |                |
 |     75 | Graeme Le Saux            | 2002-03 | LB   | Chelsea                 |  34 | 2520 | Elite  |    −5 |                |
 |     75 | Jacob Murphy              | 2017-18 | RW   | Newcastle Utd           |  22 | 1145 | Elite  |  −4.5 |                |
 |     75 | James Beattie             | 1999-00 | CF   | Southampton             |  21 | 1620 | Elite  |  −4.7 |                |
 |     75 | John Stones               | 2014-15 | CB   | Everton                 |  20 | 2043 | Elite  |  −4.9 |                |
-|     75 | John Terry                | 2000-01 | CB   | Chelsea                 |  20 | 1980 | Elite  |    −5 |                |
 |     75 | Jordan Henderson          | 2009-10 | CDM  | Sunderland              |  19 | 2188 | Elite  |  −4.6 |                |
+|     75 | Kasper Schmeichel         | 2020-21 | GK   | Leicester City          |  34 | 3420 | Elite  |    −5 |                |
 |     75 | Kevin Phillips            | 2005-06 | CF   | Aston Villa             |  32 | 1509 | Elite  |  −4.9 |                |
 |     75 | Leroy Sané                | 2016-17 | RW   | Manchester City         |  20 | 1786 | Elite  |  −5.3 |                |
 |     75 | Les Ferdinand             | 2000-01 | CF   | Tottenham Hotspur       |  34 | 2520 | Elite  |    −5 |                |
@@ -1398,63 +1546,49 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     75 | Neal Ardley               | 1993-94 | RM   | Wimbledon               |  21 | 1440 | Elite  |    −5 |                |
 |     75 | Niall Quinn               | 2000-01 | CF   | Sunderland              |  34 | 3060 | Elite  |    −5 |                |
 |     75 | Nicky Butt                | 1994-95 | CDM  | Manchester United       |  19 | 1980 | Elite  |    −5 |                |
+|     75 | Olivier Giroud            | 2017-18 | CF   | Arsenal                 |  31 |  984 | Elite  |  −4.8 |                |
 |     75 | Pablo Zabaleta            | 2016-17 | RB   | Manchester City         |  31 | 1059 | Elite  |  −4.7 |                |
 |     75 | Pablo Zabaleta            | 2018-19 | RB   | West Ham                |  33 | 2091 | Elite  |  −4.8 |                |
 |     75 | Paul Ince                 | 2001-02 | CM   | Middlesbrough           |  34 | 2790 | Elite  |    −5 |                |
 |     75 | Paul Jones                | 2001-02 | GK   | Southampton             |  34 | 3240 | Elite  |    −5 |                |
-|     75 | Paul Scholes              | 2007-08 | CM   | Manchester United       |  33 | 1842 | Elite  |  −5.2 |                |
 |     75 | Phil Neville              | 1995-96 | RB   | Manchester United       |  18 | 2160 | Elite  |  −4.6 |                |
 |     75 | Raheem Sterling           | 2012-13 | RW   | Liverpool               |  18 | 1748 | Elite  |  −5.4 |                |
 |     75 | Raheem Sterling           | 2013-14 | RW   | Liverpool               |  19 | 2218 | Elite  |  −4.5 |                |
-|     75 | Rio Ferdinand             | 2009-10 | CB   | Manchester United       |  31 | 1083 | Elite  |  −4.7 |                |
-|     75 | Rio Ferdinand             | 2012-13 | CB   | Manchester United       |  34 | 2323 | Elite  |  −5.3 |                |
 |     75 | Romelu Lukaku             | 2012-13 | CF   | West Bromwich Albion    |  19 | 2003 | Elite  |  −4.9 |                |
-|     75 | Ryan Giggs                | 2007-08 | LM   | Manchester United       |  34 | 2235 | Elite  |  −5.5 |                |
-|     75 | Sol Campbell              | 2008-09 | CB   | Portsmouth              |  34 | 2835 | Elite  |    −5 |                |
-|     75 | Steven Gerrard            | 2014-15 | CM   | Liverpool               |  34 | 2236 | Elite  |  −5.5 |                |
-|     75 | Vincent Kompany           | 2018-19 | CB   | Manchester City         |  32 | 1223 | Elite  |  −5.4 |                |
-|     75 | Virgil van Dijk           | 2025-26 | CB   | Liverpool               |  34 | 3420 | Elite  |    −5 |                |
+|     75 | Teddy Sheringham          | 1998-99 | CF   | Manchester United       |  32 | 1530 | Elite  |  −4.8 |                |
 |     74 | Anthony Elanga            | 2021-22 | RW   | Manchester Utd          |  19 | 1214 | Elite  |  −6.4 |                |
-|     74 | Ashley Cole               | 2000-01 | LB   | Arsenal                 |  20 | 1530 | Elite  |  −5.8 |                |
 |     74 | Brad Friedel              | 2006-07 | GK   | Blackburn Rovers        |  35 | 3375 | Elite  |    −6 |                |
 |     74 | César Azpilicueta         | 2022-23 | CB   | Chelsea                 |  33 | 1522 | Elite  |  −5.8 |                |
 |     74 | Christian Eriksen         | 2024-25 | CAM  | Manchester Utd          |  32 | 1059 | Elite  |  −5.7 |                |
 |     74 | Daniel Sturridge          | 2010-11 | CF   | Chelsea                 |  21 | 1118 | Elite  |  −5.6 |                |
 |     74 | Darren Fletcher           | 2003-04 | CM   | Manchester United       |  19 | 1455 | Elite  |    −6 |                |
 |     74 | Darren Fletcher           | 2004-05 | CM   | Manchester United       |  20 | 1381 | Elite  |  −6.1 |                |
-|     74 | Dennis Bergkamp           | 2003-04 | SS   | Arsenal                 |  34 | 1770 | Elite  |  −6.4 |                |
 |     74 | Emmanuel Adebayor         | 2005-06 | CF   | Arsenal                 |  21 | 1005 | Elite  |  −5.8 |                |
 |     74 | Gabriel Jesus             | 2017-18 | CF   | Manchester City         |  20 | 1671 | Elite  |  −5.6 |                |
 |     74 | Gabriel Jesus             | 2018-19 | CF   | Manchester City         |  21 | 1011 | Elite  |  −5.8 |                |
 |     74 | Gary Cahill               | 2019-20 | CB   | Crystal Palace          |  34 | 2168 | Elite  |  −5.6 |                |
-|     74 | Gary Neville              | 1994-95 | RB   | Manchester United       |  19 | 1620 | Elite  |  −5.7 |                |
 |     74 | Gary Pallister            | 1999-00 | CB   | Middlesbrough           |  34 | 1890 | Elite  |  −6.1 |                |
-|     74 | Ian Wright                | 1997-98 | CF   | Arsenal                 |  34 | 2160 | Elite  |  −5.6 |                |
 |     74 | Ilkay Gündogan            | 2024-25 | CM   | Manchester City         |  34 | 2227 | Elite  |  −5.5 |                |
+|     74 | James Milner              | 2002-03 | CM   | Leeds United            |  16 | 1620 | Elite  |  −5.7 |                |
+|     74 | James Milner              | 2004-05 | CM   | Newcastle United        |  18 | 1260 | Elite  |  −6.3 |                |
 |     74 | John O'Shea               | 2015-16 | CB   | Sunderland              |  34 | 2008 | Elite  |  −5.9 |                |
 |     74 | John Stones               | 2013-14 | CB   | Everton                 |  19 | 1368 | Elite  |  −6.1 |                |
-|     74 | John Terry                | 2012-13 | CB   | Chelsea                 |  32 |  950 | Elite  |  −5.9 |                |
-|     74 | Kyle Walker               | 2010-11 | RB   | Aston Villa             |  20 | 1341 | Elite  |  −6.2 |                |
-|     74 | Kyle Walker               | 2025-26 | RB   | Burnley                 |  35 | 3097 | Elite  |    −6 |                |
+|     74 | Kasper Schmeichel         | 2021-22 | GK   | Leicester City          |  35 | 3330 | Elite  |    −6 |                |
 |     74 | Les Ferdinand             | 2001-02 | CF   | Tottenham Hotspur       |  35 | 2250 | Elite  |  −6.5 |                |
 |     74 | Louis Saha                | 2011-12 | CF   | Everton                 |  33 | 1685 | Elite  |  −5.5 |                |
-|     74 | Michael Carrick           | 2014-15 | CDM  | Manchester United       |  33 | 1454 | Elite  |    −6 |                |
-|     74 | Michael Carrick           | 2015-16 | CDM  | Manchester United       |  34 | 1975 | Elite  |    −6 |                |
 |     74 | Nemanja Matic             | 2020-21 | CDM  | Manchester Utd          |  32 | 1101 | Elite  |  −5.6 |                |
 |     74 | Nemanja Matic             | 2021-22 | CDM  | Manchester Utd          |  33 | 1382 | Elite  |  −6.1 |                |
 |     74 | Niall Quinn               | 2001-02 | CF   | Sunderland              |  35 | 3420 | Elite  |    −6 |                |
 |     74 | Nigel Martyn              | 2000-01 | GK   | Leeds United            |  34 | 2070 | Elite  |  −5.8 |                |
 |     74 | Nolberto Solano           | 2007-08 | RM   | West Ham United         |  33 | 1286 | Elite  |  −6.3 |                |
-|     74 | Paul Scholes              | 1994-95 | CM   | Manchester United       |  20 | 1530 | Elite  |  −5.8 |                |
 |     74 | Phil Foden                | 2020-21 | CAM  | Manchester City         |  20 | 1613 | Elite  |  −5.7 |                |
 |     74 | Phil Neville              | 1996-97 | RB   | Manchester United       |  19 | 1620 | Elite  |  −5.7 |                |
 |     74 | Phil Neville              | 2011-12 | RB   | Everton                 |  34 | 2068 | Elite  |  −5.8 |                |
 |     74 | Pierre-Emerick Aubameyang | 2021-22 | CF   | Arsenal                 |  32 | 1039 | Elite  |  −5.7 |                |
-|     74 | Rio Ferdinand             | 1996-97 | CB   | West Ham United         |  18 | 1350 | Elite  |  −6.2 |                |
-|     74 | Robin van Persie          | 2004-05 | CF   | Arsenal                 |  21 |  988 | Elite  |  −5.8 |                |
 |     74 | Stephen Ireland           | 2005-06 | CAM  | Manchester City         |  19 | 1269 | Elite  |  −6.3 |                |
 |     74 | Stephen Ireland           | 2006-07 | CAM  | Manchester City         |  20 | 1336 | Elite  |  −6.2 |                |
 |     74 | Steve Bruce               | 1995-96 | CB   | Manchester United       |  35 | 2700 | Elite  |    −6 |                |
+|     74 | Teddy Sheringham          | 2001-02 | CF   | Tottenham Hotspur       |  35 | 3060 | Elite  |    −6 |                |
 |     74 | Wes Brown                 | 1998-99 | CB   | Manchester United       |  19 | 1260 | Elite  |  −6.3 |                |
 |     74 | Wes Brown                 | 2013-14 | CB   | Sunderland              |  34 | 2064 | Elite  |  −5.8 |                |
 |     73 | Ashley Young              | 2019-20 | RB   | Manchester Utd          |  34 |  954 | Elite  |    −7 |                |
@@ -1468,54 +1602,36 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 |     73 | Brad Friedel              | 2010-11 | GK   | Aston Villa             |  39 | 3420 | Elite  |    −7 |                |
 |     73 | Brad Friedel              | 2011-12 | GK   | Tottenham Hotspur       |  40 | 3420 | Elite  |    −7 |                |
 |     73 | Brad Friedel              | 2012-13 | GK   | Tottenham Hotspur       |  41 |  990 | Elite  |    −7 |                |
-|     73 | Denis Irwin               | 2001-02 | LB   | Manchester United       |  36 | 1080 | Elite  |    −7 |                |
-|     73 | Denis Irwin               | 2003-04 | LB   | Wolverhampton Wanderers |  38 | 2662 | Elite  |    −7 |                |
-|     73 | Dennis Bergkamp           | 2004-05 | SS   | Arsenal                 |  35 | 1917 | Elite  |    −7 |                |
-|     73 | Dennis Bergkamp           | 2005-06 | SS   | Arsenal                 |  36 | 1013 | Elite  |    −7 |                |
-|     73 | Diego Costa               | 2022-23 | CF   | Wolves                  |  34 | 1245 | Elite  |    −7 |                |
 |     73 | Dion Dublin               | 2003-04 | CF   | Aston Villa             |  34 | 1166 | Elite  |    −7 |                |
 |     73 | Ed de Goey                | 2000-01 | GK   | Chelsea                 |  34 | 1350 | Elite  |    −7 |                |
-|     73 | Fernandinho               | 2020-21 | CDM  | Manchester City         |  35 | 1184 | Elite  |    −7 |                |
-|     73 | Fernandinho               | 2021-22 | CDM  | Manchester City         |  36 |  958 | Elite  |    −7 |                |
-|     73 | Gareth Bale               | 2008-09 | RW   | Tottenham Hotspur       |  19 |  993 | Elite  |  −6.8 |                |
 |     73 | Gareth Barry              | 2016-17 | CDM  | Everton                 |  35 | 2112 | Elite  |  −6.7 |                |
 |     73 | Gareth Barry              | 2017-18 | CDM  | West Brom               |  36 | 1927 | Elite  |    −7 |                |
 |     73 | Gary Cahill               | 2020-21 | CB   | Crystal Palace          |  35 | 1800 | Elite  |    −7 |                |
-|     73 | Gary Neville              | 2008-09 | RB   | Manchester United       |  33 | 1073 | Elite  |  −6.7 |                |
 |     73 | Graeme Le Saux            | 2003-04 | LB   | Southampton             |  35 | 1566 | Elite  |    −7 |                |
 |     73 | Graeme Le Saux            | 2004-05 | LB   | Southampton             |  36 | 1935 | Elite  |    −7 |                |
-|     73 | Ian Wright                | 1998-99 | CF   | West Ham United         |  35 | 1980 | Elite  |    −7 |                |
-|     73 | Jamie Vardy               | 2022-23 | CF   | Leicester City          |  35 | 1851 | Elite  |    −7 |                |
-|     73 | Jamie Vardy               | 2024-25 | CF   | Leicester City          |  37 | 2839 | Elite  |    −7 |                |
+|     73 | James Milner              | 2020-21 | CM   | Liverpool               |  34 | 1062 | Elite  |    −7 |                |
 |     73 | Jimmy Floyd Hasselbaink   | 2006-07 | CF   | Charlton Athletic       |  34 | 1105 | Elite  |    −7 |                |
 |     73 | John O'Shea               | 2016-17 | CB   | Sunderland              |  35 | 2160 | Elite  |  −6.6 |                |
-|     73 | John Terry                | 2015-16 | CB   | Chelsea                 |  35 | 1989 | Elite  |    −7 |                |
 |     73 | Jordan Henderson          | 2025-26 | CDM  | Brentford               |  35 | 1922 | Elite  |    −7 |                |
-|     73 | Kyle Walker               | 2024-25 | RB   | Manchester City         |  34 |  967 | Elite  |    −7 |                |
 |     73 | Les Ferdinand             | 2002-03 | CF   | West Ham United         |  36 | 2250 | Elite  |    −7 |                |
 |     73 | Louis Saha                | 1998-99 | CF   | Newcastle United        |  20 |  990 | Elite  |  −6.8 |                |
-|     73 | Michael Carrick           | 2016-17 | CDM  | Manchester United       |  35 | 1599 | Elite  |    −7 |                |
 |     73 | Nigel Martyn              | 2003-04 | GK   | Everton                 |  37 | 3034 | Elite  |    −7 |                |
 |     73 | Nigel Martyn              | 2004-05 | GK   | Everton                 |  38 | 2834 | Elite  |    −7 |                |
 |     73 | Nigel Martyn              | 2005-06 | GK   | Everton                 |  39 | 1755 | Elite  |    −7 |                |
+|     73 | Ole Gunnar Solskjær       | 2006-07 | CF   | Manchester United       |  33 |  916 | Elite  |    −7 |                |
+|     73 | Olivier Giroud            | 2019-20 | CF   | Chelsea                 |  33 |  999 | Elite  |  −6.8 |                |
 |     73 | Paolo Di Canio            | 2003-04 | CF   | Charlton Athletic       |  35 | 2017 | Elite  |  −6.9 |                |
 |     73 | Paul Ince                 | 2003-04 | CM   | Wolverhampton Wanderers |  36 | 2857 | Elite  |    −7 |                |
 |     73 | Paul Jones                | 2002-03 | GK   | Southampton             |  35 | 1260 | Elite  |    −7 |                |
 |     73 | Paul Jones                | 2003-04 | GK   | Wolverhampton Wanderers |  36 | 2340 | Elite  |    −7 |                |
-|     73 | Paul Scholes              | 2008-09 | CM   | Manchester United       |  34 | 1263 | Elite  |    −7 |                |
-|     73 | Paul Scholes              | 2009-10 | CM   | Manchester United       |  35 | 1946 | Elite  |    −7 |                |
-|     73 | Paul Scholes              | 2010-11 | CM   | Manchester United       |  36 | 1536 | Elite  |    −7 |                |
-|     73 | Paul Scholes              | 2011-12 | CM   | Manchester United       |  37 | 1169 | Elite  |    −7 |                |
 |     73 | Pepe Reina                | 2019-20 | GK   | Aston Villa             |  37 | 1080 | Elite  |    −7 |                |
 |     73 | Phil Neville              | 2012-13 | RB   | Everton                 |  35 | 1553 | Elite  |    −7 |                |
-|     73 | Rio Ferdinand             | 2013-14 | CB   | Manchester United       |  35 | 1128 | Elite  |    −7 |                |
-|     73 | Rio Ferdinand             | 2014-15 | CB   | Queens Park Rangers     |  36 |  990 | Elite  |    −7 |                |
-|     73 | Ryan Giggs                | 2008-09 | LM   | Manchester United       |  35 | 1500 | Elite  |    −7 |                |
-|     73 | Ryan Giggs                | 2009-10 | LM   | Manchester United       |  36 | 1814 | Elite  |    −7 |                |
-|     73 | Ryan Giggs                | 2010-11 | LM   | Manchester United       |  37 | 1678 | Elite  |    −7 |                |
-|     73 | Ryan Giggs                | 2011-12 | LM   | Manchester United       |  38 | 1466 | Elite  |    −7 |                |
-|     73 | Ryan Giggs                | 2012-13 | LM   | Manchester United       |  39 | 1159 | Elite  |    −7 |                |
-|     73 | Sol Campbell              | 2009-10 | CB   | Arsenal                 |  35 |  955 | Elite  |    −7 |                |
-|     73 | Steven Gerrard            | 1998-99 | CM   | Liverpool               |  18 | 1080 | Elite  |  −6.7 |                |
+|     73 | Teddy Sheringham          | 2002-03 | CF   | Tottenham Hotspur       |  36 | 3240 | Elite  |    −7 |                |
+|     73 | Teddy Sheringham          | 2003-04 | CF   | Portsmouth              |  37 | 2217 | Elite  |    −7 |                |
+|     73 | Teddy Sheringham          | 2005-06 | CF   | West Ham United         |  39 | 1456 | Elite  |    −7 |                |
+|     73 | Thiago Silva              | 2020-21 | CB   | Chelsea                 |  36 | 1938 | Elite  |    −7 |                |
+|     73 | Thiago Silva              | 2021-22 | CB   | Chelsea                 |  37 | 2651 | Elite  |    −7 |                |
+|     73 | Thiago Silva              | 2022-23 | CB   | Chelsea                 |  38 | 2352 | Elite  |    −7 |                |
+|     73 | Thiago Silva              | 2023-24 | CB   | Chelsea                 |  39 | 2527 | Elite  |    −7 |                |
 |     73 | Wes Brown                 | 2014-15 | CB   | Sunderland              |  35 | 1993 | Elite  |    −7 |                |
 |     73 | William Gallas            | 2012-13 | CB   | Tottenham Hotspur       |  35 | 1526 | Elite  |    −7 |                |
