@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import type { Player, Standing } from "@/data/schemas";
+import { PREMIUM_MIN } from "@/features/game/domain/card-design";
 import { rate } from "@/features/game/domain/rate";
 import { makeRatingContext } from "@/features/game/domain/ratings";
 
@@ -63,6 +64,16 @@ describe("overall calibration", () => {
     expect(mean).toBeGreaterThan(45);
     expect(mean).toBeLessThan(75);
     expect(Math.max(...overalls)).toBeLessThanOrEqual(100);
+  });
+
+  it("keeps the premium CARD FAMILIES rare on the chaos board", async () => {
+    // The visual threshold, distinct from the 90 rating milestone above. At
+    // PREMIUM_MIN = 90 roughly a third of the board turned premium after
+    // per-position normalisation, which inverted Gold/Onyx from norm to exception.
+    const overalls = await chaosPoolOveralls();
+    const share = overalls.filter((o) => o >= PREMIUM_MIN).length / overalls.length;
+    expect(share).toBeGreaterThan(0.01);
+    expect(share).toBeLessThan(0.2);
   });
 
   it("records that the chaos pool skews far above the league (by design)", async () => {

@@ -5,7 +5,7 @@ import type { EnrichedCard } from "./player-card";
 //
 //   under 90 overall → "Vault": A2 Onyx for photo-with-background players,
 //                       A1 Classic Gold for transparent cutouts / no image.
-//   90 and above     → a seeded pick from the premium pool (Cinematic / Dossier
+//   PREMIUM_MIN+     → a seeded pick from the premium pool (Cinematic / Dossier
 //                       / Index), so elite cards feel varied but stable per card.
 //   back             → a seeded pick from a four-way pool for face-down decks.
 
@@ -13,7 +13,19 @@ export type ImageKind = "cutout" | "photo" | "none";
 export type FrontDesign = "A1" | "A2" | "B1" | "B2" | "B3" | "C1" | "D1" | "D2";
 export type BackDesign = "K01" | "K02" | "K07" | "K09";
 
-export const PREMIUM_MIN = 90;
+/**
+ * The premium-family cutoff — a VISUAL rarity threshold, not a quality judgement.
+ *
+ * Raised from 90 after TASK-1820's per-position normalisation gave every position
+ * headroom: at 90 roughly a third of the Chaos board turned premium, so the B/C/D
+ * families became the norm and Gold/Onyx the exception — inverting the intent. At
+ * 92 the premium look is reserved for the genuinely transcendent (Van Dijk 96,
+ * Vidić 94, Ronaldo and Henry 93) while elite performers like Salah 90 and
+ * Ferdinand 86 anchor the Gold/Onyx tier.
+ *
+ * Changing this alters ONLY which artwork a card wears; the ratings are untouched.
+ */
+export const PREMIUM_MIN = 92;
 const PREMIUM: readonly FrontDesign[] = ["B1", "B2", "B3", "C1", "D1", "D2"];
 const BACKS: readonly BackDesign[] = ["K01", "K02", "K07", "K09"];
 
