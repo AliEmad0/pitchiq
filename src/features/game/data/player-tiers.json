@@ -8,6 +8,13 @@
       "apps": 441,
       "tier": "icon"
     },
+    "1002003": {
+      "name": "Ashley Cole",
+      "role": "LB",
+      "seasons": "1999-2013",
+      "apps": 385,
+      "tier": "icon"
+    },
     "1000308": {
       "name": "Cristiano Ronaldo",
       "role": "CF",
@@ -15,11 +22,25 @@
       "apps": 236,
       "tier": "icon"
     },
+    "1000363": {
+      "name": "David Silva",
+      "role": "CAM",
+      "seasons": "2010-2019",
+      "apps": 309,
+      "tier": "icon"
+    },
     "1003673": {
       "name": "Dennis Bergkamp",
       "role": "SS",
       "seasons": "1995-2005",
       "apps": 315,
+      "tier": "icon"
+    },
+    "1002224": {
+      "name": "Edwin Van der Sar",
+      "role": "GK",
+      "seasons": "2001-2010",
+      "apps": 313,
       "tier": "icon"
     },
     "1003744": {
@@ -36,6 +57,13 @@
       "apps": 609,
       "tier": "icon"
     },
+    "1002480": {
+      "name": "John Terry",
+      "role": "CB",
+      "seasons": "1998-2016",
+      "apps": 492,
+      "tier": "icon"
+    },
     "1000868": {
       "name": "Kevin De Bruyne",
       "role": "CAM",
@@ -50,6 +78,13 @@
       "apps": 328,
       "tier": "icon"
     },
+    "1002844": {
+      "name": "Patrick Vieira",
+      "role": "CDM",
+      "seasons": "1996-2010",
+      "apps": 307,
+      "tier": "icon"
+    },
     "1002852": {
       "name": "Paul Scholes",
       "role": "CM",
@@ -62,6 +97,20 @@
       "role": "GK",
       "seasons": "1992-2002",
       "apps": 310,
+      "tier": "icon"
+    },
+    "1001262": {
+      "name": "Petr Cech",
+      "role": "GK",
+      "seasons": "2004-2018",
+      "apps": 443,
+      "tier": "icon"
+    },
+    "1002899": {
+      "name": "Rio Ferdinand",
+      "role": "CB",
+      "seasons": "1995-2014",
+      "apps": 504,
       "tier": "icon"
     },
     "1004974": {
@@ -113,6 +162,13 @@
       "apps": 491,
       "tier": "icon"
     },
+    "1001595": {
+      "name": "Yaya Touré",
+      "role": "CM",
+      "seasons": "2010-2017",
+      "apps": 230,
+      "tier": "icon"
+    },
     "1000068": {
       "name": "Alisson Becker",
       "role": "GK",
@@ -132,13 +188,6 @@
       "role": "LB",
       "seasons": "2014-2025",
       "apps": 332,
-      "tier": "legend"
-    },
-    "1002003": {
-      "name": "Ashley Cole",
-      "role": "LB",
-      "seasons": "1999-2013",
-      "apps": 385,
       "tier": "legend"
     },
     "1002073": {
@@ -181,13 +230,6 @@
       "role": "GK",
       "seasons": "1992-2003",
       "apps": 344,
-      "tier": "legend"
-    },
-    "1000363": {
-      "name": "David Silva",
-      "role": "CAM",
-      "seasons": "2010-2019",
-      "apps": 309,
       "tier": "legend"
     },
     "1000356": {
@@ -237,13 +279,6 @@
       "role": "GK",
       "seasons": "2017-2024",
       "apps": 276,
-      "tier": "legend"
-    },
-    "1002224": {
-      "name": "Edwin Van der Sar",
-      "role": "GK",
-      "seasons": "2001-2010",
-      "apps": 313,
       "tier": "legend"
     },
     "1000457": {
@@ -323,13 +358,6 @@
       "apps": 342,
       "tier": "legend"
     },
-    "1002480": {
-      "name": "John Terry",
-      "role": "CB",
-      "seasons": "1998-2016",
-      "apps": 492,
-      "tier": "legend"
-    },
     "1004223": {
       "name": "Jürgen Klinsmann",
       "role": "CF",
@@ -405,27 +433,6 @@
       "role": "LB",
       "seasons": "2005-2017",
       "apps": 278,
-      "tier": "legend"
-    },
-    "1002844": {
-      "name": "Patrick Vieira",
-      "role": "CDM",
-      "seasons": "1996-2010",
-      "apps": 307,
-      "tier": "legend"
-    },
-    "1001262": {
-      "name": "Petr Cech",
-      "role": "GK",
-      "seasons": "2004-2018",
-      "apps": 443,
-      "tier": "legend"
-    },
-    "1002899": {
-      "name": "Rio Ferdinand",
-      "role": "CB",
-      "seasons": "1995-2014",
-      "apps": 504,
       "tier": "legend"
     },
     "1001313": {
@@ -531,13 +538,6 @@
       "role": "CDM",
       "seasons": "2004-2008",
       "apps": 143,
-      "tier": "legend"
-    },
-    "1001595": {
-      "name": "Yaya Touré",
-      "role": "CM",
-      "seasons": "2010-2017",
-      "apps": 230,
       "tier": "legend"
     },
     "1000054": {
