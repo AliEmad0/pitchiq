@@ -1,4 +1,5 @@
 import type { Player } from "@/data/schemas";
+import { SCALE_CEILING, achievementBoost, amplifyUnanchored } from "./rating-achievement";
 import { anchorOf, applyAnchor, seasonDelta } from "./rating-anchor";
 import { rateGk } from "./rating-gk";
 import { rateOutfield } from "./rating-outfield";
@@ -41,6 +42,11 @@ export function rawRatings(player: Player, ctx: RatingContext): PlayerRatings {
  * worst in the league — `pctile` returns 0 for an empty pool, which would silently
  * mean −6.
  */
+/** Where the player's club finished that season, or null with no standings. */
+function rankOf(player: Player, ctx: RatingContext): number | null {
+  return ctx.standings.find((s) => s.teamId === player.teamId)?.rank ?? null;
+}
+
 function cohortPercentile(overall: number, player: Player, ctx: RatingContext): number {
   const pool = player.role == null ? [] : (ctx.roleOveralls[player.role] ?? []);
   return pool.length === 0 ? 0.5 : pctile(overall, pool);
@@ -53,21 +59,24 @@ export function rate(player: Player, ctx: RatingContext): RatedResult {
 
   const raw = rawRatings(player, ctx);
 
-  // TASK-1821 Layer 2. An anchored player's `overall` is their heritage anchor plus a
-  // bounded season delta; the four dimensions are never touched, so the card face keeps
-  // describing what the player actually did. Un-anchored players stay on the
-  // statistical model untouched (Layer 3 gives those a clamped role amplifier).
+  // TASK-1821 Layers 2 + 3. The four dimensions are never touched — only `overall` —
+  // so the card face keeps describing what the player actually did.
+  //
+  //   anchored    → heritage anchor + a season delta bounded to ±6      (Layer 2)
+  //   un-anchored → statistical model + the clamped role amplifier      (Layer 3)
+  //   both        → + team achievement, then the hard scale ceiling     (Layer 3)
+  const minutes = minutesOf(player);
   const anchor = anchorOf(player.id, ctx.season);
-  const ratings =
+  const base =
     anchor == null
-      ? raw
-      : {
-          ...raw,
-          overall: applyAnchor(
-            anchor,
-            seasonDelta(cohortPercentile(raw.overall, player, ctx), minutesOf(player)),
-          ),
-        };
+      ? amplifyUnanchored(raw.overall, player.role ?? null)
+      : anchor + seasonDelta(cohortPercentile(raw.overall, player, ctx), minutes);
+
+  const boost = achievementBoost(rankOf(player, ctx), minutes);
+  const ratings = {
+    ...raw,
+    overall: Math.min(SCALE_CEILING, applyAnchor(base, boost)),
+  };
 
   return {
     ratings,

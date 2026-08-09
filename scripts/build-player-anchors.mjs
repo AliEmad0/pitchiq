@@ -41,15 +41,27 @@ const OUT_REPORT = path.join(ROOT, "docs/superpowers/reports/player-anchors-draf
 
 // ---------------------------------------------------------------- tiers
 
+/**
+ * Tier bases, REBASED BY −3 for TASK-1821 Layer 3 (was icon 88 / legend 85 / elite 80 /
+ * regular 74).
+ *
+ * The drop is not cosmetic — it is what lets the team-achievement boost exist at all.
+ * With icon at 88, an icon topping their role-season sat on 88 + 6 = 94 against a scale
+ * ceiling of 95, leaving one point of headroom, so any champions boost either breached
+ * the ceiling or had to be shrunk until it stopped meaning anything. Measured across
+ * all 11,716 rated seasons, the share of players at ≥93 was already 0.96% against the
+ * harness's 1% limit; at these bases the full +4/+3/+1.5 ladder lands at 0.67% and the
+ * top of the board spreads across 93/94/95 instead of 45 players tied on 94.
+ */
 const TIERS = {
   // `icon` is CURATION-ONLY: the automated scoring never awards it. Whether someone
   // belongs among the greatest in the league's history is not a judgement
   // appearances and goals can make, and with 77 legends the top of the game needed
   // separation between an all-time great and a very good long career.
-  icon: { base: 88, label: "Icon" },
-  legend: { base: 85, label: "Legend" },
-  elite: { base: 80, label: "Elite" },
-  regular: { base: 74, label: "Regular" },
+  icon: { base: 85, label: "Icon" },
+  legend: { base: 82, label: "Legend" },
+  elite: { base: 77, label: "Elite" },
+  regular: { base: 71, label: "Regular" },
 };
 
 /** Share of scored players in each tier. Legends are deliberately scarce. */

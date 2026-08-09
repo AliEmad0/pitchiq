@@ -1,4 +1,9 @@
 import { beforeAll, describe, expect, it } from "vitest";
+import {
+  ROLE_AMPLIFIERS,
+  SCALE_CEILING,
+  achievementBoost,
+} from "@/features/game/domain/rating-achievement";
 import { MAX_DELTA } from "@/features/game/domain/rating-anchor";
 import {
   MIN_COHORT,
@@ -26,6 +31,11 @@ import {
 
 /** Minimum cohort for a season-over-season stability claim (see that test). */
 const STABLE_COHORT = 12;
+
+const median = (values: number[]): number => {
+  const s = [...values].sort((a, b) => a - b);
+  return s.length === 0 ? 0 : s[Math.floor((s.length - 1) / 2)];
+};
 
 let rows: RatedRow[];
 let stats: RoleStat[];
@@ -106,16 +116,63 @@ describe("harness — per-role stability across every era", () => {
 });
 
 describe("harness — TASK-1821 anchoring is bounded by construction", () => {
-  it("keeps EVERY anchored season inside its ±6 window", () => {
+  it("keeps EVERY anchored season inside its ±6 window plus the earned boost", () => {
     // The property the whole three-layer design rests on: a rating is an anchor plus a
     // small delta, so the worst possible bug in the delta moves a player six points,
     // not thirty. PR #99's unbounded per-role amplifier is the failure this forbids.
+    //
+    // Layer 3 widened the window upward by the achievement boost, which is itself
+    // bounded (≤ +4) and earned from the committed standings — so the claim is now
+    // `anchor − 6 ≤ overall ≤ anchor + 6 + boost`, still bounded by construction.
     const anchored = rows.filter((r) => r.anchor != null);
     expect(anchored.length).toBeGreaterThan(1000);
+    // ROUNDING: `overall` is a whole card number while the delta and boost are
+    // fractional, so a legitimate result can sit up to half a point outside the exact
+    // arithmetic bound (measured worst case 0.4 — Terry '03, Suárez '13). The tolerance
+    // is for rounding ONLY; anything beyond it is a real escape.
+    const ROUNDING = 0.5;
     const escaped = anchored
-      .filter((r) => Math.abs(r.overall - (r.anchor as number)) > MAX_DELTA)
-      .map((r) => `${r.name} ${r.season} ovr=${r.overall} anchor=${r.anchor}`);
+      .filter((r) => {
+        const anchor = r.anchor as number;
+        const boost = achievementBoost(r.rank, r.minutes);
+        return (
+          r.overall < anchor - MAX_DELTA - ROUNDING ||
+          r.overall > anchor + MAX_DELTA + boost + ROUNDING
+        );
+      })
+      .map((r) => `${r.name} ${r.season} ovr=${r.overall} anchor=${r.anchor} rank=${r.rank}`);
     expect(escaped).toEqual([]);
+  });
+
+  it("never lets ANY player exceed the hard scale ceiling", () => {
+    const over = rows
+      .filter((r) => r.overall > SCALE_CEILING)
+      .map((r) => `${r.name} ${r.season} ${r.overall}`);
+    expect(over).toEqual([]);
+  });
+
+  it("keeps the committed role amplifiers in step with the live data", () => {
+    // The amplifier table is a CONSTANT derived from the un-anchored population pooled
+    // across all seasons — pooling per-season is the thin-cohort trap that broke #99.
+    // A constant derived from data goes stale silently when the data refreshes, so
+    // re-derive it here and fail if the committed table has drifted.
+    const un = rows.filter((r) => r.anchor == null);
+    const byRole = new Map<string, number[]>();
+    for (const r of un) byRole.set(r.role, [...(byRole.get(r.role) ?? []), r.rawOverall]);
+    const medians = [...byRole.entries()]
+      .filter(([, v]) => v.length >= MIN_COHORT)
+      .map(([role, v]) => [role, median(v)] as const);
+    const target = median(medians.map(([, m]) => m));
+
+    const drifted: string[] = [];
+    for (const [role, med] of medians) {
+      const want = Math.max(0.8, Math.min(1.2, med <= 0 ? 1 : target / med));
+      const have = ROLE_AMPLIFIERS[role as keyof typeof ROLE_AMPLIFIERS];
+      if (have == null || Math.abs(have - want) > 0.05) {
+        drifted.push(`${role}: committed ${have} vs derived ${want.toFixed(3)}`);
+      }
+    }
+    expect(drifted).toEqual([]);
   });
 
   it("does not pile the anchored population up on the edges of the window", () => {
@@ -129,8 +186,13 @@ describe("harness — TASK-1821 anchoring is bounded by construction", () => {
     // Every OTHER assertion in this file passes under that degenerate implementation —
     // including a "seasons of one career still differ" test that looked discriminating
     // and was not. This is the one that separates them, so do not weaken it.
+    // Measure the DELTA component only — subtract the achievement boost first. With the
+    // boost folded in, a champion legitimately sits above +6 and the metric would read
+    // that as saturation, hiding the degeneracy it exists to catch.
     const anchored = rows.filter((r) => r.anchor != null);
-    const deltas = anchored.map((r) => r.overall - (r.anchor as number));
+    const deltas = anchored.map(
+      (r) => r.overall - (r.anchor as number) - achievementBoost(r.rank, r.minutes),
+    );
     const onEdge = (sign: number) =>
       deltas.filter((d) => d * sign >= MAX_DELTA).length / deltas.length;
     const interior = deltas.filter((d) => Math.abs(d) < MAX_DELTA).length / deltas.length;
@@ -152,7 +214,11 @@ describe("harness — anomalies that actually shipped", () => {
     // All three hit 90+ under per-position normalisation.
     expect(at(2011, "Gareth Barry").overall).toBeLessThan(90);
     expect(at(2023, "Ben White").overall).toBeLessThan(90);
-    expect(at(1996, "Gary Neville").overall).toBeLessThan(88);
+    // Neville was pinned at <88 when the model had no achievement term and he sat in
+    // the mid-80s. Layer 3 moved him to 88: he is a hand-curated `legend` who played a
+    // title-winning season, so the boost is exactly what it is for. Held to the bound
+    // this test actually names — out of the 90s — rather than to his old value.
+    expect(at(1996, "Gary Neville").overall).toBeLessThan(90);
   });
 
   it("ranks a prolific starter above a rotation attacker", () => {

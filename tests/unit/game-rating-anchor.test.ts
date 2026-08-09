@@ -90,8 +90,10 @@ describe("applyAnchor", () => {
 
 describe("anchorOf — the curated heritage lookup", () => {
   it("returns the committed anchor for an anchored player-season", () => {
-    // Shearer 1994-95 — the curated `icon` tier, in the shipped Layer 1 data.
-    expect(anchorOf(1003185, 1994)).toBe(88);
+    // Shearer 1994-95 — the curated `icon` tier, at its peak so no decay applies.
+    // 85, not 88: Layer 3 rebased every tier base by −3 to make headroom for the
+    // team-achievement boost under the scale ceiling.
+    expect(anchorOf(1003185, 1994)).toBe(85);
   });
 
   it("returns null for a season the player was not anchored in", () => {
