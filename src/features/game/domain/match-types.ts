@@ -15,10 +15,38 @@ export type MatchEventKind =
   | "fulltime"
   | "chance" // a shot that did NOT go in — the match's connective tissue
   | "stoppage" // added time announced
-  | "push"; // a trailing side throws everyone forward
+  | "push" // a trailing side throws everyone forward
+  | "penalty" // awarded AND resolved in one event
+  | "freekick"; // a direct free kick from a dangerous area
 
 /** How a chance that wasn't a goal actually ended. */
 export type ChanceOutcome = "saved" | "blocked" | "wide" | "post" | "crossbar";
+
+/**
+ * The nine endings of a penalty.
+ *
+ * `saved-rebound-goal` is the one that matters structurally: the keeper saves it and
+ * the ball still ends up in the net, so a "saved" outcome must still produce a goal.
+ */
+export type PenaltyOutcome =
+  | "scored-top-corner"
+  | "scored-placed"
+  | "scored-panenka"
+  | "saved-corner" // parried behind
+  | "saved-held" // keeper holds it
+  | "saved-rebound-goal" // parried — and someone follows it in
+  | "post"
+  | "crossbar"
+  | "wide";
+
+export type FreeKickOutcome = "scored" | "saved" | "wall" | "wide";
+
+/**
+ * Where a goal came from. Set on every `goal` event so a scoreline can always be
+ * attributed — without it, a missed penalty and an open-play goal in the same minute
+ * are indistinguishable. Phase 5's goal descriptions build on this.
+ */
+export type GoalSource = "open" | "penalty" | "freekick";
 
 export interface MatchEvent {
   minute: number;
@@ -28,6 +56,11 @@ export interface MatchEvent {
   card?: "yellow" | "red";
   outcome?: ChanceOutcome; // chance
   addedMinutes?: number; // stoppage
+  source?: GoalSource; // goal
+  penaltyOutcome?: PenaltyOutcome; // penalty
+  freeKickOutcome?: FreeKickOutcome; // freekick
+  /** The player who followed in a parried penalty. */
+  reboundPlayerId?: number;
 }
 
 /** 0–100 aggregate team strength. TASK-1805 extends this to the "record" opponent. */

@@ -740,6 +740,24 @@
     "push": {
       "0": "🔥 الجميع إلى الأمام — ضغط شامل داخل المنطقة ({minuteFmt}')",
       "1": "🔥 هجوم شامل الآن، وخط الدفاع تُرك مكشوفًا ({minuteFmt}')"
-    }
+    },
+    "penalty": {
+      "scored-top-corner": "⚽ ركلة جزاء — {player} يسددها في الزاوية العليا! ({minuteFmt}')",
+      "scored-placed": "⚽ ركلة جزاء — {player} يخادع الحارس ويسجل ({minuteFmt}')",
+      "scored-panenka": "⚽ ركلة جزاء — {player} ينفذها بأسلوب بانينكا في المنتصف! ({minuteFmt}')",
+      "saved-corner": "🧤 تصدٍّ لركلة الجزاء! الحارس يبعد تسديدة {player} إلى ركنية ({minuteFmt}')",
+      "saved-held": "🧤 تصدٍّ لركلة الجزاء! الحارس يمسك الكرة و{player} في صدمة ({minuteFmt}')",
+      "saved-rebound-goal": "⚽ تصدّى الحارس — لكن {rebound} يتابعها في الشباك! ركلة {player} ارتدت أمامه ({minuteFmt}')",
+      "post": "🪵 ركلة الجزاء ترتطم بالقائم! {player} لا يصدق ({minuteFmt}')",
+      "crossbar": "🪵 ركلة الجزاء فوق العارضة! {player} يرفعها عالياً ({minuteFmt}')",
+      "wide": "😱 {player} يضيع ركلة الجزاء بعيداً عن القائم! ({minuteFmt}')"
+    },
+    "freekick": {
+      "scored": "⚽ ركلة حرة — {player} يسددها فوق الجدار وفي الشباك! ({minuteFmt}')",
+      "saved": "🧤 تسديدة رائعة من {player} والحارس يبعدها ({minuteFmt}')",
+      "wall": "🧱 ركلة {player} الحرة ترتطم بالجدار ({minuteFmt}')",
+      "wide": "😧 {player} يسدد الركلة الحرة بجوار القائم ({minuteFmt}')"
+    },
+    "goalScoreline": "📋 {homeScoreFmt}–{awayScoreFmt} ({minuteFmt}')"
   }
 }

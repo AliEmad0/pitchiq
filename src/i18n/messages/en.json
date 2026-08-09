@@ -740,6 +740,24 @@
     "push": {
       "0": "🔥 Everyone forward — they're throwing bodies into the box ({minuteFmt}')",
       "1": "🔥 All-out attack now. The back line has gone ({minuteFmt}')"
-    }
+    },
+    "penalty": {
+      "scored-top-corner": "⚽ PENALTY — {player} smashes it into the top corner! ({minuteFmt}')",
+      "scored-placed": "⚽ PENALTY — {player} sends the keeper the wrong way ({minuteFmt}')",
+      "scored-panenka": "⚽ PENALTY — {player} dinks a Panenka straight down the middle! ({minuteFmt}')",
+      "saved-corner": "🧤 PENALTY SAVED! {player} is denied — parried behind for a corner ({minuteFmt}')",
+      "saved-held": "🧤 PENALTY SAVED! The keeper guesses right and holds it — {player} is stunned ({minuteFmt}')",
+      "saved-rebound-goal": "⚽ SAVED — but {rebound} follows it in! {player}'s penalty is parried straight back out ({minuteFmt}')",
+      "post": "🪵 PENALTY OFF THE POST! {player} cannot believe it ({minuteFmt}')",
+      "crossbar": "🪵 PENALTY OFF THE BAR! {player} leans back and skies it onto the woodwork ({minuteFmt}')",
+      "wide": "😱 PENALTY MISSED! {player} drags it wide of the post ({minuteFmt}')"
+    },
+    "freekick": {
+      "scored": "⚽ FREE KICK — {player} bends it over the wall and in! ({minuteFmt}')",
+      "saved": "🧤 {player} strikes the free kick sweetly — the keeper flies to tip it away ({minuteFmt}')",
+      "wall": "🧱 {player}'s free kick cannons into the wall ({minuteFmt}')",
+      "wide": "😧 {player} curls the free kick just past the upright ({minuteFmt}')"
+    },
+    "goalScoreline": "📋 {homeScoreFmt}–{awayScoreFmt} ({minuteFmt}')"
   }
 }
