@@ -77,6 +77,12 @@ const pick = <T>(list: T[], rng: () => number): T => list[Math.floor(rng() * lis
  * Draft a full XI from the pool: a random formation, then a random ELIGIBLE card
  * per slot (falling back to any unused card). Deterministic from `seed`.
  */
+/** Bench size. TASK-1822 Phase 4 needs substitutes; the draft screen still shows the XI. */
+const BENCH_SIZE = 5;
+
+/** Roles a bench should cover, in order — a spare keeper first, then the spine. */
+const BENCH_SHAPE: PlayerRole[] = ["GK", "CB", "CM", "CF", "RW"];
+
 export function chaosDraft(pool: PoolCard[], seed: number, name = "Your XI"): GameTeam {
   const rng = mulberry32(seed);
   const shape = pick(FORMATIONS, rng);
@@ -91,7 +97,22 @@ export function chaosDraft(pool: PoolCard[], seed: number, name = "Your XI"): Ga
     used.add(card.playerId);
     chosen.push(card);
   }
-  return makeGameTeam(-1, name, 0, shape, chosen);
+
+  // The bench is drafted AFTER the XI so the starting eleven is unaffected — the same
+  // seed still produces the same first-choice side it always did.
+  const bench: PoolCard[] = [];
+  for (let i = 0; i < BENCH_SIZE; i++) {
+    const want = BENCH_SHAPE[i % BENCH_SHAPE.length];
+    const eligible = pool.filter((c) => !used.has(c.playerId) && canPlay(c, want));
+    const anyFree = pool.filter((c) => !used.has(c.playerId));
+    const from = eligible.length ? eligible : anyFree;
+    if (from.length === 0) break;
+    const card = pick(from, rng);
+    used.add(card.playerId);
+    bench.push(card);
+  }
+
+  return makeGameTeam(-1, name, 0, shape, chosen, bench);
 }
 
 const STYLES: TacticalStyle[] = [

@@ -9,6 +9,8 @@ export interface CommentaryValues {
   added?: number;
   /** The player who followed in a parried penalty. */
   rebound?: string;
+  /** The player coming ON in a substitution. */
+  playerOn?: string;
 }
 export interface CommentaryRef {
   key: string;
@@ -38,9 +40,17 @@ function variantOf(event: MatchEvent, pool: number): number {
   return hashStr(`${event.kind}:${event.minute}:${event.playerId ?? 0}`) % pool;
 }
 
+/**
+ * Resolve a player's name from the squad — STARTERS AND BENCH.
+ *
+ * The bench half is not optional: since Phase 4 a substitute can score, be booked, be
+ * injured or be substituted again, and looking only at the starting XI rendered those
+ * lines with a raw `{player}` placeholder in the feed.
+ */
 function nameOf(event: MatchEvent, home: GameTeam, away: GameTeam): string | null {
   if (event.playerId == null || event.side == null) return null;
-  const roster = event.side === "home" ? home.players : away.players;
+  const team = event.side === "home" ? home : away;
+  const roster = [...team.players, ...(team.bench ?? [])];
   return roster.find((p) => p.playerId === event.playerId)?.name ?? null;
 }
 
@@ -184,6 +194,46 @@ export function commentate(result: MatchResult, home: GameTeam, away: GameTeam):
           values: { minute: event.minute },
         };
         break;
+      case "substitution": {
+        const off = nameOf(event, home, away);
+        const on =
+          event.subOnPlayerId != null
+            ? nameOf({ ...event, playerId: event.subOnPlayerId }, home, away)
+            : null;
+        commentary = {
+          key: `commentary.substitution.${event.subReason ?? "tactical"}`,
+          values: {
+            player: off ?? undefined,
+            playerOn: on ?? undefined,
+            minute: event.minute,
+          },
+        };
+        break;
+      }
+      case "injury": {
+        const player = nameOf(event, home, away);
+        commentary = {
+          key: `commentary.injury.${event.injurySeverity ?? "knock"}`,
+          values: { player: player ?? undefined, minute: event.minute },
+        };
+        break;
+      }
+      case "keeper": {
+        const player = nameOf(event, home, away);
+        commentary = {
+          key: `commentary.keeper.${event.keeperOutcome ?? "clearance"}`,
+          values: { player: player ?? undefined, minute: event.minute },
+        };
+        break;
+      }
+      case "shorthanded": {
+        const player = nameOf(event, home, away);
+        commentary = {
+          key: "commentary.shorthanded",
+          values: { player: player ?? undefined, minute: event.minute },
+        };
+        break;
+      }
       case "halftime":
         commentary = { key: "commentary.halftime", values: { homeScore: h, awayScore: a } };
         break;

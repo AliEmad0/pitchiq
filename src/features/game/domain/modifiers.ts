@@ -74,12 +74,26 @@ export const rageModifier: Modifier = ({ state, side }) => {
   return { attack: 7 * rage, card: 18 * rage, foul: 12 * rage };
 };
 
+/**
+ * A player carrying a knock.
+ *
+ * Small and short by design: the point of the three-tier injury system is that a knock
+ * is NOT a substitution — the player stays on and the side is slightly worse for a few
+ * minutes, which is the only tier that leaves a mark without changing the eleven.
+ */
+export const knockModifier: Modifier = ({ state, side }) => {
+  const until = state[side].knockUntil;
+  if (until == null || state.minute > until) return {};
+  return { attack: -4, defense: -3 };
+};
+
 export const BASELINE_MODIFIERS: Modifier[] = [
   staminaModifier,
   momentumModifier,
   desperationModifier,
   sentOffModifier,
   rageModifier,
+  knockModifier,
 ];
 
 export function applyModifiers(

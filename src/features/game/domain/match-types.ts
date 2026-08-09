@@ -21,7 +21,24 @@ export type MatchEventKind =
   | "var" // a video review, and what it decided
   | "altercation" // players squaring up
   | "referee" // who is officiating, and how they call it
-  | "bias"; // a contentious decision, noted
+  | "bias" // a contentious decision, noted
+  | "substitution" // one off, one on
+  | "injury" // knock / moderate / severe
+  | "keeper" // the goalkeeper leaves his line
+  | "shorthanded"; // a player lost with nobody left to replace him
+
+export type SubReason = "stamina" | "tactical" | "discipline" | "injury";
+
+/**
+ * A knock is treated and the player carries on; moderate and severe both force him
+ * off, the difference being how quickly and how it looks.
+ */
+export type InjurySeverity = "knock" | "moderate" | "severe";
+
+export type KeeperOutcome =
+  | "clearance" // races out and heads it clear
+  | "sent-off" // wipes out the striker outside the box
+  | "punished"; // slices the clearance to an opponent, who finds the empty net
 
 /** Why a card was shown. `second-yellow` and `dogso` are always red. */
 export type CardReason = "normal" | "second-yellow" | "dogso" | "violent-conduct" | "altercation";
@@ -86,6 +103,11 @@ export interface MatchEvent {
   varOutcome?: VarOutcome; // var
   altercationOutcome?: AltercationOutcome; // altercation
   refStyle?: RefereeStyle; // referee
+  /** Substitution: `playerId` comes OFF, this one comes ON. */
+  subOnPlayerId?: number;
+  subReason?: SubReason;
+  injurySeverity?: InjurySeverity;
+  keeperOutcome?: KeeperOutcome;
 }
 
 /** 0–100 aggregate team strength. TASK-1805 extends this to the "record" opponent. */
@@ -116,8 +138,19 @@ export interface SideState {
   respondingUntil: number;
   /** Has the late all-out-attack push already been announced for this side? */
   pushed: boolean;
-  /** Players dismissed. A ten-man side is measurably worse — see `sentOffModifier`. */
+  /**
+   * Players missing from the eleven, for ANY reason — sent off, or injured with an
+   * empty bench. Both leave a side short, so both feed `sentOffModifier`.
+   */
   sentOff: number;
+  /** Players brought on so far. Capped at `MAX_SUBS`. */
+  subsUsed: number;
+  /** Ids currently unavailable (off injured, substituted, or dismissed). */
+  unavailable: Set<number>;
+  /** Ids on the pitch who came off the bench — they cannot be brought on twice. */
+  broughtOn: Set<number>;
+  /** Minute a knock's debuff expires. A treated player carries on, but hurting. */
+  knockUntil?: number;
   /**
    * Sense of injustice, 0–1. Raised when the referee's bias goes against this side;
    * drives BOTH a fired-up response and reckless tackling, which is how a wronged team
