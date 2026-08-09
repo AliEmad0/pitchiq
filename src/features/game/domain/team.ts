@@ -7,6 +7,12 @@ export interface GameTeam {
   season: number;
   formation: Formation;
   players: GamePlayer[];
+  /**
+   * Substitutes. Optional so every existing caller and fixture still type-checks — a
+   * team without one simply cannot make substitutions, and TASK-1822 Phase 4 handles
+   * that by leaving the side short rather than inventing a player.
+   */
+  bench?: GamePlayer[];
 }
 
 export function makeGameTeam(
@@ -15,6 +21,7 @@ export function makeGameTeam(
   season: number,
   formation: Formation,
   players: GamePlayer[],
+  bench: GamePlayer[] = [],
 ): GameTeam {
-  return { teamId, name, season, formation, players };
+  return { teamId, name, season, formation, players, bench };
 }

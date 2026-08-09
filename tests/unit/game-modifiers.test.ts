@@ -20,6 +20,9 @@ function stateWith(over: Partial<{ stamina: number; momentum: number }>): MatchS
     pushed: false,
     sentOff: 0,
     rage: 0,
+    subsUsed: 0,
+    unavailable: new Set<number>(),
+    broughtOn: new Set<number>(),
   };
   return {
     minute: 80,
@@ -75,6 +78,9 @@ describe("desperationModifier", () => {
       pushed: false,
       sentOff: 0,
       rage: 0,
+      subsUsed: 0,
+      unavailable: new Set<number>(),
+      broughtOn: new Set<number>(),
     };
     const state: MatchState = {
       minute,

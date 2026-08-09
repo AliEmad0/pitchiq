@@ -1,4 +1,5 @@
 import type { FreeKickOutcome, PenaltyOutcome } from "./match-types";
+import { keeperGoalRate } from "./squad";
 
 /**
  * TASK-1822 Phase 2 — penalties and direct free kicks.
@@ -63,7 +64,14 @@ export function setPieceGoalRate(): number {
     0,
   );
   const freeKickConversion = FREE_KICK_BRANCHES.find(([o]) => o === "scored")?.[1] ?? 0;
-  return PENALTY_PER_MATCH * penaltyConversion + FREE_KICK_PER_MATCH * freeKickConversion;
+  // Phase 4's keeper blunders put the ball in the net too, so they belong in the same
+  // budget. EVERY new way to score must be subtracted from the open-play target or
+  // `targetGoalsPerMatch` slowly stops meaning anything.
+  return (
+    PENALTY_PER_MATCH * penaltyConversion +
+    FREE_KICK_PER_MATCH * freeKickConversion +
+    keeperGoalRate()
+  );
 }
 
 /**

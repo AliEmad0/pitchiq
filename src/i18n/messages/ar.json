@@ -778,6 +778,23 @@
     "bias": "😠 القرار ضدهم — احتجاجات غاضبة، والفريق مشتعل الآن ({minuteFmt}')",
     "cardSecondYellow": "🟥 إنذار ثانٍ — {player} يُطرد من الملعب ({minuteFmt}')",
     "cardDogso": "🟥 بطاقة حمراء! {player} يعرقل المهاجم وهو آخر مدافع ({minuteFmt}')",
-    "cardViolent": "🟥 حمراء مباشرة — سلوك عنيف من {player} ({minuteFmt}')"
+    "cardViolent": "🟥 حمراء مباشرة — سلوك عنيف من {player} ({minuteFmt}')",
+    "substitution": {
+      "stamina": "🔄 تبديل — {player} يخرج بعد نفاد قواه، ويدخل {playerOn} ({minuteFmt}')",
+      "tactical": "🔄 تبديل تكتيكي — {playerOn} بدلاً من {player} ({minuteFmt}')",
+      "discipline": "🔄 تبديل ذكي — {player} يحمل إنذاراً والمدرب لا يخاطر. {playerOn} يدخل ({minuteFmt}')",
+      "injury": "🔄 تبديل اضطراري — {player} لا يستطيع المواصلة، ويدخل {playerOn} ({minuteFmt}')"
+    },
+    "injury": {
+      "knock": "🤕 {player} يتعرض لإصابة خفيفة — علاج على الخط ثم يواصل اللعب ({minuteFmt}')",
+      "moderate": "🤕 {player} يعرج ويشير إلى مقاعد البدلاء ({minuteFmt}')",
+      "severe": "🚑 {player} يسقط بشدة — النقالة تدخل الملعب ({minuteFmt}')"
+    },
+    "keeper": {
+      "clearance": "🧹 تدخل رائع من {player}! يخرج من منطقته ويبعد الكرة برأسه ({minuteFmt}')",
+      "sent-off": "🟥 كارثة! {player} يخرج ويصطدم بالمهاجم خارج المنطقة ({minuteFmt}')",
+      "punished": "😱 خطأ فادح! {player} يبعد الكرة إلى منافس يسددها في المرمى الخالي ({minuteFmt}')"
+    },
+    "shorthanded": "⚠️ لا بدلاء متاحين — {player} لا يمكن تعويضه والفريق يكمل بنقص عددي ({minuteFmt}')"
   }
 }

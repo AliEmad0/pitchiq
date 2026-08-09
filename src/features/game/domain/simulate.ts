@@ -18,8 +18,8 @@ import type {
   MatchSetup,
   MatchState,
   Side,
+  SubReason,
 } from "./match-types";
-import type { GameTeam } from "./team";
 import {
   calibrateK,
   cardChance,
@@ -38,7 +38,21 @@ import {
   resolveFreeKick,
   resolvePenalty,
 } from "./set-pieces";
+import {
+  INJURY_PER_SIDE,
+  KEEPER_SWEEP_PER_SIDE,
+  KNOCK_MINUTES,
+  MAX_SUBS,
+  SUBS_PER_SIDE,
+  SUB_WINDOW_END,
+  SUB_WINDOW_START,
+  pickPlayerOff,
+  pickPlayerOn,
+  resolveInjury,
+  resolveKeeper,
+} from "./squad";
 import { powerOf } from "./team-power";
+import type { GamePlayer } from "./player";
 
 const FULL_TIME = 90;
 /**
@@ -128,7 +142,7 @@ function scoreGoal(
  */
 function showCard(
   state: MatchState,
-  teams: { home: GameTeam; away: GameTeam },
+  onPitch: GamePlayer[],
   side: Side,
   minute: number,
   reason: CardReason,
@@ -136,7 +150,7 @@ function showCard(
   force?: "red",
 ): void {
   const key = (playerId: number) => `${side}:${playerId}`;
-  const available = teams[side].players.filter((p) => !state.dismissed.has(key(p.playerId)));
+  const available = onPitch.filter((p) => !state.dismissed.has(key(p.playerId)));
   const player = pickBooked(available, rng);
   if (player == null) return;
   const id = player.playerId;
@@ -158,7 +172,13 @@ function showCard(
   }
 
   if (card === "yellow") state.booked.set(key(id), (state.booked.get(key(id)) ?? 0) + 1);
-  else state.dismissed.add(key(id));
+  else {
+    state.dismissed.add(key(id));
+    // A dismissed player leaves the pitch, so he can never be booked, injured or
+    // substituted afterwards.
+    const idx = onPitch.findIndex((p) => p.playerId === id);
+    if (idx >= 0) onPitch.splice(idx, 1);
+  }
   if (card === "red") state[side].sentOff += 1;
 
   state.events.push({ minute, kind: "card", side, playerId: id, card, reason: finalReason });
@@ -178,7 +198,6 @@ export function simulate(setup: MatchSetup): MatchResult {
   // Open play gets what set pieces do not — see `openPlayTarget`. Adding new ways to
   // score on TOP of the target would make `targetGoalsPerMatch` meaningless.
   const k = calibrateK(openPlayTarget(setup.targetGoalsPerMatch));
-  const teams = { home: setup.home, away: setup.away };
 
   // Per-side, per-minute rates for the set pieces, spread over regulation time.
   const basePenaltyRate = PENALTY_PER_MATCH / 2 / FULL_TIME;
@@ -198,6 +217,9 @@ export function simulate(setup: MatchSetup): MatchResult {
     pushed: false,
     sentOff: 0,
     rage: 0,
+    subsUsed: 0,
+    unavailable: new Set<number>(),
+    broughtOn: new Set<number>(),
   });
 
   const state: MatchState = {
@@ -214,6 +236,46 @@ export function simulate(setup: MatchSetup): MatchResult {
     dismissed: new Set(),
   };
   const sides: Side[] = ["home", "away"];
+
+  // The eleven actually ON THE PITCH, mutated by substitutions and dismissals. Scorers,
+  // bookings and injuries all draw from here — before Phase 4 they drew from the fixed
+  // starting XI, so a substituted player could still score.
+  const squads: Record<Side, GamePlayer[]> = {
+    home: [...setup.home.players],
+    away: [...setup.away.players],
+  };
+  const benches: Record<Side, GamePlayer[]> = {
+    home: [...(setup.home.bench ?? [])],
+    away: [...(setup.away.bench ?? [])],
+  };
+  const subRate = SUBS_PER_SIDE / (SUB_WINDOW_END - SUB_WINDOW_START + 1);
+  const injuryRate = INJURY_PER_SIDE / FULL_TIME;
+  const keeperRate = KEEPER_SWEEP_PER_SIDE / FULL_TIME;
+
+  /** Take a player off and bring one on. Returns false if the bench cannot cover it. */
+  const substitute = (side: Side, minute: number, off: GamePlayer, reason: SubReason): boolean => {
+    const st = state[side];
+    if (st.subsUsed >= MAX_SUBS) return false;
+    const availableIds = new Set(
+      benches[side].filter((b) => !st.broughtOn.has(b.playerId)).map((b) => b.playerId),
+    );
+    const on = pickPlayerOn(benches[side], availableIds, off.role ?? null);
+    if (on == null) return false;
+    squads[side] = squads[side].filter((p) => p.playerId !== off.playerId);
+    squads[side].push(on);
+    st.broughtOn.add(on.playerId);
+    st.unavailable.add(off.playerId);
+    st.subsUsed += 1;
+    state.events.push({
+      minute,
+      kind: "substitution",
+      side,
+      playerId: off.playerId,
+      subOnPlayerId: on.playerId,
+      subReason: reason,
+    });
+    return true;
+  };
 
   // Drawn up front so the roll order stays stable regardless of what happens in play —
   // a later phase adding VAR or injury stoppages must not shift every subsequent roll.
@@ -255,7 +317,7 @@ export function simulate(setup: MatchSetup): MatchResult {
       const theirs = applyModifiers(baseWeights(state[opp].power), { state, side: opp }, modifiers);
 
       if (rng() < chanceRate(mine.attack, theirs.defense, m, k)) {
-        const shooter = pickScorer(teams[side].players, rng);
+        const shooter = pickScorer(squads[side], rng);
         const outcome = resolveChance(rng());
         if (outcome === "goal") {
           scoreGoal(state, side, opp, m, shooter?.playerId, "open", rng, referee);
@@ -280,10 +342,9 @@ export function simulate(setup: MatchSetup): MatchResult {
       const freeKickBranch = rng();
 
       if (penaltyRoll < basePenaltyRate * penaltyBiasFor(referee, side)) {
-        const taker = pickScorer(teams[side].players, rng);
+        const taker = pickScorer(squads[side], rng);
         const outcome = resolvePenalty(penaltyBranch);
-        const rebound =
-          outcome === "saved-rebound-goal" ? pickScorer(teams[side].players, rng) : null;
+        const rebound = outcome === "saved-rebound-goal" ? pickScorer(squads[side], rng) : null;
         state.events.push({
           minute: m,
           kind: "penalty",
@@ -307,7 +368,7 @@ export function simulate(setup: MatchSetup): MatchResult {
       }
 
       if (freeKickRoll < freeKickRate) {
-        const taker = pickScorer(teams[side].players, rng);
+        const taker = pickScorer(squads[side], rng);
         const outcome = resolveFreeKick(freeKickBranch);
         state.events.push({
           minute: m,
@@ -322,16 +383,16 @@ export function simulate(setup: MatchSetup): MatchResult {
       // ---- discipline -------------------------------------------------------
       if (rng() < cardChance(mine.card) * cardBiasFor(referee, side)) {
         const violent = rng() < RED_CARD_SHARE;
-        showCard(state, teams, side, m, violent ? "violent-conduct" : "normal", rng);
+        showCard(state, squads[side], side, m, violent ? "violent-conduct" : "normal", rng);
       }
 
       // A professional foul on a clear breakaway: the DEFENDING side loses a man and
       // the attacking side gets the set piece. Both halves of the punishment.
       if (rng() < dogsoRate) {
         const victimSide = opp;
-        showCard(state, teams, victimSide, m, "dogso", rng);
+        showCard(state, squads[victimSide], victimSide, m, "dogso", rng);
         const inBox = rng() < 0.4;
-        const taker = pickScorer(teams[side].players, rng);
+        const taker = pickScorer(squads[side], rng);
         if (inBox) {
           const outcome = resolvePenalty(rng());
           state.events.push({
@@ -363,11 +424,91 @@ export function simulate(setup: MatchSetup): MatchResult {
         const outcome = resolveAltercation(rng());
         state.events.push({ minute: m, kind: "altercation", altercationOutcome: outcome });
         if (outcome === "both-booked") {
-          showCard(state, teams, "home", m, "altercation", rng);
-          showCard(state, teams, "away", m, "altercation", rng);
+          showCard(state, squads.home, "home", m, "altercation", rng);
+          showCard(state, squads.away, "away", m, "altercation", rng);
         } else if (outcome === "red") {
           const guilty: Side = rng() < 0.5 ? "home" : "away";
-          showCard(state, teams, guilty, m, "violent-conduct", rng, "red");
+          showCard(state, squads[guilty], guilty, m, "violent-conduct", rng, "red");
+        }
+      }
+
+      // ---- squad dynamics ---------------------------------------------------
+      if (m >= SUB_WINDOW_START && m <= SUB_WINDOW_END && rng() < subRate) {
+        const bookedIds = new Set(
+          squads[side]
+            .filter((pl) => (state.booked.get(`${side}:${pl.playerId}`) ?? 0) > 0)
+            .map((pl) => pl.playerId),
+        );
+        const diff = state[side].score - state[opp].score;
+        const choice = pickPlayerOff(
+          squads[side],
+          bookedIds,
+          diff === 0 ? "level" : diff < 0 ? "trailing" : "leading",
+        );
+        if (choice != null) substitute(side, m, choice.player, choice.reason);
+      }
+
+      if (rng() < injuryRate) {
+        const severity = resolveInjury(rng());
+        const hurtPool = squads[side].filter((pl) => pl.role !== "GK");
+        const hurt = hurtPool.length > 0 ? hurtPool[Math.floor(rng() * hurtPool.length)] : null;
+        if (hurt != null) {
+          state.events.push({
+            minute: m,
+            kind: "injury",
+            side,
+            playerId: hurt.playerId,
+            injurySeverity: severity,
+          });
+          if (severity === "knock") {
+            // Treated on the touchline and carries on, but hurting.
+            state[side].knockUntil = m + KNOCK_MINUTES;
+          } else if (!substitute(side, m, hurt, "injury")) {
+            // Nobody left on the bench — the side plays on a man short.
+            squads[side] = squads[side].filter((pl) => pl.playerId !== hurt.playerId);
+            state[side].sentOff += 1;
+            state.events.push({
+              minute: m,
+              kind: "shorthanded",
+              side,
+              playerId: hurt.playerId,
+            });
+          }
+        }
+      }
+
+      if (rng() < keeperRate) {
+        const outcome = resolveKeeper(rng());
+        const gk = squads[side].find((pl) => pl.role === "GK") ?? null;
+        state.events.push({
+          minute: m,
+          kind: "keeper",
+          side,
+          playerId: gk?.playerId,
+          keeperOutcome: outcome,
+        });
+        if (outcome === "sent-off" && gk != null) {
+          showCard(state, squads[side], side, m, "dogso", rng, "red");
+          // A foul outside the area concedes a free kick as well as the red — the same
+          // both-halves punishment as an outfield DOGSO. Phase 3's invariant ("every
+          // dogso card is paired with a set piece") caught this branch omitting it.
+          const taker = pickScorer(squads[opp], rng);
+          const fk = resolveFreeKick(rng());
+          state.events.push({
+            minute: m,
+            kind: "freekick",
+            side: opp,
+            playerId: taker?.playerId,
+            freeKickOutcome: fk,
+          });
+          if (fk === "scored") scoreGoal(state, opp, side, m, taker?.playerId, "freekick");
+          // The backup keeper comes on — and if there is none, an outfielder goes in
+          // goal and the side is simply worse for it.
+          const outfield = squads[side].find((pl) => pl.role !== "GK");
+          if (outfield != null) substitute(side, m, outfield, "injury");
+        } else if (outcome === "punished") {
+          const punisher = pickScorer(squads[opp], rng);
+          scoreGoal(state, opp, side, m, punisher?.playerId, "open");
         }
       }
 
@@ -375,7 +516,7 @@ export function simulate(setup: MatchSetup): MatchResult {
       if (rng() < varPenaltyRate) {
         state.events.push({ minute: m, kind: "var", side, varOutcome: "penalty-awarded" });
         noteBias(state, referee, side, m);
-        const taker = pickScorer(teams[side].players, rng);
+        const taker = pickScorer(squads[side], rng);
         const outcome = resolvePenalty(rng());
         state.events.push({
           minute: m,

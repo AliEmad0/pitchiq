@@ -778,6 +778,23 @@
     "bias": "😠 The decision goes against them — furious protests, and this team is fired up now ({minuteFmt}')",
     "cardSecondYellow": "🟥 SECOND YELLOW — {player} is sent off ({minuteFmt}')",
     "cardDogso": "🟥 RED! {player} hauls the striker down as the last man ({minuteFmt}')",
-    "cardViolent": "🟥 STRAIGHT RED — violent conduct from {player} ({minuteFmt}')"
+    "cardViolent": "🟥 STRAIGHT RED — violent conduct from {player} ({minuteFmt}')",
+    "substitution": {
+      "stamina": "🔄 Change — {player} makes way, legs gone. {playerOn} comes on ({minuteFmt}')",
+      "tactical": "🔄 Tactical switch — {playerOn} replaces {player} ({minuteFmt}')",
+      "discipline": "🔄 Smart change — {player} is on a yellow and the manager takes no risk. {playerOn} on ({minuteFmt}')",
+      "injury": "🔄 Forced change — {player} cannot continue. {playerOn} comes on ({minuteFmt}')"
+    },
+    "injury": {
+      "knock": "🤕 {player} takes a knock — treatment on the touchline, but he carries on ({minuteFmt}')",
+      "moderate": "🤕 {player} is hobbling and signals to the bench ({minuteFmt}')",
+      "severe": "🚑 {player} goes down badly — the stretcher is coming on ({minuteFmt}')"
+    },
+    "keeper": {
+      "clearance": "🧹 Superb sweeping from {player}! Races out of his box and heads it clear ({minuteFmt}')",
+      "sent-off": "🟥 Disaster! {player} charges out and wipes out the striker outside the area ({minuteFmt}')",
+      "punished": "😱 Calamity! {player} slices the clearance straight to an opponent — and it's rolled into the empty net ({minuteFmt}')"
+    },
+    "shorthanded": "⚠️ No substitutes left — {player} cannot be replaced and they play on a man short ({minuteFmt}')"
   }
 }

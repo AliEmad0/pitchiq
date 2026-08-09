@@ -5816,7 +5816,23 @@ Draws are **above** the 20–25% target, not below, and the first-scorer win rat
 
 Harness after Phase 3: draws 26.8%, first-scorer-wins 67.2%, comebacks 12.1%, goals 2.71, **32.8 events per match**.
 
-**Next:** Phase 4 (substitutions, injuries, sweeper-keeper).
+**✅ Phase 4 shipped — squad dynamics.** `domain/squad.ts` + live rosters in `simulate`. **This is the first phase that needed a BENCH** — everything before it only cared about the eleven on the pitch, so `GameTeam.bench` arrives here (optional, so every existing caller and fixture still type-checks) and `chaosDraft` now drafts five substitutes **after** the XI, leaving the starting eleven for a given seed unchanged.
+
+- **Substitutions**, up to five per side between the 55th and 85th, for the reasons a manager actually has: **discipline protection** first (hook the booked player with the worst discipline before a second yellow), then **stamina** with the game level, or **tactical** when chasing or protecting a result.
+- **Three-tier injuries** — a **knock** is treated and the player carries on with a small, short debuff (`knockModifier`), while **moderate** and **severe** force him off. With an empty bench the side plays on a man short (`shorthanded`).
+- **Sweeper keeper** — a heroic clearance outside the box, a mistimed challenge that is a **straight red plus a free kick**, or a sliced clearance **punished into the empty net**.
+- **Live rosters.** Scorers, bookings and injuries now draw from the players actually on the pitch. Before this a substituted or dismissed player could still score.
+
+**⚠️ Four things caught by tests or by reading the feed.**
+
+1. **Phase 3's DOGSO invariant caught the keeper branch.** A keeper sent off outside his area was recorded with `reason: "dogso"` but conceded no set piece, breaking "every DOGSO card is paired with a set piece". The branch now awards the free kick — the model was wrong, not the test.
+2. **`tactical` was unreachable.** The reason was derived from the tiring player's own `physical` rating — but the selector always picks the LOWEST-rated player on the pitch, so the threshold could never be cleared. The reason now comes from the game state, which is whose decision it actually is.
+3. **Substitution names rendered as raw `{player}` placeholders.** `nameOf` searched only the starting XI, so anyone arriving from the bench — or already substituted on — had no name. It now searches starters **and** bench. Only visible by reading a rendered feed.
+4. **Keeper blunder goals go in the same budget.** `setPieceGoalRate()` now includes `keeperGoalRate()`, per the Phase 2 rule. Goals per match: **2.77**.
+
+Harness after Phase 4: draws 26.3%, first-scorer-wins 67.4%, comebacks 10.8%, goals 2.77, **39.9 events per match**.
+
+**Next:** Phase 5 (goal descriptions, own goals, weather, crowd).
 
 ---
 
