@@ -25,7 +25,21 @@ export type MatchEventKind =
   | "substitution" // one off, one on
   | "injury" // knock / moderate / severe
   | "keeper" // the goalkeeper leaves his line
-  | "shorthanded"; // a player lost with nobody left to replace him
+  | "shorthanded" // a player lost with nobody left to replace him
+  | "weather" // the conditions, set at kick-off
+  | "crowd"; // the home support turns on the visitors
+
+/** How an open-play goal was actually scored. Set-piece goals carry their own words. */
+export type GoalStyle =
+  | "header"
+  | "counter"
+  | "chip"
+  | "trivela"
+  | "tap-in"
+  | "long-range"
+  | "volley";
+
+export type Weather = "clear" | "rain" | "heavy-rain" | "wind" | "snow";
 
 export type SubReason = "stamina" | "tactical" | "discipline" | "injury";
 
@@ -84,7 +98,7 @@ export type FreeKickOutcome = "scored" | "saved" | "wall" | "wide";
  * attributed — without it, a missed penalty and an open-play goal in the same minute
  * are indistinguishable. Phase 5's goal descriptions build on this.
  */
-export type GoalSource = "open" | "penalty" | "freekick";
+export type GoalSource = "open" | "penalty" | "freekick" | "own-goal";
 
 export interface MatchEvent {
   minute: number;
@@ -108,6 +122,21 @@ export interface MatchEvent {
   subReason?: SubReason;
   injurySeverity?: InjurySeverity;
   keeperOutcome?: KeeperOutcome;
+  goalStyle?: GoalStyle; // open-play goal
+  /**
+   * The player who put it into his OWN net. He belongs to the side that CONCEDED, so
+   * `playerId` is deliberately left unset — nobody on the scoring side touched it, and
+   * crediting him there would put an own goal on a striker's tally.
+   */
+  ownGoalBy?: number;
+  weather?: Weather;
+  /**
+   * An earlier event in the same minute already told this goal's story (the keeper
+   * blunder that gifted it, for instance), so the goal line renders as a terse
+   * scoreline. Same reasoning as set-piece goals — describing it twice reads as two
+   * separate goals.
+   */
+  narrated?: boolean;
 }
 
 /** 0–100 aggregate team strength. TASK-1805 extends this to the "record" opponent. */

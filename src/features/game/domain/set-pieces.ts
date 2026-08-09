@@ -1,4 +1,5 @@
 import type { FreeKickOutcome, PenaltyOutcome } from "./match-types";
+import { OWN_GOAL_PER_MATCH } from "./colour";
 import { keeperGoalRate } from "./squad";
 
 /**
@@ -70,7 +71,8 @@ export function setPieceGoalRate(): number {
   return (
     PENALTY_PER_MATCH * penaltyConversion +
     FREE_KICK_PER_MATCH * freeKickConversion +
-    keeperGoalRate()
+    keeperGoalRate() +
+    OWN_GOAL_PER_MATCH
   );
 }
 

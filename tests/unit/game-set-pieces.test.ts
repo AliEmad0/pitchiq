@@ -91,7 +91,7 @@ describe("penalties", () => {
   it("tags every goal with its source", () => {
     for (const m of matches) {
       for (const g of m.events.filter((e) => e.kind === "goal")) {
-        expect(["open", "penalty", "freekick"]).toContain(g.source);
+        expect(["open", "penalty", "freekick", "own-goal"]).toContain(g.source);
       }
     }
   });

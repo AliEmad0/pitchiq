@@ -118,6 +118,21 @@ describe("substitutions", () => {
     }
   });
 
+  it("never take the same player off twice", () => {
+    // A printed feed showed one name substituted twice for the same side. It turned out
+    // to be two different players sharing a name in the fixture, but the invariant is
+    // worth pinning: `substitute` removes the player from the live roster, so
+    // `pickPlayerOff` can never see him again.
+    for (const m of matches) {
+      const takenOff = { home: new Set<number>(), away: new Set<number>() };
+      for (const s of m.events.filter((e) => e.kind === "substitution")) {
+        const side = s.side as "home" | "away";
+        expect(takenOff[side].has(s.playerId as number)).toBe(false);
+        takenOff[side].add(s.playerId as number);
+      }
+    }
+  });
+
   it("mostly happen in the second half, like real substitutions", () => {
     const late = subs.filter((s) => s.minute >= 55).length;
     expect(late / subs.length).toBeGreaterThan(0.85);
