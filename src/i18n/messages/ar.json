@@ -706,6 +706,40 @@
     },
     "cardAnon": "🟨 إنذار ({minuteFmt}')",
     "halftime": "⏸ الشوط الأول: {homeScoreFmt}–{awayScoreFmt}",
-    "fulltime": "🏁 نهاية المباراة: {homeScoreFmt}–{awayScoreFmt}"
+    "fulltime": "🏁 نهاية المباراة: {homeScoreFmt}–{awayScoreFmt}",
+    "chance": {
+      "saved": {
+        "0": "🧤 تصدٍّ رائع! الحارس يمنع {player} ({minuteFmt}')",
+        "1": "🧤 تسديدة قوية من {player} والحارس يبعدها ({minuteFmt}')"
+      },
+      "blocked": {
+        "0": "🛡 تصدّى الدفاع لمحاولة {player} ({minuteFmt}')",
+        "1": "🛡 {player} يسدد والكرة ترتطم بالمدافع ({minuteFmt}')"
+      },
+      "wide": {
+        "0": "😧 {player} يسدد بجوار القائم ({minuteFmt}')",
+        "1": "😧 تسديدة بعيدة عن المرمى من {player} ({minuteFmt}')"
+      },
+      "post": {
+        "0": "🪵 القائم! {player} على بُعد سنتيمترات ({minuteFmt}')",
+        "1": "🪵 {player} يهزّ القائم الأيمن! ({minuteFmt}')"
+      },
+      "crossbar": {
+        "0": "🪵 العارضة! {player} كاد يسجل ({minuteFmt}')",
+        "1": "🪵 {player} يصطدم بالعارضة! ({minuteFmt}')"
+      }
+    },
+    "chanceAnon": {
+      "saved": "🧤 تصدٍّ من الحارس ({minuteFmt}')",
+      "blocked": "🛡 تصدٍّ داخل المنطقة ({minuteFmt}')",
+      "wide": "😧 الكرة بعيدة عن المرمى ({minuteFmt}')",
+      "post": "🪵 ترتطم بالقائم! ({minuteFmt}')",
+      "crossbar": "🪵 ترتطم بالعارضة! ({minuteFmt}')"
+    },
+    "stoppage": "⏱ {addedFmt} دقائق وقت بدل ضائع",
+    "push": {
+      "0": "🔥 الجميع إلى الأمام — ضغط شامل داخل المنطقة ({minuteFmt}')",
+      "1": "🔥 هجوم شامل الآن، وخط الدفاع تُرك مكشوفًا ({minuteFmt}')"
+    }
   }
 }

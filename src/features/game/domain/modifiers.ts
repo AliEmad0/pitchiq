@@ -1,7 +1,12 @@
 import type { MinuteContext, MinuteWeights, Modifier, TeamPower } from "./match-types";
 
 export function baseWeights(power: TeamPower): MinuteWeights {
-  return { attack: power.attack, defense: power.defense, foul: power.aggression, card: power.aggression };
+  return {
+    attack: power.attack,
+    defense: power.defense,
+    foul: power.aggression,
+    card: power.aggression,
+  };
 }
 
 /** Fatigue dulls the attack as stamina falls (1 → neutral). */
@@ -10,13 +15,43 @@ export const staminaModifier: Modifier = ({ state, side }) => {
   return { attack: -s.power.attack * (1 - s.stamina) };
 };
 
-/** Recent-goal swing: momentum lifts attack, saps defensive focus. */
+/**
+ * Attacking urgency lifts the attack and costs some defensive shape.
+ *
+ * ⚠️ `momentum` means URGENCY, not "who is winning". Before TASK-1822 this modifier
+ * read a momentum value that was RAISED by scoring and LOWERED by conceding, so the
+ * team that went ahead attacked better and the team chasing attacked worse — a
+ * rich-get-richer loop, and backwards from how football behaves. `simulate` now raises
+ * it for the side that CONCEDED (the response window). Do not invert it again.
+ */
 export const momentumModifier: Modifier = ({ state, side }) => {
   const m = state[side].momentum;
-  return { attack: 12 * m, defense: -6 * m };
+  return { attack: 10 * m, defense: -4 * m };
 };
 
-export const BASELINE_MODIFIERS: Modifier[] = [staminaModifier, momentumModifier];
+/** Minute from which a losing side abandons shape and throws everyone forward. */
+export const DESPERATION_MINUTE = 75;
+
+/**
+ * All-out attack when trailing late — and the punishment that comes with it.
+ *
+ * The defence penalty is the point: chasing a game late genuinely creates BOTH the
+ * equaliser and the counter-attack that kills it, so a comeback push must be able to
+ * backfire or it is just a free bonus.
+ */
+export const desperationModifier: Modifier = ({ state, side }) => {
+  const opp = side === "home" ? "away" : "home";
+  const deficit = state[opp].score - state[side].score;
+  if (state.minute < DESPERATION_MINUTE || deficit <= 0) return {};
+  const urgency = Math.min(3, deficit);
+  return { attack: 6 + 3 * urgency, defense: -5 - 2 * urgency };
+};
+
+export const BASELINE_MODIFIERS: Modifier[] = [
+  staminaModifier,
+  momentumModifier,
+  desperationModifier,
+];
 
 export function applyModifiers(
   base: MinuteWeights,

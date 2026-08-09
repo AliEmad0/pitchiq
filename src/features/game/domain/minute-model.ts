@@ -1,3 +1,4 @@
+import type { ChanceOutcome } from "./match-types";
 import type { GamePlayer } from "./player";
 import { weightsFor } from "./rating-weights";
 
@@ -26,6 +27,52 @@ export function calibrateK(targetGoalsPerMatch: number): number {
 export function goalChance(attack: number, oppDefense: number, minute: number, k: number): number {
   const edge = attack / (attack + oppDefense || 1);
   return k * edge * minuteWeight(minute);
+}
+
+/**
+ * Share of chances that become goals.
+ *
+ * DELIBERATELY CONSTANT at the match level. Team strength already decides how many
+ * chances a side CREATES (`chanceRate` carries the attack-vs-defence edge), which is
+ * how football actually differs between good and bad teams. Making conversion vary too
+ * would double-count strength AND break the season-authentic goals-per-match
+ * calibration, which is pinned by `game-match-harness.test.ts`.
+ */
+export const CONVERSION = 0.11;
+
+/**
+ * Per-minute probability that a side creates a CHANCE (not a goal).
+ *
+ * Derived from the goal rate so that goals-per-match is preserved exactly: a chance
+ * arrives 1/CONVERSION times as often as a goal used to, and converts at CONVERSION.
+ * The engine gains ~9x the events without moving a single result.
+ */
+export function chanceRate(attack: number, oppDefense: number, minute: number, k: number): number {
+  return goalChance(attack, oppDefense, minute, k) / CONVERSION;
+}
+
+/**
+ * Non-goal chance outcomes, weighted to a plausible shot mix: most attempts are saved
+ * or blocked, woodwork is rare enough to feel like an event when it happens.
+ */
+const OUTCOME_WEIGHTS: [ChanceOutcome, number][] = [
+  ["saved", 0.42],
+  ["blocked", 0.24],
+  ["wide", 0.24],
+  ["post", 0.06],
+  ["crossbar", 0.04],
+];
+
+/** Resolve a chance into a goal or one of the near-miss branches. */
+export function resolveChance(r: number, conversion = CONVERSION): "goal" | ChanceOutcome {
+  if (r < conversion) return "goal";
+  let acc = conversion;
+  const span = 1 - conversion;
+  for (const [outcome, share] of OUTCOME_WEIGHTS) {
+    acc += share * span;
+    if (r < acc) return outcome;
+  }
+  return "saved";
 }
 
 export function cardChance(cardWeight: number): number {

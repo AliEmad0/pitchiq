@@ -5506,6 +5506,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1819](#task-1819) | Retro sticker album & collection book (IndexedDB)               | 📋 Backlog | P3       | S   |
 | [TASK-1820](#task-1820) | Rating model — absolute/cross-position stats + GK pipeline      | ✅ Done    | P2       | L   |
 | [TASK-1821](#task-1821) | Tier-Anchored Hybrid rating engine (anchors + delta + team)     | ✅ Done    | P2       | L   |
+| [TASK-1822](#task-1822) | Dynamic event-driven match engine (drama, VAR, subs, injuries)  | 🔄 Partial | P1       | XL  |
 
 _Enhancement roadmap 1813-1819 added 2026-08-03 from the owner's feature proposal (Option A — 100% client-side/static). See the locked-architecture notes above for the modifier-stack + determinism + no-backend decisions that govern them._
 
@@ -5739,6 +5740,58 @@ The tripwire splits its two causes, because they look identical in the file and 
 **Gate added:** the harness compares DEF/PHY saturation between the two pipelines **as a rate, not a count** (the eras have different cohort sizes, so a count drifts with the data rather than with the model) and fails if sparse exceeds rich by more than 5 percentage points. Verified to fail against the pre-fix code at 9.4%. An "un-anchored era tops must match" assertion was **deliberately not added** — it passed against the pre-fix code, so it would have been decorative, the same trap as the Layer 2 career-variation test.
 
 **⛔ Gate:** every change to the rating model must pass [`tests/unit/game-rating-harness.test.ts`](../tests/unit/game-rating-harness.test.ts) — 11,716 player-seasons swept across every role and era. **Layer 2 added two assertions, and the second one matters more than the first:** every anchored season must sit inside its ±6 window, _and_ the anchored population must not pile up on the window edges. Bounding alone is not enough — a saturated delta is bounded and useless. **Every other assertion in the harness passes under the degenerate literal implementation**, including a "seasons of one career still differ" test that looked discriminating and was not; the edge-pile-up check is the only one that separates them (0% on the floor vs 63%). It was verified to fail against the degenerate version before being kept. **Depends on:** TASK-1820. **Follow-ups:** the un-anchored pre-2003 tail (above) and [TASK-M73](#task-m73) (the award-blind roles).
+
+---
+
+### TASK-1822
+
+**Dynamic event-driven match engine** · 🔄 Partial · `P1` · `XL` · Type: Feature · **Absorbs [TASK-1814](#task-1814)**
+
+**The owner's report (2026-08-09):** in Chaos mode the first team to score always wins, draws are rare, and almost nothing happens in a match — no penalties, no VAR, no second yellows, no injuries, no substitutions, no goal descriptions, no altercations, no sweeper-keeper moments, no referee character.
+
+**⚠️ Measured first, and half of that is not what the numbers say.** 4,000 simulated Chaos matches through the real path (`chaosMatchup` → `opponentSetup` → `simulate`):
+
+| metric                        |    engine | real Premier League |
+| ----------------------------- | --------: | ------------------: |
+| draw rate                     | **27.3%** |             ~22–25% |
+| first scorer wins             | **69.2%** |             ~68–70% |
+| drawn after first goal        |     20.4% |                ~20% |
+| first scorer loses (comeback) |     10.4% |                ~12% |
+| goals per match               |      2.47 |                ~2.7 |
+
+Draws are **above** the 20–25% target, not below, and the first-scorer win rate is already realistic. Power gaps between two random drafts are small (median 3.0, p90 7.5), so lopsided drafts are not the cause either. **The felt problem is not the win model — it is that a match emits about five events in ninety minutes (goal, card, kickoff, halftime, fulltime) and nothing ever visibly contests the scoreline.** A 1–0 reads as predetermined because nothing happens between the goal and the whistle. The prescription in the report is right; the diagnosis of the statistics is not, and the statistics must therefore be PROTECTED while the event layer is built — a harness pins them.
+
+**One thing IS genuinely backwards:** `momentumModifier` gives the scoring side **+12 attack / −6 defense** and the conceding side the mirror penalty, so scoring makes you better and conceding makes you worse. Real football runs the other way — conceding triggers a response. That suppresses visible comebacks even though the aggregate lands in the right place.
+
+**Phases** (each its own PR; the spine must land first because every later item is "an event with branching outcomes and commentary"):
+
+1. **Spine + psychology** — extend `MatchEvent` to a discriminated union; add a chance-resolution pipeline (a chance resolves through a branch tree: goal / saved / post / crossbar / wide / blocked) so the minute loop stops being a coin-flip on goals; rewrite momentum as a **response window** on conceding; **desperation mode at 75'+** when trailing (more attack AND more exposure on the counter); variable stoppage time with late drama. Statistical harness pins draw rate, first-scorer-wins and goals/match so no later phase can wreck them.
+2. **Set pieces + penalties** — full branch tree: scored (top corner / placed / Panenka), saved (parried for a corner, tipped over, **saved-then-rebound-scored**), missed (left post, right post, crossbar, wide). Triggers: box foul, VAR handball, GK-on-striker collision. Direct free kicks from 25+ yards.
+3. **Discipline, VAR, referee character** — per-player yellow tracking → **second yellow = red**; off-ball altercations (verbal → mutual yellows → retaliation red); **DOGSO** (shirt-pull / trip on a 1-on-1 breakaway) → straight red; VAR sequence with a commentary pause and four outcomes (marginal offside, foul in the buildup, retroactive penalty, upgrade to a red); **referee personalities** (strict / lenient / crowd-influenced) with visible bias, and the aggrieved side's **rage response** — either a fired-up comeback or reckless tackles and cards.
+4. **Squad dynamics** — automatic **substitutions** 55'–85' driven by stamina, tactics and discipline protection; **three-tier injuries** (knock → treated, returns with a debuff; moderate → subbed within 2–3 minutes; severe → stretcher, forced sub); **sweeper-keeper** actions (heroic clearance outside the box, mistimed challenge → straight red + backup keeper, poor clearance → 45-yard empty-net punishment).
+5. **Colour** — goal descriptions (towering header from a corner, 10-second counter, chip over the onrushing keeper, trivela into the far corner, free-kick screamer); **own goals** and defensive mix-ups; weather (rain → slips, skidding balls, keeper fumbles); crowd hostility raising unforced errors for low-composure players.
+6. **Surface it** — `MatchView` / `EventOverlay` / `CommentaryFeed` / `pitch-sim` react to every new event kind; bilingual ICU keys throughout.
+
+**⛔ Constraints that bound every phase.** Determinism is non-negotiable — the seeded PRNG is the ONLY entropy source, no `Math.random`/`Date.now` in `domain/` (a match must replay from `(teams, seed)`). Commentary is **ICU message keys in both `en` and `ar`**, never hardcoded strings, with the parity test and the `.tsx` AST guard already in CI. `/game` and `/game/chaos` are `force-static`, so simulation happens at build time. `PlayerRatings`' six numeric keys are the engine contract that `team-power`, `minute-model` and `card-design` all read.
+
+**✅ Phase 1 shipped.** `MatchEvent` became an extensible taxonomy (`chance` with a five-way `outcome`, `stoppage`, `push`); `minute-model` gained `chanceRate` + `resolveChance`; `simulate` runs the chance pipeline, the response window, the late push and variable stoppage time; `modifiers` gained `desperationModifier` and the momentum rewrite. Bilingual commentary keys for every new event, so they surface in the existing `CommentaryFeed` immediately.
+
+| metric               |  before |     after | real football |
+| -------------------- | ------: | --------: | ------------: |
+| **events per match** | **8.2** |  **31.5** |             — |
+| first scorer wins    |   69.2% | **66.3%** |          ~68% |
+| comebacks            |   10.4% | **12.2%** |          ~12% |
+| draw rate            |   27.3% |     27.1% |       ~22–25% |
+| goals per match      |    2.47 |      2.78 |          ~2.7 |
+| latest goal          |     90' |   **96'** |             — |
+
+**Two design decisions worth keeping.** (1) `CONVERSION` is a **constant** and `chanceRate` is derived from the goal rate as `goalChance / CONVERSION`, so the pipeline multiplies EVENTS without moving goals-per-match at all — team strength already differentiates how many chances a side _creates_, which is how football actually works, and making conversion vary too would double-count strength and break the season-authentic calibration. (2) `desperationModifier` costs defensive shape as well as granting attack, so a late push can genuinely backfire into a killer counter — without that it is a free bonus.
+
+**⚠️ The edge function is deliberately insensitive.** `attack / (attack + oppDefense)` moves a side's share of play by only ~1.5pp for a ten-point attack swing, so the response window is a real but _modest_ tilt rather than a takeover. A test asserting the conceding side "carries" the window as a per-match majority failed for that reason and was rewritten as an aggregate share — with two attempts in a fifteen-minute window, a strict majority measures the threshold, not the mechanism.
+
+**⛔ New gate:** [`tests/unit/game-match-harness.test.ts`](../tests/unit/game-match-harness.test.ts) sweeps 3,000 matches through the **real Chaos path** (draft → tactical styles → simulate) and pins draw rate, first-scorer-wins, comebacks, goals/match, events/match and stoppage-time play. Every later phase adds drama; none of them may move the results distribution.
+
+**Next:** Phase 2 (set pieces + the penalty branch tree).
 
 ---
 
