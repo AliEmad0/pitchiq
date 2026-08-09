@@ -5703,6 +5703,10 @@ Un-anchored players fall back to the statistical model with a **role amplifier h
 
 **Not available:** PFA Player of the Year and Team of the Season are not in this repo's data — they are the missing signal behind defenders and holding midfielders never reaching the top tier automatically, and adding them is a new pipeline source. Anchors are deliberately **not** sourced from EA/FIFA ratings (proprietary, public repo, no per-season coverage).
 
+**That gap is now measured, not asserted → [TASK-M73](#task-m73).** The honours term carries 0.25 of the career score, the largest single weight, and **0 of 452 scored centre-backs can earn any honour from the data we hold** (CDM 0.6%, LB 1.2%, RB 1.5%, versus CF 12.6%). It costs **24 of the 84 curated overrides** — all promotions in CB/RB/LB/CDM, every one with an accolade component of exactly 0 (Terry, Vieira, Van Dijk, Ferdinand, Cole to `icon`; Adams, Carragher, Makélélé, Alonso, Stam, King up two tiers from `regular`). `pnpm build:anchors` now writes the full audit trail to the **"Curated divergences"** section of [`docs/superpowers/reports/player-anchors-draft.md`](../docs/superpowers/reports/player-anchors-draft.md), including a **fabricated-id tripwire** listing any curated id that matches no scored player. This has to stay written down: anchoring hides the symptom, so once a defender is hand-promoted the model looks correct and the evidence for the pipeline ticket disappears.
+
+The tripwire splits its two causes, because they look identical in the file and mean opposite things: an id in **no** season of the registry is fabricated (the real alarm), while a **real** player under the 40-app scoring floor is merely inert. Current state: **0 fabricated, 3 inert** — Asamoah Gyan (34 apps), Amr Zaki (35), Asier Del Horno (25) are curated but can never be scored, so their tiers produce no anchor and change nothing. Harmless; if any of them is genuinely meant to be anchored, the scoring floor has to move, not the tier.
+
 **Layer 2 shipped** — `src/features/game/domain/rating-anchor.ts` (`seasonDelta` / `applyAnchor` / `anchorOf`) plus the wiring in `rate.ts` and a second pass in `makeRatingContext`. An anchored player's `overall` is now `anchor + delta`; the four dimensions are never touched, so the card face still describes what the player actually did. Un-anchored players are untouched and stay on the statistical model.
 
 **The delta is RELATIVE, and the literal reading of this ticket was a trap.** "Statistics shift a player within ±6 of their anchor" reads as `clamp(modelOverall − anchor, ±6)` — and that is degenerate. Measured across all 1,603 anchored seasons the raw gap has **median −10, mean −11.1, and 67% fall outside ±6**, because the statistical overall and the anchor are on different scales; their difference is not a signal. Implemented literally it puts **63% of anchored seasons on exactly `anchor − 6`** and discriminates nothing. So the delta instead asks where a season ranks **within its own role-season cohort**, mapped onto ±6, shrunk linearly below 1,500'. That is within-role normalisation — what PR #99 did and #100 reverted — but bounded to ±6 by construction instead of multiplied by an unbounded per-role spread. #99 could move a player thirty points; this can move six.
@@ -5791,6 +5795,7 @@ Un-anchored players fall back to the statistical model with a **role amplifier h
 | [TASK-M70](#task-m70) | Surface player role / alt-roles / foot / height on the profile page                         | ✅ Done | P2       | M   |
 | [TASK-M71](#task-m71) | Prerender `/teams/[id]`, `/managers/[id]` + the dashboard — drop the server `?season=` read | ✅ Done | P2       | L   |
 | [TASK-M72](#task-m72) | Fix app-wide soft 404s — the not-found page returns HTTP 200                                | ✅ Done | P2       | S   |
+| [TASK-M73](#task-m73) | Add PFA POTY + Team of the Season — the award-blind roles                                   | ⬜ Todo | P2       | L   |
 
 ### TASK-M01
 
@@ -7286,6 +7291,37 @@ managers    0        prerendered   (reads searchParams)
 **Done when:** an unknown URL returns HTTP **404** with the localized not-found page still rendering inside the shell (Header/Footer/VAR panel), in both locales, and an E2E test pins the status so it cannot regress silently.
 
 **Traps.** A soft-404 that returns 200 is exactly what produced two wrong conclusions during the 2026-07-29 Fluid-CPU investigation: probe routes named `__probe-*` were silently private (leading `_`), fell through to this catch-all, and were measured as if they had rendered. Always assert a probe actually rendered before trusting a reading.
+
+---
+
+### TASK-M73
+
+**Add PFA Player of the Year + Team of the Season — the award-blind roles** · ⬜ Todo · `P2` · `L` · Type: Data
+
+**The measurement that justifies this ticket.** The heritage-anchor scoring ([TASK-1821](#task-1821)) weights individual honours at **0.25 — its single largest term**. Those honours can only be derived from what this repo holds: the Golden Boot and assist crown (`leaderboards-<season>.json`) and a Golden Glove synthesised from clean sheets. **No defender can win any of them.** Measured across all 2,271 scored careers:
+
+| Role    | Scored | With an honour | Coverage |
+| ------- | -----: | -------------: | -------: |
+| **CB**  |    452 |          **0** | **0.0%** |
+| **CDM** |    173 |              1 |     0.6% |
+| **LB**  |    172 |              2 |     1.2% |
+| **RB**  |    197 |              3 |     1.5% |
+| CM      |    316 |              7 |     2.2% |
+| GK      |    145 |             16 |    11.0% |
+| CF      |    389 |             49 |    12.6% |
+| RM      |     46 |              7 |    15.2% |
+
+**452 centre-backs, not one with a scoreable honour.** A quarter of the career score is identically zero for the entire role, so a centre-back competes for the top tier on three quarters of the function while a striker competes on all of it. This is not a tuning problem — it is missing input.
+
+**What it currently costs.** **24 of the 84 curated tier overrides are promotions in CB/RB/LB/CDM**, and the accolade component is **0 for every one of them** — Terry, Vieira, Van Dijk, Ferdinand and Ashley Cole all hand-promoted to `icon`; Adams, Carragher, Makélélé, Alonso, Stam and King hand-promoted two tiers from `regular`. The scoring ranked Carragher #268 and Makélélé #266. Every one of those is a human supplying, by hand, the signal this ticket would supply from data. The full audit is the "Curated divergences" section of [`docs/superpowers/reports/player-anchors-draft.md`](../docs/superpowers/reports/player-anchors-draft.md), regenerated by `pnpm build:anchors`.
+
+**⚠️ Why this gets harder to justify the longer it waits.** Anchoring **hides the symptom**: once a defender is hand-promoted, their rating looks correct, and the gap is invisible from the app. The evidence only exists because the generator now writes it down. If the award-blind promotion count grows, that is the signal to do this rather than keep curating around it.
+
+**Approach.** PFA POTY + PFA Team of the Season are external award data — a **new pipeline source** in the external data repo (this repo holds no scrapers), landing as a committed JSON keyed by stable player id + season, then read by `scripts/build-player-anchors.mjs` alongside the existing accolade sources and ranked within role like they are. Team of the Season is the higher-value half: it is per-season, covers eleven players including defenders, and spans the full 1992→ range.
+
+**Traps.** (1) **Validate every id against the committed registry** — the fabricated-id incident in TASK-1821 shipped 17 sequential ids that each resolved to a different obscure player. (2) Award data is name-keyed at source and our registry has non-obvious spellings (Benjani is a mononym; "Papiss Demba Cissé"), so the join needs the same alias handling as [TASK-M34](#task-m34). (3) Do **not** source from EA/FIFA ratings — proprietary, public repo, no per-season coverage.
+
+**Done when:** POTY + TotS are committed data, the anchor scoring consumes them, and the award-blind promotion count in the regenerated report **falls** — with the curated tiers re-reviewed against the new auto-tiers rather than left as-is.
 
 ---
 
