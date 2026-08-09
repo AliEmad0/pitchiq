@@ -17,7 +17,28 @@ export type MatchEventKind =
   | "stoppage" // added time announced
   | "push" // a trailing side throws everyone forward
   | "penalty" // awarded AND resolved in one event
-  | "freekick"; // a direct free kick from a dangerous area
+  | "freekick" // a direct free kick from a dangerous area
+  | "var" // a video review, and what it decided
+  | "altercation" // players squaring up
+  | "referee" // who is officiating, and how they call it
+  | "bias"; // a contentious decision, noted
+
+/** Why a card was shown. `second-yellow` and `dogso` are always red. */
+export type CardReason = "normal" | "second-yellow" | "dogso" | "violent-conduct" | "altercation";
+
+/**
+ * What a review decided. A disallowed goal never emits a `goal` event at all — that is
+ * what keeps "the scoreline equals the count of goal events" true.
+ */
+export type VarOutcome =
+  | "goal-disallowed-offside"
+  | "goal-disallowed-foul"
+  | "penalty-awarded"
+  | "red-upgraded";
+
+export type AltercationOutcome = "words" | "both-booked" | "red";
+
+export type RefereeStyle = "strict" | "lenient" | "crowd-influenced";
 
 /** How a chance that wasn't a goal actually ended. */
 export type ChanceOutcome = "saved" | "blocked" | "wide" | "post" | "crossbar";
@@ -61,6 +82,10 @@ export interface MatchEvent {
   freeKickOutcome?: FreeKickOutcome; // freekick
   /** The player who followed in a parried penalty. */
   reboundPlayerId?: number;
+  reason?: CardReason; // card
+  varOutcome?: VarOutcome; // var
+  altercationOutcome?: AltercationOutcome; // altercation
+  refStyle?: RefereeStyle; // referee
 }
 
 /** 0–100 aggregate team strength. TASK-1805 extends this to the "record" opponent. */
@@ -91,6 +116,14 @@ export interface SideState {
   respondingUntil: number;
   /** Has the late all-out-attack push already been announced for this side? */
   pushed: boolean;
+  /** Players dismissed. A ten-man side is measurably worse — see `sentOffModifier`. */
+  sentOff: number;
+  /**
+   * Sense of injustice, 0–1. Raised when the referee's bias goes against this side;
+   * drives BOTH a fired-up response and reckless tackling, which is how a wronged team
+   * actually behaves.
+   */
+  rage: number;
 }
 
 export interface MatchState {
@@ -98,6 +131,17 @@ export interface MatchState {
   home: SideState;
   away: SideState;
   events: MatchEvent[];
+  /**
+   * Yellow cards per player — a second one is a red.
+   *
+   * ⚠️ Keyed `"side:playerId"`, NOT by player id. Both Chaos teams draft from the same
+   * pool with independent `used` sets, so the SAME player id can legitimately turn out
+   * for both sides in one match; a plain id key would let a booking leak across the
+   * halfway line and send off a player who had never been cautioned.
+   */
+  booked: Map<string, number>;
+  /** Players already sent off, same `"side:playerId"` keying. */
+  dismissed: Set<string>;
 }
 
 export interface MinuteContext {

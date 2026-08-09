@@ -758,6 +758,26 @@
       "wall": "🧱 {player}'s free kick cannons into the wall ({minuteFmt}')",
       "wide": "😧 {player} curls the free kick just past the upright ({minuteFmt}')"
     },
-    "goalScoreline": "📋 {homeScoreFmt}–{awayScoreFmt} ({minuteFmt}')"
+    "goalScoreline": "📋 {homeScoreFmt}–{awayScoreFmt} ({minuteFmt}')",
+    "var": {
+      "goal-disallowed-offside": "📺 VAR — the goal is CHALKED OFF. Offside by a matter of millimetres ({minuteFmt}')",
+      "goal-disallowed-foul": "📺 VAR — no goal. A foul spotted in the build-up ({minuteFmt}')",
+      "penalty-awarded": "📺 VAR — the referee is sent to the monitor... and points to the spot! ({minuteFmt}')",
+      "red-upgraded": "📺 VAR — the yellow is UPGRADED. {player} is off ({minuteFmt}')"
+    },
+    "altercation": {
+      "words": "😤 Words exchanged — players squaring up, the referee steps between them ({minuteFmt}')",
+      "both-booked": "🟨🟨 Handbags! Both sides go into the book ({minuteFmt}')",
+      "red": "🟥 It boils over — and one of them is walking ({minuteFmt}')"
+    },
+    "referee": {
+      "strict": "👮 Today's referee has a reputation: a strict card-happy official",
+      "lenient": "👮 Today's referee lets the game flow — expect plenty to go unpunished",
+      "crowd-influenced": "👮 Today's referee is known to hear the home crowd"
+    },
+    "bias": "😠 The decision goes against them — furious protests, and this team is fired up now ({minuteFmt}')",
+    "cardSecondYellow": "🟥 SECOND YELLOW — {player} is sent off ({minuteFmt}')",
+    "cardDogso": "🟥 RED! {player} hauls the striker down as the last man ({minuteFmt}')",
+    "cardViolent": "🟥 STRAIGHT RED — violent conduct from {player} ({minuteFmt}')"
   }
 }

@@ -47,10 +47,39 @@ export const desperationModifier: Modifier = ({ state, side }) => {
   return { attack: 6 + 3 * urgency, defense: -5 - 2 * urgency };
 };
 
+/**
+ * Playing with ten men.
+ *
+ * Without this a red card is pure theatre — the drama of the dismissal with none of the
+ * consequence. A side down to ten creates markedly less and defends a little worse; a
+ * second dismissal compounds it.
+ */
+export const sentOffModifier: Modifier = ({ state, side }) => {
+  const off = state[side].sentOff;
+  if (off <= 0) return {};
+  return { attack: -14 * off, defense: -6 * off };
+};
+
+/**
+ * A side that believes it has been wronged.
+ *
+ * Both halves are the point: injustice produces a fired-up response AND reckless
+ * tackling, so `rage` lifts attack and raises the card risk at the same time. That is
+ * the mechanism behind "the affected team faces pressure and decisive plays go against
+ * them" — the aggrieved side pushes harder and takes more risk doing it.
+ */
+export const rageModifier: Modifier = ({ state, side }) => {
+  const rage = state[side].rage;
+  if (rage <= 0) return {};
+  return { attack: 7 * rage, card: 18 * rage, foul: 12 * rage };
+};
+
 export const BASELINE_MODIFIERS: Modifier[] = [
   staminaModifier,
   momentumModifier,
   desperationModifier,
+  sentOffModifier,
+  rageModifier,
 ];
 
 export function applyModifiers(
