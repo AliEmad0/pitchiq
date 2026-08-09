@@ -1,7 +1,7 @@
 import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import type { Player, Standing } from "@/data/schemas";
-import { rate } from "@/features/game/domain/rate";
+import { rate, rawRatings } from "@/features/game/domain/rate";
 import { anchorOf } from "@/features/game/domain/rating-anchor";
 import { makeRatingContext } from "@/features/game/domain/ratings";
 import { minutesOf } from "@/features/game/domain/stat-pool";
@@ -34,6 +34,14 @@ export interface RatedRow {
   minutes: number;
   /** The TASK-1821 heritage anchor for this player-season, or null if un-anchored. */
   anchor: number | null;
+  /** Where the club finished that season — the Layer 3 achievement input. */
+  rank: number | null;
+  /**
+   * The purely statistical `overall`, BEFORE anchoring, the role amplifier and the
+   * achievement boost. The amplifier constants are derived from these, so the drift
+   * check must re-derive from the same input it was built from.
+   */
+  rawOverall: number;
   attack: number;
   creation: number;
   defense: number;
@@ -70,6 +78,7 @@ export async function rateSeason(season: number): Promise<RatedRow[]> {
     read<Standing[]>(`standings-${season}.json`).catch(() => [] as Standing[]),
   ]);
   const ctx = makeRatingContext(season, cohort, standings);
+  const rankOf = new Map(standings.map((s) => [s.teamId, s.rank]));
   const rows: RatedRow[] = [];
   for (const p of cohort) {
     if (p.role == null) continue;
@@ -83,6 +92,8 @@ export async function rateSeason(season: number): Promise<RatedRow[]> {
       role: p.role,
       minutes,
       anchor: anchorOf(p.id, season),
+      rank: rankOf.get(p.teamId) ?? null,
+      rawOverall: rawRatings(p, ctx).overall,
       attack: r.attack,
       creation: r.creation,
       defense: r.defense,
