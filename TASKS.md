@@ -5832,7 +5832,18 @@ Harness after Phase 3: draws 26.8%, first-scorer-wins 67.2%, comebacks 12.1%, go
 
 Harness after Phase 4: draws 26.3%, first-scorer-wins 67.4%, comebacks 10.8%, goals 2.77, **39.9 events per match**.
 
-**Next:** Phase 5 (goal descriptions, own goals, weather, crowd).
+**✅ Phase 5 shipped — colour.** `domain/colour.ts`.
+
+- **Goal descriptions**, and they are **role-derived**, not random: a centre-back who scores has almost always headed one in from a corner, a winger has curled it with the outside of the boot or finished a counter. Seven styles — header, counter, chip, trivela, tap-in, long-range screamer, volley.
+- **Own goals** (~0.11/match). The goal is credited to the other side and `playerId` is deliberately **left unset** — nobody on the scoring side touched it, and crediting the defender there would put an own goal on a striker's tally. The culprit rides in `ownGoalBy` and is resolved against the **conceding** roster.
+- **Weather** — clear / rain / heavy rain / wind / snow, announced at kick-off. **⚠️ It deliberately does NOT touch the goal rate.** A wet pitch is scrappier (more slips → more mistimed tackles → more cards), but inflating goals for atmosphere would quietly break the calibration every phase has protected. Colour must be free.
+- **Crowd hostility** — the home support turning on the visitors, which raises the away side's `rage`.
+
+**⚠️ Two more catches.** (1) A goal whose story was **already told** by an earlier event in the same minute — the keeper blunder that gifted it — now carries `narrated: true` and renders as a terse scoreline. Without it the feed printed the blunder and then a full goal description, reading as two goals; the same trap Phase 2 hit with penalties. (2) **A latent Phase 4 defect surfaced.** The `keeper` event was pushed _before_ checking a keeper was on the pitch, so a side whose keeper had already gone off could produce "the keeper is sent off" with no keeper and no card. It only appeared because Phase 5 shifted the random stream — a reminder that a phase which changes PRNG consumption re-rolls every latent branch in the engine.
+
+Harness after Phase 5: draws 27.3%, first-scorer-wins 66.2%, comebacks 11.8%, goals 2.75, **40.7 events per match**.
+
+**Next:** Phase 6 — surface all of it in `MatchView` / `EventOverlay` / `CommentaryFeed` / `pitch-sim`.
 
 ---
 

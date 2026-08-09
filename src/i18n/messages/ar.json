@@ -795,6 +795,25 @@
       "sent-off": "🟥 كارثة! {player} يخرج ويصطدم بالمهاجم خارج المنطقة ({minuteFmt}')",
       "punished": "😱 خطأ فادح! {player} يبعد الكرة إلى منافس يسددها في المرمى الخالي ({minuteFmt}')"
     },
-    "shorthanded": "⚠️ لا بدلاء متاحين — {player} لا يمكن تعويضه والفريق يكمل بنقص عددي ({minuteFmt}')"
+    "shorthanded": "⚠️ لا بدلاء متاحين — {player} لا يمكن تعويضه والفريق يكمل بنقص عددي ({minuteFmt}')",
+    "goalStyle": {
+      "header": "⚽ ضربة رأس عالية! {player} يرتقي من الركنية ويسجل. {homeScoreFmt}–{awayScoreFmt} ({minuteFmt}')",
+      "counter": "⚽ هجمة مرتدة قاتلة! عشر ثوانٍ من منتصف ملعبهم و{player} ينهيها. {homeScoreFmt}–{awayScoreFmt} ({minuteFmt}')",
+      "chip": "⚽ لمسة جريئة! {player} يلاحظ خروج الحارس ويسددها فوقه. {homeScoreFmt}–{awayScoreFmt} ({minuteFmt}')",
+      "trivela": "⚽ بخارج القدم! {player} يقوسها في الزاوية البعيدة. {homeScoreFmt}–{awayScoreFmt} ({minuteFmt}')",
+      "tap-in": "⚽ سهلة في النهاية — {player} يودعها المرمى الخالي. {homeScoreFmt}–{awayScoreFmt} ({minuteFmt}')",
+      "long-range": "⚽ صاروخية! {player} يسددها من 30 ياردة. {homeScoreFmt}–{awayScoreFmt} ({minuteFmt}')",
+      "volley": "⚽ على الطاير! {player} يقابلها بإتقان. {homeScoreFmt}–{awayScoreFmt} ({minuteFmt}')"
+    },
+    "ownGoal": "😖 هدف عكسي — الكرة ترتد من {player} إلى مرماه! {homeScoreFmt}–{awayScoreFmt} ({minuteFmt}')",
+    "ownGoalAnon": "😖 هدف عكسي — ارتباك فادح في الخلف! {homeScoreFmt}–{awayScoreFmt} ({minuteFmt}')",
+    "weather": {
+      "clear": "🌤 أجواء مثالية لكرة القدم اليوم",
+      "rain": "🌧 أمطار متواصلة والأرضية أصبحت زلقة",
+      "heavy-rain": "⛈ أمطار غزيرة. الكرة تنزلق ولا أحد يثبت على قدميه",
+      "wind": "💨 رياح متقلبة — العرضيات والإبعادات غير مضمونة",
+      "snow": "❄️ الثلج يتساقط وخطوط الملعب تختفي"
+    },
+    "crowd": "📣 جمهور الأرض يضغط على الضيوف — صافرات مع كل لمسة ({minuteFmt}')"
   }
 }

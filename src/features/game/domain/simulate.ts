@@ -11,8 +11,16 @@ import {
   pickReferee,
   resolveAltercation,
 } from "./discipline";
+import {
+  CROWD_PER_MATCH,
+  OWN_GOAL_PER_MATCH,
+  goalStyleFor,
+  pickWeather,
+  slipFactor,
+} from "./colour";
 import type {
   CardReason,
+  GoalStyle,
   GoalSource,
   MatchResult,
   MatchSetup,
@@ -111,6 +119,7 @@ function scoreGoal(
   source: GoalSource,
   rng?: () => number,
   referee?: Referee,
+  extra?: { goalStyle?: GoalStyle; ownGoalBy?: number; narrated?: boolean },
 ): void {
   // VAR lives HERE rather than at each call site, so "a disallowed goal never emits a
   // `goal` event" is structural. That is what keeps the scoreline exactly equal to the
@@ -126,7 +135,16 @@ function scoreGoal(
     return;
   }
   state[side].score += 1;
-  state.events.push({ minute, kind: "goal", side, playerId, source });
+  state.events.push({
+    minute,
+    kind: "goal",
+    side,
+    playerId,
+    source,
+    ...(extra?.goalStyle != null ? { goalStyle: extra.goalStyle } : {}),
+    ...(extra?.ownGoalBy != null ? { ownGoalBy: extra.ownGoalBy } : {}),
+    ...(extra?.narrated ? { narrated: true } : {}),
+  });
   // The side that CONCEDED is the one lifted — see RESPONSE_WINDOW.
   state[opp].momentum = Math.min(1, state[opp].momentum + RESPONSE_URGENCY);
   state[opp].respondingUntil = minute + RESPONSE_WINDOW;
@@ -207,6 +225,10 @@ export function simulate(setup: MatchSetup): MatchResult {
   const varPenaltyRate = VAR_PENALTY_PER_MATCH / 2 / FULL_TIME;
 
   const referee = pickReferee(rng());
+  const weather = pickWeather(rng());
+  const slip = slipFactor(weather);
+  const ownGoalRate = OWN_GOAL_PER_MATCH / 2 / FULL_TIME;
+  const crowdRate = CROWD_PER_MATCH / FULL_TIME;
 
   const blank = (power: ReturnType<typeof powerOf>) => ({
     power,
@@ -231,6 +253,7 @@ export function simulate(setup: MatchSetup): MatchResult {
     events: [
       { minute: 0, kind: "kickoff" },
       { minute: 0, kind: "referee", refStyle: referee.style },
+      { minute: 0, kind: "weather", weather },
     ],
     booked: new Map(),
     dismissed: new Set(),
@@ -320,7 +343,9 @@ export function simulate(setup: MatchSetup): MatchResult {
         const shooter = pickScorer(squads[side], rng);
         const outcome = resolveChance(rng());
         if (outcome === "goal") {
-          scoreGoal(state, side, opp, m, shooter?.playerId, "open", rng, referee);
+          scoreGoal(state, side, opp, m, shooter?.playerId, "open", rng, referee, {
+            goalStyle: goalStyleFor(shooter, rng()),
+          });
         } else {
           state.events.push({
             minute: m,
@@ -381,7 +406,7 @@ export function simulate(setup: MatchSetup): MatchResult {
       }
 
       // ---- discipline -------------------------------------------------------
-      if (rng() < cardChance(mine.card) * cardBiasFor(referee, side)) {
+      if (rng() < cardChance(mine.card) * cardBiasFor(referee, side) * slip) {
         const violent = rng() < RED_CARD_SHARE;
         showCard(state, squads[side], side, m, violent ? "violent-conduct" : "normal", rng);
       }
@@ -432,6 +457,23 @@ export function simulate(setup: MatchSetup): MatchResult {
         }
       }
 
+      // A defensive mix-up: the ball goes in off someone in the WRONG shirt, and the
+      // goal is credited to the other side.
+      if (rng() < ownGoalRate) {
+        const backLine = squads[side].filter((pl) => pl.role !== "GK");
+        const unlucky = backLine.length > 0 ? backLine[Math.floor(rng() * backLine.length)] : null;
+        scoreGoal(state, opp, side, m, undefined, "own-goal", undefined, undefined, {
+          ownGoalBy: unlucky?.playerId,
+        });
+      }
+
+      // The home crowd turning on the visitors. Only ever the away side — it is the
+      // HOME support, and a hostile atmosphere is exactly the thing a home crowd makes.
+      if (side === "away" && rng() < crowdRate) {
+        state.events.push({ minute: m, kind: "crowd", side: "away" });
+        state.away.rage = Math.min(1, state.away.rage + 0.15);
+      }
+
       // ---- squad dynamics ---------------------------------------------------
       if (m >= SUB_WINDOW_START && m <= SUB_WINDOW_END && rng() < subRate) {
         const bookedIds = new Set(
@@ -480,35 +522,45 @@ export function simulate(setup: MatchSetup): MatchResult {
       if (rng() < keeperRate) {
         const outcome = resolveKeeper(rng());
         const gk = squads[side].find((pl) => pl.role === "GK") ?? null;
-        state.events.push({
-          minute: m,
-          kind: "keeper",
-          side,
-          playerId: gk?.playerId,
-          keeperOutcome: outcome,
-        });
-        if (outcome === "sent-off" && gk != null) {
-          showCard(state, squads[side], side, m, "dogso", rng, "red");
-          // A foul outside the area concedes a free kick as well as the red — the same
-          // both-halves punishment as an outfield DOGSO. Phase 3's invariant ("every
-          // dogso card is paired with a set piece") caught this branch omitting it.
-          const taker = pickScorer(squads[opp], rng);
-          const fk = resolveFreeKick(rng());
+        // ⚠️ Nothing is emitted without a keeper on the pitch. The event used to be
+        // pushed BEFORE this check, so a side whose keeper had already gone off could
+        // produce "the keeper is sent off" with no keeper and no card — a latent defect
+        // that only surfaced when Phase 5 shifted the random stream.
+        if (gk != null) {
           state.events.push({
             minute: m,
-            kind: "freekick",
-            side: opp,
-            playerId: taker?.playerId,
-            freeKickOutcome: fk,
+            kind: "keeper",
+            side,
+            playerId: gk.playerId,
+            keeperOutcome: outcome,
           });
-          if (fk === "scored") scoreGoal(state, opp, side, m, taker?.playerId, "freekick");
-          // The backup keeper comes on — and if there is none, an outfielder goes in
-          // goal and the side is simply worse for it.
-          const outfield = squads[side].find((pl) => pl.role !== "GK");
-          if (outfield != null) substitute(side, m, outfield, "injury");
-        } else if (outcome === "punished") {
-          const punisher = pickScorer(squads[opp], rng);
-          scoreGoal(state, opp, side, m, punisher?.playerId, "open");
+          if (outcome === "sent-off") {
+            showCard(state, squads[side], side, m, "dogso", rng, "red");
+            // A foul outside the area concedes a free kick as well as the red — the same
+            // both-halves punishment as an outfield DOGSO. Phase 3's invariant ("every
+            // dogso card is paired with a set piece") caught this branch omitting it.
+            const taker = pickScorer(squads[opp], rng);
+            const fk = resolveFreeKick(rng());
+            state.events.push({
+              minute: m,
+              kind: "freekick",
+              side: opp,
+              playerId: taker?.playerId,
+              freeKickOutcome: fk,
+            });
+            if (fk === "scored") scoreGoal(state, opp, side, m, taker?.playerId, "freekick");
+            // The backup keeper comes on — and if there is none, an outfielder goes in
+            // goal and the side is simply worse for it.
+            const outfield = squads[side].find((pl) => pl.role !== "GK");
+            if (outfield != null) substitute(side, m, outfield, "injury");
+          } else if (outcome === "punished") {
+            const punisher = pickScorer(squads[opp], rng);
+            // The keeper event above already told this story in full — describing it
+            // again would read as two separate goals.
+            scoreGoal(state, opp, side, m, punisher?.playerId, "open", undefined, undefined, {
+              narrated: true,
+            });
+          }
         }
       }
 

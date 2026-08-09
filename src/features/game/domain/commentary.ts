@@ -72,10 +72,38 @@ export function commentate(result: MatchResult, home: GameTeam, away: GameTeam):
         // A set-piece goal has ALREADY been described by its own event on the line
         // above ("PENALTY — sends the keeper the wrong way"). Repeating the full goal
         // prose reads as two separate goals, so those get a terse scoreline instead.
-        if (event.source === "penalty" || event.source === "freekick") {
+        if (event.source === "penalty" || event.source === "freekick" || event.narrated) {
           commentary = {
             key: "commentary.goalScoreline",
             values: { minute: event.minute, homeScore: h, awayScore: a },
+          };
+          break;
+        }
+        if (event.source === "own-goal") {
+          // The unlucky defender plays for the side that CONCEDED, so his name is
+          // resolved against the OPPOSITE roster.
+          const conceded = event.side === "home" ? away : home;
+          const culprit =
+            event.ownGoalBy != null
+              ? ([...conceded.players, ...(conceded.bench ?? [])].find(
+                  (p) => p.playerId === event.ownGoalBy,
+                )?.name ?? null)
+              : null;
+          commentary = {
+            key: culprit != null ? "commentary.ownGoal" : "commentary.ownGoalAnon",
+            values: {
+              player: culprit ?? undefined,
+              minute: event.minute,
+              homeScore: h,
+              awayScore: a,
+            },
+          };
+          break;
+        }
+        if (player != null && event.goalStyle != null) {
+          commentary = {
+            key: `commentary.goalStyle.${event.goalStyle}`,
+            values: { player, minute: event.minute, homeScore: h, awayScore: a },
           };
           break;
         }
@@ -234,6 +262,12 @@ export function commentate(result: MatchResult, home: GameTeam, away: GameTeam):
         };
         break;
       }
+      case "weather":
+        commentary = { key: `commentary.weather.${event.weather ?? "clear"}`, values: {} };
+        break;
+      case "crowd":
+        commentary = { key: "commentary.crowd", values: { minute: event.minute } };
+        break;
       case "halftime":
         commentary = { key: "commentary.halftime", values: { homeScore: h, awayScore: a } };
         break;

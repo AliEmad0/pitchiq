@@ -795,6 +795,25 @@
       "sent-off": "🟥 Disaster! {player} charges out and wipes out the striker outside the area ({minuteFmt}')",
       "punished": "😱 Calamity! {player} slices the clearance straight to an opponent — and it's rolled into the empty net ({minuteFmt}')"
     },
-    "shorthanded": "⚠️ No substitutes left — {player} cannot be replaced and they play on a man short ({minuteFmt}')"
+    "shorthanded": "⚠️ No substitutes left — {player} cannot be replaced and they play on a man short ({minuteFmt}')",
+    "goalStyle": {
+      "header": "⚽ TOWERING HEADER! {player} rises at the corner and buries it. {homeScoreFmt}–{awayScoreFmt} ({minuteFmt}')",
+      "counter": "⚽ LETHAL COUNTER! Ten seconds from their own half and {player} finishes it. {homeScoreFmt}–{awayScoreFmt} ({minuteFmt}')",
+      "chip": "⚽ AUDACIOUS! {player} spots the keeper off his line and chips him. {homeScoreFmt}–{awayScoreFmt} ({minuteFmt}')",
+      "trivela": "⚽ WITH THE OUTSIDE OF THE BOOT! {player} bends it into the far corner. {homeScoreFmt}–{awayScoreFmt} ({minuteFmt}')",
+      "tap-in": "⚽ Simple in the end — {player} taps it into an empty net. {homeScoreFmt}–{awayScoreFmt} ({minuteFmt}')",
+      "long-range": "⚽ SCREAMER! {player} lets fly from 30 yards. {homeScoreFmt}–{awayScoreFmt} ({minuteFmt}')",
+      "volley": "⚽ VOLLEY! {player} meets it sweetly on the drop. {homeScoreFmt}–{awayScoreFmt} ({minuteFmt}')"
+    },
+    "ownGoal": "😖 OWN GOAL — it comes off {player} and into his own net! {homeScoreFmt}–{awayScoreFmt} ({minuteFmt}')",
+    "ownGoalAnon": "😖 OWN GOAL — a dreadful mix-up at the back! {homeScoreFmt}–{awayScoreFmt} ({minuteFmt}')",
+    "weather": {
+      "clear": "🌤 Perfect conditions for football today",
+      "rain": "🌧 Rain falling steadily — the pitch is getting slick",
+      "heavy-rain": "⛈ Torrential rain. The ball is skidding and nobody can stay on their feet",
+      "wind": "💨 A swirling wind — crosses and clearances are anyone's guess",
+      "snow": "❄️ Snow coming down and the lines are disappearing"
+    },
+    "crowd": "📣 The home crowd are all over the visitors — every touch is being whistled ({minuteFmt}')"
   }
 }
