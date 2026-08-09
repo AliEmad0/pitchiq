@@ -706,6 +706,40 @@
     },
     "cardAnon": "🟨 A booking ({minuteFmt}')",
     "halftime": "⏸ Half-time: {homeScoreFmt}–{awayScoreFmt}",
-    "fulltime": "🏁 Full-time: {homeScoreFmt}–{awayScoreFmt}"
+    "fulltime": "🏁 Full-time: {homeScoreFmt}–{awayScoreFmt}",
+    "chance": {
+      "saved": {
+        "0": "🧤 Saved! {player} is denied by the keeper ({minuteFmt}')",
+        "1": "🧤 {player} stings the palms — great stop ({minuteFmt}')"
+      },
+      "blocked": {
+        "0": "🛡 Blocked! {player}'s effort is charged down ({minuteFmt}')",
+        "1": "🛡 {player} shoots — deflected behind ({minuteFmt}')"
+      },
+      "wide": {
+        "0": "😧 {player} drags it wide ({minuteFmt}')",
+        "1": "😧 Wild from {player} — that's well off target ({minuteFmt}')"
+      },
+      "post": {
+        "0": "🪵 OFF THE POST! {player} is inches away ({minuteFmt}')",
+        "1": "🪵 {player} rattles the upright! ({minuteFmt}')"
+      },
+      "crossbar": {
+        "0": "🪵 OFF THE BAR! {player} so close ({minuteFmt}')",
+        "1": "🪵 {player} smashes the crossbar! ({minuteFmt}')"
+      }
+    },
+    "chanceAnon": {
+      "saved": "🧤 A save from the keeper ({minuteFmt}')",
+      "blocked": "🛡 Blocked in the box ({minuteFmt}')",
+      "wide": "😧 Wide of the mark ({minuteFmt}')",
+      "post": "🪵 Off the post! ({minuteFmt}')",
+      "crossbar": "🪵 Off the crossbar! ({minuteFmt}')"
+    },
+    "stoppage": "⏱ {addedFmt} minutes of added time",
+    "push": {
+      "0": "🔥 Everyone forward — they're throwing bodies into the box ({minuteFmt}')",
+      "1": "🔥 All-out attack now. The back line has gone ({minuteFmt}')"
+    }
   }
 }

@@ -6,6 +6,7 @@ export interface CommentaryValues {
   minute?: number;
   homeScore?: number;
   awayScore?: number;
+  added?: number;
 }
 export interface CommentaryRef {
   key: string;
@@ -18,6 +19,8 @@ export interface CommentedEvent extends MatchEvent {
 const GOAL_POOL = 4;
 const CARD_YELLOW_POOL = 3;
 const CARD_RED_POOL = 2;
+const CHANCE_POOL = 2;
+const PUSH_POOL = 2;
 
 /** FNV-1a → non-negative int. Deterministic; drives phrasing variety. */
 function hashStr(s: string): number {
@@ -59,7 +62,10 @@ export function commentate(result: MatchResult, home: GameTeam, away: GameTeam):
               key: `commentary.goal.${variantOf(event, GOAL_POOL)}`,
               values: { player, minute: event.minute, homeScore: h, awayScore: a },
             }
-          : { key: "commentary.goalAnon", values: { minute: event.minute, homeScore: h, awayScore: a } };
+          : {
+              key: "commentary.goalAnon",
+              values: { minute: event.minute, homeScore: h, awayScore: a },
+            };
         break;
       }
       case "card": {
@@ -68,10 +74,38 @@ export function commentate(result: MatchResult, home: GameTeam, away: GameTeam):
         const family = isRed ? "cardRed" : "cardYellow";
         const pool = isRed ? CARD_RED_POOL : CARD_YELLOW_POOL;
         commentary = player
-          ? { key: `commentary.${family}.${variantOf(event, pool)}`, values: { player, minute: event.minute } }
+          ? {
+              key: `commentary.${family}.${variantOf(event, pool)}`,
+              values: { player, minute: event.minute },
+            }
           : { key: "commentary.cardAnon", values: { minute: event.minute } };
         break;
       }
+      case "chance": {
+        // The connective tissue of a match. Every near-miss keeps the scoreline feeling
+        // contested, which is the whole reason TASK-1822 exists.
+        const player = nameOf(event, home, away);
+        const outcome = event.outcome ?? "saved";
+        commentary = player
+          ? {
+              key: `commentary.chance.${outcome}.${variantOf(event, CHANCE_POOL)}`,
+              values: { player, minute: event.minute },
+            }
+          : { key: `commentary.chanceAnon.${outcome}`, values: { minute: event.minute } };
+        break;
+      }
+      case "stoppage":
+        commentary = {
+          key: "commentary.stoppage",
+          values: { minute: event.minute, added: event.addedMinutes ?? 0 },
+        };
+        break;
+      case "push":
+        commentary = {
+          key: `commentary.push.${variantOf(event, PUSH_POOL)}`,
+          values: { minute: event.minute },
+        };
+        break;
       case "halftime":
         commentary = { key: "commentary.halftime", values: { homeScore: h, awayScore: a } };
         break;

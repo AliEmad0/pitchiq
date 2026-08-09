@@ -1,14 +1,33 @@
 import type { GameTeam } from "./team";
 
 export type Side = "home" | "away";
-export type MatchEventKind = "kickoff" | "goal" | "card" | "halftime" | "fulltime";
+
+/**
+ * TASK-1822 Phase 1 extends this beyond goal/card. Later phases add penalties, VAR,
+ * substitutions, injuries and altercations — every one of them is "an event with a
+ * branching outcome and a commentary key", which is why the taxonomy is the spine.
+ */
+export type MatchEventKind =
+  | "kickoff"
+  | "goal"
+  | "card"
+  | "halftime"
+  | "fulltime"
+  | "chance" // a shot that did NOT go in — the match's connective tissue
+  | "stoppage" // added time announced
+  | "push"; // a trailing side throws everyone forward
+
+/** How a chance that wasn't a goal actually ended. */
+export type ChanceOutcome = "saved" | "blocked" | "wide" | "post" | "crossbar";
 
 export interface MatchEvent {
   minute: number;
   kind: MatchEventKind;
-  side?: Side; // goal / card
-  playerId?: number; // scorer / booked
+  side?: Side; // goal / card / chance / push
+  playerId?: number; // scorer / booked / shooter
   card?: "yellow" | "red";
+  outcome?: ChanceOutcome; // chance
+  addedMinutes?: number; // stoppage
 }
 
 /** 0–100 aggregate team strength. TASK-1805 extends this to the "record" opponent. */
@@ -29,7 +48,16 @@ export interface SideState {
   power: TeamPower;
   score: number;
   stamina: number; // 1 → decays
-  momentum: number; // -1..1
+  /**
+   * Attacking urgency, 0–1. NOT "who is winning": conceding raises it (the response
+   * window), scoring raises it only slightly. Before TASK-1822 this ran the other way
+   * and produced a rich-get-richer loop.
+   */
+  momentum: number;
+  /** Minute the conceding-side response window expires. */
+  respondingUntil: number;
+  /** Has the late all-out-attack push already been announced for this side? */
+  pushed: boolean;
 }
 
 export interface MatchState {
