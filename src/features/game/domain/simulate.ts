@@ -1,4 +1,4 @@
-import type { MatchResult, MatchSetup, MatchState, Side } from "./match-types";
+import type { GoalSource, MatchResult, MatchSetup, MatchState, Side } from "./match-types";
 import {
   calibrateK,
   cardChance,
@@ -9,6 +9,14 @@ import {
 } from "./minute-model";
 import { BASELINE_MODIFIERS, DESPERATION_MINUTE, applyModifiers, baseWeights } from "./modifiers";
 import { mulberry32 } from "./rng";
+import {
+  FREE_KICK_PER_MATCH,
+  PENALTY_PER_MATCH,
+  openPlayTarget,
+  penaltyScored,
+  resolveFreeKick,
+  resolvePenalty,
+} from "./set-pieces";
 import { powerOf } from "./team-power";
 
 const FULL_TIME = 90;
@@ -43,11 +51,41 @@ function staminaAt(minute: number): number {
   return 1 - 0.25 * (Math.min(minute, FULL_TIME) / FULL_TIME); // 1.0 → 0.75
 }
 
+/**
+ * Record a goal from ANY source — open play, penalty or free kick.
+ *
+ * Shared on purpose: the scoreline, the `goal` event and the response window must move
+ * together no matter how the ball went in, and a penalty that updated the score without
+ * emitting a `goal` event would leave the UI (which counts goal events) disagreeing
+ * with the result.
+ */
+function scoreGoal(
+  state: MatchState,
+  side: Side,
+  opp: Side,
+  minute: number,
+  playerId: number | undefined,
+  source: GoalSource,
+): void {
+  state[side].score += 1;
+  state.events.push({ minute, kind: "goal", side, playerId, source });
+  // The side that CONCEDED is the one lifted — see RESPONSE_WINDOW.
+  state[opp].momentum = Math.min(1, state[opp].momentum + RESPONSE_URGENCY);
+  state[opp].respondingUntil = minute + RESPONSE_WINDOW;
+  state[side].momentum = Math.min(1, state[side].momentum + SCORER_URGENCY);
+}
+
 export function simulate(setup: MatchSetup): MatchResult {
   const rng = mulberry32(setup.seed);
   const modifiers = [...BASELINE_MODIFIERS, ...(setup.modifiers ?? [])];
-  const k = calibrateK(setup.targetGoalsPerMatch);
+  // Open play gets what set pieces do not — see `openPlayTarget`. Adding new ways to
+  // score on TOP of the target would make `targetGoalsPerMatch` meaningless.
+  const k = calibrateK(openPlayTarget(setup.targetGoalsPerMatch));
   const teams = { home: setup.home, away: setup.away };
+
+  // Per-side, per-minute rates for the set pieces, spread over regulation time.
+  const penaltyRate = PENALTY_PER_MATCH / 2 / FULL_TIME;
+  const freeKickRate = FREE_KICK_PER_MATCH / 2 / FULL_TIME;
 
   const blank = (power: ReturnType<typeof powerOf>) => ({
     power,
@@ -106,12 +144,7 @@ export function simulate(setup: MatchSetup): MatchResult {
         const shooter = pickScorer(teams[side].players, rng);
         const outcome = resolveChance(rng());
         if (outcome === "goal") {
-          state[side].score += 1;
-          state.events.push({ minute: m, kind: "goal", side, playerId: shooter?.playerId });
-          // The response: the side that just CONCEDED is the one lifted.
-          state[opp].momentum = Math.min(1, state[opp].momentum + RESPONSE_URGENCY);
-          state[opp].respondingUntil = m + RESPONSE_WINDOW;
-          state[side].momentum = Math.min(1, state[side].momentum + SCORER_URGENCY);
+          scoreGoal(state, side, opp, m, shooter?.playerId, "open");
         } else {
           state.events.push({
             minute: m,
@@ -121,6 +154,46 @@ export function simulate(setup: MatchSetup): MatchResult {
             outcome,
           });
         }
+      }
+
+      // ---- set pieces -------------------------------------------------------
+      // Rolled every minute for BOTH sides regardless of outcome, so the PRNG
+      // consumption pattern stays fixed. A later phase gating these behind an
+      // earlier event would shift every subsequent roll and break seed replay.
+      const penaltyRoll = rng();
+      const penaltyBranch = rng();
+      const freeKickRoll = rng();
+      const freeKickBranch = rng();
+
+      if (penaltyRoll < penaltyRate) {
+        const taker = pickScorer(teams[side].players, rng);
+        const outcome = resolvePenalty(penaltyBranch);
+        const rebound =
+          outcome === "saved-rebound-goal" ? pickScorer(teams[side].players, rng) : null;
+        state.events.push({
+          minute: m,
+          kind: "penalty",
+          side,
+          playerId: taker?.playerId,
+          penaltyOutcome: outcome,
+          reboundPlayerId: rebound?.playerId,
+        });
+        if (penaltyScored(outcome)) {
+          scoreGoal(state, side, opp, m, rebound?.playerId ?? taker?.playerId, "penalty");
+        }
+      }
+
+      if (freeKickRoll < freeKickRate) {
+        const taker = pickScorer(teams[side].players, rng);
+        const outcome = resolveFreeKick(freeKickBranch);
+        state.events.push({
+          minute: m,
+          kind: "freekick",
+          side,
+          playerId: taker?.playerId,
+          freeKickOutcome: outcome,
+        });
+        if (outcome === "scored") scoreGoal(state, side, opp, m, taker?.playerId, "freekick");
       }
 
       if (rng() < cardChance(mine.card)) {

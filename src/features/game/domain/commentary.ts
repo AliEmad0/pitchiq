@@ -7,6 +7,8 @@ export interface CommentaryValues {
   homeScore?: number;
   awayScore?: number;
   added?: number;
+  /** The player who followed in a parried penalty. */
+  rebound?: string;
 }
 export interface CommentaryRef {
   key: string;
@@ -57,6 +59,16 @@ export function commentate(result: MatchResult, home: GameTeam, away: GameTeam):
         if (event.side === "home") h += 1;
         else if (event.side === "away") a += 1;
         const player = nameOf(event, home, away);
+        // A set-piece goal has ALREADY been described by its own event on the line
+        // above ("PENALTY — sends the keeper the wrong way"). Repeating the full goal
+        // prose reads as two separate goals, so those get a terse scoreline instead.
+        if (event.source === "penalty" || event.source === "freekick") {
+          commentary = {
+            key: "commentary.goalScoreline",
+            values: { minute: event.minute, homeScore: h, awayScore: a },
+          };
+          break;
+        }
         commentary = player
           ? {
               key: `commentary.goal.${variantOf(event, GOAL_POOL)}`,
@@ -92,6 +104,33 @@ export function commentate(result: MatchResult, home: GameTeam, away: GameTeam):
               values: { player, minute: event.minute },
             }
           : { key: `commentary.chanceAnon.${outcome}`, values: { minute: event.minute } };
+        break;
+      }
+      case "penalty": {
+        // The goal event that follows a converted penalty carries the scoreline; this
+        // line carries the drama, so it deliberately does NOT repeat the score.
+        const player = nameOf(event, home, away);
+        const outcome = event.penaltyOutcome ?? "saved-held";
+        const rebound =
+          event.reboundPlayerId != null
+            ? nameOf({ ...event, playerId: event.reboundPlayerId }, home, away)
+            : null;
+        commentary = {
+          key: `commentary.penalty.${outcome}`,
+          values: {
+            player: player ?? undefined,
+            rebound: rebound ?? undefined,
+            minute: event.minute,
+          },
+        };
+        break;
+      }
+      case "freekick": {
+        const player = nameOf(event, home, away);
+        commentary = {
+          key: `commentary.freekick.${event.freeKickOutcome ?? "wall"}`,
+          values: { player: player ?? undefined, minute: event.minute },
+        };
         break;
       }
       case "stoppage":

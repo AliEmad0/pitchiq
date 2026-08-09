@@ -5791,7 +5791,15 @@ Draws are **above** the 20–25% target, not below, and the first-scorer win rat
 
 **⛔ New gate:** [`tests/unit/game-match-harness.test.ts`](../tests/unit/game-match-harness.test.ts) sweeps 3,000 matches through the **real Chaos path** (draft → tactical styles → simulate) and pins draw rate, first-scorer-wins, comebacks, goals/match, events/match and stoppage-time play. Every later phase adds drama; none of them may move the results distribution.
 
-**Next:** Phase 2 (set pieces + the penalty branch tree).
+**✅ Phase 2 shipped — set pieces.** `domain/set-pieces.ts` holds a nine-branch penalty tree (`scored-top-corner` / `scored-placed` / `scored-panenka` / `saved-corner` / `saved-held` / **`saved-rebound-goal`** / `post` / `crossbar` / `wide`) and a four-branch direct free kick (`scored` / `saved` / `wall` / `wide`), at ~0.28 penalties and ~0.55 dangerous free kicks per match with ~77% penalty conversion. Bilingual commentary for all thirteen branches.
+
+**⚠️ THE CALIBRATION RULE, and it binds every future phase.** Set-piece goals are **subtracted from the open-play target** (`openPlayTarget()`), never added on top. Without it, `targetGoalsPerMatch` stops meaning anything — each phase that adds a way to score would quietly push goals-per-match higher until the season-authentic calibration is fiction. Measured: adding two new scoring routes moved goals/match 2.78 → **2.77**.
+
+**Every goal now carries a `source`** (`open` / `penalty` / `freekick`). That came out of a failing test: an open-play goal can land in the same minute as a MISSED penalty, so "did this penalty produce a goal?" is unanswerable from the minute alone, and the first version of the test read the coincidence as a bug. The field also feeds Phase 5's goal descriptions, and lets set-piece goals render a terse scoreline instead of repeating the full goal prose — reading a real feed showed a converted penalty producing two lines that looked like two separate goals.
+
+**PRNG discipline:** set-piece rolls happen every minute for both sides regardless of outcome, so the consumption pattern is fixed. A later phase that gates a roll behind an earlier event would shift every subsequent roll and break seed replay.
+
+**Next:** Phase 3 (discipline, VAR, referee personalities).
 
 ---
 
