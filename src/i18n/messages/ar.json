@@ -758,6 +758,26 @@
       "wall": "🧱 ركلة {player} الحرة ترتطم بالجدار ({minuteFmt}')",
       "wide": "😧 {player} يسدد الركلة الحرة بجوار القائم ({minuteFmt}')"
     },
-    "goalScoreline": "📋 {homeScoreFmt}–{awayScoreFmt} ({minuteFmt}')"
+    "goalScoreline": "📋 {homeScoreFmt}–{awayScoreFmt} ({minuteFmt}')",
+    "var": {
+      "goal-disallowed-offside": "📺 حكم الفيديو — الهدف مُلغى! تسلل بفارق ملليمترات ({minuteFmt}')",
+      "goal-disallowed-foul": "📺 حكم الفيديو — لا هدف. مخالفة في بناء الهجمة ({minuteFmt}')",
+      "penalty-awarded": "📺 حكم الفيديو — الحكم يراجع اللقطة… ويحتسب ركلة جزاء! ({minuteFmt}')",
+      "red-upgraded": "📺 حكم الفيديو — البطاقة تتحول إلى حمراء. {player} يغادر ({minuteFmt}')"
+    },
+    "altercation": {
+      "words": "😤 تلاسن بين اللاعبين والحكم يتدخل لتهدئة الأمور ({minuteFmt}')",
+      "both-booked": "🟨🟨 احتكاك ساخن! بطاقة صفراء لكل فريق ({minuteFmt}')",
+      "red": "🟥 الأمور تخرج عن السيطرة — وأحدهم يُطرد ({minuteFmt}')"
+    },
+    "referee": {
+      "strict": "👮 حكم اللقاء معروف بالصرامة وكثرة البطاقات",
+      "lenient": "👮 حكم اللقاء يترك اللعب ينساب ولا يقاطعه كثيراً",
+      "crowd-influenced": "👮 حكم اللقاء معروف بتأثره بجمهور الأرض"
+    },
+    "bias": "😠 القرار ضدهم — احتجاجات غاضبة، والفريق مشتعل الآن ({minuteFmt}')",
+    "cardSecondYellow": "🟥 إنذار ثانٍ — {player} يُطرد من الملعب ({minuteFmt}')",
+    "cardDogso": "🟥 بطاقة حمراء! {player} يعرقل المهاجم وهو آخر مدافع ({minuteFmt}')",
+    "cardViolent": "🟥 حمراء مباشرة — سلوك عنيف من {player} ({minuteFmt}')"
   }
 }

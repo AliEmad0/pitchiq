@@ -82,6 +82,19 @@ export function commentate(result: MatchResult, home: GameTeam, away: GameTeam):
       }
       case "card": {
         const player = nameOf(event, home, away);
+        // A red card's REASON is the story — "second yellow" and "last man" read
+        // completely differently from a straight red, and lumping them together throws
+        // away the disciplinary narrative Phase 3 exists to create.
+        const byReason: Partial<Record<string, string>> = {
+          "second-yellow": "commentary.cardSecondYellow",
+          dogso: "commentary.cardDogso",
+          "violent-conduct": "commentary.cardViolent",
+        };
+        const reasonKey = event.reason != null ? byReason[event.reason] : undefined;
+        if (reasonKey != null && player != null) {
+          commentary = { key: reasonKey, values: { player, minute: event.minute } };
+          break;
+        }
         const isRed = event.card === "red";
         const family = isRed ? "cardRed" : "cardYellow";
         const pool = isRed ? CARD_RED_POOL : CARD_YELLOW_POOL;
@@ -142,6 +155,32 @@ export function commentate(result: MatchResult, home: GameTeam, away: GameTeam):
       case "push":
         commentary = {
           key: `commentary.push.${variantOf(event, PUSH_POOL)}`,
+          values: { minute: event.minute },
+        };
+        break;
+      case "var": {
+        const player = nameOf(event, home, away);
+        commentary = {
+          key: `commentary.var.${event.varOutcome ?? "goal-disallowed-offside"}`,
+          values: { player: player ?? undefined, minute: event.minute },
+        };
+        break;
+      }
+      case "altercation":
+        commentary = {
+          key: `commentary.altercation.${event.altercationOutcome ?? "words"}`,
+          values: { minute: event.minute },
+        };
+        break;
+      case "referee":
+        commentary = {
+          key: `commentary.referee.${event.refStyle ?? "strict"}`,
+          values: {},
+        };
+        break;
+      case "bias":
+        commentary = {
+          key: "commentary.bias",
           values: { minute: event.minute },
         };
         break;

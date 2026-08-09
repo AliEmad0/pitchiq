@@ -5799,7 +5799,24 @@ Draws are **above** the 20–25% target, not below, and the first-scorer win rat
 
 **PRNG discipline:** set-piece rolls happen every minute for both sides regardless of outcome, so the consumption pattern is fixed. A later phase that gates a roll behind an earlier event would shift every subsequent roll and break seed replay.
 
-**Next:** Phase 3 (discipline, VAR, referee personalities).
+**✅ Phase 3 shipped — discipline, VAR, referee character.** `domain/discipline.ts` + a rewritten card path in `simulate`.
+
+- **A booking ledger.** Per-player yellows; a second is a **red with `reason: "second-yellow"`**; a dismissed player can never be picked again. The old model drew a fresh card with an 8% red share and no memory at all.
+- **DOGSO** — a professional foul on a breakaway sends the last defender off **and** concedes the set piece (penalty 40% of the time, free kick otherwise). The red alone was never the whole punishment.
+- **Altercations** — words / mutual bookings / a retaliation red.
+- **VAR** — four outcomes: goal chalked off for marginal offside, goal chalked off for a foul in the build-up, a retroactive penalty, and a booking upgraded to a sending-off.
+- **Referee personalities** — strict (1.7× cards), lenient (0.55×), crowd-influenced (2.1× penalties for the home side). A biased referee also books the _other_ side 1.3× more. Contentious decisions emit a `bias` event, and the wronged side gains **rage**, which lifts attack **and** card risk together — a fired-up comeback or a reckless collapse, which is how a wronged team actually behaves.
+- **A red card now costs something** — `sentOffModifier` takes 14 attack and 6 defence per man. Without it a dismissal was pure theatre.
+
+**⚠️ Three defects the tests and the output caught, all worth remembering.**
+
+1. **VAR was chalking off penalties for offside.** A spot kick cannot be offside and has no build-up to find a foul in. The review is now restricted to open play and free kicks. Caught by a Phase 2 invariant, not by inspection.
+2. **The red-card budget has to be shared.** Adding four routes to a dismissal (second yellow, DOGSO, altercation, VAR upgrade) on top of the existing 8% straight-red share produced **0.65 reds per match** against a real rate near 0.2. `RED_CARD_SHARE` dropped to 0.025 — the same discipline as set-piece goals coming out of the goal target.
+3. **The booking ledger must be keyed `"side:playerId"`, not by player id.** Both Chaos teams draft from one pool with independent `used` sets, so the same player id can legitimately turn out for BOTH sides in a match; a plain id key would leak a booking across the halfway line and send off a player who was never cautioned.
+
+Harness after Phase 3: draws 26.8%, first-scorer-wins 67.2%, comebacks 12.1%, goals 2.71, **32.8 events per match**.
+
+**Next:** Phase 4 (substitutions, injuries, sweeper-keeper).
 
 ---
 

@@ -18,8 +18,17 @@ function stateWith(over: Partial<{ stamina: number; momentum: number }>): MatchS
     momentum: over.momentum ?? 0,
     respondingUntil: 0,
     pushed: false,
+    sentOff: 0,
+    rage: 0,
   };
-  return { minute: 80, home: { ...side }, away: { ...side }, events: [] };
+  return {
+    minute: 80,
+    home: { ...side },
+    away: { ...side },
+    events: [],
+    booked: new Map(),
+    dismissed: new Set(),
+  };
 }
 
 describe("baseWeights", () => {
@@ -57,12 +66,23 @@ describe("momentumModifier", () => {
 
 describe("desperationModifier", () => {
   const trailing = (minute: number, deficit: number) => {
-    const base = { power, score: 0, stamina: 1, momentum: 0, respondingUntil: 0, pushed: false };
+    const base = {
+      power,
+      score: 0,
+      stamina: 1,
+      momentum: 0,
+      respondingUntil: 0,
+      pushed: false,
+      sentOff: 0,
+      rage: 0,
+    };
     const state: MatchState = {
       minute,
       home: { ...base, score: 0 },
       away: { ...base, score: deficit },
       events: [],
+      booked: new Map(),
+      dismissed: new Set(),
     };
     return desperationModifier({ state, side: "home" });
   };
