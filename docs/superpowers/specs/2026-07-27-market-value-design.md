@@ -15,15 +15,19 @@ accepted for photos and roles. This section is the record; no further gate remai
 
 ## 2. Source, verified
 
-`GET https://tmapi.transfermarkt.technology/player/{tmId}/market-value-history`
+A Transfermarkt JSON endpoint, keyed by the tmId M56 already resolved. **The host and path live in
+the private `pitchiq-pipeline` repo only** — endpoints and fetching methods are not published here;
+this repo carries the committed data and its schemas. See that repo's TASK-M68 spec.
 
-Re-verified live on 2026-07-27: **HTTP 200, no auth, no cookie** (the `Access-Control-Allow-Origin`
-lock is browser-only; a server fetch succeeds). Response is `data.history[]`, each entry:
+Verified live on 2026-07-27: **HTTP 200, no auth, no cookie** (the `Access-Control-Allow-Origin` lock
+is browser-only; a server fetch succeeds). Each entry gave a `seasonId`, a club, an age, and a
+market value with its `determined` date — the four fields the design below relies on.
 
-```json
-{ "playerId":"148455", "seasonId":2017, "clubId":"31", "age":25,
-  "marketValue":{ "value":150000000, "currency":"EUR", "compact":{…}, "determined":"2018-05-28" } }
-```
+> **⚠️ Superseded 2026-08-09 (pipeline TASK-M74).** That endpoint's host no longer resolves at all,
+> and Transfermarkt's own market-value chart is broken by the same rot. The builder has been repointed
+> at a live replacement, which also means **`seasonId` is no longer supplied** and the season is now
+> reconciled against the committed history. None of that changes the shape of the data below, and the
+> committed artifacts are unaffected. Detail is private-side.
 
 Findings that shape the design:
 
