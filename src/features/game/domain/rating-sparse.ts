@@ -30,6 +30,34 @@ const CREATION: DimPart[] = [
   ["assists", 2],
 ];
 
+/**
+ * How far a PROXY dimension is allowed to travel from neutral, versus a measured one.
+ *
+ * `defense` here is built ENTIRELY from the team's record (clean-sheet share + goals
+ * against) and `physical` ENTIRELY from availability. Neither measures the player. For
+ * a centre-back they carry 0.7 + 0.2 = 90% of `overall`, and they saturate together for
+ * any ever-present defender at a good defence — so team quality alone carried players
+ * into the 90s. Measured across the committed data before this damping:
+ *
+ *   defensive-role DEF >= 90 : 199 sparse seasons vs 14 rich
+ *   defensive-role PHY >= 90 : 214 sparse seasons vs 38 rich
+ *   Hyypiä '99 (DEF 98, PHY 99) rated 94 — above Van Dijk '18/19 at 87 on real data
+ *
+ * The factors are CALIBRATED, not guessed: at 0.85/0.7 the sparse defensive-role
+ * distribution lands on the rich one almost exactly (p90 71 vs 70, p99 82 vs 80, max 87
+ * vs 87). Damping harder overshoots — at 0.7/0.5 the sparse max falls to 80, below the
+ * rich era, which would be a different distortion in the opposite direction.
+ *
+ * ⚠️ Do NOT extend this to `attack` or `creation`. Goals and assists ARE measurements,
+ * and the same sweep puts sparse attackers only ~5 points above rich ones at p99 —
+ * a far smaller, different-in-kind effect from a thinner input set, not a proxy.
+ */
+const TEAM_DEFENCE_CONFIDENCE = 0.85;
+const AVAILABILITY_CONFIDENCE = 0.7;
+
+/** Pull a proxy signal toward neutral by how much it actually tells us about a player. */
+const proxy = (value: number, confidence: number) => 50 + (value - 50) * confidence;
+
 export function rateSparse(player: Player, ctx: RatingContext): PlayerRatings {
   const bag = outfieldStats(player);
   const pools = ctx.pools.outfield;
@@ -48,10 +76,11 @@ export function rateSparse(player: Player, ctx: RatingContext): PlayerRatings {
   const context = 100 * (0.5 * cleanRate + 0.5 * teamDefense(player, ctx.standings));
   const w = weightsFor(role);
   const defensiveness = role != null && DEFENSIVE_ROLES.has(role) ? 1 : w.defense + w.physical;
-  const defense = context * defensiveness;
+  const defense = proxy(context * defensiveness, TEAM_DEFENCE_CONFIDENCE);
 
-  // Availability is the only physical proxy the era offers.
-  const physical = 100 * pctile(bag.minutes, pools.minutes ?? []);
+  // Availability is the only physical proxy the era offers — and it is a weak one, so
+  // it is damped hardest: being ever-present is not the same as being physical.
+  const physical = proxy(100 * pctile(bag.minutes, pools.minutes ?? []), AVAILABILITY_CONFIDENCE);
   const discipline = 100 * (1 - pctile(bag.cardScore ?? 0, pools.cardScore ?? []));
 
   const blended =

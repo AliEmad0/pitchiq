@@ -6,6 +6,7 @@ import {
 } from "@/features/game/domain/rating-achievement";
 import { MAX_DELTA } from "@/features/game/domain/rating-anchor";
 import {
+  FIRST_RICH_SEASON,
   MIN_COHORT,
   type RatedRow,
   type RoleStat,
@@ -201,6 +202,53 @@ describe("harness — TASK-1821 anchoring is bounded by construction", () => {
     expect(onEdge(1)).toBeLessThan(0.25);
     expect(interior).toBeGreaterThan(0.6);
   });
+});
+
+describe("harness — the pre-2003 proxy dimensions", () => {
+  it("does not let the sparse era's team-derived dimensions saturate", () => {
+    // Pre-2003 has NO individual defensive data: `defense` is the team's record and
+    // `physical` is availability, and for a centre-back they carry 90% of `overall`.
+    // Before damping, 199 sparse defensive-role seasons reached DEF ≥ 90 against 14 in
+    // the rich era, which put Hyypiä '99 and Riise '01 above Van Dijk on real data.
+    //
+    // Compared as a RATE, not a count — the two eras have different cohort sizes, and a
+    // raw count would drift with the committed data rather than with the model.
+    const defensive = new Set(["GK", "CB", "RB", "LB", "CDM"]);
+    const rateOver = (season: (s: number) => boolean, pick: (r: RatedRow) => number) => {
+      const pool = rows.filter((r) => season(r.season) && defensive.has(r.role));
+      return pool.length === 0 ? 0 : pool.filter((r) => pick(r) >= 90).length / pool.length;
+    };
+    const sparseDef = rateOver(
+      (s) => s < FIRST_RICH_SEASON,
+      (r) => r.defense,
+    );
+    const richDef = rateOver(
+      (s) => s >= FIRST_RICH_SEASON,
+      (r) => r.defense,
+    );
+    const sparsePhy = rateOver(
+      (s) => s < FIRST_RICH_SEASON,
+      (r) => r.physical,
+    );
+    const richPhy = rateOver(
+      (s) => s >= FIRST_RICH_SEASON,
+      (r) => r.physical,
+    );
+
+    // The sparse era may not be MORE saturated than the rich era by more than a small
+    // margin. It is allowed to differ — it is a different pipeline — but not to be the
+    // 14x outlier it was.
+    expect(sparseDef - richDef).toBeLessThan(0.05);
+    expect(sparsePhy - richPhy).toBeLessThan(0.05);
+  });
+
+  // DELIBERATELY NOT ADDED: an "un-anchored era tops must match" assertion. It passed
+  // against the pre-fix code (the era max gap was exactly 3, and any threshold that
+  // failed it had about one point of margin), so it would have been decorative — the
+  // same trap as the Layer 2 "seasons of one career still differ" test. A residual
+  // ~5-point gap at p99 also legitimately remains, from sparse ATTACK using 2 inputs
+  // where rich uses 5; that is a thinner-input effect on real measurements, not a proxy
+  // defect, and damping real goals to hide it would be the wrong fix.
 });
 
 describe("harness — anomalies that actually shipped", () => {

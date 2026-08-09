@@ -49,6 +49,9 @@ export interface RatedRow {
   overall: number;
 }
 
+/** The season after which the rich (measured) pipeline takes over from sparse. */
+export const FIRST_RICH_SEASON = 2003;
+
 export interface RoleStat {
   season: number;
   role: string;
