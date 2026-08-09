@@ -30,6 +30,184 @@ counterweight — a birth year alone must not bury a world-class late campaign.
 - Legend seasons: 442
 - Elite seasons: 852
 
+## Curated divergences — where a human overruled the scoring
+
+The scoring is the first 90%; this table is the last 10%, and it is the audit
+trail for it. `Accolades`, `Silverware` and `Peak` are the score components most
+likely to explain a divergence — all three are 0–1 percentiles.
+
+- players in the curated file: **158**
+- tiers differing from the scoring: **84** (80 promoted, 4 demoted)
+- **promotions in award-blind roles (CB/RB/LB/CDM): 24**
+
+### ⛔ Why the award-blind count matters
+
+**PFA Player of the Year and Team of the Season are not in this repo's data.**
+The scoring's individual-honours term can only see Golden Boot and Golden Glove —
+awards no centre-back, full-back or holding midfielder can ever win. So those roles
+cannot reach the top tier automatically no matter how good the player was, and every
+promotion below is a human patching that specific gap by hand.
+
+This count IS the ticket justification. Anchoring hides the symptom — once a
+defender is hand-promoted their rating looks correct — so the evidence has to be
+recorded here or it disappears. If this number keeps growing, add the award source
+to the pipeline instead of curating around it.
+
+#### Award-signal coverage by role
+
+How many scored players in each role can earn ANY individual honour from the data
+we hold. `accolades` carries **0.25 of the career score — the single largest
+weight** — so a role with 0% coverage is competing for the top tier with three
+quarters of the scoring function.
+
+| Role    | Scored | With an honour | Coverage |
+| ------- | -----: | -------------: | -------: |
+| **CB**  |    452 |              0 |     0.0% |
+| **CDM** |    173 |              1 |     0.6% |
+| **LB**  |    172 |              2 |     1.2% |
+| **RB**  |    197 |              3 |     1.5% |
+| CM      |    316 |              7 |     2.2% |
+| LM      |     41 |              2 |     4.9% |
+| LW      |    108 |              7 |     6.5% |
+| RW      |    105 |              9 |     8.6% |
+| CAM     |    103 |             10 |     9.7% |
+| GK      |    145 |             16 |    11.0% |
+| SS      |     24 |              3 |    12.5% |
+| CF      |    389 |             49 |    12.6% |
+| RM      |     46 |              7 |    15.2% |
+
+| Player          | Role | Apps | Score rank | Scored  | Curated    | Δ base | Accolades | Silverware | Peak |
+| --------------- | ---- | ---: | ---------: | ------- | ---------- | -----: | --------: | ---------: | ---: |
+| John Terry      | CB   |  492 |       #107 | elite   | **icon**   |     +8 |         0 |          1 | 0.99 |
+| Patrick Vieira  | CDM  |  307 |       #109 | elite   | **icon**   |     +8 |         0 |          1 | 0.98 |
+| Kyle Walker     | RB   |  446 |       #114 | elite   | **legend** |     +5 |         0 |          1 | 0.98 |
+| Michael Carrick | CDM  |  481 |       #115 | elite   | **legend** |     +5 |         0 |          1 | 0.98 |
+| Vincent Kompany | CB   |  265 |       #117 | elite   | **legend** |     +5 |         0 |       0.94 | 0.99 |
+| Denis Irwin     | LB   |  328 |       #119 | elite   | **legend** |     +5 |         0 |          1 | 0.99 |
+| Rodri           | CDM  |  196 |       #120 | elite   | **legend** |     +5 |         0 |       0.97 | 0.98 |
+| Gary Neville    | RB   |  400 |       #121 | elite   | **legend** |     +5 |         0 |          1 | 0.99 |
+| Fernandinho     | CDM  |  264 |       #124 | elite   | **legend** |     +5 |         0 |          1 | 0.95 |
+| Virgil van Dijk | CB   |  339 |       #125 | elite   | **icon**   |     +8 |         0 |       0.85 | 0.99 |
+| Nemanja Vidic   | CB   |  211 |       #129 | elite   | **legend** |     +5 |         0 |       0.98 | 0.99 |
+| Ashley Cole     | LB   |  385 |       #131 | elite   | **icon**   |     +8 |         0 |       0.92 | 0.99 |
+| Patrice Evra    | LB   |  278 |       #132 | elite   | **legend** |     +5 |         0 |          1 | 0.98 |
+| Rio Ferdinand   | CB   |  504 |       #146 | elite   | **icon**   |     +8 |         0 |          1 | 0.98 |
+| N'Golo Kanté    | CDM  |  227 |       #153 | elite   | **legend** |     +5 |         0 |       0.77 | 0.95 |
+| Rúben Dias      | CB   |  170 |       #157 | elite   | **legend** |     +5 |         0 |       0.95 | 0.99 |
+| Sol Campbell    | CB   |  503 |       #159 | elite   | **legend** |     +5 |         0 |       0.71 | 0.92 |
+| Tony Adams      | CB   |  255 |       #168 | regular | **legend** |    +11 |         0 |       0.54 | 0.99 |
+| Claude Makelele | CDM  |  144 |       #266 | regular | **legend** |    +11 |         0 |       0.68 | 0.98 |
+| Jamie Carragher | CB   |  508 |       #268 | regular | **legend** |    +11 |         0 |        0.3 | 0.99 |
+| Xabi Alonso     | CDM  |  143 |       #282 | regular | **legend** |    +11 |         0 |       0.16 | 0.95 |
+| Jaap Stam       | CB   |   79 |       #397 | regular | **legend** |    +11 |         0 |        0.7 | 0.89 |
+| Ledley King     | CB   |  268 |       #440 | regular | **legend** |    +11 |         0 |       0.06 | 0.85 |
+| Thiago Silva    | CB   |  113 |       #506 | regular | **elite**  |     +6 |         0 |       0.08 |  0.9 |
+
+### All promotions
+
+| Player               | Role | Apps | Score rank | Scored  | Curated    | Δ base | Accolades | Silverware | Peak |
+| -------------------- | ---- | ---: | ---------: | ------- | ---------- | -----: | --------: | ---------: | ---: |
+| Frank Lampard        | CM   |  609 |         #1 | legend  | **icon**   |     +3 |         1 |          1 | 0.99 |
+| Wayne Rooney         | CF   |  491 |         #3 | legend  | **icon**   |     +3 |      0.99 |          1 | 0.97 |
+| Sergio Agüero        | CF   |  275 |         #4 | legend  | **icon**   |     +3 |      0.99 |          1 | 0.99 |
+| Kevin De Bruyne      | CAM  |  288 |         #5 | legend  | **icon**   |     +3 |         1 |          1 | 0.97 |
+| Petr Cech            | GK   |  443 |         #8 | legend  | **icon**   |     +3 |         1 |          1 | 0.98 |
+| Peter Schmeichel     | GK   |  310 |         #9 | legend  | **icon**   |     +3 |      0.99 |          1 | 0.98 |
+| Cristiano Ronaldo    | CF   |  236 |        #10 | legend  | **icon**   |     +3 |      0.99 |       0.94 | 0.99 |
+| David Silva          | CAM  |  309 |        #11 | legend  | **icon**   |     +3 |      0.99 |          1 | 0.92 |
+| Didier Drogba        | CF   |  254 |        #12 | legend  | **icon**   |     +3 |         1 |       0.88 | 0.99 |
+| Mohamed Salah        | RW   |  328 |        #13 | legend  | **icon**   |     +3 |         1 |       0.82 | 0.98 |
+| Thierry Henry        | CF   |  258 |        #14 | legend  | **icon**   |     +3 |         1 |       0.82 | 0.99 |
+| Edwin van der Sar    | GK   |  313 |        #16 | legend  | **icon**   |     +3 |      0.98 |       0.99 | 0.98 |
+| Yaya Touré           | CM   |  230 |        #22 | legend  | **icon**   |     +3 |      0.99 |       0.78 | 0.97 |
+| Alan Shearer         | CF   |  441 |        #24 | legend  | **icon**   |     +3 |         1 |       0.58 | 0.99 |
+| Robin van Persie     | CF   |  280 |        #28 | elite   | **legend** |     +5 |      0.99 |       0.56 | 0.99 |
+| Alisson              | GK   |  255 |        #29 | elite   | **legend** |     +5 |      0.96 |       0.71 | 0.98 |
+| Sadio Mané           | LW   |  263 |        #32 | elite   | **legend** |     +5 |      0.99 |        0.5 | 0.97 |
+| Carlos Tevez         | CF   |  201 |        #33 | elite   | **legend** |     +5 |      0.98 |        0.6 | 0.95 |
+| Erling Haaland       | CF   |  132 |        #34 | elite   | **legend** |     +5 |         1 |       0.63 | 0.99 |
+| Steven Gerrard       | CM   |  504 |        #35 | elite   | **icon**   |     +8 |         1 |        0.3 | 0.99 |
+| David De Gea         | GK   |  415 |        #38 | elite   | **legend** |     +5 |      0.98 |       0.51 | 0.98 |
+| Harry Kane           | CF   |  320 |        #39 | elite   | **icon**   |     +8 |         1 |       0.26 | 0.99 |
+| Jamie Vardy          | CF   |  342 |        #40 | elite   | **legend** |     +5 |      0.99 |       0.31 | 0.99 |
+| Michael Owen         | CF   |  326 |        #41 | elite   | **legend** |     +5 |      0.99 |       0.27 | 0.97 |
+| Robbie Fowler        | CF   |  379 |        #42 | elite   | **legend** |     +5 |      0.98 |       0.29 | 0.98 |
+| Ruud van Nistelrooij | CF   |  150 |        #43 | elite   | **legend** |     +5 |      0.99 |       0.47 | 0.98 |
+| Son Heung-Min        | LW   |  333 |        #44 | elite   | **legend** |     +5 |      0.99 |       0.19 | 0.98 |
+| Ian Wright           | CF   |  213 |        #51 | elite   | **legend** |     +5 |      0.96 |       0.33 | 0.96 |
+| Diego Costa          | CF   |  112 |        #52 | elite   | **legend** |     +5 |      0.96 |       0.51 | 0.97 |
+| Fernando Torres      | CF   |  212 |        #62 | elite   | **legend** |     +5 |      0.96 |       0.15 | 0.99 |
+| Matthew Le Tissier   | CAM  |  270 |        #69 | elite   | **legend** |     +5 |      0.97 |          0 | 0.97 |
+| Gareth Bale          | RW   |  166 |        #76 | elite   | **legend** |     +5 |      0.99 |       0.09 | 0.92 |
+| Ryan Giggs           | LM   |  632 |        #78 | elite   | **icon**   |     +8 |      0.98 |          1 |    0 |
+| Luis Suárez          | CF   |  110 |        #83 | elite   | **legend** |     +5 |      0.99 |       0.05 | 0.97 |
+| Dennis Bergkamp      | SS   |  315 |        #95 | elite   | **icon**   |     +8 |      0.99 |       0.89 |    0 |
+| Paul Scholes         | CM   |  499 |       #103 | elite   | **icon**   |     +8 |         0 |          1 | 0.99 |
+| Eric Cantona         | SS   |  156 |       #105 | elite   | **icon**   |     +8 |      0.97 |       0.95 |    0 |
+| John Terry           | CB   |  492 |       #107 | elite   | **icon**   |     +8 |         0 |          1 | 0.99 |
+| Patrick Vieira       | CDM  |  307 |       #109 | elite   | **icon**   |     +8 |         0 |          1 | 0.98 |
+| Robert Pirès         | LM   |  198 |       #110 | elite   | **legend** |     +5 |      0.99 |       0.71 |    0 |
+| Kyle Walker          | RB   |  446 |       #114 | elite   | **legend** |     +5 |         0 |          1 | 0.98 |
+| Michael Carrick      | CDM  |  481 |       #115 | elite   | **legend** |     +5 |         0 |          1 | 0.98 |
+| Riyad Mahrez         | RW   |  284 |       #116 | elite   | **legend** |     +5 |         0 |       0.91 | 0.98 |
+| Vincent Kompany      | CB   |  265 |       #117 | elite   | **legend** |     +5 |         0 |       0.94 | 0.99 |
+| Denis Irwin          | LB   |  328 |       #119 | elite   | **legend** |     +5 |         0 |          1 | 0.99 |
+| Rodri                | CDM  |  196 |       #120 | elite   | **legend** |     +5 |         0 |       0.97 | 0.98 |
+| Gary Neville         | RB   |  400 |       #121 | elite   | **legend** |     +5 |         0 |          1 | 0.99 |
+| Fernandinho          | CDM  |  264 |       #124 | elite   | **legend** |     +5 |         0 |          1 | 0.95 |
+| Virgil van Dijk      | CB   |  339 |       #125 | elite   | **icon**   |     +8 |         0 |       0.85 | 0.99 |
+| Nemanja Vidic        | CB   |  211 |       #129 | elite   | **legend** |     +5 |         0 |       0.98 | 0.99 |
+| Ashley Cole          | LB   |  385 |       #131 | elite   | **icon**   |     +8 |         0 |       0.92 | 0.99 |
+| Patrice Evra         | LB   |  278 |       #132 | elite   | **legend** |     +5 |         0 |          1 | 0.98 |
+| Roy Keane            | CM   |  366 |       #134 | elite   | **icon**   |     +8 |         0 |          1 | 0.89 |
+| Rio Ferdinand        | CB   |  504 |       #146 | elite   | **icon**   |     +8 |         0 |          1 | 0.98 |
+| N'Golo Kanté         | CDM  |  227 |       #153 | elite   | **legend** |     +5 |         0 |       0.77 | 0.95 |
+| Rúben Dias           | CB   |  170 |       #157 | elite   | **legend** |     +5 |         0 |       0.95 | 0.99 |
+| Roberto Firmino      | CF   |  256 |       #158 | elite   | **legend** |     +5 |         0 |       0.51 | 0.96 |
+| Sol Campbell         | CB   |  503 |       #159 | elite   | **legend** |     +5 |         0 |       0.71 | 0.92 |
+| Tony Adams           | CB   |  255 |       #168 | regular | **legend** |    +11 |         0 |       0.54 | 0.99 |
+| Olivier Giroud       | CF   |  255 |       #197 | regular | **elite**  |     +6 |         0 |       0.22 | 0.95 |
+| Alexis Sánchez       | SS   |  154 |       #201 | regular | **elite**  |     +6 |      0.95 |       0.09 |    0 |
+| Claude Makelele      | CDM  |  144 |       #266 | regular | **legend** |    +11 |         0 |       0.68 | 0.98 |
+| Jamie Carragher      | CB   |  508 |       #268 | regular | **legend** |    +11 |         0 |        0.3 | 0.99 |
+| Xabi Alonso          | CDM  |  143 |       #282 | regular | **legend** |    +11 |         0 |       0.16 | 0.95 |
+| Michael Ballack      | CM   |  105 |       #312 | regular | **elite**  |     +6 |         0 |       0.33 |  0.9 |
+| Jaap Stam            | CB   |   79 |       #397 | regular | **legend** |    +11 |         0 |        0.7 | 0.89 |
+| Ledley King          | CB   |  268 |       #440 | regular | **legend** |    +11 |         0 |       0.06 | 0.85 |
+| Kasper Schmeichel    | GK   |  284 |       #465 | regular | **elite**  |     +6 |         0 |       0.34 | 0.83 |
+| Thiago Silva         | CB   |  113 |       #506 | regular | **elite**  |     +6 |         0 |       0.08 |  0.9 |
+| Jürgen Klinsmann     | CF   |   56 |       #633 | regular | **legend** |    +11 |         0 |          0 | 0.99 |
+| Luka Modric          | CM   |  127 |       #686 | regular | **legend** |    +11 |         0 |       0.09 | 0.77 |
+| Roque Santa Cruz     | CF   |   86 |       #832 | regular | **elite**  |     +6 |         0 |          0 |  0.8 |
+| Dimitri Payet        | CAM  |   48 |       #842 | regular | **elite**  |     +6 |         0 |          0 | 0.92 |
+| Benjani              | CF   |  119 |      #1173 | regular | **elite**  |     +6 |         0 |          0 | 0.61 |
+| Nikica Jelavic       | CF   |  114 |      #1260 | regular | **elite**  |     +6 |         0 |          0 | 0.53 |
+| Odion Ighalo         | CF   |   67 |      #1513 | regular | **elite**  |     +6 |         0 |          0 | 0.51 |
+| Gianfranco Zola      | SS   |  229 |      #1575 | regular | **legend** |    +11 |         0 |       0.16 |    0 |
+| Papiss Demba Cissé   | CF   |  117 |      #1594 | regular | **elite**  |     +6 |         0 |          0 |  0.2 |
+| David Ginola         | LW   |  195 |      #1713 | regular | **legend** |    +11 |         0 |       0.09 |    0 |
+| Michu                | SS   |   52 |      #2054 | regular | **elite**  |     +6 |         0 |          0 |    0 |
+
+### All demotions
+
+| Player              | Role | Apps | Score rank | Scored | Curated   | Δ base | Accolades | Silverware | Peak |
+| ------------------- | ---- | ---: | ---------: | ------ | --------- | -----: | --------: | ---------: | ---: |
+| Ole Gunnar Solskjær | CF   |  235 |        #15 | legend | **elite** |     -5 |      0.96 |          1 | 0.98 |
+| Joe Hart            | GK   |  340 |        #23 | legend | **elite** |     -5 |         1 |       0.81 | 0.98 |
+| Teddy Sheringham    | CF   |  418 |        #25 | legend | **elite** |     -5 |      0.98 |        0.7 | 0.98 |
+| James Milner        | CM   |  658 |        #26 | legend | **elite** |     -5 |      0.99 |       0.62 | 0.99 |
+
+### Curated but INERT — real players under the 40-app scoring floor
+
+Real registry players whose PL career is too short to be scored, so **these
+entries produce no anchor and curating them changes nothing.** Not a data
+error — but if one of them is meant to be anchored, the scoring floor is what
+has to move, not the tier.
+
+- `1002001` — Asamoah Gyan (34 apps)
+- `1003224` — Amr Zaki (35 apps)
+- `1003310` — Asier Del Horno (25 apps)
+
 ## Every anchored season
 
 | Anchor | Player                    |  Season | Role | Club                    | Age | Mins | Tier   | Decay | Veteran bypass |

@@ -389,13 +389,59 @@ if (!RESEED) {
   }
 }
 let curatedApplied = 0;
+/**
+ * Every player whose curated tier differs from what the scoring produced.
+ *
+ * This is the AUDIT TRAIL for hand-tuning, and it exists for one specific reason:
+ * PFA Player of the Year and Team of the Season are not in this repo's data, and
+ * their absence is the known structural reason defenders and holding midfielders
+ * never reach the top tier automatically. Every such promotion is therefore evidence
+ * for that pipeline ticket — but only if it is written down. Without this section the
+ * symptom is invisible the moment the hand-correction lands, and the ticket gets
+ * harder to justify the longer it waits.
+ */
+const divergences = [];
+/**
+ * Curated ids that matched no scored player, split by CAUSE — the two look identical
+ * in the file and mean completely different things:
+ *
+ *  - `fabricated` — the id is in no season of the registry, so it resolves to nobody.
+ *    This is the real alarm: 17 such ids shipped in one sequential block in this
+ *    ticket's history, each silently resolving to a different obscure player.
+ *  - `belowFloor` — a real player whose career is under the scoring floor of 40 apps.
+ *    Harmless but INERT: the entry produces no anchor, so curating it does nothing.
+ */
+const unmatchedCurated = { fabricated: [], belowFloor: [] };
 if (curated != null) {
+  const scoredIds = new Set(scored.map((c) => String(c.id)));
   for (const c of scored) {
     const entry = curated.players?.[String(c.id)];
     if (entry?.tier != null && TIERS[entry.tier] != null) {
-      if (entry.tier !== c.autoTier) curatedApplied++;
+      if (entry.tier !== c.autoTier) {
+        curatedApplied++;
+        divergences.push({
+          id: c.id,
+          name: c.name,
+          role: c.role,
+          apps: c.apps,
+          auto: c.autoTier,
+          curated: entry.tier,
+          delta: TIERS[entry.tier].base - TIERS[c.autoTier].base,
+          rank: scored.indexOf(c) + 1,
+          accolades: Number(c.accolades.toFixed(2)),
+          silverware: Number(c.silverware.toFixed(2)),
+          peak: Number(c.peak.toFixed(2)),
+        });
+      }
       c.tier = entry.tier;
     }
+  }
+  for (const [id, entry] of Object.entries(curated.players ?? {})) {
+    if (scoredIds.has(id)) continue;
+    const known = careers.get(Number(id));
+    const row = { id, name: entry?.name ?? "?", registryName: known?.name ?? null, apps: known?.apps ?? 0 };
+    if (known == null) unmatchedCurated.fabricated.push(row);
+    else unmatchedCurated.belowFloor.push(row);
   }
 }
 
@@ -485,6 +531,117 @@ const tierCounts = reportRows.reduce((acc, r) => {
 
 reportRows.sort((a, b) => b.anchor - a.anchor || a.name.localeCompare(b.name));
 
+/**
+ * Roles the missing PFA POTY / Team-of-the-Season signal structurally penalises.
+ *
+ * The scoring's individual-honours term is built from Golden Boot / Golden Glove,
+ * which no defender or holding midfielder can win. A promotion in these roles is
+ * therefore attributable to that data gap rather than to taste, and is the evidence
+ * that justifies adding the award source to the pipeline.
+ */
+const AWARD_BLIND_ROLES = new Set(["CB", "RB", "LB", "CDM"]);
+
+/** Per-role share of scored players who can earn any honour from the data we hold. */
+function awardCoverageRows() {
+  const byRoleCount = new Map();
+  for (const c of scored) {
+    const cur = byRoleCount.get(c.role) ?? { n: 0, withHonour: 0 };
+    cur.n++;
+    if (c.accoladeRaw > 0) cur.withHonour++;
+    byRoleCount.set(c.role, cur);
+  }
+  return [...byRoleCount.entries()]
+    .map(([role, v]) => ({ role, ...v, pct: v.n === 0 ? 0 : (100 * v.withHonour) / v.n }))
+    .sort((a, b) => a.pct - b.pct || a.role.localeCompare(b.role))
+    .map(
+      (r) =>
+        `| ${AWARD_BLIND_ROLES.has(r.role) ? `**${r.role}**` : r.role} | ${r.n} | ${r.withHonour} | ${r.pct.toFixed(1)}% |`,
+    );
+}
+
+function curatedDivergenceSection() {
+  if (curated == null) return [];
+  const promoted = divergences.filter((d) => d.delta > 0);
+  const demoted = divergences.filter((d) => d.delta < 0);
+  const awardBlind = promoted.filter((d) => AWARD_BLIND_ROLES.has(d.role));
+  const row = (d) =>
+    `| ${d.name} | ${d.role} | ${d.apps} | #${d.rank} | ${d.auto} | **${d.curated}** | ${d.delta > 0 ? "+" : ""}${d.delta} | ${d.accolades} | ${d.silverware} | ${d.peak} |`;
+  const head = [
+    "| Player | Role | Apps | Score rank | Scored | Curated | Δ base | Accolades | Silverware | Peak |",
+    "| --- | --- | ---: | ---: | --- | --- | ---: | ---: | ---: | ---: |",
+  ];
+  return [
+    "## Curated divergences — where a human overruled the scoring",
+    "",
+    "The scoring is the first 90%; this table is the last 10%, and it is the audit",
+    "trail for it. `Accolades`, `Silverware` and `Peak` are the score components most",
+    "likely to explain a divergence — all three are 0–1 percentiles.",
+    "",
+    `- players in the curated file: **${Object.keys(curated.players ?? {}).length}**`,
+    `- tiers differing from the scoring: **${divergences.length}** (${promoted.length} promoted, ${demoted.length} demoted)`,
+    `- **promotions in award-blind roles (${[...AWARD_BLIND_ROLES].join("/")}): ${awardBlind.length}**`,
+    "",
+    "### ⛔ Why the award-blind count matters",
+    "",
+    "**PFA Player of the Year and Team of the Season are not in this repo's data.**",
+    "The scoring's individual-honours term can only see Golden Boot and Golden Glove —",
+    "awards no centre-back, full-back or holding midfielder can ever win. So those roles",
+    "cannot reach the top tier automatically no matter how good the player was, and every",
+    "promotion below is a human patching that specific gap by hand.",
+    "",
+    "This count IS the ticket justification. Anchoring hides the symptom — once a",
+    "defender is hand-promoted their rating looks correct — so the evidence has to be",
+    "recorded here or it disappears. If this number keeps growing, add the award source",
+    "to the pipeline instead of curating around it.",
+    "",
+    "#### Award-signal coverage by role",
+    "",
+    "How many scored players in each role can earn ANY individual honour from the data",
+    "we hold. `accolades` carries **0.25 of the career score — the single largest",
+    "weight** — so a role with 0% coverage is competing for the top tier with three",
+    "quarters of the scoring function.",
+    "",
+    "| Role | Scored | With an honour | Coverage |",
+    "| --- | ---: | ---: | ---: |",
+    ...awardCoverageRows(),
+    "",
+    ...(awardBlind.length > 0 ? [...head, ...awardBlind.map(row), ""] : ["_None._", ""]),
+    "### All promotions",
+    "",
+    ...(promoted.length > 0 ? [...head, ...promoted.map(row), ""] : ["_None._", ""]),
+    "### All demotions",
+    "",
+    ...(demoted.length > 0 ? [...head, ...demoted.map(row), ""] : ["_None._", ""]),
+    ...(unmatchedCurated.fabricated.length > 0
+      ? [
+          "### 🚨 Curated ids that exist in NO season — fabricated",
+          "",
+          "These resolve to nobody in the registry. **17 such ids shipped in one sequential",
+          "block in this ticket's history**, each silently resolving to a different obscure",
+          "player (Tony Adams' id was Neil Finn's). Fix or remove every entry here.",
+          "",
+          ...unmatchedCurated.fabricated.map((u) => `- \`${u.id}\` — ${u.name}`),
+          "",
+        ]
+      : []),
+    ...(unmatchedCurated.belowFloor.length > 0
+      ? [
+          "### Curated but INERT — real players under the 40-app scoring floor",
+          "",
+          "Real registry players whose PL career is too short to be scored, so **these",
+          "entries produce no anchor and curating them changes nothing.** Not a data",
+          "error — but if one of them is meant to be anchored, the scoring floor is what",
+          "has to move, not the tier.",
+          "",
+          ...unmatchedCurated.belowFloor.map(
+            (u) => `- \`${u.id}\` — ${u.registryName ?? u.name} (${u.apps} apps)`,
+          ),
+          "",
+        ]
+      : []),
+  ];
+}
+
 const lines = [
   "# Heritage anchors — automated draft",
   "",
@@ -516,6 +673,7 @@ const lines = [
   `- distinct players: **${scored.filter((c) => c.seasons.some((s) => s.minutes >= MIN_SEASON_MINUTES[c.tier])).length}**`,
   ...Object.entries(tierCounts).map(([t, n]) => `- ${t} seasons: ${n}`),
   "",
+  ...curatedDivergenceSection(),
   "## Every anchored season",
   "",
   "| Anchor | Player | Season | Role | Club | Age | Mins | Tier | Decay | Veteran bypass |",
