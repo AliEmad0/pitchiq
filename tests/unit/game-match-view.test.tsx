@@ -32,6 +32,7 @@ const model: MatchViewModel = {
   ],
   finalScore: { home: 1, away: 0 },
   seed: 1,
+  lastMinute: 90,
 };
 
 describe("MatchView", () => {

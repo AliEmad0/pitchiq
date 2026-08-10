@@ -12,6 +12,7 @@ import {
 } from "@/features/game/domain/pitch-sim";
 import { mulberry32 } from "@/features/game/domain/rng";
 import { winProbability } from "@/features/game/domain/win-probability";
+import { OVERLAY_KINDS } from "@/features/game/view/match-view-model";
 import type { MatchViewModel } from "@/features/game/view/match-view-model";
 import { localizeDigits } from "@/utils/format";
 import { prefersReducedMotion } from "@/utils/motion";
@@ -23,7 +24,12 @@ import { RosterPanel } from "./RosterPanel";
 import { Scoreboard } from "./Scoreboard";
 import { WinProbBar } from "./WinProbBar";
 
-const FULL_TIME = 90;
+/**
+ * ⚠️ NOT a constant any more. Phase 1 gave matches 2-6 minutes of added time, and this
+ * file kept `lastMinute = 90` — so every stoppage-time event was simulated, commentated
+ * and then never shown, including the stoppage-time winners that phase existed to
+ * produce. The end of the match now comes from the model.
+ */
 const TICK_MS = 280;
 const DWELL_MS = 2500; // high-importance events hold before advancing (#5)
 const DWELL_FLOOR = 1500;
@@ -32,28 +38,33 @@ const SPEEDS = [1, 2, 4] as const;
 export function MatchView({ model, locale }: { model: MatchViewModel; locale: string }) {
   const t = useTranslations("game");
   const reduced = prefersReducedMotion();
-  const [minute, setMinute] = useState(reduced ? FULL_TIME : 0);
+  const [minute, setMinute] = useState(reduced ? model.lastMinute : 0);
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState<number>(1);
   const [sim, setSim] = useState<SimState>(() => (reduced ? restSim() : initSim()));
 
+  const lastMinute = model.lastMinute;
   const rngRef = useRef<() => number>(mulberry32(model.seed));
   const lastSimMinute = useRef(0);
 
   // Minute clock — advances, holding longer on goals/cards so the drama lands.
   useEffect(() => {
     if (!playing || reduced) return;
-    if (minute >= FULL_TIME) {
+    if (minute >= lastMinute) {
       setPlaying(false);
       return;
     }
     const importantNow =
       minute > 0 &&
-      model.events.some((e) => e.minute === minute && (e.kind === "goal" || e.kind === "card"));
+      model.events.some(
+        (e) =>
+          e.minute === minute &&
+          (e.kind === "card" || (OVERLAY_KINDS as readonly string[]).includes(e.kind)),
+      );
     const delay = importantNow ? Math.max(DWELL_FLOOR, DWELL_MS / speed) : TICK_MS / speed;
-    const id = setTimeout(() => setMinute((m) => Math.min(FULL_TIME, m + 1)), delay);
+    const id = setTimeout(() => setMinute((m) => Math.min(lastMinute, m + 1)), delay);
     return () => clearTimeout(id);
-  }, [playing, reduced, minute, speed, model.events]);
+  }, [playing, reduced, minute, speed, model.events, lastMinute]);
 
   // Ambient possession — one beat per minute. A real goal injects a celebration,
   // and the beat BEFORE it builds up with the scoring side already attacking so
@@ -69,11 +80,11 @@ export function MatchView({ model, locale }: { model: MatchViewModel; locale: st
     );
     setSim((s) => {
       if (goalNow?.side) return goalKick(goalNow.side, goalNow.scorerSlot ?? 10);
-      if (minute >= FULL_TIME) return restSim(); // full-time → reset to formation
+      if (minute >= lastMinute) return restSim(); // full-time → reset to formation
       if (goalNext?.side) return buildUp(goalNext.side, goalNext.scorerSlot ?? 10);
       return stepSim(s, ctx, rngRef.current);
     });
-  }, [minute, reduced, model.events, model.home.players, model.away.players]);
+  }, [minute, reduced, model.events, model.home.players, model.away.players, lastMinute]);
 
   // autoplay once on mount when motion is allowed
   const started = useRef(false);
@@ -129,10 +140,30 @@ export function MatchView({ model, locale }: { model: MatchViewModel; locale: st
           commentary: current.commentary,
         };
     }
+    // Phases 2-5: a penalty, a VAR overturn, an injury or a substitution all deserve
+    // the pitch to stop for them.
+    if (current.kind === "penalty" || current.kind === "var" || current.kind === "injury") {
+      const pl = current.scorerSlot != null ? team.players[current.scorerSlot] : undefined;
+      return {
+        kind: current.kind,
+        name: pl?.name ?? team.name,
+        number: pl?.number ?? 0,
+        commentary: current.commentary,
+      };
+    }
+    if (current.kind === "substitution" && current.offSlot != null) {
+      const pl = team.players[current.offSlot];
+      return {
+        kind: "substitution",
+        name: current.subOnName ?? pl?.name ?? team.name,
+        number: pl?.number ?? 0,
+        commentary: current.commentary,
+      };
+    }
     return undefined;
   })();
 
-  const atEnd = minute >= FULL_TIME;
+  const atEnd = minute >= lastMinute;
   const toggle = () => {
     if (atEnd) {
       rngRef.current = mulberry32(model.seed);

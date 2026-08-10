@@ -5506,7 +5506,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1819](#task-1819) | Retro sticker album & collection book (IndexedDB)               | 📋 Backlog | P3       | S   |
 | [TASK-1820](#task-1820) | Rating model — absolute/cross-position stats + GK pipeline      | ✅ Done    | P2       | L   |
 | [TASK-1821](#task-1821) | Tier-Anchored Hybrid rating engine (anchors + delta + team)     | ✅ Done    | P2       | L   |
-| [TASK-1822](#task-1822) | Dynamic event-driven match engine (drama, VAR, subs, injuries)  | 🔄 Partial | P1       | XL  |
+| [TASK-1822](#task-1822) | Dynamic event-driven match engine (drama, VAR, subs, injuries)  | ✅ Done    | P1       | XL  |
 
 _Enhancement roadmap 1813-1819 added 2026-08-03 from the owner's feature proposal (Option A — 100% client-side/static). See the locked-architecture notes above for the modifier-stack + determinism + no-backend decisions that govern them._
 
@@ -5745,7 +5745,7 @@ The tripwire splits its two causes, because they look identical in the file and 
 
 ### TASK-1822
 
-**Dynamic event-driven match engine** · 🔄 Partial · `P1` · `XL` · Type: Feature · **Absorbs [TASK-1814](#task-1814)**
+**Dynamic event-driven match engine** · ✅ Done (all six phases) · `P1` · `XL` · Type: Feature · **Absorbs [TASK-1814](#task-1814)**
 
 **The owner's report (2026-08-09):** in Chaos mode the first team to score always wins, draws are rare, and almost nothing happens in a match — no penalties, no VAR, no second yellows, no injuries, no substitutions, no goal descriptions, no altercations, no sweeper-keeper moments, no referee character.
 
@@ -5843,7 +5843,30 @@ Harness after Phase 4: draws 26.3%, first-scorer-wins 67.4%, comebacks 10.8%, go
 
 Harness after Phase 5: draws 27.3%, first-scorer-wins 66.2%, comebacks 11.8%, goals 2.75, **40.7 events per match**.
 
-**Next:** Phase 6 — surface all of it in `MatchView` / `EventOverlay` / `CommentaryFeed` / `pitch-sim`.
+**✅ Phase 6 shipped — surfacing. TASK-1822 is COMPLETE.**
+
+**⚠️ The regression this phase existed to fix, and it was mine.** `MatchView` hard-coded `FULL_TIME = 90`. Phase 1 gave matches **2–6 minutes of added time**, so from that moment every stoppage-time event was simulated, commentated — and then **never displayed**, including the stoppage-time winners Phase 1 was specifically built to produce. Every domain test passed the whole time; nobody looked at the view. `MatchViewModel` now carries `lastMinute`, derived from the events themselves rather than a constant, so **the clock can never disagree with the engine again**.
+
+- **The clock plays to the real end of the match** and holds for every high-impact moment, not just goals and cards.
+- **`EventOverlay` covers the phases 2–5 moments** — penalty, VAR check, injury and substitution each get their own icon, label and accent, so a penalty never looks like a goal and a substitution never looks like a sending-off.
+- **`CommentaryFeed` is colour-coded per family** (goal / card / penalty / VAR / injury / substitution), so a 40-event feed can be skimmed without reading it.
+- The view model carries what the UI needs: `penaltyOutcome`, `injurySeverity`, `goalStyle`, the substitution pair (`offSlot` + `subOnName`).
+
+Both game routes remain `● force-static` prerendered in **en** and **ar**. Two `react-hooks/exhaustive-deps` warnings on the new `lastMinute` were fixed rather than suppressed — a stale value there would freeze the clock at the wrong minute.
+
+---
+
+**TASK-1822 final state, six phases:**
+
+|                      |  before |    after |
+| -------------------- | ------: | -------: |
+| **events per match** | **8.2** | **40.7** |
+| first scorer wins    |   69.2% |    66.2% |
+| comebacks            |   10.4% |    11.8% |
+| draw rate            |   27.3% |    27.3% |
+| goals per match      |    2.47 |     2.75 |
+
+**The results distribution never moved across six phases** — which was the point, because it was already realistic and the owner's report about it was measurably wrong. What changed is that a match now has five times as much happening in it.
 
 ---
 
