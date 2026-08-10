@@ -75,14 +75,14 @@ afterEach(() => {
 
 describe("Chaos draft generating state", () => {
   it("shows a generating indicator before any squad, so no placeholder XI is ever seen", () => {
-    renderWithIntl(<ChaosDraft pool={pool} locale="en" />);
+    renderWithIntl(<ChaosDraft pool={pool} />);
     expect(screen.getByRole("progressbar")).toBeTruthy();
     // The whole point: the user must NOT see a lineup that is about to be replaced.
     expect(screen.queryByText(/Player\d+/)).toBeNull();
   });
 
   it("reveals the drafted XI once generating finishes", () => {
-    renderWithIntl(<ChaosDraft pool={pool} locale="en" />);
+    renderWithIntl(<ChaosDraft pool={pool} />);
     act(() => {
       vi.advanceTimersByTime(2000);
     });
@@ -92,7 +92,7 @@ describe("Chaos draft generating state", () => {
 
   it("generates a different squad per visitor", () => {
     vi.spyOn(Math, "random").mockReturnValue(0.13);
-    const first = renderWithIntl(<ChaosDraft pool={pool} locale="en" />);
+    const first = renderWithIntl(<ChaosDraft pool={pool} />);
     act(() => {
       vi.advanceTimersByTime(2000);
     });
@@ -100,7 +100,7 @@ describe("Chaos draft generating state", () => {
     first.unmount();
 
     vi.spyOn(Math, "random").mockReturnValue(0.86);
-    renderWithIntl(<ChaosDraft pool={pool} locale="en" />);
+    renderWithIntl(<ChaosDraft pool={pool} />);
     act(() => {
       vi.advanceTimersByTime(2000);
     });

@@ -83,12 +83,12 @@ describe("ChaosDraft entropy", () => {
   it("drafts a different XI for each visitor rather than one fixed lineup", () => {
     // Two independent visitors — distinct entropy, so distinct drafts.
     vi.spyOn(Math, "random").mockReturnValue(0.11);
-    const first = renderWithIntl(<ChaosDraft pool={pool} locale="en" />);
+    const first = renderWithIntl(<ChaosDraft pool={pool} />);
     const a = draftedNames();
     first.unmount();
 
     vi.spyOn(Math, "random").mockReturnValue(0.87);
-    renderWithIntl(<ChaosDraft pool={pool} locale="en" />);
+    renderWithIntl(<ChaosDraft pool={pool} />);
     const b = draftedNames();
 
     expect(a.length).toBeGreaterThan(0);
@@ -98,7 +98,7 @@ describe("ChaosDraft entropy", () => {
 
   it("draws fresh entropy for the draft instead of stepping a fixed sequence", () => {
     const random = vi.spyOn(Math, "random").mockReturnValue(0.42);
-    renderWithIntl(<ChaosDraft pool={pool} locale="en" />);
+    renderWithIntl(<ChaosDraft pool={pool} />);
     expect(random).toHaveBeenCalled();
   });
 });

@@ -229,8 +229,13 @@ describe("the sweeper keeper", () => {
 describe("the results distribution survives phase 4", () => {
   it("keeps the scoreline equal to the count of goal events", () => {
     for (const m of matches) {
-      const home = m.events.filter((e) => e.kind === "goal" && e.side === "home").length;
-      const away = m.events.filter((e) => e.kind === "goal" && e.side === "away").length;
+      // Goals chalked off after review stay in the timeline but do not count — see
+      // `disallowedAt` on MatchEvent.
+      const counts = (side: string) =>
+        m.events.filter((e) => e.kind === "goal" && e.side === side && e.disallowedAt == null)
+          .length;
+      const home = counts("home");
+      const away = counts("away");
       expect({ home, away }).toEqual(m.score);
     }
   });

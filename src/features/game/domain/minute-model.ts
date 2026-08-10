@@ -108,6 +108,31 @@ export function pickScorer(players: GamePlayer[], rng: () => number): GamePlayer
   );
 }
 
+/**
+ * Share of open-play goals that carry an assist. Real football sits near three in five;
+ * the rest are solo runs, rebounds, deflections and long-range efforts nobody set up.
+ */
+export const ASSIST_SHARE = 0.6;
+
+/**
+ * Assister: creation-weighted, and NEVER the scorer.
+ *
+ * Excluding the scorer is not a nicety — a goal credited to the same player for both
+ * halves of it reads as a bug the first time anyone sees it in a roster.
+ */
+export function pickAssister(
+  players: GamePlayer[],
+  scorerId: number | undefined,
+  rng: () => number,
+): GamePlayer | null {
+  const eligible = players.filter((p) => p.playerId !== scorerId && p.role !== "GK");
+  return pickBy(
+    eligible,
+    rng,
+    (p) => (weightsFor(p.role).creation + 0.1) * (p.ratings?.creation ?? 50),
+  );
+}
+
 /** Booked: defensive/physical roles slightly more likely. */
 export function pickBooked(players: GamePlayer[], rng: () => number): GamePlayer | null {
   return pickBy(

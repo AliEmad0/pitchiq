@@ -73,7 +73,34 @@ export function resolveAltercation(r: number): AltercationOutcome {
  * one of the most memorable things in a match precisely because it is rare, and a
  * model that took away one goal in five would just feel unfair.
  */
-export const VAR_DISALLOW_CHANCE = 0.055;
+/**
+ * Share of goals that get looked at by VAR at all.
+ *
+ * Owner's call: a review must be an EVENT, not a background process. Checking every
+ * goal would make the drama routine, so only a minority are doubted — and of those,
+ * the on-field referee agrees with the booth only some of the time (`REF_AGREES_VAR`).
+ */
+export const VAR_REVIEW_CHANCE = 0.11;
+
+/**
+ * How often the referee, having gone to the monitor, sides with VAR.
+ *
+ * Deliberately NOT 1.0. "He was not convinced by the intervention" is half the drama,
+ * and a referee who always agrees makes the trip to the monitor a formality.
+ */
+export const REF_AGREES_VAR = 0.62;
+
+/** Share of potential sendings-off and penalty shouts that go to a review. */
+export const VAR_RED_REVIEW_CHANCE = 0.14;
+
+/**
+ * Minutes between the check starting and the referee's verdict.
+ *
+ * THIS IS THE SUSPENSE. The goal is on the scoreboard and the celebration is under way
+ * while the referee walks to the monitor; the verdict only arrives on the next beat of
+ * playback. Delivering both in the same instant would collapse the drama into a footnote.
+ */
+export const VAR_DECISION_DELAY = 1;
 
 /** Chance a review awards a penalty nobody saw. */
 export const VAR_PENALTY_PER_MATCH = 0.06;

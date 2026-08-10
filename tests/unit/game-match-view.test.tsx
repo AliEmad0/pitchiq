@@ -18,8 +18,8 @@ const player = {
   rating: 92,
 };
 const model: MatchViewModel = {
-  home: { name: "Arsenal", abbr: "ARS", players: [player] },
-  away: { name: "United", abbr: "MUN", players: [{ ...player, playerId: 2 }] },
+  home: { name: "Arsenal", abbr: "ARS", players: [player], bench: [] },
+  away: { name: "United", abbr: "MUN", players: [{ ...player, playerId: 2 }], bench: [] },
   homePower: { attack: 60, defense: 55, aggression: 40 },
   awayPower: { attack: 50, defense: 50, aggression: 40 },
   events: [
@@ -37,7 +37,7 @@ const model: MatchViewModel = {
 
 describe("MatchView", () => {
   it("renders the scoreboard, pitch and commentary", () => {
-    renderWithIntl(<MatchView model={model} locale="en" />);
+    renderWithIntl(<MatchView model={model} />);
     expect(screen.getByRole("group", { name: /Live scoreboard/i })).toBeTruthy();
     expect(screen.getByRole("img", { name: /Match pitch/i })).toBeTruthy();
     expect(screen.getByRole("status")).toBeTruthy();

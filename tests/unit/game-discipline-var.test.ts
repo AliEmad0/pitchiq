@@ -170,8 +170,12 @@ describe("VAR", () => {
     // The invariant that makes VAR safe: the scoreline is still exactly the number of
     // `goal` events, so a chalked-off goal must never emit one.
     for (const m of matches) {
-      const home = m.events.filter((e) => e.kind === "goal" && e.side === "home").length;
-      const away = m.events.filter((e) => e.kind === "goal" && e.side === "away").length;
+      const home = m.events.filter(
+        (e) => e.kind === "goal" && e.side === "home" && e.disallowedAt == null,
+      ).length;
+      const away = m.events.filter(
+        (e) => e.kind === "goal" && e.side === "away" && e.disallowedAt == null,
+      ).length;
       expect({ home, away }).toEqual(m.score);
     }
   });

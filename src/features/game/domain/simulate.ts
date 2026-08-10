@@ -2,7 +2,10 @@ import {
   ALTERCATION_PER_MATCH,
   DOGSO_PER_MATCH,
   type Referee,
-  VAR_DISALLOW_CHANCE,
+  REF_AGREES_VAR,
+  VAR_DECISION_DELAY,
+  VAR_RED_REVIEW_CHANCE,
+  VAR_REVIEW_CHANCE,
   VAR_PENALTY_PER_MATCH,
   VAR_UPGRADE_CHANCE,
   cardBiasFor,
@@ -20,6 +23,7 @@ import {
 } from "./colour";
 import type {
   CardReason,
+  MatchEvent,
   GoalStyle,
   GoalSource,
   MatchResult,
@@ -29,9 +33,11 @@ import type {
   SubReason,
 } from "./match-types";
 import {
+  ASSIST_SHARE,
   calibrateK,
   cardChance,
   chanceRate,
+  pickAssister,
   pickBooked,
   pickScorer,
   resolveChance,
@@ -119,23 +125,21 @@ function scoreGoal(
   source: GoalSource,
   rng?: () => number,
   referee?: Referee,
-  extra?: { goalStyle?: GoalStyle; ownGoalBy?: number; narrated?: boolean },
+  extra?: {
+    goalStyle?: GoalStyle;
+    ownGoalBy?: number;
+    narrated?: boolean;
+    assistPlayerId?: number;
+  },
 ): void {
-  // VAR lives HERE rather than at each call site, so "a disallowed goal never emits a
-  // `goal` event" is structural. That is what keeps the scoreline exactly equal to the
-  // number of goal events no matter how many ways a phase adds to score.
+  // THE GOAL IS GIVEN FIRST — always, in full, with scorer, assist and description.
+  // The old model deleted a disallowed goal outright, so a viewer saw a review with no
+  // idea what was being reviewed. Owner's call: celebrate it, THEN doubt it.
   //
-  // ⚠️ NEVER for a penalty. A spot kick cannot be offside and has no build-up to find a
-  // foul in, so reviewing one for either reason is nonsense — a test caught the engine
-  // chalking off converted penalties for offside.
+  // ⚠️ A penalty is NEVER reviewed for offside or a build-up foul. A spot kick has no
+  // build-up and cannot be offside — a test caught the engine chalking those off.
   const reviewable = source !== "penalty";
-  if (reviewable && rng != null && rng() < VAR_DISALLOW_CHANCE) {
-    state.events.push({ minute, kind: "var", side, playerId, varOutcome: disallowReason(rng()) });
-    if (referee != null) noteBias(state, referee, side === "home" ? "away" : "home", minute);
-    return;
-  }
-  state[side].score += 1;
-  state.events.push({
+  const goalEvent: MatchEvent = {
     minute,
     kind: "goal",
     side,
@@ -144,7 +148,41 @@ function scoreGoal(
     ...(extra?.goalStyle != null ? { goalStyle: extra.goalStyle } : {}),
     ...(extra?.ownGoalBy != null ? { ownGoalBy: extra.ownGoalBy } : {}),
     ...(extra?.narrated ? { narrated: true } : {}),
-  });
+    ...(extra?.assistPlayerId != null ? { assistPlayerId: extra.assistPlayerId } : {}),
+  };
+  state.events.push(goalEvent);
+  state[side].score += 1;
+
+  if (reviewable && rng != null && rng() < VAR_REVIEW_CHANCE) {
+    // Beat two, SAME minute: the booth doubts it and the referee is sent to the monitor.
+    state.events.push({ minute, kind: "var", side, playerId, varOutcome: "review-goal" });
+    // Beat three, a MINUTE LATER: his decision. The delay is the suspense — the goal is
+    // on the scoreboard and the crowd is celebrating while everyone waits.
+    const decisionMinute = minute + VAR_DECISION_DELAY;
+    if (rng() < REF_AGREES_VAR) {
+      goalEvent.disallowedAt = decisionMinute;
+      state[side].score -= 1;
+      state.events.push({
+        minute: decisionMinute,
+        kind: "var",
+        side,
+        playerId,
+        varOutcome: disallowReason(rng()),
+      });
+      if (referee != null) noteBias(state, referee, side === "home" ? "away" : "home", minute);
+    } else {
+      // He is not convinced by the intervention. It stands.
+      state.events.push({
+        minute: decisionMinute,
+        kind: "var",
+        side,
+        playerId,
+        varOutcome: "goal-stands",
+      });
+      if (referee != null) noteBias(state, referee, side, minute);
+    }
+    if (goalEvent.disallowedAt != null) return;
+  }
   // The side that CONCEDED is the one lifted — see RESPONSE_WINDOW.
   state[opp].momentum = Math.min(1, state[opp].momentum + RESPONSE_URGENCY);
   state[opp].respondingUntil = minute + RESPONSE_WINDOW;
@@ -166,11 +204,11 @@ function showCard(
   reason: CardReason,
   rng: () => number,
   force?: "red",
-): void {
+): "yellow" | "red" | null {
   const key = (playerId: number) => `${side}:${playerId}`;
   const available = onPitch.filter((p) => !state.dismissed.has(key(p.playerId)));
   const player = pickBooked(available, rng);
-  if (player == null) return;
+  if (player == null) return null;
   const id = player.playerId;
 
   const alreadyBooked = (state.booked.get(key(id)) ?? 0) > 0;
@@ -179,6 +217,28 @@ function showCard(
 
   if (reason === "dogso" || reason === "violent-conduct" || force === "red") {
     card = "red";
+    // A sending-off is the decision most worth stopping the match to be sure about. He
+    // goes to the monitor — and can come back unconvinced, in which case it is a booking.
+    if (rng() < VAR_RED_REVIEW_CHANCE) {
+      state.events.push({ minute, kind: "var", side, playerId: id, varOutcome: "review-red" });
+      if (rng() < REF_AGREES_VAR) {
+        // NOT `red-upgraded` — that means the booth turned a BOOKING into a red. This is
+        // a red already shown and stood by. Reusing the name broke the invariant pairing
+        // `red-upgraded` with a violent-conduct card.
+        state.events.push({ minute, kind: "var", side, playerId: id, varOutcome: "red-confirmed" });
+      } else {
+        state.events.push({ minute, kind: "var", side, playerId: id, varOutcome: "red-not-given" });
+        // Downgraded to a booking — UNLESS he was already on one, in which case the
+        // reprieve is worthless: a second yellow is still a second yellow and he walks.
+        // Without this the review could leave a player on the pitch holding two yellows.
+        if (alreadyBooked) {
+          finalReason = "second-yellow";
+        } else {
+          card = "yellow";
+          finalReason = "normal";
+        }
+      }
+    }
   } else if (alreadyBooked) {
     card = "red";
     finalReason = "second-yellow";
@@ -200,6 +260,7 @@ function showCard(
   if (card === "red") state[side].sentOff += 1;
 
   state.events.push({ minute, kind: "card", side, playerId: id, card, reason: finalReason });
+  return card;
 }
 
 /** Note a decision that went the referee's favoured way, and anger the other side. */
@@ -343,8 +404,13 @@ export function simulate(setup: MatchSetup): MatchResult {
         const shooter = pickScorer(squads[side], rng);
         const outcome = resolveChance(rng());
         if (outcome === "goal") {
+          // Rolled unconditionally so the PRNG stream does not depend on whether the
+          // goal ends up assisted — the same discipline the set-piece rolls follow.
+          const assistRoll = rng();
+          const assister = pickAssister(squads[side], shooter?.playerId, rng);
           scoreGoal(state, side, opp, m, shooter?.playerId, "open", rng, referee, {
             goalStyle: goalStyleFor(shooter, rng()),
+            assistPlayerId: assistRoll < ASSIST_SHARE ? assister?.playerId : undefined,
           });
         } else {
           state.events.push({
@@ -527,15 +593,23 @@ export function simulate(setup: MatchSetup): MatchResult {
         // produce "the keeper is sent off" with no keeper and no card — a latent defect
         // that only surfaced when Phase 5 shifted the random stream.
         if (gk != null) {
+          // The CARD IS SHOWN FIRST when the keeper charges out, because VAR can send the
+          // referee to the monitor and he can come back unconvinced. Announcing "the
+          // keeper is sent off" before knowing the verdict left the narration claiming a
+          // dismissal that the card no longer matched.
+          const shown =
+            outcome === "sent-off"
+              ? showCard(state, squads[side], side, m, "dogso", rng, "red")
+              : null;
+          const settled = outcome === "sent-off" && shown !== "red" ? "clearance" : outcome;
           state.events.push({
             minute: m,
             kind: "keeper",
             side,
             playerId: gk.playerId,
-            keeperOutcome: outcome,
+            keeperOutcome: settled,
           });
-          if (outcome === "sent-off") {
-            showCard(state, squads[side], side, m, "dogso", rng, "red");
+          if (settled === "sent-off") {
             // A foul outside the area concedes a free kick as well as the red — the same
             // both-halves punishment as an outfield DOGSO. Phase 3's invariant ("every
             // dogso card is paired with a set piece") caught this branch omitting it.
@@ -566,25 +640,37 @@ export function simulate(setup: MatchSetup): MatchResult {
 
       // A review that awards a penalty nobody saw.
       if (rng() < varPenaltyRate) {
-        state.events.push({ minute: m, kind: "var", side, varOutcome: "penalty-awarded" });
-        noteBias(state, referee, side, m);
-        const taker = pickScorer(squads[side], rng);
-        const outcome = resolvePenalty(rng());
-        state.events.push({
-          minute: m,
-          kind: "penalty",
-          side,
-          playerId: taker?.playerId,
-          penaltyOutcome: outcome,
-        });
-        if (penaltyScored(outcome)) {
-          scoreGoal(state, side, opp, m, taker?.playerId, "penalty");
+        // A penalty shout goes to the screen, and he decides either way.
+        state.events.push({ minute: m, kind: "var", side, varOutcome: "review-penalty" });
+        if (rng() >= REF_AGREES_VAR) {
+          state.events.push({ minute: m, kind: "var", side, varOutcome: "penalty-waved-away" });
+        } else {
+          state.events.push({ minute: m, kind: "var", side, varOutcome: "penalty-awarded" });
+          noteBias(state, referee, side, m);
+          const taker = pickScorer(squads[side], rng);
+          const outcome = resolvePenalty(rng());
+          state.events.push({
+            minute: m,
+            kind: "penalty",
+            side,
+            playerId: taker?.playerId,
+            penaltyOutcome: outcome,
+          });
+          if (penaltyScored(outcome)) {
+            scoreGoal(state, side, opp, m, taker?.playerId, "penalty");
+          }
         }
       }
     }
     if (m === 45) state.events.push({ minute: 45, kind: "halftime" });
   }
   state.events.push({ minute: lastMinute, kind: "fulltime" });
+  // A VAR verdict is emitted a minute after the goal it judges, so the tail of the list
+  // can be out of order. Stable-sorted by minute — the view walks this list forwards.
+  state.events = state.events
+    .map((e, i) => ({ e, i }))
+    .sort((a, b) => a.e.minute - b.e.minute || a.i - b.i)
+    .map(({ e }) => e);
 
   return {
     score: { home: state.home.score, away: state.away.score },

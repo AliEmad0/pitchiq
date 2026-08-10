@@ -40,8 +40,11 @@ export default async function GamePage({ params }: Props) {
       <p className="text-muted-foreground mb-8 mt-1 text-sm">{t("subtitle")}</p>
       {home && away ? (
         <MatchView
-          model={buildMatchViewModel(home, away, simulate({ home, away, seed: SEED, targetGoalsPerMatch: rate }))}
-          locale={locale}
+          model={buildMatchViewModel(
+            home,
+            away,
+            simulate({ home, away, seed: SEED, targetGoalsPerMatch: rate }),
+          )}
         />
       ) : null}
     </main>

@@ -24,13 +24,18 @@ const REFS: CommentaryRef[] = [
 ];
 
 function lookup(messages: Record<string, unknown>, key: string): unknown {
-  return key.split(".").reduce<unknown>((o, part) => (o as Record<string, unknown> | undefined)?.[part], messages);
+  return key
+    .split(".")
+    .reduce<unknown>((o, part) => (o as Record<string, unknown> | undefined)?.[part], messages);
 }
 
 // next-intl's `t` is typed to known key literals; commentary keys are dynamic strings.
 type Translate = (key: string, values?: Record<string, string | number>) => string;
 function translator(locale: "en" | "ar", messages: unknown): Translate {
-  return createTranslator({ locale, messages: messages as Record<string, never> }) as unknown as Translate;
+  return createTranslator({
+    locale,
+    messages: messages as Record<string, never>,
+  }) as unknown as Translate;
 }
 
 describe("commentary catalog", () => {
@@ -45,17 +50,23 @@ describe("commentary catalog", () => {
     for (const locale of ["en", "ar"] as const) {
       const t = translator(locale, locale === "en" ? en : ar);
       for (const ref of REFS) {
-        const text = t(ref.key, commentaryArgs(ref, locale));
+        const text = t(ref.key, commentaryArgs(ref));
         expect(text.length, `${locale} ${ref.key}`).toBeGreaterThan(0);
       }
     }
   });
 
-  it("renders Eastern-Arabic digits on ar", () => {
+  it("renders Western digits on ar — the numbers are match furniture", () => {
+    // ⚠️ REVERSED DELIBERATELY (owner's call). This used to assert Eastern-Arabic
+    // numerals. Minutes, scorelines, shirt numbers and ratings are read as glyphs
+    // rather than as prose, so they stay Western in every locale — the same decision
+    // already made for the player cards in PR #97. The Arabic PROSE is untouched.
     const t = translator("ar", ar);
     const goal = REFS[1]; // minute 10, score 1-0
-    const text = t(goal.key, commentaryArgs(goal, "ar"));
-    expect(text).toMatch(/[٠-٩]/); // contains at least one Eastern-Arabic digit
-    expect(text).not.toMatch(/[0-9]/); // and no Western digits
+    const text = t(goal.key, commentaryArgs(goal));
+    expect(text).toMatch(/[0-9]/);
+    expect(text).not.toMatch(/[٠-٩]/);
+    // The words around them are still Arabic.
+    expect(text).toMatch(/[؀-ۿ]/);
   });
 });

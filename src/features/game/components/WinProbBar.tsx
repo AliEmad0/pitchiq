@@ -1,5 +1,4 @@
 import type { WinProbability } from "@/features/game/domain/win-probability";
-import { localizeDigits } from "@/utils/format";
 import { GlowPulse } from "./GlowPulse";
 
 interface Props {
@@ -9,7 +8,6 @@ interface Props {
   awayAbbr: string;
   drawLabel: string;
   ariaLabel: string;
-  locale: string;
   pulseKey: number;
 }
 
@@ -20,11 +18,10 @@ export function WinProbBar({
   awayAbbr,
   drawLabel,
   ariaLabel,
-  locale,
   pulseKey,
 }: Props) {
   const pct = (n: number) => Math.round(n * 100);
-  const d = (n: number) => localizeDigits(pct(n), locale);
+  const d = (n: number) => pct(n);
   // Below this width the "NN%" would clip/cramp, so drop the inline label (#4).
   const MIN_LABEL_PCT = 12;
   const label = (n: number) => (pct(n) >= MIN_LABEL_PCT ? `${d(n)}%` : "");
