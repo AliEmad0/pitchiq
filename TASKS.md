@@ -5870,6 +5870,28 @@ Both game routes remain `● force-static` prerendered in **en** and **ar**. Two
 
 ---
 
+**✅ Phase 7 (follow-up round, owner-requested) — the pitch and lineup are now live.**
+
+- **Dismissals** remove the dot from the mini-map entirely; the roster keeps the row, greyed, with a red-card chip.
+- **Bookings** ring the dot in amber and add a yellow chip.
+- **Substitutions** put the substitute into the departing player's SLOT (the formation does not rearrange), with numbered in/out arrows — Sub #1, #2 …
+- **Goals and assists** carry a drawn ball / boot with a count.
+- All of it derives from ONE pure function, `view/lineup-state.ts#lineupAt(team, events, side, minute)`, shared by the pitch and the roster so they can never disagree, and correct at every minute including when playback is restarted.
+
+**Icons are inline SVG, not emoji** (owner's call to use our own): a real card shape and a real ball read at 12px, inherit the page's colours, and render identically everywhere — emoji cards in particular differ wildly across platforms and some fall back to squares. Nothing needs translating; each glyph carries an `aria-label`.
+
+**⚠️ ASSISTS DID NOT EXIST.** The engine had a scorer and nobody credited with creating the goal. `pickAssister` is creation-weighted, excludes the scorer (a player credited with both halves of his own goal reads as a bug the first time anyone sees it), and applies to open play only — a penalty is not assisted and nobody assists an own goal. ~60% of open-play goals carry one.
+
+**⚠️ VAR REBUILT — the goal is given FIRST, then doubted.** The old model deleted a disallowed goal outright, so a viewer saw a review with no idea what was being reviewed. Now: the goal is awarded in full with scorer, assist and description; a minority of goals (`VAR_REVIEW_CHANCE`) are then doubted and the referee goes to the monitor; **his verdict lands a minute later** (`VAR_DECISION_DELAY`) and he only agrees with the booth ~62% of the time (`REF_AGREES_VAR`) — "he was not convinced by the intervention" is half the drama. Reviews also cover potential **penalties** and potential **sendings-off**, either of which he can wave away.
+
+**That delay is the suspense, and it required a type change.** `MatchEvent.disallowedAt` is a MINUTE, not a boolean: the goal **counts on the scoreboard until the verdict arrives**, so the crowd celebrates, the score ticks up, and only then does it come back off. A boolean would have let the view know the outcome the instant the goal was scored. ⚠️ Every scoreline now filters `disallowedAt == null`; a scoreline _at_ minute `m` filters `disallowedAt == null || disallowedAt > m`. The player's goal tally follows the same rule — caught by reading a printed roster where a scorer kept a chalked-off goal.
+
+**Two real bugs the change surfaced:** a VAR downgrade could hand an already-booked player a _second_ yellow and leave him on the pitch (a second yellow is still a second yellow); and `red-upgraded` was reused for "the referee stood by his red", colliding with its existing meaning of "the booth turned a booking into a red" — split into `red-confirmed`.
+
+**⚠️ ALL DIGITS ARE WESTERN IN EVERY LOCALE** (owner's call) — shirt numbers, the clock, the scoreline, ratings, minutes in the feed and commentary. Same reasoning as the English-only player cards (PR #97): a number is read as a glyph, not as prose, and switching numeral systems mid-match makes the broadcast furniture harder to scan. **Arabic prose and every aria-label stay fully localised.** Two tests that pinned the old Eastern-Arabic behaviour were deliberately reversed with the reasoning recorded in them. `localizeDigits` is gone from the game surfaces, and the now-dead `locale` prop was removed from eight components rather than silenced.
+
+---
+
 ## 🔧 Micro-improvements (no phase — pick anytime)
 
 | ID                    | Title                                                                                       | Status  | Priority | Est |

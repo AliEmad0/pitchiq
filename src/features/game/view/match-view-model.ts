@@ -28,6 +28,8 @@ export interface ViewSideTeam {
   name: string;
   abbr: string;
   players: PitchPlayer[];
+  /** Substitutes, so the pitch can put one on without inventing a player. */
+  bench: PitchPlayer[];
 }
 /**
  * Event kinds that stop the clock for a full-pitch banner.
@@ -57,6 +59,12 @@ export interface ViewEvent {
   penaltyOutcome?: PenaltyOutcome;
   injurySeverity?: InjurySeverity;
   goalStyle?: GoalStyle;
+  /** Raw ids — the lineup state keys badges by player, not by slot. */
+  playerId?: number;
+  assistPlayerId?: number;
+  subOnPlayerId?: number;
+  /** Minute a given goal was chalked off after review — see MatchEvent. */
+  disallowedAt?: number;
   /** Substitution: the slot vacated, and who came on. */
   offSlot?: number;
   subOnName?: string;
@@ -115,12 +123,16 @@ function abbrOf(name: string): string {
 }
 
 function sideTeam(team: GameTeam): ViewSideTeam {
-  const numbers = assignNumbers(
-    team.formation.slots.map((slot, i) => ({
+  const bench = team.bench ?? [];
+  // Numbers are assigned across the WHOLE squad so a substitute never wears a shirt
+  // that is already on the pitch.
+  const numbers = assignNumbers([
+    ...team.formation.slots.map((slot, i) => ({
       role: slot.role,
       seed: team.players[i]?.playerId ?? i,
     })),
-  );
+    ...bench.map((p, i) => ({ role: p.role ?? "CM", seed: p.playerId ?? 900 + i })),
+  ]);
   const players: PitchPlayer[] = team.formation.slots.map((slot, i) => {
     const p = team.players[i];
     return {
@@ -131,7 +143,16 @@ function sideTeam(team: GameTeam): ViewSideTeam {
       rating: p?.ratings?.overall ?? null,
     };
   });
-  return { name: team.name, abbr: abbrOf(team.name), players };
+  const benchPlayers: PitchPlayer[] = bench.map((p, i) => ({
+    playerId: p.playerId,
+    row: 0,
+    col: 0,
+    role: (p.role ?? "CM") as PlayerRole,
+    name: p.name,
+    number: numbers[players.length + i],
+    rating: p.ratings?.overall ?? null,
+  }));
+  return { name: team.name, abbr: abbrOf(team.name), players, bench: benchPlayers };
 }
 
 export function buildMatchViewModel(
@@ -172,6 +193,10 @@ export function buildMatchViewModel(
       penaltyOutcome: e.penaltyOutcome,
       injurySeverity: e.injurySeverity,
       goalStyle: e.goalStyle,
+      playerId: e.playerId,
+      assistPlayerId: e.assistPlayerId,
+      subOnPlayerId: e.subOnPlayerId,
+      disallowedAt: e.disallowedAt,
       offSlot,
       subOnName,
     };

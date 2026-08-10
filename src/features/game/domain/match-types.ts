@@ -61,11 +61,34 @@ export type CardReason = "normal" | "second-yellow" | "dogso" | "violent-conduct
  * What a review decided. A disallowed goal never emits a `goal` event at all — that is
  * what keeps "the scoreline equals the count of goal events" true.
  */
+/**
+ * A VAR sequence is now THREE beats, not one.
+ *
+ * The old model deleted a disallowed goal outright — it never emitted the `goal` event
+ * at all — so a viewer saw a review with no idea what was being reviewed. Owner's call:
+ * **the goal is given in full first**, VAR then tells the referee they doubt it, and the
+ * referee decides. He does not always agree.
+ *
+ *   `review-*`  the check has begun and play has stopped
+ *   `*-stands` / `*-overturned`  the on-field referee's decision
+ */
 export type VarOutcome =
+  // the check
+  | "review-goal"
+  | "review-penalty"
+  | "review-red"
+  // the decision
   | "goal-disallowed-offside"
   | "goal-disallowed-foul"
+  | "goal-stands"
   | "penalty-awarded"
-  | "red-upgraded";
+  | "penalty-waved-away"
+  /** The booth spotted violent conduct the referee missed — a booking becomes a red. */
+  | "red-upgraded"
+  /** He went to the monitor about a red already shown, and stood by it. */
+  | "red-confirmed"
+  /** He went to the monitor and came back unconvinced — a booking, not a dismissal. */
+  | "red-not-given";
 
 export type AltercationOutcome = "words" | "both-booked" | "red";
 
@@ -109,6 +132,24 @@ export interface MatchEvent {
   outcome?: ChanceOutcome; // chance
   addedMinutes?: number; // stoppage
   source?: GoalSource; // goal
+  /**
+   * Who created the goal. Open play only — a penalty is not assisted, and nobody
+   * "assists" an own goal.
+   */
+  assistPlayerId?: number;
+  /**
+   * The minute a given goal was chalked off after review — not a boolean, deliberately.
+   *
+   * The goal STAYS in the timeline and **counts on the scoreboard until this minute
+   * arrives**. That is where the suspense lives: the crowd celebrates, the score ticks
+   * up, the referee walks to the monitor, and only then does it come back off. A boolean
+   * would let the view know the verdict the instant the goal was scored and the drama
+   * would be gone before it started.
+   *
+   * ⚠️ A final scoreline filters on `disallowedAt == null`; a scoreline AT minute `m`
+   * filters on `disallowedAt == null || disallowedAt > m`.
+   */
+  disallowedAt?: number;
   penaltyOutcome?: PenaltyOutcome; // penalty
   freeKickOutcome?: FreeKickOutcome; // freekick
   /** The player who followed in a parried penalty. */

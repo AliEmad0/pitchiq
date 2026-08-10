@@ -12,9 +12,9 @@ import {
 } from "@/features/game/domain/pitch-sim";
 import { mulberry32 } from "@/features/game/domain/rng";
 import { winProbability } from "@/features/game/domain/win-probability";
+import { lineupAt } from "@/features/game/view/lineup-state";
 import { OVERLAY_KINDS } from "@/features/game/view/match-view-model";
 import type { MatchViewModel } from "@/features/game/view/match-view-model";
-import { localizeDigits } from "@/utils/format";
 import { prefersReducedMotion } from "@/utils/motion";
 import { CommentaryCaption } from "./CommentaryCaption";
 import { CommentaryFeed } from "./CommentaryFeed";
@@ -35,7 +35,7 @@ const DWELL_MS = 2500; // high-importance events hold before advancing (#5)
 const DWELL_FLOOR = 1500;
 const SPEEDS = [1, 2, 4] as const;
 
-export function MatchView({ model, locale }: { model: MatchViewModel; locale: string }) {
+export function MatchView({ model }: { model: MatchViewModel }) {
   const t = useTranslations("game");
   const reduced = prefersReducedMotion();
   const [minute, setMinute] = useState(reduced ? model.lastMinute : 0);
@@ -101,8 +101,34 @@ export function MatchView({ model, locale }: { model: MatchViewModel; locale: st
   );
   const current = shown[shown.length - 1] ?? model.events[0];
   const feedLines = shown.slice(0, -1);
-  const homeScore = shown.filter((e) => e.kind === "goal" && e.side === "home").length;
-  const awayScore = shown.filter((e) => e.kind === "goal" && e.side === "away").length;
+  // A goal under review COUNTS until the verdict lands — that is the suspense. The
+  // scoreboard ticks up, the referee walks to the monitor, and only when
+  // `disallowedAt` arrives does it come back off.
+  const scoreFor = (side: "home" | "away") =>
+    shown.filter(
+      (e) =>
+        e.kind === "goal" && e.side === side && (e.disallowedAt == null || e.disallowedAt > minute),
+    ).length;
+  const homeScore = scoreFor("home");
+  const awayScore = scoreFor("away");
+
+  // The squads AS THEY STAND at this minute — dismissals removed, substitutes on,
+  // bookings marked. One derivation shared by the pitch and the roster so they can
+  // never disagree.
+  const homeLineup = useMemo(
+    () => lineupAt(model.home, model.events, "home", minute),
+    [model.home, model.events, minute],
+  );
+  const awayLineup = useMemo(
+    () => lineupAt(model.away, model.events, "away", minute),
+    [model.away, model.events, minute],
+  );
+  const slotStatus = (lineup: ReturnType<typeof lineupAt>) =>
+    lineup.slots.map((sl) =>
+      sl == null
+        ? null
+        : { number: sl.number, booked: lineup.badges.get(sl.playerId)?.yellow === true },
+    );
   const prob = winProbability({
     homePower: model.homePower,
     awayPower: model.awayPower,
@@ -118,6 +144,8 @@ export function MatchView({ model, locale }: { model: MatchViewModel; locale: st
   );
   const homeNumbers = model.home.players.map((p) => p.number);
   const awayNumbers = model.away.players.map((p) => p.number);
+  const homeSlots = slotStatus(homeLineup);
+  const awaySlots = slotStatus(awayLineup);
 
   // A goal or red card that just landed → a full-pitch banner while the clock holds.
   const overlayEvent: OverlayEvent | undefined = (() => {
@@ -188,7 +216,6 @@ export function MatchView({ model, locale }: { model: MatchViewModel; locale: st
           minute={minute}
           liveLabel={t("live")}
           ariaLabel={t("scoreboardAria")}
-          locale={locale}
           pulseKey={pulseKey}
         />
       </div>
@@ -206,7 +233,6 @@ export function MatchView({ model, locale }: { model: MatchViewModel; locale: st
             homeName: model.home.name,
             awayName: model.away.name,
           })}
-          locale={locale}
           pulseKey={pulseKey}
         />
       </div>
@@ -216,11 +242,12 @@ export function MatchView({ model, locale }: { model: MatchViewModel; locale: st
           frame={frame}
           homeNumbers={homeNumbers}
           awayNumbers={awayNumbers}
+          homeSlots={homeSlots}
+          awaySlots={awaySlots}
           animate={!reduced}
           label={t("pitchAria")}
-          locale={locale}
         />
-        {overlayEvent && <EventOverlay event={overlayEvent} locale={locale} />}
+        {overlayEvent && <EventOverlay event={overlayEvent} />}
       </div>
 
       <div className="mt-3">
@@ -265,7 +292,7 @@ export function MatchView({ model, locale }: { model: MatchViewModel; locale: st
                     : "text-muted-foreground hover:bg-muted"
                 }`}
               >
-                {localizeDigits(s, locale)}
+                {s}
                 {"×"}
               </button>
             ))}
@@ -277,9 +304,18 @@ export function MatchView({ model, locale }: { model: MatchViewModel; locale: st
         <RosterPanel
           home={model.home}
           away={model.away}
+          homeLineup={homeLineup}
+          awayLineup={awayLineup}
+          labels={{
+            goal: t("badgeGoal"),
+            assist: t("badgeAssist"),
+            yellow: t("badgeYellow"),
+            red: t("badgeRed"),
+            subOn: t("badgeSubOn"),
+            subOff: t("badgeSubOff"),
+          }}
           title={t("lineups")}
           ariaLabel={t("rosterAria")}
-          locale={locale}
         />
       </div>
     </div>

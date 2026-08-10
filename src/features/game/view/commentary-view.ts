@@ -1,20 +1,21 @@
 import type { CommentaryRef } from "@/features/game/domain/commentary";
-import { localizeDigits } from "@/utils/format";
 
 /**
- * Render bridge: raw ref values + display-localized digit args (`{…Fmt}`).
- * A future pitch UI renders a line as `t(ref.key, commentaryArgs(ref, locale))`.
- * Keeps `domain/` locale-free; `localizeDigits` is a no-op for en, Eastern-Arabic for ar.
+ * Render bridge: raw ref values plus the `{…Fmt}` display args the catalog interpolates.
+ *
+ * ⚠️ The `Fmt` args are WESTERN DIGITS IN EVERY LOCALE (owner's call), matching the
+ * player cards, which have been English-only since PR #97. A minute, a scoreline and a
+ * shirt number are read as glyphs rather than as prose, and switching numeral systems
+ * mid-match makes the broadcast furniture harder to scan. There is no `locale` parameter any
+ * more — it had no effect once the digits were pinned, and an argument that changes
+ * nothing is worse than no argument at all.
  */
-export function commentaryArgs(
-  ref: CommentaryRef,
-  locale: string,
-): Record<string, string | number> {
+export function commentaryArgs(ref: CommentaryRef): Record<string, string | number> {
   const v = ref.values;
   const args: Record<string, string | number> = { ...v };
-  if (v.minute != null) args.minuteFmt = localizeDigits(v.minute, locale);
-  if (v.homeScore != null) args.homeScoreFmt = localizeDigits(v.homeScore, locale);
-  if (v.awayScore != null) args.awayScoreFmt = localizeDigits(v.awayScore, locale);
-  if (v.added != null) args.addedFmt = localizeDigits(v.added, locale);
+  if (v.minute != null) args.minuteFmt = v.minute;
+  if (v.homeScore != null) args.homeScoreFmt = v.homeScore;
+  if (v.awayScore != null) args.awayScoreFmt = v.awayScore;
+  if (v.added != null) args.addedFmt = v.added;
   return args;
 }

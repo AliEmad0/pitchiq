@@ -688,7 +688,13 @@
     "penaltyLabel": "ركلة جزاء",
     "varLabel": "مراجعة الفيديو",
     "injuryLabel": "إصابة",
-    "subLabel": "تبديل"
+    "subLabel": "تبديل",
+    "badgeGoal": "هدف",
+    "badgeAssist": "صناعة هدف",
+    "badgeYellow": "بطاقة صفراء",
+    "badgeRed": "بطاقة حمراء — طرد",
+    "badgeSubOn": "دخل بديلاً",
+    "badgeSubOff": "خرج مستبدلاً"
   },
   "commentary": {
     "kickoff": "🟢 انطلاق المباراة!",
@@ -764,10 +770,17 @@
     },
     "goalScoreline": "📋 {homeScoreFmt}–{awayScoreFmt} ({minuteFmt}')",
     "var": {
-      "goal-disallowed-offside": "📺 حكم الفيديو — الهدف مُلغى! تسلل بفارق ملليمترات ({minuteFmt}')",
-      "goal-disallowed-foul": "📺 حكم الفيديو — لا هدف. مخالفة في بناء الهجمة ({minuteFmt}')",
-      "penalty-awarded": "📺 حكم الفيديو — الحكم يراجع اللقطة… ويحتسب ركلة جزاء! ({minuteFmt}')",
-      "red-upgraded": "📺 حكم الفيديو — البطاقة تتحول إلى حمراء. {player} يغادر ({minuteFmt}')"
+      "goal-disallowed-offside": "❌ يوافقهم الرأي — الهدف ملغى بداعي التسلل ({minuteFmt}')",
+      "goal-disallowed-foul": "❌ يوافقهم الرأي — خطأ في بناء الهجمة والهدف ملغى ({minuteFmt}')",
+      "penalty-awarded": "✅ رأى ما يكفي — ركلة جزاء! ({minuteFmt}')",
+      "red-upgraded": "🟥 التقنية رصدت ما فاته — الإنذار يتحول إلى طرد ({minuteFmt}')",
+      "review-goal": "📺 انتظروا — تقنية الفيديو تشكك في الهدف، والحكم يتجه إلى الشاشة... ({minuteFmt}')",
+      "review-penalty": "📺 مراجعة لركلة جزاء محتملة، والحكم يتجه إلى الشاشة... ({minuteFmt}')",
+      "review-red": "📺 تقنية الفيديو تطلب مراجعة التدخل، والحكم أمام الشاشة... ({minuteFmt}')",
+      "goal-stands": "✅ لم يقتنع بالتدخل — الهدف صحيح! ({minuteFmt}')",
+      "penalty-waved-away": "🚫 يرفض الاحتساب — لا توجد ركلة جزاء ({minuteFmt}')",
+      "red-confirmed": "🟥 يتمسك بقراره — البطاقة الحمراء تبقى ({minuteFmt}')",
+      "red-not-given": "🟨 لم يقتنع — تخفيف القرار إلى إنذار ({minuteFmt}')"
     },
     "altercation": {
       "words": "😤 تلاسن بين اللاعبين والحكم يتدخل لتهدئة الأمور ({minuteFmt}')",

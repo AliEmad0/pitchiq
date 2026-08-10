@@ -2,7 +2,6 @@
 import { useTranslations } from "next-intl";
 import type { CommentaryRef } from "@/features/game/domain/commentary";
 import { commentaryArgs } from "@/features/game/view/commentary-view";
-import { localizeDigits } from "@/utils/format";
 
 export interface OverlayEvent {
   kind: "goal" | "card" | "penalty" | "var" | "injury" | "substitution";
@@ -14,11 +13,10 @@ export interface OverlayEvent {
 
 interface Props {
   event: OverlayEvent;
-  locale: string;
 }
 
 /** Full-pitch banner for a high-impact moment — held while playback pauses (#3). */
-export function EventOverlay({ event, locale }: Props) {
+export function EventOverlay({ event }: Props) {
   const t = useTranslations();
   const g = useTranslations("game");
   // Each moment gets its own icon, label and accent so a penalty never looks like a
@@ -53,12 +51,12 @@ export function EventOverlay({ event, locale }: Props) {
             className="grid h-7 w-7 place-items-center rounded-md bg-white/10 font-mono text-sm tabular-nums"
             aria-hidden="true"
           >
-            {localizeDigits(event.number, locale)}
+            {event.number}
           </span>
           {event.name}
         </span>
         <span className="text-sm text-[#c7d2c9]">
-          {t(event.commentary.key, commentaryArgs(event.commentary, locale))}
+          {t(event.commentary.key, commentaryArgs(event.commentary))}
         </span>
       </div>
     </div>

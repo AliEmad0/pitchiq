@@ -2,7 +2,6 @@
 import { useTranslations } from "next-intl";
 import type { EnrichedCard } from "@/features/game/domain/player-card";
 import type { GameTeam } from "@/features/game/domain/team";
-import { localizeDigits } from "@/utils/format";
 import { PlayerCard } from "./PlayerCard";
 
 interface Props {
@@ -13,7 +12,6 @@ interface Props {
   reduced: boolean;
   onReroll: () => void;
   onPlay: () => void;
-  locale: string;
 }
 
 export function DraftScreen({
@@ -24,7 +22,6 @@ export function DraftScreen({
   reduced,
   onReroll,
   onPlay,
-  locale,
 }: Props) {
   const t = useTranslations("game");
 
@@ -89,7 +86,7 @@ export function DraftScreen({
         </button>
         <span className="text-muted-foreground ms-auto text-xs">
           {t("opponentLabel")}: <b className="text-foreground">{opponentName}</b> ·{" "}
-          {t("avgLabel", { rating: localizeDigits(opponentAvg, locale) })}
+          {t("avgLabel", { rating: opponentAvg })}
         </span>
       </div>
     </div>

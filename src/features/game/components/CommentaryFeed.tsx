@@ -1,9 +1,8 @@
 "use client";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import type { CommentaryRef } from "@/features/game/domain/commentary";
 import type { MatchEventKind } from "@/features/game/domain/match-types";
 import { commentaryArgs } from "@/features/game/view/commentary-view";
-import { localizeDigits } from "@/utils/format";
 
 export interface FeedLine {
   minute: number;
@@ -19,7 +18,6 @@ interface Props {
 /** Scrollable recent-history feed of commentary lines, newest first (#5). */
 export function CommentaryFeed({ lines, ariaLabel }: Props) {
   const t = useTranslations();
-  const locale = useLocale();
   const recent = [...lines].reverse();
   return (
     <ul
@@ -55,10 +53,10 @@ export function CommentaryFeed({ lines, ariaLabel }: Props) {
             <span
               className={`min-w-0 flex-1 truncate text-xs ${emphatic ? "font-semibold" : "text-[#c7d2c9]"}`}
             >
-              {t(l.commentary.key, commentaryArgs(l.commentary, locale))}
+              {t(l.commentary.key, commentaryArgs(l.commentary))}
             </span>
             <span className="shrink-0 font-mono text-[10px] tabular-nums text-[#8fa397]">
-              {localizeDigits(l.minute, locale)}
+              {l.minute}
               {"'"}
             </span>
           </li>

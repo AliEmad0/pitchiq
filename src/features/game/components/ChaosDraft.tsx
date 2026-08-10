@@ -26,7 +26,7 @@ const DEFAULT_RATE = 2.7; // squad spans seasons → neutral goal rate
 
 type Phase = "generating" | "draft" | "exiting" | "play";
 
-export function ChaosDraft({ pool, locale }: { pool: EnrichedCard[]; locale: string }) {
+export function ChaosDraft({ pool }: { pool: EnrichedCard[] }) {
   const t = useTranslations("game");
   const reduced = prefersReducedMotion();
   const [seed, setSeed] = useState(INITIAL_SEED);
@@ -91,7 +91,7 @@ export function ChaosDraft({ pool, locale }: { pool: EnrichedCard[]; locale: str
         >
           {t("newDraft")}
         </button>
-        <MatchView model={model} locale={locale} />
+        <MatchView model={model} />
       </div>
     );
   }
@@ -106,7 +106,6 @@ export function ChaosDraft({ pool, locale }: { pool: EnrichedCard[]; locale: str
       reduced={reduced}
       onReroll={reroll}
       onPlay={play}
-      locale={locale}
     />
   );
 }

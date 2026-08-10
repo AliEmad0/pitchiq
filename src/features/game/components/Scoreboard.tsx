@@ -1,4 +1,3 @@
-import { localizeDigits } from "@/utils/format";
 import { GlowPulse } from "./GlowPulse";
 
 interface Props {
@@ -9,7 +8,6 @@ interface Props {
   minute: number;
   liveLabel: string;
   ariaLabel: string;
-  locale: string;
   pulseKey: number;
 }
 
@@ -21,10 +19,9 @@ export function Scoreboard({
   minute,
   liveLabel,
   ariaLabel,
-  locale,
   pulseKey,
 }: Props) {
-  const d = (n: number) => localizeDigits(n, locale);
+  const d = (n: number) => n;
   return (
     <div
       role="group"

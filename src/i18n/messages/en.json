@@ -688,7 +688,13 @@
     "penaltyLabel": "PENALTY",
     "varLabel": "VAR CHECK",
     "injuryLabel": "INJURY",
-    "subLabel": "SUBSTITUTION"
+    "subLabel": "SUBSTITUTION",
+    "badgeGoal": "Goal",
+    "badgeAssist": "Assist",
+    "badgeYellow": "Yellow card",
+    "badgeRed": "Red card — sent off",
+    "badgeSubOn": "Came on as a substitute",
+    "badgeSubOff": "Substituted off"
   },
   "commentary": {
     "kickoff": "🟢 Kick-off!",
@@ -764,10 +770,17 @@
     },
     "goalScoreline": "📋 {homeScoreFmt}–{awayScoreFmt} ({minuteFmt}')",
     "var": {
-      "goal-disallowed-offside": "📺 VAR — the goal is CHALKED OFF. Offside by a matter of millimetres ({minuteFmt}')",
-      "goal-disallowed-foul": "📺 VAR — no goal. A foul spotted in the build-up ({minuteFmt}')",
-      "penalty-awarded": "📺 VAR — the referee is sent to the monitor... and points to the spot! ({minuteFmt}')",
-      "red-upgraded": "📺 VAR — the yellow is UPGRADED. {player} is off ({minuteFmt}')"
+      "goal-disallowed-offside": "❌ He agrees with them — the goal is CHALKED OFF for offside. Heartbreak ({minuteFmt}')",
+      "goal-disallowed-foul": "❌ He agrees with them — a foul in the build-up and the goal is RULED OUT ({minuteFmt}')",
+      "penalty-awarded": "✅ He has seen enough — PENALTY! ({minuteFmt}')",
+      "red-upgraded": "🟥 The booth caught what he missed — the booking becomes a RED ({minuteFmt}')",
+      "review-goal": "📺 Hold on — VAR is not happy with that goal. The referee is being sent to the monitor... ({minuteFmt}')",
+      "review-penalty": "📺 VAR is looking at a possible penalty. The referee goes to the screen... ({minuteFmt}')",
+      "review-red": "📺 VAR wants another look at that challenge. The referee is at the monitor... ({minuteFmt}')",
+      "goal-stands": "✅ He is NOT convinced by the intervention — the goal STANDS! ({minuteFmt}')",
+      "penalty-waved-away": "🚫 He waves it away — no penalty, play on ({minuteFmt}')",
+      "red-confirmed": "🟥 He stands by it — the red card STAYS ({minuteFmt}')",
+      "red-not-given": "🟨 He is unconvinced — downgraded to a booking ({minuteFmt}')"
     },
     "altercation": {
       "words": "😤 Words exchanged — players squaring up, the referee steps between them ({minuteFmt}')",
