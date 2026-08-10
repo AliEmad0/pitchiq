@@ -684,7 +684,11 @@
     "career": "المسيرة",
     "keyStats": "أبرز الإحصاءات",
     "heightCm": "{n} سم",
-    "generating": "جارٍ توليد التشكيلة"
+    "generating": "جارٍ توليد التشكيلة",
+    "penaltyLabel": "ركلة جزاء",
+    "varLabel": "مراجعة الفيديو",
+    "injuryLabel": "إصابة",
+    "subLabel": "تبديل"
   },
   "commentary": {
     "kickoff": "🟢 انطلاق المباراة!",

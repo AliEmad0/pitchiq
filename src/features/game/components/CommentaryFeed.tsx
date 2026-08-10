@@ -29,22 +29,29 @@ export function CommentaryFeed({ lines, ariaLabel }: Props) {
       className="max-h-28 divide-y divide-white/5 overflow-y-auto rounded-md bg-[#06140d]/95 text-white"
     >
       {recent.map((l, i) => {
-        const emphatic = l.kind === "goal" || l.kind === "card";
+        const emphatic =
+          l.kind === "goal" || l.kind === "card" || l.kind === "penalty" || l.kind === "var";
+        // One dot colour per family, so a feed can be skimmed without reading it.
+        const dot =
+          l.kind === "goal"
+            ? "bg-[#f6c000]"
+            : l.kind === "card"
+              ? "bg-[#ff4b4b]"
+              : l.kind === "penalty"
+                ? "bg-[#fbbf24]"
+                : l.kind === "var"
+                  ? "bg-[#7dd3fc]"
+                  : l.kind === "injury"
+                    ? "bg-[#fb923c]"
+                    : l.kind === "substitution"
+                      ? "bg-[#a3e635]"
+                      : "bg-white/25";
         return (
           <li
             key={`${l.minute}-${lines.length - i}`}
             className="flex items-center gap-2 px-3 py-1.5"
           >
-            <span
-              aria-hidden="true"
-              className={`h-1.5 w-1.5 shrink-0 rounded-full ${
-                l.kind === "goal"
-                  ? "bg-[#f6c000]"
-                  : l.kind === "card"
-                    ? "bg-[#ff4b4b]"
-                    : "bg-white/25"
-              }`}
-            />
+            <span aria-hidden="true" className={`h-1.5 w-1.5 shrink-0 rounded-full ${dot}`} />
             <span
               className={`min-w-0 flex-1 truncate text-xs ${emphatic ? "font-semibold" : "text-[#c7d2c9]"}`}
             >

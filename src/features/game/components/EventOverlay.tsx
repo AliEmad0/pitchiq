@@ -5,7 +5,7 @@ import { commentaryArgs } from "@/features/game/view/commentary-view";
 import { localizeDigits } from "@/utils/format";
 
 export interface OverlayEvent {
-  kind: "goal" | "card";
+  kind: "goal" | "card" | "penalty" | "var" | "injury" | "substitution";
   card?: "yellow" | "red";
   name: string;
   number: number;
@@ -21,10 +21,17 @@ interface Props {
 export function EventOverlay({ event, locale }: Props) {
   const t = useTranslations();
   const g = useTranslations("game");
-  const isGoal = event.kind === "goal";
-  const icon = isGoal ? "⚽" : "🟥";
-  const label = isGoal ? g("goalLabel") : g("redCardLabel");
-  const accent = isGoal ? "#f6c000" : "#ff4b4b";
+  // Each moment gets its own icon, label and accent so a penalty never looks like a
+  // goal and a substitution never looks like a sending-off.
+  const look = {
+    goal: { icon: "⚽", label: g("goalLabel"), accent: "#f6c000" },
+    card: { icon: "🟥", label: g("redCardLabel"), accent: "#ff4b4b" },
+    penalty: { icon: "🎯", label: g("penaltyLabel"), accent: "#f6c000" },
+    var: { icon: "📺", label: g("varLabel"), accent: "#7dd3fc" },
+    injury: { icon: "🚑", label: g("injuryLabel"), accent: "#fb923c" },
+    substitution: { icon: "🔄", label: g("subLabel"), accent: "#a3e635" },
+  }[event.kind];
+  const { icon, label, accent } = look;
   return (
     <div
       role="status"

@@ -684,7 +684,11 @@
     "career": "Career",
     "keyStats": "Key stats",
     "heightCm": "{n} cm",
-    "generating": "Generating squad"
+    "generating": "Generating squad",
+    "penaltyLabel": "PENALTY",
+    "varLabel": "VAR CHECK",
+    "injuryLabel": "INJURY",
+    "subLabel": "SUBSTITUTION"
   },
   "commentary": {
     "kickoff": "🟢 Kick-off!",
