@@ -1,19 +1,19 @@
 {
   "datasets": [
     {
-      "downloadedAt": "2026-08-09T03:22:54.347Z",
+      "downloadedAt": "2026-08-10T03:42:05.757Z",
       "slug": "external-data-pipeline"
     },
     {
-      "downloadedAt": "2026-08-09T03:22:55.329Z",
+      "downloadedAt": "2026-08-10T03:42:07.204Z",
       "slug": "external-data-pipeline"
     },
     {
-      "downloadedAt": "2026-08-09T03:22:56.527Z",
+      "downloadedAt": "2026-08-10T03:42:09.008Z",
       "slug": "external-data-pipeline"
     }
   ],
-  "lastRefresh": "2026-08-09T03:23:03.675Z",
+  "lastRefresh": "2026-08-10T03:42:16.154Z",
   "rowCounts": {
     "1992": {
       "fixtures": 462,
