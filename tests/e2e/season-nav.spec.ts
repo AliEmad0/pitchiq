@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./_helpers/test";
 
 // TASK-M71b — the header nav carries the viewed season in the PATH (the
 // transitional `?season=` behavior is gone). From `/seasons/<year>/<section>`

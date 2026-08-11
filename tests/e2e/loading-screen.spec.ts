@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, waitForAppRouter } from "./_helpers/test";
 
 // TASK-1702 — neon wordmark-draw boot loader. Shows once per browser session
 // (each Playwright test gets a fresh context → fresh session), locks scrolling
@@ -18,7 +18,10 @@ test.describe("boot loader", () => {
     await expect(page.locator("html")).toHaveClass(/boot-lock/);
     await expect(loader).toBeHidden({ timeout: 10_000 });
     await expect(page.locator("html")).not.toHaveClass(/boot-lock/, { timeout: 10_000 });
-    // App interactive after dismissal.
+    // App interactive after dismissal. These specs load with `waitUntil:
+    // "commit"` to catch the overlay mid-flight, which opts them out of the
+    // fixture's hydration gate — so gate explicitly before the nav click.
+    await waitForAppRouter(page);
     await page
       .getByRole("navigation", { name: "Primary" })
       .getByRole("link", { name: "Teams" })

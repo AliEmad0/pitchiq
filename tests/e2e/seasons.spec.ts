@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./_helpers/test";
 
 // TASK-M71a — the season path model: /seasons directory, /seasons/<year>
 // pages, and the edge redirects that keep the current season single-URL.

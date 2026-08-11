@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./_helpers/test";
 
 // Phase 10 — fixture detail lineups + events, against committed PL SDP data.
 //

@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./_helpers/test";
 
 // TASK-1601 — i18n infrastructure. Proves the locale switcher toggles en ⇄ ar
 // with the correct `dir`/`lang` + URL, and that English stays un-prefixed

@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./_helpers/test";
 
 // TASK-M72 — unknown URLs must be REAL 404s. Every one of these returned
 // HTTP 200 before the fix: any `loading.tsx` boundary above a segment lets
