@@ -5607,6 +5607,28 @@ Owner requested a unified flow with clear separation of concerns, mapped onto th
 - **Visual language = "Broadcast Teamsheet"** — chosen from a 30-concept gallery. A TV pre-match graphic: dark, cyan keylines, lower-third pool strip, deliberately the same world as the shipped `MatchView`, so draft → match reads as one continuous broadcast.
 - **The round-based Draft Room ([TASK-1823](#task-1823)) is an entry path into this hub, not a replacement for it.**
 
+**Split into three sub-projects (2026-08-11)**, because the hub, the live match loop and the round-based room each produce working, testable software on their own and one spec covering all three was too large to plan against:
+
+|       | Scope                                                                     | Status     |
+| ----- | ------------------------------------------------------------------------- | ---------- |
+| **A** | `/game/draft` — the interactive hub                                       | ✅ Done    |
+| **B** | `/game/play` — the FSM state controller over the interruptible engine     | 📋 Backlog |
+| **C** | Draft Room ([TASK-1823](#task-1823)) as the round-based entry path into A | 📋 Backlog |
+
+**✅ Sub-project A shipped 2026-08-11.** Design: [`docs/superpowers/specs/2026-08-11-task-1807a-draft-hub-design.md`](../docs/superpowers/specs/2026-08-11-task-1807a-draft-hub-design.md); plan: [`docs/superpowers/plans/2026-08-11-task-1807a-draft-hub.md`](../docs/superpowers/plans/2026-08-11-task-1807a-draft-hub.md). The ticket stays open — A alone does not close it.
+
+Built: `domain/fill-gaps.ts` (`fillGaps` — seeded, eligibility-aware, **preserves what is already placed**), `view/draft-eligibility.ts` (`eligibleCards`/`eligibleSlots`), `view/draft-state.ts` (the reducer, `validateSquad`, `isComplete`), `components/{TacticalPitch,CardPool,DraftHub}.tsx`, the `force-static` `/game/draft` route, `draft-cascade` keyframes, en + ar keys. 49 new tests; suite 1,724 → 1,773 with the match harness unmoved.
+
+**⚠️ The hard ban can be violated exactly ONE way through this UI.** Click-to-place never offers an illegal target, so the rule is enforced by construction — until a **formation change re-roles the slots underneath a placed XI**. Put a right-back in slot 4 of a 4-4-2 and switch to 3-5-2, and that slot is now `LM`. `validateSquad` reports him by name and slot, and Play is **blocked, not warned**. Misplaced players stay put and flagged rather than being dropped, because dropping them would discard the coach's work invisibly. The unit test pins slot 4 specifically — it is the only index whose role differs between those two shapes, so any other index would pass for the wrong reason — and the hub test drives the same offence through the real UI.
+
+**⚠️ The ban had to be made SYMMETRIC.** Ineligible cards were disabled when a slot was held, but ineligible slots were not disabled when a card was held — so a coach could drop a centre-back into a striker slot and only discover it when Play refused to light up. Both directions now disable illegal targets, which is what "an ineligible placement is not offered" has to mean.
+
+**`chaosDraft` now builds its XI with `fillGaps`** so Auto-fill and Chaos cannot drift apart. ⚠️ `fillGaps` takes an **rng function, not a seed**: `chaosDraft` threads one `mulberry32` stream through the formation pick, the XI and the bench, and a seed would have started a second stream and changed every draft `/game/chaos` has ever produced. All five chaos determinism tests stayed green.
+
+**New guard — `tests/unit/game-routes-static.test.ts`.** No guard existed, and CI catches a build _failure_ but not a route silently going dynamic, which is exactly the regression behind the Fluid-CPU crisis. It asserts the `force-static` directive on every `/game/*` route (not the outcome — only `next build` proves the `●`), and was verified to fail when the export is removed.
+
+**Deferred to B, with its design input recorded:** the streaming match view. `MatchView` is a renderer over an already-finished `MatchViewModel` and never drives the engine, so `/game/play` needs the component to own the generator — and a `MatchDecision` does not yet carry the events so far, so it will need an `events` snapshot on the payload. Play currently hands off to `MatchView` through **one function**, deliberately, so B can replace it with a redirect without unpicking it. The bench comes from the auto-drafted opponent side rather than being chosen; manual bench selection, if wanted, is a second pitch panel in C.
+
 ### TASK-1808
 
 **Live tactical pitch UI + speed controls** · 📋 Backlog · `P3` · `L` · Type: Feature
