@@ -96,6 +96,12 @@ The pause mechanism already exists: goals and cards hold playback for ~2.5s. A d
 - The round-based Draft Room — **C** / TASK-1823.
 - The tactical style picker (1825), chemistry (1824), post-match analytics (1815), records and seed-share (1812).
 
-## Open question
+## Decisions taken
 
-**Does the opponent get decisions too?** The engine raises `response`, `sub-offer`, `injury-sub` and `dismissal` for **both** sides. B1 answers the away side with `defaultAnswer` so the opponent behaves exactly as it does today, and prompts only for the home side. If the opponent should visibly react — an AI that overloads when it concedes — that is a policy object rather than a UI change, and it belongs with the difficulty work rather than here. Recommend keeping `defaultAnswer` for now.
+**The opponent is answered by `defaultAnswer`** (owner, 2026-08-11, confirming the recommendation). The engine raises `response`, `sub-offer`, `injury-sub` and `dismissal` for **both** sides; B1 prompts only for the home side and lets the away side behave exactly as it does today.
+
+⚠️ **This is a filter on the driver, not a change to the engine.** Every decision the engine raises must still be answered — skipping one would hang the generator. The container answers away-side decisions immediately and silently, and only home-side decisions reach the UI.
+
+If the opponent should ever visibly react — an AI that overloads when it concedes — that is a policy object swapped in at the driver, not a UI change, and it belongs with difficulty tuning rather than here.
+
+## No open questions
