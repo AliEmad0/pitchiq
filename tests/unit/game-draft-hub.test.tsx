@@ -85,6 +85,16 @@ describe("DraftHub", () => {
     expect(screen.getByRole("button", { name: /CF-0/ })).toBeDisabled();
   });
 
+  it("plays the drafted XI once it is legal and complete", async () => {
+    const user = userEvent.setup();
+    renderWithIntl(<DraftHub pool={pool} />);
+    await user.click(screen.getByRole("button", { name: "Auto-fill" }));
+    await user.click(screen.getByRole("button", { name: "Play match" }));
+    // The broadcast replaces the hub entirely.
+    expect(screen.queryByRole("button", { name: "Auto-fill" })).not.toBeInTheDocument();
+    expect(screen.getByLabelText(/scoreboard/i)).toBeInTheDocument();
+  });
+
   it("clear empties the pitch again", async () => {
     const user = userEvent.setup();
     renderWithIntl(<DraftHub pool={pool} />);

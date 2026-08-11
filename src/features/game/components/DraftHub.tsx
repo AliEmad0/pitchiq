@@ -2,9 +2,13 @@
 import { useTranslations } from "next-intl";
 import { useMemo, useReducer, useState } from "react";
 import type { PlayerSeasonId } from "@/features/game/domain/card-id";
-import { FORMATIONS, type PoolCard } from "@/features/game/domain/chaos-draft";
+import { FORMATIONS, chaosMatchup, type PoolCard } from "@/features/game/domain/chaos-draft";
 import { fillGaps } from "@/features/game/domain/fill-gaps";
+import { opponentSetup } from "@/features/game/domain/opponent";
 import { mulberry32 } from "@/features/game/domain/rng";
+import { simulate } from "@/features/game/domain/simulate";
+import { makeGameTeam } from "@/features/game/domain/team";
+import { buildMatchViewModel } from "@/features/game/view/match-view-model";
 import { eligibleCards, eligibleSlots } from "@/features/game/view/draft-eligibility";
 import {
   createDraftState,
@@ -15,7 +19,11 @@ import {
 import { randomSeed } from "@/features/game/view/seed";
 import { prefersReducedMotion } from "@/utils/motion";
 import { CardPool } from "./CardPool";
+import { MatchView } from "./MatchView";
 import { TacticalPitch } from "./TacticalPitch";
+
+/** Squad spans seasons, so no single season's goal rate applies — stay neutral. */
+const DEFAULT_RATE = 2.7;
 
 /**
  * Fixed, and used for the SERVER render only.
@@ -73,6 +81,40 @@ export function DraftHub({ pool }: { pool: PoolCard[] }) {
     setFormationIndex(i);
     dispatch({ type: "setFormation", formation: FORMATIONS[i] });
   };
+
+  const [playing, setPlaying] = useState(false);
+
+  /**
+   * Assemble the drafted XI into a `GameTeam` and simulate it.
+   *
+   * ⚠️ Kept as ONE function on purpose: TASK-1807 B replaces this whole body with a
+   * redirect into `/game/play`, and a handoff scattered across the component would be
+   * far harder to move. The opponent is an auto-drafted XI exactly as Chaos does it, so
+   * the pitch fills and the match reads the same.
+   */
+  const model = useMemo(() => {
+    if (!playing) return null;
+    const players = state.slots
+      .map((id) => (id != null ? byId.get(id) : undefined))
+      .filter((c): c is PoolCard => c != null);
+    const seed = randomSeed();
+    const matchup = chaosMatchup(pool, seed, { home: t("yourXi"), away: t("rivals") });
+    const home = makeGameTeam(-1, t("yourXi"), 0, state.formation, players, matchup.home.bench);
+    const opponentTeam = matchup.opponent.kind === "squad" ? matchup.opponent.team : matchup.home;
+    const result = simulate(
+      opponentSetup({
+        home,
+        homeStyle: matchup.homeStyle,
+        opponent: matchup.opponent,
+        season: 0,
+        seed,
+        targetGoalsPerMatch: DEFAULT_RATE,
+      }),
+    );
+    return buildMatchViewModel(home, opponentTeam, result);
+  }, [playing, state.slots, state.formation, byId, pool, t]);
+
+  if (playing && model != null) return <MatchView model={model} />;
 
   return (
     <div className="mx-auto w-full max-w-5xl">
@@ -156,6 +198,7 @@ export function DraftHub({ pool }: { pool: PoolCard[] }) {
         <button
           type="button"
           disabled={!complete || errors.length > 0}
+          onClick={() => setPlaying(true)}
           className="bg-primary text-primary-foreground ms-auto rounded-md px-5 py-2 text-sm font-bold disabled:opacity-50"
         >
           {t("draftPlay")}
