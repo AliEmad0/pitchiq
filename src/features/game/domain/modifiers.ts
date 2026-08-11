@@ -1,4 +1,5 @@
 import type { MinuteContext, MinuteWeights, Modifier, TeamPower } from "./match-types";
+import { responseModifier } from "./response-modifiers";
 
 export function baseWeights(power: TeamPower): MinuteWeights {
   return {
@@ -94,6 +95,9 @@ export const BASELINE_MODIFIERS: Modifier[] = [
   sentOffModifier,
   rageModifier,
   knockModifier,
+  // Contributes nothing unless the coach actively chose overload or stabilize, so an
+  // un-coached match is unaffected — see the warning in response-modifiers.ts.
+  responseModifier,
 ];
 
 export function applyModifiers(

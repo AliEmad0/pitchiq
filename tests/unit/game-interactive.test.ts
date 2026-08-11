@@ -229,4 +229,50 @@ describe("replay", () => {
       expect(result).toEqual(simulate(setup(seed)));
     }
   });
+
+  it("answering costs nothing — the match is identical up to the first divergent answer", () => {
+    // Determinism rests on ANSWERING consuming no rolls. Once a response modifier bites
+    // the two runs legitimately diverge, so the claim is scoped to before that point —
+    // but it compares the EVENT STREAM, not just decision labels. Matching labels would
+    // still pass if the rolls behind them had shifted.
+    let compared = 0;
+    for (const seed of [4, 44, 444, 4444]) {
+      const coached = recordMatch(setup(seed), alwaysOverload);
+      const auto = recordMatch(setup(seed), defaultAnswer);
+      const firstResponse = coached.decisions.find((d) => d.kind === "response");
+      if (firstResponse == null) continue;
+      const before = (r: typeof coached) => r.events.filter((e) => e.minute < firstResponse.minute);
+      expect(before(coached).length).toBeGreaterThan(0);
+      expect(before(coached)).toEqual(before(auto));
+      compared += 1;
+    }
+    expect(compared).toBeGreaterThan(0);
+  });
+});
+
+describe("response choices change the match", () => {
+  const choose =
+    (choice: "overload" | "stabilize") =>
+    (d: MatchDecision): DecisionAnswer =>
+      d.kind === "response"
+        ? { kind: "response", minute: d.minute, side: d.side, choice }
+        : defaultAnswer(d);
+
+  it("overload concedes more than stabilize across many seeds", () => {
+    // ⚠️ Assert on a DISTRIBUTION. A single seed can easily give identical scorelines
+    // under both choices, so a one-seed test would prove nothing at all.
+    let overloadConceded = 0;
+    let stabilizeConceded = 0;
+    for (let s = 0; s < 400; s++) {
+      overloadConceded += recordMatch(setup(s), choose("overload")).score.away;
+      stabilizeConceded += recordMatch(setup(s), choose("stabilize")).score.away;
+    }
+    expect(overloadConceded).toBeGreaterThan(stabilizeConceded);
+  });
+
+  it("overload and stabilize produce different matches", () => {
+    const a = recordMatch(setup(31), choose("overload"));
+    const b = recordMatch(setup(31), choose("stabilize"));
+    expect(JSON.stringify(a.events)).not.toBe(JSON.stringify(b.events));
+  });
 });
