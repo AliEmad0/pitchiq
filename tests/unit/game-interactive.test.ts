@@ -135,3 +135,57 @@ describe("response", () => {
     }
   });
 });
+
+describe("forced prompts", () => {
+  it("prompts for a replacement on a forcing injury, never on a knock", () => {
+    // Sweep seeds so both forcing severities AND at least one knock actually occur —
+    // a fixture that never produces a knock cannot express the boundary being tested.
+    let sawForced = 0;
+    let sawKnock = 0;
+    for (let s = 0; s < 120; s++) {
+      const { seen, result } = record(setup(s));
+      const prompts = seen.filter((d) => d.kind === "injury-sub");
+      const injuries = result.events.filter((e) => e.kind === "injury");
+      const knocks = injuries.filter((e) => e.injurySeverity === "knock");
+      const forcing = injuries.filter((e) => e.injurySeverity !== "knock");
+      expect(prompts.length).toBe(forcing.length);
+      sawForced += forcing.length;
+      sawKnock += knocks.length;
+    }
+    expect(sawForced).toBeGreaterThan(0);
+    expect(sawKnock).toBeGreaterThan(0);
+  });
+
+  it("prompts on any dismissal, however the player was sent off", () => {
+    let sawDismissal = 0;
+    for (let s = 0; s < 150; s++) {
+      const { seen, result } = record(setup(s));
+      const prompts = seen.filter((d) => d.kind === "dismissal");
+      const reds = result.events.filter((e) => e.kind === "card" && e.card === "red");
+      expect(prompts.length).toBe(reds.length);
+      sawDismissal += reds.length;
+    }
+    expect(sawDismissal).toBeGreaterThan(0);
+  });
+
+  it("declining a dismissal leaves the side a man short rather than forcing a change", () => {
+    // A red card is not a substitution: nobody replaces the dismissed player.
+    for (let s = 0; s < 150; s++) {
+      const { result } = record(setup(s));
+      const reds = result.events.filter((e) => e.kind === "card" && e.card === "red");
+      if (reds.length === 0) continue;
+      const subsAfter = result.events.filter(
+        (e) => e.kind === "substitution" && e.minute === reds[0].minute && e.side === reds[0].side,
+      );
+      expect(subsAfter.length).toBe(0);
+      return;
+    }
+    throw new Error("no dismissal in the swept seeds — the assertion never ran");
+  });
+
+  it("forced prompts do not change the match when answered by default", () => {
+    for (const seed of [5, 60, 600, 6000]) {
+      expect(record(setup(seed)).result).toEqual(simulate(setup(seed)));
+    }
+  });
+});

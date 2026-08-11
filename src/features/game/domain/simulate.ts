@@ -404,6 +404,9 @@ export function* runMatch(
   const added = MIN_ADDED + Math.floor(rng() * ADDED_SPREAD);
   const lastMinute = FULL_TIME + added;
 
+  /** How many dismissals have already raised a reshape prompt. */
+  let prompted = 0;
+
   for (let m = 1; m <= lastMinute; m++) {
     state.minute = m;
     for (const side of sides) {
@@ -633,16 +636,31 @@ export function* runMatch(
           if (severity === "knock") {
             // Treated on the touchline and carries on, but hurting.
             state[side].knockUntil = m + KNOCK_MINUTES;
-          } else if (!substitute(side, m, hurt, "injury")) {
-            // Nobody left on the bench — the side plays on a man short.
-            squads[side] = squads[side].filter((pl) => pl.playerId !== hurt.playerId);
-            state[side].sentOff += 1;
-            state.events.push({
+          } else {
+            // ⚠️ MODERATE AND SEVERE both force him off — the difference is only how
+            // quickly and how it looks. A knock must never reach this prompt.
+            const forced = yield {
+              kind: "injury-sub",
               minute: m,
-              kind: "shorthanded",
               side,
-              playerId: hurt.playerId,
-            });
+              off: hurt.playerId,
+              legalOn: legalOnFor(side),
+            };
+            const replacement =
+              forced.kind === "injury-sub" && forced.on != null
+                ? benches[side].find((pl) => pl.playerId === forced.on)
+                : undefined;
+            if (!substitute(side, m, hurt, "injury", replacement)) {
+              // Nobody left on the bench — the side plays on a man short.
+              squads[side] = squads[side].filter((pl) => pl.playerId !== hurt.playerId);
+              state[side].sentOff += 1;
+              state.events.push({
+                minute: m,
+                kind: "shorthanded",
+                side,
+                playerId: hurt.playerId,
+              });
+            }
           }
         }
       }
@@ -734,6 +752,40 @@ export function* runMatch(
         }
       }
     }
+
+    // ⚠️ Raised AFTER both sides' blocks, not inside one.
+    //
+    // A red can be shown to a side during the OTHER side's block — an altercation cards
+    // both, the keeper DOGSO route cards across, and a VAR upgrade turns someone's
+    // booking into a dismissal. Checking inside a side's own block silently missed every
+    // one of those, because by the time the card landed that side's turn had passed.
+    //
+    // A red card does NOT force a substitution: nobody replaces a dismissed player and
+    // the side plays a man short. What the coach may want is a tactical reset — usually
+    // sacrificing an attacker to restore shape — so this is a prompt with a real
+    // decline, bound by MAX_SUBS and the bench like any other change. Raised for ANY
+    // dismissal, because a second yellow leaves a side in exactly the same position as a
+    // straight red and prompting for one but not the other would read as a bug.
+    const redsSoFar = state.events.filter((e) => e.kind === "card" && e.card === "red");
+    while (prompted < redsSoFar.length) {
+      const red = redsSoFar[prompted];
+      prompted += 1;
+      const hit: Side = red.side ?? "home";
+      const reshape = yield {
+        kind: "dismissal",
+        minute: m,
+        side: hit,
+        legalOff: legalOffFor(hit),
+        legalOn: legalOnFor(hit),
+      };
+      if (reshape.kind === "dismissal" && reshape.off != null) {
+        const off = squads[hit].find((pl) => pl.playerId === reshape.off);
+        const on =
+          reshape.on != null ? benches[hit].find((pl) => pl.playerId === reshape.on) : undefined;
+        if (off != null) substitute(hit, m, off, "tactical", on);
+      }
+    }
+
     if (m === 45) state.events.push({ minute: 45, kind: "halftime" });
   }
   state.events.push({ minute: lastMinute, kind: "fulltime" });
