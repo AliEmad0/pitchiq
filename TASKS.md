@@ -5514,6 +5514,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1827](#task-1827) | Onboarding — coach identity + tutorial match (local only)        | 📋 Backlog | P3       | M   |
 | [TASK-1828](#task-1828) | Weekly modifier ladder (local, seeded from the ISO week)         | 📋 Backlog | P3       | M   |
 | [TASK-1829](#task-1829) | Card crafting — duplicates → trait badges (local)                | 📋 Backlog | P3       | S   |
+| [TASK-1830](#task-1830) | Segmented interactive match engine (live decisions, replayable)  | 📋 Backlog | P1       | L   |
 
 _Enhancement roadmap 1813-1819 added 2026-08-03 from the owner's feature proposal (Option A — 100% client-side/static). See the locked-architecture notes above for the modifier-stack + determinism + no-backend decisions that govern them._
 
@@ -5953,6 +5954,18 @@ Both game routes remain `● force-static` prerendered in **en** and **ar**. Two
 **Card crafting — duplicates into trait badges** · 📋 Backlog · `P3` · `S` · Type: Feature
 
 **Description** — Duplicate cards accumulated in the collection ([TASK-1819](#task-1819)) can be consumed to mint **trait badges** that attach to a card via the `traits?` seam ([TASK-1814](#task-1814)). Strictly local and strictly one-way: crafting spends duplicates, it does not create tradeable goods. **Trading between players is out of scope** — see [TASK-1906](#task-1906). **Depends on:** TASK-1814, TASK-1819.
+
+### TASK-1830
+
+**Segmented interactive match engine** · 📋 Backlog · `P1` · `L` · Type: Feature
+
+**Description** — Today `simulate()` runs all 90 minutes up front and returns a finished `MatchEvent[]`; the UI is a renderer over a match that has already happened. The owner's player-journey spec (2026-08-11) requires the coach to **make decisions during the match** — choose a response after conceding, and make substitutions himself — which cannot exist over a pre-computed stream, because the result is already settled before the prompt appears.
+
+This ticket makes the engine **interruptible**: it runs to a decision point, yields, accepts the coach's answer, and continues. Determinism is preserved by making the answers **inputs** — a match replays byte-for-byte from `(setup, seed, decisions[])`, which keeps seed-sharing ([TASK-1812](#task-1812)) and refresh-resume working by replay rather than by snapshot.
+
+**⚠️ This must land BEFORE [TASK-1807](#task-1807)** (owner decision) so the `/game/play` state machine is shaped around an interactive match instead of being rewritten for one.
+
+Design: [`docs/superpowers/specs/2026-08-11-task-1830-interactive-engine-design.md`](../docs/superpowers/specs/2026-08-11-task-1830-interactive-engine-design.md). **Depends on:** TASK-1822. **Blocks:** TASK-1807.
 
 ---
 
