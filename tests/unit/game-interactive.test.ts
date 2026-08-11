@@ -109,3 +109,29 @@ describe("sub-offer", () => {
     }
   });
 });
+
+describe("response", () => {
+  it("is raised once per goal, for the side that conceded", () => {
+    // Every goal opens a response window — including one later chalked off, because the
+    // window opens when it is scored and the review only lands a minute later.
+    const { seen, result } = record(setup(42));
+    const responses = seen.filter((d) => d.kind === "response");
+    const goals = result.events.filter((e) => e.kind === "goal" && e.disallowedAt == null);
+    expect(responses.length).toBe(goals.length);
+    expect(responses.length).toBeGreaterThan(0);
+  });
+
+  it("names the side that conceded, not the scorer", () => {
+    const { seen } = record(setup(42));
+    for (const d of seen) {
+      if (d.kind !== "response") continue;
+      expect(d.side).toBe(d.concededBy);
+    }
+  });
+
+  it("holding reproduces simulate exactly", () => {
+    for (const seed of [3, 88, 4242]) {
+      expect(record(setup(seed)).result).toEqual(simulate(setup(seed)));
+    }
+  });
+});

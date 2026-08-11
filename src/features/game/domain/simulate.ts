@@ -122,7 +122,7 @@ function staminaAt(minute: number): number {
  * emitting a `goal` event would leave the UI (which counts goal events) disagreeing
  * with the result.
  */
-function scoreGoal(
+function* scoreGoal(
   state: MatchState,
   side: Side,
   opp: Side,
@@ -137,7 +137,7 @@ function scoreGoal(
     narrated?: boolean;
     assistPlayerId?: number;
   },
-): void {
+): Generator<MatchDecision, void, DecisionAnswer> {
   // THE GOAL IS GIVEN FIRST — always, in full, with scorer, assist and description.
   // The old model deleted a disallowed goal outright, so a viewer saw a review with no
   // idea what was being reviewed. Owner's call: celebrate it, THEN doubt it.
@@ -189,7 +189,10 @@ function scoreGoal(
     }
     if (goalEvent.disallowedAt != null) return;
   }
-  // The side that CONCEDED is the one lifted — see RESPONSE_WINDOW.
+  // The side that CONCEDED is the one lifted — see RESPONSE_WINDOW. The coach of that
+  // side chooses HOW to respond; `hold` is exactly the numbers that were here before.
+  const answer = yield { kind: "response", minute, side: opp, concededBy: opp };
+  state[opp].responseChoice = answer.kind === "response" ? answer.choice : "hold";
   state[opp].momentum = Math.min(1, state[opp].momentum + RESPONSE_URGENCY);
   state[opp].respondingUntil = minute + RESPONSE_WINDOW;
   state[side].momentum = Math.min(1, state[side].momentum + SCORER_URGENCY);
@@ -305,6 +308,7 @@ export function* runMatch(
     stamina: 1,
     momentum: 0,
     respondingUntil: 0,
+    responseChoice: "hold" as const,
     pushed: false,
     sentOff: 0,
     rage: 0,
@@ -442,7 +446,7 @@ export function* runMatch(
           // goal ends up assisted — the same discipline the set-piece rolls follow.
           const assistRoll = rng();
           const assister = pickAssister(squads[side], shooter?.playerId, rng);
-          scoreGoal(state, side, opp, m, shooter?.playerId, "open", rng, referee, {
+          yield* scoreGoal(state, side, opp, m, shooter?.playerId, "open", rng, referee, {
             goalStyle: goalStyleFor(shooter, rng()),
             assistPlayerId: assistRoll < ASSIST_SHARE ? assister?.playerId : undefined,
           });
@@ -479,7 +483,7 @@ export function* runMatch(
           reboundPlayerId: rebound?.playerId,
         });
         if (penaltyScored(outcome)) {
-          scoreGoal(
+          yield* scoreGoal(
             state,
             side,
             opp,
@@ -502,7 +506,8 @@ export function* runMatch(
           playerId: taker?.playerId,
           freeKickOutcome: outcome,
         });
-        if (outcome === "scored") scoreGoal(state, side, opp, m, taker?.playerId, "freekick");
+        if (outcome === "scored")
+          yield* scoreGoal(state, side, opp, m, taker?.playerId, "freekick");
       }
 
       // ---- discipline -------------------------------------------------------
@@ -528,7 +533,7 @@ export function* runMatch(
             penaltyOutcome: outcome,
           });
           if (penaltyScored(outcome)) {
-            scoreGoal(state, side, opp, m, taker?.playerId, "penalty");
+            yield* scoreGoal(state, side, opp, m, taker?.playerId, "penalty");
           }
         } else {
           const outcome = resolveFreeKick(rng());
@@ -539,7 +544,8 @@ export function* runMatch(
             playerId: taker?.playerId,
             freeKickOutcome: outcome,
           });
-          if (outcome === "scored") scoreGoal(state, side, opp, m, taker?.playerId, "freekick");
+          if (outcome === "scored")
+            yield* scoreGoal(state, side, opp, m, taker?.playerId, "freekick");
         }
       }
 
@@ -562,7 +568,7 @@ export function* runMatch(
       if (rng() < ownGoalRate) {
         const backLine = squads[side].filter((pl) => pl.role !== "GK");
         const unlucky = backLine.length > 0 ? backLine[Math.floor(rng() * backLine.length)] : null;
-        scoreGoal(state, opp, side, m, undefined, "own-goal", undefined, undefined, {
+        yield* scoreGoal(state, opp, side, m, undefined, "own-goal", undefined, undefined, {
           ownGoalBy: unlucky?.playerId,
         });
       }
@@ -678,7 +684,7 @@ export function* runMatch(
               playerId: taker?.playerId,
               freeKickOutcome: fk,
             });
-            if (fk === "scored") scoreGoal(state, opp, side, m, taker?.playerId, "freekick");
+            if (fk === "scored") yield* scoreGoal(state, opp, side, m, taker?.playerId, "freekick");
             // The backup keeper comes on — and if there is none, an outfielder goes in
             // goal and the side is simply worse for it.
             const outfield = squads[side].find((pl) => pl.role !== "GK");
@@ -687,9 +693,19 @@ export function* runMatch(
             const punisher = pickScorer(squads[opp], rng);
             // The keeper event above already told this story in full — describing it
             // again would read as two separate goals.
-            scoreGoal(state, opp, side, m, punisher?.playerId, "open", undefined, undefined, {
-              narrated: true,
-            });
+            yield* scoreGoal(
+              state,
+              opp,
+              side,
+              m,
+              punisher?.playerId,
+              "open",
+              undefined,
+              undefined,
+              {
+                narrated: true,
+              },
+            );
           }
         }
       }
@@ -713,7 +729,7 @@ export function* runMatch(
             penaltyOutcome: outcome,
           });
           if (penaltyScored(outcome)) {
-            scoreGoal(state, side, opp, m, taker?.playerId, "penalty");
+            yield* scoreGoal(state, side, opp, m, taker?.playerId, "penalty");
           }
         }
       }
