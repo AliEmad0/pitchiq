@@ -716,7 +716,21 @@
     "decisionConfirm": "تأكيد",
     "decisionTimeLeft": "{seconds}s",
     "decisionOff": "خارج",
-    "decisionOn": "داخل"
+    "decisionOn": "داخل",
+    "draftTitle": "ابنِ تشكيلتك",
+    "draftSubtitle": "اختر مركزًا ثم لاعبًا. أو لاعبًا ثم مركزًا.",
+    "draftPitchAria": "مراكز التشكيلة",
+    "draftPoolAria": "اللاعبون المتاحون",
+    "draftEmptySlot": "مركز {role} شاغر",
+    "draftFilledSlot": "{name}، {role}",
+    "draftAutoFill": "ملء تلقائي",
+    "draftReroll": "إعادة التوزيع",
+    "draftClear": "مسح",
+    "draftPlay": "ابدأ المباراة",
+    "draftFormation": "التشكيلة",
+    "draftIncomplete": "املأ كل المراكز لبدء المباراة.",
+    "draftIllegal": "{name} لا يمكنه اللعب في مركز {role}.",
+    "draftEligibleCount": "{count} مؤهل"
   },
   "commentary": {
     "kickoff": "🟢 انطلاق المباراة!",
