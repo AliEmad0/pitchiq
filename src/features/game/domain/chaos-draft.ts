@@ -1,5 +1,6 @@
 import type { PlayerRole } from "@/data/schemas";
 import { canPlay } from "./eligibility";
+import { fillGaps } from "./fill-gaps";
 import type { Formation, FormationSlot } from "./formation";
 import type { Opponent, TacticalStyle } from "./opponent";
 import type { GamePlayer } from "./player";
@@ -87,13 +88,21 @@ export function chaosDraft(pool: PoolCard[], seed: number, name = "Your XI"): Ga
   const rng = mulberry32(seed);
   const shape = pick(FORMATIONS, rng);
   const used = new Set<number>();
+  // ⚠️ The SAME rng stream is threaded through: `fillGaps` draws exactly once per slot
+  // it fills, in slot order, which is precisely what the inline loop here used to do.
+  // Passing it a seed instead would start a second stream and change every draft
+  // `/game/chaos` has ever produced — the route prerenders from this.
+  const byCardId = new Map(pool.map((c) => [c.cardId, c]));
   const chosen: PoolCard[] = [];
-  for (const s of shape.slots) {
-    const eligible = pool.filter((c) => !used.has(c.playerId) && canPlay(c, s.role));
-    const anyFree = pool.filter((c) => !used.has(c.playerId));
-    const from = eligible.length ? eligible : anyFree;
-    if (from.length === 0) break;
-    const card = pick(from, rng);
+  for (const id of fillGaps(
+    pool,
+    shape,
+    shape.slots.map(() => null),
+    rng,
+  )) {
+    if (id == null) continue;
+    const card = byCardId.get(id);
+    if (card == null) continue;
     used.add(card.playerId);
     chosen.push(card);
   }

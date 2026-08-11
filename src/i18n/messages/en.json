@@ -716,7 +716,21 @@
     "decisionConfirm": "Confirm",
     "decisionTimeLeft": "{seconds}s",
     "decisionOff": "Off",
-    "decisionOn": "On"
+    "decisionOn": "On",
+    "draftTitle": "Build your XI",
+    "draftSubtitle": "Pick a slot, then a player. Or a player, then a slot.",
+    "draftPitchAria": "Formation slots",
+    "draftPoolAria": "Available players",
+    "draftEmptySlot": "Empty {role} slot",
+    "draftFilledSlot": "{name}, {role}",
+    "draftAutoFill": "Auto-fill",
+    "draftReroll": "Re-roll",
+    "draftClear": "Clear",
+    "draftPlay": "Play match",
+    "draftFormation": "Formation",
+    "draftIncomplete": "Fill every slot to play.",
+    "draftIllegal": "{name} cannot play {role}.",
+    "draftEligibleCount": "{count} eligible"
   },
   "commentary": {
     "kickoff": "🟢 Kick-off!",
