@@ -1,6 +1,6 @@
 import type { LineupState } from "@/features/game/view/lineup-state";
 import type { ViewSideTeam } from "@/features/game/view/match-view-model";
-import { PlayerBadges } from "./PlayerBadges";
+import { BadgeLegend, PlayerBadges } from "./PlayerBadges";
 
 interface BadgeLabels {
   goal: string;
@@ -19,6 +19,7 @@ interface Props {
   title: string;
   ariaLabel: string;
   labels: BadgeLabels;
+  legendLabel: string;
 }
 
 function Column({
@@ -80,6 +81,7 @@ export function RosterPanel({
   title,
   ariaLabel,
   labels,
+  legendLabel,
 }: Props) {
   return (
     <section aria-label={ariaLabel} className="border-border rounded-xl border p-4">
@@ -89,6 +91,10 @@ export function RosterPanel({
       <div className="grid gap-x-8 gap-y-4 sm:grid-cols-2">
         <Column team={home} lineup={homeLineup} labels={labels} />
         <Column team={away} lineup={awayLineup} labels={labels} />
+      </div>
+      <div className="border-border/60 mt-4 border-t pt-3">
+        <h3 className="sr-only">{legendLabel}</h3>
+        <BadgeLegend labels={labels} />
       </div>
     </section>
   );

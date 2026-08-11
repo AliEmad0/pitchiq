@@ -103,7 +103,23 @@ export function pickPlayerOff(
   return { player: tiring, reason: gameState === "level" ? "stamina" : "tactical" };
 }
 
-/** Who comes on: prefer a like-for-like replacement, else anyone available. */
+/**
+ * Who comes on: prefer a like-for-like replacement, then any outfielder, then anyone.
+ *
+ * ⚠️ The middle step exists because the bench is drafted in `BENCH_SHAPE` order, which
+ * puts the spare keeper FIRST — so a plain `free[0]` fallback handed the goalkeeper to
+ * any substitution whose matching role was already used, and the side finished with two
+ * keepers on the pitch and one of them playing centre-back. Not a rare corner: it fired
+ * whenever the like-for-like was taken.
+ *
+ * Worse than cosmetic, too — `powerOf` folds the substitute's ratings into an outfield
+ * role, so the side was quietly weaker than its own teamsheet claimed.
+ *
+ * The exclusion is deliberately NOT unconditional: when a keeper is the one going off,
+ * the backup is exactly who should come on, which is what the sweeper-keeper dismissal
+ * path depends on. And a keeper is still better than refusing the change and playing a
+ * man short, so he remains the last resort.
+ */
 export function pickPlayerOn(
   bench: GamePlayer[],
   available: ReadonlySet<number>,
@@ -111,5 +127,8 @@ export function pickPlayerOn(
 ): GamePlayer | null {
   const free = bench.filter((p) => available.has(p.playerId));
   if (free.length === 0) return null;
-  return free.find((p) => p.role === role) ?? free[0];
+  const likeForLike = free.find((p) => p.role === role);
+  if (likeForLike != null) return likeForLike;
+  if (role === "GK") return free[0];
+  return free.find((p) => p.role !== "GK") ?? free[0];
 }

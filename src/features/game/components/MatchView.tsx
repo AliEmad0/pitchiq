@@ -306,6 +306,7 @@ export function MatchView({ model }: { model: MatchViewModel }) {
           away={model.away}
           homeLineup={homeLineup}
           awayLineup={awayLineup}
+          legendLabel={t("badgeLegend")}
           labels={{
             goal: t("badgeGoal"),
             assist: t("badgeAssist"),
