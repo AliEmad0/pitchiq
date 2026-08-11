@@ -44,21 +44,21 @@ describe("DraftHub", () => {
   it("starts with an empty pitch and Play blocked", () => {
     // The route is force-static: a squad in the prerendered HTML is served identically
     // to everyone and then visibly swapped (the lesson from PR #97).
-    renderWithIntl(<DraftHub pool={pool} />);
+    renderWithIntl(<DraftHub pool={pool} onConfirm={vi.fn()} />);
     expect(screen.getByRole("button", { name: "Play match" })).toBeDisabled();
     expect(screen.getByText("Fill every slot to play.")).toBeInTheDocument();
   });
 
   it("auto-fill completes the XI and unblocks Play", async () => {
     const user = userEvent.setup();
-    renderWithIntl(<DraftHub pool={pool} />);
+    renderWithIntl(<DraftHub pool={pool} onConfirm={vi.fn()} />);
     await user.click(screen.getByRole("button", { name: "Auto-fill" }));
     expect(screen.getByRole("button", { name: "Play match" })).toBeEnabled();
   });
 
   it("auto-fill produces a squad that passes validation", async () => {
     const user = userEvent.setup();
-    renderWithIntl(<DraftHub pool={pool} />);
+    renderWithIntl(<DraftHub pool={pool} onConfirm={vi.fn()} />);
     await user.click(screen.getByRole("button", { name: "Auto-fill" }));
     expect(screen.queryByText(/cannot play/)).not.toBeInTheDocument();
   });
@@ -67,7 +67,7 @@ describe("DraftHub", () => {
     // The only route to an illegal squad through this UI, and the reason validation
     // exists at all alongside the by-construction ban.
     const user = userEvent.setup();
-    renderWithIntl(<DraftHub pool={pool} />);
+    renderWithIntl(<DraftHub pool={pool} onConfirm={vi.fn()} />);
     await user.click(screen.getByRole("button", { name: "Auto-fill" }));
     expect(screen.getByRole("button", { name: "Play match" })).toBeEnabled();
     await user.click(screen.getByRole("button", { name: "3-5-2" }));
@@ -77,7 +77,7 @@ describe("DraftHub", () => {
 
   it("selecting a slot filters the pool to eligible cards only", async () => {
     const user = userEvent.setup();
-    renderWithIntl(<DraftHub pool={pool} />);
+    renderWithIntl(<DraftHub pool={pool} onConfirm={vi.fn()} />);
     // The goalkeeper slot renders last — rows run attack-first.
     const slots = screen.getAllByRole("button", { name: /slot/ });
     await user.click(slots[slots.length - 1]);
@@ -85,19 +85,36 @@ describe("DraftHub", () => {
     expect(screen.getByRole("button", { name: /CF-0/ })).toBeDisabled();
   });
 
-  it("plays the drafted XI once it is legal and complete", async () => {
+  it("hands the finished XI up rather than starting the match itself", async () => {
+    // The hub used to mount the match directly. TASK-1807 B moved that to the container,
+    // so the hub's job now ends at "here is a legal eleven".
+    const onConfirm = vi.fn();
     const user = userEvent.setup();
-    renderWithIntl(<DraftHub pool={pool} />);
+    renderWithIntl(<DraftHub pool={pool} onConfirm={onConfirm} />);
     await user.click(screen.getByRole("button", { name: "Auto-fill" }));
     await user.click(screen.getByRole("button", { name: "Play match" }));
-    // The broadcast replaces the hub entirely.
-    expect(screen.queryByRole("button", { name: "Auto-fill" })).not.toBeInTheDocument();
-    expect(screen.getByLabelText(/scoreboard/i)).toBeInTheDocument();
+
+    expect(onConfirm).toHaveBeenCalledTimes(1);
+    const [players, formation] = onConfirm.mock.calls[0];
+    expect(players).toHaveLength(11);
+    expect(formation.slots).toHaveLength(11);
+    // Resolved cards, not slot ids — the container should not have to look them up.
+    expect(players[0]).toHaveProperty("name");
+  });
+
+  it("does not hand up an illegal squad", async () => {
+    const onConfirm = vi.fn();
+    const user = userEvent.setup();
+    renderWithIntl(<DraftHub pool={pool} onConfirm={onConfirm} />);
+    await user.click(screen.getByRole("button", { name: "Auto-fill" }));
+    await user.click(screen.getByRole("button", { name: "3-5-2" }));
+    expect(screen.getByRole("button", { name: "Play match" })).toBeDisabled();
+    expect(onConfirm).not.toHaveBeenCalled();
   });
 
   it("clear empties the pitch again", async () => {
     const user = userEvent.setup();
-    renderWithIntl(<DraftHub pool={pool} />);
+    renderWithIntl(<DraftHub pool={pool} onConfirm={vi.fn()} />);
     await user.click(screen.getByRole("button", { name: "Auto-fill" }));
     expect(screen.getByRole("button", { name: "Play match" })).toBeEnabled();
     await user.click(screen.getByRole("button", { name: "Clear" }));

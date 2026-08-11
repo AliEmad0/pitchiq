@@ -11,6 +11,7 @@ const responseDecision: MatchDecision = {
   kind: "response",
   minute: 31,
   side: "home",
+  events: [],
   concededBy: "home",
 };
 
@@ -31,6 +32,7 @@ const subDecision: MatchDecision = {
   kind: "sub-offer",
   minute: 60,
   side: "home",
+  events: [],
   stoppage: true,
   engineSuggests: false,
   legalOff: [player(1, "Patrick Vieira")],

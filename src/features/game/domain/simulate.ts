@@ -191,7 +191,13 @@ function* scoreGoal(
   }
   // The side that CONCEDED is the one lifted — see RESPONSE_WINDOW. The coach of that
   // side chooses HOW to respond; `hold` is exactly the numbers that were here before.
-  const answer = yield { kind: "response", minute, side: opp, concededBy: opp };
+  const answer = yield {
+    kind: "response",
+    minute,
+    side: opp,
+    concededBy: opp,
+    events: [...state.events],
+  };
   state[opp].responseChoice = answer.kind === "response" ? answer.choice : "hold";
   state[opp].momentum = Math.min(1, state[opp].momentum + RESPONSE_URGENCY);
   state[opp].respondingUntil = minute + RESPONSE_WINDOW;
@@ -612,6 +618,7 @@ export function* runMatch(
           suggestedReason: choice?.reason,
           legalOff: legalOffFor(side),
           legalOn: legalOnFor(side),
+          events: [...state.events],
         };
         if (answer.kind === "sub-offer" && answer.off != null) {
           const off = squads[side].find((pl) => pl.playerId === answer.off);
@@ -645,6 +652,7 @@ export function* runMatch(
               side,
               off: hurt.playerId,
               legalOn: legalOnFor(side),
+              events: [...state.events],
             };
             const replacement =
               forced.kind === "injury-sub" && forced.on != null
@@ -777,6 +785,7 @@ export function* runMatch(
         side: hit,
         legalOff: legalOffFor(hit),
         legalOn: legalOnFor(hit),
+        events: [...state.events],
       };
       if (reshape.kind === "dismissal" && reshape.off != null) {
         const off = squads[hit].find((pl) => pl.playerId === reshape.off);

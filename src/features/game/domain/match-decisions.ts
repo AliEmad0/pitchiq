@@ -1,4 +1,4 @@
-import type { MatchEventKind, Side, SubReason } from "./match-types";
+import type { MatchEvent, MatchEventKind, Side, SubReason } from "./match-types";
 import type { GamePlayer } from "./player";
 
 /**
@@ -34,6 +34,27 @@ export type ResponseChoice = "overload" | "stabilize" | "hold";
 interface DecisionBase {
   minute: number;
   side: Side;
+  /**
+   * The match so far, at the moment this decision was raised.
+   *
+   * This is what makes a LIVE view possible at all: the generator yields only decisions,
+   * so without it a driver would receive a handful of prompts and then, at full time,
+   * the entire match — with nothing to render in between.
+   *
+   * ⚠️ Always a COPY. `simulate`'s `state.events` keeps being mutated for the rest of
+   * the match, so a live reference would let an already-rendered segment change beneath
+   * the view.
+   *
+   * ⚠️ CUMULATIVE, not incremental. A consumer must take only what is new
+   * (`slice(seen)`) or it double-renders everything that came before.
+   *
+   * ⚠️⚠️ It can legitimately run AHEAD of `minute`. `scoreGoal` pushes the VAR verdict at
+   * `minute + VAR_DECISION_DELAY` before it yields, so the snapshot at a goal already
+   * holds the verdict that chalks it off. Copying does not help and never could — the
+   * VIEW must render only up to its own clock, or a goal is disallowed before the crowd
+   * has finished celebrating it.
+   */
+  events: MatchEvent[];
 }
 
 /**

@@ -5612,11 +5612,12 @@ Owner requested a unified flow with clear separation of concerns, mapped onto th
 
 **Split into three sub-projects (2026-08-11)**, because the hub, the live match loop and the round-based room each produce working, testable software on their own and one spec covering all three was too large to plan against:
 
-|       | Scope                                                                     | Status     |
-| ----- | ------------------------------------------------------------------------- | ---------- |
-| **A** | `/game/draft` — the interactive hub                                       | ✅ Done    |
-| **B** | `/game/play` — the FSM state controller over the interruptible engine     | 📋 Backlog |
-| **C** | Draft Room ([TASK-1823](#task-1823)) as the round-based entry path into A | 📋 Backlog |
+|        | Scope                                                                     | Status     |
+| ------ | ------------------------------------------------------------------------- | ---------- |
+| **A**  | `/game/draft` — the interactive hub                                       | ✅ Done    |
+| **B1** | `/game/play` — the live match loop over the interruptible engine          | ✅ Done    |
+| **B2** | nuqs URL-sync for the phase, IndexedDB auto-resume by replay              | 📋 Backlog |
+| **C**  | Draft Room ([TASK-1823](#task-1823)) as the round-based entry path into A | 📋 Backlog |
 
 **✅ Sub-project A shipped 2026-08-11.** Design: [`docs/superpowers/specs/2026-08-11-task-1807a-draft-hub-design.md`](../docs/superpowers/specs/2026-08-11-task-1807a-draft-hub-design.md); plan: [`docs/superpowers/plans/2026-08-11-task-1807a-draft-hub.md`](../docs/superpowers/plans/2026-08-11-task-1807a-draft-hub.md). The ticket stays open — A alone does not close it.
 
@@ -5631,6 +5632,24 @@ Built: `domain/fill-gaps.ts` (`fillGaps` — seeded, eligibility-aware, **preser
 **New guard — `tests/unit/game-routes-static.test.ts`.** No guard existed, and CI catches a build _failure_ but not a route silently going dynamic, which is exactly the regression behind the Fluid-CPU crisis. It asserts the `force-static` directive on every `/game/*` route (not the outcome — only `next build` proves the `●`), and was verified to fail when the export is removed.
 
 **Deferred to B, with its design input recorded:** the streaming match view. `MatchView` is a renderer over an already-finished `MatchViewModel` and never drives the engine, so `/game/play` needs the component to own the generator — and a `MatchDecision` does not yet carry the events so far, so it will need an `events` snapshot on the payload. Play currently hands off to `MatchView` through **one function**, deliberately, so B can replace it with a redirect without unpicking it. The bench comes from the auto-drafted opponent side rather than being chosen; manual bench selection, if wanted, is a second pitch panel in C.
+
+**✅ Sub-project B1 shipped 2026-08-11.** Design: [`docs/superpowers/specs/2026-08-11-task-1807b-game-play-design.md`](../docs/superpowers/specs/2026-08-11-task-1807b-game-play-design.md); plan: [`docs/superpowers/plans/2026-08-11-task-1807b1-game-play.md`](../docs/superpowers/plans/2026-08-11-task-1807b1-game-play.md). A match is now **played rather than watched**: the coach picks his response to conceding and makes his own substitutions, mid-match. Suite 1,773 → 1,813; all four game routes verified `●` in the local build.
+
+Built: `events` on `MatchDecision`, `view/match-stream.ts` (`createStream`), `view/play-machine.ts` (`setup → preview → live → summary`), `holdAt` on `MatchView`, `components/{GamePlay,MatchupPreview,MatchSummary}.tsx`, the `force-static` `/game/play` route, en + ar keys.
+
+**⚠️ The blocker was subtler than "wire the generator up": `runMatch` yields only DECISIONS, never events.** Events accumulate in the generator's internal state and are returned once, at the end — so a driver receives ~5 prompts and then, at full time, the whole match, with nothing to render in between. One field fixes it: each decision carries the match so far, the view plays that segment out on the existing minute cursor, and the engine stays far ahead of the clock. **Yielding events alongside decisions was rejected** — cleaner for streaming, but it changes the generator's yield type, every consumer, and every TASK-1830 determinism test, for what one field already buys.
+
+**⚠️⚠️ A snapshot legitimately runs AHEAD of its own minute, and the CLOCK is what protects the VAR drama — not the copy.** `scoreGoal` pushes the verdict at `minute + VAR_DECISION_DELAY` _before_ it yields, so the snapshot at a goal already holds the verdict that chalks it off. The view must render only up to its own cursor, or a goal is disallowed before the crowd has finished celebrating — silently undoing [TASK-1822](#task-1822)'s headline feature. A test sweeps 40 seeds to prove only `var` events do this; `MatchView`'s `holdAt` test pins that a hold at 30' keeps a 60' goal off the scoreboard entirely.
+
+**⚠️ `holdAt` mattered in a second, unspecified way.** The ambient pitch sim treats "reached the end" as full time and **resets both sides to their formation** — so without the flag the pitch visibly froze into a kickoff shape every time a decision came up mid-match.
+
+**Only the coach's decisions surface.** The engine raises them for both sides; `createStream` answers the opponent's with `defaultAnswer` (owner decision), because every decision must be answered or the generator hangs. That is a filter on the driver, never a change to the engine — a smarter opponent later is a policy object here. A test drives the stream from the **away** side too, so the filter is demonstrably a filter rather than a hard-coded `"home"`.
+
+**Referee and weather are READ from the first segment**, never recomputed: `pickReferee` and `pickWeather` are the first two draws inside `runMatch`, so a separate draw would name an official who is not the one taking charge.
+
+**The strict phase reducer caught a bug in its own author's work.** The preview's back button dispatched `newMatch`, which is only accepted from `summary`, so it silently did nothing — surfaced as a failing test rather than a dead control because the reducer ignores out-of-phase transitions instead of applying them. `backToSetup` was added, allowed only from `preview`: once the match is live the seed has produced events, and rewinding would strand a half-played match.
+
+**Still open:** **B2** (nuqs URL-sync so back/forward move between phases, and IndexedDB auto-resume by replaying `(setup, seed, decisions[])`) and **C**. The tactical-style picker on the preview is [TASK-1825](#task-1825) — B1 shows the matchup but defers the control.
 
 ### TASK-1808
 

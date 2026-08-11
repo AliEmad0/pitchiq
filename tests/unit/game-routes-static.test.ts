@@ -31,8 +31,9 @@ describe("game routes stay CDN-served", () => {
   const files = pageFiles(GAME_ROUTES);
 
   it("finds every game route", () => {
-    // If this drops to zero the glob broke and every assertion below is vacuous.
-    expect(files.length).toBeGreaterThanOrEqual(3);
+    // If this drops the glob broke and every assertion below is vacuous. Raise it when
+    // a route is added: /game, /game/chaos, /game/draft, /game/play.
+    expect(files.length).toBeGreaterThanOrEqual(4);
   });
 
   it.each(files.map((f) => [f.slice(f.indexOf("src")), f]))(

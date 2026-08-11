@@ -35,11 +35,49 @@ const model: MatchViewModel = {
   lastMinute: 90,
 };
 
+/** A match with a goal at 60', so a hold at 30' has something to keep hidden. */
+const liveModel: MatchViewModel = {
+  ...model,
+  events: [
+    { minute: 0, kind: "kickoff", commentary: { key: "commentary.kickoff", values: {} } },
+    {
+      minute: 60,
+      kind: "goal",
+      side: "home",
+      playerId: 1,
+      scorerSlot: 0,
+      commentary: { key: "commentary.goal", values: {} },
+    },
+  ],
+  finalScore: { home: 1, away: 0 },
+  lastMinute: 60,
+};
+
 describe("MatchView", () => {
   it("renders the scoreboard, pitch and commentary", () => {
     renderWithIntl(<MatchView model={model} />);
     expect(screen.getByRole("group", { name: /Live scoreboard/i })).toBeTruthy();
     expect(screen.getByRole("img", { name: /Match pitch/i })).toBeTruthy();
     expect(screen.getByRole("status")).toBeTruthy();
+  });
+
+  it("⚠️ never renders past a pending decision", () => {
+    // During a live match the model is PARTIAL and its snapshot can legitimately run
+    // ahead of the clock — the engine pushes a VAR verdict a minute before it is due.
+    // The CURSOR is what protects the drama, so a hold at 30' must keep a 60' goal off
+    // the scoreboard entirely.
+    renderWithIntl(<MatchView model={liveModel} holdAt={30} />);
+    const board = screen.getByRole("group", { name: /Live scoreboard/i });
+    // The scoreboard renders as ABBR + home + away + ABBR, unseparated.
+    expect(board.textContent).toContain("ARS00MUN");
+  });
+
+  it("renders the whole match when nothing is held", () => {
+    // The same model without a hold reaches full time and counts the goal, so the test
+    // above is about the hold and not about the fixture.
+    renderWithIntl(<MatchView model={liveModel} />);
+    expect(screen.getByRole("group", { name: /Live scoreboard/i }).textContent).toContain(
+      "ARS10MUN",
+    );
   });
 });

@@ -12,6 +12,7 @@ const offer = (minute: number, stoppage: boolean): SubOfferDecision => ({
   kind: "sub-offer",
   minute,
   side: "home",
+  events: [],
   stoppage,
   engineSuggests: false,
   legalOff: [],
