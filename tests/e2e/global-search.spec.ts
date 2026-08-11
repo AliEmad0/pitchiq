@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./_helpers/test";
 
 // TASK-907: the global command palette. /api/search reads the committed JSON via
 // loaders (no outbound fetch), so this runs against real data with no MSW need.

@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./_helpers/test";
 
 // The dashboard h1 has been "Premier League {season}–{endYear}" since the
 // TASK-207 composition landed. The brand text "PitchIQ" lives in the

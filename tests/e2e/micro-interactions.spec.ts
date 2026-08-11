@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./_helpers/test";
 
 // TASK-1705 — "Neon glow" micro-interactions: hovering an interactive surface
 // lights an era-accent halo (ix-glow), the standings row hover washes the

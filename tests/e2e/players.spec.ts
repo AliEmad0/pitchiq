@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./_helpers/test";
 
 // TASK-610 — the `/players/[id]` profile page, against committed snapshot data.
 // Player ids are the stable cross-season ids from data/player-ids.json (TASK-704);
