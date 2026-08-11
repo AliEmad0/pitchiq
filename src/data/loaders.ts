@@ -28,6 +28,12 @@ import {
   GoalAttributionSchema,
   MarketValueFileSchema,
   MarketValueHistoryFileSchema,
+  PlayerHonoursFileSchema,
+  PlayerNationalFileSchema,
+  PlayerTransferHistoryFileSchema,
+  type PlayerHonoursFile,
+  type PlayerNationalFile,
+  type PlayerTransferHistoryFile,
   type MarketValueFile,
   type MarketValueHistoryFile,
   type CaptainsFile,
@@ -205,6 +211,34 @@ export async function loadMarketValues(): Promise<MarketValueFile | null> {
  */
 export async function loadMarketValueHistory(): Promise<MarketValueHistoryFile | null> {
   return readJsonOrNull("market-value-history.json", MarketValueHistoryFileSchema);
+}
+
+/**
+ * TASK-M75: enrichment detail for 5,362 players — honours, transfer history and national
+ * career, keyed by player id. `null` when the file is absent, so the app degrades to "no
+ * honours block" rather than failing the build.
+ *
+ * ⚠️ **BUILD-TIME ONLY, same rule as `loadMarketValueHistory` above.** These are large
+ * files (honours ~5 MB, transfers ~8 MB); parsing them on a request-time path is exactly
+ * the Fluid Active-CPU shape PR #35/#40 had to fix. The player row already carries the
+ * cheap `enrichment` summary — ranking, badges and cards must read THAT, not these.
+ * `readJsonOrNull` caches per process, so a prerender pass parses each file once however
+ * many player pages read it.
+ */
+export async function loadPlayerHonours(): Promise<PlayerHonoursFile | null> {
+  return readJsonOrNull("player-honours.json", PlayerHonoursFileSchema);
+}
+
+export async function loadPlayerTransferHistory(): Promise<PlayerTransferHistoryFile | null> {
+  // ⚠️ `player-transfer-history.json`, NOT `player-transfers.json` — that basename
+  // belongs to the PRIVATE pipeline map, and sync-data.yml strips every pipeline-data
+  // basename from this repo. Publishing under the colliding name would get this file
+  // deleted on the next sync.
+  return readJsonOrNull("player-transfer-history.json", PlayerTransferHistoryFileSchema);
+}
+
+export async function loadPlayerNational(): Promise<PlayerNationalFile | null> {
+  return readJsonOrNull("player-national.json", PlayerNationalFileSchema);
 }
 
 // TASK-1606: Arabic entity-name sidecar maps (`data/i18n/names-ar/*.json`).
