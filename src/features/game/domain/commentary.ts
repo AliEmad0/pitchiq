@@ -1,3 +1,4 @@
+import { hashStr } from "./hash";
 import type { MatchEvent, MatchResult } from "./match-types";
 import type { GameTeam } from "./team";
 
@@ -25,16 +26,6 @@ const CARD_YELLOW_POOL = 3;
 const CARD_RED_POOL = 2;
 const CHANCE_POOL = 2;
 const PUSH_POOL = 2;
-
-/** FNV-1a → non-negative int. Deterministic; drives phrasing variety. */
-function hashStr(s: string): number {
-  let h = 2166136261;
-  for (let i = 0; i < s.length; i++) {
-    h ^= s.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  return h >>> 0;
-}
 
 function variantOf(event: MatchEvent, pool: number): number {
   return hashStr(`${event.kind}:${event.minute}:${event.playerId ?? 0}`) % pool;
