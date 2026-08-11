@@ -22,6 +22,8 @@ export type PlayAction =
   | { type: "fullTime" }
   /** Back out of the preview to rebuild the squad, before a ball has been kicked. */
   | { type: "backToSetup" }
+  /** Re-enter a match restored from storage. See view/match-replay.ts. */
+  | { type: "resume"; seed: number }
   | { type: "newMatch" };
 
 export const createPlayState = (phase: PlayPhase = "setup"): PlayState => ({ phase, seed: null });
@@ -46,6 +48,10 @@ export function playReducer(state: PlayState, action: PlayAction): PlayState {
       // Only from the preview. Once the match is live the seed has produced events, and
       // silently rewinding to the draft would strand a half-played match in memory.
       return state.phase === "preview" ? createPlayState("setup") : state;
+    case "resume":
+      // ⚠️ Setup only. A resume raised mid-match would swap a restored generator in
+      // underneath a running one, and nothing on screen would say so.
+      return state.phase === "setup" ? { phase: "live", seed: action.seed } : state;
     case "newMatch":
       // A fresh state, not just a phase change: carrying the old seed forward would make
       // the next match a replay of the last one.
