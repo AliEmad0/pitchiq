@@ -10,6 +10,7 @@ const offer = (over: Partial<SubOfferDecision> = {}): SubOfferDecision => ({
   kind: "sub-offer",
   minute: 60,
   side: "home",
+  events: [],
   stoppage: false,
   engineSuggests: false,
   suggestedOff: undefined,
@@ -84,19 +85,19 @@ describe("defaultAnswer", () => {
 
   it("holds on a response decision", () => {
     expect(
-      defaultAnswer({ kind: "response", minute: 30, side: "away", concededBy: "away" }),
+      defaultAnswer({ kind: "response", minute: 30, side: "away", concededBy: "away", events: [] }),
     ).toEqual({ kind: "response", minute: 30, side: "away", choice: "hold" });
   });
 
   it("lets the engine pick the replacement for a forced injury", () => {
     expect(
-      defaultAnswer({ kind: "injury-sub", minute: 55, side: "home", off: 4, legalOn: [] }),
+      defaultAnswer({ kind: "injury-sub", minute: 55, side: "home", off: 4, legalOn: [], events: [] }),
     ).toEqual({ kind: "injury-sub", minute: 55, side: "home", on: undefined });
   });
 
   it("declines a dismissal reshape", () => {
     expect(
-      defaultAnswer({ kind: "dismissal", minute: 70, side: "home", legalOff: [], legalOn: [] }),
+      defaultAnswer({ kind: "dismissal", minute: 70, side: "home", legalOff: [], legalOn: [], events: [] }),
     ).toEqual({ kind: "dismissal", minute: 70, side: "home", off: undefined, on: undefined });
   });
 });
