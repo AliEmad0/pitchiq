@@ -43,7 +43,12 @@ import {
   resolveChance,
 } from "./minute-model";
 import { BASELINE_MODIFIERS, DESPERATION_MINUTE, applyModifiers, baseWeights } from "./modifiers";
-import { type DecisionAnswer, type MatchDecision, defaultAnswer } from "./match-decisions";
+import {
+  type DecisionAnswer,
+  type MatchDecision,
+  STOPPAGE_KINDS,
+  defaultAnswer,
+} from "./match-decisions";
 import { mulberry32 } from "./rng";
 import {
   FREE_KICK_PER_MATCH,
@@ -340,13 +345,25 @@ export function* runMatch(
   const keeperRate = KEEPER_SWEEP_PER_SIDE / FULL_TIME;
 
   /** Take a player off and bring one on. Returns false if the bench cannot cover it. */
-  const substitute = (side: Side, minute: number, off: GamePlayer, reason: SubReason): boolean => {
+  const substitute = (
+    side: Side,
+    minute: number,
+    off: GamePlayer,
+    reason: SubReason,
+    onOverride?: GamePlayer,
+  ): boolean => {
     const st = state[side];
     if (st.subsUsed >= MAX_SUBS) return false;
     const availableIds = new Set(
       benches[side].filter((b) => !st.broughtOn.has(b.playerId)).map((b) => b.playerId),
     );
-    const on = pickPlayerOn(benches[side], availableIds, off.role ?? null);
+    // A coach's explicit choice still has to be legal — he cannot bring on a player who
+    // is already on, or one who has been on and come off. An illegal pick falls back to
+    // the engine's own selection rather than failing the substitution outright.
+    const on =
+      onOverride != null && availableIds.has(onOverride.playerId)
+        ? onOverride
+        : pickPlayerOn(benches[side], availableIds, off.role ?? null);
     if (on == null) return false;
     squads[side] = squads[side].filter((p) => p.playerId !== off.playerId);
     squads[side].push(on);
@@ -363,6 +380,20 @@ export function* runMatch(
     });
     return true;
   };
+
+  /** Who this side may take off. Mirrors `pickPlayerOff` — outfield only. */
+  const legalOffFor = (side: Side): GamePlayer[] =>
+    state[side].subsUsed >= MAX_SUBS ? [] : squads[side].filter((p) => p.role !== "GK");
+
+  /** Who this side may bring on. Mirrors the availability rule inside `substitute`. */
+  const legalOnFor = (side: Side): GamePlayer[] =>
+    state[side].subsUsed >= MAX_SUBS
+      ? []
+      : benches[side].filter((b) => !state[side].broughtOn.has(b.playerId));
+
+  /** Has a stoppage-kind event already landed this minute? */
+  const stoppageThisMinute = (m: number): boolean =>
+    state.events.some((e) => e.minute === m && STOPPAGE_KINDS.has(e.kind));
 
   // Drawn up front so the roll order stays stable regardless of what happens in play —
   // a later phase adding VAR or injury stoppages must not shift every subsequent roll.
@@ -544,19 +575,41 @@ export function* runMatch(
       }
 
       // ---- squad dynamics ---------------------------------------------------
-      if (m >= SUB_WINDOW_START && m <= SUB_WINDOW_END && rng() < subRate) {
+      if (m >= SUB_WINDOW_START && m <= SUB_WINDOW_END) {
+        // ⚠️ The roll fires here exactly as it always did. A coach-driven match ignores
+        // its result, but `defaultAnswer` reads it — gating or moving it would shift
+        // every subsequent roll and break every determinism snapshot in the suite.
+        const engineSuggests = rng() < subRate;
         const bookedIds = new Set(
           squads[side]
             .filter((pl) => (state.booked.get(`${side}:${pl.playerId}`) ?? 0) > 0)
             .map((pl) => pl.playerId),
         );
         const diff = state[side].score - state[opp].score;
+        // Computed unconditionally — `pickPlayerOff` consumes no rng, so the roll above
+        // stays the only gate and the decision can describe itself in full.
         const choice = pickPlayerOff(
           squads[side],
           bookedIds,
           diff === 0 ? "level" : diff < 0 ? "trailing" : "leading",
         );
-        if (choice != null) substitute(side, m, choice.player, choice.reason);
+        const answer = yield {
+          kind: "sub-offer",
+          minute: m,
+          side,
+          stoppage: stoppageThisMinute(m),
+          engineSuggests,
+          suggestedOff: choice?.player.playerId,
+          suggestedReason: choice?.reason,
+          legalOff: legalOffFor(side),
+          legalOn: legalOnFor(side),
+        };
+        if (answer.kind === "sub-offer" && answer.off != null) {
+          const off = squads[side].find((pl) => pl.playerId === answer.off);
+          const on =
+            answer.on != null ? benches[side].find((pl) => pl.playerId === answer.on) : undefined;
+          if (off != null) substitute(side, m, off, answer.reason ?? "tactical", on);
+        }
       }
 
       if (rng() < injuryRate) {
