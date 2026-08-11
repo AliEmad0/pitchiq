@@ -206,6 +206,13 @@ export interface SideState {
   momentum: number;
   /** Minute the conceding-side response window expires. */
   respondingUntil: number;
+  /**
+   * How the coach chose to respond to the last goal conceded.
+   *
+   * Read by `responseModifier`. `hold` is the default and contributes nothing, so an
+   * un-coached match behaves exactly as it did before the engine became interruptible.
+   */
+  responseChoice?: "overload" | "stabilize" | "hold";
   /** Has the late all-out-attack push already been announced for this side? */
   pushed: boolean;
   /**

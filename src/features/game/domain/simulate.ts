@@ -43,6 +43,12 @@ import {
   resolveChance,
 } from "./minute-model";
 import { BASELINE_MODIFIERS, DESPERATION_MINUTE, applyModifiers, baseWeights } from "./modifiers";
+import {
+  type DecisionAnswer,
+  type MatchDecision,
+  STOPPAGE_KINDS,
+  defaultAnswer,
+} from "./match-decisions";
 import { mulberry32 } from "./rng";
 import {
   FREE_KICK_PER_MATCH,
@@ -116,7 +122,7 @@ function staminaAt(minute: number): number {
  * emitting a `goal` event would leave the UI (which counts goal events) disagreeing
  * with the result.
  */
-function scoreGoal(
+function* scoreGoal(
   state: MatchState,
   side: Side,
   opp: Side,
@@ -131,7 +137,7 @@ function scoreGoal(
     narrated?: boolean;
     assistPlayerId?: number;
   },
-): void {
+): Generator<MatchDecision, void, DecisionAnswer> {
   // THE GOAL IS GIVEN FIRST — always, in full, with scorer, assist and description.
   // The old model deleted a disallowed goal outright, so a viewer saw a review with no
   // idea what was being reviewed. Owner's call: celebrate it, THEN doubt it.
@@ -183,7 +189,10 @@ function scoreGoal(
     }
     if (goalEvent.disallowedAt != null) return;
   }
-  // The side that CONCEDED is the one lifted — see RESPONSE_WINDOW.
+  // The side that CONCEDED is the one lifted — see RESPONSE_WINDOW. The coach of that
+  // side chooses HOW to respond; `hold` is exactly the numbers that were here before.
+  const answer = yield { kind: "response", minute, side: opp, concededBy: opp };
+  state[opp].responseChoice = answer.kind === "response" ? answer.choice : "hold";
   state[opp].momentum = Math.min(1, state[opp].momentum + RESPONSE_URGENCY);
   state[opp].respondingUntil = minute + RESPONSE_WINDOW;
   state[side].momentum = Math.min(1, state[side].momentum + SCORER_URGENCY);
@@ -271,7 +280,9 @@ function noteBias(state: MatchState, referee: Referee, benefited: Side, minute: 
   state.events.push({ minute, kind: "bias", side: wronged, refStyle: referee.style });
 }
 
-export function simulate(setup: MatchSetup): MatchResult {
+export function* runMatch(
+  setup: MatchSetup,
+): Generator<MatchDecision, MatchResult, DecisionAnswer> {
   const rng = mulberry32(setup.seed);
   const modifiers = [...BASELINE_MODIFIERS, ...(setup.modifiers ?? [])];
   // Open play gets what set pieces do not — see `openPlayTarget`. Adding new ways to
@@ -297,6 +308,7 @@ export function simulate(setup: MatchSetup): MatchResult {
     stamina: 1,
     momentum: 0,
     respondingUntil: 0,
+    responseChoice: "hold" as const,
     pushed: false,
     sentOff: 0,
     rage: 0,
@@ -337,13 +349,25 @@ export function simulate(setup: MatchSetup): MatchResult {
   const keeperRate = KEEPER_SWEEP_PER_SIDE / FULL_TIME;
 
   /** Take a player off and bring one on. Returns false if the bench cannot cover it. */
-  const substitute = (side: Side, minute: number, off: GamePlayer, reason: SubReason): boolean => {
+  const substitute = (
+    side: Side,
+    minute: number,
+    off: GamePlayer,
+    reason: SubReason,
+    onOverride?: GamePlayer,
+  ): boolean => {
     const st = state[side];
     if (st.subsUsed >= MAX_SUBS) return false;
     const availableIds = new Set(
       benches[side].filter((b) => !st.broughtOn.has(b.playerId)).map((b) => b.playerId),
     );
-    const on = pickPlayerOn(benches[side], availableIds, off.role ?? null);
+    // A coach's explicit choice still has to be legal — he cannot bring on a player who
+    // is already on, or one who has been on and come off. An illegal pick falls back to
+    // the engine's own selection rather than failing the substitution outright.
+    const on =
+      onOverride != null && availableIds.has(onOverride.playerId)
+        ? onOverride
+        : pickPlayerOn(benches[side], availableIds, off.role ?? null);
     if (on == null) return false;
     squads[side] = squads[side].filter((p) => p.playerId !== off.playerId);
     squads[side].push(on);
@@ -361,10 +385,27 @@ export function simulate(setup: MatchSetup): MatchResult {
     return true;
   };
 
+  /** Who this side may take off. Mirrors `pickPlayerOff` — outfield only. */
+  const legalOffFor = (side: Side): GamePlayer[] =>
+    state[side].subsUsed >= MAX_SUBS ? [] : squads[side].filter((p) => p.role !== "GK");
+
+  /** Who this side may bring on. Mirrors the availability rule inside `substitute`. */
+  const legalOnFor = (side: Side): GamePlayer[] =>
+    state[side].subsUsed >= MAX_SUBS
+      ? []
+      : benches[side].filter((b) => !state[side].broughtOn.has(b.playerId));
+
+  /** Has a stoppage-kind event already landed this minute? */
+  const stoppageThisMinute = (m: number): boolean =>
+    state.events.some((e) => e.minute === m && STOPPAGE_KINDS.has(e.kind));
+
   // Drawn up front so the roll order stays stable regardless of what happens in play —
   // a later phase adding VAR or injury stoppages must not shift every subsequent roll.
   const added = MIN_ADDED + Math.floor(rng() * ADDED_SPREAD);
   const lastMinute = FULL_TIME + added;
+
+  /** How many dismissals have already raised a reshape prompt. */
+  let prompted = 0;
 
   for (let m = 1; m <= lastMinute; m++) {
     state.minute = m;
@@ -408,7 +449,7 @@ export function simulate(setup: MatchSetup): MatchResult {
           // goal ends up assisted — the same discipline the set-piece rolls follow.
           const assistRoll = rng();
           const assister = pickAssister(squads[side], shooter?.playerId, rng);
-          scoreGoal(state, side, opp, m, shooter?.playerId, "open", rng, referee, {
+          yield* scoreGoal(state, side, opp, m, shooter?.playerId, "open", rng, referee, {
             goalStyle: goalStyleFor(shooter, rng()),
             assistPlayerId: assistRoll < ASSIST_SHARE ? assister?.playerId : undefined,
           });
@@ -445,7 +486,7 @@ export function simulate(setup: MatchSetup): MatchResult {
           reboundPlayerId: rebound?.playerId,
         });
         if (penaltyScored(outcome)) {
-          scoreGoal(
+          yield* scoreGoal(
             state,
             side,
             opp,
@@ -468,7 +509,8 @@ export function simulate(setup: MatchSetup): MatchResult {
           playerId: taker?.playerId,
           freeKickOutcome: outcome,
         });
-        if (outcome === "scored") scoreGoal(state, side, opp, m, taker?.playerId, "freekick");
+        if (outcome === "scored")
+          yield* scoreGoal(state, side, opp, m, taker?.playerId, "freekick");
       }
 
       // ---- discipline -------------------------------------------------------
@@ -494,7 +536,7 @@ export function simulate(setup: MatchSetup): MatchResult {
             penaltyOutcome: outcome,
           });
           if (penaltyScored(outcome)) {
-            scoreGoal(state, side, opp, m, taker?.playerId, "penalty");
+            yield* scoreGoal(state, side, opp, m, taker?.playerId, "penalty");
           }
         } else {
           const outcome = resolveFreeKick(rng());
@@ -505,7 +547,8 @@ export function simulate(setup: MatchSetup): MatchResult {
             playerId: taker?.playerId,
             freeKickOutcome: outcome,
           });
-          if (outcome === "scored") scoreGoal(state, side, opp, m, taker?.playerId, "freekick");
+          if (outcome === "scored")
+            yield* scoreGoal(state, side, opp, m, taker?.playerId, "freekick");
         }
       }
 
@@ -528,7 +571,7 @@ export function simulate(setup: MatchSetup): MatchResult {
       if (rng() < ownGoalRate) {
         const backLine = squads[side].filter((pl) => pl.role !== "GK");
         const unlucky = backLine.length > 0 ? backLine[Math.floor(rng() * backLine.length)] : null;
-        scoreGoal(state, opp, side, m, undefined, "own-goal", undefined, undefined, {
+        yield* scoreGoal(state, opp, side, m, undefined, "own-goal", undefined, undefined, {
           ownGoalBy: unlucky?.playerId,
         });
       }
@@ -541,19 +584,41 @@ export function simulate(setup: MatchSetup): MatchResult {
       }
 
       // ---- squad dynamics ---------------------------------------------------
-      if (m >= SUB_WINDOW_START && m <= SUB_WINDOW_END && rng() < subRate) {
+      if (m >= SUB_WINDOW_START && m <= SUB_WINDOW_END) {
+        // ⚠️ The roll fires here exactly as it always did. A coach-driven match ignores
+        // its result, but `defaultAnswer` reads it — gating or moving it would shift
+        // every subsequent roll and break every determinism snapshot in the suite.
+        const engineSuggests = rng() < subRate;
         const bookedIds = new Set(
           squads[side]
             .filter((pl) => (state.booked.get(`${side}:${pl.playerId}`) ?? 0) > 0)
             .map((pl) => pl.playerId),
         );
         const diff = state[side].score - state[opp].score;
+        // Computed unconditionally — `pickPlayerOff` consumes no rng, so the roll above
+        // stays the only gate and the decision can describe itself in full.
         const choice = pickPlayerOff(
           squads[side],
           bookedIds,
           diff === 0 ? "level" : diff < 0 ? "trailing" : "leading",
         );
-        if (choice != null) substitute(side, m, choice.player, choice.reason);
+        const answer = yield {
+          kind: "sub-offer",
+          minute: m,
+          side,
+          stoppage: stoppageThisMinute(m),
+          engineSuggests,
+          suggestedOff: choice?.player.playerId,
+          suggestedReason: choice?.reason,
+          legalOff: legalOffFor(side),
+          legalOn: legalOnFor(side),
+        };
+        if (answer.kind === "sub-offer" && answer.off != null) {
+          const off = squads[side].find((pl) => pl.playerId === answer.off);
+          const on =
+            answer.on != null ? benches[side].find((pl) => pl.playerId === answer.on) : undefined;
+          if (off != null) substitute(side, m, off, answer.reason ?? "tactical", on);
+        }
       }
 
       if (rng() < injuryRate) {
@@ -571,16 +636,31 @@ export function simulate(setup: MatchSetup): MatchResult {
           if (severity === "knock") {
             // Treated on the touchline and carries on, but hurting.
             state[side].knockUntil = m + KNOCK_MINUTES;
-          } else if (!substitute(side, m, hurt, "injury")) {
-            // Nobody left on the bench — the side plays on a man short.
-            squads[side] = squads[side].filter((pl) => pl.playerId !== hurt.playerId);
-            state[side].sentOff += 1;
-            state.events.push({
+          } else {
+            // ⚠️ MODERATE AND SEVERE both force him off — the difference is only how
+            // quickly and how it looks. A knock must never reach this prompt.
+            const forced = yield {
+              kind: "injury-sub",
               minute: m,
-              kind: "shorthanded",
               side,
-              playerId: hurt.playerId,
-            });
+              off: hurt.playerId,
+              legalOn: legalOnFor(side),
+            };
+            const replacement =
+              forced.kind === "injury-sub" && forced.on != null
+                ? benches[side].find((pl) => pl.playerId === forced.on)
+                : undefined;
+            if (!substitute(side, m, hurt, "injury", replacement)) {
+              // Nobody left on the bench — the side plays on a man short.
+              squads[side] = squads[side].filter((pl) => pl.playerId !== hurt.playerId);
+              state[side].sentOff += 1;
+              state.events.push({
+                minute: m,
+                kind: "shorthanded",
+                side,
+                playerId: hurt.playerId,
+              });
+            }
           }
         }
       }
@@ -622,7 +702,7 @@ export function simulate(setup: MatchSetup): MatchResult {
               playerId: taker?.playerId,
               freeKickOutcome: fk,
             });
-            if (fk === "scored") scoreGoal(state, opp, side, m, taker?.playerId, "freekick");
+            if (fk === "scored") yield* scoreGoal(state, opp, side, m, taker?.playerId, "freekick");
             // The backup keeper comes on — and if there is none, an outfielder goes in
             // goal and the side is simply worse for it.
             const outfield = squads[side].find((pl) => pl.role !== "GK");
@@ -631,9 +711,19 @@ export function simulate(setup: MatchSetup): MatchResult {
             const punisher = pickScorer(squads[opp], rng);
             // The keeper event above already told this story in full — describing it
             // again would read as two separate goals.
-            scoreGoal(state, opp, side, m, punisher?.playerId, "open", undefined, undefined, {
-              narrated: true,
-            });
+            yield* scoreGoal(
+              state,
+              opp,
+              side,
+              m,
+              punisher?.playerId,
+              "open",
+              undefined,
+              undefined,
+              {
+                narrated: true,
+              },
+            );
           }
         }
       }
@@ -657,11 +747,45 @@ export function simulate(setup: MatchSetup): MatchResult {
             penaltyOutcome: outcome,
           });
           if (penaltyScored(outcome)) {
-            scoreGoal(state, side, opp, m, taker?.playerId, "penalty");
+            yield* scoreGoal(state, side, opp, m, taker?.playerId, "penalty");
           }
         }
       }
     }
+
+    // ⚠️ Raised AFTER both sides' blocks, not inside one.
+    //
+    // A red can be shown to a side during the OTHER side's block — an altercation cards
+    // both, the keeper DOGSO route cards across, and a VAR upgrade turns someone's
+    // booking into a dismissal. Checking inside a side's own block silently missed every
+    // one of those, because by the time the card landed that side's turn had passed.
+    //
+    // A red card does NOT force a substitution: nobody replaces a dismissed player and
+    // the side plays a man short. What the coach may want is a tactical reset — usually
+    // sacrificing an attacker to restore shape — so this is a prompt with a real
+    // decline, bound by MAX_SUBS and the bench like any other change. Raised for ANY
+    // dismissal, because a second yellow leaves a side in exactly the same position as a
+    // straight red and prompting for one but not the other would read as a bug.
+    const redsSoFar = state.events.filter((e) => e.kind === "card" && e.card === "red");
+    while (prompted < redsSoFar.length) {
+      const red = redsSoFar[prompted];
+      prompted += 1;
+      const hit: Side = red.side ?? "home";
+      const reshape = yield {
+        kind: "dismissal",
+        minute: m,
+        side: hit,
+        legalOff: legalOffFor(hit),
+        legalOn: legalOnFor(hit),
+      };
+      if (reshape.kind === "dismissal" && reshape.off != null) {
+        const off = squads[hit].find((pl) => pl.playerId === reshape.off);
+        const on =
+          reshape.on != null ? benches[hit].find((pl) => pl.playerId === reshape.on) : undefined;
+        if (off != null) substitute(hit, m, off, "tactical", on);
+      }
+    }
+
     if (m === 45) state.events.push({ minute: 45, kind: "halftime" });
   }
   state.events.push({ minute: lastMinute, kind: "fulltime" });
@@ -677,6 +801,34 @@ export function simulate(setup: MatchSetup): MatchResult {
     events: state.events,
     seed: setup.seed,
   };
+}
+
+/**
+ * Drive a match generator to completion with a policy.
+ *
+ * Exported because both `simulate` and the interactive runner need it, and because a
+ * test can drive with a scripted policy.
+ */
+export function drive(
+  gen: Generator<MatchDecision, MatchResult, DecisionAnswer>,
+  policy: (d: MatchDecision) => DecisionAnswer,
+): MatchResult {
+  let step = gen.next(undefined as unknown as DecisionAnswer);
+  while (!step.done) {
+    step = gen.next(policy(step.value));
+  }
+  return step.value;
+}
+
+/**
+ * The batch entry point, unchanged for every existing caller.
+ *
+ * ⚠️ Returns a bare `MatchResult`. Adding a field here would break the determinism
+ * snapshots, which compare whole results with `toEqual` — and those snapshots are the
+ * only evidence that making the engine interruptible did not change how it behaves.
+ */
+export function simulate(setup: MatchSetup): MatchResult {
+  return drive(runMatch(setup), defaultAnswer);
 }
 
 /** Kept for callers that reason about regulation time. */
