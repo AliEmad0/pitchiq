@@ -35,15 +35,38 @@ const DWELL_MS = 2500; // high-importance events hold before advancing (#5)
 const DWELL_FLOOR = 1500;
 const SPEEDS = [1, 2, 4] as const;
 
-export function MatchView({ model }: { model: MatchViewModel }) {
+interface Props {
+  model: MatchViewModel;
+  /**
+   * Minute the clock must not advance past, because a decision is waiting there.
+   *
+   * ⚠️ Distinct from `model.lastMinute`. During a live match the model is PARTIAL, so its
+   * last minute is only "as far as the engine has been driven" — treating that as full
+   * time would announce the result at every segment boundary and reset the pitch to its
+   * formation mid-match.
+   *
+   * ⚠️⚠️ This is also what protects the VAR drama. A decision's event snapshot can
+   * legitimately run a minute AHEAD of itself, because `scoreGoal` pushes the verdict
+   * before it yields. The cursor is the only thing standing between that and a goal
+   * being chalked off before the crowd has finished celebrating it.
+   */
+  holdAt?: number;
+}
+
+export function MatchView({ model, holdAt }: Props) {
   const t = useTranslations("game");
   const reduced = prefersReducedMotion();
-  const [minute, setMinute] = useState(reduced ? model.lastMinute : 0);
+  const ceiling = holdAt != null ? Math.min(holdAt, model.lastMinute) : model.lastMinute;
+  const [minute, setMinute] = useState(reduced ? ceiling : 0);
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState<number>(1);
   const [sim, setSim] = useState<SimState>(() => (reduced ? restSim() : initSim()));
 
-  const lastMinute = model.lastMinute;
+  /** Full time is the END of the match, never merely the end of what we have so far. */
+  const atFullTime = holdAt == null;
+  const lastMinute = ceiling;
+  /** Stopped by a hold rather than by the viewer, so the clock may restart itself. */
+  const held = useRef(false);
   const rngRef = useRef<() => number>(mulberry32(model.seed));
   const lastSimMinute = useRef(0);
 
@@ -51,6 +74,9 @@ export function MatchView({ model }: { model: MatchViewModel }) {
   useEffect(() => {
     if (!playing || reduced) return;
     if (minute >= lastMinute) {
+      // Remember WHY we stopped: a hold resumes itself once the next segment extends
+      // the ceiling, but a viewer who pressed pause stays paused.
+      if (holdAt != null) held.current = true;
       setPlaying(false);
       return;
     }
@@ -64,7 +90,14 @@ export function MatchView({ model }: { model: MatchViewModel }) {
     const delay = importantNow ? Math.max(DWELL_FLOOR, DWELL_MS / speed) : TICK_MS / speed;
     const id = setTimeout(() => setMinute((m) => Math.min(lastMinute, m + 1)), delay);
     return () => clearTimeout(id);
-  }, [playing, reduced, minute, speed, model.events, lastMinute]);
+  }, [playing, reduced, minute, speed, model.events, lastMinute, holdAt]);
+
+  // A new segment moved the ceiling past us — pick the clock back up where it stopped.
+  useEffect(() => {
+    if (reduced || !held.current || minute >= lastMinute) return;
+    held.current = false;
+    setPlaying(true);
+  }, [reduced, minute, lastMinute]);
 
   // Ambient possession — one beat per minute. A real goal injects a celebration,
   // and the beat BEFORE it builds up with the scoring side already attacking so
@@ -80,11 +113,21 @@ export function MatchView({ model }: { model: MatchViewModel }) {
     );
     setSim((s) => {
       if (goalNow?.side) return goalKick(goalNow.side, goalNow.scorerSlot ?? 10);
-      if (minute >= lastMinute) return restSim(); // full-time → reset to formation
+      // Only at REAL full time. Resetting to formation at a segment boundary would
+      // freeze the pitch mid-match every time a decision came up.
+      if (atFullTime && minute >= lastMinute) return restSim();
       if (goalNext?.side) return buildUp(goalNext.side, goalNext.scorerSlot ?? 10);
       return stepSim(s, ctx, rngRef.current);
     });
-  }, [minute, reduced, model.events, model.home.players, model.away.players, lastMinute]);
+  }, [
+    minute,
+    reduced,
+    model.events,
+    model.home.players,
+    model.away.players,
+    lastMinute,
+    atFullTime,
+  ]);
 
   // autoplay once on mount when motion is allowed
   const started = useRef(false);
