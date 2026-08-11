@@ -5483,32 +5483,42 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 
 **⛔ Blocked by [TASK-M56](#task-m56)** (true player roles — the draft needs real positions) and **enriched by [TASK-M57](#task-m57)** (historical advanced stats — shrinks the sparse-rating era to 1992-2002). Start the headless slice (1801-1805) once M56 lands.
 
-| ID                      | Title                                                           | Status     | Priority | Est |
-| ----------------------- | --------------------------------------------------------------- | ---------- | -------- | --- |
-| [TASK-1801](#task-1801) | Game domain model + read-only data adapter                      | ✅ Done    | P2       | L   |
-| [TASK-1802](#task-1802) | Era-aware player rating model (one interface, provenance tier)  | ✅ Done    | P2       | L   |
-| [TASK-1803](#task-1803) | Deterministic seeded match engine → `MatchEvent[]`              | ✅ Done    | P2       | XL  |
-| [TASK-1804](#task-1804) | Commentary system (ICU keys, en + ar, AST-guard clean)          | ✅ Done    | P2       | L   |
-| [TASK-1805](#task-1805) | Hybrid opponent model (modern squad / historical record)        | ✅ Done    | P2       | M   |
-| [TASK-1806](#task-1806) | Chaos Draft — first end-to-end vertical slice                   | ✅ Done    | P2       | L   |
-| [TASK-1807](#task-1807) | Hard-ban squad validation (`canPlay`; block save/lock/start)    | 📋 Backlog | P2       | M   |
-| [TASK-1808](#task-1808) | Live tactical pitch UI + speed controls (1x/2x/skip)            | 📋 Backlog | P3       | L   |
-| [TASK-1809](#task-1809) | Key-event animations (goal/red-card overlays, pulsing nodes)    | 📋 Backlog | P3       | L   |
-| [TASK-1810](#task-1810) | Remaining six modes as rule packs                               | 📋 Backlog | P3       | XL  |
-| [TASK-1811](#task-1811) | Season-mode engine (ghost-of-real-season, Survival, Legacy)     | 📋 Backlog | P3       | L   |
-| [TASK-1812](#task-1812) | Persistence, records, shareable seeded matches                  | 📋 Backlog | P3       | M   |
-| [TASK-1813](#task-1813) | Hall of Fame & retro achievements (IndexedDB, provenance-aware) | 📋 Backlog | P3       | M   |
-| [TASK-1814](#task-1814) | Momentum engine + data-derived personality traits (modifiers)   | 📋 Backlog | P3       | L   |
-| [TASK-1815](#task-1815) | Post-match analytics — xG timeline + retro newspaper headlines  | 📋 Backlog | P3       | M   |
-| [TASK-1816](#task-1816) | "What-If" historical scenario mode (rule pack)                  | 📋 Backlog | P3       | M   |
-| [TASK-1817](#task-1817) | Daily seeded challenge — client-only (streaks, PB, seed replay) | 📋 Backlog | P3       | M   |
-| [TASK-1818](#task-1818) | Rogue-like / Mystery Market mode (local run history)            | 📋 Backlog | P3       | L   |
-| [TASK-1819](#task-1819) | Retro sticker album & collection book (IndexedDB)               | 📋 Backlog | P3       | S   |
-| [TASK-1820](#task-1820) | Rating model — absolute/cross-position stats + GK pipeline      | ✅ Done    | P2       | L   |
-| [TASK-1821](#task-1821) | Tier-Anchored Hybrid rating engine (anchors + delta + team)     | ✅ Done    | P2       | L   |
-| [TASK-1822](#task-1822) | Dynamic event-driven match engine (drama, VAR, subs, injuries)  | ✅ Done    | P1       | XL  |
+| ID                      | Title                                                            | Status     | Priority | Est |
+| ----------------------- | ---------------------------------------------------------------- | ---------- | -------- | --- |
+| [TASK-1801](#task-1801) | Game domain model + read-only data adapter                       | ✅ Done    | P2       | L   |
+| [TASK-1802](#task-1802) | Era-aware player rating model (one interface, provenance tier)   | ✅ Done    | P2       | L   |
+| [TASK-1803](#task-1803) | Deterministic seeded match engine → `MatchEvent[]`               | ✅ Done    | P2       | XL  |
+| [TASK-1804](#task-1804) | Commentary system (ICU keys, en + ar, AST-guard clean)           | ✅ Done    | P2       | L   |
+| [TASK-1805](#task-1805) | Hybrid opponent model (modern squad / historical record)         | ✅ Done    | P2       | M   |
+| [TASK-1806](#task-1806) | Chaos Draft — first end-to-end vertical slice                    | ✅ Done    | P2       | L   |
+| [TASK-1807](#task-1807) | Hard-ban squad validation (`canPlay`; block save/lock/start)     | 📋 Backlog | P2       | M   |
+| [TASK-1808](#task-1808) | Live tactical pitch UI + speed controls (1x/2x/skip)             | 📋 Backlog | P3       | L   |
+| [TASK-1809](#task-1809) | Key-event animations (goal/red-card overlays, pulsing nodes)     | 📋 Backlog | P3       | L   |
+| [TASK-1810](#task-1810) | Remaining six modes as rule packs                                | 📋 Backlog | P3       | XL  |
+| [TASK-1811](#task-1811) | Season-mode engine (ghost-of-real-season, Survival, Legacy)      | 📋 Backlog | P3       | L   |
+| [TASK-1812](#task-1812) | Persistence, records, shareable seeded matches                   | 📋 Backlog | P3       | M   |
+| [TASK-1813](#task-1813) | Hall of Fame & retro achievements (IndexedDB, provenance-aware)  | 📋 Backlog | P3       | M   |
+| [TASK-1814](#task-1814) | Momentum engine + data-derived personality traits (modifiers)    | 📋 Backlog | P3       | L   |
+| [TASK-1815](#task-1815) | Post-match analytics — xG timeline + retro newspaper headlines   | 📋 Backlog | P3       | M   |
+| [TASK-1816](#task-1816) | "What-If" historical scenario mode (rule pack)                   | 📋 Backlog | P3       | M   |
+| [TASK-1817](#task-1817) | Daily seeded challenge — client-only (streaks, PB, seed replay)  | 📋 Backlog | P3       | M   |
+| [TASK-1818](#task-1818) | Rogue-like / Mystery Market mode (local run history)             | 📋 Backlog | P3       | L   |
+| [TASK-1819](#task-1819) | Retro sticker album & collection book (IndexedDB)                | 📋 Backlog | P3       | S   |
+| [TASK-1820](#task-1820) | Rating model — absolute/cross-position stats + GK pipeline       | ✅ Done    | P2       | L   |
+| [TASK-1821](#task-1821) | Tier-Anchored Hybrid rating engine (anchors + delta + team)      | ✅ Done    | P2       | L   |
+| [TASK-1822](#task-1822) | Dynamic event-driven match engine (drama, VAR, subs, injuries)   | ✅ Done    | P1       | XL  |
+| [TASK-1823](#task-1823) | Draft Room — 11 rounds × 5 cards, pick timer (entry to `/draft`) | 📋 Backlog | P2       | L   |
+| [TASK-1824](#task-1824) | Squad chemistry (era / club / nation links) as a modifier        | 📋 Backlog | P3       | M   |
+| [TASK-1825](#task-1825) | Tactical style + mentality selection on the draft hub            | 📋 Backlog | P3       | S   |
+| [TASK-1826](#task-1826) | Market value progression across a season                         | 📋 Backlog | P3       | M   |
+| [TASK-1827](#task-1827) | Onboarding — coach identity + tutorial match (local only)        | 📋 Backlog | P3       | M   |
+| [TASK-1828](#task-1828) | Weekly modifier ladder (local, seeded from the ISO week)         | 📋 Backlog | P3       | M   |
+| [TASK-1829](#task-1829) | Card crafting — duplicates → trait badges (local)                | 📋 Backlog | P3       | S   |
+| [TASK-1830](#task-1830) | Segmented interactive match engine (live decisions, replayable)  | 📋 Backlog | P1       | L   |
 
 _Enhancement roadmap 1813-1819 added 2026-08-03 from the owner's feature proposal (Option A — 100% client-side/static). See the locked-architecture notes above for the modifier-stack + determinism + no-backend decisions that govern them._
+
+_**Tickets 1823-1829 added 2026-08-11** from the owner's A-to-Z player-journey roadmap. Only the client-side-feasible items are here; everything in that roadmap that needs a server — accounts, currency, global leaderboards, real-opponent H2H, trading, private lounges, live content drops — is in **[Phase 19](#-phase-19--online-platform-backend-dependent)** and is blocked on a platform decision that has not been taken. Two naming corrections applied from that roadmap: its "Anchors" (special abilities) are **`traits`** here ([TASK-1814](#task-1814)) because `anchor` already means the curated per-player-season OVR anchor behind the rating engine; and its PAC/SHO/PAS/DRI/DEF/PHY stat set is **not** adopted — ours stays `ATT/CRE/DEF/PHY/DIS` + `OVR`, which is derived from real match data and consumed directly by the match engine._
 
 _**Card system (2026-08-06/07, shipped).** The FUT-style `PlayerCard` (PR #91) was reworked into a resolver-driven family system (PR #93): `pickFront` chooses **A1 Gold / A2 Onyx** for sub-90 cards (by image kind) and a seeded **B/C/D premium pool** for 90+; club crests (`clubLogo(teamId)`), surname display (`display-name.ts`), one-line auto-fit names, and **build-time cutout-vs-photo detection** — `adapter/photo-kind.ts` pixel-probes each image with `sharp` (corner-alpha, robust to old photos' stray alpha) and stores `photoKind`/`photoUrl` on the card, so a transparent PNG floats and a photo-with-background fills, automatically. Fix any player's card image via `CARD_PHOTO_OVERRIDES` in `adapter/photo-overrides.ts` (id → FPL code or URL). The Chaos board is now full-width (no h-scroll). Next in the owner's UI-expansion arc: the interactive `/draft` hub ([TASK-1807](#task-1807)). The rating model has since been rebuilt onto absolute cross-position stats with a dedicated goalkeeper pipeline — see [TASK-1820](#task-1820)._
 
@@ -5589,6 +5599,13 @@ Owner requested a unified flow with clear separation of concerns, mapped onto th
 **Hard-ban squad validation** · 📋 Backlog · `P2` · `M` · Type: Feature
 
 **Description** — `canPlay(player, slot) = player.role === slot || player.altRoles.includes(slot)` is the only eligibility rule (owner decision: **hard ban, no penalty tier**). The UI must **block** — not warn — saving the squad, locking the formation, or starting a match if any player sits in a role that isn't theirs, surfacing a validation error naming the player + slot. **Depends on:** TASK-1801, TASK-1806.
+
+**Scope expanded 2026-08-11** — this ticket now carries the **`/draft` interactive hub** it was always going to live in (PR #2 of the UI-expansion plan). Owner decisions from that session:
+
+- **Hub shape = "both paths"** — one screen that serves an empty build _and_ an auto-filled draft. Start from nothing and fill slots yourself, or hit auto-fill and edit what you got; every slot stays editable either way. `/game/chaos` becomes an entry point into this hub rather than a separate screen.
+- **Placement = click-to-place with eligibility highlight**, no drag-and-drop library (decision carried from 2026-08-06: lighter, mobile- and RTL-friendly, motion-audit-safe).
+- **Visual language = "Broadcast Teamsheet"** — chosen from a 30-concept gallery. A TV pre-match graphic: dark, cyan keylines, lower-third pool strip, deliberately the same world as the shipped `MatchView`, so draft → match reads as one continuous broadcast.
+- **The round-based Draft Room ([TASK-1823](#task-1823)) is an entry path into this hub, not a replacement for it.**
 
 ### TASK-1808
 
@@ -5889,6 +5906,153 @@ Both game routes remain `● force-static` prerendered in **en** and **ar**. Two
 **Two real bugs the change surfaced:** a VAR downgrade could hand an already-booked player a _second_ yellow and leave him on the pitch (a second yellow is still a second yellow); and `red-upgraded` was reused for "the referee stood by his red", colliding with its existing meaning of "the booth turned a booking into a red" — split into `red-confirmed`.
 
 **⚠️ ALL DIGITS ARE WESTERN IN EVERY LOCALE** (owner's call) — shirt numbers, the clock, the scoreline, ratings, minutes in the feed and commentary. Same reasoning as the English-only player cards (PR #97): a number is read as a glyph, not as prose, and switching numeral systems mid-match makes the broadcast furniture harder to scan. **Arabic prose and every aria-label stay fully localised.** Two tests that pinned the old Eastern-Arabic behaviour were deliberately reversed with the reasoning recorded in them. `localizeDigits` is gone from the game surfaces, and the now-dead `locale` prop was removed from eight components rather than silenced.
+
+---
+
+### TASK-1823
+
+**Draft Room — 11 rounds × 5 cards with a pick timer** · 📋 Backlog · `P2` · `L` · Type: Feature
+
+**Description** — The fast entry path into the `/draft` hub (owner decision 2026-08-11: the round-based room **hands off to** the builder, it does not replace it). Eleven rounds; each round deals **5 seeded candidate cards** for the round's slot and the player picks one against a **15-second timer**. Timeout auto-picks the highest-rated eligible candidate, so a lapsed timer never produces an illegal squad. All five candidates for a slot must satisfy `canPlay` — the hard ban ([TASK-1807](#task-1807)) is enforced by **construction** here rather than by validation, because there is no free placement to validate. The round sequence and every deal derive from the draft seed, so a room replays identically from `(seed)` and stays shareable ([TASK-1812](#task-1812)).
+
+**⚠️ The timer is a view concern, not an engine one.** The countdown must never reach the domain layer: `Date.now()` inside anything the engine reads breaks the determinism rule locked for Phase 18. The elapsed time influences _which_ card the player picks, and that pick is the input — the clock itself is not. **Depends on:** TASK-1806, TASK-1807.
+
+### TASK-1824
+
+**Squad chemistry** · 📋 Backlog · `P3` · `M` · Type: Feature
+
+**Description** — A 0-100 squad cohesion score derived from links between adjacent formation slots: shared **club**, shared **season/era**, shared **nationality**, and role compatibility. Surfaced on the draft hub as link strength between slots, and fed to the engine as a **`Modifier`** over the per-minute weights — never as a bespoke engine branch (the modifier-stack rule locked in TASK-1803). Chemistry must be a pure function of the placed XI so it recomputes on every placement with no state of its own.
+
+**Design constraint** — our pool spans 1992-2026, so a same-club link is rare and a same-era link is common; the weighting has to be tuned against the actual pool or chemistry becomes a flat constant. Validate against a real draft distribution before shipping, the way the rating harness gates the rating model. **Depends on:** TASK-1807.
+
+### TASK-1825
+
+**Tactical style + mentality selection** · 📋 Backlog · `S` · `P3` · Type: Feature
+
+**Description** — Surface the six `TacticalStyle` values already shipped in TASK-1805 (`balanced`, `tiki-taka`, `high-press`, `low-block`, `counter`, `direct`) as a picker on the draft hub, replacing the currently seeded random style. The counter matrix and `tacticalStyleModifier` already exist — this is UI plus wiring, no engine work. Show the matchup edge against the opponent's style on the pre-match screen so the choice is legible rather than arbitrary. **Depends on:** TASK-1805, TASK-1807.
+
+### TASK-1826
+
+**Market value progression** · 📋 Backlog · `P3` · `M` · Type: Feature
+
+**Description** — Within a season run, each card carries a value that moves with performance (goals, assists, clean sheets, ratings, honours) so a squad has a visible economy across matchweeks. **Values are synthesised, never sourced** — the repo holds no transfer-fee data and real fee data is not ours to ship. Derive from the existing rating dimensions plus in-run output, and label the number as an in-game valuation so it is never mistaken for a real market price. Persisted in IndexedDB with the rest of the run ([TASK-1812](#task-1812)). Buying and selling against other coaches is **not** in scope — that is [TASK-1906](#task-1906) and needs a server. **Depends on:** TASK-1811, TASK-1812.
+
+### TASK-1827
+
+**Onboarding — coach identity + tutorial match** · 📋 Backlog · `P3` · `M` · Type: Feature
+
+**Description** — First-run flow: pick a coach name and a crest, then a short scripted tutorial match that teaches the momentum bar, VAR, and substitutions. **Entirely local** — identity lives in IndexedDB, there is no account and no sign-up (that is [TASK-1902](#task-1902)). The tutorial match runs on a **fixed seed** so every player meets the same teaching moments in the same order; it is a normal `simulate()` run with a hand-chosen seed, not a special code path. **Depends on:** TASK-1806, TASK-1812.
+
+### TASK-1828
+
+**Weekly modifier ladder** · 📋 Backlog · `P3` · `M` · Type: Feature
+
+**Description** — A rotating weekly ruleset (rain week, strict-referee week, heightened-VAR week) built as a **rule pack** over the existing modifier stack, with local streaks and personal bests. The week's seed derives from the **ISO week number**, computed as a `setup` input and baked into the shareable seed — never read inside the engine, per the standing determinism rule. Same shape as the daily challenge ([TASK-1817](#task-1817)); no global ranking (that is [TASK-1904](#task-1904)). **Depends on:** TASK-1810, TASK-1817.
+
+### TASK-1829
+
+**Card crafting — duplicates into trait badges** · 📋 Backlog · `P3` · `S` · Type: Feature
+
+**Description** — Duplicate cards accumulated in the collection ([TASK-1819](#task-1819)) can be consumed to mint **trait badges** that attach to a card via the `traits?` seam ([TASK-1814](#task-1814)). Strictly local and strictly one-way: crafting spends duplicates, it does not create tradeable goods. **Trading between players is out of scope** — see [TASK-1906](#task-1906). **Depends on:** TASK-1814, TASK-1819.
+
+### TASK-1830
+
+**Segmented interactive match engine** · 📋 Backlog · `P1` · `L` · Type: Feature
+
+**Description** — Today `simulate()` runs all 90 minutes up front and returns a finished `MatchEvent[]`; the UI is a renderer over a match that has already happened. The owner's player-journey spec (2026-08-11) requires the coach to **make decisions during the match** — choose a response after conceding, and make substitutions himself — which cannot exist over a pre-computed stream, because the result is already settled before the prompt appears.
+
+This ticket makes the engine **interruptible**: it runs to a decision point, yields, accepts the coach's answer, and continues. Determinism is preserved by making the answers **inputs** — a match replays byte-for-byte from `(setup, seed, decisions[])`, which keeps seed-sharing ([TASK-1812](#task-1812)) and refresh-resume working by replay rather than by snapshot.
+
+**⚠️ This must land BEFORE [TASK-1807](#task-1807)** (owner decision) so the `/game/play` state machine is shaped around an interactive match instead of being rewritten for one.
+
+Design: [`docs/superpowers/specs/2026-08-11-task-1830-interactive-engine-design.md`](../docs/superpowers/specs/2026-08-11-task-1830-interactive-engine-design.md). **Depends on:** TASK-1822. **Blocks:** TASK-1807.
+
+---
+
+## 🌐 Phase 19 — Online platform (backend-dependent)
+
+Everything in the owner's A-to-Z roadmap (2026-08-11) that **cannot** be built under the Phase-18 architecture. Phase 18 is locked to **100% client-side / static, no backend** (decision 2026-08-03, Option A): records in IndexedDB, sharing via URL/seed state. Each ticket below breaks that constraint, and none of them is a small addition to it.
+
+**⛔ This entire phase is blocked on a platform decision that has not been taken.** It is written down so the roadmap is honest about the cost, not because it is scheduled. Committing to any of it means accepting, permanently:
+
+- **A server and a database.** The app is currently static and CDN-served on Hobby; the whole Phase-18 cost story ([TASK-M71](#task-m71), the Fluid-CPU crisis) was about getting every route off lambdas and onto the CDN. Player accounts put dynamic requests back on the critical path.
+- **Authentication, and therefore personal data.** Names, emails, sessions — with the GDPR/retention obligations that follow. The repo is public.
+- **Moderation.** Anything user-generated and shared (coach names, crests, tactic codes, private rooms) is a moderation surface. Without one, the feature ships an abuse vector.
+- **Anti-cheat.** The match engine currently runs **in the browser**. Any competitive ranking built on client-computed results is trivially forged; a real leaderboard requires the simulation to move server-side or be re-verified there. This is the single largest hidden cost in this phase.
+- **Ongoing operational cost and on-call**, on a project that presently costs nothing to run.
+
+| ID                      | Title                                                    | Status     | Priority | Est |
+| ----------------------- | -------------------------------------------------------- | ---------- | -------- | --- |
+| [TASK-1901](#task-1901) | Platform foundation — decision, hosting, DB, API surface | ⛔ Blocked | —        | XL  |
+| [TASK-1902](#task-1902) | Accounts, auth + server-side coach profiles              | ⛔ Blocked | —        | L   |
+| [TASK-1903](#task-1903) | P-Coins — virtual currency, starter pack, entry fees     | ⛔ Blocked | —        | L   |
+| [TASK-1904](#task-1904) | Global leaderboards, divisions + verified results        | ⛔ Blocked | —        | XL  |
+| [TASK-1905](#task-1905) | Tactical H2H against a real opponent                     | ⛔ Blocked | —        | XL  |
+| [TASK-1906](#task-1906) | Card trading / marketplace + anti-abuse                  | ⛔ Blocked | —        | XL  |
+| [TASK-1907](#task-1907) | Private lounges — custom rooms with rule overrides       | ⛔ Blocked | —        | L   |
+| [TASK-1908](#task-1908) | Weekend tournament service (qualification, brackets)     | ⛔ Blocked | —        | L   |
+| [TASK-1909](#task-1909) | Community tactic sharing + moderation                    | ⛔ Blocked | —        | M   |
+| [TASK-1910](#task-1910) | Live content drops tied to real-world matches            | ⛔ Blocked | —        | L   |
+
+### TASK-1901
+
+**Platform foundation** · ⛔ Blocked · Type: Decision + Infrastructure
+
+**Description** — The gate on the whole phase. Decide whether PitchIQ becomes a product with a backend at all, then stand up hosting, a database, an API boundary, secret management, migrations, backups and an environment story. **Nothing else in Phase 19 can start before this.** The output should be a written decision record, not just infrastructure — including what happens to the static-CDN cost model that the M71 arc was built to protect. **Blocks:** every other Phase-19 ticket.
+
+### TASK-1902
+
+**Accounts, auth + server-side coach profiles** · ⛔ Blocked · Type: Feature
+
+**Description** — Sign-up, sign-in, sessions, account recovery, deletion, and a server-side coach profile (name, crest, history). Carries the personal-data obligations noted above. The **local** coach identity in [TASK-1827](#task-1827) is deliberately designed to work without any of this, and should remain the fallback for signed-out play. **Depends on:** TASK-1901.
+
+### TASK-1903
+
+**P-Coins — virtual currency** · ⛔ Blocked · Type: Feature
+
+**Description** — A server-authoritative balance: starter pack on sign-up, entry fees for competitions, rewards for results. Must be server-authoritative or it is meaningless — a client-held balance is editable in devtools. Note that a virtual currency invites a real-money purchase path; if that is ever wanted it brings payment processing, tax, refunds, and minors/consumer-protection rules with it. **Depends on:** TASK-1901, TASK-1902.
+
+### TASK-1904
+
+**Global leaderboards + divisions** · ⛔ Blocked · Type: Feature
+
+**Description** — Ranked tiers, seasonal resets, and a global table. **The hard part is not the table, it is trusting the results.** The match engine runs in the browser today, so a submitted result is a claim, not a fact. Either the simulation moves server-side, or every submitted `(setup, seed)` is re-simulated on the server and compared — the engine's byte-reproducibility makes the second option viable and is the reason determinism was locked in TASK-1803. Was explicitly deferred in the 2026-08-03 Option-A decision. **Depends on:** TASK-1901, TASK-1902.
+
+### TASK-1905
+
+**Tactical H2H against a real opponent** · ⛔ Blocked · Type: Feature
+
+**Description** — Two human coaches drafting and playing against each other. Needs matchmaking, a session protocol, turn/timer enforcement, disconnect and abandonment handling, and a rematch flow. Whether it is asynchronous (both submit squads, the server simulates) or real-time changes the cost by an order of magnitude; **asynchronous is strongly preferred** because it reuses the deterministic engine exactly as it stands. **Depends on:** TASK-1901, TASK-1902.
+
+### TASK-1906
+
+**Card trading / marketplace** · ⛔ Blocked · Type: Feature
+
+**Description** — Player-to-player exchange of cards, with listings, escrow, price discovery and anti-abuse. The abuse surface is the feature: alt-account value transfer, market manipulation, and scam patterns all have to be designed against from the start rather than patched later. Note this is the only Phase-19 item with no meaningful single-player subset. **Depends on:** TASK-1901, TASK-1902, TASK-1903.
+
+### TASK-1907
+
+**Private lounges** · ⛔ Blocked · Type: Feature
+
+**Description** — Invite-only rooms with custom rules (legends-only pools, shortened halves, maximum-chaos modifiers). Room state must be shared, so it needs a server even though the rules themselves are just rule packs the client already understands. Invite links plus user-chosen room names make this a moderation surface. **Depends on:** TASK-1901, TASK-1902.
+
+### TASK-1908
+
+**Weekend tournament service** · ⛔ Blocked · Type: Feature
+
+**Description** — Server-run qualification, brackets, scheduling and prize distribution for a recurring competition, with weekly chaos modifiers. The modifiers themselves are rule packs and need no server; the **qualification and bracket state** do. The local-only approximation is [TASK-1828](#task-1828), which delivers the weekly-modifier feel without any of this. **Depends on:** TASK-1901, TASK-1902, TASK-1904.
+
+### TASK-1909
+
+**Community tactic sharing** · ⛔ Blocked · Type: Feature
+
+**Description** — Publish a tactic/lineup as a shareable code others can load and test, with a browsable registry, attribution and ratings. **A large part of this is already possible without a server:** [TASK-1812](#task-1812) encodes a squad and seed into a URL, which covers sharing with a friend. Only the _public registry_ — discovery, ranking, moderation — needs a backend. Consider shipping the URL half first and measuring whether the registry is wanted. **Depends on:** TASK-1901, TASK-1812.
+
+### TASK-1910
+
+**Live content drops tied to real-world matches** · ⛔ Blocked · Type: Feature + Operations
+
+**Description** — Publish a timed challenge that recreates a real match that just happened. Needs a live data feed, an editorial/ops process to author and publish drops, and a client update path — this is a **continuing operational commitment**, not a build-once feature. It also collides directly with the standing determinism rule: a date-driven scenario must be baked into `setup` and into the shareable seed, never read inside the engine, or replays diverge from the original run. Date-based temporary boosts were already deliberately rejected in the Phase-18 architecture notes for exactly this reason. **Depends on:** TASK-1901.
 
 ---
 
