@@ -151,6 +151,9 @@ Separate workflow runs Playwright against the production build, uploads the HTML
 - `.github/workflows/e2e.yml` (new — the workflow)
 - `playwright.config.ts` (modified — CI reporter now `[github, html]` instead of `github` only, so `playwright-report/` materialises for artifact upload)
 
+**Follow-up 2026-08-11 (PR #122) — the "nav flake cloud" was a real bug, not flakiness.**
+The nav specs failed intermittently from this workflow's first weeks and were cleared with `rerun-failed-jobs` for months; by the week of 2026-08-10 the not-green-first-try rate had climbed to 60% and reruns stopped clearing. Traces showed the click landing on a real `<a href>`, being `preventDefault`-ed, and then **no RSC request ever being issued** — a click arriving after React installs its root event listeners but before the App Router mounts is swallowed outright, so the URL can never change and no `expect` timeout could ever have helped. Fixed by gating `page.goto`/`page.reload` on `window.next.router` in `tests/e2e/_helpers/test.ts` (measured under 6x CDP CPU throttling: 9/12 clicks swallowed without the gate, 1/12 with), plus a `scripts/warm-e2e-routes.sh` step so on-demand route compiles no longer land inside assertions (`/game/chaos` alone compiled in 15.3s, above the 12s expect timeout) and no longer broadcast HMR rebuilds into other workers' pages. Result: 87 passed / 0 flaky on the first attempt in 3.6m, down from 83 passed / 3 flaky / 1 failed in ~5.2m. **Still open:** the suite is not actually offline — browser-side player/manager photos hit `resources.premierleague.com` and `upload.wikimedia.org` for real and `waitUntil: "load"` waits on them; and a `controller[kState].transformAlgorithm is not a function` TypeError fires once per run in the dev-server log.
+
 **Depends on:** TASK-001 ✅, TASK-007 ✅
 
 ---
