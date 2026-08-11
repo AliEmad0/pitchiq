@@ -5514,7 +5514,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1827](#task-1827) | Onboarding — coach identity + tutorial match (local only)        | 📋 Backlog | P3       | M   |
 | [TASK-1828](#task-1828) | Weekly modifier ladder (local, seeded from the ISO week)         | 📋 Backlog | P3       | M   |
 | [TASK-1829](#task-1829) | Card crafting — duplicates → trait badges (local)                | 📋 Backlog | P3       | S   |
-| [TASK-1830](#task-1830) | Segmented interactive match engine (live decisions, replayable)  | 📋 Backlog | P1       | L   |
+| [TASK-1830](#task-1830) | Segmented interactive match engine (live decisions, replayable)  | ✅ Done    | P1       | L   |
 
 _Enhancement roadmap 1813-1819 added 2026-08-03 from the owner's feature proposal (Option A — 100% client-side/static). See the locked-architecture notes above for the modifier-stack + determinism + no-backend decisions that govern them._
 
@@ -5957,7 +5957,7 @@ Both game routes remain `● force-static` prerendered in **en** and **ar**. Two
 
 ### TASK-1830
 
-**Segmented interactive match engine** · 📋 Backlog · `P1` · `L` · Type: Feature
+**Segmented interactive match engine** · ✅ Done (2026-08-11) · `P1` · `L` · Type: Feature
 
 **Description** — Today `simulate()` runs all 90 minutes up front and returns a finished `MatchEvent[]`; the UI is a renderer over a match that has already happened. The owner's player-journey spec (2026-08-11) requires the coach to **make decisions during the match** — choose a response after conceding, and make substitutions himself — which cannot exist over a pre-computed stream, because the result is already settled before the prompt appears.
 
@@ -5965,7 +5965,31 @@ This ticket makes the engine **interruptible**: it runs to a decision point, yie
 
 **⚠️ This must land BEFORE [TASK-1807](#task-1807)** (owner decision) so the `/game/play` state machine is shaped around an interactive match instead of being rewritten for one.
 
-Design: [`docs/superpowers/specs/2026-08-11-task-1830-interactive-engine-design.md`](../docs/superpowers/specs/2026-08-11-task-1830-interactive-engine-design.md). **Depends on:** TASK-1822. **Blocks:** TASK-1807.
+Design: [`docs/superpowers/specs/2026-08-11-task-1830-interactive-engine-design.md`](../docs/superpowers/specs/2026-08-11-task-1830-interactive-engine-design.md); plan: [`docs/superpowers/plans/2026-08-11-task-1830-interactive-engine.md`](../docs/superpowers/plans/2026-08-11-task-1830-interactive-engine.md). **Depends on:** TASK-1822. **Blocks:** TASK-1807.
+
+**✅ Shipped** — `simulate()`'s body is now the generator `runMatch()`, yielding a `MatchDecision` and resuming with a `DecisionAnswer`. `simulate()` survives unchanged as a thin driver over it using `defaultAnswer`, and **every one of the 1,685 pre-existing tests passed untouched at every step** — no determinism snapshot was updated to accommodate the work.
+
+**Why a generator rather than a `stepMinute(state) → state` reducer:** a generator suspends its whole stack frame, so `rng`, `referee`, `weather`, `squads`, `benches`, the `substitute` closure and every rate constant stay exactly where they are. The textbook reducer would have meant dismantling a 683-line function that shipped nine days earlier with a large snapshot suite, purely to gain a serializability that the replay model makes unnecessary.
+
+**The property that made it tractable:** both decision seams were already **PRNG-free**. `pickPlayerOff` and `pickPlayerOn` take no `rng`, and the response-window effect is three plain assignments. The engine still rolls _whether_ an opportunity arises; the coach only chooses what to do with it, so swapping his answer for the engine's costs exactly the same rolls.
+
+**Four decision points** — `sub-offer` (every minute of the window, carrying the engine's own roll and its own suggestion), `response` (`overload` / `stabilize` / `hold`), `injury-sub`, `dismissal`. Overload and stabilize ride the **modifier stack** (the 1803 seam, as 1805 used it) rather than branching the minute loop; `hold` contributes `{}`, which is why `simulate()` is byte-identical.
+
+**Replay contract:** `(setup, seed, decisions[])` is byte-reproducible. `InteractiveMatchResult` is deliberately **not** `MatchResult` — adding a field to what `simulate()` returns would break the `toEqual` snapshots. A list recorded against another seed **throws** rather than landing answers on the wrong prompts, because a silent mis-apply surfaces as "the shared link plays a different match". Refresh-resume is therefore replay, not snapshot, and shares its code path with seed-sharing.
+
+**⚠️ Three findings the plan got wrong, all caught by measuring rather than reading:**
+
+1. **Nine `scoreGoal` call sites, not six.** A missed `yield*` is **silent** — the call is a valid expression statement returning an unconsumed generator that does nothing. Verified by grep, not by eye.
+2. **The dismissal prompt had to move OUT of the per-side block.** A red can be shown to a side during the _other_ side's turn — an altercation cards both, the keeper DOGSO route cards across the halfway line, and a VAR upgrade turns a booking into a dismissal. Checking inside a side's own block silently missed every one: by the time the card landed, that side's turn had passed. Now raised after both blocks, once per red, tracked by a counter.
+3. **A red card does not force a substitution.** Nobody replaces a dismissed player; the side plays a man short. The prompt is a declinable tactical reset, and a test asserts declining leaves the side genuinely short rather than quietly filling the gap. Raised for **any** dismissal — a second yellow leaves a side in an identical position to a straight red.
+
+Also corrected from the owner's wording: the injury trigger is **moderate _and_ severe** (both force him off), never a `knock`.
+
+**"The next stoppage" had to be defined** — `MatchEventKind` has no ball-out-of-play event, so it cannot be read off the stream. `STOPPAGE_KINDS` covers the events during which play is genuinely dead, and `REQUEST_GRACE` bounds the wait so a request cannot be swallowed for a quarter of an hour. The request/grace/spent rules live in `view/coach-policy.ts` as pure functions — the engine never learns a human was involved.
+
+**⏭️ DEFERRED TO [TASK-1807](#task-1807) — the streaming match view.** `MatchView` is a **renderer over an already-finished `MatchViewModel`**; it never drives the engine. Wiring a live decision loop into it means restructuring how a match is produced (the component must own the generator and stream events as the clock advances), which is `/game/play`'s job and lands with the route that needs it. **Design input for that work:** a decision object does not currently carry the events so far, so a streaming view needs an `events` snapshot on the decision payload — deliberately not added here rather than shipping unused API. `components/DecisionPrompt.tsx` is built, localised and tested (6 render tests) ready for it to mount.
+
+Verified: 1,724 tests green, `tsc` + ESLint clean, match harness unmoved, `/game` and `/game/chaos` both still `●` prerendered in en + ar.
 
 ---
 
