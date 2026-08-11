@@ -43,6 +43,7 @@ import {
   resolveChance,
 } from "./minute-model";
 import { BASELINE_MODIFIERS, DESPERATION_MINUTE, applyModifiers, baseWeights } from "./modifiers";
+import { type DecisionAnswer, type MatchDecision, defaultAnswer } from "./match-decisions";
 import { mulberry32 } from "./rng";
 import {
   FREE_KICK_PER_MATCH,
@@ -271,7 +272,9 @@ function noteBias(state: MatchState, referee: Referee, benefited: Side, minute: 
   state.events.push({ minute, kind: "bias", side: wronged, refStyle: referee.style });
 }
 
-export function simulate(setup: MatchSetup): MatchResult {
+export function* runMatch(
+  setup: MatchSetup,
+): Generator<MatchDecision, MatchResult, DecisionAnswer> {
   const rng = mulberry32(setup.seed);
   const modifiers = [...BASELINE_MODIFIERS, ...(setup.modifiers ?? [])];
   // Open play gets what set pieces do not — see `openPlayTarget`. Adding new ways to
@@ -677,6 +680,34 @@ export function simulate(setup: MatchSetup): MatchResult {
     events: state.events,
     seed: setup.seed,
   };
+}
+
+/**
+ * Drive a match generator to completion with a policy.
+ *
+ * Exported because both `simulate` and the interactive runner need it, and because a
+ * test can drive with a scripted policy.
+ */
+export function drive(
+  gen: Generator<MatchDecision, MatchResult, DecisionAnswer>,
+  policy: (d: MatchDecision) => DecisionAnswer,
+): MatchResult {
+  let step = gen.next(undefined as unknown as DecisionAnswer);
+  while (!step.done) {
+    step = gen.next(policy(step.value));
+  }
+  return step.value;
+}
+
+/**
+ * The batch entry point, unchanged for every existing caller.
+ *
+ * ⚠️ Returns a bare `MatchResult`. Adding a field here would break the determinism
+ * snapshots, which compare whole results with `toEqual` — and those snapshots are the
+ * only evidence that making the engine interruptible did not change how it behaves.
+ */
+export function simulate(setup: MatchSetup): MatchResult {
+  return drive(runMatch(setup), defaultAnswer);
 }
 
 /** Kept for callers that reason about regulation time. */
