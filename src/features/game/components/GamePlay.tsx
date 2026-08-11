@@ -1,7 +1,7 @@
 "use client";
 import { useTranslations } from "next-intl";
 import { useCallback, useMemo, useReducer, useRef, useState } from "react";
-import { chaosMatchup, type PoolCard } from "@/features/game/domain/chaos-draft";
+import type { PoolCard } from "@/features/game/domain/chaos-draft";
 import type { Formation } from "@/features/game/domain/formation";
 import type { DecisionAnswer, MatchDecision } from "@/features/game/domain/match-decisions";
 import type {
@@ -10,11 +10,10 @@ import type {
   RefereeStyle,
   Weather,
 } from "@/features/game/domain/match-types";
-import { opponentSetup } from "@/features/game/domain/opponent";
-import { runMatch } from "@/features/game/domain/simulate";
-import { type GameTeam, makeGameTeam } from "@/features/game/domain/team";
+import type { GameTeam } from "@/features/game/domain/team";
 import { buildMatchViewModel } from "@/features/game/view/match-view-model";
-import { createStream, type StreamStep } from "@/features/game/view/match-stream";
+import { buildSession } from "@/features/game/view/match-session";
+import type { StreamStep } from "@/features/game/view/match-stream";
 import { createPlayState, playReducer, type PlayPhase } from "@/features/game/view/play-machine";
 import { randomSeed } from "@/features/game/view/seed";
 import { DecisionPrompt } from "./DecisionPrompt";
@@ -23,8 +22,6 @@ import { MatchSummary } from "./MatchSummary";
 import { MatchupPreview } from "./MatchupPreview";
 import { MatchView } from "./MatchView";
 
-/** Squad spans seasons, so no single season's goal rate applies — stay neutral. */
-const DEFAULT_RATE = 2.7;
 /** Seconds a decision waits before answering itself. Extendable per WCAG 2.2.1. */
 const DECISION_LIMIT = 20;
 
@@ -76,30 +73,17 @@ export function GamePlay({ pool, initialPhase }: { pool: PoolCard[]; initialPhas
    */
   const confirmSquad = (players: PoolCard[], formation: Formation) => {
     const seed = randomSeed();
-    const matchup = chaosMatchup(pool, seed, { home: t("yourXi"), away: t("rivals") });
-    const home = makeGameTeam(-1, t("yourXi"), 0, formation, players, matchup.home.bench);
-    const away = matchup.opponent.kind === "squad" ? matchup.opponent.team : matchup.home;
+    const session = buildSession(pool, players, formation, seed, {
+      home: t("yourXi"),
+      away: t("rivals"),
+    });
+    streamRef.current = session.stream;
 
-    const stream = createStream(
-      runMatch(
-        opponentSetup({
-          home,
-          homeStyle: matchup.homeStyle,
-          opponent: matchup.opponent,
-          season: 0,
-          seed,
-          targetGoalsPerMatch: DEFAULT_RATE,
-        }),
-      ),
-      "home",
-    );
-    streamRef.current = stream;
-
-    setMatch({ home, away, seed });
+    setMatch({ home: session.home, away: session.away, seed });
     setEvents([]);
     setAnswers([]);
     setResult(null);
-    consume(stream.advance());
+    consume(session.stream.advance());
     dispatch({ type: "confirmSquad", seed });
   };
 
