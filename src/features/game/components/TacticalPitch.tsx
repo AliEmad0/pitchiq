@@ -12,6 +12,11 @@ interface Props {
   selectedSlot: number | null;
   /** Slot indices the currently-held card may legally fill. */
   highlighted: readonly number[];
+  /**
+   * Is the coach holding a card? Distinct from `highlighted.length > 0`, because a card
+   * with no legal slot left must still disable every slot rather than all of them.
+   */
+  holdingCard: boolean;
   errors: readonly SquadError[];
   onSelectSlot: (index: number) => void;
   reduced: boolean;
@@ -36,6 +41,7 @@ export function TacticalPitch({
   cards,
   selectedSlot,
   highlighted,
+  holdingCard,
   errors,
   onSelectSlot,
   reduced,
@@ -61,10 +67,16 @@ export function TacticalPitch({
             const isSelected = selectedSlot === i;
             const isLegal = highlighted.includes(i);
             const isInvalid = invalid.has(i);
+            // ⚠️ Symmetry with the pool, and the other half of the hard ban. Ineligible
+            // CARDS are disabled when a slot is held; ineligible SLOTS must be disabled
+            // when a card is held, or the coach can drop a centre-back into a striker
+            // slot and only find out when Play refuses to light up.
+            const blocked = holdingCard && !isLegal;
             return (
               <button
                 key={i}
                 type="button"
+                disabled={blocked}
                 onClick={() => onSelectSlot(i)}
                 aria-pressed={isSelected}
                 data-invalid={isInvalid ? "true" : undefined}
@@ -78,6 +90,7 @@ export function TacticalPitch({
                 }}
                 className={[
                   "flex h-20 w-20 flex-col items-center justify-center rounded-lg border text-center",
+                  blocked ? "opacity-30" : "",
                   isInvalid
                     ? "border-red-500 bg-red-500/15"
                     : isSelected

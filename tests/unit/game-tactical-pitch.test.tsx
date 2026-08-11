@@ -32,6 +32,7 @@ const base = {
   cards: [cb],
   selectedSlot: null,
   highlighted: [],
+  holdingCard: false,
   errors: [],
   reduced: true,
 };
@@ -77,6 +78,31 @@ describe("TacticalPitch", () => {
     const flagged = screen.getAllByRole("button").filter((b) => b.dataset.invalid === "true");
     expect(flagged).toHaveLength(1);
     expect(flagged[0]).toHaveAccessibleName(/Tony Adams/);
+  });
+
+  it("disables every slot the held card cannot legally fill", () => {
+    // The other half of the hard ban. Ineligible CARDS are disabled when a slot is
+    // held; ineligible SLOTS must be disabled when a card is held, or a centre-back
+    // can be dropped into a striker slot and the coach only finds out when Play
+    // refuses to light up.
+    renderWithIntl(
+      <TacticalPitch
+        {...base}
+        slots={empty}
+        holdingCard
+        highlighted={[2, 3]}
+        onSelectSlot={vi.fn()}
+      />,
+    );
+    const enabled = screen.getAllByRole("button").filter((b) => !(b as HTMLButtonElement).disabled);
+    expect(enabled).toHaveLength(2);
+    for (const b of enabled) expect(b).toHaveAccessibleName(/CB/);
+  });
+
+  it("leaves every slot clickable when no card is held", () => {
+    renderWithIntl(<TacticalPitch {...base} slots={empty} onSelectSlot={vi.fn()} />);
+    const disabled = screen.getAllByRole("button").filter((b) => (b as HTMLButtonElement).disabled);
+    expect(disabled).toHaveLength(0);
   });
 
   it("renders attackers above defenders", () => {
