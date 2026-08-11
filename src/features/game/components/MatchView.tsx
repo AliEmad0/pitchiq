@@ -15,6 +15,7 @@ import { winProbability } from "@/features/game/domain/win-probability";
 import { lineupAt } from "@/features/game/view/lineup-state";
 import { OVERLAY_KINDS } from "@/features/game/view/match-view-model";
 import type { MatchViewModel } from "@/features/game/view/match-view-model";
+import { scoreAt } from "@/features/game/view/score";
 import { prefersReducedMotion } from "@/utils/motion";
 import { CommentaryCaption } from "./CommentaryCaption";
 import { CommentaryFeed } from "./CommentaryFeed";
@@ -146,14 +147,9 @@ export function MatchView({ model, holdAt }: Props) {
   const feedLines = shown.slice(0, -1);
   // A goal under review COUNTS until the verdict lands — that is the suspense. The
   // scoreboard ticks up, the referee walks to the monitor, and only when
-  // `disallowedAt` arrives does it come back off.
-  const scoreFor = (side: "home" | "away") =>
-    shown.filter(
-      (e) =>
-        e.kind === "goal" && e.side === side && (e.disallowedAt == null || e.disallowedAt > minute),
-    ).length;
-  const homeScore = scoreFor("home");
-  const awayScore = scoreFor("away");
+  // `disallowedAt` arrives does it come back off. Shared with the resume dialog so the
+  // two can never disagree about what the score was.
+  const { home: homeScore, away: awayScore } = scoreAt(model.events, minute);
 
   // The squads AS THEY STAND at this minute — dismissals removed, substitutes on,
   // bookings marked. One derivation shared by the pitch and the roster so they can
