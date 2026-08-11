@@ -47,13 +47,39 @@ The existing 683-line `simulate` body becomes the generator body essentially unc
 
 ## The decision points
 
-Three, all optional — an absent handler falls back to today's behaviour exactly.
+Four, all optional — an absent handler falls back to today's behaviour exactly.
 
 | Decision       | Raised when                                   | Options                                                          | Engine effect                                |
 | -------------- | --------------------------------------------- | ---------------------------------------------------------------- | -------------------------------------------- |
 | `response`     | This side concedes, at the goal's minute      | `overload` / `stabilize` / `hold`                                | Sets `momentum` + `respondingUntil`          |
-| `substitution` | A sub opportunity is rolled in the sub window | `{ off, on }` from the legal sets, or `decline`                  | Calls the existing `substitute()`            |
-| `injury-sub`   | A moderate/severe injury forces a change      | `{ on }` from the bench (who comes off is decided by the injury) | Calls `substitute()` with `reason: "injury"` |
+| `substitution` | The coach requested one, at the next stoppage | `{ off, on }` from the legal sets, or `cancel`                   | Calls the existing `substitute()`            |
+| `injury-sub`   | A moderate or severe injury forces a change   | `{ on }` from the bench (who comes off is decided by the injury) | Calls `substitute()` with `reason: "injury"` |
+| `dismissal`    | This side loses a player to a red card        | `{ off, on }` to reshape, or `decline`                           | Optional `substitute()`; never forced        |
+
+### When substitutions are raised (owner decision, 2026-08-11)
+
+A modal that interrupts the match every time the engine fancies a change is the wrong feel. The trigger model is:
+
+- **Normal substitutions are coach-initiated.** He clicks _Request Substitution_ at any point in the sub window. The prompt does not open immediately — it opens **at the next stoppage**, and playback pauses there. Making the change _or_ cancelling the prompt **spends the opportunity** (owner decision): the roll count stays fixed and the coach cannot re-open the prompt repeatedly to shop around.
+- **Two events force a prompt automatically**, because in both the coach has no choice about facing the situation:
+  1. **A moderate or severe injury** — the player cannot continue. ⚠️ Note this is _moderate and severe_, not severe alone: `InjurySeverity` is documented as "moderate and severe both force him off, the difference being how quickly and how it looks". A `knock` is treated and the player carries on, and must not prompt.
+  2. **A dismissal** — a red card. See the caveat below.
+
+**⚠️ A red card does not force a substitution, and the spec should not imply it does.** A dismissed player is not replaced; the side plays a man short. What the coach actually needs is a _tactical reset_ — usually sacrificing an attacker to restore shape, which is a normal substitution he may or may not want and may not have the budget for. So `dismissal` is a **prompt with a real decline**, it does not consume a requested-substitution opportunity, and it is still bound by `MAX_SUBS` and bench availability like any other change.
+
+**⚠️ Recommend triggering `dismissal` on any red, not only a straight red.** The owner's wording says straight red. But a second yellow leaves the side in an identical position — ten men, shape broken — and `CardReason` already distinguishes `second-yellow`, `dogso`, `violent-conduct` and `altercation`, all of which end with a player walking. Prompting on a straight red but not a second yellow would read as a bug to anyone who has just gone down to ten. Flagged for the owner; built as "any dismissal" unless told otherwise.
+
+### "The next stoppage" has to be defined, because the engine has no such concept
+
+There is no ball-out-of-play event. `MatchEventKind` has no throw-in, goal kick or corner — the engine models consequential events only, so "the next stoppage" cannot be read literally off the stream.
+
+Define `STOPPAGE_KINDS` as the existing events during which play is genuinely dead: `goal`, `card`, `penalty`, `freekick`, `injury`, `var`, `altercation`, `substitution`, `halftime`. At roughly 40 events per match these arrive often, but nothing _guarantees_ one within any given span.
+
+So the request needs a bound: **if no stoppage occurs within `REQUEST_GRACE` minutes, the prompt opens anyway** at the end of that span. Without it a request can be silently swallowed for a quarter of an hour, which the coach experiences as a broken button. Halftime is always a stoppage, so the worst unbounded case is capped regardless; the grace period exists for the second half.
+
+⚠️ **The `rng() < subRate` roll must stay exactly where it is and keep firing every minute of the window**, even though a coach-driven match ignores its result. It is what `DEFAULT_POLICY` uses to decide whether to make a change, and removing or gating it would shift every subsequent roll and break every determinism snapshot in the suite. The coach's request is an _independent input_ layered over an unchanged stream — the same discipline the set-piece rolls already follow ("rolled every minute for BOTH sides regardless of outcome, so the PRNG consumption pattern stays fixed").
+
+The request itself is recorded in `decisions[]` as a `request-substitution` entry stamped with the minute it was made, so replay reproduces the timing exactly.
 
 `response` is the interesting one, because it is the first place a coach's choice touches the weight stack rather than the roster:
 
@@ -113,6 +139,7 @@ Enough UI to make the loop real and testable, no more. Polish belongs to TASK-18
 
 - `MatchView` playback stops when a decision arrives, the way it already holds for the ~2.5s commentary dwell on goals and cards. That pause mechanism exists; this reuses it.
 - A `DecisionPrompt` component renders the options, the timer, and an explanation of what each choice does. All strings are ICU keys in `en.json`/`ar.json` — the hardcoded-string AST guard scans `.tsx`.
+- A persistent **Request Substitution** control, enabled only inside the sub window and only while a change is actually available (bench not empty, `MAX_SUBS` not reached). Once pressed it shows a pending state — _at the next stoppage_ — so the delay reads as intentional rather than as an unresponsive button. This is the one piece of UI that has to exist for the coach-initiated model to be usable at all.
 - Choosing resumes playback. The prompt is `role="dialog"` with focus moved into it, and the timer is announced politely rather than assertively so it does not interrupt the commentary feed.
 - On a reduced-motion or paused-tab path, nothing auto-advances.
 
@@ -124,6 +151,11 @@ Enough UI to make the loop real and testable, no more. Polish belongs to TASK-18
 - **PRNG neutrality** — the roll count for a match is identical whether decisions are answered by the coach or by the default policy. This is the invariant that keeps replay honest, so it gets its own explicit test rather than being implied.
 - **Mismatched replay throws** — a decision list recorded against one seed, replayed against another, fails loudly.
 - **Empty-bench and exhausted-subs paths** — the prompt must not offer a substitution that `substitute()` will refuse; the legal sets are computed from the same state the engine uses.
+- **A request opens at the next stoppage, not immediately** — request at a minute with no stoppage and assert the prompt arrives on the next `STOPPAGE_KINDS` event, not before.
+- **The grace bound fires** — construct a run with a long stoppage-free stretch and assert the prompt opens at `REQUEST_GRACE` rather than being swallowed. ⚠️ Build the fixture so it genuinely has no stoppage in that span; a fixture that happens to contain one cannot express the defect, and would pass against code that ignores the bound entirely.
+- **A spent opportunity cannot be re-requested** — cancel the prompt, then assert a second request in the same window is refused.
+- **A knock does not prompt** — only `moderate` and `severe` raise `injury-sub`. This is the boundary most likely to be got wrong, since the owner's wording said "severe".
+- **A dismissal prompt is declinable and does not force a change** — assert the side plays on a man short when declined, and that declining a `dismissal` leaves a normal substitution request still available.
 - **Harness** — `tests/unit/game-match-harness.test.ts` re-run to confirm the results distribution has not moved. Per the TASK-1822 calibration rule, an interactive engine must not quietly change the goal rate.
 
 ## Out of scope
@@ -133,6 +165,11 @@ Enough UI to make the loop real and testable, no more. Polish belongs to TASK-18
 - Chemistry (TASK-1824) and tactical archetypes (TASK-1825) as engine inputs.
 - Any persistence UI. This ticket writes `(setup, seed, decisions[])`; the run history around it is TASK-1812.
 
+## Decisions taken
+
+- **A spent opportunity is spent** (owner, 2026-08-11). Making the change or cancelling the prompt both consume it. Keeps the roll count fixed and stops the prompt being re-opened to shop around.
+- **Normal substitutions are coach-initiated**, opening at the next stoppage; only a forcing injury or a dismissal auto-prompts (owner, 2026-08-11).
+
 ## Open question for the owner
 
-**Should a declined substitution still consume the opportunity?** If the coach declines, the engine could either move on (the opportunity is spent) or keep rolling and offer again next minute. Spent is simpler and matches how the roll works today; offering again is more forgiving but risks prompting repeatedly in a tight window. Recommend **spent**, with the prompt wording making clear it is a real choice.
+**Should a second yellow prompt the same way a straight red does?** The owner's wording specified a straight red. A second yellow leaves the side in an identical position — ten men, shape broken — so prompting for one and not the other would read as a bug. Built as "any dismissal" unless told otherwise; say the word and it narrows to straight reds only.
