@@ -5494,7 +5494,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1804](#task-1804) | Commentary system (ICU keys, en + ar, AST-guard clean)           | ✅ Done    | P2       | L   |
 | [TASK-1805](#task-1805) | Hybrid opponent model (modern squad / historical record)         | ✅ Done    | P2       | M   |
 | [TASK-1806](#task-1806) | Chaos Draft — first end-to-end vertical slice                    | ✅ Done    | P2       | L   |
-| [TASK-1807](#task-1807) | Hard-ban squad validation (`canPlay`; block save/lock/start)     | 📋 Backlog | P2       | M   |
+| [TASK-1807](#task-1807) | Draft hub + live match loop (A ✅ B1 ✅ — B2 + C left)           | 📋 Backlog | P2       | L   |
 | [TASK-1808](#task-1808) | Live tactical pitch UI + speed controls (1x/2x/skip)             | 📋 Backlog | P3       | L   |
 | [TASK-1809](#task-1809) | Key-event animations (goal/red-card overlays, pulsing nodes)     | 📋 Backlog | P3       | L   |
 | [TASK-1810](#task-1810) | Remaining six modes as rule packs                                | 📋 Backlog | P3       | XL  |
@@ -5599,7 +5599,7 @@ Owner requested a unified flow with clear separation of concerns, mapped onto th
 
 ### TASK-1807
 
-**Hard-ban squad validation** · 📋 Backlog · `P2` · `M` · Type: Feature
+**Draft hub + live match loop** (was "Hard-ban squad validation") · 📋 Backlog — **A and B1 are done; B2 and C remain** · `P2` · `L` · Type: Feature
 
 **Description** — `canPlay(player, slot) = player.role === slot || player.altRoles.includes(slot)` is the only eligibility rule (owner decision: **hard ban, no penalty tier**). The UI must **block** — not warn — saving the squad, locking the formation, or starting a match if any player sits in a role that isn't theirs, surfacing a validation error naming the player + slot. **Depends on:** TASK-1801, TASK-1806.
 
