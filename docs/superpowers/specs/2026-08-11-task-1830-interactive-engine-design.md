@@ -170,6 +170,8 @@ Enough UI to make the loop real and testable, no more. Polish belongs to TASK-18
 - **A spent opportunity is spent** (owner, 2026-08-11). Making the change or cancelling the prompt both consume it. Keeps the roll count fixed and stops the prompt being re-opened to shop around.
 - **Normal substitutions are coach-initiated**, opening at the next stoppage; only a forcing injury or a dismissal auto-prompts (owner, 2026-08-11).
 
-## Open question for the owner
+- **Any dismissal prompts, not only a straight red** (owner, 2026-08-11, confirming the recommendation). Playing with ten men demands an optional tactical reset regardless of the referee's booking sequence, and prompting for a straight red but not a second yellow would read as a bug to anyone who has just gone down to ten.
 
-**Should a second yellow prompt the same way a straight red does?** The owner's wording specified a straight red. A second yellow leaves the side in an identical position — ten men, shape broken — so prompting for one and not the other would read as a bug. Built as "any dismissal" unless told otherwise; say the word and it narrows to straight reds only.
+## No open questions
+
+All three decisions above are settled and built. The one piece of scope this spec describes but does not deliver is the streaming match view, which moved to TASK-1807 with its design input recorded there — `MatchView` is a renderer over an already-finished `MatchViewModel`, and a `MatchDecision` does not yet carry the events so far.
