@@ -20,6 +20,8 @@ export type PlayAction =
   | { type: "confirmSquad"; seed: number }
   | { type: "kickOff" }
   | { type: "fullTime" }
+  /** Back out of the preview to rebuild the squad, before a ball has been kicked. */
+  | { type: "backToSetup" }
   | { type: "newMatch" };
 
 export const createPlayState = (phase: PlayPhase = "setup"): PlayState => ({ phase, seed: null });
@@ -40,6 +42,10 @@ export function playReducer(state: PlayState, action: PlayAction): PlayState {
       return state.phase === "preview" ? { ...state, phase: "live" } : state;
     case "fullTime":
       return state.phase === "live" ? { ...state, phase: "summary" } : state;
+    case "backToSetup":
+      // Only from the preview. Once the match is live the seed has produced events, and
+      // silently rewinding to the draft would strand a half-played match in memory.
+      return state.phase === "preview" ? createPlayState("setup") : state;
     case "newMatch":
       // A fresh state, not just a phase change: carrying the old seed forward would make
       // the next match a replay of the last one.

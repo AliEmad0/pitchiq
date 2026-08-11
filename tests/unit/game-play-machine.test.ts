@@ -41,6 +41,20 @@ describe("playReducer", () => {
     expect(s.seed).toBeNull();
   });
 
+  it("backToSetup rewinds the preview and drops the seed with it", () => {
+    let s = playReducer(createPlayState(), { type: "confirmSquad", seed: 7 });
+    s = playReducer(s, { type: "backToSetup" });
+    expect(s.phase).toBe("setup");
+    expect(s.seed).toBeNull();
+  });
+
+  it("backToSetup is refused once the match is live", () => {
+    // The seed has produced events by then; rewinding would strand a half-played match.
+    let s = playReducer(createPlayState(), { type: "confirmSquad", seed: 7 });
+    s = playReducer(s, { type: "kickOff" });
+    expect(playReducer(s, { type: "backToSetup" })).toBe(s);
+  });
+
   it("⚠️ ignores transitions that do not belong to the current phase", () => {
     // A linear flow that ignores by default cannot be driven into a state the UI has no
     // rendering for — which is the reason this is a machine rather than a pile of
