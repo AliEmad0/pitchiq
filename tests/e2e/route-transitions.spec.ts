@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./_helpers/test";
 
 // TASK-1703 — zoom-fade route transitions. Internal Link navigations run
 // inside document.startViewTransition (spied via addInitScript); reduced

@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./_helpers/test";
 
 // TASK-1606 (Plan A) — Arabic entity-name data on /ar.
 // Positions + the seeded Manchester United club name are the deterministic,

@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./_helpers/test";
 
 // TASK-311 — index → detail navigation, offline against MSW.
 // The Playwright web-server is started with TEST_MSW=1, which makes

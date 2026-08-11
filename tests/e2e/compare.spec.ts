@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./_helpers/test";
 
 // TASK-411 — full compare flow, against committed snapshot data.
 //

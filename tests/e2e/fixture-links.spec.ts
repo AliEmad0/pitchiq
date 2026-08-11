@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./_helpers/test";
 
 // M21 — fixture-page player links. Man Utd v Fulham (2024-08-16 opening day) has
 // committed lineups whose names all resolve to the 2024-25 squad.

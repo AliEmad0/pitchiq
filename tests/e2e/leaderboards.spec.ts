@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./_helpers/test";
 
 test("leaderboards page renders boards and reflects the season", async ({ page }) => {
   await page.goto("/leaderboards?season=2024");

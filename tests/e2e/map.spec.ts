@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./_helpers/test";
 
 test("map: nav, 51 markers, slider changes the season, badge → team page", async ({ page }) => {
   await page.goto("/");

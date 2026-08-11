@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./_helpers/test";
 
 // TASK-M12 — the all-fixtures page (`/fixtures?season=`) and the dashboard
 // "See all" link that reaches it, against committed snapshot data.

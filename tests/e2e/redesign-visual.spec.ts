@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./_helpers/test";
 
 import { expectCssColorInRange } from "./_helpers/visual-assertions";
 

@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./_helpers/test";
 
 // TASK-1704 — soft-rise entrance/scroll reveal. The pre-paint gate stamps
 // <html data-reveal-ready>, the controller stamps data-reveal-live and marks
