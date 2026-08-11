@@ -40,6 +40,7 @@ ROUTES=(
   "/seasons/2003/teams"
   "/game"
   "/game/chaos"
+  "/game/draft"
   "/definitely-not-a-page"
   "/api/search?q=haaland"
   "/api/players/suggested"
