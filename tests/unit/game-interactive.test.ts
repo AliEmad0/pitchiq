@@ -5,6 +5,7 @@ import type { GamePlayer } from "@/features/game/domain/player";
 import type { PlayerRatings } from "@/features/game/domain/ratings";
 import type { DecisionAnswer, MatchDecision } from "@/features/game/domain/match-decisions";
 import { defaultAnswer } from "@/features/game/domain/match-decisions";
+import { recordMatch, replayMatch } from "@/features/game/domain/match-runner";
 import { drive, runMatch, simulate } from "@/features/game/domain/simulate";
 import { makeGameTeam } from "@/features/game/domain/team";
 
@@ -186,6 +187,46 @@ describe("forced prompts", () => {
   it("forced prompts do not change the match when answered by default", () => {
     for (const seed of [5, 60, 600, 6000]) {
       expect(record(setup(seed)).result).toEqual(simulate(setup(seed)));
+    }
+  });
+});
+
+const alwaysOverload = (d: MatchDecision): DecisionAnswer =>
+  d.kind === "response"
+    ? { kind: "response", minute: d.minute, side: d.side, choice: "overload" }
+    : defaultAnswer(d);
+
+describe("replay", () => {
+  it("a recorded match replays byte-for-byte", () => {
+    for (const seed of [1, 2, 99, 12345]) {
+      const live = recordMatch(setup(seed), alwaysOverload);
+      expect(replayMatch(setup(seed), live.decisions)).toEqual(live);
+    }
+  });
+
+  it("a decision list from another seed is rejected, not silently misapplied", () => {
+    const live = recordMatch(setup(7), alwaysOverload);
+    expect(() => replayMatch(setup(8), live.decisions)).toThrow(/does not match/i);
+  });
+
+  it("a truncated list finishes on the default policy", () => {
+    // An abandoned match still produces a complete, valid one. Deliberately NOT asserting
+    // the resumed decision count equals the original: once a response choice actually
+    // changes the weights, the two runs diverge after the truncation point and a
+    // differing count is correct rather than a defect.
+    const live = recordMatch(setup(21), alwaysOverload);
+    const head = live.decisions.slice(0, 3);
+    const resumed = replayMatch(setup(21), head);
+    expect(resumed.events[resumed.events.length - 1].kind).toBe("fulltime");
+    expect(resumed.decisions.slice(0, 3)).toEqual(head);
+    expect(resumed.decisions.length).toBeGreaterThan(3);
+  });
+
+  it("recording with defaultAnswer reproduces simulate exactly", () => {
+    for (const seed of [13, 130, 1300]) {
+      const { decisions, ...result } = recordMatch(setup(seed), defaultAnswer);
+      expect(decisions.length).toBeGreaterThan(0);
+      expect(result).toEqual(simulate(setup(seed)));
     }
   });
 });
