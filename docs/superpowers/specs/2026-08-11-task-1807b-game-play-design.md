@@ -38,7 +38,9 @@ That single field turns the loop into something the existing playback can consum
 
 The view therefore streams smoothly minute-by-minute while receiving the match in **segments**. It never waits on the engine, because the engine is always far ahead of the clock.
 
-⚠️ **The snapshot must be a copy.** `state.events` is mutated in place for the rest of the match; handing out the live array would let a rendered segment change under the view — and worse, would let a VAR verdict appear before its own minute, which is the exact suspense `disallowedAt` exists to protect.
+⚠️ **The snapshot must be a copy.** `state.events` is mutated in place for the rest of the match, so handing out the live array would let a rendered segment change under the view.
+
+⚠️⚠️ **A snapshot legitimately runs AHEAD of its own minute, and only the clock protects the suspense.** `scoreGoal` pushes the VAR verdict at `minute + VAR_DECISION_DELAY` _before_ it yields the response decision at `minute` — so the snapshot at a goal already contains the verdict that chalks it off a minute later. Copying does not help here and never could; **the view must render only up to its own cursor.** Get this wrong and a goal is disallowed before the crowd has finished celebrating it, which destroys the exact drama `disallowedAt` was built to create. It is the one place where the streaming view can silently undo TASK-1822's headline feature.
 
 ⚠️ **Events are appended, not replaced.** Each decision's snapshot is cumulative, so the view must take only what is new (`slice(seen)`) or it will double-render every earlier event.
 
