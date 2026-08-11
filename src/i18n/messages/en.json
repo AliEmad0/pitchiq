@@ -689,6 +689,7 @@
     "varLabel": "VAR CHECK",
     "injuryLabel": "INJURY",
     "subLabel": "SUBSTITUTION",
+    "badgeLegend": "What the marks mean",
     "badgeGoal": "Goal",
     "badgeAssist": "Assist",
     "badgeYellow": "Yellow card",

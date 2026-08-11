@@ -68,6 +68,62 @@ const Count = ({ n }: { n: number }) => (
   <span className="font-mono text-[10px] font-bold tabular-nums">{n}</span>
 );
 
+/**
+ * The key to the glyphs above, for anyone who is not reading the `aria-label`s.
+ *
+ * The badges are deliberately symbolic so nothing needs translating — which is fine for
+ * a screen reader and useless to a sighted player seeing a boot for the first time. A
+ * static key rather than hover tooltips, because half the audience is on a touch screen
+ * and a tooltip they cannot summon is not an explanation.
+ *
+ * The counted glyphs are shown with a sample number, since the number's meaning (how
+ * many goals, versus WHICH substitution) is the part people actually get wrong.
+ */
+export function BadgeLegend({ labels }: { labels: Props["labels"] }) {
+  const items = [
+    { glyph: <Ball label={labels.goal} />, text: labels.goal },
+    {
+      glyph: (
+        <span className="text-muted-foreground">
+          <Assist label={labels.assist} />
+        </span>
+      ),
+      text: labels.assist,
+    },
+    { glyph: <Card colour="#f5c518" label={labels.yellow} />, text: labels.yellow },
+    { glyph: <Card colour="#e5484d" label={labels.red} />, text: labels.red },
+    {
+      glyph: (
+        <span className="flex items-center gap-0.5">
+          <SubArrow on label={labels.subOn} />
+          <Count n={2} />
+        </span>
+      ),
+      text: labels.subOn,
+    },
+    {
+      glyph: (
+        <span className="flex items-center gap-0.5">
+          <SubArrow on={false} label={labels.subOff} />
+          <Count n={2} />
+        </span>
+      ),
+      text: labels.subOff,
+    },
+  ];
+
+  return (
+    <ul className="text-muted-foreground flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px]">
+      {items.map((item) => (
+        <li key={item.text} className="flex items-center gap-1.5">
+          {item.glyph}
+          <span>{item.text}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 export function PlayerBadges({ badges, labels }: Props) {
   const { goals, assists, yellow, red, subOn, subOff } = badges;
   if (goals === 0 && assists === 0 && !yellow && !red && subOn == null && subOff == null) {
