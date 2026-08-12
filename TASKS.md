@@ -5494,7 +5494,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1804](#task-1804) | Commentary system (ICU keys, en + ar, AST-guard clean)          | ✅ Done    | P2       | L   |
 | [TASK-1805](#task-1805) | Hybrid opponent model (modern squad / historical record)        | ✅ Done    | P2       | M   |
 | [TASK-1806](#task-1806) | Chaos Draft — first end-to-end vertical slice                   | ✅ Done    | P2       | L   |
-| [TASK-1807](#task-1807) | Draft hub + live match loop (A ✅ B1 ✅ — B2 + C left)          | 📋 Backlog | P2       | L   |
+| [TASK-1807](#task-1807) | Draft hub + live match loop (A ✅ B1 ✅ B2 ✅ — C left)         | 📋 Backlog | P2       | L   |
 | [TASK-1808](#task-1808) | Live tactical pitch UI + speed controls (1x/2x/skip)            | 📋 Backlog | P3       | L   |
 | [TASK-1809](#task-1809) | Key-event animations (goal/red-card overlays, pulsing nodes)    | 📋 Backlog | P3       | L   |
 | [TASK-1810](#task-1810) | Remaining six modes as rule packs                               | 📋 Backlog | P3       | XL  |
