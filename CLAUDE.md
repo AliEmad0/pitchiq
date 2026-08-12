@@ -24,19 +24,19 @@ PitchIQ is a Premier League encyclopedia web app covering the complete history, 
 
 All run through WSL per the snippet above.
 
-| Command | What it does |
-| --- | --- |
-| `pnpm dev` | Next.js dev server with Turbopack (port 3000) |
-| `pnpm build` | Production build — also type-checks and lints |
-| `pnpm start` | Serve the production build |
-| `pnpm type-check` | `tsc --noEmit` |
-| `pnpm lint` | ESLint (`--dir src --dir tests`) |
-| `pnpm test` | Vitest, single pass |
-| `pnpm test:watch` | Vitest watch mode |
-| `pnpm test tests/unit/logger.test.ts` | Run a single test file |
-| `pnpm test -t "emits info"` | Run tests matching a name pattern |
-| `pnpm test:e2e` | Playwright E2E (offline against MSW via `TEST_MSW=1`) |
-| `pnpm test:e2e:install` | One-time Playwright browser + system-lib install (needs sudo) |
+| Command                               | What it does                                                  |
+| ------------------------------------- | ------------------------------------------------------------- |
+| `pnpm dev`                            | Next.js dev server with Turbopack (port 3000)                 |
+| `pnpm build`                          | Production build — also type-checks and lints                 |
+| `pnpm start`                          | Serve the production build                                    |
+| `pnpm type-check`                     | `tsc --noEmit`                                                |
+| `pnpm lint`                           | ESLint (`--dir src --dir tests`)                              |
+| `pnpm test`                           | Vitest, single pass                                           |
+| `pnpm test:watch`                     | Vitest watch mode                                             |
+| `pnpm test tests/unit/logger.test.ts` | Run a single test file                                        |
+| `pnpm test -t "emits info"`           | Run tests matching a name pattern                             |
+| `pnpm test:e2e`                       | Playwright E2E (offline against MSW via `TEST_MSW=1`)         |
+| `pnpm test:e2e:install`               | One-time Playwright browser + system-lib install (needs sudo) |
 
 ## Architecture
 
@@ -85,9 +85,22 @@ src/features/
   trivia/      provable-fact "Did you know?" engine
   map/         interactive historic map
   i18n/        entity-name localization
+  game/        the in-app football sim (Phase 18) — see below
 ```
 
 Shared concerns live one level up: `src/components/`, `src/hooks/`, `src/data/` (loaders + Zod schemas), `src/types/api.ts`, `src/utils/`.
+
+### `features/game/` — the football sim (Phase 18)
+
+A playable game built on the committed data, route-split under `/game/*`. Its layering is stricter than the rest of the app and the rules below are load-bearing — see `TASKS.md` Phase 18 for the tickets.
+
+- **`domain/`** — pure, browser-safe, **no I/O and no entropy**. The match engine, ratings, eligibility, formations, the draft-room deal. `adapter/` — the sole raw-JSON boundary, `import "server-only"`. `view/` — presentation logic (view models, reducers, streams). `components/` — the `.tsx`.
+- **⚠️ Never import `adapter/*` from a client component.** Those are `server-only`; client code uses `domain/` + `view/` only.
+- **⚠️ Determinism is the core invariant.** A match replays byte-for-byte from `(setup, seed, decisions[])`. Nothing the engine or a deal reads may touch `Math.random()` or `Date.now()` — a seeded `mulberry32` is the only entropy source. Timers and clocks live in components: a countdown **picks** something, and that pick is the input.
+- **⚠️ Every `/game/*` route is `force-static`.** `tests/unit/game-routes-static.test.ts` asserts the directive — a route silently going dynamic is what caused the 2026-07 Vercel Active-CPU pause.
+- **⚠️ Resolve a formation with `formationByName`, never `FORMATIONS[i]`.** The array's order is presentation only; a guard test fails on index access. Variant names carry the shape ("4-3-3 Holding", not "4-3-3") because `formationKey` is `` `${name}/${slots.length}` `` and every shape is 11 slots — a collision restores a saved match into the wrong shape.
+- **Client persistence** is `features/game/storage/` (raw IndexedDB, no dependency). An in-progress match is stored as its **replay tuple**, never a snapshot, and verified on load by fingerprinting its events — a stale save is discarded rather than resumed into a different match.
+- **Motion:** keyframes live in `globals.css` and the audit allowlists `transform` / `opacity` / `box-shadow` only. `filter` is rejected and animating a layout property fails, which is why bars animate `transform: scaleX`.
 
 ### Logging & observability
 
@@ -114,6 +127,10 @@ Shared concerns live one level up: `src/components/`, `src/hooks/`, `src/data/` 
 - **The E2E job runs `pnpm dev`, so routes compile on demand** — `scripts/warm-e2e-routes.sh` (a workflow step) compiles them all up front. Without it the first test to reach a route pays its compile inside a 12s `expect` timeout (`/game/chaos` alone measured 15.3s, above the timeout on its own), and every compile broadcasts an HMR rebuild to every open page mid-assertion. **Add new routes to that script.**
 - **`next dev` renders its own static-route indicator with `role="status"`** — a bare `getByRole("status")` in an E2E spec is a strict-mode violation whenever that indicator happens to be mounted. Always scope by accessible name.
 - **Pre-commit hook** (Husky + lint-staged) auto-formats staged files. It's locked to the platform that installed `node_modules` — commit from whichever shell ran the last `pnpm install` (WSL). `.npmrc` sets `verify-deps-before-run=false`.
+- **⚠️ Vitest does NOT type-check.** A dangling import or a removed symbol survives a fully green suite — only `pnpm type-check` sees it. Run it before claiming done; a green suite is not evidence the code compiles.
+- **⚠️ A green suite is also not evidence that nothing changed.** Tests that assert _relationships_ (same seed reproduces itself, the result is one of the valid set) stay green through a total change in output. Going from 4 to 20 formations changed what every seed drafts and not one determinism test noticed. When a change should be user-visible, verify it by measurement, not by the suite staying green.
+- **⚠️ React 19 will not flush state produced by a fake timer outside `act`.** A test that advances `vi.advanceTimersByTimeAsync` without wrapping it silently asserts against the un-updated DOM. Wrap the advance in `act(async () => …)`.
+- **⚠️ `pnpm lint` can abort with `ERR_PNPM_ABORTED_REMOVE_MODULES_DIR_NO_TTY`.** pnpm 11 runs a deps check before every script and, with no TTY, aborts rather than prompting. Prefix with `CI=true`. Lint is the one command that must go through pnpm — `next lint` cannot resolve `eslint-plugin-react-hooks` from a bare node invocation.
 
 ## Reference docs
 
