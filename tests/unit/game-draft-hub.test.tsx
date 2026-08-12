@@ -24,8 +24,10 @@ const ROLES: PlayerRole[] = [
   "RW",
   "CF",
 ];
+// Six per role, not four: the Draft Room deals five candidates per slot without reuse,
+// so a four-deep role leaves the keeper hand short and the room cannot be completed.
 const pool: PoolCard[] = ROLES.flatMap((role, r) =>
-  [0, 1, 2, 3].map((i) => ({
+  [0, 1, 2, 3, 4, 5].map((i) => ({
     cardId: makeCardId(1000 + r * 10 + i, 2020),
     playerId: 1000 + r * 10 + i,
     season: 2020,
@@ -130,6 +132,21 @@ describe("DraftHub", () => {
     await user.selectOptions(screen.getByRole("combobox", { name: "Formation" }), "3-5-2");
     expect(screen.getByRole("button", { name: "Play match" })).toBeDisabled();
     expect(onConfirm).not.toHaveBeenCalled();
+  });
+
+  it("⚠️ opens the Draft Room and takes its XI back into the builder", async () => {
+    // The room is an ENTRY PATH, not a replacement: finishing it must leave the coach in
+    // the builder with every slot still editable, which is why it hands off through the
+    // existing `setSlots` seam rather than starting a match itself.
+    const user = userEvent.setup();
+    renderWithIntl(<DraftHub pool={pool} onConfirm={vi.fn()} />);
+    await user.click(screen.getByRole("button", { name: "Open the Draft Room" }));
+    expect(screen.getByRole("heading", { name: "Draft Room" })).toBeInTheDocument();
+
+    for (let i = 0; i < 11; i++) {
+      await user.click(screen.getAllByRole("button", { name: /rated/ })[0]);
+    }
+    expect(screen.getByRole("button", { name: "Play match" })).toBeEnabled();
   });
 
   it("clear empties the pitch again", async () => {

@@ -16,6 +16,7 @@ import {
 import { randomSeed } from "@/features/game/view/seed";
 import { prefersReducedMotion } from "@/utils/motion";
 import { CardPool } from "./CardPool";
+import { DraftRoom } from "./DraftRoom";
 import { TacticalPitch } from "./TacticalPitch";
 
 /**
@@ -70,6 +71,14 @@ export function DraftHub({ pool, onConfirm }: Props) {
     createDraftState(formationByName(DEFAULT_FORMATION), INITIAL_SEED),
   );
 
+  /**
+   * The room is an ENTRY PATH into this builder, not a replacement for it (owner
+   * decision, 2026-08-11) — so it lives inside the hub rather than on its own route. A
+   * separate route would have to move the XI across a boundary, either serialising it
+   * through B2's IndexedDB slot or lifting state above both.
+   */
+  const [mode, setMode] = useState<"build" | "room">("build");
+
   const byId = useMemo(() => new Map(pool.map((c) => [c.cardId, c])), [pool]);
   const errors = useMemo(() => validateSquad(state, pool), [state, pool]);
   const complete = isComplete(state);
@@ -118,6 +127,23 @@ export function DraftHub({ pool, onConfirm }: Props) {
       .filter((c): c is PoolCard => c != null);
     onConfirm(players, state.formation);
   };
+
+  if (mode === "room") {
+    return (
+      <DraftRoom
+        pool={pool}
+        formation={state.formation}
+        seed={state.seed}
+        onComplete={(cardIds) => {
+          // ⚠️ `setSlots` is the EXISTING seam — the reducer already takes
+          // `(PlayerSeasonId | null)[]`, so the room needs no bespoke handoff and the XI
+          // arrives fully editable.
+          dispatch({ type: "setSlots", slots: cardIds });
+          setMode("build");
+        }}
+      />
+    );
+  }
 
   return (
     <div className="mx-auto w-full max-w-5xl">
@@ -195,6 +221,13 @@ export function DraftHub({ pool, onConfirm }: Props) {
           className="border-border rounded-md border px-4 py-2 text-sm font-semibold"
         >
           {t("draftReroll")}
+        </button>
+        <button
+          type="button"
+          onClick={() => setMode("room")}
+          className="border-border rounded-md border px-4 py-2 text-sm font-semibold"
+        >
+          {t("roomOpen")}
         </button>
         <button
           type="button"
