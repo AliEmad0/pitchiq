@@ -506,6 +506,37 @@
   }
 }
 
+/* Draft Room: "Flip Reveal" (animation 07 of 30, TASK-1823). Candidates arrive
+   face-down and turn over on Y; rejected cards fold away on X, so accepting and
+   discarding read as opposites in one physical language rather than as two unrelated
+   effects. Transform + opacity only — the audit rejects `filter`, and animating a
+   layout property fails outright. */
+@keyframes room-flip-in {
+  0% {
+    opacity: 0;
+    transform: rotateY(90deg);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes room-fold-out {
+  0% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: rotateX(90deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .room-card {
+    animation: none !important;
+  }
+}
+
 /* Chaos Draft: the generating bar shown while this visitor's own seed is drawn.
    Animates transform (scaleX), never width — the motion audit fails any keyframe
    that animates a layout property. Reduce-gated to a filled bar. */
