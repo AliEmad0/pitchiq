@@ -28,7 +28,9 @@ const gk = card(1, "GK");
 const cb = card(2, "CB");
 const cb2 = card(4, "CB");
 const rb = card(5, "RB");
-const pool = [gk, cb, cb2, rb];
+/** For the new-shapes hard-ban case: 4-2-3-1 and 4-6-0 first diverge at a CDM slot. */
+const cdm = card(6, "CDM");
+const pool = [gk, cb, cb2, rb, cdm];
 const start = () => createDraftState(formationByName("4-4-2 Flat"), 123);
 
 describe("draftReducer", () => {
@@ -127,6 +129,30 @@ describe("validateSquad", () => {
       cardId: rb.cardId,
       playerName: "P5",
     });
+  });
+
+  it("⚠️ the same offence across two of the NEW shapes", () => {
+    // With twenty shapes the odds of a slot re-roling under a placed player go up sharply,
+    // so the ban is pinned on a second pair. The differing index is FOUND rather than
+    // hardcoded: a pair that happens to agree at the asserted slot would pass for the
+    // wrong reason, which is exactly the trap the 4-4-2 → 3-5-2 case above avoids.
+    const a = formationByName("4-2-3-1");
+    const b = formationByName("4-6-0 Strikerless");
+    const differing = a.slots.findIndex((s, i) => s.role !== b.slots[i].role);
+    expect(differing).toBeGreaterThanOrEqual(0);
+
+    const card = pool.find((c) => c.role === a.slots[differing].role);
+    expect(card, `no fixture card for ${a.slots[differing].role}`).toBeDefined();
+
+    let s = draftReducer(createDraftState(a, 1), {
+      type: "place",
+      index: differing,
+      cardId: card!.cardId,
+    });
+    expect(validateSquad(s, pool)).toEqual([]);
+
+    s = draftReducer(s, { type: "setFormation", formation: b });
+    expect(validateSquad(s, pool).some((e) => e.slotIndex === differing)).toBe(true);
   });
 
   it("ignores empty slots — incompleteness is not an eligibility offence", () => {
