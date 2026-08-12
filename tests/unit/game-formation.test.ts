@@ -1,5 +1,6 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import type { PlayerRole } from "@/data/schemas";
 import { FORMATIONS } from "@/features/game/domain/chaos-draft";
 import { formationByName, formationKey, parseGrid } from "@/features/game/domain/formation";
 import type { Formation } from "@/features/game/domain/formation";
@@ -67,5 +68,53 @@ describe("formationByName", () => {
       }
     }
     expect(offenders).toEqual([]);
+  });
+});
+
+const ROLES: PlayerRole[] = [
+  "GK",
+  "RB",
+  "CB",
+  "LB",
+  "CDM",
+  "CM",
+  "CAM",
+  "RM",
+  "LM",
+  "RW",
+  "LW",
+  "SS",
+  "CF",
+];
+
+describe("the formation set", () => {
+  it("ships twenty shapes", () => {
+    expect(FORMATIONS).toHaveLength(20);
+  });
+
+  it("every shape is eleven slots with exactly one keeper", () => {
+    for (const f of FORMATIONS) {
+      expect(f.slots, f.name).toHaveLength(11);
+      expect(f.slots.filter((s) => s.role === "GK"), f.name).toHaveLength(1);
+    }
+  });
+
+  it("every slot role is a real PlayerRole", () => {
+    for (const f of FORMATIONS) {
+      for (const s of f.slots) expect(ROLES, `${f.name} ${s.role}`).toContain(s.role);
+    }
+  });
+
+  it("⚠️ every key is unique", () => {
+    // formationKey is `${name}/${slots.length}` and every shape has 11 slots, so two
+    // variants both named "4-3-3" would collide — and TASK-1807 B2 resolves a stored
+    // match by that key, so a collision restores a saved match into the WRONG shape.
+    const keys = FORMATIONS.map(formationKey);
+    expect(new Set(keys).size).toBe(keys.length);
+  });
+
+  it("the three families are all represented", () => {
+    const names = FORMATIONS.map((f) => f.name);
+    for (const name of ["4-4-2 Flat", "3-5-2", "2-3-5 Pyramid"]) expect(names).toContain(name);
   });
 });

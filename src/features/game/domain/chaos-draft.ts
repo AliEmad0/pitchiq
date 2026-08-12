@@ -16,60 +16,51 @@ export type PoolCard = GamePlayer & { club: string; teamId?: number };
 const slot = (row: number, col: number, role: PlayerRole): FormationSlot => ({ row, col, role });
 const formation = (name: string, slots: FormationSlot[]): Formation => ({ name, season: 0, slots });
 
-/** A few real-role formations (proper roles → meaningful `canPlay` eligibility). */
+/** Build a shape from lines of roles, keeper line first. */
+const shape = (name: string, lines: PlayerRole[][]): Formation =>
+  formation(
+    name,
+    lines.flatMap((line, r) => line.map((role, c) => slot(r + 1, c + 1, role))),
+  );
+
+/**
+ * The full formation set — twenty shapes in three families (TASK-1831).
+ *
+ * Row 1 is the goalkeeper line, increasing toward the opponent goal; `col` runs left to
+ * right.
+ *
+ * ⚠️ NAMES CARRY THE VARIANT, and that is load-bearing. `formationKey` is
+ * `${name}/${slots.length}` and every shape here is 11 slots, so two variants both called
+ * "4-3-3" would collide on "4-3-3/11" — and TASK-1807 B2 resolves a stored match by that
+ * key, so a collision restores a saved match into the wrong shape.
+ *
+ * ⚠️ The array's ORDER is presentation only. Resolve a shape with `formationByName`,
+ * never by index; a guard test enforces it.
+ */
 export const FORMATIONS: Formation[] = [
-  formation("4-4-2", [
-    slot(1, 1, "GK"),
-    slot(2, 1, "LB"),
-    slot(2, 2, "CB"),
-    slot(2, 3, "CB"),
-    slot(2, 4, "RB"),
-    slot(3, 1, "LM"),
-    slot(3, 2, "CM"),
-    slot(3, 3, "CM"),
-    slot(3, 4, "RM"),
-    slot(4, 1, "CF"),
-    slot(4, 2, "CF"),
-  ]),
-  formation("4-3-3", [
-    slot(1, 1, "GK"),
-    slot(2, 1, "LB"),
-    slot(2, 2, "CB"),
-    slot(2, 3, "CB"),
-    slot(2, 4, "RB"),
-    slot(3, 1, "CDM"),
-    slot(3, 2, "CM"),
-    slot(3, 3, "CM"),
-    slot(4, 1, "LW"),
-    slot(4, 2, "CF"),
-    slot(4, 3, "RW"),
-  ]),
-  formation("3-5-2", [
-    slot(1, 1, "GK"),
-    slot(2, 1, "CB"),
-    slot(2, 2, "CB"),
-    slot(2, 3, "CB"),
-    slot(3, 1, "LM"),
-    slot(3, 2, "CM"),
-    slot(3, 3, "CAM"),
-    slot(3, 4, "CM"),
-    slot(3, 5, "RM"),
-    slot(4, 1, "CF"),
-    slot(4, 2, "CF"),
-  ]),
-  formation("4-2-3-1", [
-    slot(1, 1, "GK"),
-    slot(2, 1, "LB"),
-    slot(2, 2, "CB"),
-    slot(2, 3, "CB"),
-    slot(2, 4, "RB"),
-    slot(3, 1, "CDM"),
-    slot(3, 2, "CDM"),
-    slot(4, 1, "LW"),
-    slot(4, 2, "CAM"),
-    slot(4, 3, "RW"),
-    slot(5, 1, "CF"),
-  ]),
+  // ---- Back four ----
+  shape("4-3-3 Holding", [["GK"], ["LB", "CB", "CB", "RB"], ["CDM", "CM", "CM"], ["LW", "CF", "RW"]]),
+  shape("4-3-3 Flat", [["GK"], ["LB", "CB", "CB", "RB"], ["CM", "CM", "CM"], ["LW", "CF", "RW"]]),
+  shape("4-3-3 False 9", [["GK"], ["LB", "CB", "CB", "RB"], ["CDM", "CM", "CM"], ["LW", "CAM", "RW"]]),
+  shape("4-2-3-1", [["GK"], ["LB", "CB", "CB", "RB"], ["CDM", "CDM"], ["LW", "CAM", "RW"], ["CF"]]),
+  shape("4-4-2 Flat", [["GK"], ["LB", "CB", "CB", "RB"], ["LM", "CM", "CM", "RM"], ["CF", "CF"]]),
+  shape("4-4-2 Diamond", [["GK"], ["LB", "CB", "CB", "RB"], ["CDM"], ["CM", "CM"], ["CAM"], ["CF", "CF"]]),
+  shape("4-1-4-1", [["GK"], ["LB", "CB", "CB", "RB"], ["CDM"], ["LM", "CM", "CM", "RM"], ["CF"]]),
+  shape("4-3-2-1 Christmas Tree", [["GK"], ["LB", "CB", "CB", "RB"], ["CDM", "CM", "CM"], ["CAM", "CAM"], ["CF"]]),
+  shape("4-5-1", [["GK"], ["LB", "CB", "CB", "RB"], ["LM", "CDM", "CM", "CDM", "RM"], ["CF"]]),
+  shape("4-2-2-2 Magic Rectangle", [["GK"], ["LB", "CB", "CB", "RB"], ["CDM", "CDM"], ["CAM", "CAM"], ["CF", "CF"]]),
+  // ---- Back three or five ----
+  shape("3-5-2", [["GK"], ["CB", "CB", "CB"], ["LM", "CM", "CAM", "CM", "RM"], ["CF", "CF"]]),
+  shape("3-4-3 Flat", [["GK"], ["CB", "CB", "CB"], ["LM", "CM", "CM", "RM"], ["LW", "CF", "RW"]]),
+  shape("3-4-2-1", [["GK"], ["CB", "CB", "CB"], ["LM", "CM", "CM", "RM"], ["CAM", "CAM"], ["CF"]]),
+  shape("3-1-4-2", [["GK"], ["CB", "CB", "CB"], ["CDM"], ["LM", "CM", "CM", "RM"], ["CF", "CF"]]),
+  shape("5-3-2", [["GK"], ["LB", "CB", "CB", "CB", "RB"], ["CM", "CM", "CM"], ["CF", "CF"]]),
+  shape("5-4-1", [["GK"], ["LB", "CB", "CB", "CB", "RB"], ["LM", "CM", "CM", "RM"], ["CF"]]),
+  // ---- Historic ----
+  shape("4-2-4", [["GK"], ["LB", "CB", "CB", "RB"], ["CM", "CM"], ["LW", "CF", "CF", "RW"]]),
+  shape("3-2-2-3 W-M", [["GK"], ["CB", "CB", "CB"], ["CM", "CM"], ["CAM", "CAM"], ["LW", "CF", "RW"]]),
+  shape("2-3-5 Pyramid", [["GK"], ["LB", "RB"], ["LM", "CM", "RM"], ["LW", "SS", "CF", "SS", "RW"]]),
+  shape("4-6-0 Strikerless", [["GK"], ["LB", "CB", "CB", "RB"], ["LM", "CDM", "CM", "CM", "CAM", "RM"]]),
 ];
 
 const pick = <T>(list: T[], rng: () => number): T => list[Math.floor(rng() * list.length)];

@@ -3,7 +3,6 @@ import type { PlayerRole } from "@/data/schemas";
 import { makeCardId } from "@/features/game/domain/card-id";
 import type { PoolCard } from "@/features/game/domain/chaos-draft";
 import { formationByName } from "@/features/game/domain/formation";
-import { FORMATIONS } from "@/features/game/domain/chaos-draft";
 import {
   createDraftState,
   draftReducer,
@@ -30,7 +29,7 @@ const cb = card(2, "CB");
 const cb2 = card(4, "CB");
 const rb = card(5, "RB");
 const pool = [gk, cb, cb2, rb];
-const start = () => createDraftState(formationByName("4-4-2"), 123); // 4-4-2
+const start = () => createDraftState(formationByName("4-4-2 Flat"), 123);
 
 describe("draftReducer", () => {
   it("places a card into a slot and clears the selection", () => {
@@ -113,8 +112,8 @@ describe("validateSquad", () => {
     // this is the only way an illegal XI can arise through the UI — and it is easy to hit.
     //
     // Slot 4 is the one index whose role genuinely changes between these two shapes:
-    //   formationByName("4-4-2") 4-4-2 → [GK, LB, CB, CB, RB, LM, CM, CM, RM, CF, CF]
-    //   formationByName("3-5-2") 3-5-2 → [GK, CB, CB, CB, LM, CM, CAM, CM, RM, CF, CF]
+    //   4-4-2 Flat → [GK, LB, CB, CB, RB, LM, CM, CM, RM, CF, CF]
+    //   3-5-2      → [GK, CB, CB, CB, LM, CM, CAM, CM, RM, CF, CF]
     // So a right-back is legal at index 4 in a 4-4-2 and illegal there in a 3-5-2.
     // Any other index would make this test pass for the wrong reason.
     let s = draftReducer(start(), { type: "place", index: 4, cardId: rb.cardId });

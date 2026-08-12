@@ -34,7 +34,7 @@ const INITIAL_SEED = 20260811;
  * Named rather than taken by position — the array's order is presentation only, so
  * inserting a shape must never silently change what the hub starts with.
  */
-const DEFAULT_FORMATION = "4-4-2";
+const DEFAULT_FORMATION = "4-4-2 Flat";
 
 interface Props {
   pool: PoolCard[];

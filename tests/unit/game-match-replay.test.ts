@@ -49,7 +49,7 @@ const pool: PoolCard[] = ROLES.flatMap((role, r) =>
 );
 
 const NAMES = { home: "Your XI", away: "Rivals" };
-const FORMATION = formationByName("4-4-2");
+const FORMATION = formationByName("4-4-2 Flat");
 const squad = (): PoolCard[] => FORMATION.slots.map((s) => pool.find((c) => c.role === s.role)!);
 
 /**

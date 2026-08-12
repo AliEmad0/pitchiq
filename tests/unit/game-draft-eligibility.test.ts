@@ -3,7 +3,6 @@ import type { PlayerRole } from "@/data/schemas";
 import { makeCardId } from "@/features/game/domain/card-id";
 import type { PoolCard } from "@/features/game/domain/chaos-draft";
 import { formationByName } from "@/features/game/domain/formation";
-import { FORMATIONS } from "@/features/game/domain/chaos-draft";
 import { eligibleCards, eligibleSlots } from "@/features/game/view/draft-eligibility";
 
 const card = (playerId: number, role: PlayerRole, altRoles: PlayerRole[] = []): PoolCard => ({
@@ -25,7 +24,7 @@ const centreBack = card(2, "CB");
 const utility = card(3, "CB", ["CM"]);
 const pool = [keeper, centreBack, utility];
 // 4-4-2 → [GK, LB, CB, CB, RB, LM, CM, CM, RM, CF, CF]
-const shape = formationByName("4-4-2");
+const shape = formationByName("4-4-2 Flat");
 
 describe("eligibleCards", () => {
   it("returns only cards that can play the slot's role", () => {

@@ -4,7 +4,6 @@ import { describe, expect, it, vi } from "vitest";
 import { makeCardId, type PlayerSeasonId } from "@/features/game/domain/card-id";
 import type { PoolCard } from "@/features/game/domain/chaos-draft";
 import { formationByName } from "@/features/game/domain/formation";
-import { FORMATIONS } from "@/features/game/domain/chaos-draft";
 import { renderWithIntl } from "./_helpers/intl";
 
 const { TacticalPitch } = await import("@/features/game/components/TacticalPitch");
@@ -23,7 +22,7 @@ const cb: PoolCard = {
   club: "Arsenal",
 };
 
-const shape = formationByName("4-4-2");
+const shape = formationByName("4-4-2 Flat");
 // Annotated: inferred this is `null[]`, and assigning a cardId into a copy of it fails
 // the project-wide tsc even though per-file vitest is perfectly happy with it.
 const empty: (PlayerSeasonId | null)[] = shape.slots.map(() => null);

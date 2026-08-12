@@ -53,7 +53,7 @@ const squadFor = (formation: (typeof FORMATIONS)[number]): PoolCard[] =>
 
 /** Drive a session to full time with default answers, collecting every event. */
 function drain(seed: number): MatchEvent[] {
-  const formation = formationByName("4-4-2");
+  const formation = formationByName("4-4-2 Flat");
   const session = buildSession(pool, squadFor(formation), formation, seed, NAMES);
   const events: MatchEvent[] = [];
   let step = session.stream.advance();
@@ -67,14 +67,14 @@ function drain(seed: number): MatchEvent[] {
 
 describe("buildSession", () => {
   it("names both sides from the caller", () => {
-    const formation = formationByName("4-4-2");
+    const formation = formationByName("4-4-2 Flat");
     const session = buildSession(pool, squadFor(formation), formation, 42, NAMES);
     expect(session.home.name).toBe("Your XI");
     expect(session.seed).toBe(42);
   });
 
   it("puts the drafted squad on the home side, in slot order", () => {
-    const formation = formationByName("4-4-2");
+    const formation = formationByName("4-4-2 Flat");
     const players = squadFor(formation);
     const session = buildSession(pool, players, formation, 42, NAMES);
     expect(session.home.players.map((p) => p.cardId)).toEqual(players.map((p) => p.cardId));
