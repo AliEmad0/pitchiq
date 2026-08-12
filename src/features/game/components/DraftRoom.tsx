@@ -1,6 +1,6 @@
 "use client";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useReducer, useRef } from "react";
+import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import type { PlayerSeasonId } from "@/features/game/domain/card-id";
 import type { PoolCard } from "@/features/game/domain/chaos-draft";
 import { roomDeals } from "@/features/game/domain/draft-room";
@@ -13,6 +13,8 @@ interface Props {
   formation: Formation;
   seed: number;
   onComplete: (cardIds: PlayerSeasonId[]) => void;
+  /** Seconds before the room picks for you, or null to disable. Mirrors DecisionPrompt. */
+  limit?: number | null;
 }
 
 /**
@@ -25,7 +27,7 @@ interface Props {
  * ⚠️ The hands are computed ONCE from `(pool, formation, seed)`. They do not depend on
  * which slots have been visited — that is what lets free roam and seed-sharing coexist.
  */
-export function DraftRoom({ pool, formation, seed, onComplete }: Props) {
+export function DraftRoom({ pool, formation, seed, onComplete, limit = 15 }: Props) {
   const t = useTranslations("game");
   const reduced = prefersReducedMotion();
   const hands = useMemo(() => roomDeals(pool, formation, seed), [pool, formation, seed]);
@@ -44,6 +46,42 @@ export function DraftRoom({ pool, formation, seed, onComplete }: Props) {
   const rows = Math.max(...formation.slots.map((s) => s.row));
   const open = state.open;
   const hand = open == null ? [] : hands[open];
+  const editing = open != null && state.picks[open] != null;
+
+  const [left, setLeft] = useState<number | null>(limit);
+
+  /**
+   * ⚠️ The clock runs on UNFILLED slots only.
+   *
+   * Reviewing your own squad must not be punished by a countdown — a timer firing while
+   * the coach compares two players he already owns reads as a bug. And ⚠️ the clock never
+   * reaches the domain: a timeout PICKS a card, and that pick is the input, so a lapsed
+   * timer is indistinguishable from a deliberate choice on replay.
+   *
+   * Extendable and disableable (`limit: null`) per WCAG 2.2.1, exactly like DecisionPrompt.
+   */
+  useEffect(() => {
+    if (open == null || editing || limit == null) {
+      setLeft(null);
+      return;
+    }
+    setLeft(limit);
+    const id = window.setInterval(() => setLeft((v) => (v == null ? null : v - 1)), 1000);
+    return () => window.clearInterval(id);
+  }, [open, editing, limit]);
+
+  /**
+   * ⚠️ The timeout dispatch lives in its OWN effect, keyed on the countdown. Firing it
+   * from inside the interval callback would close over a stale `open` the moment the
+   * coach clicks a different slot mid-count.
+   */
+  useEffect(() => {
+    if (left == null || left > 0 || open == null) return;
+    const best = hands[open].reduce((a, b) =>
+      (b.ratings?.overall ?? 0) > (a.ratings?.overall ?? 0) ? b : a,
+    );
+    dispatch({ type: "pick", index: open, cardId: best.cardId });
+  }, [left, open, hands]);
 
   return (
     <div className="mx-auto w-full max-w-5xl">
@@ -85,6 +123,13 @@ export function DraftRoom({ pool, formation, seed, onComplete }: Props) {
             <p className="text-sm font-bold">{t("roomDone")}</p>
           ) : (
             <div className="flex flex-wrap gap-3">
+              <p className="w-full font-mono text-xs font-bold">
+                {editing
+                  ? t("roomEditing")
+                  : left == null
+                    ? t("roomNoTimer")
+                    : t("roomTimeLeft", { s: left })}
+              </p>
               {hand.map((c) => (
                 <button
                   key={c.cardId}

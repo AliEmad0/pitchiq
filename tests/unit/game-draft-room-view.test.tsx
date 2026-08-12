@@ -1,4 +1,4 @@
-import { screen } from "@testing-library/react";
+import { act, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import type { PlayerRole } from "@/data/schemas";
@@ -96,6 +96,46 @@ describe("DraftRoom", () => {
     await user.click(screen.getAllByRole("button", { name: /^Slot/ })[0]);
     const again = screen.getAllByRole("button", { name: /rated/ }).map((b) => b.textContent);
     expect(again).toEqual(first);
+  });
+
+  it("⚠️ a lapsed timer picks the highest-rated candidate", async () => {
+    // The clock never reaches the domain: a timeout PICKS a card, and that pick is the
+    // input — so a lapsed timer is indistinguishable from a deliberate choice on replay.
+    vi.useFakeTimers();
+    try {
+      renderWithIntl(
+        <DraftRoom pool={pool} formation={shape} seed={42} limit={1} onComplete={vi.fn()} />,
+      );
+      const best = screen
+        .getAllByRole("button", { name: /rated/ })
+        .map((b) => Number(/rated (\d+)/.exec(b.getAttribute("aria-label") ?? "")?.[1] ?? 0))
+        .reduce((a, b) => Math.max(a, b), 0);
+      // React 19 will not flush state produced by a fake timer outside `act`.
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1500);
+      });
+      expect(screen.getAllByRole("button", { name: /^Slot/ })[0].textContent).toBe(String(best));
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("⚠️ editing a filled slot runs no timer", async () => {
+    // Reviewing your own squad must not be punished by a countdown.
+    const user = userEvent.setup();
+    renderWithIntl(
+      <DraftRoom pool={pool} formation={shape} seed={42} limit={30} onComplete={vi.fn()} />,
+    );
+    await user.click(screen.getAllByRole("button", { name: /rated/ })[0]);
+    await user.click(screen.getAllByRole("button", { name: /^Slot/ })[0]);
+    expect(screen.getByText("Editing a filled slot — no timer")).toBeInTheDocument();
+  });
+
+  it("the timer can be disabled entirely, per WCAG 2.2.1", () => {
+    renderWithIntl(
+      <DraftRoom pool={pool} formation={shape} seed={42} limit={null} onComplete={vi.fn()} />,
+    );
+    expect(screen.getByText("No time limit")).toBeInTheDocument();
   });
 
   it("hands the finished XI up in slot order, exactly once", async () => {
