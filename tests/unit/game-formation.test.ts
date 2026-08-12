@@ -1,7 +1,9 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import type { PlayerRole } from "@/data/schemas";
+import { loadChaosPool } from "@/features/game/adapter/chaos-pool";
 import { FORMATIONS } from "@/features/game/domain/chaos-draft";
+import { canPlay } from "@/features/game/domain/eligibility";
 import { formationByName, formationKey, parseGrid } from "@/features/game/domain/formation";
 import type { Formation } from "@/features/game/domain/formation";
 
@@ -117,4 +119,31 @@ describe("the formation set", () => {
     const names = FORMATIONS.map((f) => f.name);
     for (const name of ["4-4-2 Flat", "3-5-2", "2-3-5 Pyramid"]) expect(names).toContain(name);
   });
+
+  it("⚠️ the real pool can deal five eligible candidates for every slot of every shape", async () => {
+    // TASK-1823's rooms deal 5 per slot with no reuse, so a shape needing N of a role
+    // needs 5*N eligible cards. Measured against the REAL pool on purpose — the synthetic
+    // fixtures elsewhere carry several cards per role and would pass trivially.
+    const pool = await loadChaosPool();
+    const supply = new Map<string, number>();
+    for (const f of FORMATIONS) {
+      for (const s of f.slots) {
+        if (!supply.has(s.role)) {
+          supply.set(
+            s.role,
+            pool.filter((c) => canPlay(c, s.role)).length,
+          );
+        }
+      }
+    }
+    for (const f of FORMATIONS) {
+      const need = new Map<string, number>();
+      for (const s of f.slots) need.set(s.role, (need.get(s.role) ?? 0) + 1);
+      for (const [role, n] of need) {
+        expect(supply.get(role) ?? 0, `${f.name} needs ${n} × ${role}`).toBeGreaterThanOrEqual(
+          n * 5,
+        );
+      }
+    }
+  }, 60_000);
 });
