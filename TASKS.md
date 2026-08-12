@@ -5510,7 +5510,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1820](#task-1820) | Rating model — absolute/cross-position stats + GK pipeline       | ✅ Done    | P2       | L   |
 | [TASK-1821](#task-1821) | Tier-Anchored Hybrid rating engine (anchors + delta + team)      | ✅ Done    | P2       | L   |
 | [TASK-1822](#task-1822) | Dynamic event-driven match engine (drama, VAR, subs, injuries)   | ✅ Done    | P1       | XL  |
-| [TASK-1823](#task-1823) | Draft Room — 11 rounds × 5 cards, pick timer (entry to `/draft`) | 📋 Backlog | P2       | L   |
+| [TASK-1823](#task-1823) | Draft Room — 11 slots × 5 cards, free roam + pick timer          | 📋 Backlog | P2       | L   |
 | [TASK-1824](#task-1824) | Squad chemistry (era / club / nation links) as a modifier        | 📋 Backlog | P3       | M   |
 | [TASK-1825](#task-1825) | Tactical style + mentality selection on the draft hub            | 📋 Backlog | P3       | S   |
 | [TASK-1826](#task-1826) | Market value progression across a season                         | 📋 Backlog | P3       | M   |
@@ -5518,6 +5518,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1828](#task-1828) | Weekly modifier ladder (local, seeded from the ISO week)         | 📋 Backlog | P3       | M   |
 | [TASK-1829](#task-1829) | Card crafting — duplicates → trait badges (local)                | 📋 Backlog | P3       | S   |
 | [TASK-1830](#task-1830) | Segmented interactive match engine (live decisions, replayable)  | ✅ Done    | P1       | L   |
+| [TASK-1831](#task-1831) | The full formation set — 20 shapes in three families            | 📋 Backlog | P2       | M   |
 
 _Enhancement roadmap 1813-1819 added 2026-08-03 from the owner's feature proposal (Option A — 100% client-side/static). See the locked-architecture notes above for the modifier-stack + determinism + no-backend decisions that govern them._
 
@@ -5977,7 +5978,15 @@ Both game routes remain `● force-static` prerendered in **en** and **ar**. Two
 
 **Description** — The fast entry path into the `/draft` hub (owner decision 2026-08-11: the round-based room **hands off to** the builder, it does not replace it). Eleven rounds; each round deals **5 seeded candidate cards** for the round's slot and the player picks one against a **15-second timer**. Timeout auto-picks the highest-rated eligible candidate, so a lapsed timer never produces an illegal squad. All five candidates for a slot must satisfy `canPlay` — the hard ban ([TASK-1807](#task-1807)) is enforced by **construction** here rather than by validation, because there is no free placement to validate. The round sequence and every deal derive from the draft seed, so a room replays identically from `(seed)` and stays shareable ([TASK-1812](#task-1812)).
 
-**⚠️ The timer is a view concern, not an engine one.** The countdown must never reach the domain layer: `Date.now()` inside anything the engine reads breaks the determinism rule locked for Phase 18. The elapsed time influences _which_ card the player picks, and that pick is the input — the clock itself is not. **Depends on:** TASK-1806, TASK-1807.
+**⚠️ The timer is a view concern, not an engine one.** The countdown must never reach the domain layer: `Date.now()` inside anything the engine reads breaks the determinism rule locked for Phase 18. The elapsed time influences _which_ card the player picks, and that pick is the input — the clock itself is not. **Depends on:** TASK-1806, TASK-1807, [TASK-1831](#task-1831).
+
+**Design settled 2026-08-12** — [`docs/superpowers/specs/2026-08-12-task-1823-draft-room-design.md`](../docs/superpowers/specs/2026-08-12-task-1823-draft-room-design.md). Owner decisions, chosen from a 30-concept and a 30-animation gallery built with the real card pool:
+
+- **Concept 09 "Tactics Blueprint"** — chalk pitch left with the active slot circled, candidates pinned beside it. The pitch carries slot identity _and_ progress at once, and with free roam it doubles as the navigation surface.
+- **Animation 07 "Flip Reveal"** — candidates arrive face-down and turn on the Y axis; rejected cards fold away on the X axis, so accepting and discarding read as opposites in one physical language. Pure `transform`/`opacity`, motion-audit clean, reduce-gated.
+- **⚠️ ANY SLOT IS CLICKABLE — this is no longer a fixed round sequence.** Free roam and re-editing replace "eleven rounds in order". Opening an unfilled slot starts a timed round; opening a filled one re-opens the **identical five** with the current pick marked, **untimed** (a clock while reviewing your own squad punishes the coach for checking his work).
+- **⚠️ The deal is PRECOMPUTED in slot order** against one shared used-set. That guarantees no player appears in two hands, and — the load-bearing part — **the order you visit slots cannot change what any slot offers**. Dealt lazily, a slot's candidates would depend on which slots you had already opened, and the room would stop replaying from `(seed)` alone, breaking shareability ([TASK-1812](#task-1812)).
+- **Lives inside the hub's setup phase, not a new route.** A separate `/game/room` would have to move the XI across a route boundary — either serialising it through B2's IndexedDB slot (a persistence layer used as a message bus) or lifting state above both routes. Neither is worth inventing.
 
 ### TASK-1824
 
@@ -6052,6 +6061,24 @@ Also corrected from the owner's wording: the injury trigger is **moderate _and_ 
 **⏭️ DEFERRED TO [TASK-1807](#task-1807) — the streaming match view.** `MatchView` is a **renderer over an already-finished `MatchViewModel`**; it never drives the engine. Wiring a live decision loop into it means restructuring how a match is produced (the component must own the generator and stream events as the clock advances), which is `/game/play`'s job and lands with the route that needs it. **Design input for that work:** a decision object does not currently carry the events so far, so a streaming view needs an `events` snapshot on the decision payload — deliberately not added here rather than shipping unused API. `components/DecisionPrompt.tsx` is built, localised and tested (6 render tests) ready for it to mount.
 
 Verified: 1,724 tests green, `tsc` + ESLint clean, match harness unmoved, `/game` and `/game/chaos` both still `●` prerendered in en + ar.
+
+### TASK-1831
+
+**The full formation set — 20 shapes in three families** · 📋 Backlog · `P2` · `M` · Type: Feature
+
+**Description** — `FORMATIONS` grows from **4 shapes to 20**, in the owner's three categories, and the draft hub's picker becomes a grouped `<select>` (twenty chips would wrap into a wall). Design: [`docs/superpowers/specs/2026-08-12-task-1831-formation-set-design.md`](../docs/superpowers/specs/2026-08-12-task-1831-formation-set-design.md).
+
+**Back four (10)** — 4-3-3 Holding · 4-3-3 Flat · 4-3-3 False 9 · 4-2-3-1 · 4-4-2 Flat · 4-4-2 Diamond · 4-1-4-1 · 4-3-2-1 Christmas Tree · 4-5-1 · 4-2-2-2 Magic Rectangle. **Back three or five (6)** — 3-5-2 · 3-4-3 Flat · 3-4-2-1 · 3-1-4-2 · 5-3-2 · 5-4-1. **Historic (4)** — 4-2-4 · 3-2-2-3 W-M · 2-3-5 Pyramid · 4-6-0 Strikerless.
+
+Every shape is 11 slots with exactly one `GK`, built from the existing 13-code `PlayerRole` enum — no new roles. A false nine is a `CAM` in the centre-forward position; 4-6-0 has no forward slot at all.
+
+**⚠️ Variant names are load-bearing, not cosmetic.** `formationKey` is `` `${name}/${slots.length}` `` and every shape has 11 slots, so two variants both called "4-3-3" collide on `4-3-3/11`. [TASK-1807](#task-1807) B2 stores a live match by that key and resolves it with `FORMATIONS.find(...)` — a collision restores a saved match into the **wrong shape**. Hence "4-3-3 Holding" / "4-3-3 Flat" / "4-3-3 False 9". The uniqueness assertion B2 added guards it and must be seen to fail against a duplicated name.
+
+**⚠️ This moves every existing chaos draft.** `chaosDraft` picks its shape with `pick(FORMATIONS, rng)`, so the array's **length** feeds the seeded choice — growing it changes which formation every seed produces, and the XI that follows. The five chaos determinism tests are updated **once**, deliberately, with the reasoning in the diff; `/game/chaos` prerenders a different XI; and any match saved by B2 before this ships fails its fingerprint check and is discarded, which is the designed response to exactly this drift.
+
+**Validated against the real 252-card pool before speccing:** 20 shapes, all 11 slots, all one `GK`, all keys unique, and enough eligible supply for every slot of every shape to deal five distinct candidates — which is what [TASK-1823](#task-1823) needs. `RM` is thinnest at 18; no shape asks for more than two.
+
+**Ships BEFORE [TASK-1823](#task-1823)** (owner, 2026-08-12) so the Draft Room is built against the final set rather than retrofitted, and so the determinism churn lands in its own reviewable PR. **Depends on:** TASK-1807 A. **Blocks:** TASK-1823.
 
 ---
 
