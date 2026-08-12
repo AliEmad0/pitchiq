@@ -1,12 +1,35 @@
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { PlayerRole } from "@/data/schemas";
 import { makeCardId } from "@/features/game/domain/card-id";
 import type { PoolCard } from "@/features/game/domain/chaos-draft";
 import { renderWithIntl } from "./_helpers/intl";
 
 vi.mock("@/utils/motion", () => ({ prefersReducedMotion: () => true }));
+
+/**
+ * An in-memory stand-in for the IndexedDB slot.
+ *
+ * The real store is exercised in game-idb / game-match-slot; here what matters is WHEN
+ * the container reads and writes, not that IndexedDB works.
+ */
+const slot = {
+  saved: null as unknown,
+  save: vi.fn(async (m: unknown) => {
+    slot.saved = m;
+  }),
+  load: vi.fn(async () => slot.saved),
+  clear: vi.fn(async () => {
+    slot.saved = null;
+  }),
+};
+
+vi.mock("@/features/game/storage/match-slot", () => ({
+  saveMatch: (m: unknown) => slot.save(m),
+  loadMatch: () => slot.load(),
+  clearMatch: () => slot.clear(),
+}));
 
 const { GamePlay } = await import("@/features/game/components/GamePlay");
 
@@ -52,7 +75,23 @@ async function reachPreview(user: ReturnType<typeof userEvent.setup>) {
   await user.click(screen.getByRole("button", { name: "Play match" }));
 }
 
+/** Draft, confirm, kick off — and wait for the match to have been written. */
+async function playToLive(user: ReturnType<typeof userEvent.setup>) {
+  await reachPreview(user);
+  await user.click(screen.getByRole("button", { name: "Kick off" }));
+  await vi.waitFor(() => expect(slot.saved).not.toBeNull());
+}
+
 describe("GamePlay", () => {
+  beforeEach(() => {
+    // Every test starts with nothing stored, or a match saved by an earlier test would
+    // pop a resume dialog over an unrelated assertion.
+    slot.saved = null;
+    slot.save.mockClear();
+    slot.load.mockClear();
+    slot.clear.mockClear();
+  });
+
   it("starts on the draft hub", () => {
     renderWithIntl(<GamePlay pool={pool} />);
     expect(screen.getByRole("button", { name: "Auto-fill" })).toBeInTheDocument();
@@ -100,5 +139,74 @@ describe("GamePlay", () => {
     // /game/draft and /game/play mount the same container; only the entry phase differs.
     renderWithIntl(<GamePlay pool={pool} initialPhase="setup" />);
     expect(screen.getByRole("button", { name: "Auto-fill" })).toBeInTheDocument();
+  });
+
+  it("saves the match once it is live", async () => {
+    const user = userEvent.setup();
+    renderWithIntl(<GamePlay pool={pool} initialPhase="setup" />);
+    await playToLive(user);
+    expect(slot.saved).toMatchObject({ cardIds: expect.any(Array), seed: expect.any(Number) });
+  });
+
+  it("⚠️ saves nothing before kick-off", async () => {
+    // "Live match only" is a scope decision, not an accident. Saving at the preview
+    // would offer a resume into a match that never started.
+    const user = userEvent.setup();
+    renderWithIntl(<GamePlay pool={pool} initialPhase="setup" />);
+    await reachPreview(user);
+    expect(slot.save).not.toHaveBeenCalled();
+  });
+
+  it("offers a stored match back", async () => {
+    const user = userEvent.setup();
+    const { unmount } = renderWithIntl(<GamePlay pool={pool} initialPhase="setup" />);
+    await playToLive(user);
+    unmount();
+
+    renderWithIntl(<GamePlay pool={pool} initialPhase="setup" />);
+    expect(await screen.findByRole("dialog", { name: "Match in progress" })).toBeInTheDocument();
+  });
+
+  it("⚠️ the hub is rendered underneath, never replaced", async () => {
+    // The PR #97 lesson: a force-static page must not visibly swap what it painted.
+    const user = userEvent.setup();
+    const { unmount } = renderWithIntl(<GamePlay pool={pool} initialPhase="setup" />);
+    await playToLive(user);
+    unmount();
+
+    renderWithIntl(<GamePlay pool={pool} initialPhase="setup" />);
+    await screen.findByRole("dialog", { name: "Match in progress" });
+    expect(screen.getByRole("button", { name: "Auto-fill" })).toBeInTheDocument();
+  });
+
+  it("resuming re-enters the live match", async () => {
+    const user = userEvent.setup();
+    const { unmount } = renderWithIntl(<GamePlay pool={pool} initialPhase="setup" />);
+    await playToLive(user);
+    unmount();
+
+    renderWithIntl(<GamePlay pool={pool} initialPhase="setup" />);
+    await screen.findByRole("dialog", { name: "Match in progress" });
+    await user.click(screen.getByRole("button", { name: "Resume match" }));
+    expect(screen.getByRole("group", { name: /Live scoreboard/i })).toBeInTheDocument();
+  });
+
+  it("start over clears the slot and dismisses the dialog", async () => {
+    const user = userEvent.setup();
+    const { unmount } = renderWithIntl(<GamePlay pool={pool} initialPhase="setup" />);
+    await playToLive(user);
+    unmount();
+
+    renderWithIntl(<GamePlay pool={pool} initialPhase="setup" />);
+    await screen.findByRole("dialog", { name: "Match in progress" });
+    await user.click(screen.getByRole("button", { name: "Start over" }));
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(slot.clear).toHaveBeenCalled();
+  });
+
+  it("no dialog when nothing is stored", async () => {
+    renderWithIntl(<GamePlay pool={pool} initialPhase="setup" />);
+    await vi.waitFor(() => expect(slot.load).toHaveBeenCalled());
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 });
