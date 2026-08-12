@@ -5486,39 +5486,39 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 
 **⛔ Blocked by [TASK-M56](#task-m56)** (true player roles — the draft needs real positions) and **enriched by [TASK-M57](#task-m57)** (historical advanced stats — shrinks the sparse-rating era to 1992-2002). Start the headless slice (1801-1805) once M56 lands.
 
-| ID                      | Title                                                            | Status     | Priority | Est |
-| ----------------------- | ---------------------------------------------------------------- | ---------- | -------- | --- |
-| [TASK-1801](#task-1801) | Game domain model + read-only data adapter                       | ✅ Done    | P2       | L   |
-| [TASK-1802](#task-1802) | Era-aware player rating model (one interface, provenance tier)   | ✅ Done    | P2       | L   |
-| [TASK-1803](#task-1803) | Deterministic seeded match engine → `MatchEvent[]`               | ✅ Done    | P2       | XL  |
-| [TASK-1804](#task-1804) | Commentary system (ICU keys, en + ar, AST-guard clean)           | ✅ Done    | P2       | L   |
-| [TASK-1805](#task-1805) | Hybrid opponent model (modern squad / historical record)         | ✅ Done    | P2       | M   |
-| [TASK-1806](#task-1806) | Chaos Draft — first end-to-end vertical slice                    | ✅ Done    | P2       | L   |
-| [TASK-1807](#task-1807) | Draft hub + live match loop (A ✅ B1 ✅ — B2 + C left)           | 📋 Backlog | P2       | L   |
-| [TASK-1808](#task-1808) | Live tactical pitch UI + speed controls (1x/2x/skip)             | 📋 Backlog | P3       | L   |
-| [TASK-1809](#task-1809) | Key-event animations (goal/red-card overlays, pulsing nodes)     | 📋 Backlog | P3       | L   |
-| [TASK-1810](#task-1810) | Remaining six modes as rule packs                                | 📋 Backlog | P3       | XL  |
-| [TASK-1811](#task-1811) | Season-mode engine (ghost-of-real-season, Survival, Legacy)      | 📋 Backlog | P3       | L   |
-| [TASK-1812](#task-1812) | Persistence, records, shareable seeded matches                   | 📋 Backlog | P3       | M   |
-| [TASK-1813](#task-1813) | Hall of Fame & retro achievements (IndexedDB, provenance-aware)  | 📋 Backlog | P3       | M   |
-| [TASK-1814](#task-1814) | Momentum engine + data-derived personality traits (modifiers)    | 📋 Backlog | P3       | L   |
-| [TASK-1815](#task-1815) | Post-match analytics — xG timeline + retro newspaper headlines   | 📋 Backlog | P3       | M   |
-| [TASK-1816](#task-1816) | "What-If" historical scenario mode (rule pack)                   | 📋 Backlog | P3       | M   |
-| [TASK-1817](#task-1817) | Daily seeded challenge — client-only (streaks, PB, seed replay)  | 📋 Backlog | P3       | M   |
-| [TASK-1818](#task-1818) | Rogue-like / Mystery Market mode (local run history)             | 📋 Backlog | P3       | L   |
-| [TASK-1819](#task-1819) | Retro sticker album & collection book (IndexedDB)                | 📋 Backlog | P3       | S   |
-| [TASK-1820](#task-1820) | Rating model — absolute/cross-position stats + GK pipeline       | ✅ Done    | P2       | L   |
-| [TASK-1821](#task-1821) | Tier-Anchored Hybrid rating engine (anchors + delta + team)      | ✅ Done    | P2       | L   |
-| [TASK-1822](#task-1822) | Dynamic event-driven match engine (drama, VAR, subs, injuries)   | ✅ Done    | P1       | XL  |
-| [TASK-1823](#task-1823) | Draft Room — 11 slots × 5 cards, free roam + pick timer          | 📋 Backlog | P2       | L   |
-| [TASK-1824](#task-1824) | Squad chemistry (era / club / nation links) as a modifier        | 📋 Backlog | P3       | M   |
-| [TASK-1825](#task-1825) | Tactical style + mentality selection on the draft hub            | 📋 Backlog | P3       | S   |
-| [TASK-1826](#task-1826) | Market value progression across a season                         | 📋 Backlog | P3       | M   |
-| [TASK-1827](#task-1827) | Onboarding — coach identity + tutorial match (local only)        | 📋 Backlog | P3       | M   |
-| [TASK-1828](#task-1828) | Weekly modifier ladder (local, seeded from the ISO week)         | 📋 Backlog | P3       | M   |
-| [TASK-1829](#task-1829) | Card crafting — duplicates → trait badges (local)                | 📋 Backlog | P3       | S   |
-| [TASK-1830](#task-1830) | Segmented interactive match engine (live decisions, replayable)  | ✅ Done    | P1       | L   |
-| [TASK-1831](#task-1831) | The full formation set — 20 shapes in three families            | 📋 Backlog | P2       | M   |
+| ID                      | Title                                                           | Status     | Priority | Est |
+| ----------------------- | --------------------------------------------------------------- | ---------- | -------- | --- |
+| [TASK-1801](#task-1801) | Game domain model + read-only data adapter                      | ✅ Done    | P2       | L   |
+| [TASK-1802](#task-1802) | Era-aware player rating model (one interface, provenance tier)  | ✅ Done    | P2       | L   |
+| [TASK-1803](#task-1803) | Deterministic seeded match engine → `MatchEvent[]`              | ✅ Done    | P2       | XL  |
+| [TASK-1804](#task-1804) | Commentary system (ICU keys, en + ar, AST-guard clean)          | ✅ Done    | P2       | L   |
+| [TASK-1805](#task-1805) | Hybrid opponent model (modern squad / historical record)        | ✅ Done    | P2       | M   |
+| [TASK-1806](#task-1806) | Chaos Draft — first end-to-end vertical slice                   | ✅ Done    | P2       | L   |
+| [TASK-1807](#task-1807) | Draft hub + live match loop (A ✅ B1 ✅ B2 ✅ — C left)         | 📋 Backlog | P2       | L   |
+| [TASK-1808](#task-1808) | Live tactical pitch UI + speed controls (1x/2x/skip)            | 📋 Backlog | P3       | L   |
+| [TASK-1809](#task-1809) | Key-event animations (goal/red-card overlays, pulsing nodes)    | 📋 Backlog | P3       | L   |
+| [TASK-1810](#task-1810) | Remaining six modes as rule packs                               | 📋 Backlog | P3       | XL  |
+| [TASK-1811](#task-1811) | Season-mode engine (ghost-of-real-season, Survival, Legacy)     | 📋 Backlog | P3       | L   |
+| [TASK-1812](#task-1812) | Persistence, records, shareable seeded matches                  | 📋 Backlog | P3       | M   |
+| [TASK-1813](#task-1813) | Hall of Fame & retro achievements (IndexedDB, provenance-aware) | 📋 Backlog | P3       | M   |
+| [TASK-1814](#task-1814) | Momentum engine + data-derived personality traits (modifiers)   | 📋 Backlog | P3       | L   |
+| [TASK-1815](#task-1815) | Post-match analytics — xG timeline + retro newspaper headlines  | 📋 Backlog | P3       | M   |
+| [TASK-1816](#task-1816) | "What-If" historical scenario mode (rule pack)                  | 📋 Backlog | P3       | M   |
+| [TASK-1817](#task-1817) | Daily seeded challenge — client-only (streaks, PB, seed replay) | 📋 Backlog | P3       | M   |
+| [TASK-1818](#task-1818) | Rogue-like / Mystery Market mode (local run history)            | 📋 Backlog | P3       | L   |
+| [TASK-1819](#task-1819) | Retro sticker album & collection book (IndexedDB)               | 📋 Backlog | P3       | S   |
+| [TASK-1820](#task-1820) | Rating model — absolute/cross-position stats + GK pipeline      | ✅ Done    | P2       | L   |
+| [TASK-1821](#task-1821) | Tier-Anchored Hybrid rating engine (anchors + delta + team)     | ✅ Done    | P2       | L   |
+| [TASK-1822](#task-1822) | Dynamic event-driven match engine (drama, VAR, subs, injuries)  | ✅ Done    | P1       | XL  |
+| [TASK-1823](#task-1823) | Draft Room — 11 slots × 5 cards, free roam + pick timer         | 📋 Backlog | P2       | L   |
+| [TASK-1824](#task-1824) | Squad chemistry (era / club / nation links) as a modifier       | 📋 Backlog | P3       | M   |
+| [TASK-1825](#task-1825) | Tactical style + mentality selection on the draft hub           | 📋 Backlog | P3       | S   |
+| [TASK-1826](#task-1826) | Market value progression across a season                        | 📋 Backlog | P3       | M   |
+| [TASK-1827](#task-1827) | Onboarding — coach identity + tutorial match (local only)       | 📋 Backlog | P3       | M   |
+| [TASK-1828](#task-1828) | Weekly modifier ladder (local, seeded from the ISO week)        | 📋 Backlog | P3       | M   |
+| [TASK-1829](#task-1829) | Card crafting — duplicates → trait badges (local)               | 📋 Backlog | P3       | S   |
+| [TASK-1830](#task-1830) | Segmented interactive match engine (live decisions, replayable) | ✅ Done    | P1       | L   |
+| [TASK-1831](#task-1831) | The full formation set — 20 shapes in three families            | ✅ Done    | P2       | M   |
 
 _Enhancement roadmap 1813-1819 added 2026-08-03 from the owner's feature proposal (Option A — 100% client-side/static). See the locked-architecture notes above for the modifier-stack + determinism + no-backend decisions that govern them._
 
@@ -6064,7 +6064,7 @@ Verified: 1,724 tests green, `tsc` + ESLint clean, match harness unmoved, `/game
 
 ### TASK-1831
 
-**The full formation set — 20 shapes in three families** · 📋 Backlog · `P2` · `M` · Type: Feature
+**The full formation set — 20 shapes in three families** · ✅ Done (2026-08-13) · `P2` · `M` · Type: Feature
 
 **Description** — `FORMATIONS` grows from **4 shapes to 20**, in the owner's three categories, and the draft hub's picker becomes a grouped `<select>` (twenty chips would wrap into a wall). Design: [`docs/superpowers/specs/2026-08-12-task-1831-formation-set-design.md`](../docs/superpowers/specs/2026-08-12-task-1831-formation-set-design.md).
 
@@ -6079,6 +6079,18 @@ Every shape is 11 slots with exactly one `GK`, built from the existing 13-code `
 **Validated against the real 252-card pool before speccing:** 20 shapes, all 11 slots, all one `GK`, all keys unique, and enough eligible supply for every slot of every shape to deal five distinct candidates — which is what [TASK-1823](#task-1823) needs. `RM` is thinnest at 18; no shape asks for more than two.
 
 **Ships BEFORE [TASK-1823](#task-1823)** (owner, 2026-08-12) so the Draft Room is built against the final set rather than retrofitted, and so the determinism churn lands in its own reviewable PR. **Depends on:** TASK-1807 A. **Blocks:** TASK-1823.
+
+**✅ Shipped 2026-08-13.** Plan: [`docs/superpowers/plans/2026-08-12-task-1831-formation-set.md`](../docs/superpowers/plans/2026-08-12-task-1831-formation-set.md). Suite 1,866 → 1,878; `tsc` + lint clean; all four `/game/*` routes still `●` in en + ar.
+
+**⚠️ The array's ORDER was load-bearing, and is not any more.** `FORMATIONS` was read by index in ten places — nine tests plus the hub — so inserting shapes would have silently repointed `FORMATIONS[2]` and left the hard-ban test passing **for the wrong reason** (it pins slot 4 precisely because that is the only index whose role differs between 4-4-2 and 3-5-2). `formationByName` now resolves every shape and **throws** on an unknown name; a guard test fails if index access returns. That conversion landed in its own commit **before** any new shape, so the suite proved it changed nothing while the array was still the familiar four.
+
+**⚠️ The guard caught a live offender on its first run** — a `FORMATIONS[0]` the conversion had missed. It matches source TEXT rather than an AST, so it also flags the pattern inside a comment; describe the anti-pattern in prose rather than writing it out.
+
+**⚠️ The chaos determinism tests did NOT move — and that is a weaker signal than it looks.** All five are relational (same seed reproduces itself, eleven distinct players, shape ∈ `FORMATIONS`, every card eligible, different seeds differ), so a completely different draft still satisfies every one. The output really did change and **nothing tests it**. Verified by measurement instead: seed `20260805` (the chaos route's server seed) drafts **4-4-2 → 4-3-3 Holding**, and every probed seed changed shape and XI. The match harness aggregates shifted with it (2.69 → 2.70 goals, 41.3 → 41.4 events per match), which is the same change showing up from another angle.
+
+**⚠️ Renaming the existing four invalidates saved matches, by design.** "4-4-2" became "4-4-2 Flat", so `formationKey` changes and any match B2 stored before this fails its fingerprint check and is discarded rather than restoring into a mis-shaped XI.
+
+**Deliberately not built:** the per-shape tactical note beside the picker. Twenty notes are prose needing both catalogs, and the shape name already carries the information.
 
 ---
 

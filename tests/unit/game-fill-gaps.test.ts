@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { PlayerRole } from "@/data/schemas";
 import { makeCardId, type PlayerSeasonId } from "@/features/game/domain/card-id";
 import type { PoolCard } from "@/features/game/domain/chaos-draft";
-import { FORMATIONS } from "@/features/game/domain/chaos-draft";
+import { formationByName } from "@/features/game/domain/formation";
 import { fillGaps } from "@/features/game/domain/fill-gaps";
 import { mulberry32 } from "@/features/game/domain/rng";
 
@@ -38,7 +38,7 @@ const ROLES: PlayerRole[] = [
 const pool: PoolCard[] = ROLES.flatMap((role, r) =>
   [0, 1, 2, 3].map((i) => card(1000 + r * 10 + i, role)),
 );
-const shape = FORMATIONS[0]; // 4-4-2
+const shape = formationByName("4-4-2 Flat");
 // Annotated on purpose: inferred, this is `null[]` and assigning a cardId into it fails
 // under the project-wide tsc even though per-file vitest is happy.
 const empty = (): (PlayerSeasonId | null)[] => shape.slots.map(() => null);
