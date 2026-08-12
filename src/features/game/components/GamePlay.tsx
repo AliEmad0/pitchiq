@@ -1,5 +1,6 @@
 "use client";
 import { useTranslations } from "next-intl";
+import { parseAsStringLiteral, useQueryState } from "nuqs";
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import type { PlayerSeasonId } from "@/features/game/domain/card-id";
 import type { PoolCard } from "@/features/game/domain/chaos-draft";
@@ -64,6 +65,29 @@ export function GamePlay({ pool, initialPhase }: { pool: PoolCard[]; initialPhas
   );
   /** An unfinished match found in storage, replayed and verified, awaiting the coach. */
   const [offer, setOffer] = useState<RestoredMatch | null>(null);
+
+  /**
+   * The phase, mirrored into the URL.
+   *
+   * ⚠️ WRITTEN, NEVER READ, and `history: "replace"` so it adds no history entries. The
+   * reducer stays the single driver of phase; the browser must not become a second one.
+   * `setup` writes null so the hub keeps a clean URL.
+   *
+   * In B2 this is a write-only mirror — it makes the current phase legible and gives
+   * TASK-1812's seed-sharing the parameter to build on, but it drives nothing.
+   */
+  const [, setPhaseParam] = useQueryState(
+    "phase",
+    parseAsStringLiteral(["preview", "live", "summary"] as const).withOptions({
+      history: "replace",
+      shallow: true,
+      clearOnDefault: true,
+    }),
+  );
+
+  useEffect(() => {
+    void setPhaseParam(state.phase === "setup" ? null : state.phase);
+  }, [state.phase, setPhaseParam]);
 
   /** Fold one step of the stream into view state. */
   const consume = useCallback((step: StreamStep) => {
