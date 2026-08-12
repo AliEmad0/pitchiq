@@ -283,7 +283,81 @@ export const PlayerSchema = z.object({
   // TASK-M56: height in cm, enriched from Transfermarkt alongside the role.
   // Additive/optional; null when TM lists no height.
   height: z.number().int().nullable().optional(),
+  // TASK-M75: Transfermarkt enrichment summary, applied from the private M73 maps.
+  // Optional + additive — a pre-enrichment committed row validates unchanged, and
+  // absence means "not enriched", never "has none".
+  //
+  // `trophies` counts SILVERWARE ONLY. 12,720 of the 29,761 honour groups TM lists are
+  // participation and 1,368 are runner-up, so a naive count would rank a player who never
+  // won anything above a league winner. Detail (every honour, transfer and cap, with the
+  // per-group kind) lives in data/player-honours.json and friends, read only by the pages
+  // that show it — see loadPlayerHonours().
+  enrichment: z
+    .object({
+      trophies: z.number().int(),
+      honours: z.number().int(),
+      awards: z.number().int(),
+      caps: z.number().int().nullable(),
+      internationalGoals: z.number().int().nullable(),
+      /** Display string ("€52.60m"), never a number. */
+      careerFee: z.string().nullable(),
+    })
+    .nullable()
+    .optional(),
 });
+
+// TASK-M75: enrichment detail, keyed by player id. Split out of the player rows so
+// players-<season>.json — which the whole app builds from — stays small.
+export const PlayerHonourGroupSchema = z.object({
+  title: z.string(),
+  count: z.number().int(),
+  kind: z.enum(["trophy", "award", "promotion", "relegation", "runner-up", "participation"]),
+  entries: z.array(
+    z.object({ season: z.string(), club: z.string().nullable(), clubId: z.string().nullable() }),
+  ),
+});
+export const PlayerHonoursFileSchema = z.record(
+  z.string(),
+  z.object({ groups: z.array(PlayerHonourGroupSchema) }),
+);
+export type PlayerHonoursFile = z.infer<typeof PlayerHonoursFileSchema>;
+
+export const PlayerTransferHistoryFileSchema = z.record(
+  z.string(),
+  z.object({
+    feeSum: z.string().nullable(),
+    moves: z.array(
+      z.object({
+        season: z.string().nullable(),
+        date: z.string().nullable(),
+        /** Display string — "€24.00m", "free transfer", "End of loan", "?" — never a number. */
+        fee: z.string().nullable(),
+        from: z.string().nullable(),
+        fromId: z.string().nullable(),
+        to: z.string().nullable(),
+        toId: z.string().nullable(),
+      }),
+    ),
+  }),
+);
+export type PlayerTransferHistoryFile = z.infer<typeof PlayerTransferHistoryFileSchema>;
+
+export const PlayerNationalFileSchema = z.record(
+  z.string(),
+  z.object({
+    caps: z.number().int().nullable(),
+    goals: z.number().int().nullable(),
+    spells: z.array(
+      z.object({
+        teamId: z.string().nullable(),
+        matches: z.number().int().nullable(),
+        goals: z.number().int().nullable(),
+        debutDate: z.string().nullable(),
+      }),
+    ),
+  }),
+);
+export type PlayerNationalFile = z.infer<typeof PlayerNationalFileSchema>;
 
 export const LeaderboardEntrySchema = z.object({
   rank: z.number().int().positive(),
