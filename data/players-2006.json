@@ -6,6 +6,14 @@
     "birthDate": "1987-04-16",
     "birthYear": 1987,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 21,
+      "careerFee": "€8.90m",
+      "honours": 6,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 165,
     "id": 1000003,
@@ -99,6 +107,14 @@
     "birthDate": "1986-10-03",
     "birthYear": 1986,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 73,
+      "careerFee": "€7.30m",
+      "honours": 2,
+      "internationalGoals": 1,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 179,
     "id": 1000026,
@@ -190,6 +206,14 @@
     "birthDate": "1989-01-06",
     "birthYear": 1989,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 9,
+      "careerFee": "€59.75m",
+      "honours": 6,
+      "internationalGoals": 2,
+      "trophies": 2
+    },
     "foot": "left",
     "height": 194,
     "id": 1000104,
@@ -282,6 +306,14 @@
     "birthDate": "1985-08-04",
     "birthYear": 1985,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 2,
+      "caps": 99,
+      "careerFee": "€23.60m",
+      "honours": 16,
+      "internationalGoals": 11,
+      "trophies": 13
+    },
     "foot": "right",
     "height": 180,
     "id": 1000124,
@@ -376,6 +408,14 @@
     "birthDate": "1985-07-09",
     "birthYear": 1985,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 39,
+      "careerFee": "€32.90m",
+      "honours": 16,
+      "internationalGoals": 7,
+      "trophies": 9
+    },
     "foot": "both",
     "height": 175,
     "id": 1000141,
@@ -487,6 +527,14 @@
     "birthDate": "1983-04-03",
     "birthYear": 1983,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 8,
+      "careerFee": "€18.00m",
+      "honours": 10,
+      "internationalGoals": 0,
+      "trophies": 6
+    },
     "foot": "left",
     "height": 193,
     "id": 1000157,
@@ -580,6 +628,14 @@
     "birthDate": "1987-05-04",
     "birthYear": 1987,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 4,
+      "caps": 110,
+      "careerFee": "€79.20m",
+      "honours": 26,
+      "internationalGoals": 15,
+      "trophies": 16
+    },
     "foot": "right",
     "height": 179,
     "id": 1000248,
@@ -674,6 +730,14 @@
     "birthDate": "1985-02-05",
     "birthYear": 1985,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 59,
+      "caps": 233,
+      "careerFee": "€247.00m",
+      "honours": 42,
+      "internationalGoals": 146,
+      "trophies": 50
+    },
     "foot": "right",
     "height": 185,
     "id": 1000308,
@@ -767,6 +831,14 @@
     "birthDate": "1989-09-01",
     "birthYear": 1989,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 26,
+      "careerFee": "€24.55m",
+      "honours": 16,
+      "internationalGoals": 8,
+      "trophies": 7
+    },
     "foot": "left",
     "height": 183,
     "id": 1000335,
@@ -859,6 +931,14 @@
     "birthDate": "1984-02-01",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 81,
+      "careerFee": null,
+      "honours": 10,
+      "internationalGoals": 5,
+      "trophies": 15
+    },
     "foot": "right",
     "height": 184,
     "id": 1000349,
@@ -950,6 +1030,14 @@
     "birthDate": "1987-05-12",
     "birthYear": 1987,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 50,
+      "careerFee": "€10.30m",
+      "honours": 4,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 187,
     "id": 1000350,
@@ -1043,6 +1131,14 @@
     "birthDate": "1981-02-23",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 53,
+      "careerFee": "€15.00m",
+      "honours": 9,
+      "internationalGoals": 3,
+      "trophies": 4
+    },
     "foot": "left",
     "height": 184,
     "id": 1000519,
@@ -1133,6 +1229,14 @@
     "birthDate": "1985-12-19",
     "birthYear": 1985,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 61,
+      "careerFee": "€14.40m",
+      "honours": 13,
+      "internationalGoals": 5,
+      "trophies": 8
+    },
     "foot": "right",
     "height": 193,
     "id": 1000521,
@@ -1227,6 +1331,14 @@
     "birthDate": "1984-08-23",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 54,
+      "careerFee": "€34.30m",
+      "honours": 8,
+      "internationalGoals": 1,
+      "trophies": 5
+    },
     "foot": "both",
     "height": 182,
     "id": 1000539,
@@ -1318,6 +1430,14 @@
     "birthDate": "1983-08-23",
     "birthYear": 1983,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 51,
+      "careerFee": "€10.90m",
+      "honours": 2,
+      "internationalGoals": 3,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 188,
     "id": 1000663,
@@ -1411,6 +1531,14 @@
     "birthDate": "1986-01-04",
     "birthYear": 1986,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 61,
+      "careerFee": "€44.40m",
+      "honours": 22,
+      "internationalGoals": 1,
+      "trophies": 13
+    },
     "foot": "right",
     "height": 175,
     "id": 1000673,
@@ -1505,6 +1633,14 @@
     "birthDate": "1986-05-25",
     "birthYear": 1986,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 46,
+      "careerFee": "€2.25m",
+      "honours": 5,
+      "internationalGoals": 3,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 183,
     "id": 1000674,
@@ -1598,6 +1734,14 @@
     "birthDate": "1982-10-07",
     "birthYear": 1982,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 57,
+      "careerFee": "€48.68m",
+      "honours": 10,
+      "internationalGoals": 20,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 171,
     "id": 1000722,
@@ -1687,6 +1831,14 @@
     "birthDate": "1987-04-19",
     "birthYear": 1987,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 75,
+      "careerFee": "€9.45m",
+      "honours": 14,
+      "internationalGoals": 0,
+      "trophies": 15
+    },
     "foot": "right",
     "height": 196,
     "id": 1000749,
@@ -1779,6 +1931,14 @@
     "birthDate": "1984-12-11",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 30,
+      "careerFee": "€7.50m",
+      "honours": 5,
+      "internationalGoals": 1,
+      "trophies": 0
+    },
     "foot": "left",
     "height": 170,
     "id": 1000916,
@@ -1872,6 +2032,14 @@
     "birthDate": "1984-07-09",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 7,
+      "careerFee": "€1.98m",
+      "honours": 4,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 178,
     "id": 1000945,
@@ -1965,6 +2133,14 @@
     "birthDate": "1987-05-08",
     "birthYear": 1987,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 20,
+      "careerFee": null,
+      "honours": 5,
+      "internationalGoals": 3,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 180,
     "id": 1001018,
@@ -2058,6 +2234,14 @@
     "birthDate": "1981-07-28",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 34,
+      "careerFee": "€31.30m",
+      "honours": 16,
+      "internationalGoals": 0,
+      "trophies": 19
+    },
     "foot": "right",
     "height": 189,
     "id": 1001091,
@@ -2151,6 +2335,14 @@
     "birthDate": "1981-05-15",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 81,
+      "careerFee": "€14.65m",
+      "honours": 20,
+      "internationalGoals": 0,
+      "trophies": 21
+    },
     "foot": "left",
     "height": 174,
     "id": 1001239,
@@ -2242,6 +2434,14 @@
     "birthDate": "1982-08-31",
     "birthYear": 1982,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 36,
+      "careerFee": "€15.95m",
+      "honours": 20,
+      "internationalGoals": 0,
+      "trophies": 14
+    },
     "foot": "right",
     "height": 188,
     "id": 1001257,
@@ -2332,6 +2532,14 @@
     "birthDate": "1981-01-30",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 42,
+      "careerFee": "€58.84m",
+      "honours": 11,
+      "internationalGoals": 22,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 201,
     "id": 1001261,
@@ -2423,6 +2631,14 @@
     "birthDate": "1982-05-20",
     "birthYear": 1982,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 8,
+      "caps": 124,
+      "careerFee": "€32.61m",
+      "honours": 20,
+      "internationalGoals": 0,
+      "trophies": 20
+    },
     "foot": "left",
     "height": 196,
     "id": 1001262,
@@ -2515,6 +2731,14 @@
     "birthDate": "1985-06-28",
     "birthYear": 1985,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 13,
+      "careerFee": "€3.84m",
+      "honours": 6,
+      "internationalGoals": 0,
+      "trophies": 3
+    },
     "foot": "right",
     "height": 180,
     "id": 1001263,
@@ -2605,6 +2829,14 @@
     "birthDate": "1982-08-17",
     "birthYear": 1982,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 40,
+      "careerFee": "€6.00m",
+      "honours": 7,
+      "internationalGoals": 3,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 180,
     "id": 1001265,
@@ -2695,6 +2927,14 @@
     "birthDate": "1985-09-03",
     "birthYear": 1985,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 4,
+      "careerFee": "€8.42m",
+      "honours": 12,
+      "internationalGoals": 0,
+      "trophies": 12
+    },
     "foot": "right",
     "height": 188,
     "id": 1001396,
@@ -2788,6 +3028,14 @@
     "birthDate": "1987-01-22",
     "birthYear": 1987,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 88,
+      "careerFee": "€28.58m",
+      "honours": 6,
+      "internationalGoals": 17,
+      "trophies": 2
+    },
     "foot": "both",
     "height": 180,
     "id": 1001419,
@@ -2882,6 +3130,14 @@
     "birthDate": "1986-08-22",
     "birthYear": 1986,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 6,
+      "careerFee": "€10.30m",
+      "honours": 1,
+      "internationalGoals": 4,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 173,
     "id": 1001443,
@@ -2976,6 +3232,14 @@
     "birthDate": "1985-01-01",
     "birthYear": 1985,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 2,
+      "caps": 140,
+      "careerFee": "€10.70m",
+      "honours": 9,
+      "internationalGoals": 13,
+      "trophies": 10
+    },
     "foot": "right",
     "height": 172,
     "id": 1001450,
@@ -3070,6 +3334,14 @@
     "birthDate": "1989-03-16",
     "birthYear": 1989,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 47,
+      "careerFee": "€33.00m",
+      "honours": 9,
+      "internationalGoals": 8,
+      "trophies": 5
+    },
     "foot": "both",
     "height": 175,
     "id": 1001474,
@@ -3162,6 +3434,14 @@
     "birthDate": "1985-10-24",
     "birthYear": 1985,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 9,
+      "caps": 120,
+      "careerFee": "€37.00m",
+      "honours": 22,
+      "internationalGoals": 53,
+      "trophies": 21
+    },
     "foot": "right",
     "height": 176,
     "id": 1001555,
@@ -3256,6 +3536,14 @@
     "birthDate": "1985-01-07",
     "birthYear": 1985,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 11,
+      "careerFee": "€10.62m",
+      "honours": 9,
+      "internationalGoals": 1,
+      "trophies": 4
+    },
     "foot": "right",
     "height": 170,
     "id": 1001556,
@@ -3350,6 +3638,14 @@
     "birthDate": "1979-11-08",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 112,
+      "careerFee": "€3.00m",
+      "honours": 8,
+      "internationalGoals": 1,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 183,
     "id": 1001901,
@@ -3444,6 +3740,14 @@
     "birthDate": "1978-02-26",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 35,
+      "careerFee": "€8.70m",
+      "honours": 5,
+      "internationalGoals": 2,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 187,
     "id": 1001905,
@@ -3537,6 +3841,14 @@
     "birthDate": "1980-10-06",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 48,
+      "careerFee": "€4.70m",
+      "honours": 8,
+      "internationalGoals": 1,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 185,
     "id": 1001906,
@@ -3630,6 +3942,14 @@
     "birthDate": "1987-07-14",
     "birthYear": 1987,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 12,
+      "careerFee": "€20.60m",
+      "honours": 7,
+      "internationalGoals": 2,
+      "trophies": 2
+    },
     "foot": "left",
     "height": 182,
     "id": 1001915,
@@ -3722,6 +4042,14 @@
     "birthDate": "1989-05-24",
     "birthYear": 1989,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 30,
+      "careerFee": "€5.20m",
+      "honours": 10,
+      "internationalGoals": 4,
+      "trophies": 4
+    },
     "foot": "right",
     "height": 185,
     "id": 1001921,
@@ -3814,6 +4142,14 @@
     "birthDate": "1980-10-28",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 19,
+      "careerFee": "€18.00m",
+      "honours": 8,
+      "internationalGoals": 1,
+      "trophies": 3
+    },
     "foot": null,
     "height": null,
     "id": 1001931,
@@ -3908,6 +4244,14 @@
     "birthDate": "1987-09-09",
     "birthYear": 1987,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 49,
+      "careerFee": "€23.28m",
+      "honours": 8,
+      "internationalGoals": 0,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 185,
     "id": 1001952,
@@ -4022,6 +4366,14 @@
     "birthDate": "1981-05-01",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 7,
+      "caps": 80,
+      "careerFee": "€36.05m",
+      "honours": 15,
+      "internationalGoals": 7,
+      "trophies": 12
+    },
     "foot": null,
     "height": null,
     "id": 1001956,
@@ -4115,6 +4467,14 @@
     "birthDate": "1983-01-17",
     "birthYear": 1983,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 56,
+      "careerFee": "€9.20m",
+      "honours": 15,
+      "internationalGoals": 0,
+      "trophies": 11
+    },
     "foot": "right",
     "height": 184,
     "id": 1001960,
@@ -4208,6 +4568,14 @@
     "birthDate": "1981-02-10",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 8,
+      "careerFee": "€25.45m",
+      "honours": 7,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 172,
     "id": 1001977,
@@ -4300,6 +4668,14 @@
     "birthDate": "1986-08-01",
     "birthYear": 1986,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 12,
+      "careerFee": null,
+      "honours": 7,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "left",
     "height": 178,
     "id": 1001979,
@@ -4392,6 +4768,14 @@
     "birthDate": "1979-06-29",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 27,
+      "careerFee": "€6.00m",
+      "honours": 3,
+      "internationalGoals": 1,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 191,
     "id": 1001982,
@@ -4484,6 +4868,14 @@
     "birthDate": "1982-07-29",
     "birthYear": 1982,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 30,
+      "careerFee": "€18.20m",
+      "honours": 1,
+      "internationalGoals": 4,
+      "trophies": 1
+    },
     "foot": "left",
     "height": 170,
     "id": 1001983,
@@ -4577,6 +4969,14 @@
     "birthDate": "1985-02-18",
     "birthYear": 1985,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 17,
+      "careerFee": "€11.13m",
+      "honours": 2,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 185,
     "id": 1001993,
@@ -4667,6 +5067,14 @@
     "birthDate": "1980-12-20",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 107,
+      "careerFee": "€7.40m",
+      "honours": 15,
+      "internationalGoals": 0,
+      "trophies": 16
+    },
     "foot": "left",
     "height": 176,
     "id": 1002003,
@@ -4758,6 +5166,14 @@
     "birthDate": "1978-08-13",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 44,
+      "careerFee": "€11.20m",
+      "honours": 4,
+      "internationalGoals": 29,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 188,
     "id": 1002019,
@@ -4849,6 +5265,14 @@
     "birthDate": "1977-11-12",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 2,
+      "caps": 80,
+      "careerFee": "€15.80m",
+      "honours": 19,
+      "internationalGoals": 31,
+      "trophies": 15
+    },
     "foot": "right",
     "height": 184,
     "id": 1002020,
@@ -4939,6 +5363,14 @@
     "birthDate": "1984-03-24",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 24,
+      "careerFee": "€5.00m",
+      "honours": 6,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "left",
     "height": 178,
     "id": 1002021,
@@ -5029,6 +5461,14 @@
     "birthDate": "1981-01-16",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 2,
+      "caps": 2,
+      "careerFee": "€12.05m",
+      "honours": 10,
+      "internationalGoals": 0,
+      "trophies": 2
+    },
     "foot": "left",
     "height": 184,
     "id": 1002028,
@@ -5121,6 +5561,14 @@
     "birthDate": "1976-08-15",
     "birthYear": 1976,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 54,
+      "careerFee": "€24.90m",
+      "honours": 12,
+      "internationalGoals": 7,
+      "trophies": 8
+    },
     "foot": "left",
     "height": 174,
     "id": 1002030,
@@ -5212,6 +5660,14 @@
     "birthDate": "1971-05-18",
     "birthYear": 1971,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 82,
+      "careerFee": "€4.00m",
+      "honours": 12,
+      "internationalGoals": 0,
+      "trophies": 4
+    },
     "foot": "right",
     "height": 191,
     "id": 1002031,
@@ -5302,6 +5758,14 @@
     "birthDate": "1982-03-19",
     "birthYear": 1982,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 6,
+      "careerFee": "€2.80m",
+      "honours": 14,
+      "internationalGoals": 0,
+      "trophies": 9
+    },
     "foot": "left",
     "height": 194,
     "id": 1002035,
@@ -5395,6 +5859,14 @@
     "birthDate": "1979-02-22",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 95,
+      "careerFee": "€4.80m",
+      "honours": 10,
+      "internationalGoals": 20,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 185,
     "id": 1002043,
@@ -5489,6 +5961,14 @@
     "birthDate": "1975-10-16",
     "birthYear": 1975,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 74,
+      "careerFee": "€1.25m",
+      "honours": 4,
+      "internationalGoals": 4,
+      "trophies": 4
+    },
     "foot": "right",
     "height": 185,
     "id": 1002053,
@@ -5580,6 +6060,14 @@
     "birthDate": "1973-09-06",
     "birthYear": 1973,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 1,
+      "careerFee": "€240k",
+      "honours": 11,
+      "internationalGoals": 0,
+      "trophies": 9
+    },
     "foot": "right",
     "height": 185,
     "id": 1002069,
@@ -5674,6 +6162,14 @@
     "birthDate": "1984-02-05",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 15,
+      "caps": 76,
+      "careerFee": "€97.30m",
+      "honours": 36,
+      "internationalGoals": 13,
+      "trophies": 29
+    },
     "foot": "right",
     "height": 171,
     "id": 1002073,
@@ -5765,6 +6261,14 @@
     "birthDate": "1983-10-12",
     "birthYear": 1983,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 7,
+      "careerFee": "€3.00m",
+      "honours": 6,
+      "internationalGoals": 0,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 191,
     "id": 1002075,
@@ -5857,6 +6361,14 @@
     "birthDate": "1986-05-28",
     "birthYear": 1986,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 2,
+      "careerFee": "€18.20m",
+      "honours": 2,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "left",
     "height": 171,
     "id": 1002078,
@@ -5951,6 +6463,14 @@
     "birthDate": "1985-11-19",
     "birthYear": 1985,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": "€3.20m",
+      "honours": 5,
+      "internationalGoals": null,
+      "trophies": 4
+    },
     "foot": "right",
     "height": 183,
     "id": 1002086,
@@ -6042,6 +6562,14 @@
     "birthDate": "1981-05-02",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 1,
+      "careerFee": "€11.93m",
+      "honours": 4,
+      "internationalGoals": 0,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 198,
     "id": 1002090,
@@ -6132,6 +6660,14 @@
     "birthDate": "1984-03-28",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 26,
+      "careerFee": "€51.10m",
+      "honours": 3,
+      "internationalGoals": 0,
+      "trophies": 2
+    },
     "foot": null,
     "height": null,
     "id": 1002093,
@@ -6226,6 +6762,14 @@
     "birthDate": "1983-03-09",
     "birthYear": 1983,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 5,
+      "caps": 141,
+      "careerFee": "€18.68m",
+      "honours": 17,
+      "internationalGoals": 57,
+      "trophies": 6
+    },
     "foot": "right",
     "height": 185,
     "id": 1002095,
@@ -6318,6 +6862,14 @@
     "birthDate": "1979-07-13",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 2,
+      "caps": 78,
+      "careerFee": "€61.50m",
+      "honours": 11,
+      "internationalGoals": 19,
+      "trophies": 4
+    },
     "foot": "right",
     "height": 173,
     "id": 1002106,
@@ -6412,6 +6964,14 @@
     "birthDate": "1986-11-25",
     "birthYear": 1986,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 14,
+      "careerFee": "€12.43m",
+      "honours": 5,
+      "internationalGoals": 2,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 176,
     "id": 1002107,
@@ -6506,6 +7066,14 @@
     "birthDate": "1979-03-02",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 100,
+      "careerFee": "€36.50m",
+      "honours": 13,
+      "internationalGoals": 8,
+      "trophies": 6
+    },
     "foot": "left",
     "height": 178,
     "id": 1002120,
@@ -6599,6 +7167,14 @@
     "birthDate": "1984-12-12",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 75,
+      "careerFee": "€12.76m",
+      "honours": 11,
+      "internationalGoals": 12,
+      "trophies": 4
+    },
     "foot": "left",
     "height": 191,
     "id": 1002123,
@@ -6693,6 +7269,14 @@
     "birthDate": "1979-08-08",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 49,
+      "careerFee": "€2.26m",
+      "honours": 3,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 178,
     "id": 1002132,
@@ -6785,6 +7369,14 @@
     "birthDate": "1985-08-12",
     "birthYear": 1985,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 1,
+      "careerFee": "€9.70m",
+      "honours": 4,
+      "internationalGoals": 0,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 183,
     "id": 1002141,
@@ -6877,6 +7469,14 @@
     "birthDate": "1977-03-18",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 9,
+      "careerFee": "€9.46m",
+      "honours": 12,
+      "internationalGoals": 1,
+      "trophies": 6
+    },
     "foot": "right",
     "height": 177,
     "id": 1002143,
@@ -6968,6 +7568,14 @@
     "birthDate": "1984-08-27",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 7,
+      "careerFee": "€23.75m",
+      "honours": 5,
+      "internationalGoals": 0,
+      "trophies": 3
+    },
     "foot": "right",
     "height": 178,
     "id": 1002150,
@@ -7060,6 +7668,14 @@
     "birthDate": "1979-12-27",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 1,
+      "careerFee": "€11.95m",
+      "honours": 4,
+      "internationalGoals": 0,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 178,
     "id": 1002154,
@@ -7149,6 +7765,14 @@
     "birthDate": "1987-02-14",
     "birthYear": 1987,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 0,
+      "careerFee": "€2.93m",
+      "honours": 3,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 196,
     "id": 1002170,
@@ -7240,6 +7864,14 @@
     "birthDate": "1988-02-16",
     "birthYear": 1988,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 6,
+      "careerFee": "€8.50m",
+      "honours": 7,
+      "internationalGoals": 1,
+      "trophies": 4
+    },
     "foot": "right",
     "height": 178,
     "id": 1002182,
@@ -7331,6 +7963,14 @@
     "birthDate": "1978-03-11",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 13,
+      "caps": 105,
+      "careerFee": "€44.60m",
+      "honours": 23,
+      "internationalGoals": 65,
+      "trophies": 18
+    },
     "foot": "both",
     "height": 189,
     "id": 1002187,
@@ -7424,6 +8064,14 @@
     "birthDate": "1981-01-30",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 9,
+      "caps": 79,
+      "careerFee": "€61.25m",
+      "honours": 17,
+      "internationalGoals": 48,
+      "trophies": 9
+    },
     "foot": null,
     "height": null,
     "id": 1002194,
@@ -7518,6 +8166,14 @@
     "birthDate": "1980-07-22",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 3,
+      "caps": 104,
+      "careerFee": "€20.00m",
+      "honours": 18,
+      "internationalGoals": 24,
+      "trophies": 8
+    },
     "foot": "right",
     "height": 184,
     "id": 1002201,
@@ -7609,6 +8265,14 @@
     "birthDate": "1970-10-29",
     "birthYear": 1970,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 130,
+      "careerFee": "€23.10m",
+      "honours": 22,
+      "internationalGoals": 0,
+      "trophies": 31
+    },
     "foot": "right",
     "height": 199,
     "id": 1002224,
@@ -7702,6 +8366,14 @@
     "birthDate": "1981-01-15",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 2,
+      "caps": 60,
+      "careerFee": "€30.54m",
+      "honours": 9,
+      "internationalGoals": 18,
+      "trophies": 3
+    },
     "foot": "right",
     "height": 180,
     "id": 1002228,
@@ -7795,6 +8467,14 @@
     "birthDate": "1983-01-16",
     "birthYear": 1983,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 61,
+      "careerFee": "€6.81m",
+      "honours": 7,
+      "internationalGoals": 2,
+      "trophies": 5
+    },
     "foot": "left",
     "height": 191,
     "id": 1002237,
@@ -7888,6 +8568,14 @@
     "birthDate": "1978-01-11",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 62,
+      "careerFee": "€37.02m",
+      "honours": 9,
+      "internationalGoals": 7,
+      "trophies": 8
+    },
     "foot": "right",
     "height": 188,
     "id": 1002239,
@@ -7979,6 +8667,14 @@
     "birthDate": "1984-02-26",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 7,
+      "caps": 86,
+      "careerFee": "€54.85m",
+      "honours": 10,
+      "internationalGoals": 32,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 192,
     "id": 1002242,
@@ -8072,6 +8768,14 @@
     "birthDate": "1983-06-04",
     "birthYear": 1983,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 78,
+      "careerFee": "€5.70m",
+      "honours": 10,
+      "internationalGoals": 3,
+      "trophies": 6
+    },
     "foot": "right",
     "height": 178,
     "id": 1002243,
@@ -8165,6 +8869,14 @@
     "birthDate": "1979-09-24",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 12,
+      "careerFee": "€1.50m",
+      "honours": 2,
+      "internationalGoals": 3,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 180,
     "id": 1002248,
@@ -8257,6 +8969,14 @@
     "birthDate": "1979-09-24",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 13,
+      "careerFee": "€6.00m",
+      "honours": 11,
+      "internationalGoals": 1,
+      "trophies": 5
+    },
     "foot": "left",
     "height": 178,
     "id": 1002260,
@@ -8350,6 +9070,14 @@
     "birthDate": "1980-12-20",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": "€11.16m",
+      "honours": 3,
+      "internationalGoals": null,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 193,
     "id": 1002277,
@@ -8443,6 +9171,14 @@
     "birthDate": "1978-06-20",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 3,
+      "caps": 106,
+      "careerFee": "€16.00m",
+      "honours": 18,
+      "internationalGoals": 29,
+      "trophies": 15
+    },
     "foot": "right",
     "height": 184,
     "id": 1002288,
@@ -8537,6 +9273,14 @@
     "birthDate": "1986-10-13",
     "birthYear": 1986,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 3,
+      "careerFee": null,
+      "honours": 3,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 183,
     "id": 1002297,
@@ -8628,6 +9372,14 @@
     "birthDate": "1985-07-26",
     "birthYear": 1985,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 20,
+      "careerFee": "€8.13m",
+      "honours": 11,
+      "internationalGoals": 0,
+      "trophies": 9
+    },
     "foot": "left",
     "height": 176,
     "id": 1002303,
@@ -8721,6 +9473,14 @@
     "birthDate": "1975-02-18",
     "birthYear": 1975,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 85,
+      "careerFee": null,
+      "honours": 14,
+      "internationalGoals": 0,
+      "trophies": 26
+    },
     "foot": "right",
     "height": 180,
     "id": 1002313,
@@ -8814,6 +9574,14 @@
     "birthDate": "1983-05-18",
     "birthYear": 1983,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 9,
+      "careerFee": "€10.40m",
+      "honours": 2,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 174,
     "id": 1002314,
@@ -8906,6 +9674,14 @@
     "birthDate": "1981-04-29",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 34,
+      "careerFee": "€7.13m",
+      "honours": 2,
+      "internationalGoals": 1,
+      "trophies": 1
+    },
     "foot": "left",
     "height": 183,
     "id": 1002325,
@@ -9000,6 +9776,14 @@
     "birthDate": "1985-02-21",
     "birthYear": 1985,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 81,
+      "careerFee": "€11.00m",
+      "honours": 10,
+      "internationalGoals": 9,
+      "trophies": 8
+    },
     "foot": "right",
     "height": 193,
     "id": 1002328,
@@ -9094,6 +9878,14 @@
     "birthDate": "1984-12-08",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 4,
+      "careerFee": "€13.35m",
+      "honours": 1,
+      "internationalGoals": 1,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 193,
     "id": 1002348,
@@ -9183,6 +9975,14 @@
     "birthDate": "1977-08-22",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 55,
+      "careerFee": "€7.55m",
+      "honours": 2,
+      "internationalGoals": 12,
+      "trophies": 2
+    },
     "foot": "both",
     "height": 178,
     "id": 1002361,
@@ -9274,6 +10074,14 @@
     "birthDate": "1975-10-21",
     "birthYear": 1975,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 1,
+      "careerFee": null,
+      "honours": 13,
+      "internationalGoals": 0,
+      "trophies": 13
+    },
     "foot": "right",
     "height": 189,
     "id": 1002363,
@@ -9366,6 +10174,14 @@
     "birthDate": "1987-11-05",
     "birthYear": 1987,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": "€250k",
+      "honours": 2,
+      "internationalGoals": null,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 188,
     "id": 1002377,
@@ -9457,6 +10273,14 @@
     "birthDate": "1987-03-05",
     "birthYear": 1987,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 0,
+      "careerFee": "€2.85m",
+      "honours": 1,
+      "internationalGoals": 0,
+      "trophies": 2
+    },
     "foot": "left",
     "height": 192,
     "id": 1002378,
@@ -9548,6 +10372,14 @@
     "birthDate": "1978-02-27",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 5,
+      "careerFee": "€20.90m",
+      "honours": 3,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 185,
     "id": 1002401,
@@ -9639,6 +10471,14 @@
     "birthDate": "1988-07-14",
     "birthYear": 1988,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 4,
+      "careerFee": "€4.08m",
+      "honours": 6,
+      "internationalGoals": 0,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 181,
     "id": 1002408,
@@ -9731,6 +10571,14 @@
     "birthDate": "1978-01-28",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 38,
+      "careerFee": null,
+      "honours": 16,
+      "internationalGoals": 0,
+      "trophies": 11
+    },
     "foot": "right",
     "height": 185,
     "id": 1002412,
@@ -9825,6 +10673,14 @@
     "birthDate": "1977-02-06",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 3,
+      "careerFee": "€7.50m",
+      "honours": 3,
+      "internationalGoals": 1,
+      "trophies": 1
+    },
     "foot": null,
     "height": 180,
     "id": 1002422,
@@ -9916,6 +10772,14 @@
     "birthDate": "1978-01-25",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 16,
+      "careerFee": "€10.52m",
+      "honours": 4,
+      "internationalGoals": 14,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 185,
     "id": 1002425,
@@ -10007,6 +10871,14 @@
     "birthDate": "1984-06-08",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 147,
+      "careerFee": "€76.40m",
+      "honours": 22,
+      "internationalGoals": 3,
+      "trophies": 24
+    },
     "foot": "right",
     "height": 174,
     "id": 1002430,
@@ -10118,6 +10990,14 @@
     "birthDate": "1969-11-10",
     "birthYear": 1969,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 61,
+      "careerFee": "€11.80m",
+      "honours": 19,
+      "internationalGoals": 0,
+      "trophies": 8
+    },
     "foot": null,
     "height": null,
     "id": 1002443,
@@ -10211,6 +11091,14 @@
     "birthDate": "1983-02-18",
     "birthYear": 1983,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 21,
+      "careerFee": "€23.50m",
+      "honours": 7,
+      "internationalGoals": 1,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 181,
     "id": 1002446,
@@ -10305,6 +11193,14 @@
     "birthDate": "1983-01-15",
     "birthYear": 1983,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 24,
+      "careerFee": "€14.85m",
+      "honours": 7,
+      "internationalGoals": 0,
+      "trophies": 3
+    },
     "foot": "right",
     "height": 173,
     "id": 1002448,
@@ -10398,6 +11294,14 @@
     "birthDate": "1983-03-23",
     "birthYear": 1983,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 2,
+      "careerFee": "€150k",
+      "honours": 1,
+      "internationalGoals": 1,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 177,
     "id": 1002450,
@@ -10492,6 +11396,14 @@
     "birthDate": "1981-11-08",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 56,
+      "careerFee": "€9.90m",
+      "honours": 13,
+      "internationalGoals": 10,
+      "trophies": 10
+    },
     "foot": "right",
     "height": 176,
     "id": 1002459,
@@ -10584,6 +11496,14 @@
     "birthDate": "1982-09-02",
     "birthYear": 1982,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 2,
+      "caps": 1,
+      "careerFee": "€8.60m",
+      "honours": 7,
+      "internationalGoals": 0,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 180,
     "id": 1002466,
@@ -10674,6 +11594,14 @@
     "birthDate": "1987-01-18",
     "birthYear": 1987,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 76,
+      "careerFee": "€3.20m",
+      "honours": 6,
+      "internationalGoals": 2,
+      "trophies": 0
+    },
     "foot": null,
     "height": null,
     "id": 1002468,
@@ -10768,6 +11696,14 @@
     "birthDate": "1980-09-24",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 110,
+      "careerFee": "€14.49m",
+      "honours": 18,
+      "internationalGoals": 16,
+      "trophies": 11
+    },
     "foot": null,
     "height": null,
     "id": 1002470,
@@ -10859,6 +11795,14 @@
     "birthDate": "1979-09-05",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 3,
+      "caps": 91,
+      "careerFee": "€24.35m",
+      "honours": 12,
+      "internationalGoals": 24,
+      "trophies": 10
+    },
     "foot": "right",
     "height": 196,
     "id": 1002471,
@@ -10952,6 +11896,14 @@
     "birthDate": "1981-04-30",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 118,
+      "careerFee": "€4.50m",
+      "honours": 14,
+      "internationalGoals": 3,
+      "trophies": 15
+    },
     "foot": "right",
     "height": 192,
     "id": 1002476,
@@ -11046,6 +11998,14 @@
     "birthDate": "1987-04-22",
     "birthYear": 1987,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 89,
+      "careerFee": "€20.00m",
+      "honours": 21,
+      "internationalGoals": 6,
+      "trophies": 14
+    },
     "foot": "right",
     "height": 188,
     "id": 1002477,
@@ -11135,6 +12095,14 @@
     "birthDate": "1981-06-15",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 83,
+      "careerFee": "€5.30m",
+      "honours": 9,
+      "internationalGoals": 0,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 178,
     "id": 1002478,
@@ -11224,6 +12192,14 @@
     "birthDate": "1980-12-07",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 78,
+      "careerFee": null,
+      "honours": 14,
+      "internationalGoals": 6,
+      "trophies": 18
+    },
     "foot": "right",
     "height": 187,
     "id": 1002480,
@@ -11317,6 +12293,14 @@
     "birthDate": "1982-08-16",
     "birthYear": 1982,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 26,
+      "careerFee": "€35.40m",
+      "honours": 7,
+      "internationalGoals": 1,
+      "trophies": 4
+    },
     "foot": "left",
     "height": 191,
     "id": 1002482,
@@ -11411,6 +12395,14 @@
     "birthDate": "1986-03-01",
     "birthYear": 1986,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 36,
+      "careerFee": "€750k",
+      "honours": 11,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 183,
     "id": 1002494,
@@ -11504,6 +12496,14 @@
     "birthDate": "1980-01-22",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 8,
+      "careerFee": "€52.20m",
+      "honours": 4,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 188,
     "id": 1002496,
@@ -11597,6 +12597,14 @@
     "birthDate": "1980-09-06",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 97,
+      "careerFee": "€12.15m",
+      "honours": 9,
+      "internationalGoals": 7,
+      "trophies": 5
+    },
     "foot": "right",
     "height": 188,
     "id": 1002523,
@@ -11687,6 +12695,14 @@
     "birthDate": "1975-04-19",
     "birthYear": 1975,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 58,
+      "careerFee": "€150k",
+      "honours": 3,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 191,
     "id": 1002543,
@@ -11779,6 +12795,14 @@
     "birthDate": "1977-03-26",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 1,
+      "careerFee": "€12.38m",
+      "honours": 1,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 183,
     "id": 1002563,
@@ -11871,6 +12895,14 @@
     "birthDate": "1983-09-18",
     "birthYear": 1983,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 2,
+      "caps": 63,
+      "careerFee": "€7.72m",
+      "honours": 6,
+      "internationalGoals": 14,
+      "trophies": 3
+    },
     "foot": "right",
     "height": 180,
     "id": 1002564,
@@ -11965,6 +12997,14 @@
     "birthDate": "1982-06-24",
     "birthYear": 1982,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 1,
+      "careerFee": "€7.90m",
+      "honours": 5,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 183,
     "id": 1002567,
@@ -12058,6 +13098,14 @@
     "birthDate": "1984-10-21",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 8,
+      "careerFee": "€11.45m",
+      "honours": 8,
+      "internationalGoals": 2,
+      "trophies": 5
+    },
     "foot": "left",
     "height": 177,
     "id": 1002573,
@@ -12152,6 +13200,14 @@
     "birthDate": "1978-12-29",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 33,
+      "careerFee": "€21.00m",
+      "honours": 5,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 170,
     "id": 1002574,
@@ -12245,6 +13301,14 @@
     "birthDate": "1981-03-19",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 118,
+      "careerFee": "€18.89m",
+      "honours": 15,
+      "internationalGoals": 6,
+      "trophies": 13
+    },
     "foot": "right",
     "height": 178,
     "id": 1002577,
@@ -12337,6 +13401,14 @@
     "birthDate": "1980-10-12",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 21,
+      "careerFee": null,
+      "honours": 6,
+      "internationalGoals": 2,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 188,
     "id": 1002589,
@@ -12430,6 +13502,14 @@
     "birthDate": "1977-01-03",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 1,
+      "careerFee": "€5.23m",
+      "honours": 5,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 175,
     "id": 1002590,
@@ -12524,6 +13604,14 @@
     "birthDate": "1981-05-17",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 2,
+      "careerFee": null,
+      "honours": 2,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 173,
     "id": 1002598,
@@ -12617,6 +13705,14 @@
     "birthDate": "1984-12-28",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 9,
+      "careerFee": "€3.50m",
+      "honours": 4,
+      "internationalGoals": 6,
+      "trophies": 3
+    },
     "foot": "right",
     "height": 176,
     "id": 1002599,
@@ -12708,6 +13804,14 @@
     "birthDate": "1978-08-08",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 2,
+      "caps": 20,
+      "careerFee": "€20.65m",
+      "honours": 16,
+      "internationalGoals": 4,
+      "trophies": 8
+    },
     "foot": "left",
     "height": 182,
     "id": 1002619,
@@ -12802,6 +13906,14 @@
     "birthDate": "1977-08-04",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 28,
+      "careerFee": "€12.20m",
+      "honours": 11,
+      "internationalGoals": 1,
+      "trophies": 7
+    },
     "foot": "left",
     "height": 178,
     "id": 1002625,
@@ -12915,6 +14027,14 @@
     "birthDate": "1986-02-13",
     "birthYear": 1986,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 5,
+      "careerFee": "€3.75m",
+      "honours": 3,
+      "internationalGoals": 0,
+      "trophies": 2
+    },
     "foot": null,
     "height": 180,
     "id": 1002635,
@@ -13008,6 +14128,14 @@
     "birthDate": "1979-07-19",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 7,
+      "careerFee": "€13.88m",
+      "honours": 3,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 183,
     "id": 1002637,
@@ -13098,6 +14226,14 @@
     "birthDate": "1977-05-19",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": "€5.65m",
+      "honours": 4,
+      "internationalGoals": null,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 191,
     "id": 1002651,
@@ -13188,6 +14324,14 @@
     "birthDate": "1978-05-19",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 2,
+      "careerFee": "€14.23m",
+      "honours": 1,
+      "internationalGoals": 1,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 188,
     "id": 1002665,
@@ -13279,6 +14423,14 @@
     "birthDate": "1972-06-15",
     "birthYear": 1972,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 9,
+      "careerFee": "€112k",
+      "honours": 10,
+      "internationalGoals": 0,
+      "trophies": 5
+    },
     "foot": "right",
     "height": 187,
     "id": 1002667,
@@ -13369,6 +14521,14 @@
     "birthDate": "1972-10-06",
     "birthYear": 1972,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 3,
+      "caps": 109,
+      "careerFee": "€3.28m",
+      "honours": 13,
+      "internationalGoals": 0,
+      "trophies": 3
+    },
     "foot": null,
     "height": null,
     "id": 1002677,
@@ -13459,6 +14619,14 @@
     "birthDate": "1979-08-25",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": "€6.23m",
+      "honours": 6,
+      "internationalGoals": null,
+      "trophies": 4
+    },
     "foot": "right",
     "height": 185,
     "id": 1002682,
@@ -13552,6 +14720,14 @@
     "birthDate": "1984-03-07",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 3,
+      "careerFee": "€480k",
+      "honours": 8,
+      "internationalGoals": 0,
+      "trophies": 6
+    },
     "foot": "right",
     "height": 178,
     "id": 1002700,
@@ -13643,6 +14819,14 @@
     "birthDate": "1986-04-14",
     "birthYear": 1986,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 2,
+      "caps": 14,
+      "careerFee": "€4.13m",
+      "honours": 8,
+      "internationalGoals": 6,
+      "trophies": 4
+    },
     "foot": "right",
     "height": 180,
     "id": 1002704,
@@ -13735,6 +14919,14 @@
     "birthDate": "1991-03-06",
     "birthYear": 1991,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 17,
+      "careerFee": null,
+      "honours": 6,
+      "internationalGoals": 1,
+      "trophies": 1
+    },
     "foot": "left",
     "height": 183,
     "id": 1002707,
@@ -13826,6 +15018,14 @@
     "birthDate": "1981-08-14",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 3,
+      "careerFee": "€3.75m",
+      "honours": 3,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "left",
     "height": 178,
     "id": 1002709,
@@ -13919,6 +15119,14 @@
     "birthDate": "1984-01-08",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 4,
+      "careerFee": "€6.10m",
+      "honours": 2,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": null,
     "height": 185,
     "id": 1002714,
@@ -14012,6 +15220,14 @@
     "birthDate": "1981-11-27",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 3,
+      "careerFee": "€7.80m",
+      "honours": 3,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "left",
     "height": 177,
     "id": 1002716,
@@ -14105,6 +15321,14 @@
     "birthDate": "1979-04-18",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 21,
+      "careerFee": "€16.80m",
+      "honours": 8,
+      "internationalGoals": 2,
+      "trophies": 6
+    },
     "foot": "left",
     "height": 185,
     "id": 1002717,
@@ -14195,6 +15419,14 @@
     "birthDate": "1988-06-24",
     "birthYear": 1988,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 13,
+      "careerFee": "€1.00m",
+      "honours": 8,
+      "internationalGoals": 1,
+      "trophies": 4
+    },
     "foot": "right",
     "height": 180,
     "id": 1002735,
@@ -14285,6 +15517,14 @@
     "birthDate": "1983-11-18",
     "birthYear": 1983,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 4,
+      "careerFee": "€11.40m",
+      "honours": 5,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 189,
     "id": 1002737,
@@ -14378,6 +15618,14 @@
     "birthDate": "1982-12-03",
     "birthYear": 1982,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 59,
+      "careerFee": "€50.20m",
+      "honours": 14,
+      "internationalGoals": 9,
+      "trophies": 12
+    },
     "foot": "right",
     "height": 178,
     "id": 1002739,
@@ -14468,6 +15716,14 @@
     "birthDate": "1979-12-14",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 3,
+      "caps": 89,
+      "careerFee": "€37.00m",
+      "honours": 15,
+      "internationalGoals": 40,
+      "trophies": 10
+    },
     "foot": "both",
     "height": 173,
     "id": 1002746,
@@ -14559,6 +15815,14 @@
     "birthDate": "1983-04-07",
     "birthYear": 1983,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 2,
+      "careerFee": "€3.00m",
+      "honours": 1,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "left",
     "height": 183,
     "id": 1002750,
@@ -14652,6 +15916,14 @@
     "birthDate": "1982-03-26",
     "birthYear": 1982,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 12,
+      "careerFee": "€26.70m",
+      "honours": 10,
+      "internationalGoals": 2,
+      "trophies": 8
+    },
     "foot": "right",
     "height": 177,
     "id": 1002761,
@@ -14745,6 +16017,14 @@
     "birthDate": "1982-11-12",
     "birthYear": 1982,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 11,
+      "careerFee": "€2.35m",
+      "honours": 2,
+      "internationalGoals": 1,
+      "trophies": 2
+    },
     "foot": "both",
     "height": 188,
     "id": 1002762,
@@ -14839,6 +16119,14 @@
     "birthDate": "1981-09-08",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 83,
+      "careerFee": "€2.25m",
+      "honours": 6,
+      "internationalGoals": 17,
+      "trophies": 3
+    },
     "foot": "left",
     "height": 183,
     "id": 1002773,
@@ -14931,6 +16219,14 @@
     "birthDate": "1986-11-12",
     "birthYear": 1986,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 21,
+      "careerFee": "€4.70m",
+      "honours": 3,
+      "internationalGoals": 2,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 183,
     "id": 1002785,
@@ -15022,6 +16318,14 @@
     "birthDate": "1981-10-21",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 4,
+      "caps": 36,
+      "careerFee": "€14.95m",
+      "honours": 17,
+      "internationalGoals": 1,
+      "trophies": 18
+    },
     "foot": "right",
     "height": 190,
     "id": 1002788,
@@ -15115,6 +16419,14 @@
     "birthDate": "1981-02-19",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 2,
+      "careerFee": "€6.25m",
+      "honours": 2,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "left",
     "height": 175,
     "id": 1002799,
@@ -15208,6 +16520,14 @@
     "birthDate": "1979-03-14",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 3,
+      "caps": 69,
+      "careerFee": "€123.85m",
+      "honours": 20,
+      "internationalGoals": 14,
+      "trophies": 14
+    },
     "foot": "right",
     "height": 186,
     "id": 1002800,
@@ -15301,6 +16621,14 @@
     "birthDate": "1984-05-14",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 23,
+      "careerFee": "€13.25m",
+      "honours": 4,
+      "internationalGoals": 1,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 175,
     "id": 1002802,
@@ -15394,6 +16722,14 @@
     "birthDate": "1984-08-13",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 81,
+      "careerFee": "€15.80m",
+      "honours": 13,
+      "internationalGoals": 15,
+      "trophies": 10
+    },
     "foot": "both",
     "height": 186,
     "id": 1002804,
@@ -15485,6 +16821,14 @@
     "birthDate": "1984-10-28",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 2,
+      "caps": 42,
+      "careerFee": "€42.99m",
+      "honours": 18,
+      "internationalGoals": 18,
+      "trophies": 11
+    },
     "foot": null,
     "height": null,
     "id": 1002812,
@@ -15579,6 +16923,14 @@
     "birthDate": "1981-02-25",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 102,
+      "careerFee": "€15.40m",
+      "honours": 23,
+      "internationalGoals": 14,
+      "trophies": 18
+    },
     "foot": "both",
     "height": 178,
     "id": 1002837,
@@ -15673,6 +17025,14 @@
     "birthDate": "1979-02-21",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 1,
+      "careerFee": "€18.10m",
+      "honours": 5,
+      "internationalGoals": 0,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 182,
     "id": 1002838,
@@ -15784,6 +17144,14 @@
     "birthDate": "1978-05-17",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 7,
+      "careerFee": "€1.62m",
+      "honours": 1,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 185,
     "id": 1002841,
@@ -15876,6 +17244,14 @@
     "birthDate": "1981-05-15",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 2,
+      "careerFee": "€12.15m",
+      "honours": 5,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "left",
     "height": 178,
     "id": 1002846,
@@ -15966,6 +17342,14 @@
     "birthDate": "1979-10-15",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 41,
+      "careerFee": "€7.40m",
+      "honours": 7,
+      "internationalGoals": 0,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 193,
     "id": 1002850,
@@ -16059,6 +17443,14 @@
     "birthDate": "1980-03-11",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 40,
+      "careerFee": "€4.42m",
+      "honours": 7,
+      "internationalGoals": 0,
+      "trophies": 5
+    },
     "foot": "right",
     "height": 191,
     "id": 1002851,
@@ -16153,6 +17545,14 @@
     "birthDate": "1974-11-16",
     "birthYear": 1974,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 66,
+      "careerFee": null,
+      "honours": 16,
+      "internationalGoals": 14,
+      "trophies": 25
+    },
     "foot": "right",
     "height": 168,
     "id": 1002852,
@@ -16247,6 +17647,14 @@
     "birthDate": "1979-01-18",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 62,
+      "careerFee": "€22.00m",
+      "honours": 20,
+      "internationalGoals": 0,
+      "trophies": 18
+    },
     "foot": "right",
     "height": 183,
     "id": 1002855,
@@ -16341,6 +17749,14 @@
     "birthDate": "1983-11-22",
     "birthYear": 1983,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": null,
+      "honours": 4,
+      "internationalGoals": null,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 185,
     "id": 1002861,
@@ -16435,6 +17851,14 @@
     "birthDate": "1984-09-08",
     "birthYear": 1984,
     "dateOfDeath": "2020-03-19",
+    "enrichment": {
+      "awards": 1,
+      "caps": 17,
+      "careerFee": "€525k",
+      "honours": 5,
+      "internationalGoals": 3,
+      "trophies": 1
+    },
     "foot": "left",
     "height": 177,
     "id": 1002862,
@@ -16529,6 +17953,14 @@
     "birthDate": "1977-01-21",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 59,
+      "careerFee": "€5.30m",
+      "honours": 12,
+      "internationalGoals": 0,
+      "trophies": 14
+    },
     "foot": "right",
     "height": 180,
     "id": 1002864,
@@ -16619,6 +18051,14 @@
     "birthDate": "1985-02-14",
     "birthYear": 1985,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 57,
+      "careerFee": "€6.05m",
+      "honours": 14,
+      "internationalGoals": 5,
+      "trophies": 4
+    },
     "foot": "right",
     "height": 189,
     "id": 1002866,
@@ -16713,6 +18153,14 @@
     "birthDate": "1978-09-25",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 109,
+      "careerFee": "€1.50m",
+      "honours": 4,
+      "internationalGoals": 10,
+      "trophies": 0
+    },
     "foot": null,
     "height": null,
     "id": 1002889,
@@ -16807,6 +18255,14 @@
     "birthDate": "1986-10-01",
     "birthYear": 1986,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 2,
+      "careerFee": "€600k",
+      "honours": 7,
+      "internationalGoals": 2,
+      "trophies": 3
+    },
     "foot": "right",
     "height": 188,
     "id": 1002890,
@@ -16898,6 +18354,14 @@
     "birthDate": "1979-09-21",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 2,
+      "caps": 80,
+      "careerFee": "€11.30m",
+      "honours": 7,
+      "internationalGoals": 8,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 188,
     "id": 1002893,
@@ -16988,6 +18452,14 @@
     "birthDate": "1977-11-05",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 2,
+      "careerFee": "€15.13m",
+      "honours": 6,
+      "internationalGoals": 0,
+      "trophies": 4
+    },
     "foot": "left",
     "height": 190,
     "id": 1002896,
@@ -17078,6 +18550,14 @@
     "birthDate": "1978-11-07",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 81,
+      "careerFee": "€72.00m",
+      "honours": 13,
+      "internationalGoals": 3,
+      "trophies": 16
+    },
     "foot": "right",
     "height": 189,
     "id": 1002899,
@@ -17171,6 +18651,14 @@
     "birthDate": "1980-07-08",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 4,
+      "caps": 146,
+      "careerFee": "€103.85m",
+      "honours": 13,
+      "internationalGoals": 68,
+      "trophies": 7
+    },
     "foot": "right",
     "height": 175,
     "id": 1002903,
@@ -17262,6 +18750,14 @@
     "birthDate": "1980-01-18",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 12,
+      "careerFee": "€3.00m",
+      "honours": 4,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 191,
     "id": 1002904,
@@ -17352,6 +18848,14 @@
     "birthDate": "1979-10-25",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": "€10.43m",
+      "honours": 1,
+      "internationalGoals": null,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 185,
     "id": 1002906,
@@ -17445,6 +18949,14 @@
     "birthDate": "1984-08-18",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 19,
+      "careerFee": "€20.10m",
+      "honours": 10,
+      "internationalGoals": 2,
+      "trophies": 5
+    },
     "foot": null,
     "height": null,
     "id": 1002907,
@@ -17537,6 +19049,14 @@
     "birthDate": "1983-08-06",
     "birthYear": 1983,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 7,
+      "caps": 102,
+      "careerFee": "€41.70m",
+      "honours": 20,
+      "internationalGoals": 50,
+      "trophies": 10
+    },
     "foot": "left",
     "height": 183,
     "id": 1002912,
@@ -17631,6 +19151,14 @@
     "birthDate": "1973-11-29",
     "birthYear": 1973,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 6,
+      "caps": 64,
+      "careerFee": null,
+      "honours": 19,
+      "internationalGoals": 12,
+      "trophies": 35
+    },
     "foot": "left",
     "height": 179,
     "id": 1002939,
@@ -17722,6 +19250,14 @@
     "birthDate": "1977-10-18",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 8,
+      "caps": 50,
+      "careerFee": null,
+      "honours": 8,
+      "internationalGoals": 6,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 185,
     "id": 1002942,
@@ -17815,6 +19351,14 @@
     "birthDate": "1984-08-19",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 5,
+      "careerFee": "€400k",
+      "honours": 3,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 179,
     "id": 1002946,
@@ -17909,6 +19453,14 @@
     "birthDate": "1985-08-05",
     "birthYear": 1985,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 97,
+      "careerFee": "€5.80m",
+      "honours": 16,
+      "internationalGoals": 28,
+      "trophies": 9
+    },
     "foot": "right",
     "height": 184,
     "id": 1002949,
@@ -18002,6 +19554,14 @@
     "birthDate": "1980-10-13",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 2,
+      "caps": 18,
+      "careerFee": "€44.30m",
+      "honours": 12,
+      "internationalGoals": 0,
+      "trophies": 4
+    },
     "foot": "right",
     "height": 180,
     "id": 1002963,
@@ -18096,6 +19656,14 @@
     "birthDate": "1989-03-25",
     "birthYear": 1989,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 3,
+      "caps": 7,
+      "careerFee": "€18.60m",
+      "honours": 15,
+      "internationalGoals": 1,
+      "trophies": 13
+    },
     "foot": "right",
     "height": 177,
     "id": 1002964,
@@ -18187,6 +19755,14 @@
     "birthDate": "1979-09-20",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 0,
+      "careerFee": "€8.00m",
+      "honours": 8,
+      "internationalGoals": 0,
+      "trophies": 4
+    },
     "foot": "right",
     "height": 178,
     "id": 1002965,
@@ -18281,6 +19857,14 @@
     "birthDate": "1983-01-24",
     "birthYear": 1983,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 47,
+      "careerFee": "€8.32m",
+      "honours": 9,
+      "internationalGoals": 7,
+      "trophies": 11
+    },
     "foot": "right",
     "height": 171,
     "id": 1002984,
@@ -18373,6 +19957,14 @@
     "birthDate": "1981-10-25",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 36,
+      "careerFee": "€47.25m",
+      "honours": 13,
+      "internationalGoals": 6,
+      "trophies": 7
+    },
     "foot": "right",
     "height": 166,
     "id": 1002985,
@@ -18464,6 +20056,14 @@
     "birthDate": "1976-04-20",
     "birthYear": 1976,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 5,
+      "caps": 134,
+      "careerFee": "€13.10m",
+      "honours": 12,
+      "internationalGoals": 0,
+      "trophies": 3
+    },
     "foot": "right",
     "height": 185,
     "id": 1002986,
@@ -18554,6 +20154,14 @@
     "birthDate": "1976-11-10",
     "birthYear": 1976,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 63,
+      "careerFee": "€5.70m",
+      "honours": 6,
+      "internationalGoals": 8,
+      "trophies": 4
+    },
     "foot": "right",
     "height": 188,
     "id": 1002987,
@@ -18646,6 +20254,14 @@
     "birthDate": "1981-10-12",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 9,
+      "careerFee": null,
+      "honours": 9,
+      "internationalGoals": 2,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 191,
     "id": 1002990,
@@ -18738,6 +20354,14 @@
     "birthDate": "1979-10-23",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 2,
+      "caps": 59,
+      "careerFee": "€6.30m",
+      "honours": 4,
+      "internationalGoals": 6,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 178,
     "id": 1002995,
@@ -18851,6 +20475,14 @@
     "birthDate": "1974-09-18",
     "birthYear": 1974,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 73,
+      "careerFee": null,
+      "honours": 9,
+      "internationalGoals": 1,
+      "trophies": 8
+    },
     "foot": null,
     "height": null,
     "id": 1003002,
@@ -18944,6 +20576,14 @@
     "birthDate": "1980-01-06",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 0,
+      "careerFee": "€14.60m",
+      "honours": 7,
+      "internationalGoals": 0,
+      "trophies": 3
+    },
     "foot": "right",
     "height": 171,
     "id": 1003007,
@@ -19035,6 +20675,14 @@
     "birthDate": "1976-08-29",
     "birthYear": 1976,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 44,
+      "careerFee": "€3.00m",
+      "honours": 4,
+      "internationalGoals": 0,
+      "trophies": 3
+    },
     "foot": "right",
     "height": 175,
     "id": 1003011,
@@ -19128,6 +20776,14 @@
     "birthDate": "1981-08-01",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 39,
+      "careerFee": "€7.60m",
+      "honours": 4,
+      "internationalGoals": 1,
+      "trophies": 1
+    },
     "foot": "left",
     "height": 174,
     "id": 1003016,
@@ -19219,6 +20875,14 @@
     "birthDate": "1981-12-12",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 2,
+      "careerFee": "€11.25m",
+      "honours": 11,
+      "internationalGoals": 0,
+      "trophies": 6
+    },
     "foot": "left",
     "height": 178,
     "id": 1003021,
@@ -19329,6 +20993,14 @@
     "birthDate": "1975-03-14",
     "birthYear": 1975,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": null,
+      "honours": 7,
+      "internationalGoals": null,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 188,
     "id": 1003025,
@@ -19422,6 +21094,14 @@
     "birthDate": "1982-12-14",
     "birthYear": 1982,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 5,
+      "careerFee": "€6.90m",
+      "honours": 9,
+      "internationalGoals": 0,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 183,
     "id": 1003028,
@@ -19515,6 +21195,14 @@
     "birthDate": "1980-05-30",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 3,
+      "caps": 114,
+      "careerFee": null,
+      "honours": 17,
+      "internationalGoals": 21,
+      "trophies": 11
+    },
     "foot": "right",
     "height": 183,
     "id": 1003033,
@@ -19609,6 +21297,14 @@
     "birthDate": "1981-03-10",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 23,
+      "careerFee": "€3.60m",
+      "honours": 2,
+      "internationalGoals": 2,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 185,
     "id": 1003039,
@@ -19699,6 +21395,14 @@
     "birthDate": "1986-01-23",
     "birthYear": 1986,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 0,
+      "careerFee": null,
+      "honours": 9,
+      "internationalGoals": 0,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 186,
     "id": 1003040,
@@ -19793,6 +21497,14 @@
     "birthDate": "1984-07-22",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 35,
+      "careerFee": "€49.50m",
+      "honours": 7,
+      "internationalGoals": 0,
+      "trophies": 2
+    },
     "foot": "left",
     "height": 180,
     "id": 1003042,
@@ -19885,6 +21597,14 @@
     "birthDate": "1982-07-19",
     "birthYear": 1982,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 4,
+      "careerFee": null,
+      "honours": 3,
+      "internationalGoals": 0,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 178,
     "id": 1003046,
@@ -19976,6 +21696,14 @@
     "birthDate": "1980-11-28",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 3,
+      "careerFee": null,
+      "honours": 9,
+      "internationalGoals": 0,
+      "trophies": 10
+    },
     "foot": "right",
     "height": 198,
     "id": 1003047,
@@ -20069,6 +21797,14 @@
     "birthDate": "1977-12-16",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": "€13.25m",
+      "honours": 6,
+      "internationalGoals": null,
+      "trophies": 3
+    },
     "foot": "left",
     "height": 192,
     "id": 1003050,
@@ -20162,6 +21898,14 @@
     "birthDate": "1982-03-31",
     "birthYear": 1982,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 96,
+      "careerFee": "€6.63m",
+      "honours": 7,
+      "internationalGoals": 2,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 183,
     "id": 1003054,
@@ -20256,6 +22000,14 @@
     "birthDate": "1977-08-17",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 17,
+      "caps": 123,
+      "careerFee": "€52.60m",
+      "honours": 30,
+      "internationalGoals": 51,
+      "trophies": 21
+    },
     "foot": "both",
     "height": 188,
     "id": 1003061,
@@ -20347,6 +22099,14 @@
     "birthDate": "1976-06-12",
     "birthYear": 1976,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 102,
+      "careerFee": "€3.65m",
+      "honours": 6,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 196,
     "id": 1003066,
@@ -20440,6 +22200,14 @@
     "birthDate": "1979-12-06",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 108,
+      "careerFee": "€3.45m",
+      "honours": 11,
+      "internationalGoals": 50,
+      "trophies": 3
+    },
     "foot": "right",
     "height": 178,
     "id": 1003069,
@@ -20531,6 +22299,14 @@
     "birthDate": "1979-03-06",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 3,
+      "caps": 121,
+      "careerFee": "€7.40m",
+      "honours": 20,
+      "internationalGoals": 0,
+      "trophies": 6
+    },
     "foot": "right",
     "height": 191,
     "id": 1003070,
@@ -20621,6 +22397,14 @@
     "birthDate": "1981-07-31",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 9,
+      "careerFee": "€8.00m",
+      "honours": 3,
+      "internationalGoals": 1,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 192,
     "id": 1003071,
@@ -20711,6 +22495,14 @@
     "birthDate": "1980-10-04",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 3,
+      "caps": 105,
+      "careerFee": "€24.50m",
+      "honours": 11,
+      "internationalGoals": 23,
+      "trophies": 7
+    },
     "foot": "both",
     "height": 179,
     "id": 1003078,
@@ -20802,6 +22594,14 @@
     "birthDate": "1982-03-20",
     "birthYear": 1982,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 11,
+      "careerFee": "€4.31m",
+      "honours": 15,
+      "internationalGoals": 0,
+      "trophies": 14
+    },
     "foot": null,
     "height": null,
     "id": 1003079,
@@ -20895,6 +22695,14 @@
     "birthDate": "1980-05-22",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 0,
+      "careerFee": "€4.98m",
+      "honours": 2,
+      "internationalGoals": 0,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 178,
     "id": 1003082,
@@ -20985,6 +22793,14 @@
     "birthDate": "1981-02-20",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 0,
+      "careerFee": null,
+      "honours": 2,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 173,
     "id": 1003084,
@@ -21076,6 +22892,14 @@
     "birthDate": "1983-02-18",
     "birthYear": 1983,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 1,
+      "careerFee": "€5.84m",
+      "honours": 3,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 181,
     "id": 1003090,
@@ -21167,6 +22991,14 @@
     "birthDate": "1986-05-11",
     "birthYear": 1986,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 16,
+      "careerFee": "€3.00m",
+      "honours": 7,
+      "internationalGoals": 1,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 191,
     "id": 1003096,
@@ -21261,6 +23093,14 @@
     "birthDate": "1988-04-23",
     "birthYear": 1988,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 11,
+      "careerFee": "€5.90m",
+      "honours": 4,
+      "internationalGoals": 1,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 190,
     "id": 1003099,
@@ -21350,6 +23190,14 @@
     "birthDate": "1980-08-05",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 36,
+      "careerFee": "€23.85m",
+      "honours": 10,
+      "internationalGoals": 1,
+      "trophies": 4
+    },
     "foot": "left",
     "height": 178,
     "id": 1003109,
@@ -21443,6 +23291,14 @@
     "birthDate": "1979-10-13",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 23,
+      "careerFee": "€1.50m",
+      "honours": 10,
+      "internationalGoals": 1,
+      "trophies": 16
+    },
     "foot": "right",
     "height": 185,
     "id": 1003111,
@@ -21537,6 +23393,14 @@
     "birthDate": "1977-08-17",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 84,
+      "careerFee": "€9.30m",
+      "honours": 13,
+      "internationalGoals": 5,
+      "trophies": 6
+    },
     "foot": "right",
     "height": 182,
     "id": 1003114,
@@ -21627,6 +23491,14 @@
     "birthDate": "1982-11-22",
     "birthYear": 1982,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 57,
+      "careerFee": "€35.80m",
+      "honours": 9,
+      "internationalGoals": 21,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 183,
     "id": 1003121,
@@ -21721,6 +23593,14 @@
     "birthDate": "1980-05-05",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 102,
+      "careerFee": "€18.05m",
+      "honours": 8,
+      "internationalGoals": 24,
+      "trophies": 4
+    },
     "foot": "right",
     "height": 175,
     "id": 1003128,
@@ -21812,6 +23692,14 @@
     "birthDate": "1980-05-02",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 2,
+      "careerFee": "€9.40m",
+      "honours": 3,
+      "internationalGoals": 0,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 198,
     "id": 1003134,
@@ -21906,6 +23794,14 @@
     "birthDate": "1980-11-25",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 105,
+      "careerFee": "€1.30m",
+      "honours": 6,
+      "internationalGoals": 1,
+      "trophies": 1
+    },
     "foot": null,
     "height": null,
     "id": 1003138,
@@ -22000,6 +23896,14 @@
     "birthDate": "1972-11-30",
     "birthYear": 1972,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 20,
+      "careerFee": "€7.03m",
+      "honours": 12,
+      "internationalGoals": 2,
+      "trophies": 5
+    },
     "foot": null,
     "height": null,
     "id": 1003141,
@@ -22090,6 +23994,14 @@
     "birthDate": "1974-10-10",
     "birthYear": 1974,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 1,
+      "careerFee": "€10.61m",
+      "honours": 2,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 185,
     "id": 1003150,
@@ -22182,6 +24094,14 @@
     "birthDate": "1984-11-10",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 134,
+      "careerFee": "€2.16m",
+      "honours": 15,
+      "internationalGoals": 3,
+      "trophies": 28
+    },
     "foot": "right",
     "height": 175,
     "id": 1003163,
@@ -22273,6 +24193,14 @@
     "birthDate": "1988-01-24",
     "birthYear": 1988,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 3,
+      "careerFee": null,
+      "honours": 1,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 175,
     "id": 1003166,
@@ -22364,6 +24292,14 @@
     "birthDate": "1985-02-20",
     "birthYear": 1985,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 5,
+      "careerFee": null,
+      "honours": 2,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "left",
     "height": 178,
     "id": 1003181,
@@ -22456,6 +24392,14 @@
     "birthDate": "1979-06-13",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 8,
+      "careerFee": "€635k",
+      "honours": 1,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "left",
     "height": 175,
     "id": 1003182,
@@ -22547,6 +24491,14 @@
     "birthDate": "1971-10-06",
     "birthYear": 1971,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 1,
+      "careerFee": "€4.70m",
+      "honours": 3,
+      "internationalGoals": 0,
+      "trophies": 5
+    },
     "foot": null,
     "height": null,
     "id": 1003187,
@@ -22639,6 +24591,14 @@
     "birthDate": "1971-09-28",
     "birthYear": 1971,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 2,
+      "careerFee": "€2.09m",
+      "honours": 5,
+      "internationalGoals": 0,
+      "trophies": 3
+    },
     "foot": "left",
     "height": 163,
     "id": 1003189,
@@ -22729,6 +24689,14 @@
     "birthDate": "1984-10-23",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 6,
+      "careerFee": null,
+      "honours": 0,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "left",
     "height": 180,
     "id": 1003191,
@@ -22820,6 +24788,14 @@
     "birthDate": "1978-03-11",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 17,
+      "careerFee": "€43.50m",
+      "honours": 9,
+      "internationalGoals": 2,
+      "trophies": 3
+    },
     "foot": "left",
     "height": 183,
     "id": 1003192,
@@ -22909,6 +24885,14 @@
     "birthDate": "1964-06-20",
     "birthYear": 1964,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": "€401k",
+      "honours": 2,
+      "internationalGoals": null,
+      "trophies": 2
+    },
     "foot": null,
     "height": 188,
     "id": 1003195,
@@ -22945,6 +24929,14 @@
     "birthDate": "1975-05-01",
     "birthYear": 1975,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 55,
+      "careerFee": "€10.00m",
+      "honours": 10,
+      "internationalGoals": 0,
+      "trophies": 5
+    },
     "foot": "right",
     "height": 174,
     "id": 1003197,
@@ -23039,6 +25031,14 @@
     "birthDate": "1977-03-12",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 31,
+      "careerFee": "€8.68m",
+      "honours": 5,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 184,
     "id": 1003223,
@@ -23132,6 +25132,14 @@
     "birthDate": "1982-08-28",
     "birthYear": 1982,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": "€1.80m",
+      "honours": 1,
+      "internationalGoals": null,
+      "trophies": 2
+    },
     "foot": "both",
     "height": 188,
     "id": 1003228,
@@ -23223,6 +25231,14 @@
     "birthDate": "1983-03-06",
     "birthYear": 1983,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 102,
+      "careerFee": "€3.50m",
+      "honours": 5,
+      "internationalGoals": 9,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 180,
     "id": 1003229,
@@ -23315,6 +25331,14 @@
     "birthDate": "1985-01-08",
     "birthYear": 1985,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 25,
+      "careerFee": "€4.75m",
+      "honours": 3,
+      "internationalGoals": 1,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 183,
     "id": 1003230,
@@ -23409,6 +25433,14 @@
     "birthDate": "1974-07-11",
     "birthYear": 1974,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 55,
+      "careerFee": "€3.45m",
+      "honours": 10,
+      "internationalGoals": 3,
+      "trophies": 11
+    },
     "foot": "right",
     "height": 187,
     "id": 1003231,
@@ -23499,6 +25531,14 @@
     "birthDate": "1981-10-03",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 133,
+      "careerFee": "€9.00m",
+      "honours": 10,
+      "internationalGoals": 0,
+      "trophies": 7
+    },
     "foot": "right",
     "height": 200,
     "id": 1003235,
@@ -23593,6 +25633,14 @@
     "birthDate": "1978-07-05",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 17,
+      "careerFee": "€750k",
+      "honours": 8,
+      "internationalGoals": 0,
+      "trophies": 7
+    },
     "foot": "left",
     "height": 181,
     "id": 1003237,
@@ -23682,6 +25730,14 @@
     "birthDate": "1971-10-15",
     "birthYear": 1971,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 2,
+      "caps": 15,
+      "careerFee": "€26.75m",
+      "honours": 12,
+      "internationalGoals": 1,
+      "trophies": 13
+    },
     "foot": "right",
     "height": 175,
     "id": 1003242,
@@ -23773,6 +25829,14 @@
     "birthDate": "1984-12-17",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 1,
+      "careerFee": "€2.20m",
+      "honours": 3,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 190,
     "id": 1003244,
@@ -23864,6 +25928,14 @@
     "birthDate": "1974-09-21",
     "birthYear": 1974,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": "€4.05m",
+      "honours": 1,
+      "internationalGoals": null,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 178,
     "id": 1003247,
@@ -23958,6 +26030,14 @@
     "birthDate": "1976-09-29",
     "birthYear": 1976,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 16,
+      "caps": 111,
+      "careerFee": "€67.78m",
+      "honours": 22,
+      "internationalGoals": 48,
+      "trophies": 16
+    },
     "foot": "both",
     "height": 183,
     "id": 1003250,
@@ -24052,6 +26132,14 @@
     "birthDate": "1979-09-30",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 17,
+      "careerFee": "€15.00m",
+      "honours": 8,
+      "internationalGoals": 1,
+      "trophies": 7
+    },
     "foot": "right",
     "height": 178,
     "id": 1003286,
@@ -24143,6 +26231,14 @@
     "birthDate": "1980-09-19",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 1,
+      "careerFee": "€4.70m",
+      "honours": 2,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "left",
     "height": 196,
     "id": 1003290,
@@ -24235,6 +26331,14 @@
     "birthDate": "1984-07-13",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 2,
+      "careerFee": "€125k",
+      "honours": 1,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 168,
     "id": 1003294,
@@ -24327,6 +26431,14 @@
     "birthDate": "1974-08-05",
     "birthYear": 1974,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 13,
+      "careerFee": "€4.70m",
+      "honours": 6,
+      "internationalGoals": 4,
+      "trophies": 4
+    },
     "foot": "right",
     "height": 187,
     "id": 1003297,
@@ -24418,6 +26530,14 @@
     "birthDate": "1972-05-31",
     "birthYear": 1972,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 2,
+      "caps": 68,
+      "careerFee": "€4.90m",
+      "honours": 9,
+      "internationalGoals": 0,
+      "trophies": 5
+    },
     "foot": "right",
     "height": 186,
     "id": 1003299,
@@ -24508,6 +26628,14 @@
     "birthDate": "1970-04-16",
     "birthYear": 1970,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": "€375k",
+      "honours": 0,
+      "internationalGoals": null,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 192,
     "id": 1003301,
@@ -24600,6 +26728,14 @@
     "birthDate": "1984-01-23",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 5,
+      "caps": 96,
+      "careerFee": "€82.30m",
+      "honours": 27,
+      "internationalGoals": 37,
+      "trophies": 30
+    },
     "foot": "left",
     "height": 180,
     "id": 1003302,
@@ -24693,6 +26829,14 @@
     "birthDate": "1985-01-28",
     "birthYear": 1985,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 1,
+      "careerFee": "€5.10m",
+      "honours": 4,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 172,
     "id": 1003304,
@@ -24784,6 +26928,14 @@
     "birthDate": "1975-11-30",
     "birthYear": 1975,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 7,
+      "careerFee": "€12.88m",
+      "honours": 0,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "left",
     "height": 178,
     "id": 1003322,
@@ -24895,6 +27047,14 @@
     "birthDate": "1976-03-30",
     "birthYear": 1976,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 13,
+      "careerFee": "€26.20m",
+      "honours": 5,
+      "internationalGoals": 2,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 189,
     "id": 1003331,
@@ -24986,6 +27146,14 @@
     "birthDate": "1984-03-01",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 20,
+      "careerFee": "€1.55m",
+      "honours": 3,
+      "internationalGoals": 4,
+      "trophies": 1
+    },
     "foot": null,
     "height": null,
     "id": 1003336,
@@ -25078,6 +27246,14 @@
     "birthDate": "1983-05-27",
     "birthYear": 1983,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 46,
+      "careerFee": "€1.20m",
+      "honours": 8,
+      "internationalGoals": 1,
+      "trophies": 3
+    },
     "foot": "left",
     "height": 172,
     "id": 1003342,
@@ -25169,6 +27345,14 @@
     "birthDate": "1972-06-19",
     "birthYear": 1972,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 95,
+      "careerFee": "€800k",
+      "honours": 9,
+      "internationalGoals": 30,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 183,
     "id": 1003369,
@@ -25263,6 +27447,14 @@
     "birthDate": "1977-11-21",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 16,
+      "careerFee": "€500k",
+      "honours": 9,
+      "internationalGoals": 0,
+      "trophies": 6
+    },
     "foot": "left",
     "height": 185,
     "id": 1003376,
@@ -25354,6 +27546,14 @@
     "birthDate": "1976-06-19",
     "birthYear": 1976,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 1,
+      "careerFee": "€1.50m",
+      "honours": 0,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 178,
     "id": 1003382,
@@ -25445,6 +27645,14 @@
     "birthDate": "1982-10-26",
     "birthYear": 1982,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 7,
+      "careerFee": "€2.25m",
+      "honours": 1,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 188,
     "id": 1003389,
@@ -25536,6 +27744,14 @@
     "birthDate": "1983-01-01",
     "birthYear": 1983,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 8,
+      "careerFee": "€6.00m",
+      "honours": 1,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 193,
     "id": 1003391,
@@ -25649,6 +27865,14 @@
     "birthDate": "1979-05-25",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 110,
+      "careerFee": "€585k",
+      "honours": 10,
+      "internationalGoals": 14,
+      "trophies": 5
+    },
     "foot": "left",
     "height": 183,
     "id": 1003405,
@@ -25740,6 +27964,14 @@
     "birthDate": "1986-09-11",
     "birthYear": 1986,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 26,
+      "careerFee": null,
+      "honours": 2,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 187,
     "id": 1003411,
@@ -25828,6 +28060,14 @@
     "birthDate": "1978-08-29",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 35,
+      "careerFee": "€3.50m",
+      "honours": 17,
+      "internationalGoals": 2,
+      "trophies": 12
+    },
     "foot": "left",
     "height": 175,
     "id": 1003413,
@@ -25918,6 +28158,14 @@
     "birthDate": "1977-04-03",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 12,
+      "careerFee": "€7.40m",
+      "honours": 7,
+      "internationalGoals": 3,
+      "trophies": 4
+    },
     "foot": "right",
     "height": 185,
     "id": 1003415,
@@ -25951,6 +28199,14 @@
     "birthDate": "1982-08-05",
     "birthYear": 1982,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 1,
+      "careerFee": "€1.62m",
+      "honours": 0,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "left",
     "height": 175,
     "id": 1003423,
@@ -26042,6 +28298,14 @@
     "birthDate": "1971-09-28",
     "birthYear": 1971,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": "€2.58m",
+      "honours": 0,
+      "internationalGoals": null,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 183,
     "id": 1003440,
@@ -26134,6 +28398,14 @@
     "birthDate": "1977-11-09",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": null,
+      "honours": 0,
+      "internationalGoals": null,
+      "trophies": 0
+    },
     "foot": null,
     "height": null,
     "id": 1003444,
@@ -26225,6 +28497,14 @@
     "birthDate": "1969-09-08",
     "birthYear": 1969,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 5,
+      "careerFee": "€2.50m",
+      "honours": 1,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "left",
     "height": 178,
     "id": 1003448,
@@ -26316,6 +28596,14 @@
     "birthDate": "1980-09-01",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 9,
+      "careerFee": "€2.23m",
+      "honours": 4,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 183,
     "id": 1003449,
@@ -26408,6 +28696,14 @@
     "birthDate": "1973-03-10",
     "birthYear": 1973,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 2,
+      "caps": 1,
+      "careerFee": "€31.50m",
+      "honours": 10,
+      "internationalGoals": 0,
+      "trophies": 10
+    },
     "foot": null,
     "height": null,
     "id": 1003451,
@@ -26501,6 +28797,14 @@
     "birthDate": "1973-10-23",
     "birthYear": 1973,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 67,
+      "careerFee": "€11.52m",
+      "honours": 7,
+      "internationalGoals": 6,
+      "trophies": 5
+    },
     "foot": "right",
     "height": 183,
     "id": 1003460,
@@ -26592,6 +28896,14 @@
     "birthDate": "1984-09-18",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 1,
+      "careerFee": "€600k",
+      "honours": 0,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 186,
     "id": 1003465,
@@ -26681,6 +28993,14 @@
     "birthDate": "1979-10-14",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 2,
+      "careerFee": "€825k",
+      "honours": 0,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 185,
     "id": 1003474,
@@ -26771,6 +29091,14 @@
     "birthDate": "1973-02-18",
     "birthYear": 1973,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 71,
+      "careerFee": "€36.40m",
+      "honours": 23,
+      "internationalGoals": 0,
+      "trophies": 15
+    },
     "foot": "right",
     "height": 174,
     "id": 1003475,
@@ -26865,6 +29193,14 @@
     "birthDate": "1973-07-20",
     "birthYear": 1973,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 111,
+      "careerFee": "€14.20m",
+      "honours": 11,
+      "internationalGoals": 8,
+      "trophies": 4
+    },
     "foot": "right",
     "height": 175,
     "id": 1003477,
@@ -26957,6 +29293,14 @@
     "birthDate": "1977-04-29",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 47,
+      "careerFee": "€10.10m",
+      "honours": 3,
+      "internationalGoals": 8,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 183,
     "id": 1003478,
@@ -27051,6 +29395,14 @@
     "birthDate": "1986-08-26",
     "birthYear": 1986,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 37,
+      "careerFee": "€5.12m",
+      "honours": 11,
+      "internationalGoals": 2,
+      "trophies": 12
+    },
     "foot": "right",
     "height": 187,
     "id": 1003499,
@@ -27142,6 +29494,14 @@
     "birthDate": "1985-10-17",
     "birthYear": 1985,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 2,
+      "careerFee": "€3.70m",
+      "honours": 5,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 185,
     "id": 1003502,
@@ -27231,6 +29591,14 @@
     "birthDate": "1975-12-12",
     "birthYear": 1975,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 53,
+      "careerFee": "€2.45m",
+      "honours": 11,
+      "internationalGoals": 3,
+      "trophies": 13
+    },
     "foot": null,
     "height": null,
     "id": 1003517,
@@ -27324,6 +29692,14 @@
     "birthDate": "1982-05-24",
     "birthYear": 1982,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 126,
+      "careerFee": "€3.20m",
+      "honours": 15,
+      "internationalGoals": 17,
+      "trophies": 15
+    },
     "foot": "left",
     "height": 173,
     "id": 1003525,
@@ -27415,6 +29791,14 @@
     "birthDate": "1985-10-25",
     "birthYear": 1985,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 0,
+      "careerFee": null,
+      "honours": 5,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 191,
     "id": 1003541,
@@ -27507,6 +29891,14 @@
     "birthDate": "1977-05-18",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 19,
+      "careerFee": "€6.38m",
+      "honours": 5,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 180,
     "id": 1003553,
@@ -27596,6 +29988,14 @@
     "birthDate": "1980-09-02",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 33,
+      "careerFee": "€5.18m",
+      "honours": 4,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 191,
     "id": 1003555,
@@ -27690,6 +30090,14 @@
     "birthDate": "1981-12-28",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 5,
+      "careerFee": "€750k",
+      "honours": 1,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 178,
     "id": 1003561,
@@ -27779,6 +30187,14 @@
     "birthDate": "1981-09-07",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": "€3.55m",
+      "honours": 0,
+      "internationalGoals": null,
+      "trophies": 0
+    },
     "foot": null,
     "height": 185,
     "id": 1003565,
@@ -27873,6 +30289,14 @@
     "birthDate": "1980-06-13",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 22,
+      "careerFee": "€3.60m",
+      "honours": 4,
+      "internationalGoals": 6,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 171,
     "id": 1003566,
@@ -27964,6 +30388,14 @@
     "birthDate": "1984-02-06",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 13,
+      "careerFee": "€64.95m",
+      "honours": 3,
+      "internationalGoals": 4,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 180,
     "id": 1003572,
@@ -28054,6 +30486,14 @@
     "birthDate": "1980-01-21",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": "€7.23m",
+      "honours": 1,
+      "internationalGoals": null,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 191,
     "id": 1003598,
@@ -28147,6 +30587,14 @@
     "birthDate": "1977-06-06",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 41,
+      "careerFee": "€6.48m",
+      "honours": 6,
+      "internationalGoals": 9,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 175,
     "id": 1003610,
@@ -28239,6 +30687,14 @@
     "birthDate": "1987-12-04",
     "birthYear": 1987,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 25,
+      "careerFee": "€6.48m",
+      "honours": 2,
+      "internationalGoals": 2,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 175,
     "id": 1003611,
@@ -28331,6 +30787,14 @@
     "birthDate": "1987-05-19",
     "birthYear": 1987,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 42,
+      "careerFee": "€350k",
+      "honours": 7,
+      "internationalGoals": 4,
+      "trophies": 3
+    },
     "foot": "both",
     "height": 191,
     "id": 1003613,
@@ -28420,6 +30884,14 @@
     "birthDate": "1970-08-01",
     "birthYear": 1970,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 53,
+      "careerFee": "€13.10m",
+      "honours": 6,
+      "internationalGoals": 0,
+      "trophies": 2
+    },
     "foot": null,
     "height": null,
     "id": 1003624,
@@ -28512,6 +30984,14 @@
     "birthDate": "1974-08-10",
     "birthYear": 1974,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 8,
+      "careerFee": "€13.50m",
+      "honours": 4,
+      "internationalGoals": 0,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 179,
     "id": 1003648,
@@ -28606,6 +31086,14 @@
     "birthDate": "1977-09-12",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 7,
+      "careerFee": "€6.75m",
+      "honours": 2,
+      "internationalGoals": 2,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 170,
     "id": 1003650,
@@ -28719,6 +31207,14 @@
     "birthDate": "1973-10-16",
     "birthYear": 1973,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 1,
+      "careerFee": "€9.20m",
+      "honours": 3,
+      "internationalGoals": 0,
+      "trophies": 2
+    },
     "foot": "left",
     "height": 187,
     "id": 1003652,
@@ -28832,6 +31328,14 @@
     "birthDate": "1970-05-10",
     "birthYear": 1970,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 69,
+      "careerFee": "€300k",
+      "honours": 10,
+      "internationalGoals": 1,
+      "trophies": 10
+    },
     "foot": "right",
     "height": 191,
     "id": 1003654,
@@ -28926,6 +31430,14 @@
     "birthDate": "1980-05-01",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": "€1.05m",
+      "honours": 2,
+      "internationalGoals": null,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 180,
     "id": 1003657,
@@ -29017,6 +31529,14 @@
     "birthDate": "1974-10-28",
     "birthYear": 1974,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 5,
+      "careerFee": "€7.90m",
+      "honours": 1,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "left",
     "height": 180,
     "id": 1003670,
@@ -29110,6 +31630,14 @@
     "birthDate": "1978-07-22",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 2,
+      "caps": 127,
+      "careerFee": "€4.52m",
+      "honours": 10,
+      "internationalGoals": 21,
+      "trophies": 11
+    },
     "foot": "right",
     "height": 179,
     "id": 1003674,
@@ -29204,6 +31732,14 @@
     "birthDate": "1976-05-06",
     "birthYear": 1976,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 38,
+      "careerFee": "€5.90m",
+      "honours": 11,
+      "internationalGoals": 1,
+      "trophies": 6
+    },
     "foot": "right",
     "height": 178,
     "id": 1003676,
@@ -29297,6 +31833,14 @@
     "birthDate": "1980-06-19",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": "€40k",
+      "honours": 0,
+      "internationalGoals": null,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 168,
     "id": 1003678,
@@ -29390,6 +31934,14 @@
     "birthDate": "1975-08-16",
     "birthYear": 1975,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": "€60k",
+      "honours": 5,
+      "internationalGoals": null,
+      "trophies": 7
+    },
     "foot": "right",
     "height": 181,
     "id": 1003688,
@@ -29482,6 +32034,14 @@
     "birthDate": "1980-12-14",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 123,
+      "careerFee": "€27.55m",
+      "honours": 9,
+      "internationalGoals": 1,
+      "trophies": 3
+    },
     "foot": "right",
     "height": 180,
     "id": 1003692,
@@ -29575,6 +32135,14 @@
     "birthDate": "1973-08-27",
     "birthYear": 1973,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 59,
+      "careerFee": "€20.10m",
+      "honours": 18,
+      "internationalGoals": 5,
+      "trophies": 14
+    },
     "foot": null,
     "height": null,
     "id": 1003696,
@@ -29668,6 +32236,14 @@
     "birthDate": "1980-03-01",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 10,
+      "careerFee": "€5.00m",
+      "honours": 12,
+      "internationalGoals": 1,
+      "trophies": 9
+    },
     "foot": "left",
     "height": 191,
     "id": 1003701,
@@ -29778,6 +32354,14 @@
     "birthDate": "1985-01-23",
     "birthYear": 1985,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 13,
+      "careerFee": "€725k",
+      "honours": 6,
+      "internationalGoals": 1,
+      "trophies": 3
+    },
     "foot": "right",
     "height": 185,
     "id": 1003706,
@@ -29869,6 +32453,14 @@
     "birthDate": "1984-02-10",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": "€300k",
+      "honours": 0,
+      "internationalGoals": null,
+      "trophies": 0
+    },
     "foot": "both",
     "height": 183,
     "id": 1003709,
@@ -29961,6 +32553,14 @@
     "birthDate": "1973-03-13",
     "birthYear": 1973,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 74,
+      "careerFee": "€8.00m",
+      "honours": 18,
+      "internationalGoals": 6,
+      "trophies": 17
+    },
     "foot": "left",
     "height": 169,
     "id": 1003721,
@@ -30054,6 +32654,14 @@
     "birthDate": "1989-01-07",
     "birthYear": 1989,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 5,
+      "careerFee": "€7.85m",
+      "honours": 9,
+      "internationalGoals": 0,
+      "trophies": 6
+    },
     "foot": "left",
     "height": 179,
     "id": 1003739,
@@ -30145,6 +32753,14 @@
     "birthDate": "1980-09-07",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 101,
+      "careerFee": "€9.85m",
+      "honours": 14,
+      "internationalGoals": 9,
+      "trophies": 19
+    },
     "foot": "left",
     "height": 170,
     "id": 1003741,
@@ -30238,6 +32854,14 @@
     "birthDate": "1981-05-04",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 34,
+      "careerFee": "€7.04m",
+      "honours": 9,
+      "internationalGoals": 0,
+      "trophies": 3
+    },
     "foot": "right",
     "height": 177,
     "id": 1003745,
@@ -30330,6 +32954,14 @@
     "birthDate": "1981-12-10",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 7,
+      "careerFee": "€16.79m",
+      "honours": 8,
+      "internationalGoals": 0,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 181,
     "id": 1003763,
@@ -30423,6 +33055,14 @@
     "birthDate": "1981-01-25",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 1,
+      "careerFee": "€20.25m",
+      "honours": 5,
+      "internationalGoals": 1,
+      "trophies": 3
+    },
     "foot": "right",
     "height": 178,
     "id": 1003784,
@@ -30517,6 +33157,14 @@
     "birthDate": "1978-08-27",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": "€12.00m",
+      "honours": 3,
+      "internationalGoals": null,
+      "trophies": 1
+    },
     "foot": "left",
     "height": 183,
     "id": 1003786,
@@ -30611,6 +33259,14 @@
     "birthDate": "1977-04-16",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 2,
+      "caps": 75,
+      "careerFee": "€9.00m",
+      "honours": 14,
+      "internationalGoals": 14,
+      "trophies": 10
+    },
     "foot": null,
     "height": null,
     "id": 1003798,
@@ -30702,6 +33358,14 @@
     "birthDate": "1976-04-01",
     "birthYear": 1976,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 3,
+      "caps": 108,
+      "careerFee": "€500k",
+      "honours": 7,
+      "internationalGoals": 0,
+      "trophies": 2
+    },
     "foot": null,
     "height": null,
     "id": 1003804,
@@ -30794,6 +33458,14 @@
     "birthDate": "1978-04-19",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 73,
+      "careerFee": "€29.00m",
+      "honours": 21,
+      "internationalGoals": 3,
+      "trophies": 10
+    },
     "foot": "left",
     "height": 178,
     "id": 1003805,
@@ -30885,6 +33557,14 @@
     "birthDate": "1986-02-15",
     "birthYear": 1986,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 3,
+      "careerFee": "€9.20m",
+      "honours": 12,
+      "internationalGoals": 0,
+      "trophies": 5
+    },
     "foot": "right",
     "height": 190,
     "id": 1003806,
@@ -30977,6 +33657,14 @@
     "birthDate": "1974-03-27",
     "birthYear": 1974,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 40,
+      "careerFee": "€60.68m",
+      "honours": 12,
+      "internationalGoals": 8,
+      "trophies": 4
+    },
     "foot": "right",
     "height": 173,
     "id": 1003809,
@@ -31068,6 +33756,14 @@
     "birthDate": "1981-12-16",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 5,
+      "careerFee": "€2.00m",
+      "honours": 0,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 186,
     "id": 1003818,
@@ -31159,6 +33855,14 @@
     "birthDate": "1978-11-16",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 47,
+      "careerFee": "€4.13m",
+      "honours": 2,
+      "internationalGoals": 1,
+      "trophies": 1
+    },
     "foot": "left",
     "height": 178,
     "id": 1003840,
@@ -31252,6 +33956,14 @@
     "birthDate": "1969-09-08",
     "birthYear": 1969,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 85,
+      "careerFee": "€14.25m",
+      "honours": 5,
+      "internationalGoals": 7,
+      "trophies": 2
+    },
     "foot": null,
     "height": null,
     "id": 1003844,
@@ -31345,6 +34057,14 @@
     "birthDate": "1978-07-21",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 13,
+      "careerFee": "€1.30m",
+      "honours": 1,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": null,
     "height": null,
     "id": 1003845,
@@ -31438,6 +34158,14 @@
     "birthDate": "1977-01-02",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": "€675k",
+      "honours": 1,
+      "internationalGoals": null,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 182,
     "id": 1003851,
@@ -31531,6 +34259,14 @@
     "birthDate": "1978-01-10",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 1,
+      "careerFee": "€5.63m",
+      "honours": 2,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 180,
     "id": 1003852,
@@ -31625,6 +34361,14 @@
     "birthDate": "1975-09-05",
     "birthYear": 1975,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 4,
+      "careerFee": "€14.65m",
+      "honours": 7,
+      "internationalGoals": 0,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 176,
     "id": 1003860,
@@ -31718,6 +34462,14 @@
     "birthDate": "1978-12-20",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 119,
+      "careerFee": "€15.00m",
+      "honours": 18,
+      "internationalGoals": 13,
+      "trophies": 13
+    },
     "foot": "right",
     "height": 180,
     "id": 1003873,
@@ -31812,6 +34564,14 @@
     "birthDate": "1976-10-07",
     "birthYear": 1976,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 93,
+      "careerFee": "€14.50m",
+      "honours": 18,
+      "internationalGoals": 3,
+      "trophies": 15
+    },
     "foot": "right",
     "height": 185,
     "id": 1003883,
@@ -31904,6 +34664,14 @@
     "birthDate": "1987-02-01",
     "birthYear": 1987,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 30,
+      "careerFee": "€20.20m",
+      "honours": 10,
+      "internationalGoals": 7,
+      "trophies": 1
+    },
     "foot": "left",
     "height": 173,
     "id": 1003890,
@@ -31997,6 +34765,14 @@
     "birthDate": "1975-10-15",
     "birthYear": 1975,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": "€140k",
+      "honours": 2,
+      "internationalGoals": null,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 191,
     "id": 1003892,
@@ -32086,6 +34862,14 @@
     "birthDate": "1979-10-09",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 27,
+      "careerFee": "€6.75m",
+      "honours": 6,
+      "internationalGoals": 1,
+      "trophies": 3
+    },
     "foot": "left",
     "height": 190,
     "id": 1003898,
@@ -32175,6 +34959,14 @@
     "birthDate": "1974-11-13",
     "birthYear": 1974,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 4,
+      "careerFee": "€1.00m",
+      "honours": 1,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 178,
     "id": 1003905,
@@ -32268,6 +35060,14 @@
     "birthDate": "1973-12-02",
     "birthYear": 1973,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 16,
+      "careerFee": "€2.63m",
+      "honours": 1,
+      "internationalGoals": 1,
+      "trophies": 1
+    },
     "foot": null,
     "height": null,
     "id": 1003912,
@@ -32360,6 +35160,14 @@
     "birthDate": "1985-02-22",
     "birthYear": 1985,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 22,
+      "careerFee": "€4.70m",
+      "honours": 2,
+      "internationalGoals": 3,
+      "trophies": 1
+    },
     "foot": "left",
     "height": 178,
     "id": 1003931,
@@ -32454,6 +35262,14 @@
     "birthDate": "1978-09-22",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 4,
+      "caps": 58,
+      "careerFee": "€10.00m",
+      "honours": 15,
+      "internationalGoals": 17,
+      "trophies": 3
+    },
     "foot": "left",
     "height": 180,
     "id": 1003936,
@@ -32545,6 +35361,14 @@
     "birthDate": "1977-01-25",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 61,
+      "careerFee": null,
+      "honours": 9,
+      "internationalGoals": 1,
+      "trophies": 6
+    },
     "foot": "right",
     "height": 179,
     "id": 1003940,
@@ -32639,6 +35463,14 @@
     "birthDate": "1979-03-27",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 3,
+      "careerFee": "€2.30m",
+      "honours": 3,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 182,
     "id": 1003942,
@@ -32733,6 +35565,14 @@
     "birthDate": "1977-05-10",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 99,
+      "careerFee": "€8.70m",
+      "honours": 5,
+      "internationalGoals": 31,
+      "trophies": 0
+    },
     "foot": "both",
     "height": 178,
     "id": 1003946,
@@ -32824,6 +35664,14 @@
     "birthDate": "1971-09-20",
     "birthYear": 1971,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 11,
+      "caps": 106,
+      "careerFee": "€1.08m",
+      "honours": 20,
+      "internationalGoals": 37,
+      "trophies": 17
+    },
     "foot": null,
     "height": null,
     "id": 1003947,
@@ -32918,6 +35766,14 @@
     "birthDate": "1975-06-10",
     "birthYear": 1975,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 5,
+      "careerFee": "€900k",
+      "honours": 3,
+      "internationalGoals": 0,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 185,
     "id": 1003948,
@@ -33011,6 +35867,14 @@
     "birthDate": "1974-07-11",
     "birthYear": 1974,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 89,
+      "careerFee": "€12.95m",
+      "honours": 6,
+      "internationalGoals": 5,
+      "trophies": 2
+    },
     "foot": "left",
     "height": 185,
     "id": 1003950,
@@ -33105,6 +35969,14 @@
     "birthDate": "1981-12-15",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 74,
+      "careerFee": "€4.50m",
+      "honours": 11,
+      "internationalGoals": 4,
+      "trophies": 16
+    },
     "foot": "right",
     "height": 183,
     "id": 1003954,
@@ -33194,6 +36066,14 @@
     "birthDate": "1984-01-26",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 0,
+      "careerFee": "€115k",
+      "honours": 0,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 193,
     "id": 1003958,
@@ -33284,6 +36164,14 @@
     "birthDate": "1971-10-10",
     "birthYear": 1971,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": "€650k",
+      "honours": 0,
+      "internationalGoals": null,
+      "trophies": 0
+    },
     "foot": null,
     "height": 183,
     "id": 1003961,
@@ -33374,6 +36262,14 @@
     "birthDate": "1974-05-07",
     "birthYear": 1974,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 3,
+      "careerFee": "€4.54m",
+      "honours": 5,
+      "internationalGoals": 0,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 191,
     "id": 1003976,
@@ -33466,6 +36362,14 @@
     "birthDate": "1981-01-22",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 4,
+      "careerFee": "€3.00m",
+      "honours": 2,
+      "internationalGoals": 1,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 192,
     "id": 1003987,
@@ -33559,6 +36463,14 @@
     "birthDate": "1975-09-13",
     "birthYear": 1975,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 69,
+      "careerFee": "€1.52m",
+      "honours": 4,
+      "internationalGoals": 5,
+      "trophies": 7
+    },
     "foot": "left",
     "height": 180,
     "id": 1003988,
@@ -33650,6 +36562,14 @@
     "birthDate": "1974-02-21",
     "birthYear": 1974,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 4,
+      "careerFee": "€5.25m",
+      "honours": 9,
+      "internationalGoals": 0,
+      "trophies": 4
+    },
     "foot": "right",
     "height": 185,
     "id": 1004003,
@@ -33741,6 +36661,14 @@
     "birthDate": "1977-08-20",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 30,
+      "careerFee": "€150k",
+      "honours": 3,
+      "internationalGoals": 0,
+      "trophies": 3
+    },
     "foot": "left",
     "height": 188,
     "id": 1004007,
@@ -33834,6 +36762,14 @@
     "birthDate": "1980-11-20",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 2,
+      "careerFee": "€375k",
+      "honours": 1,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 178,
     "id": 1004018,
@@ -33927,6 +36863,14 @@
     "birthDate": "1980-11-09",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": "€500k",
+      "honours": 2,
+      "internationalGoals": null,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 178,
     "id": 1004021,
@@ -34021,6 +36965,14 @@
     "birthDate": "1980-08-17",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 11,
+      "careerFee": "€10.50m",
+      "honours": 6,
+      "internationalGoals": 0,
+      "trophies": 3
+    },
     "foot": "right",
     "height": 188,
     "id": 1004042,
@@ -34109,6 +37061,14 @@
     "birthDate": "1982-05-18",
     "birthYear": 1982,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 3,
+      "careerFee": null,
+      "honours": 2,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": null,
     "height": null,
     "id": 1004052,
@@ -34200,6 +37160,14 @@
     "birthDate": "1979-12-04",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 25,
+      "careerFee": null,
+      "honours": 5,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 180,
     "id": 1004066,
@@ -34293,6 +37261,14 @@
     "birthDate": "1985-02-11",
     "birthYear": 1985,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 3,
+      "careerFee": "€900k",
+      "honours": 3,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "left",
     "height": 186,
     "id": 1004068,
@@ -34384,6 +37360,14 @@
     "birthDate": "1983-03-30",
     "birthYear": 1983,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 5,
+      "careerFee": "€5.70m",
+      "honours": 4,
+      "internationalGoals": 1,
+      "trophies": 5
+    },
     "foot": "right",
     "height": 183,
     "id": 1004079,
@@ -34473,6 +37457,14 @@
     "birthDate": "1973-03-23",
     "birthYear": 1973,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 60,
+      "careerFee": "€7.40m",
+      "honours": 15,
+      "internationalGoals": 0,
+      "trophies": 10
+    },
     "foot": "left",
     "height": 188,
     "id": 1004085,
@@ -34566,6 +37558,14 @@
     "birthDate": "1978-10-23",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 0,
+      "careerFee": "€9.50m",
+      "honours": 0,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 178,
     "id": 1004093,
@@ -34656,6 +37656,14 @@
     "birthDate": "1972-03-27",
     "birthYear": 1972,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 3,
+      "caps": 23,
+      "careerFee": "€42.28m",
+      "honours": 9,
+      "internationalGoals": 9,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 178,
     "id": 1004096,
@@ -34748,6 +37756,14 @@
     "birthDate": "1987-04-25",
     "birthYear": 1987,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 2,
+      "careerFee": null,
+      "honours": 1,
+      "internationalGoals": 1,
+      "trophies": 1
+    },
     "foot": "left",
     "height": 180,
     "id": 1004112,
@@ -34781,6 +37797,14 @@
     "birthDate": "1970-02-08",
     "birthYear": 1970,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 2,
+      "careerFee": "€2.55m",
+      "honours": 2,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": null,
     "height": 188,
     "id": 1004127,
@@ -34874,6 +37898,14 @@
     "birthDate": "1978-12-08",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 13,
+      "careerFee": "€2.50m",
+      "honours": 1,
+      "internationalGoals": 0,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 175,
     "id": 1004148,
@@ -34963,6 +37995,14 @@
     "birthDate": "1983-04-07",
     "birthYear": 1983,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 11,
+      "careerFee": "€6.88m",
+      "honours": 1,
+      "internationalGoals": 1,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 191,
     "id": 1004174,
@@ -35054,6 +38094,14 @@
     "birthDate": "1980-08-23",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": null,
+      "honours": 0,
+      "internationalGoals": null,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 188,
     "id": 1004180,
@@ -35146,6 +38194,14 @@
     "birthDate": "1982-03-03",
     "birthYear": 1982,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 1,
+      "careerFee": "€150k",
+      "honours": 1,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "left",
     "height": 183,
     "id": 1004190,
@@ -35240,6 +38296,14 @@
     "birthDate": "1975-12-10",
     "birthYear": 1975,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 51,
+      "careerFee": "€2.10m",
+      "honours": 9,
+      "internationalGoals": 9,
+      "trophies": 3
+    },
     "foot": "right",
     "height": 175,
     "id": 1004200,
@@ -35331,6 +38395,14 @@
     "birthDate": "1975-10-24",
     "birthYear": 1975,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 2,
+      "caps": 33,
+      "careerFee": "€14.40m",
+      "honours": 10,
+      "internationalGoals": 9,
+      "trophies": 8
+    },
     "foot": "both",
     "height": 185,
     "id": 1004205,
@@ -35425,6 +38497,14 @@
     "birthDate": "1981-01-31",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 5,
+      "careerFee": "€7.10m",
+      "honours": 3,
+      "internationalGoals": 0,
+      "trophies": 2
+    },
     "foot": "left",
     "height": 175,
     "id": 1004215,
@@ -35519,6 +38599,14 @@
     "birthDate": "1981-10-01",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 47,
+      "careerFee": "€36.00m",
+      "honours": 16,
+      "internationalGoals": 5,
+      "trophies": 9
+    },
     "foot": "both",
     "height": 185,
     "id": 1004216,
@@ -35612,6 +38700,14 @@
     "birthDate": "1982-02-12",
     "birthYear": 1982,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 32,
+      "careerFee": "€2.15m",
+      "honours": 10,
+      "internationalGoals": 14,
+      "trophies": 9
+    },
     "foot": "right",
     "height": 179,
     "id": 1004218,
@@ -35704,6 +38800,14 @@
     "birthDate": "1984-11-20",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 18,
+      "careerFee": "€3.80m",
+      "honours": 9,
+      "internationalGoals": 0,
+      "trophies": 4
+    },
     "foot": "right",
     "height": 178,
     "id": 1004226,
@@ -35798,6 +38902,14 @@
     "birthDate": "1976-08-01",
     "birthYear": 1976,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 2,
+      "caps": 87,
+      "careerFee": "€10.38m",
+      "honours": 22,
+      "internationalGoals": 13,
+      "trophies": 17
+    },
     "foot": "right",
     "height": 197,
     "id": 1004232,
@@ -35892,6 +39004,14 @@
     "birthDate": "1975-02-18",
     "birthYear": 1975,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 86,
+      "careerFee": "€5.00m",
+      "honours": 4,
+      "internationalGoals": 2,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 177,
     "id": 1004242,
@@ -35985,6 +39105,14 @@
     "birthDate": "1984-01-13",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 8,
+      "careerFee": "€3.50m",
+      "honours": 3,
+      "internationalGoals": 2,
+      "trophies": 3
+    },
     "foot": "right",
     "height": 186,
     "id": 1004254,
@@ -36077,6 +39205,14 @@
     "birthDate": "1977-02-01",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 111,
+      "careerFee": "€10.30m",
+      "honours": 5,
+      "internationalGoals": 8,
+      "trophies": 0
+    },
     "foot": "left",
     "height": 183,
     "id": 1004270,
@@ -36188,6 +39324,14 @@
     "birthDate": "1978-10-17",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 10,
+      "careerFee": "€750k",
+      "honours": 0,
+      "internationalGoals": 2,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 178,
     "id": 1004272,
@@ -36279,6 +39423,14 @@
     "birthDate": "1981-12-28",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 35,
+      "careerFee": "€19.70m",
+      "honours": 10,
+      "internationalGoals": 0,
+      "trophies": 4
+    },
     "foot": null,
     "height": null,
     "id": 1004284,
@@ -36373,6 +39525,14 @@
     "birthDate": "1988-06-22",
     "birthYear": 1988,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": null,
+      "honours": 4,
+      "internationalGoals": null,
+      "trophies": 3
+    },
     "foot": "right",
     "height": 185,
     "id": 1004287,
@@ -36466,6 +39626,14 @@
     "birthDate": "1983-12-09",
     "birthYear": 1983,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 28,
+      "careerFee": "€1.45m",
+      "honours": 2,
+      "internationalGoals": 1,
+      "trophies": 1
+    },
     "foot": "left",
     "height": 172,
     "id": 1004295,
@@ -36558,6 +39726,14 @@
     "birthDate": "1985-03-10",
     "birthYear": 1985,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 34,
+      "careerFee": "€51.40m",
+      "honours": 15,
+      "internationalGoals": 0,
+      "trophies": 12
+    },
     "foot": "right",
     "height": 173,
     "id": 1004304,
@@ -36652,6 +39828,14 @@
     "birthDate": "1977-01-19",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 24,
+      "careerFee": "€11.25m",
+      "honours": 13,
+      "internationalGoals": 1,
+      "trophies": 12
+    },
     "foot": "both",
     "height": 182,
     "id": 1004310,
@@ -36745,6 +39929,14 @@
     "birthDate": "1974-02-28",
     "birthYear": 1974,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 39,
+      "careerFee": "€11.70m",
+      "honours": 2,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 178,
     "id": 1004318,
@@ -36835,6 +40027,14 @@
     "birthDate": "1979-04-29",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 9,
+      "caps": 104,
+      "careerFee": "€100k",
+      "honours": 15,
+      "internationalGoals": 33,
+      "trophies": 12
+    },
     "foot": "right",
     "height": 185,
     "id": 1004325,
@@ -36927,6 +40127,14 @@
     "birthDate": "1978-05-14",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 19,
+      "careerFee": "€4.33m",
+      "honours": 9,
+      "internationalGoals": 1,
+      "trophies": 8
+    },
     "foot": "right",
     "height": 185,
     "id": 1004337,
@@ -37021,6 +40229,14 @@
     "birthDate": "1982-06-07",
     "birthYear": 1982,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 9,
+      "careerFee": "€1.28m",
+      "honours": 1,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 178,
     "id": 1004348,
@@ -37115,6 +40331,14 @@
     "birthDate": "1977-04-23",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 129,
+      "careerFee": "€4.05m",
+      "honours": 16,
+      "internationalGoals": 5,
+      "trophies": 12
+    },
     "foot": "both",
     "height": 176,
     "id": 1004349,
@@ -37208,6 +40432,14 @@
     "birthDate": "1980-06-02",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": "€1.18m",
+      "honours": 0,
+      "internationalGoals": null,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 183,
     "id": 1004350,
@@ -37301,6 +40533,14 @@
     "birthDate": "1984-07-21",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 8,
+      "careerFee": "€5.40m",
+      "honours": 5,
+      "internationalGoals": 0,
+      "trophies": 2
+    },
     "foot": "both",
     "height": 188,
     "id": 1004368,
@@ -37394,6 +40634,14 @@
     "birthDate": "1973-09-14",
     "birthYear": 1973,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": "€350k",
+      "honours": 0,
+      "internationalGoals": null,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 180,
     "id": 1004372,
@@ -37487,6 +40735,14 @@
     "birthDate": "1982-12-01",
     "birthYear": 1982,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 9,
+      "careerFee": null,
+      "honours": 1,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 178,
     "id": 1004375,
@@ -37580,6 +40836,14 @@
     "birthDate": "1984-09-27",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 1,
+      "careerFee": null,
+      "honours": 2,
+      "internationalGoals": 0,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 173,
     "id": 1004377,
@@ -37672,6 +40936,14 @@
     "birthDate": "1980-12-28",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 31,
+      "careerFee": "€13.30m",
+      "honours": 6,
+      "internationalGoals": 7,
+      "trophies": 3
+    },
     "foot": "right",
     "height": 180,
     "id": 1004378,
@@ -37761,6 +41033,14 @@
     "birthDate": "1983-08-13",
     "birthYear": 1983,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 8,
+      "careerFee": "€1.18m",
+      "honours": 5,
+      "internationalGoals": 2,
+      "trophies": 3
+    },
     "foot": "right",
     "height": 193,
     "id": 1004382,
@@ -37852,6 +41132,14 @@
     "birthDate": "1978-03-09",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 97,
+      "careerFee": "€4.64m",
+      "honours": 8,
+      "internationalGoals": 1,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 185,
     "id": 1004385,
@@ -37965,6 +41253,14 @@
     "birthDate": "1978-06-24",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 18,
+      "careerFee": "€12.75m",
+      "honours": 11,
+      "internationalGoals": 4,
+      "trophies": 5
+    },
     "foot": "both",
     "height": 177,
     "id": 1004392,
@@ -38059,6 +41355,14 @@
     "birthDate": "1985-11-11",
     "birthYear": 1985,
     "dateOfDeath": "2021-01-22",
+    "enrichment": {
+      "awards": 0,
+      "caps": 75,
+      "careerFee": "€4.45m",
+      "honours": 6,
+      "internationalGoals": 35,
+      "trophies": 3
+    },
     "foot": "left",
     "height": 183,
     "id": 1004396,
@@ -38150,6 +41454,14 @@
     "birthDate": "1982-10-07",
     "birthYear": 1982,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 2,
+      "caps": 70,
+      "careerFee": "€9.43m",
+      "honours": 10,
+      "internationalGoals": 4,
+      "trophies": 8
+    },
     "foot": "right",
     "height": 190,
     "id": 1004398,
@@ -38242,6 +41554,14 @@
     "birthDate": "1979-04-11",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 10,
+      "careerFee": "€4.58m",
+      "honours": 2,
+      "internationalGoals": 3,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 184,
     "id": 1004402,
@@ -38331,6 +41651,14 @@
     "birthDate": "1972-02-19",
     "birthYear": 1972,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 5,
+      "careerFee": "€975k",
+      "honours": 3,
+      "internationalGoals": 0,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 185,
     "id": 1004404,
@@ -38425,6 +41753,14 @@
     "birthDate": "1986-02-05",
     "birthYear": 1986,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 15,
+      "careerFee": "€21.95m",
+      "honours": 14,
+      "internationalGoals": 3,
+      "trophies": 9
+    },
     "foot": "right",
     "height": 176,
     "id": 1004408,
@@ -38536,6 +41872,14 @@
     "birthDate": "1986-12-09",
     "birthYear": 1986,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": null,
+      "honours": 1,
+      "internationalGoals": null,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 190,
     "id": 1004454,
@@ -38569,6 +41913,14 @@
     "birthDate": "1975-10-09",
     "birthYear": 1975,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 4,
+      "caps": 43,
+      "careerFee": "€21.25m",
+      "honours": 16,
+      "internationalGoals": 11,
+      "trophies": 9
+    },
     "foot": "both",
     "height": 188,
     "id": 1004470,
@@ -38660,6 +42012,14 @@
     "birthDate": "1980-04-26",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 24,
+      "careerFee": "€6.43m",
+      "honours": 2,
+      "internationalGoals": 13,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 185,
     "id": 1004481,
@@ -38751,6 +42111,14 @@
     "birthDate": "1972-02-03",
     "birthYear": 1972,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 6,
+      "caps": 120,
+      "careerFee": "€4.90m",
+      "honours": 6,
+      "internationalGoals": 0,
+      "trophies": 2
+    },
     "foot": "left",
     "height": 195,
     "id": 1004482,
@@ -38841,6 +42209,14 @@
     "birthDate": "1977-07-26",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 54,
+      "careerFee": "€27.85m",
+      "honours": 13,
+      "internationalGoals": 2,
+      "trophies": 7
+    },
     "foot": "left",
     "height": 190,
     "id": 1004495,
@@ -38934,6 +42310,14 @@
     "birthDate": "1979-09-06",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 2,
+      "careerFee": "€17.55m",
+      "honours": 8,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 180,
     "id": 1004508,
@@ -39026,6 +42410,14 @@
     "birthDate": "1974-04-11",
     "birthYear": 1974,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 49,
+      "careerFee": "€2.25m",
+      "honours": 2,
+      "internationalGoals": 5,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 175,
     "id": 1004523,
@@ -39119,6 +42511,14 @@
     "birthDate": "1971-10-19",
     "birthYear": 1971,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 10,
+      "careerFee": "€1.58m",
+      "honours": 1,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 185,
     "id": 1004525,
@@ -39213,6 +42613,14 @@
     "birthDate": "1986-12-10",
     "birthYear": 1986,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 3,
+      "careerFee": null,
+      "honours": 2,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 178,
     "id": 1004532,
@@ -39305,6 +42713,14 @@
     "birthDate": "1979-11-17",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": "€725k",
+      "honours": 0,
+      "internationalGoals": null,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 183,
     "id": 1004540,
@@ -39397,6 +42813,14 @@
     "birthDate": "1976-09-26",
     "birthYear": 1976,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 3,
+      "caps": 98,
+      "careerFee": "€8.58m",
+      "honours": 25,
+      "internationalGoals": 42,
+      "trophies": 18
+    },
     "foot": null,
     "height": null,
     "id": 1004552,
@@ -39488,6 +42912,14 @@
     "birthDate": "1979-10-02",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 1,
+      "careerFee": "€10.30m",
+      "honours": 5,
+      "internationalGoals": 0,
+      "trophies": 4
+    },
     "foot": "left",
     "height": 178,
     "id": 1004553,
@@ -39578,6 +43010,14 @@
     "birthDate": "1977-01-25",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 4,
+      "careerFee": "€4.90m",
+      "honours": 0,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": null,
     "height": null,
     "id": 1004555,
@@ -39668,6 +43108,14 @@
     "birthDate": "1975-10-14",
     "birthYear": 1975,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 5,
+      "careerFee": "€8.20m",
+      "honours": 6,
+      "internationalGoals": 1,
+      "trophies": 4
+    },
     "foot": "both",
     "height": 185,
     "id": 1004560,
@@ -39760,6 +43208,14 @@
     "birthDate": "1974-08-03",
     "birthYear": 1974,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 3,
+      "careerFee": null,
+      "honours": 4,
+      "internationalGoals": 0,
+      "trophies": 2
+    },
     "foot": "left",
     "height": 170,
     "id": 1004563,
@@ -39853,6 +43309,14 @@
     "birthDate": "1983-02-23",
     "birthYear": 1983,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 50,
+      "careerFee": "€34.67m",
+      "honours": 8,
+      "internationalGoals": 19,
+      "trophies": 5
+    },
     "foot": "both",
     "height": 188,
     "id": 1004591,
@@ -39946,6 +43410,14 @@
     "birthDate": "1977-08-09",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 40,
+      "careerFee": "€13.65m",
+      "honours": 16,
+      "internationalGoals": 2,
+      "trophies": 13
+    },
     "foot": null,
     "height": null,
     "id": 1004594,
@@ -40037,6 +43509,14 @@
     "birthDate": "1972-02-29",
     "birthYear": 1972,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": "€600k",
+      "honours": 2,
+      "internationalGoals": null,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 193,
     "id": 1004600,
@@ -40130,6 +43610,14 @@
     "birthDate": "1985-01-22",
     "birthYear": 1985,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 34,
+      "careerFee": "€32.00m",
+      "honours": 13,
+      "internationalGoals": 2,
+      "trophies": 7
+    },
     "foot": "right",
     "height": 191,
     "id": 1004616,
@@ -40224,6 +43712,14 @@
     "birthDate": "1983-01-21",
     "birthYear": 1983,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 0,
+      "careerFee": "€1.00m",
+      "honours": 3,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 179,
     "id": 1004619,
@@ -40315,6 +43811,14 @@
     "birthDate": "1987-06-27",
     "birthYear": 1987,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 2,
+      "careerFee": "€100k",
+      "honours": 0,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 178,
     "id": 1004620,
@@ -40407,6 +43911,14 @@
     "birthDate": "1986-08-27",
     "birthYear": 1986,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 10,
+      "careerFee": "€265k",
+      "honours": 4,
+      "internationalGoals": 2,
+      "trophies": 2
+    },
     "foot": "both",
     "height": 170,
     "id": 1004627,
@@ -40498,6 +44010,14 @@
     "birthDate": "1981-10-28",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 2,
+      "careerFee": null,
+      "honours": 1,
+      "internationalGoals": 1,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 175,
     "id": 1004671,
@@ -40591,6 +44111,14 @@
     "birthDate": "1975-01-21",
     "birthYear": 1975,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 39,
+      "careerFee": "€3.75m",
+      "honours": 17,
+      "internationalGoals": 0,
+      "trophies": 21
+    },
     "foot": "right",
     "height": 178,
     "id": 1004674,
@@ -40685,6 +44213,14 @@
     "birthDate": "1983-09-03",
     "birthYear": 1983,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 9,
+      "careerFee": null,
+      "honours": 1,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 191,
     "id": 1004677,
@@ -40779,6 +44315,14 @@
     "birthDate": "1988-03-29",
     "birthYear": 1988,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": null,
+      "honours": 5,
+      "internationalGoals": null,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 178,
     "id": 1004678,
@@ -40868,6 +44412,14 @@
     "birthDate": "1979-03-02",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 10,
+      "careerFee": "€240k",
+      "honours": 2,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 191,
     "id": 1004683,
@@ -40960,6 +44512,14 @@
     "birthDate": "1978-07-20",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 14,
+      "careerFee": "€11.85m",
+      "honours": 1,
+      "internationalGoals": 1,
+      "trophies": 1
+    },
     "foot": "left",
     "height": 175,
     "id": 1004695,
@@ -41050,6 +44610,14 @@
     "birthDate": "1979-04-14",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": "€2.40m",
+      "honours": 2,
+      "internationalGoals": null,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 180,
     "id": 1004705,
@@ -41144,6 +44712,14 @@
     "birthDate": "1974-12-12",
     "birthYear": 1974,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 95,
+      "careerFee": "€8.40m",
+      "honours": 6,
+      "internationalGoals": 19,
+      "trophies": 5
+    },
     "foot": "right",
     "height": 176,
     "id": 1004707,
@@ -41237,6 +44813,14 @@
     "birthDate": "1984-01-29",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 1,
+      "careerFee": null,
+      "honours": 9,
+      "internationalGoals": 0,
+      "trophies": 15
+    },
     "foot": "right",
     "height": 185,
     "id": 1004710,
@@ -41328,6 +44912,14 @@
     "birthDate": "1974-09-12",
     "birthYear": 1974,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 33,
+      "careerFee": "€2.55m",
+      "honours": 10,
+      "internationalGoals": 1,
+      "trophies": 7
+    },
     "foot": "left",
     "height": 182,
     "id": 1004711,
@@ -41422,6 +45014,14 @@
     "birthDate": "1978-09-19",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 9,
+      "careerFee": "€8.35m",
+      "honours": 3,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": null,
     "height": null,
     "id": 1004714,
@@ -41511,6 +45111,14 @@
     "birthDate": "1982-05-13",
     "birthYear": 1982,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 2,
+      "caps": 69,
+      "careerFee": "€375k",
+      "honours": 15,
+      "internationalGoals": 6,
+      "trophies": 7
+    },
     "foot": "right",
     "height": 193,
     "id": 1004715,
@@ -41605,6 +45213,14 @@
     "birthDate": "1973-02-26",
     "birthYear": 1973,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 67,
+      "careerFee": "€2.50m",
+      "honours": 12,
+      "internationalGoals": 23,
+      "trophies": 12
+    },
     "foot": "both",
     "height": 179,
     "id": 1004716,
@@ -41698,6 +45314,14 @@
     "birthDate": "1977-09-03",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 117,
+      "careerFee": "€9.30m",
+      "honours": 10,
+      "internationalGoals": 8,
+      "trophies": 4
+    },
     "foot": "right",
     "height": 187,
     "id": 1004722,
@@ -41788,6 +45412,14 @@
     "birthDate": "1980-02-28",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 15,
+      "careerFee": null,
+      "honours": 2,
+      "internationalGoals": 1,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 183,
     "id": 1004723,
@@ -41876,6 +45508,14 @@
     "birthDate": "1985-03-19",
     "birthYear": 1985,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 1,
+      "careerFee": null,
+      "honours": 0,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 183,
     "id": 1004725,
@@ -41968,6 +45608,14 @@
     "birthDate": "1977-02-08",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 3,
+      "careerFee": "€26.18m",
+      "honours": 7,
+      "internationalGoals": 0,
+      "trophies": 4
+    },
     "foot": "right",
     "height": 185,
     "id": 1004726,
@@ -42061,6 +45709,14 @@
     "birthDate": "1978-01-28",
     "birthYear": 1978,
     "dateOfDeath": "2020-11-29",
+    "enrichment": {
+      "awards": 0,
+      "caps": 62,
+      "careerFee": "€15.80m",
+      "honours": 8,
+      "internationalGoals": 11,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 194,
     "id": 1004735,
@@ -42155,6 +45811,14 @@
     "birthDate": "1973-11-10",
     "birthYear": 1973,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 2,
+      "caps": 42,
+      "careerFee": "€4.40m",
+      "honours": 14,
+      "internationalGoals": 18,
+      "trophies": 11
+    },
     "foot": null,
     "height": null,
     "id": 1004747,
@@ -42244,6 +45908,14 @@
     "birthDate": "1972-11-01",
     "birthYear": 1972,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 10,
+      "careerFee": "€2.46m",
+      "honours": 3,
+      "internationalGoals": 1,
+      "trophies": 2
+    },
     "foot": null,
     "height": null,
     "id": 1004763,
@@ -42338,6 +46010,14 @@
     "birthDate": "1984-08-09",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 1,
+      "careerFee": "€850k",
+      "honours": 2,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 185,
     "id": 1004765,
@@ -42427,6 +46107,14 @@
     "birthDate": "1973-01-22",
     "birthYear": 1973,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 18,
+      "careerFee": "€1.50m",
+      "honours": 0,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "left",
     "height": 188,
     "id": 1004767,
@@ -42517,6 +46205,14 @@
     "birthDate": "1987-09-17",
     "birthYear": 1987,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 1,
+      "careerFee": null,
+      "honours": 1,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 191,
     "id": 1004773,
@@ -42609,6 +46305,14 @@
     "birthDate": "1977-10-18",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 85,
+      "careerFee": null,
+      "honours": 12,
+      "internationalGoals": 7,
+      "trophies": 8
+    },
     "foot": "right",
     "height": 181,
     "id": 1004802,
@@ -42698,6 +46402,14 @@
     "birthDate": "1968-03-10",
     "birthYear": 1968,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 49,
+      "careerFee": "€400k",
+      "honours": 8,
+      "internationalGoals": 0,
+      "trophies": 2
+    },
     "foot": null,
     "height": 188,
     "id": 1004817,
@@ -42791,6 +46503,14 @@
     "birthDate": "1979-02-26",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 12,
+      "careerFee": "€8.45m",
+      "honours": 11,
+      "internationalGoals": 0,
+      "trophies": 8
+    },
     "foot": "both",
     "height": 177,
     "id": 1004818,
@@ -42884,6 +46604,14 @@
     "birthDate": "1986-11-18",
     "birthYear": 1986,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 2,
+      "careerFee": "€475k",
+      "honours": 4,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 175,
     "id": 1004855,
@@ -42972,6 +46700,14 @@
     "birthDate": "1978-08-31",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 6,
+      "careerFee": "€17.00m",
+      "honours": 6,
+      "internationalGoals": 0,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 189,
     "id": 1004860,
@@ -43066,6 +46802,14 @@
     "birthDate": "1977-05-21",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 53,
+      "careerFee": "€2.25m",
+      "honours": 13,
+      "internationalGoals": 2,
+      "trophies": 8
+    },
     "foot": "left",
     "height": 182,
     "id": 1004872,
@@ -43160,6 +46904,14 @@
     "birthDate": "1974-07-30",
     "birthYear": 1974,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 87,
+      "careerFee": "€6.38m",
+      "honours": 6,
+      "internationalGoals": 1,
+      "trophies": 5
+    },
     "foot": "right",
     "height": 180,
     "id": 1004875,
@@ -43252,6 +47004,14 @@
     "birthDate": "1986-01-16",
     "birthYear": 1986,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 35,
+      "careerFee": "€3.95m",
+      "honours": 12,
+      "internationalGoals": 1,
+      "trophies": 7
+    },
     "foot": "left",
     "height": 183,
     "id": 1004891,
@@ -43341,6 +47101,14 @@
     "birthDate": "1978-05-18",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 89,
+      "careerFee": "€38.00m",
+      "honours": 21,
+      "internationalGoals": 5,
+      "trophies": 19
+    },
     "foot": "right",
     "height": 183,
     "id": 1004894,
@@ -43434,6 +47202,14 @@
     "birthDate": "1979-06-25",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 5,
+      "careerFee": "€80k",
+      "honours": 3,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "left",
     "height": 175,
     "id": 1004908,
@@ -43527,6 +47303,14 @@
     "birthDate": "1982-10-05",
     "birthYear": 1982,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 4,
+      "caps": 11,
+      "careerFee": "€13.65m",
+      "honours": 10,
+      "internationalGoals": 3,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 187,
     "id": 1004913,
@@ -43618,6 +47402,14 @@
     "birthDate": "1975-04-09",
     "birthYear": 1975,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 4,
+      "caps": 26,
+      "careerFee": "€26.60m",
+      "honours": 12,
+      "internationalGoals": 7,
+      "trophies": 5
+    },
     "foot": "left",
     "height": 175,
     "id": 1004932,
@@ -43711,6 +47503,14 @@
     "birthDate": "1974-10-18",
     "birthYear": 1974,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 39,
+      "careerFee": "€9.23m",
+      "honours": 3,
+      "internationalGoals": 2,
+      "trophies": 2
+    },
     "foot": "both",
     "height": 183,
     "id": 1004934,
@@ -43803,6 +47603,14 @@
     "birthDate": "1977-08-05",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 2,
+      "careerFee": null,
+      "honours": 0,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 173,
     "id": 1004940,
@@ -43897,6 +47705,14 @@
     "birthDate": "1978-09-25",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 18,
+      "careerFee": "€1.00m",
+      "honours": 5,
+      "internationalGoals": 1,
+      "trophies": 1
+    },
     "foot": "both",
     "height": 176,
     "id": 1004955,
@@ -43986,6 +47802,14 @@
     "birthDate": "1977-09-30",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 45,
+      "careerFee": "€3.86m",
+      "honours": 11,
+      "internationalGoals": 0,
+      "trophies": 9
+    },
     "foot": "right",
     "height": 189,
     "id": 1004973,
@@ -44078,6 +47902,14 @@
     "birthDate": "1989-08-03",
     "birthYear": 1989,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 4,
+      "careerFee": null,
+      "honours": 3,
+      "internationalGoals": 0,
+      "trophies": 2
+    },
     "foot": "right",
     "height": 182,
     "id": 1004994,
@@ -44167,6 +47999,14 @@
     "birthDate": "1980-07-14",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 5,
+      "careerFee": "€350k",
+      "honours": 0,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 183,
     "id": 1004997,
@@ -44256,6 +48096,14 @@
     "birthDate": "1973-10-07",
     "birthYear": 1973,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 11,
+      "caps": 105,
+      "careerFee": "€3.90m",
+      "honours": 16,
+      "internationalGoals": 5,
+      "trophies": 12
+    },
     "foot": null,
     "height": null,
     "id": 1005000,
@@ -44442,6 +48290,14 @@
     "birthDate": "1979-01-08",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 82,
+      "careerFee": "€3.30m",
+      "honours": 11,
+      "internationalGoals": 19,
+      "trophies": 4
+    },
     "foot": "both",
     "height": 187,
     "id": 1005039,
@@ -44533,6 +48389,14 @@
     "birthDate": "1986-10-12",
     "birthYear": 1986,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 2,
+      "careerFee": "€600k",
+      "honours": 1,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": null,
     "height": null,
     "id": 1005040,
@@ -44622,6 +48486,14 @@
     "birthDate": "1977-03-06",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 2,
+      "caps": 21,
+      "careerFee": "€27.30m",
+      "honours": 10,
+      "internationalGoals": 14,
+      "trophies": 4
+    },
     "foot": "right",
     "height": 182,
     "id": 1005044,
@@ -44716,6 +48588,14 @@
     "birthDate": "1975-08-20",
     "birthYear": 1975,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 3,
+      "careerFee": "€1.18m",
+      "honours": 0,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 174,
     "id": 1005048,
@@ -44805,6 +48685,14 @@
     "birthDate": "1978-12-24",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 51,
+      "careerFee": "€15.80m",
+      "honours": 7,
+      "internationalGoals": 0,
+      "trophies": 9
+    },
     "foot": "right",
     "height": 187,
     "id": 1005077,
@@ -44899,6 +48787,14 @@
     "birthDate": "1974-07-12",
     "birthYear": 1974,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 2,
+      "caps": 77,
+      "careerFee": null,
+      "honours": 9,
+      "internationalGoals": 12,
+      "trophies": 9
+    },
     "foot": "right",
     "height": 172,
     "id": 1005098,
@@ -44990,6 +48886,14 @@
     "birthDate": "1974-09-07",
     "birthYear": 1974,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 2,
+      "caps": 72,
+      "careerFee": "€9.15m",
+      "honours": 11,
+      "internationalGoals": 0,
+      "trophies": 8
+    },
     "foot": "right",
     "height": 185,
     "id": 1005102,
@@ -45083,6 +48987,14 @@
     "birthDate": "1982-03-06",
     "birthYear": 1982,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": null,
+      "honours": 1,
+      "internationalGoals": null,
+      "trophies": 0
+    },
     "foot": "left",
     "height": 183,
     "id": 1005109,
@@ -45177,6 +49089,14 @@
     "birthDate": "1986-04-01",
     "birthYear": 1986,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 18,
+      "careerFee": null,
+      "honours": 1,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "left",
     "height": 168,
     "id": 1005113,
@@ -45269,6 +49189,14 @@
     "birthDate": "1976-04-20",
     "birthYear": 1976,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 53,
+      "careerFee": "€6.75m",
+      "honours": 16,
+      "internationalGoals": 2,
+      "trophies": 8
+    },
     "foot": "right",
     "height": 183,
     "id": 1005130,
@@ -45360,6 +49288,14 @@
     "birthDate": "1981-03-07",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": "€1.13m",
+      "honours": 0,
+      "internationalGoals": null,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 178,
     "id": 1005138,
@@ -45471,6 +49407,14 @@
     "birthDate": "1979-07-05",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 105,
+      "careerFee": "€13.43m",
+      "honours": 11,
+      "internationalGoals": 8,
+      "trophies": 14
+    },
     "foot": "right",
     "height": 180,
     "id": 1005178,
@@ -45564,6 +49508,14 @@
     "birthDate": "1977-09-30",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 80,
+      "careerFee": "€3.26m",
+      "honours": 3,
+      "internationalGoals": 1,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 183,
     "id": 1005188,
@@ -45658,6 +49610,14 @@
     "birthDate": "1978-08-30",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 42,
+      "careerFee": "€1.88m",
+      "honours": 2,
+      "internationalGoals": 7,
+      "trophies": 3
+    },
     "foot": "right",
     "height": 183,
     "id": 1005189,
@@ -45767,6 +49727,14 @@
     "birthDate": "1976-07-08",
     "birthYear": 1976,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 54,
+      "careerFee": "€2.50m",
+      "honours": 7,
+      "internationalGoals": 5,
+      "trophies": 3
+    },
     "foot": null,
     "height": null,
     "id": 1005195,
@@ -45857,6 +49825,14 @@
     "birthDate": "1986-09-27",
     "birthYear": 1986,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 63,
+      "careerFee": "€3.84m",
+      "honours": 5,
+      "internationalGoals": 17,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 189,
     "id": 1005196,
@@ -45948,6 +49924,14 @@
     "birthDate": "1966-04-02",
     "birthYear": 1966,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 2,
+      "caps": 51,
+      "careerFee": "€10.10m",
+      "honours": 13,
+      "internationalGoals": 11,
+      "trophies": 7
+    },
     "foot": null,
     "height": null,
     "id": 1005199,
@@ -46040,6 +50024,14 @@
     "birthDate": "1979-11-27",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 64,
+      "careerFee": "€3.76m",
+      "honours": 8,
+      "internationalGoals": 6,
+      "trophies": 8
+    },
     "foot": "right",
     "height": 175,
     "id": 1005200,
@@ -46134,6 +50126,14 @@
     "birthDate": "1989-01-22",
     "birthYear": 1989,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 7,
+      "careerFee": "€550k",
+      "honours": 0,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 175,
     "id": 1005208,
@@ -46167,6 +50167,14 @@
     "birthDate": "1973-10-16",
     "birthYear": 1973,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 56,
+      "careerFee": "€1.95m",
+      "honours": 6,
+      "internationalGoals": 0,
+      "trophies": 2
+    },
     "foot": "left",
     "height": 188,
     "id": 1005217,
@@ -46260,6 +50268,14 @@
     "birthDate": "1973-12-14",
     "birthYear": 1973,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 45,
+      "careerFee": "€10.00m",
+      "honours": 8,
+      "internationalGoals": 10,
+      "trophies": 6
+    },
     "foot": null,
     "height": null,
     "id": 1005233,
@@ -46354,6 +50370,14 @@
     "birthDate": "1973-03-02",
     "birthYear": 1973,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 12,
+      "careerFee": "€7.40m",
+      "honours": 4,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 178,
     "id": 1005269,
@@ -46448,6 +50472,14 @@
     "birthDate": "1970-08-24",
     "birthYear": 1970,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 94,
+      "careerFee": "€4.52m",
+      "honours": 14,
+      "internationalGoals": 2,
+      "trophies": 21
+    },
     "foot": "right",
     "height": 176,
     "id": 1005272,
@@ -46542,6 +50574,14 @@
     "birthDate": "1974-02-08",
     "birthYear": 1974,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 101,
+      "careerFee": "€4.10m",
+      "honours": 6,
+      "internationalGoals": 7,
+      "trophies": 8
+    },
     "foot": "right",
     "height": 180,
     "id": 1005276,
@@ -46635,6 +50675,14 @@
     "birthDate": "1974-06-18",
     "birthYear": 1974,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 20,
+      "careerFee": "€30.21m",
+      "honours": 8,
+      "internationalGoals": 3,
+      "trophies": 4
+    },
     "foot": "both",
     "height": 172,
     "id": 1005290,
@@ -46727,6 +50775,14 @@
     "birthDate": "1978-06-15",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 37,
+      "careerFee": "€4.70m",
+      "honours": 10,
+      "internationalGoals": 2,
+      "trophies": 11
+    },
     "foot": "left",
     "height": 181,
     "id": 1005312,
@@ -46821,6 +50877,14 @@
     "birthDate": "1986-05-06",
     "birthYear": 1986,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 3,
+      "careerFee": "€1.57m",
+      "honours": 0,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 178,
     "id": 1005314,
@@ -46912,6 +50976,14 @@
     "birthDate": "1981-11-25",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 114,
+      "careerFee": "€59.50m",
+      "honours": 21,
+      "internationalGoals": 16,
+      "trophies": 18
+    },
     "foot": "right",
     "height": 183,
     "id": 1005323,
@@ -47006,6 +51078,14 @@
     "birthDate": "1980-08-20",
     "birthYear": 1980,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 4,
+      "caps": 108,
+      "careerFee": "€3.95m",
+      "honours": 10,
+      "internationalGoals": 15,
+      "trophies": 17
+    },
     "foot": "right",
     "height": 180,
     "id": 1005334,
@@ -47099,6 +51179,14 @@
     "birthDate": "1981-10-06",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 92,
+      "careerFee": "€750k",
+      "honours": 7,
+      "internationalGoals": 1,
+      "trophies": 4
+    },
     "foot": "right",
     "height": 186,
     "id": 1005337,
@@ -47190,6 +51278,14 @@
     "birthDate": "1985-01-31",
     "birthYear": 1985,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 16,
+      "careerFee": null,
+      "honours": 5,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 188,
     "id": 1005431,
@@ -47281,6 +51377,14 @@
     "birthDate": "1982-04-23",
     "birthYear": 1982,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 28,
+      "careerFee": "€460k",
+      "honours": 5,
+      "internationalGoals": 1,
+      "trophies": 4
+    },
     "foot": "both",
     "height": 183,
     "id": 1005435,
@@ -47374,6 +51478,14 @@
     "birthDate": "1989-08-10",
     "birthYear": 1989,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 1,
+      "caps": 44,
+      "careerFee": "€1.50m",
+      "honours": 12,
+      "internationalGoals": 8,
+      "trophies": 13
+    },
     "foot": "right",
     "height": 180,
     "id": 1005438,
@@ -47463,6 +51575,14 @@
     "birthDate": "1979-02-27",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 1,
+      "careerFee": "€4.50m",
+      "honours": 0,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 183,
     "id": 1005446,
@@ -47557,6 +51677,14 @@
     "birthDate": "1987-04-18",
     "birthYear": 1987,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": "€4.30m",
+      "honours": 5,
+      "internationalGoals": null,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 176,
     "id": 1005448,
@@ -47649,6 +51777,14 @@
     "birthDate": "1984-02-29",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 10,
+      "careerFee": "€3.42m",
+      "honours": 1,
+      "internationalGoals": 2,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 183,
     "id": 1005449,
@@ -47742,6 +51878,14 @@
     "birthDate": "1978-07-04",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 57,
+      "careerFee": "€14.30m",
+      "honours": 8,
+      "internationalGoals": 19,
+      "trophies": 4
+    },
     "foot": "right",
     "height": 177,
     "id": 1005455,
@@ -47836,6 +51980,14 @@
     "birthDate": "1983-04-14",
     "birthYear": 1983,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 49,
+      "careerFee": "€9.25m",
+      "honours": 2,
+      "internationalGoals": 15,
+      "trophies": 1
+    },
     "foot": "left",
     "height": 178,
     "id": 1005461,
@@ -47929,6 +52081,14 @@
     "birthDate": "1987-10-22",
     "birthYear": 1987,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": null,
+      "honours": 1,
+      "internationalGoals": null,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 180,
     "id": 1005462,
@@ -48018,6 +52178,14 @@
     "birthDate": "1982-07-07",
     "birthYear": 1982,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 3,
+      "careerFee": "€5.95m",
+      "honours": 8,
+      "internationalGoals": 0,
+      "trophies": 4
+    },
     "foot": "right",
     "height": 189,
     "id": 1005463,
@@ -48112,6 +52280,14 @@
     "birthDate": "1981-03-29",
     "birthYear": 1981,
     "dateOfDeath": "2018-05-15",
+    "enrichment": {
+      "awards": 0,
+      "caps": 2,
+      "careerFee": null,
+      "honours": 5,
+      "internationalGoals": 0,
+      "trophies": 3
+    },
     "foot": "left",
     "height": 180,
     "id": 1005468,
@@ -48203,6 +52379,14 @@
     "birthDate": "1981-09-12",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": null,
+      "careerFee": null,
+      "honours": 3,
+      "internationalGoals": null,
+      "trophies": 1
+    },
     "foot": "left",
     "height": 170,
     "id": 1005469,
@@ -48294,6 +52478,14 @@
     "birthDate": "1988-03-21",
     "birthYear": 1988,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 16,
+      "careerFee": "€11.40m",
+      "honours": 5,
+      "internationalGoals": 3,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 178,
     "id": 1005481,
@@ -48388,6 +52580,14 @@
     "birthDate": "1977-05-18",
     "birthYear": 1977,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 1,
+      "careerFee": null,
+      "honours": 3,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 178,
     "id": 1005483,
@@ -48480,6 +52680,14 @@
     "birthDate": "1984-07-10",
     "birthYear": 1984,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 56,
+      "careerFee": "€15.00m",
+      "honours": 9,
+      "internationalGoals": 6,
+      "trophies": 6
+    },
     "foot": "left",
     "height": 176,
     "id": 1005488,
@@ -48571,6 +52779,14 @@
     "birthDate": "1986-07-14",
     "birthYear": 1986,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 8,
+      "careerFee": "€10.88m",
+      "honours": 1,
+      "internationalGoals": 0,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 191,
     "id": 1005493,
@@ -48662,6 +52878,14 @@
     "birthDate": "1986-10-27",
     "birthYear": 1986,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 5,
+      "careerFee": "€450k",
+      "honours": 2,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "left",
     "height": 173,
     "id": 1005495,
@@ -48751,6 +52975,14 @@
     "birthDate": "1988-02-24",
     "birthYear": 1988,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 2,
+      "careerFee": null,
+      "honours": 1,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 183,
     "id": 1005498,
@@ -48841,6 +53073,14 @@
     "birthDate": "1981-10-28",
     "birthYear": 1981,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 2,
+      "caps": 94,
+      "careerFee": "€23.84m",
+      "honours": 17,
+      "internationalGoals": 41,
+      "trophies": 9
+    },
     "foot": "right",
     "height": 183,
     "id": 1005499,
@@ -48933,6 +53173,14 @@
     "birthDate": "1979-10-20",
     "birthYear": 1979,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 10,
+      "careerFee": "€2.33m",
+      "honours": 1,
+      "internationalGoals": 6,
+      "trophies": 0
+    },
     "foot": "right",
     "height": 180,
     "id": 1005503,
@@ -49024,6 +53272,14 @@
     "birthDate": "1978-10-03",
     "birthYear": 1978,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 6,
+      "careerFee": "€6.25m",
+      "honours": 6,
+      "internationalGoals": 0,
+      "trophies": 4
+    },
     "foot": "right",
     "height": 183,
     "id": 1005504,
@@ -49117,6 +53373,14 @@
     "birthDate": "1986-12-28",
     "birthYear": 1986,
     "dateOfDeath": null,
+    "enrichment": {
+      "awards": 0,
+      "caps": 4,
+      "careerFee": "€12.70m",
+      "honours": 6,
+      "internationalGoals": 0,
+      "trophies": 1
+    },
     "foot": "right",
     "height": 188,
     "id": 1005517,

@@ -59,3 +59,13 @@ data/player-history-stats.json
 # on every run AND re-inflates them ~1.5x (same policy as search-index.json /
 # player-history-stats.json / lineups-*.json above).
 data/market-value*.json
+
+# TASK-M75 enrichment detail — written by apply-player-enrichment.ts via
+# writeJsonStableMin (sorted keys, minified). Same policy as market-value*.json above:
+# the writer owns their formatting, so prettier must not touch them or every re-apply
+# produces a prettier-vs-writer diff AND re-inflates 14.7 MB to roughly double.
+# (`players-*.json` are deliberately NOT listed — writeJsonStable's pretty output already
+# matches prettier, and those rows benefit from readable diffs.)
+data/player-honours.json
+data/player-transfer-history.json
+data/player-national.json
