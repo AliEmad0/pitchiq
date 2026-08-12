@@ -5599,7 +5599,7 @@ Owner requested a unified flow with clear separation of concerns, mapped onto th
 
 ### TASK-1807
 
-**Draft hub + live match loop** (was "Hard-ban squad validation") · 📋 Backlog — **A and B1 are done; B2 and C remain** · `P2` · `L` · Type: Feature
+**Draft hub + live match loop** (was "Hard-ban squad validation") · 📋 Backlog — **A, B1 and B2 are done; C remains** · `P2` · `L` · Type: Feature
 
 **Description** — `canPlay(player, slot) = player.role === slot || player.altRoles.includes(slot)` is the only eligibility rule (owner decision: **hard ban, no penalty tier**). The UI must **block** — not warn — saving the squad, locking the formation, or starting a match if any player sits in a role that isn't theirs, surfacing a validation error naming the player + slot. **Depends on:** TASK-1801, TASK-1806.
 
@@ -5616,7 +5616,7 @@ Owner requested a unified flow with clear separation of concerns, mapped onto th
 | ------ | ------------------------------------------------------------------------- | ---------- |
 | **A**  | `/game/draft` — the interactive hub                                       | ✅ Done    |
 | **B1** | `/game/play` — the live match loop over the interruptible engine          | ✅ Done    |
-| **B2** | nuqs URL-sync for the phase, IndexedDB auto-resume by replay              | 📋 Backlog |
+| **B2** | nuqs URL-sync for the phase, IndexedDB auto-resume by replay              | ✅ Done    |
 | **C**  | Draft Room ([TASK-1823](#task-1823)) as the round-based entry path into A | 📋 Backlog |
 
 **✅ Sub-project A shipped 2026-08-11.** Design: [`docs/superpowers/specs/2026-08-11-task-1807a-draft-hub-design.md`](../docs/superpowers/specs/2026-08-11-task-1807a-draft-hub-design.md); plan: [`docs/superpowers/plans/2026-08-11-task-1807a-draft-hub.md`](../docs/superpowers/plans/2026-08-11-task-1807a-draft-hub.md). The ticket stays open — A alone does not close it.
@@ -5649,7 +5649,25 @@ Built: `events` on `MatchDecision`, `view/match-stream.ts` (`createStream`), `vi
 
 **The strict phase reducer caught a bug in its own author's work.** The preview's back button dispatched `newMatch`, which is only accepted from `summary`, so it silently did nothing — surfaced as a failing test rather than a dead control because the reducer ignores out-of-phase transitions instead of applying them. `backToSetup` was added, allowed only from `preview`: once the match is live the seed has produced events, and rewinding would strand a half-played match.
 
-**Still open:** **B2** (nuqs URL-sync so back/forward move between phases, and IndexedDB auto-resume by replaying `(setup, seed, decisions[])`) and **C**. The tactical-style picker on the preview is [TASK-1825](#task-1825) — B1 shows the matchup but defers the control.
+**✅ Sub-project B2 shipped 2026-08-12.** Design: [`docs/superpowers/specs/2026-08-11-task-1807b2-resume-design.md`](../docs/superpowers/specs/2026-08-11-task-1807b2-resume-design.md); plan: [`docs/superpowers/plans/2026-08-11-task-1807b2-resume.md`](../docs/superpowers/plans/2026-08-11-task-1807b2-resume.md). An in-progress match now survives a refresh, and the app has its first **IndexedDB** layer — the one [TASK-1812](#task-1812), [1813](#task-1813), [1816](#task-1816), [1817](#task-1817) and [1819](#task-1819) inherit. Suite 1,813 → 1,866; all four game routes still `●` in both locales.
+
+Built: `domain/hash.ts` (shared FNV-1a + `hashEvents`), `view/match-session.ts` (`buildSession`), `storage/{idb,match-slot}.ts`, `view/match-replay.ts`, `view/score.ts` (`scoreAt`), `components/ResumeDialog.tsx`, the `resume` action on `playReducer`, and a write-only `?phase=` mirror.
+
+**⚠️ Resume is REPLAY, not a snapshot** — the live state is a running generator and a generator cannot be serialized. Re-running `(setup, seed, answers)` is already the seed-share code path, so resume is exercised by every sharing test rather than being its own untested branch. Only the coach's answers are stored: `createStream` re-answers the opponent's with `defaultAnswer`, deterministically.
+
+**⚠️ A stored match is verified by FINGERPRINT, not by a version stamp.** Replay runs against a current engine and a current card pool, and routine work moves both — a data refresh, a rating change, a calibration tweak. Any of those makes the same tuple produce a different match, silently. A `POOL_VERSION` constant depends on somebody remembering to bump it, and a forgotten bump fails in exactly the direction that hurts. The hash catches any cause of drift, including ones nobody anticipated. **Verified by disabling it and watching the two divergence tests go red** — a gate never seen to fire is decorative.
+
+**⚠️ `buildSession` exists so the live path and replay cannot drift.** Assembling the match in two places would surface as a fingerprint mismatch that reads like data corruption rather than like the duplicated code it is.
+
+**⚠️ The resume offer is a DIALOG over the hub, not a fifth phase.** The routes are `force-static`, so the prerendered HTML holds the hub; replacing it after mount would repeat the PR #97 defect — a painted screen visibly swapped for a different one.
+
+**⚠️ The slot is cleared in the handlers, never in an effect.** An effect gated on "phase is not live" races the restore effect on mount and wipes the record before it can be read.
+
+**⚠️ `scoreAt` had to be shared with `MatchView`, and it filters on minute itself.** A second goal-count would have chalked off a goal whose VAR verdict lands after the point the coach stopped watching — a decision's `events` snapshot legitimately runs ahead of its own minute, so "my caller already trimmed this" is exactly the assumption that leaks an unseen goal onto the scoreboard.
+
+**Deliberately limited:** the URL is a **write-only mirror** in B2 and drives nothing — ask-first resume plus mirror-never-push leaves nothing for a read to do; it exists to make the phase legible and to give [TASK-1812](#task-1812) its parameter. Refreshing on the **summary** screen loses the scoreline, because storing results is 1812's job. `fake-indexeddb` was added as a **devDependency** (happy-dom has no IndexedDB) — dev-only, never a runtime dep on a public repo.
+
+**Still open:** **C** — the round-based Draft Room ([TASK-1823](#task-1823)). The tactical-style picker on the preview is [TASK-1825](#task-1825) — B1 shows the matchup but defers the control.
 
 ### TASK-1808
 

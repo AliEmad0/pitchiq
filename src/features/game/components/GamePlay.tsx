@@ -1,8 +1,11 @@
 "use client";
 import { useTranslations } from "next-intl";
-import { useCallback, useMemo, useReducer, useRef, useState } from "react";
-import { chaosMatchup, type PoolCard } from "@/features/game/domain/chaos-draft";
-import type { Formation } from "@/features/game/domain/formation";
+import { parseAsStringLiteral, useQueryState } from "nuqs";
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
+import type { PlayerSeasonId } from "@/features/game/domain/card-id";
+import type { PoolCard } from "@/features/game/domain/chaos-draft";
+import { formationKey, type Formation } from "@/features/game/domain/formation";
+import { hashEvents } from "@/features/game/domain/hash";
 import type { DecisionAnswer, MatchDecision } from "@/features/game/domain/match-decisions";
 import type {
   MatchEvent,
@@ -10,21 +13,22 @@ import type {
   RefereeStyle,
   Weather,
 } from "@/features/game/domain/match-types";
-import { opponentSetup } from "@/features/game/domain/opponent";
-import { runMatch } from "@/features/game/domain/simulate";
-import { type GameTeam, makeGameTeam } from "@/features/game/domain/team";
+import type { GameTeam } from "@/features/game/domain/team";
+import { clearMatch, loadMatch, saveMatch } from "@/features/game/storage/match-slot";
 import { buildMatchViewModel } from "@/features/game/view/match-view-model";
-import { createStream, type StreamStep } from "@/features/game/view/match-stream";
+import { replayMatch, type RestoredMatch } from "@/features/game/view/match-replay";
+import { buildSession, type MatchSession } from "@/features/game/view/match-session";
+import type { StreamStep } from "@/features/game/view/match-stream";
 import { createPlayState, playReducer, type PlayPhase } from "@/features/game/view/play-machine";
+import { scoreAt } from "@/features/game/view/score";
 import { randomSeed } from "@/features/game/view/seed";
 import { DecisionPrompt } from "./DecisionPrompt";
 import { DraftHub } from "./DraftHub";
 import { MatchSummary } from "./MatchSummary";
 import { MatchupPreview } from "./MatchupPreview";
 import { MatchView } from "./MatchView";
+import { ResumeDialog } from "./ResumeDialog";
 
-/** Squad spans seasons, so no single season's goal rate applies — stay neutral. */
-const DEFAULT_RATE = 2.7;
 /** Seconds a decision waits before answering itself. Extendable per WCAG 2.2.1. */
 const DECISION_LIMIT = 20;
 
@@ -49,12 +53,41 @@ export function GamePlay({ pool, initialPhase }: { pool: PoolCard[]; initialPhas
   const t = useTranslations("game");
   const [state, dispatch] = useReducer(playReducer, createPlayState(initialPhase));
 
-  const streamRef = useRef<ReturnType<typeof createStream> | null>(null);
+  const streamRef = useRef<MatchSession["stream"] | null>(null);
   const [match, setMatch] = useState<Match | null>(null);
   const [events, setEvents] = useState<MatchEvent[]>([]);
   const [pending, setPending] = useState<MatchDecision | null>(null);
   const [answers, setAnswers] = useState<DecisionAnswer[]>([]);
   const [result, setResult] = useState<MatchResult | null>(null);
+  /** What the coach drafted, kept so the live match can be written to storage. */
+  const [squad, setSquad] = useState<{ cardIds: PlayerSeasonId[]; formationKey: string } | null>(
+    null,
+  );
+  /** An unfinished match found in storage, replayed and verified, awaiting the coach. */
+  const [offer, setOffer] = useState<RestoredMatch | null>(null);
+
+  /**
+   * The phase, mirrored into the URL.
+   *
+   * ⚠️ WRITTEN, NEVER READ, and `history: "replace"` so it adds no history entries. The
+   * reducer stays the single driver of phase; the browser must not become a second one.
+   * `setup` writes null so the hub keeps a clean URL.
+   *
+   * In B2 this is a write-only mirror — it makes the current phase legible and gives
+   * TASK-1812's seed-sharing the parameter to build on, but it drives nothing.
+   */
+  const [, setPhaseParam] = useQueryState(
+    "phase",
+    parseAsStringLiteral(["preview", "live", "summary"] as const).withOptions({
+      history: "replace",
+      shallow: true,
+      clearOnDefault: true,
+    }),
+  );
+
+  useEffect(() => {
+    void setPhaseParam(state.phase === "setup" ? null : state.phase);
+  }, [state.phase, setPhaseParam]);
 
   /** Fold one step of the stream into view state. */
   const consume = useCallback((step: StreamStep) => {
@@ -76,30 +109,21 @@ export function GamePlay({ pool, initialPhase }: { pool: PoolCard[]; initialPhas
    */
   const confirmSquad = (players: PoolCard[], formation: Formation) => {
     const seed = randomSeed();
-    const matchup = chaosMatchup(pool, seed, { home: t("yourXi"), away: t("rivals") });
-    const home = makeGameTeam(-1, t("yourXi"), 0, formation, players, matchup.home.bench);
-    const away = matchup.opponent.kind === "squad" ? matchup.opponent.team : matchup.home;
+    const session = buildSession(pool, players, formation, seed, {
+      home: t("yourXi"),
+      away: t("rivals"),
+    });
+    streamRef.current = session.stream;
+    setSquad({
+      cardIds: players.map((p) => p.cardId),
+      formationKey: formationKey(formation),
+    });
 
-    const stream = createStream(
-      runMatch(
-        opponentSetup({
-          home,
-          homeStyle: matchup.homeStyle,
-          opponent: matchup.opponent,
-          season: 0,
-          seed,
-          targetGoalsPerMatch: DEFAULT_RATE,
-        }),
-      ),
-      "home",
-    );
-    streamRef.current = stream;
-
-    setMatch({ home, away, seed });
+    setMatch({ home: session.home, away: session.away, seed });
     setEvents([]);
     setAnswers([]);
     setResult(null);
-    consume(stream.advance());
+    consume(session.stream.advance());
     dispatch({ type: "confirmSquad", seed });
   };
 
@@ -109,6 +133,73 @@ export function GamePlay({ pool, initialPhase }: { pool: PoolCard[]; initialPhas
     setAnswers((prior) => [...prior, a]);
     setPending(null);
     consume(stream.answer(a));
+  };
+
+  /**
+   * Look for an unfinished match, once, after mount.
+   *
+   * ⚠️ After mount, never during render. All four `/game/*` routes are `force-static`
+   * and the prerender has no IndexedDB — reading during render would fail the build or
+   * bake one visitor's match into the CDN copy.
+   */
+  useEffect(() => {
+    let live = true;
+    void (async () => {
+      const record = await loadMatch();
+      if (!live || record == null) return;
+      const restored = replayMatch(pool, record, { home: t("yourXi"), away: t("rivals") });
+      if (!live) return;
+      if (restored == null) {
+        // Diverged, or the pool moved under it. A stale save is not the coach's problem.
+        void clearMatch();
+        return;
+      }
+      setOffer(restored);
+    })();
+    return () => {
+      live = false;
+    };
+    // Mount only: `pool` is a build-time constant and `t` is stable for the locale.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /**
+   * Persist the live match — on kick-off and after every answer, roughly six writes.
+   *
+   * Gated on `live` because the slot holds a live match ONLY (owner decision): saving at
+   * the preview would offer a resume into a match that had not started.
+   */
+  useEffect(() => {
+    if (state.phase !== "live" || match == null || squad == null || result != null) return;
+    void saveMatch({
+      cardIds: squad.cardIds,
+      formationKey: squad.formationKey,
+      seed: match.seed,
+      answers,
+      fingerprint: hashEvents(events),
+      eventCount: events.length,
+    });
+  }, [state.phase, match, squad, answers, events, result]);
+
+  const resume = () => {
+    if (offer == null) return;
+    streamRef.current = offer.session.stream;
+    setMatch({ home: offer.session.home, away: offer.session.away, seed: offer.session.seed });
+    setEvents(offer.events);
+    setAnswers(offer.answers);
+    setResult(offer.result);
+    setPending(offer.pending);
+    // ⚠️ Taken from the RECORD, never reconstructed from the session: a resumed match must
+    // keep saving under the same identity, and `GameTeam` holds cards rather than the
+    // formation key. Rebuilding either would be a second source of truth.
+    setSquad({ cardIds: offer.record.cardIds, formationKey: offer.record.formationKey });
+    setOffer(null);
+    dispatch({ type: "resume", seed: offer.session.seed });
+  };
+
+  const startOver = () => {
+    setOffer(null);
+    void clearMatch();
   };
 
   // The model is rebuilt from the events we have so far, so the view always renders a
@@ -131,8 +222,26 @@ export function GamePlay({ pool, initialPhase }: { pool: PoolCard[]; initialPhas
     [events],
   );
 
+  // Where the match was left. Passed to `scoreAt` so a goal still under VAR review shows
+  // as it stood at that moment rather than as the verdict later made it.
+  const restoredMinute = offer?.events[offer.events.length - 1]?.minute ?? 0;
+
   if (state.phase === "setup" || match == null) {
-    return <DraftHub pool={pool} onConfirm={confirmSquad} />;
+    return (
+      <>
+        <DraftHub pool={pool} onConfirm={confirmSquad} />
+        {offer != null ? (
+          <ResumeDialog
+            homeName={offer.session.home.name}
+            awayName={offer.session.away.name}
+            score={scoreAt(offer.events, restoredMinute)}
+            minute={restoredMinute}
+            onResume={resume}
+            onStartOver={startOver}
+          />
+        ) : null}
+      </>
+    );
   }
 
   if (state.phase === "preview") {
@@ -143,7 +252,13 @@ export function GamePlay({ pool, initialPhase }: { pool: PoolCard[]; initialPhas
         referee={referee}
         weather={weather}
         onKickOff={() => dispatch({ type: "kickOff" })}
-        onBack={() => dispatch({ type: "backToSetup" })}
+        onBack={() => {
+          // ⚠️ Cleared in the handler, never in an effect. An effect gated on "phase is
+          // not live" would race the restore effect on mount and wipe the record before
+          // it could be read.
+          void clearMatch();
+          dispatch({ type: "backToSetup" });
+        }}
       />
     );
   }
@@ -156,7 +271,10 @@ export function GamePlay({ pool, initialPhase }: { pool: PoolCard[]; initialPhas
         score={result.score}
         decisions={answers}
         seed={match.seed}
-        onNewMatch={() => dispatch({ type: "newMatch" })}
+        onNewMatch={() => {
+          void clearMatch();
+          dispatch({ type: "newMatch" });
+        }}
       />
     );
   }
@@ -172,7 +290,10 @@ export function GamePlay({ pool, initialPhase }: { pool: PoolCard[]; initialPhas
       {result != null ? (
         <button
           type="button"
-          onClick={() => dispatch({ type: "fullTime" })}
+          onClick={() => {
+            void clearMatch();
+            dispatch({ type: "fullTime" });
+          }}
           className="bg-primary text-primary-foreground mt-4 rounded-md px-5 py-2 text-sm font-bold"
         >
           {t("playFullTime")}

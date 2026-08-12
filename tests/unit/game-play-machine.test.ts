@@ -68,4 +68,20 @@ describe("playReducer", () => {
     );
     expect(playReducer(live, { type: "confirmSquad", seed: 2 })).toBe(live);
   });
+
+  it("resume goes straight from setup to live, carrying the restored seed", () => {
+    const state = playReducer(createPlayState("setup"), { type: "resume", seed: 4242 });
+    expect(state.phase).toBe("live");
+    expect(state.seed).toBe(4242);
+  });
+
+  it("⚠️ resume is ignored from every other phase", () => {
+    // One narrow entry point. The strict reducer is what caught B1's dead preview
+    // button; a resume that could fire mid-match would let a restored generator
+    // overwrite a running one with no visible symptom.
+    for (const phase of ["preview", "live", "summary"] as const) {
+      const before = { ...createPlayState(phase), seed: 1 };
+      expect(playReducer(before, { type: "resume", seed: 4242 })).toBe(before);
+    }
+  });
 });
