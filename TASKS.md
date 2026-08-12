@@ -5494,7 +5494,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1804](#task-1804) | Commentary system (ICU keys, en + ar, AST-guard clean)          | ✅ Done    | P2       | L   |
 | [TASK-1805](#task-1805) | Hybrid opponent model (modern squad / historical record)        | ✅ Done    | P2       | M   |
 | [TASK-1806](#task-1806) | Chaos Draft — first end-to-end vertical slice                   | ✅ Done    | P2       | L   |
-| [TASK-1807](#task-1807) | Draft hub + live match loop (A ✅ B1 ✅ B2 ✅ — C left)         | 📋 Backlog | P2       | L   |
+| [TASK-1807](#task-1807) | Draft hub + live match loop (A ✅ B1 ✅ B2 ✅ C ✅)             | ✅ Done    | P2       | L   |
 | [TASK-1808](#task-1808) | Live tactical pitch UI + speed controls (1x/2x/skip)            | 📋 Backlog | P3       | L   |
 | [TASK-1809](#task-1809) | Key-event animations (goal/red-card overlays, pulsing nodes)    | 📋 Backlog | P3       | L   |
 | [TASK-1810](#task-1810) | Remaining six modes as rule packs                               | 📋 Backlog | P3       | XL  |
@@ -5510,7 +5510,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1820](#task-1820) | Rating model — absolute/cross-position stats + GK pipeline      | ✅ Done    | P2       | L   |
 | [TASK-1821](#task-1821) | Tier-Anchored Hybrid rating engine (anchors + delta + team)     | ✅ Done    | P2       | L   |
 | [TASK-1822](#task-1822) | Dynamic event-driven match engine (drama, VAR, subs, injuries)  | ✅ Done    | P1       | XL  |
-| [TASK-1823](#task-1823) | Draft Room — 11 slots × 5 cards, free roam + pick timer         | 📋 Backlog | P2       | L   |
+| [TASK-1823](#task-1823) | Draft Room — 11 slots × 5 cards, free roam + pick timer         | ✅ Done    | P2       | L   |
 | [TASK-1824](#task-1824) | Squad chemistry (era / club / nation links) as a modifier       | 📋 Backlog | P3       | M   |
 | [TASK-1825](#task-1825) | Tactical style + mentality selection on the draft hub           | 📋 Backlog | P3       | S   |
 | [TASK-1826](#task-1826) | Market value progression across a season                        | 📋 Backlog | P3       | M   |
@@ -5600,7 +5600,7 @@ Owner requested a unified flow with clear separation of concerns, mapped onto th
 
 ### TASK-1807
 
-**Draft hub + live match loop** (was "Hard-ban squad validation") · 📋 Backlog — **A, B1 and B2 are done; C remains** · `P2` · `L` · Type: Feature
+**Draft hub + live match loop** (was "Hard-ban squad validation") · ✅ Done (2026-08-13) — **all four sub-projects shipped** · `P2` · `L` · Type: Feature
 
 **Description** — `canPlay(player, slot) = player.role === slot || player.altRoles.includes(slot)` is the only eligibility rule (owner decision: **hard ban, no penalty tier**). The UI must **block** — not warn — saving the squad, locking the formation, or starting a match if any player sits in a role that isn't theirs, surfacing a validation error naming the player + slot. **Depends on:** TASK-1801, TASK-1806.
 
@@ -5613,12 +5613,12 @@ Owner requested a unified flow with clear separation of concerns, mapped onto th
 
 **Split into three sub-projects (2026-08-11)**, because the hub, the live match loop and the round-based room each produce working, testable software on their own and one spec covering all three was too large to plan against:
 
-|        | Scope                                                                     | Status     |
-| ------ | ------------------------------------------------------------------------- | ---------- |
-| **A**  | `/game/draft` — the interactive hub                                       | ✅ Done    |
-| **B1** | `/game/play` — the live match loop over the interruptible engine          | ✅ Done    |
-| **B2** | nuqs URL-sync for the phase, IndexedDB auto-resume by replay              | ✅ Done    |
-| **C**  | Draft Room ([TASK-1823](#task-1823)) as the round-based entry path into A | 📋 Backlog |
+|        | Scope                                                                     | Status  |
+| ------ | ------------------------------------------------------------------------- | ------- |
+| **A**  | `/game/draft` — the interactive hub                                       | ✅ Done |
+| **B1** | `/game/play` — the live match loop over the interruptible engine          | ✅ Done |
+| **B2** | nuqs URL-sync for the phase, IndexedDB auto-resume by replay              | ✅ Done |
+| **C**  | Draft Room ([TASK-1823](#task-1823)) as the round-based entry path into A | ✅ Done |
 
 **✅ Sub-project A shipped 2026-08-11.** Design: [`docs/superpowers/specs/2026-08-11-task-1807a-draft-hub-design.md`](../docs/superpowers/specs/2026-08-11-task-1807a-draft-hub-design.md); plan: [`docs/superpowers/plans/2026-08-11-task-1807a-draft-hub.md`](../docs/superpowers/plans/2026-08-11-task-1807a-draft-hub.md). The ticket stays open — A alone does not close it.
 
@@ -5974,11 +5974,31 @@ Both game routes remain `● force-static` prerendered in **en** and **ar**. Two
 
 ### TASK-1823
 
-**Draft Room — 11 rounds × 5 cards with a pick timer** · 📋 Backlog · `P2` · `L` · Type: Feature
+**Draft Room — 11 slots × 5 cards, free roam + pick timer** · ✅ Done (2026-08-13) · `P2` · `L` · Type: Feature
 
-**Description** — The fast entry path into the `/draft` hub (owner decision 2026-08-11: the round-based room **hands off to** the builder, it does not replace it). Eleven rounds; each round deals **5 seeded candidate cards** for the round's slot and the player picks one against a **15-second timer**. Timeout auto-picks the highest-rated eligible candidate, so a lapsed timer never produces an illegal squad. All five candidates for a slot must satisfy `canPlay` — the hard ban ([TASK-1807](#task-1807)) is enforced by **construction** here rather than by validation, because there is no free placement to validate. The round sequence and every deal derive from the draft seed, so a room replays identically from `(seed)` and stays shareable ([TASK-1812](#task-1812)).
+**Description** — The fast entry path into the `/draft` hub (owner decision 2026-08-11: the room **hands off to** the builder, it does not replace it). Eleven slots; each deals **5 seeded candidate cards** and the coach picks one against a **15-second timer**. Timeout auto-picks the highest-rated eligible candidate, so a lapsed timer never produces an illegal squad. All five candidates for a slot must satisfy `canPlay` — the hard ban ([TASK-1807](#task-1807)) is enforced by **construction** here rather than by validation, because there is no free placement to validate. Every deal derives from the draft seed, so a room replays identically from `(seed)` and stays shareable ([TASK-1812](#task-1812)).
+
+**⚠️ "Eleven rounds in sequence" no longer describes this.** The owner opened the mechanic up on 2026-08-12: **any slot is clickable at any time** and a filled slot can be reopened. "Round" survives only as the name for one visit to one slot.
 
 **⚠️ The timer is a view concern, not an engine one.** The countdown must never reach the domain layer: `Date.now()` inside anything the engine reads breaks the determinism rule locked for Phase 18. The elapsed time influences _which_ card the player picks, and that pick is the input — the clock itself is not. **Depends on:** TASK-1806, TASK-1807, [TASK-1831](#task-1831).
+
+**✅ Shipped 2026-08-13.** Plan: [`docs/superpowers/plans/2026-08-13-task-1823-draft-room.md`](../docs/superpowers/plans/2026-08-13-task-1823-draft-room.md). Suite 1,878 → 1,903; `tsc` + lint clean; all four `/game/*` routes still `●` in en + ar; the match harness **unmoved** (this ticket adds no engine surface).
+
+Built: `domain/draft-room.ts` (`roomDeals`), `view/room-state.ts` (the reducer), `components/DraftRoom.tsx`, `room-flip-in` / `room-fold-out` keyframes, en + ar copy, and the hub entry.
+
+**⚠️ THE DEAL IS PRECOMPUTED IN SLOT ORDER** against one shared used-set. Two properties fall out and both are load-bearing: no player can appear in two hands, so a duplicate pick is impossible by construction; and **the order the coach visits slots cannot change what any slot offers**. That second one is what lets free roam and seed-sharing coexist.
+
+**That property was measured, not assumed.** The rejected lazy dealer (hands drawn as slots are opened) was built and run: visiting forward versus backward gave slot 0 and slot 10 **completely different candidates** — while slot 5 coincidentally matched, which is exactly why one spot-check would have been misleading.
+
+**⚠️ A starved pool yields a SHORT hand, never a padded one.** Padding is the only way an ineligible candidate could reach the coach, because this path has no validation behind it — the hard ban here is enforced purely by construction. The real pool cannot reach that branch ([TASK-1831](#task-1831) measured every slot of every shape), so the test uses a deliberately thinned pool or the guard would never fire.
+
+**⚠️ The clock runs on UNFILLED slots only, and never reaches the domain.** Re-opening a filled slot offers the identical five, untimed — a countdown while the coach compares two players he already owns reads as a bug. A timeout picks the highest-rated candidate and records it as an ordinary pick, so a lapsed timer is indistinguishable from a deliberate choice on replay. Extendable and disableable per WCAG 2.2.1, like `DecisionPrompt`. **The timeout dispatch sits in its own effect keyed on the countdown** — firing it from inside the interval callback would close over a stale slot the moment the coach clicks elsewhere mid-count.
+
+**⚠️ The room lives INSIDE the hub, not on its own route**, and hands off through the existing `setSlots` seam. A separate route would have to move the XI across a boundary — either serialising it through B2's IndexedDB slot (a persistence layer used as a message bus) or lifting state above both routes.
+
+**Two test-fixture traps:** the hub's pool had to widen from four to six cards per role, because the room deals five per slot without reuse and a four-deep role leaves the keeper hand short; and React 19 will not flush state produced by a fake timer outside `act`, so the timeout test wraps its `advanceTimersByTimeAsync`.
+
+**Design chosen from galleries built with the real 252-card pool:** concept **09 "Tactics Blueprint"** and animation **07 "Flip Reveal"** — candidates turn over on Y, rejected cards fold away on X, so accepting and discarding read as opposites in one physical language. Transform/opacity only, motion-audit clean, reduce-gated.
 
 **Design settled 2026-08-12** — [`docs/superpowers/specs/2026-08-12-task-1823-draft-room-design.md`](../docs/superpowers/specs/2026-08-12-task-1823-draft-room-design.md). Owner decisions, chosen from a 30-concept and a 30-animation gallery built with the real card pool:
 
