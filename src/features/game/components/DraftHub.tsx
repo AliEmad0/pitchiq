@@ -3,7 +3,7 @@ import { useTranslations } from "next-intl";
 import { useMemo, useReducer, useState } from "react";
 import type { PlayerSeasonId } from "@/features/game/domain/card-id";
 import { FORMATIONS, type PoolCard } from "@/features/game/domain/chaos-draft";
-import type { Formation } from "@/features/game/domain/formation";
+import { formationByName, type Formation } from "@/features/game/domain/formation";
 import { fillGaps } from "@/features/game/domain/fill-gaps";
 import { mulberry32 } from "@/features/game/domain/rng";
 import { eligibleCards, eligibleSlots } from "@/features/game/view/draft-eligibility";
@@ -28,6 +28,14 @@ import { TacticalPitch } from "./TacticalPitch";
  */
 const INITIAL_SEED = 20260811;
 
+/**
+ * The shape the hub opens on.
+ *
+ * Named rather than taken by position — the array's order is presentation only, so
+ * inserting a shape must never silently change what the hub starts with.
+ */
+const DEFAULT_FORMATION = "4-4-2";
+
 interface Props {
   pool: PoolCard[];
   /**
@@ -45,7 +53,10 @@ export function DraftHub({ pool, onConfirm }: Props) {
   const t = useTranslations("game");
   const reduced = prefersReducedMotion();
   const [formationIndex, setFormationIndex] = useState(0);
-  const [state, dispatch] = useReducer(draftReducer, createDraftState(FORMATIONS[0], INITIAL_SEED));
+  const [state, dispatch] = useReducer(
+    draftReducer,
+    createDraftState(formationByName(DEFAULT_FORMATION), INITIAL_SEED),
+  );
 
   const byId = useMemo(() => new Map(pool.map((c) => [c.cardId, c])), [pool]);
   const errors = useMemo(() => validateSquad(state, pool), [state, pool]);

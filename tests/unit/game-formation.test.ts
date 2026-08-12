@@ -1,3 +1,4 @@
+import { readFileSync, readdirSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { FORMATIONS } from "@/features/game/domain/chaos-draft";
 import { formationByName, formationKey, parseGrid } from "@/features/game/domain/formation";
@@ -29,10 +30,6 @@ describe("formation helpers", () => {
 });
 
 describe("formationByName", () => {
-  it("resolves a shipped formation", () => {
-    expect(formationByName(FORMATIONS[0].name).name).toBe(FORMATIONS[0].name);
-  });
-
   it("resolves every shipped formation", () => {
     for (const f of FORMATIONS) expect(formationByName(f.name)).toBe(f);
   });
@@ -41,5 +38,34 @@ describe("formationByName", () => {
     // A silent undefined here surfaces as a crash somewhere far from the cause —
     // typically inside a reducer that assumed it had a shape.
     expect(() => formationByName("4-4-3")).toThrow(/unknown formation/i);
+  });
+
+  it("⚠️ nothing reads FORMATIONS by index", () => {
+    // Index access makes the array's ORDER load-bearing: inserting a shape silently
+    // repoints every downstream assumption. The hard-ban test pins slot 4 precisely
+    // because it is the only index whose role differs between two specific shapes, so
+    // against a different pair it would keep passing for the wrong reason.
+    //
+    // `DraftHub` indexes by the user's current selection, which is dynamic rather than
+    // positional, so that one form is allowed.
+    //
+    // ⚠️ This matches source TEXT, not an AST — it will flag the pattern inside a comment
+    // too. That is a deliberate trade for a guard this simple; describe the anti-pattern
+    // in prose rather than writing it out.
+    const files = [
+      ...readdirSync("tests/unit")
+        .filter((f) => /\.tsx?$/.test(f))
+        .map((f) => `tests/unit/${f}`),
+      "src/features/game/components/DraftHub.tsx",
+    ];
+
+    const offenders: string[] = [];
+    for (const file of files) {
+      for (const m of readFileSync(file, "utf8").matchAll(/FORMATIONS\[(\w+)\]/g)) {
+        if (m[1] === "i") continue;
+        offenders.push(`${file}: ${m[0]}`);
+      }
+    }
+    expect(offenders).toEqual([]);
   });
 });

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { PlayerRole } from "@/data/schemas";
 import { makeCardId } from "@/features/game/domain/card-id";
 import type { PoolCard } from "@/features/game/domain/chaos-draft";
+import { formationByName } from "@/features/game/domain/formation";
 import { FORMATIONS } from "@/features/game/domain/chaos-draft";
 import {
   createDraftState,
@@ -29,7 +30,7 @@ const cb = card(2, "CB");
 const cb2 = card(4, "CB");
 const rb = card(5, "RB");
 const pool = [gk, cb, cb2, rb];
-const start = () => createDraftState(FORMATIONS[0], 123); // 4-4-2
+const start = () => createDraftState(formationByName("4-4-2"), 123); // 4-4-2
 
 describe("draftReducer", () => {
   it("places a card into a slot and clears the selection", () => {
@@ -94,7 +95,7 @@ describe("draftReducer", () => {
     // They are flagged by validateSquad, never silently dropped — dropping them would
     // discard the coach's work invisibly.
     let s = draftReducer(start(), { type: "place", index: 2, cardId: cb.cardId });
-    s = draftReducer(s, { type: "setFormation", formation: FORMATIONS[2] }); // 3-5-2
+    s = draftReducer(s, { type: "setFormation", formation: formationByName("3-5-2") }); // 3-5-2
     expect(s.slots[2]).toBe(cb.cardId);
     expect(s.formation.name).toBe("3-5-2");
   });
@@ -112,13 +113,13 @@ describe("validateSquad", () => {
     // this is the only way an illegal XI can arise through the UI — and it is easy to hit.
     //
     // Slot 4 is the one index whose role genuinely changes between these two shapes:
-    //   FORMATIONS[0] 4-4-2 → [GK, LB, CB, CB, RB, LM, CM, CM, RM, CF, CF]
-    //   FORMATIONS[2] 3-5-2 → [GK, CB, CB, CB, LM, CM, CAM, CM, RM, CF, CF]
+    //   formationByName("4-4-2") 4-4-2 → [GK, LB, CB, CB, RB, LM, CM, CM, RM, CF, CF]
+    //   formationByName("3-5-2") 3-5-2 → [GK, CB, CB, CB, LM, CM, CAM, CM, RM, CF, CF]
     // So a right-back is legal at index 4 in a 4-4-2 and illegal there in a 3-5-2.
     // Any other index would make this test pass for the wrong reason.
     let s = draftReducer(start(), { type: "place", index: 4, cardId: rb.cardId });
     expect(validateSquad(s, pool)).toEqual([]);
-    s = draftReducer(s, { type: "setFormation", formation: FORMATIONS[2] });
+    s = draftReducer(s, { type: "setFormation", formation: formationByName("3-5-2") });
     const errors = validateSquad(s, pool);
     expect(errors).toHaveLength(1);
     expect(errors[0]).toMatchObject({

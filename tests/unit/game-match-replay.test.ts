@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { PlayerRole } from "@/data/schemas";
 import { makeCardId } from "@/features/game/domain/card-id";
 import { FORMATIONS, type PoolCard } from "@/features/game/domain/chaos-draft";
-import { formationKey } from "@/features/game/domain/formation";
+import { formationByName, formationKey } from "@/features/game/domain/formation";
 import { hashEvents } from "@/features/game/domain/hash";
 import { defaultAnswer, type DecisionAnswer } from "@/features/game/domain/match-decisions";
 import type { MatchEvent } from "@/features/game/domain/match-types";
@@ -49,7 +49,7 @@ const pool: PoolCard[] = ROLES.flatMap((role, r) =>
 );
 
 const NAMES = { home: "Your XI", away: "Rivals" };
-const FORMATION = FORMATIONS[0];
+const FORMATION = formationByName("4-4-2");
 const squad = (): PoolCard[] => FORMATION.slots.map((s) => pool.find((c) => c.role === s.role)!);
 
 /**
