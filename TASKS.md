@@ -6219,6 +6219,7 @@ Everything in the owner's A-to-Z roadmap (2026-08-11) that **cannot** be built u
 | [TASK-M71](#task-m71) | Prerender `/teams/[id]`, `/managers/[id]` + the dashboard — drop the server `?season=` read | ✅ Done | P2       | L   |
 | [TASK-M72](#task-m72) | Fix app-wide soft 404s — the not-found page returns HTTP 200                                | ✅ Done | P2       | S   |
 | [TASK-M73](#task-m73) | Add PFA POTY + Team of the Season — the award-blind roles                                   | ⬜ Todo | P2       | L   |
+| [TASK-M74](#task-m74) | Surface honours / transfers / caps on the player profile page                               | ⬜ Todo | P2       | M   |
 
 ### TASK-M01
 
@@ -7745,6 +7746,40 @@ managers    0        prerendered   (reads searchParams)
 **Traps.** (1) **Validate every id against the committed registry** — the fabricated-id incident in TASK-1821 shipped 17 sequential ids that each resolved to a different obscure player. (2) Award data is name-keyed at source and our registry has non-obvious spellings (Benjani is a mononym; "Papiss Demba Cissé"), so the join needs the same alias handling as [TASK-M34](#task-m34). (3) Do **not** source from EA/FIFA ratings — proprietary, public repo, no per-season coverage.
 
 **Done when:** POTY + TotS are committed data, the anchor scoring consumes them, and the award-blind promotion count in the regenerated report **falls** — with the curated tiers re-reviewed against the new auto-tiers rather than left as-is.
+
+---
+
+### TASK-M74
+
+**Surface honours / transfers / caps on the player profile page** · ⬜ Todo · `P2` · `M` · Type: UI / Data
+
+**The data already shipped — this ticket is UI only.** Exactly the M70 split: the pipeline landed the enrichment, nothing renders it yet.
+
+**What is already committed and unused:**
+
+| Where                               | What                                                                            |
+| ----------------------------------- | ------------------------------------------------------------------------------- |
+| `Player.enrichment` on every row    | `trophies` · `honours` · `awards` · `caps` · `internationalGoals` · `careerFee` |
+| `data/player-honours.json`          | every honour group, each tagged `kind`                                          |
+| `data/player-transfer-history.json` | every move: season, date, fee, from/to club                                     |
+| `data/player-national.json`         | caps, goals, per-spell debut                                                    |
+| `src/data/loaders.ts`               | `loadPlayerHonours()` · `loadPlayerTransferHistory()` · `loadPlayerNational()`  |
+
+Coverage: **5,362 players** — 29,761 honour groups, 65,437 transfer moves, 122,960 senior caps.
+
+**Scope.** Render on `/players/[id]`: an honours block, a transfer timeline, and international caps. The cheap summary is already on the row, so hero-level counts (trophies, caps, career fee) need no extra fetch at all.
+
+⚠️ **`trophies` is silverware only, and the UI must not undo that.** 12,720 of the 29,761 honour groups are _participation_ and 1,368 are _runner-up_ — that is why every group carries a `kind` (`trophy` / `award` / `promotion` / `relegation` / `runner-up` / `participation`). Show participation if you like, but never fold it into a trophy count.
+
+⚠️ **Fees and market values are display strings, never numbers.** `"€24.00m"`, `"free transfer"`, `"loan transfer"`, `"End of loan"`, `"?"`, `"-"` all occur. Coercing them invents a free transfer for every loan.
+
+⚠️ **The three detail files are BUILD-TIME only** (~5 MB and ~8 MB). Their loaders carry the same warning `loadMarketValueHistory` does — parsing them on a request-time path is the Fluid Active-CPU shape TASK-M71 had to fix. `/players/[id]` is `force-static`, so a prerender read is fine; a request-time surface must use the row summary instead.
+
+**Absence means "not enriched", never "has none"** — `enrichment` is optional, and 13 rows legitimately have none. Render nothing rather than a zero.
+
+**Design.** Follow the M70 ritual — a layout + micro-animation chosen from a shortlist, then the design gallery — so it sits with the existing `PlayerHero` rather than beside it. Phase 18's `PlayerCard` can consume the same summary for badges.
+
+**Depends on:** nothing — the data is committed and live. **Related:** pipeline TASK-M73/M75/M76 (crawl → apply → keep current).
 
 ---
 
