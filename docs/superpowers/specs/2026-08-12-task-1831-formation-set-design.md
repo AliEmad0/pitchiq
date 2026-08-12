@@ -59,14 +59,45 @@ and therefore the whole XI that follows it.
 
 Consequences, all expected rather than defects:
 
-- The five chaos determinism tests will move. Their expectations are updated **once**,
-  deliberately, with this reasoning recorded in the diff. This is the one case where
-  updating a determinism expectation is correct rather than a smell.
 - `/game/chaos` prerenders a different XI than it does today.
 - Any match saved by B2 before this ships fails its fingerprint check and is discarded —
-  which is the designed behaviour for exactly this kind of drift, not a bug to fix.
+  the designed behaviour for exactly this kind of drift, not a bug to fix.
 
-Nothing else reads `FORMATIONS` by index, so there is no positional dependency to update.
+**The chaos determinism tests, however, do NOT move.** Checked rather than assumed: all
+five in `tests/unit/game-chaos-draft.test.ts` are **relational** — same seed reproduces
+itself, the XI is eleven distinct players, the shape is a member of `FORMATIONS`, every
+card is eligible for its slot, different seeds differ. None pins a specific XI or
+formation name, so a different-but-valid draft still satisfies every one of them.
+
+⚠️ **That is a weaker guarantee than it looks.** Those tests cannot detect that the whole
+chaos output changed. The change is real and user-visible; it simply has no test watching
+it. Verify it by eye on `/game/chaos` before shipping rather than concluding from a green
+suite that nothing moved.
+
+## ⚠️ The array's ORDER is currently load-bearing, and must stop being
+
+`FORMATIONS` is read **by index** in ten places — nine tests plus the hub:
+
+| Site | Assumes |
+| --- | --- |
+| `DraftHub.tsx:48` | `FORMATIONS[0]` is the initial shape |
+| `game-draft-state.test.ts:32,97,115-121` | `[0]` is 4-4-2 **and** `[2]` is 3-5-2 |
+| `game-draft-eligibility.test.ts:27` | `[0]` |
+| `game-fill-gaps.test.ts:41` | `[0]` is 4-4-2 |
+| `game-match-replay.test.ts:52` | `[0]` |
+| `game-match-session.test.ts:55,69,76` | `[0]` |
+| `game-tactical-pitch.test.tsx:25` | `[0]` |
+
+Inserting the new back-four shapes ahead of 3-5-2 would silently repoint `[2]`. The
+hard-ban test in `game-draft-state.test.ts` is the dangerous one: it pins **slot 4**
+precisely because that is the only index whose role differs between 4-4-2 and 3-5-2, so
+against a different pair it would keep passing **for the wrong reason** — the exact failure
+mode A's note warned about.
+
+**So this ticket adds `formationByName(name)` to `domain/formation.ts` and converts every
+index read to a name lookup.** After that the array's order is presentation only, and new
+shapes can be inserted anywhere. `DraftHub`'s initial shape becomes an explicit named
+default rather than "whatever is first".
 
 ## The picker
 
@@ -100,8 +131,14 @@ Measured against the real 252-card chaos pool before this spec was written:
 - **Keys are unique** — and the test is verified to fail against a duplicated name.
 - Every slot role is a member of `PlayerRole`.
 - For every shape, the pool supplies at least `5 × (count of that role)` eligible cards.
-- The chaos determinism tests are updated once, with the reason in the commit.
-- A second formation-change validation case over two new shapes.
+- `formationByName` resolves every shipped name, and throws on an unknown one rather than
+  returning `undefined` — a silent `undefined` here becomes a crash far from the cause.
+- **No test reads `FORMATIONS` by index any more**, asserted with a grep-style test so the
+  dependency cannot creep back.
+- The hard-ban formation-change case still pins a pair whose roles genuinely differ at the
+  asserted slot, plus a second case over two of the new shapes.
+- The chaos determinism tests are expected to stay green **unchanged**. If one does move,
+  stop: it means something pins chaos output that this spec did not find.
 
 ## Out of scope
 
