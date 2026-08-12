@@ -40,6 +40,26 @@ const pool: PoolCard[] = ROLES.flatMap((role, r) =>
   })),
 );
 
+describe("DraftHub formation picker", () => {
+  it("offers all twenty formations, grouped by family", () => {
+    renderWithIntl(<DraftHub pool={pool} onConfirm={vi.fn()} />);
+    const select = screen.getByRole("combobox", { name: "Formation" });
+    expect(select.querySelectorAll("option")).toHaveLength(20);
+    expect(select.querySelectorAll("optgroup")).toHaveLength(3);
+  });
+
+  it("changing formation still renders eleven slots", async () => {
+    // Asserted on slot COUNT rather than role labels: TacticalPitch builds each slot
+    // button's accessible name itself, and pinning that copy here would couple this test
+    // to that component. Eleven is true of every shape and is what actually matters.
+    const user = userEvent.setup();
+    renderWithIntl(<DraftHub pool={pool} onConfirm={vi.fn()} />);
+    const pitch = screen.getByRole("group", { name: "Formation slots" });
+    await user.selectOptions(screen.getByRole("combobox", { name: "Formation" }), "2-3-5 Pyramid");
+    expect(pitch.querySelectorAll("button")).toHaveLength(11);
+  });
+});
+
 describe("DraftHub", () => {
   it("starts with an empty pitch and Play blocked", () => {
     // The route is force-static: a squad in the prerendered HTML is served identically
@@ -70,7 +90,7 @@ describe("DraftHub", () => {
     renderWithIntl(<DraftHub pool={pool} onConfirm={vi.fn()} />);
     await user.click(screen.getByRole("button", { name: "Auto-fill" }));
     expect(screen.getByRole("button", { name: "Play match" })).toBeEnabled();
-    await user.click(screen.getByRole("button", { name: "3-5-2" }));
+    await user.selectOptions(screen.getByRole("combobox", { name: "Formation" }), "3-5-2");
     expect(screen.getByRole("button", { name: "Play match" })).toBeDisabled();
     expect(screen.getAllByText(/cannot play/).length).toBeGreaterThan(0);
   });
@@ -107,7 +127,7 @@ describe("DraftHub", () => {
     const user = userEvent.setup();
     renderWithIntl(<DraftHub pool={pool} onConfirm={onConfirm} />);
     await user.click(screen.getByRole("button", { name: "Auto-fill" }));
-    await user.click(screen.getByRole("button", { name: "3-5-2" }));
+    await user.selectOptions(screen.getByRole("combobox", { name: "Formation" }), "3-5-2");
     expect(screen.getByRole("button", { name: "Play match" })).toBeDisabled();
     expect(onConfirm).not.toHaveBeenCalled();
   });
