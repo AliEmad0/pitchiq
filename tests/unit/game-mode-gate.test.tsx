@@ -56,6 +56,15 @@ describe("ModeGate", () => {
     expect(chaos).toHaveAttribute("aria-expanded", "true");
   });
 
+  it("links the demo, which is not a mode and has no other way in", () => {
+    renderWithIntl(<ModeGate />);
+    // When this gate took over `/game` the broadcast showcase moved to `/game/demo` and
+    // lost every inbound link. It is deliberately absent from the registry (there is
+    // nothing to draft), so nothing else would catch its disappearance.
+    const link = screen.getByRole("link", { name: /watch a match/i });
+    expect(link).toHaveAttribute("href", "/game/demo");
+  });
+
   it("exposes a control for the playable modes only", () => {
     renderWithIntl(<ModeGate />);
     // Exactly two playable modes today: H2H and Chaos. Every other tile is inert, so the

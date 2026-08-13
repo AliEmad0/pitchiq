@@ -9,6 +9,7 @@ import {
   modesInGroup,
   type ModeId,
 } from "@/features/game/domain/modes";
+import { Link } from "@/i18n/navigation";
 import { ModeTile } from "./ModeTile";
 
 /**
@@ -86,6 +87,19 @@ export function ModeGate() {
           ))}
         </div>
       </div>
+
+      {/*
+        The demo is NOT a mode — it is one fixed match, built at build time, with nothing
+        to draft. It stays out of the registry and off the grid for that reason. But when
+        this gate took over `/game` it left the broadcast view with no inbound link at
+        all, so it gets a quiet line here rather than a tile it would have to pretend to
+        earn.
+      */}
+      <p className="text-muted-foreground mt-5 text-xs">
+        <Link href="/game/demo" className="hover:text-foreground underline underline-offset-4">
+          {t("watchDemo")}
+        </Link>
+      </p>
     </div>
   );
 }

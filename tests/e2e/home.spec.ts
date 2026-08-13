@@ -16,11 +16,8 @@ test.describe("AppShell (TASK-106)", () => {
     const primaryNav = page.getByRole("navigation", { name: "Primary" });
     await expect(primaryNav.getByRole("link", { name: "Dashboard" })).toBeVisible();
     await expect(primaryNav.getByRole("link", { name: "Teams" })).toBeVisible();
-    // TASK-1832 — "Compare" moved into the "More ▾" dropdown to make room for "Game";
-    // the header fits five pills plus Game with 0px to spare at 1024px. Compare is still
-    // reachable, one click away, so this asserts the swap rather than dropping coverage.
+    await expect(primaryNav.getByRole("link", { name: "Compare" })).toBeVisible();
     await expect(primaryNav.getByRole("link", { name: "Game" })).toBeVisible();
-    await expect(primaryNav.getByRole("link", { name: "Compare" })).toHaveCount(0);
 
     // Footer tagline (TASK-912 rebrand — "PitchIQ — Premier League, decoded.
     // Refreshed daily."; TASK-609 had already dropped the legacy wire
