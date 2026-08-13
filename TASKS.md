@@ -5519,6 +5519,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1829](#task-1829) | Card crafting — duplicates → trait badges (local)               | 📋 Backlog | P3       | S   |
 | [TASK-1830](#task-1830) | Segmented interactive match engine (live decisions, replayable) | ✅ Done    | P1       | L   |
 | [TASK-1831](#task-1831) | The full formation set — 20 shapes in three families            | ✅ Done    | P2       | M   |
+| [TASK-1832](#task-1832) | The game hub — `/game` as the mode-selection gate               | 📋 Backlog | P2       | M   |
 
 _Enhancement roadmap 1813-1819 added 2026-08-03 from the owner's feature proposal (Option A — 100% client-side/static). See the locked-architecture notes above for the modifier-stack + determinism + no-backend decisions that govern them._
 
@@ -6111,6 +6112,28 @@ Every shape is 11 slots with exactly one `GK`, built from the existing 13-code `
 **⚠️ Renaming the existing four invalidates saved matches, by design.** "4-4-2" became "4-4-2 Flat", so `formationKey` changes and any match B2 stored before this fails its fingerprint check and is discarded rather than restoring into a mis-shaped XI.
 
 **Deliberately not built:** the per-shape tactical note beside the picker. Twenty notes are prose needing both catalogs, and the shape name already carries the information.
+
+### TASK-1832
+
+**The game hub — `/game` as the mode-selection gate** · 📋 Backlog · `P2` · `M` · Type: Feature
+
+**Description** — The game is unreachable. Nothing in the app links to any `/game/*` route — not the header, not the footer, not the mobile drawer — and the routes are absent from `sitemap.ts`, so they are not indexed either. The only place they are enumerated is `scripts/warm-e2e-routes.sh`. Every game route today is reachable **only by typing the URL**. Owner, 2026-08-13: _"I'm lost in the links and I don't know how to access the mode I need."_
+
+Design: [`docs/superpowers/specs/2026-08-13-task-1832-game-hub-design.md`](../docs/superpowers/specs/2026-08-13-task-1832-game-hub-design.md).
+
+`/game` is rewritten from a fixed Arsenal-v-Man-Utd broadcast demo into the **mode gate**: playable modes as full tiles under "Play now", every unbuilt mode as a locked chip under "Coming soon", and the three collection surfaces in their own strip. Clicking a live mode **expands it in place** to reveal the format step — ⚽ One Match or 🏆 Full Season. The whole grid renders from one pure-data registry (`domain/modes.ts`), honouring the locked rule that **modes are rule packs, not code paths**: shipping a mode later flips a status flag, and the gate updates itself.
+
+**Route consolidation** — the demo moves to `/game/demo`; `/game/play` is deleted in favour of a 308 redirect to `/game/draft`, ending the byte-identical duplicate. `/game` joins `NAV_ITEMS`, `PRIMARY_NAV_HREFS` (a sixth pill, accented, sitting last) and `sitemap.ts`. The pre-match screen is upgraded in place: both XIs on side-by-side mini-pitches, plus referee strictness and weather with their tactical impact.
+
+**⚠️ Two renames, forced by making format its own axis.** "Classic Season → One Match" is incoherent if the name already carries the format. **Classic Season** becomes **Classic** (a draft pack, format decides length), and **Survival** leaves the mode grid entirely to become an **objective on the Season format** under [TASK-1811](#task-1811).
+
+**⚠️ 🧠 Tactical H2H _is_ the existing draft loop, renamed** — no new engine code. The name is chosen to survive Phase 19: when accounts and matchmaking exist, the same mode expands to real PvP without a rename.
+
+**⚠️ `/game/pre-match` is deliberately NOT a route.** The live session — generator, seed, drafted XI — lives in memory inside `GamePlay`, so a route change drops it; surviving that means lifting session state into a `game/layout.tsx` provider or serialising through IndexedDB, for nothing visible in return. Pre-match is already a phase in `play-machine.ts` and the URL already mirrors it as `?phase=preview`.
+
+**⚠️ The 30-concept ritual is deliberately SKIPPED** (owner, 2026-08-13: _"we will change all of those designs later so we can build the base now"_). The gate ships plain and functional; its redesign is a separate ticket. Recorded so it reads as a decision rather than an oversight — and it is why the gate holds no data and no logic beyond the registry.
+
+**Day one, `season` is `planned` on every mode** — the 38-week engine is [TASK-1810](#task-1810)/[1811](#task-1811). The format step ships with one live choice and one locked choice, which is what builds the structure Season slots into. **Depends on:** TASK-1807. **Unblocks discovery for:** every Phase 18 mode ticket.
 
 ---
 
