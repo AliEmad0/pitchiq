@@ -56,6 +56,27 @@ describe("sitemap", () => {
     // The bare section index stays listed once.
     expect(urls).toContain("https://pitchiq-pl.vercel.app/teams");
   });
+
+  // TASK-1832 — the game hub is the one game URL worth indexing.
+  it("lists /game with its Arabic alternate", async () => {
+    vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://pitchiq-pl.vercel.app");
+    const entries = await sitemap();
+    const game = entries.find((e) => e.url === "https://pitchiq-pl.vercel.app/game");
+
+    expect(game, "/game missing from the sitemap").toBeDefined();
+    expect(game!.alternates?.languages).toMatchObject({
+      ar: "https://pitchiq-pl.vercel.app/ar/game",
+    });
+  });
+
+  it("keeps the game sub-routes OUT of the sitemap", async () => {
+    vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://pitchiq-pl.vercel.app");
+    const urls = (await sitemap()).map((e) => e.url);
+    // App surfaces, not content — they carry no indexable text and change per visitor.
+    for (const path of ["/game/draft", "/game/chaos", "/game/demo"]) {
+      expect(urls, path).not.toContain(`https://pitchiq-pl.vercel.app${path}`);
+    }
+  });
 });
 
 describe("robots", () => {

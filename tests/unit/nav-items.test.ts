@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { NAV_ITEMS } from "@/components/layout/nav-items";
+import { NAV_ITEMS, PRIMARY_NAV_HREFS } from "@/components/layout/nav-items";
 
 describe("NAV_ITEMS", () => {
   it("includes a Fixtures link (TASK-M35)", () => {
@@ -35,5 +35,22 @@ describe("NAV_ITEMS", () => {
 
   it("includes the Map link (TASK-M27)", () => {
     expect(NAV_ITEMS.some((i) => i.href === "/map" && i.label === "Map")).toBe(true);
+  });
+
+  it("puts /game in the nav and inline in the primary pills (TASK-1832)", () => {
+    const game = NAV_ITEMS.find((i) => i.href === "/game");
+    expect(game, "/game missing from NAV_ITEMS").toBeDefined();
+    expect(game!.key).toBe("game");
+    // D8 — a sixth inline pill, not folded into "More ▾". The game was unreachable
+    // precisely because nothing linked to it; the dropdown would barely change that.
+    expect(PRIMARY_NAV_HREFS).toContain("/game");
+  });
+
+  it("keeps /game out of the season-path model (TASK-1832)", async () => {
+    // `navHrefForSeason` rewrites a nav href into /seasons/<year>/<slug> when the slug is
+    // a SECTION_SLUG. "game" must never be one, or viewing 2003 would link the pill to
+    // /seasons/2003/game, which does not exist.
+    const { SECTION_SLUGS } = await import("@/features/seasons/section-slugs");
+    expect(SECTION_SLUGS as readonly string[]).not.toContain("game");
   });
 });

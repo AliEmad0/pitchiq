@@ -41,7 +41,7 @@ ROUTES=(
   "/game"
   "/game/chaos"
   "/game/draft"
-  "/game/play"
+  "/game/demo"
   "/definitely-not-a-page"
   "/api/search?q=haaland"
   "/api/players/suggested"
