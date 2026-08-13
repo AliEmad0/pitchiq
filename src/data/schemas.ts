@@ -359,6 +359,85 @@ export const PlayerNationalFileSchema = z.record(
 );
 export type PlayerNationalFile = z.infer<typeof PlayerNationalFileSchema>;
 
+// TASK-M78: manager enrichment, keyed by OUR manager id (numeric-string for a manager
+// with a Premier League id, `lm-<slug>` for a legacy-only one). Three separate files
+// rather than a block on the manager rows: `managers.json` is keyed by
+// (season → teamId → entries), so a career-level fact would be duplicated across every
+// season row a manager appears in.
+//
+// ⚠️ The published basenames are `manager-enrichment` / `manager-career-history` /
+// `manager-honours-history` — deliberately NOT `manager-career.json` or
+// `manager-honours.json`, which are PRIVATE pipeline maps. `sync-data.yml` strips every
+// pipeline-data basename from this repo, so a colliding name would be deleted on the
+// next sync (the `player-transfer-history.json` rule).
+export const ManagerEnrichmentSummarySchema = z.object({
+  /** Silverware only — individual awards ("Manager of the Year") are NOT counted here. */
+  trophies: z.number().int(),
+  /** Every honour group, however classified. */
+  honours: z.number().int(),
+  awards: z.number().int(),
+  /** Distinct clubs where Transfermarkt recorded a managerial record. */
+  clubsManaged: z.number().int(),
+  careerMatches: z.number().int(),
+  careerWins: z.number().int(),
+  careerDraws: z.number().int(),
+  careerLosses: z.number().int(),
+  /** `(3W + D) / M`, 2dp. **null when there is no record — never 0.** */
+  careerPpm: z.number().nullable(),
+});
+export const ManagerEnrichmentFileSchema = z.record(z.string(), ManagerEnrichmentSummarySchema);
+export type ManagerEnrichmentFile = z.infer<typeof ManagerEnrichmentFileSchema>;
+
+export const ManagerCareerSpellSchema = z.object({
+  club: z.string().nullable(),
+  clubId: z.string().nullable(),
+  /** As Transfermarkt writes it — "Manager", "Assistant Manager", "Player-Coach", … */
+  role: z.string().nullable(),
+  appointedSeason: z.string().nullable(),
+  appointedDate: z.string().nullable(),
+  /** Verbatim end cell — may read "expected 30/06/2027" for a current job. */
+  until: z.string().nullable(),
+  untilDate: z.string().nullable(),
+  ongoing: z.boolean(),
+  /** ⚠️ null when Transfermarkt printed `-`. Absent is NOT zero. */
+  matches: z.number().int().nullable(),
+  wins: z.number().int().nullable(),
+  draws: z.number().int().nullable(),
+  losses: z.number().int().nullable(),
+  daysInCharge: z.number().int().nullable(),
+  playersUsed: z.number().int().nullable(),
+  /** Verbatim "1.40 : 1.40" — goals for : against per match. Two numbers in one cell. */
+  goalsPerMatch: z.string().nullable(),
+  /** ⚠️ 0 on a spell with no match record — read it with `matches`, never alone. */
+  ppm: z.number().nullable(),
+  assistantTo: z.string().nullable(),
+});
+export const ManagerCareerHistoryFileSchema = z.record(
+  z.string(),
+  z.object({ tmId: z.string(), spells: z.array(ManagerCareerSpellSchema) }),
+);
+export type ManagerCareerHistoryFile = z.infer<typeof ManagerCareerHistoryFileSchema>;
+
+export const ManagerHonourGroupSchema = z.object({
+  title: z.string(),
+  count: z.number().int(),
+  kind: z.enum(["trophy", "award", "promotion", "relegation", "runner-up", "participation"]),
+  entries: z.array(
+    z.object({
+      /** Raw Transfermarkt season string — "25/26" or "2019". Not normalized. */
+      season: z.string(),
+      /** For a manager the honour cell carries the COMPETITION, not a club. */
+      competition: z.string().nullable(),
+      competitionId: z.string().nullable(),
+    }),
+  ),
+});
+export const ManagerHonoursHistoryFileSchema = z.record(
+  z.string(),
+  z.object({ tmId: z.string(), titles: z.array(ManagerHonourGroupSchema) }),
+);
+export type ManagerHonoursHistoryFile = z.infer<typeof ManagerHonoursHistoryFileSchema>;
+
 export const LeaderboardEntrySchema = z.object({
   rank: z.number().int().positive(),
   playerId: z.number().int().positive(),

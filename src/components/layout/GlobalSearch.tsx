@@ -141,8 +141,18 @@ export function GlobalSearch() {
         className="ix-glow ix-press inline-flex h-9 items-center gap-2 rounded-md border px-2.5 text-sm text-muted-foreground hover:text-foreground sm:px-3"
       >
         <SearchIcon className="size-4" />
-        <span className="hidden sm:inline">{t("label")}</span>
-        <kbd className="hidden rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground sm:inline">
+        {/* TASK-M79 — two bands show the label, and the gap between them is
+            deliberate. From `lg` to `xl` the header is carrying the pill nav in
+            its narrowest form, and this button is the widest thing that can
+            give way: dropping the label + hint takes it from 128px to 36px,
+            which is the 92px of headroom that lets the pill row sit at 1024px
+            comfortably rather than with ~24px to spare. Below `lg` the pills
+            are gone and there is room to spare, so the label stays.
+            Written as two positive rules over a `hidden` base (rather than a
+            later `hidden` overriding an earlier `inline`) so it does not depend
+            on Tailwind's variant ordering. */}
+        <span className="hidden sm:max-lg:inline xl:inline">{t("label")}</span>
+        <kbd className="hidden rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground sm:max-lg:inline xl:inline">
           ⌘K
         </kbd>
       </button>

@@ -44,7 +44,16 @@ export function PrimaryNav() {
   const overflowActive = OVERFLOW.some((i) => isActive(pathname, i.href));
 
   return (
-    <nav className="hidden md:flex" aria-label={tc("primaryNav")}>
+    // TASK-M79 — `lg`, not `md`. The header row is three intrinsically-sized
+    // children and nothing in it can shrink, so it needs ~985px before it can
+    // hold this pill row (88px logo + 474px nav + 343px controls + 32px gaps +
+    // 48px padding, measured in English). Revealing it at `md` (768px) put the
+    // pills on screen a quarter of a viewport too early and scrolled the whole
+    // document sideways — 157px of overflow at 820px.
+    // ⚠️ MobileNav's trigger is the exact complement (`lg:hidden`). Move one
+    // and you must move the other, or the gap between them has no navigation
+    // at all; `tests/unit/nav-breakpoint.test.tsx` holds them in step.
+    <nav className="hidden lg:flex" aria-label={tc("primaryNav")}>
       <div className="bg-muted flex items-center gap-0.5 rounded-lg p-1">
         {PRIMARY.map((item) => {
           const active = isActive(pathname, item.href);

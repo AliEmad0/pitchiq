@@ -31,9 +31,15 @@ import {
   PlayerHonoursFileSchema,
   PlayerNationalFileSchema,
   PlayerTransferHistoryFileSchema,
+  ManagerEnrichmentFileSchema,
+  ManagerCareerHistoryFileSchema,
+  ManagerHonoursHistoryFileSchema,
   type PlayerHonoursFile,
   type PlayerNationalFile,
   type PlayerTransferHistoryFile,
+  type ManagerEnrichmentFile,
+  type ManagerCareerHistoryFile,
+  type ManagerHonoursHistoryFile,
   type MarketValueFile,
   type MarketValueHistoryFile,
   type CaptainsFile,
@@ -239,6 +245,25 @@ export async function loadPlayerTransferHistory(): Promise<PlayerTransferHistory
 
 export async function loadPlayerNational(): Promise<PlayerNationalFile | null> {
   return readJsonOrNull("player-national.json", PlayerNationalFileSchema);
+}
+
+// TASK-M78: manager enrichment, keyed by our manager id. The summary is small enough to
+// load alongside a list; the two detail files back a single manager's page.
+export async function loadManagerEnrichment(): Promise<ManagerEnrichmentFile | null> {
+  return readJsonOrNull("manager-enrichment.json", ManagerEnrichmentFileSchema);
+}
+
+export async function loadManagerCareerHistory(): Promise<ManagerCareerHistoryFile | null> {
+  // ⚠️ `manager-career-history.json`, NOT `manager-career.json` — that basename belongs
+  // to the PRIVATE pipeline map, and sync-data.yml strips every pipeline-data basename
+  // from this repo. Publishing under the colliding name would get this file deleted on
+  // the next sync (same rule as player-transfer-history.json above).
+  return readJsonOrNull("manager-career-history.json", ManagerCareerHistoryFileSchema);
+}
+
+export async function loadManagerHonoursHistory(): Promise<ManagerHonoursHistoryFile | null> {
+  // ⚠️ Same basename rule — the private map is `manager-honours.json`.
+  return readJsonOrNull("manager-honours-history.json", ManagerHonoursHistoryFileSchema);
 }
 
 // TASK-1606: Arabic entity-name sidecar maps (`data/i18n/names-ar/*.json`).
