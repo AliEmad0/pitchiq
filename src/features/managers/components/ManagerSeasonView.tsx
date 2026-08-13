@@ -6,7 +6,10 @@ import { type ReactNode, useEffect, useState } from "react";
 import { DataUnavailable } from "@/components/DataUnavailable";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PlayerSeasonSelect } from "@/features/players/components/PlayerSeasonSelect";
+import { ManagerCareerHonours } from "@/features/managers/components/ManagerCareerHonours";
+import { ManagerCareerSummary } from "@/features/managers/components/ManagerCareerSummary";
 import { ManagerCareerTable } from "@/features/managers/components/ManagerCareerTable";
+import { ManagerFullCareer } from "@/features/managers/components/ManagerFullCareer";
 import { ManagerHero } from "@/features/managers/components/ManagerHero";
 import { ManagerHonours } from "@/features/managers/components/ManagerHonours";
 import type { ManagerProfile } from "@/features/managers/manager-profile.api";
@@ -87,13 +90,23 @@ export function ManagerSeasonView({
         <Skeleton className="h-96 w-full rounded-xl" />
       ) : swapped ? (
         <>
+          {/*
+            ⚠️ This branch MIRRORS the server-rendered subtree in
+            managers/[id]/page.tsx — a section added there and not here silently
+            disappears the moment the visitor changes season. The career sections
+            (TASK-M81) are season-INDEPENDENT, but they still have to be repeated
+            because this branch replaces `children` wholesale rather than wrapping it.
+          */}
           <ManagerHero profile={swapped} />
+          <ManagerCareerSummary summary={swapped.careerSummary} />
           <ManagerHonours honours={swapped.honours} season={season} />
+          <ManagerCareerHonours groups={swapped.careerHonours} />
           <ManagerCareerTable
             byClub={swapped.byClub}
             season={season}
             highlightSeason={swapped.targetSeason?.season ?? null}
           />
+          <ManagerFullCareer spells={swapped.careerSpells} />
         </>
       ) : (
         <DataUnavailable

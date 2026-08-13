@@ -4,7 +4,10 @@ import { notFound } from "next/navigation";
 
 import { managerOgImagePath } from "@/app/api/og/manager-card";
 import { loadManagers } from "@/data/loaders";
+import { ManagerCareerHonours } from "@/features/managers/components/ManagerCareerHonours";
+import { ManagerCareerSummary } from "@/features/managers/components/ManagerCareerSummary";
 import { ManagerCareerTable } from "@/features/managers/components/ManagerCareerTable";
+import { ManagerFullCareer } from "@/features/managers/components/ManagerFullCareer";
 import { ManagerHero } from "@/features/managers/components/ManagerHero";
 import { ManagerHonours } from "@/features/managers/components/ManagerHonours";
 import { ManagerSeasonView } from "@/features/managers/components/ManagerSeasonView";
@@ -84,12 +87,22 @@ export default async function ManagerProfilePage({ params }: Props) {
       managerName={profile.name}
     >
       <ManagerHero profile={initial} />
+      {/*
+        TASK-M81 — the career layer sits between the hero and the league detail.
+        Everything below the summary is Premier League data derived from our own
+        standings; the summary and the two career sections are the whole career,
+        which is how a page like Mourinho's gets from 3 titles to 26 trophies.
+        All three self-hide for the 153 managers with no enrichment.
+      */}
+      <ManagerCareerSummary summary={initial.careerSummary} />
       <ManagerHonours honours={initial.honours} season={initialSeason} />
+      <ManagerCareerHonours groups={initial.careerHonours} />
       <ManagerCareerTable
         byClub={initial.byClub}
         season={initialSeason}
         highlightSeason={initial.targetSeason?.season ?? null}
       />
+      <ManagerFullCareer spells={initial.careerSpells} />
     </ManagerSeasonView>
   );
 }

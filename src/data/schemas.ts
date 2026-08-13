@@ -387,6 +387,7 @@ export const ManagerEnrichmentSummarySchema = z.object({
 });
 export const ManagerEnrichmentFileSchema = z.record(z.string(), ManagerEnrichmentSummarySchema);
 export type ManagerEnrichmentFile = z.infer<typeof ManagerEnrichmentFileSchema>;
+export type ManagerEnrichmentSummary = z.infer<typeof ManagerEnrichmentSummarySchema>;
 
 export const ManagerCareerSpellSchema = z.object({
   club: z.string().nullable(),
@@ -417,6 +418,7 @@ export const ManagerCareerHistoryFileSchema = z.record(
   z.object({ tmId: z.string(), spells: z.array(ManagerCareerSpellSchema) }),
 );
 export type ManagerCareerHistoryFile = z.infer<typeof ManagerCareerHistoryFileSchema>;
+export type ManagerCareerSpell = z.infer<typeof ManagerCareerSpellSchema>;
 
 export const ManagerHonourGroupSchema = z.object({
   title: z.string(),
@@ -437,6 +439,7 @@ export const ManagerHonoursHistoryFileSchema = z.record(
   z.object({ tmId: z.string(), titles: z.array(ManagerHonourGroupSchema) }),
 );
 export type ManagerHonoursHistoryFile = z.infer<typeof ManagerHonoursHistoryFileSchema>;
+export type ManagerHonourGroup = z.infer<typeof ManagerHonourGroupSchema>;
 
 export const LeaderboardEntrySchema = z.object({
   rank: z.number().int().positive(),
