@@ -34,14 +34,17 @@ describe("MobileNav — closed state", () => {
     expect(screen.getByRole("button", { name: /open navigation menu/i })).toBeInTheDocument();
   });
 
-  it("hides the trigger on md+ via the `md:hidden` utility class", () => {
+  // TASK-M79 moved this from `md` to `lg`: the header cannot fit the desktop
+  // pill row until ~1000px, so the drawer stays the navigation up to `lg`.
+  // `nav-breakpoint.test.tsx` is what holds it in step with PrimaryNav.
+  it("hides the trigger on lg+ via the `lg:hidden` utility class", () => {
     setupOnRoute("/");
     renderWithIntl(<MobileNav />);
 
     const trigger = screen.getByRole("button", {
       name: /open navigation menu/i,
     });
-    expect(trigger.className).toMatch(/md:hidden/);
+    expect(trigger.className).toMatch(/lg:hidden/);
   });
 
   it("does not render the nav links while the sheet is closed", () => {
