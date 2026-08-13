@@ -5519,7 +5519,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1829](#task-1829) | Card crafting — duplicates → trait badges (local)               | 📋 Backlog | P3       | S   |
 | [TASK-1830](#task-1830) | Segmented interactive match engine (live decisions, replayable) | ✅ Done    | P1       | L   |
 | [TASK-1831](#task-1831) | The full formation set — 20 shapes in three families            | ✅ Done    | P2       | M   |
-| [TASK-1832](#task-1832) | The game hub — `/game` as the mode-selection gate               | 📋 Backlog | P2       | M   |
+| [TASK-1832](#task-1832) | The game hub — `/game` as the mode-selection gate               | ✅ Done    | P2       | M   |
 
 _Enhancement roadmap 1813-1819 added 2026-08-03 from the owner's feature proposal (Option A — 100% client-side/static). See the locked-architecture notes above for the modifier-stack + determinism + no-backend decisions that govern them._
 
@@ -6115,7 +6115,7 @@ Every shape is 11 slots with exactly one `GK`, built from the existing 13-code `
 
 ### TASK-1832
 
-**The game hub — `/game` as the mode-selection gate** · 📋 Backlog · `P2` · `M` · Type: Feature
+**The game hub — `/game` as the mode-selection gate** · ✅ Done (2026-08-13) · `P2` · `M` · Type: Feature
 
 **Description** — The game is unreachable. Nothing in the app links to any `/game/*` route — not the header, not the footer, not the mobile drawer — and the routes are absent from `sitemap.ts`, so they are not indexed either. The only place they are enumerated is `scripts/warm-e2e-routes.sh`. Every game route today is reachable **only by typing the URL**. Owner, 2026-08-13: _"I'm lost in the links and I don't know how to access the mode I need."_
 
@@ -6134,6 +6134,20 @@ Design: [`docs/superpowers/specs/2026-08-13-task-1832-game-hub-design.md`](../do
 **⚠️ The 30-concept ritual is deliberately SKIPPED** (owner, 2026-08-13: _"we will change all of those designs later so we can build the base now"_). The gate ships plain and functional; its redesign is a separate ticket. Recorded so it reads as a decision rather than an oversight — and it is why the gate holds no data and no logic beyond the registry.
 
 **Day one, `season` is `planned` on every mode** — the 38-week engine is [TASK-1810](#task-1810)/[1811](#task-1811). The format step ships with one live choice and one locked choice, which is what builds the structure Season slots into. **Depends on:** TASK-1807. **Unblocks discovery for:** every Phase 18 mode ticket.
+
+**✅ Shipped 2026-08-13.** Plan: [`docs/superpowers/plans/2026-08-13-task-1832-game-hub.md`](../docs/superpowers/plans/2026-08-13-task-1832-game-hub.md). Suite **1,903 → 1,927**; `tsc` + `eslint` clean. Nine commits, one per plan task.
+
+**⚠️ `/compare` was demoted to "More ▾" — the header had NO room.** The plan flagged the six-pill risk as a checkpoint, and it fired: measured in a real browser at 1024×800, the header is 88px logo + 537px nav + 342px right-hand cluster and fitted with **exactly 0px to spare**. Adding Game overflowed it by 22px and the body scrolled sideways. Verified it was this change by hiding the pill in-page and re-measuring (0px). Owner picked the spec's D8 fallback. Two `primary-nav` assertions moved with it — they pinned Compare as inline, which is now false.
+
+**⚠️ A pre-existing header overflow was found and deliberately NOT fixed here.** With the Game pill hidden, the header still overflows by **156px at 820px wide**: `PrimaryNav` renders from `md:` (768px) but the header does not actually fit until ~1050px. It predates this ticket and is its own fix — spun out as a separate task rather than smuggled into this PR.
+
+**⚠️ The full `pnpm build` could not be run locally — the WSL box OOMs.** `dmesg` shows the kernel killing `next-server` (total-vm 69GB against 6.7GB of RAM) while generating 2,967 pages across 16 workers. It always reached `✓ Compiled successfully` first, so this is an environment ceiling, not a defect. **The `●`-prerender check for the four game routes was therefore delegated to CI's build gate**, which is the honest position — do not read a green local suite as proof the routes prerender. Raising it needs `.wslconfig` + `wsl --shutdown`, which would kill concurrent worktrees.
+
+**⚠️ The E2E walk failed once on a COLD `/game/draft`.** The click fired, the RSC request started, and the route's first compile blew the 12s `expect` timeout — presenting as "the link does nothing". Re-running warm passed in 16s. `/game/demo` replaced `/game/play` in `scripts/warm-e2e-routes.sh`; this is exactly what that script exists for.
+
+**Guards proved by making them fail, not by watching them pass:** renaming one Arabic key made `game-modes.test.ts` fail naming `ar.game.modeClassicName`; rendering a locked tile as `<button disabled>` made the not-focusable assertion fail. A guard nobody has seen fail is not a guard.
+
+**Deliberately not built:** the 30-concept design ritual (owner: base now, redesign later — its own ticket); `?mode=`/`?format=` URL state (nothing would read it until Season exists); `/game/pre-match` as a route; per-mode landing pages. **`/game/demo` now has no inbound link** — it is a showcase, not a mode, but the broadcast view is no longer reachable through the UI.
 
 ---
 
