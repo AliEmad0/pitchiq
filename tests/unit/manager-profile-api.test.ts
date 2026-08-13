@@ -6,6 +6,12 @@ vi.mock("../../src/data/loaders", () => ({
   loadManagerBios: vi.fn(),
   loadTeams: vi.fn(),
   loadStandings: vi.fn(),
+  // TASK-M81 — the enrichment layer. Null here on purpose: this suite covers the
+  // league-derived profile, and returning null also exercises the path the 153
+  // managers without enrichment take.
+  loadManagerEnrichment: vi.fn(async () => null),
+  loadManagerHonoursHistory: vi.fn(async () => null),
+  loadManagerCareerHistory: vi.fn(async () => null),
 }));
 
 import { loadManagers, loadManagerBios, loadTeams, loadStandings } from "../../src/data/loaders";

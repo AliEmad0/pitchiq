@@ -6337,6 +6337,12 @@ Everything in the owner's A-to-Z roadmap (2026-08-11) that **cannot** be built u
 | [TASK-M74](#task-m74) | Surface honours / transfers / caps on the player profile page                               | ⬜ Todo | P2       | M   |
 | [TASK-M79](#task-m79) | Header overflows sideways on tablet / small-laptop widths                                   | ✅ Done | P2       | S   |
 | [TASK-M80](#task-m80) | Header overflows sideways on phone widths                                                   | ✅ Done | P2       | S   |
+| [TASK-M81](#task-m81) | Surface the full managerial career + honours on `/managers/[id]`                            | ✅ Done | P2       | M   |
+| [TASK-M82](#task-m82) | Widen the trivia data facade — events, honours, transfers, manager enrichment                | ⬜ Todo | P2       | M   |
+| [TASK-M83](#task-m83) | Extended-stats leaderboards — lift the 54 unused fields (2010+)                              | ⬜ Todo | P3       | M   |
+| [TASK-M87](#task-m87) | Show the player enrichment summary where players are listed                                  | ⬜ Todo | P3       | S   |
+| [TASK-M88](#task-m88) | Reconcile the two diverged TASKS.md boards (colliding ticket numbers)                        | ⬜ Todo | P3       | S   |
+| [TASK-M89](#task-m89) | `/ar` entity DETAIL pages render English UI — the Arabic catalog never applies                | ⬜ Todo | P1       | M   |
 
 ### TASK-M01
 
@@ -7987,6 +7993,120 @@ So it was one hard trade (no season control on phones) or two soft ones. **The o
 **⛔ The same measurement trap as M79 still applies**, plus one more. The season chip mounts behind `<Suspense>`, so any header measurement must first wait for the real control. The spec's wait matches a 4-digit year in **both numeral systems** — Arabic runs as `ar-u-nu-arab` and renders ٢٠٢٥, so a plain `\d{4}` waits forever on a chip that is already on screen. It reads `textContent`, not `innerText`, because the collapsed label is `sr-only` (clipped) rather than removed.
 
 **⬜ Follow-up, owner's call — page CONTENT overflows below 640px, and it is not the header.** Surfaced by lowering the sweep's floor. At 320px the English dashboard overflows the document by **19px with the header measuring 0**: the "moments" match rows (`grid-cols-[1fr_auto_1fr]`, a 20px crest plus a club name each side) need 289px against the 288px `container-page` leaves, and the historic map's SVG adds the rest. Bisected by hiding subtrees until `documentElement.scrollWidth` dropped back. `/ar` is clean, so English label lengths are what do it. It is invisible today only because `html` is `overflow-x: hidden` — clipped, not scrollable — which is how it went unnoticed. Fixing it means deciding how a club name degrades on a 320px phone (truncate / wrap / drop the crest), which is dashboard design, not layout plumbing. **The spec therefore asserts document overflow from 640px up and header overflow at every width**, with the exclusion written down in the spec.
+
+---
+
+### TASK-M81
+
+**Surface the full managerial career + honours on `/managers/[id]`** · ✅ Done · `P2` · `M` · Type: Feature
+
+Phase 1 of the "render what we already ship" sequence that came out of the 2026-08-13 data audit.
+
+The page derived honours from **our own standings**, so it stopped at this competition's edge — it could only ever show league titles. Mourinho's page showed 3; the committed enrichment lists **26 trophies** and a 10-club career including Porto, Inter and Real Madrid.
+
+Three new sections, all self-hiding when a manager has no enrichment (**153 of 293**, so most pages must be byte-unchanged):
+
+- **`<ManagerCareerSummary>`** — trophies · clubs managed · career matches · career PPM.
+- **`<ManagerCareerHonours>`** — every trophy, in the gold-card language TASK-1510 chose for this page; individual awards sit below as quieter pills so they can never be counted as silverware.
+- **`<ManagerFullCareer>`** — every spell with a real record, including non-league clubs. Desktop table + mobile cards, mirroring `<ManagerCareerTable>`.
+
+Pure logic in `career-enrichment.ts` (ordering, filtering, span, per-spell PPM).
+
+⚠️ **`<ManagerSeasonView>` renders a SECOND copy of the subtree** for the swapped season — it replaces `children` wholesale rather than wrapping it. A section added to the page and not there disappears the moment the visitor changes season. Both branches now carry the career sections and a comment says so.
+
+⚠️ **A spell counts by its match record, never by `role`** — the same rule the pipeline applies, so the page and the summary can never disagree about what counts as a job. And per-spell PPM is derived from W/D/L, so it can differ from Transfermarkt's printed figure in the last decimal (Porto: our 2.31 vs their 2.32).
+
+Verified against the real committed data, not fixtures: Mourinho 26 trophies / 10 clubs / Porto + Inter present / "Manager of the Year" classified as an award; Wenger 4 clubs / 1,791 matches / Arsenal 1,231.
+
+**Depends on:** pipeline TASK-M78 (the data). **Enables:** nothing blocks on it.
+
+---
+
+### TASK-M82
+
+**Widen the trivia data facade** · ⬜ Todo · `P2` · `M` · Type: Feature
+
+Phase 3 of the audit sequence. The 26 rules reach data through a facade exposing exactly **eight** accessors (standings, players, fixtures, leaderboards, seasons, goalAttribution, managers, fixtureExtras). Everything else is invisible to it — including **143,901 raw match events**.
+
+Add accessors for events, lineups, player honours / transfers / national career, manager enrichment, market values and captains, then write rules against them. Facts the data already supports:
+
+- **Late deciders** — goals in the 90th minute or later (97 in 2024-25 alone).
+- **Favourite supplier** — the most frequent assister→scorer pairing. **72% of goals name an assister** (814 of 1,129 in 2024-25) and nothing aggregates it.
+- **Penalty and own-goal records** — 1,379 and 695 across the archive.
+- **Trophy cabinet / fee vs return / international double life** — from the player detail files.
+- **The travelled manager** — title winners in three countries.
+
+Each rule keeps the engine's `verify` closure, so a new fact is still re-derived before it is shown.
+
+**Depends on:** nothing. **Enables:** a much richer "Did you know?".
+
+---
+
+### TASK-M83
+
+**Extended-stats leaderboards** · ⬜ Todo · `P3` · `M` · Type: Feature
+
+Phase 4 of the audit sequence. `data/player-history-stats.json` is **15.6 MB** covering **54 extended fields × 8,329 player-seasons (2010-2025)** and is **not read at runtime at all** — no loader exists. Only seven of the 54 were ever lifted onto player rows.
+
+Add a loader and extend `LEADERBOARD_CATEGORIES` with the ones that read well season-over-season: most touches, most passes, most duels won, most clearances, most fouls won, most offsides, most headed goals, most left-footed goals. Boards already self-omit when a season has no data, so 1992-2009 is unaffected.
+
+⚠️ Decide deliberately whether to lift fields onto player rows (bigger `players-*.json`, simple reads) or read the side-map at request time (no row churn). The rows are what the whole app builds from.
+
+**Depends on:** nothing.
+
+---
+
+### TASK-M87
+
+**Show the player enrichment summary where players are listed** · ⬜ Todo · `P3` · `S` · Type: Feature
+
+Every player row already carries `enrichment` — trophies, honours, awards, caps, international goals, career fee — on **18,100 of 18,126 rows (100%)**, and **no component reads it**. It costs nothing at read time because it is already on the row.
+
+A trophy count and cap count on the profile header, the compare view and the squad card. Complements TASK-M74, which is the full detail page.
+
+**Depends on:** nothing.
+
+---
+
+### TASK-M88
+
+**Reconcile the two diverged TASKS.md boards** · ⬜ Todo · `P3` · `S` · Type: Chore
+
+This board and the pipeline repo's have diverged into two documents with **colliding ticket numbers that mean different things**:
+
+| Number | This board | Pipeline board |
+| --- | --- | --- |
+| `TASK-M73` | PFA POTY + Team of the Season (Todo) | Player enrichment crawl (Done) |
+| `TASK-M74` | Surface honours/transfers/caps (Todo) | Repoint market-value source (Done) |
+
+Anyone reading "M74 is done" gets the wrong answer depending on which repo they opened. Either merge into one board, or give the pipeline its own prefix (`TASK-P##`) and renumber. New tickets were started at **M81** to avoid deepening it.
+
+**Depends on:** nothing.
+
+---
+
+### TASK-M89
+
+**`/ar` entity DETAIL pages render English UI** · ⬜ Todo · `P1` · `M` · Type: Bug
+
+Found while verifying TASK-M81, and **confirmed on production**, so it predates that branch. Counting Arabic codepoints in the served HTML:
+
+| Page | Arabic characters |
+| --- | --- |
+| `/ar` (dashboard) | 25,871 ✅ |
+| `/ar/managers` (index) | 20,286 ✅ |
+| **`/ar/managers/134`** | **2** ❌ |
+| **`/ar/teams/33`** | **73** ❌ |
+
+The prerendered `/en` and `/ar` manager pages come out 239,628 vs 239,700 bytes — near-identical, because the Arabic one is rendering the **English catalog**. Every translated string on those pages is affected, including ones that shipped long ago (`careerByClub` → "المسيرة حسب النادي" appears nowhere).
+
+Index pages and the dashboard are fine, so it is specific to the entity **detail** routes — the ones TASK-M71c made `force-static` and which render through a client season view. That ticket already hit a related issue ("`NextIntlClientProvider` needed an explicit `locale`"), which is the obvious first place to look: a provider or a `setRequestLocale` call that resolves the default locale during prerender.
+
+Rated **P1** — Arabic is half the product's localization story and these are the most-linked pages in the app.
+
+**Suggested guard:** assert an Arabic-codepoint floor on a prerendered `/ar` detail page, so a locale regression fails the build rather than being discovered by eye. Counting codepoints is what caught it; grepping for a phrase would not have, because next-intl serialises the whole catalog into every page and always "finds" the string.
+
+**Depends on:** nothing.
 
 ---
 

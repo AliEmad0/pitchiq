@@ -5,9 +5,18 @@ import {
   loadClubLogos,
   loadManagers,
   loadManagerBios,
+  loadManagerCareerHistory,
+  loadManagerEnrichment,
+  loadManagerHonoursHistory,
   loadStandings,
   loadTeams,
 } from "@/data/loaders";
+import type {
+  ManagerCareerSpell,
+  ManagerEnrichmentSummary,
+  ManagerHonourGroup,
+} from "@/data/schemas";
+import { managedSpells, orderHonourGroups } from "./career-enrichment";
 import { clubLogoFromMap } from "@/utils/club-logo";
 import { seedAge } from "@/utils/age";
 import { countryNameFromCode } from "@/utils/country";
@@ -51,6 +60,20 @@ export type ManagerProfile = {
   bySeason: ManagerSeasonRow[];
   targetSeason: { season: number; rows: ManagerSeasonRow[] } | null;
   totals: ManagerRecord;
+  /**
+   * TASK-M81 — the full managerial career, beyond the Premier League.
+   *
+   * Everything above is derived from OUR league data, so it stops at the
+   * competition's edge: a manager's honours are the titles his club won in a
+   * season we hold. These three carry the rest of the career — European and
+   * foreign silverware, and spells at clubs that never played in this league.
+   *
+   * All three degrade to null/empty. Enrichment covers 140 of 293 managers, so
+   * the page must render exactly as before for the rest.
+   */
+  careerSummary: ManagerEnrichmentSummary | null;
+  careerHonours: ManagerHonourGroup[];
+  careerSpells: ManagerCareerSpell[];
 };
 
 export async function getManagerProfile(
@@ -67,6 +90,17 @@ export async function getManagerProfile(
   const bios = await loadManagerBios();
   const bio = bios?.[id];
   const names = await getEntityNames(locale);
+
+  // TASK-M81: the enrichment layer. Read in parallel and treated as optional —
+  // a manager with no Transfermarkt id simply has none of it.
+  const [enrichmentMap, honoursMap, careerMap] = await Promise.all([
+    loadManagerEnrichment(),
+    loadManagerHonoursHistory(),
+    loadManagerCareerHistory(),
+  ]);
+  const careerSummary = enrichmentMap?.[id] ?? null;
+  const careerHonours = orderHonourGroups(honoursMap?.[id]?.titles ?? []);
+  const careerSpells = managedSpells(careerMap?.[id]?.spells ?? []);
 
   // Team name lookup: merge loadTeams across the career seasons (newer wins for
   // clubs that changed name); covers defunct clubs not in the current season.
@@ -140,5 +174,8 @@ export async function getManagerProfile(
     bySeason,
     targetSeason,
     totals: career.totals,
+    careerSummary,
+    careerHonours,
+    careerSpells,
   };
 }

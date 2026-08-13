@@ -69,6 +69,11 @@ const PROFILE: ManagerProfile = {
     ],
   },
   totals: rec,
+  // TASK-M81 — a manager with no enrichment (153 of 293 are in this state).
+  // The career sections must self-hide rather than render empty shells.
+  careerSummary: null,
+  careerHonours: [],
+  careerSpells: [],
 };
 
 describe("manager profile components", () => {
