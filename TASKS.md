@@ -5520,6 +5520,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1830](#task-1830) | Segmented interactive match engine (live decisions, replayable) | ✅ Done    | P1       | L   |
 | [TASK-1831](#task-1831) | The full formation set — 20 shapes in three families            | ✅ Done    | P2       | M   |
 | [TASK-1832](#task-1832) | The game hub — `/game` as the mode-selection gate               | ✅ Done    | P2       | M   |
+| [TASK-1833](#task-1833) | Design the game hub — the 30-concept ritual 1832 deferred       | 📋 Backlog | P3       | M   |
 
 _Enhancement roadmap 1813-1819 added 2026-08-03 from the owner's feature proposal (Option A — 100% client-side/static). See the locked-architecture notes above for the modifier-stack + determinism + no-backend decisions that govern them._
 
@@ -6149,7 +6150,23 @@ Design: [`docs/superpowers/specs/2026-08-13-task-1832-game-hub-design.md`](../do
 
 **Guards proved by making them fail, not by watching them pass:** renaming one Arabic key made `game-modes.test.ts` fail naming `ar.game.modeClassicName`; rendering a locked tile as `<button disabled>` made the not-focusable assertion fail. A guard nobody has seen fail is not a guard.
 
-**Deliberately not built:** the 30-concept design ritual (owner: base now, redesign later — its own ticket); `?mode=`/`?format=` URL state (nothing would read it until Season exists); `/game/pre-match` as a route; per-mode landing pages. **`/game/demo` now has no inbound link** — it is a showcase, not a mode, but the broadcast view is no longer reachable through the UI.
+**Deliberately not built:** the 30-concept design ritual (owner: base now, redesign later — now ticketed as [TASK-1833](#task-1833)); `?mode=`/`?format=` URL state (nothing would read it until Season exists); `/game/pre-match` as a route; per-mode landing pages.
+
+**Follow-ups closed straight after:** `/compare` went back inline once [M79](#task-m79)/[M80](#task-m80) freed the headroom that forced its demotion — the move was obsolete within hours of shipping. And **`/game/demo` regained an inbound link** (a quiet line at the foot of the gate, guarded by a unit test): it is a showcase rather than a mode, so it stays out of the registry, but it should not be unreachable.
+
+### TASK-1833
+
+**Design the game hub — the 30-concept ritual 1832 deferred** · 📋 Backlog · `P3` · `M` · Type: Design
+
+**Description** — [TASK-1832](#task-1832) shipped `/game` as a **deliberately plain** mode gate. The owner's standing process for a new surface is 30 concepts → owner picks → implement, and it was **skipped on purpose** (owner, 2026-08-13: _"we will change all of those designs later so we can build the base now"_). This ticket is that redesign, and it exists so the skip reads as a decision rather than an oversight.
+
+**What makes it cheap to do now:** the gate holds **no data and no logic** beyond reading `domain/modes.ts` — that was a design constraint of 1832 precisely so its presentation could be replaced wholesale. `ModeGate` / `ModeTile` / `FormatChoice` can be rebuilt without touching the registry, the routes, or any test that asserts _behaviour_ rather than markup.
+
+**Workflow** — 30 concepts → owner picks → 30 animation concepts for the expand-in-place transition → owner picks → implement → verify era × mode × 3 widths, same as the Phase 17 page redesigns. **Build the gallery with the REAL roster** (eleven modes, three collection surfaces, the true locked/live split), not placeholder tiles: this surface is mostly a hierarchy problem under a lot of greyed content, and lorem tiles hide exactly that.
+
+**⚠️ Constraints the redesign must keep** (they are behavioural, not stylistic): locked modes stay **non-focusable** rather than disabled buttons; the expansion **cannot animate height** (the motion audit allowlists `transform`/`opacity`/`box-shadow`); every label stays an i18n key in both locales; and the route stays `force-static` with no data loading. **Depends on:** TASK-1832.
+
+**Worth folding in while redesigning:** the gate currently advertises nine locked modes and a locked Full Season on every tile. That is honest, but if the roadmap moves slowly it reads as an unfinished game — the design should have an answer for "mostly grey" beyond opacity.
 
 ---
 
@@ -7946,22 +7963,22 @@ Coverage: **5,362 players** — 29,761 honour groups, 65,437 transfer moves, 122
 
 **Why this needed the owner and not a breakpoint.** Every lever trades away something deliberately chosen, and — the finding that shaped the decision — **no single soft lever reaches 320px.** Each option was measured by applying it in the live page rather than predicted by arithmetic (remaining overflow at 320px, English / Arabic):
 
-| Lever | @320px |
-| --- | --- |
-| Logo wordmark hidden below `sm` | 18 / 32 ❌ |
-| Season chip icon-only | 33 / 0 ❌ |
-| Locale switcher → drawer | 49 / 30 ❌ |
-| Season label shortened to `25/26` | 73 / 41 ❌ |
-| Wordmark hidden **+** short label | 3 / 3 ❌ |
-| **Season chip hidden entirely** | **0 / 0** ✅ |
-| **Any PAIR of the soft levers** | **0 / 0** ✅ |
+| Lever                             | @320px       |
+| --------------------------------- | ------------ |
+| Logo wordmark hidden below `sm`   | 18 / 32 ❌   |
+| Season chip icon-only             | 33 / 0 ❌    |
+| Locale switcher → drawer          | 49 / 30 ❌   |
+| Season label shortened to `25/26` | 73 / 41 ❌   |
+| Wordmark hidden **+** short label | 3 / 3 ❌     |
+| **Season chip hidden entirely**   | **0 / 0** ✅ |
+| **Any PAIR of the soft levers**   | **0 / 0** ✅ |
 
 So it was one hard trade (no season control on phones) or two soft ones. **The owner chose the pair that keeps the brand intact:** the season chip drops its label, and the locale switcher moves into the drawer.
 
 **The fix.**
 
-1. **The season chip is the calendar glyph alone below `sm`** (116px → 60px). The label is wrapped in `sr-only sm:not-sr-only`, **not** `hidden`: `display: none` would drop the value out of the accessibility tree and the control would announce "Season" without saying *which* season it holds, while still passing every width measurement.
-2. **The locale switcher moves into the mobile drawer below `sm`** (40px). `Header`'s `hidden sm:block` and `MobileNav`'s `sm:hidden` row are exact complements — desync them and a band of widths has either no language control or two. `tests/unit/header-locale-breakpoint.test.tsx` holds them in step by reading the breakpoint *token*, the same shape as M79's nav guard.
+1. **The season chip is the calendar glyph alone below `sm`** (116px → 60px). The label is wrapped in `sr-only sm:not-sr-only`, **not** `hidden`: `display: none` would drop the value out of the accessibility tree and the control would announce "Season" without saying _which_ season it holds, while still passing every width measurement.
+2. **The locale switcher moves into the mobile drawer below `sm`** (40px). `Header`'s `hidden sm:block` and `MobileNav`'s `sm:hidden` row are exact complements — desync them and a band of widths has either no language control or two. `tests/unit/header-locale-breakpoint.test.tsx` holds them in step by reading the breakpoint _token_, the same shape as M79's nav guard.
 
 **⚠️ The trap that would have shipped a no-op.** The first attempt put the classes on `<SelectValue className="sr-only …">`. **Radix's `Select.Value` renders its own span and silently ignores `className`** — the markup reads exactly right and changes nothing. Caught by a unit test asserting the class, not by review. The classes belong on a wrapper; that also puts the value out of reach of the trigger's `*:data-[slot=select-value]` rules, which only ever mattered for multi-part values.
 

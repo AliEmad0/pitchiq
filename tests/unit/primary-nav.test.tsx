@@ -31,14 +31,11 @@ describe("PrimaryNav — segmented pill (Phase 15)", () => {
     mockSearchParams.mockReturnValue(sp());
     renderWithIntl(<PrimaryNav />);
 
-    // TASK-1832 — "Compare" left this set to make room for "Game". Measured at 1024px the
-    // header fits with exactly 0px to spare, and six inline pills overflowed it by 22px.
-    for (const label of ["Dashboard", "Teams", "Players", "Fixtures", "Game"]) {
+    // "Compare" briefly left this set under TASK-1832 (six pills overflowed the header at
+    // the time); TASK-M79 changed the geometry and it is inline again.
+    for (const label of ["Dashboard", "Teams", "Players", "Fixtures", "Compare", "Game"]) {
       expect(screen.getByRole("link", { name: label })).toBeInTheDocument();
     }
-    // Compare is still reachable — it moved into the "More ▾" dropdown, so it is absent
-    // until that opens.
-    expect(screen.queryByRole("link", { name: "Compare" })).toBeNull();
   });
 
   it("folds secondary sections into a 'More' dropdown (closed by default)", () => {
@@ -59,9 +56,7 @@ describe("PrimaryNav — segmented pill (Phase 15)", () => {
     renderWithIntl(<PrimaryNav />);
 
     expect(screen.getByRole("link", { name: "Teams" })).toHaveAttribute("aria-current", "page");
-    // TASK-1832 — was "Compare"; it moved into the dropdown, so an inline pill that is
-    // NOT the active one is now "Game".
-    expect(screen.getByRole("link", { name: "Game" })).not.toHaveAttribute("aria-current");
+    expect(screen.getByRole("link", { name: "Compare" })).not.toHaveAttribute("aria-current");
   });
 
   // TASK-M71b — the viewed season comes from the PATH; pill links carry it in
