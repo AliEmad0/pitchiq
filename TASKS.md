@@ -6279,6 +6279,7 @@ Everything in the owner's A-to-Z roadmap (2026-08-11) that **cannot** be built u
 | [TASK-M72](#task-m72) | Fix app-wide soft 404s — the not-found page returns HTTP 200                                | ✅ Done | P2       | S   |
 | [TASK-M73](#task-m73) | Add PFA POTY + Team of the Season — the award-blind roles                                   | ⬜ Todo | P2       | L   |
 | [TASK-M74](#task-m74) | Surface honours / transfers / caps on the player profile page                               | ⬜ Todo | P2       | M   |
+| [TASK-M79](#task-m79) | Header overflows sideways on tablet / small-laptop widths                                   | ✅ Done | P2       | S   |
 
 ### TASK-M01
 
@@ -7839,6 +7840,46 @@ Coverage: **5,362 players** — 29,761 honour groups, 65,437 transfer moves, 122
 **Design.** Follow the M70 ritual — a layout + micro-animation chosen from a shortlist, then the design gallery — so it sits with the existing `PlayerHero` rather than beside it. Phase 18's `PlayerCard` can consume the same summary for badges.
 
 **Depends on:** nothing — the data is committed and live. **Related:** pipeline TASK-M73/M75/M76 (crawl → apply → keep current).
+
+---
+
+### TASK-M79
+
+**Header overflows sideways on tablet / small-laptop widths** · ✅ Done · `P2` · `S` · Type: Bug
+
+> **✅ ROOT-CAUSED AND FIXED 2026-08-13.** The header row lays out three
+> intrinsically-sized children with `justify-between gap-4`, and **nothing in it
+> can shrink** — every pill is content-sized and the search / theme / locale /
+> season controls are fixed-width — so the row's width is simply the sum of its
+> parts. Measured in English: 88px logo + 474px nav + 343px controls + 32px gaps
+>
+> - 48px `container-page` padding = **the header needs ~985px before it can hold
+>   its own contents**. The pill row was revealed at `md` (768px), a quarter of a
+>   viewport too early, and the excess became horizontal scroll on `<header>` and
+>   therefore on `documentElement`.
+
+**The measurement.** Taken on a clean worktree off `origin/main`, dev server, `/game`, settled (see the trap below):
+
+```
+820px  → header.scrollWidth - clientWidth = 157px, document scrolls sideways
+900px  → 77px
+900px  → 13px on /ar
+```
+
+**Two things the original report had wrong**, both corrected by measuring. (1) The pill row is **474px, not 537px** — 537 was the _six_-pill row before [TASK-1832](#task-1832) demoted `/compare`. (2) **Arabic is not the binding case**: it is _narrower_ than English (874px vs 937px of content), because its labels and wordmark are shorter even though its controls cluster is wider. English sets the breakpoint.
+
+**The fix — two changes, and the first one is only half a fix without the second.**
+
+1. The pill row moves from `md` to **`lg`**, and `MobileNav`'s trigger moves from `md:hidden` to **`lg:hidden` in the same commit**. These are exact complements: reveal the pills too low and the header overflows; raise the drawer without raising the nav and every width in between has **no navigation at all**. The drawer already listed every route, so nothing became unreachable in the 768→1024 band. `tests/unit/nav-breakpoint.test.tsx` now holds the two in step by reading the breakpoint _token_ out of each className rather than a literal, so a deliberate future move still passes and a desync still fails.
+2. The `⌘K` search button collapses to icon-only **between `lg` and `xl` only** (`hidden sm:max-lg:inline xl:inline` — two positive rules over a `hidden` base, so it does not depend on Tailwind's variant ordering). Below `lg` the pills are gone and there is room to spare; at `xl` there is room again. **Why it is load-bearing:** at `lg` without it the row needs 985px of the 1009px available — a **24px** margin, which [TASK-1832](#task-1832)'s extra pill would have consumed immediately, re-opening this exact bug at 1024px. Dropping the label + hint takes the button from 128px to 36px, so the row needs 946px and sits with **63px** spare.
+
+**Done when / verified.** 0px of header _and_ document overflow at 640 / 767 / 768 / 820 / 900 / 1000 / 1023 / 1024 / 1100 / 1279 / 1280 / 1440, in **both** locales — `tests/e2e/header-overflow.spec.ts` pins it. That spec was **verified by making it fail**: reverted to pristine `origin/main` it fails naming widths 768/820/900 (`/`) and 768/820 (`/ar`); restored, it passes.
+
+**⛔ The measurement trap that produced a false green.** The season chip mounts behind a `<Suspense>` fallback, and a header measured at `domcontentloaded` is **~44px narrower** than the one a user sees. The first sweep reported _no overflow at any width_ and was wrong — it was measuring a header missing its widest control. Any header measurement must wait for the real season control (a `<button>` wider than the 36px icon buttons, containing a 4-digit year) before it means anything. This is the same class of error as the probe-route trap in [TASK-M72](#task-m72): assert the thing you are measuring actually rendered.
+
+**⬜ Follow-up, owner's call — a SEPARATE overflow below ~400px.** Same file, different cause, deliberately not fixed here. Measured after this fix: **34px at 375px and 16px at 393px (English), 15px at 375px (`/ar`)**. Below `sm` the pill row is long gone; the controls cluster alone is ~278px against a 375px viewport, and the **season chip is 116px of it** next to an 88px wordmark. Every available fix trades away something the owner chose — the logo wordmark, or the season control on phones — so it wants a design decision, not a breakpoint. `tests/e2e/header-overflow.spec.ts` therefore starts its sweep at 640px, with the exclusion written down in the spec.
+
+**Traps for anyone touching this header again.** Nothing in the row shrinks, so **anything added here spends real budget** — a longer nav label, a sixth pill, another control. Measure before adding; the numbers above are the budget. `Header.tsx` carries the same warning at the call site.
 
 ---
 

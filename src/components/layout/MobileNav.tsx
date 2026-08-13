@@ -21,8 +21,13 @@ import { navHrefForSeason, seasonFromPathname } from "@/utils/season-path";
 
 import { NAV_ITEMS } from "./nav-items";
 
-// Mobile drawer navigation (TASK-103). Trigger is `md:hidden` so the whole
+// Mobile drawer navigation (TASK-103). Trigger is `lg:hidden` so the whole
 // component evaporates on desktop where Header's inline `<nav>` takes over.
+// TASK-M79 raised that from `md`: the header cannot fit the pill row until
+// ~985px, so between 768px and `lg` the drawer *is* the navigation — and it
+// always listed every route, so nothing became unreachable in that band.
+// ⚠️ This is the exact complement of PrimaryNav's `hidden lg:flex`; the two
+// must move together or that band gets no navigation at all.
 // Sheet animation + Esc-to-close + focus trap come from Radix Dialog under
 // the hood.
 //
@@ -36,7 +41,7 @@ export function MobileNav() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="md:hidden" aria-label={t("openNav")}>
+        <Button variant="ghost" size="icon" className="lg:hidden" aria-label={t("openNav")}>
           <Menu />
         </Button>
       </SheetTrigger>

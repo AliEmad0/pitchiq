@@ -14,9 +14,15 @@ import { SeasonSwitcherLoader } from "./SeasonSwitcherLoader";
 import { ThemeToggle } from "./ThemeToggle";
 
 // Server Component. Sticky top bar: brand (left) · segmented pill nav (centre,
-// md+) · controls (right). Phase 15 redesign (TASK-1502): the season chip sits
+// lg+) · controls (right). Phase 15 redesign (TASK-1502): the season chip sits
 // far-right AFTER the theme toggle, set off by a divider — not between search
 // and theme.
+//
+// ⚠️ TASK-M79 — nothing in this row shrinks. The pills are content-sized and
+// every control is fixed-width, so the row's width is the sum of its parts and
+// any excess becomes horizontal scroll on the whole document. Adding anything
+// here, or a longer nav label, spends real budget: measured in English at `lg`
+// the row needs 893px of the 1009px available. Measure before you add.
 export async function Header() {
   const t = await getTranslations("controls");
   return (
