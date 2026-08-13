@@ -2,7 +2,7 @@
 
 import { Menu } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 
 import { Link, usePathname } from "@/i18n/navigation";
 
@@ -15,6 +15,9 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { Skeleton } from "@/components/ui/skeleton";
+
+import { LocaleSwitcher } from "./LocaleSwitcher";
 import { cn } from "@/utils/cn";
 import { currentDataSeason } from "@/utils/season";
 import { navHrefForSeason, seasonFromPathname } from "@/utils/season-path";
@@ -54,6 +57,21 @@ export function MobileNav() {
             doesn't reset it. Season comes from the pathname — no useSearchParams,
             so no Suspense boundary needed. */}
         <MobileNavLinks onNavigate={() => setOpen(false)} />
+
+        {/* TASK-M80 — the language toggle lives here below `sm`, where the
+            header cannot afford its 40px. `sm:hidden` is the exact complement
+            of the header's `hidden sm:block`; above `sm` the header owns it and
+            this row must stay gone, or there are two of the same control.
+            The Suspense boundary is not optional even though the sheet only
+            mounts its content when open: LocaleSwitcher reads useSearchParams,
+            and an unguarded read in the shell bails static prerender on every
+            page — the Active-CPU regression. */}
+        <div className="mt-4 border-t px-4 pt-4 sm:hidden">
+          <p className="text-muted-foreground mb-2 text-xs font-medium">{t("language")}</p>
+          <Suspense fallback={<Skeleton className="h-9 w-9 rounded-lg" />}>
+            <LocaleSwitcher />
+          </Suspense>
+        </div>
       </SheetContent>
     </Sheet>
   );

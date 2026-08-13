@@ -8,6 +8,10 @@ vi.mock("next/navigation", () => ({
   usePathname: vi.fn(),
   // MobileNav now reads the active season to preserve it on the drawer links.
   useSearchParams: vi.fn(() => new URLSearchParams()),
+  // TASK-M80 — the drawer also hosts the locale switcher below `sm`, and that
+  // reads the router to swap locale in place. Without this the whole sheet
+  // throws on render and every open-state test fails.
+  useRouter: vi.fn(() => ({ replace: vi.fn(), push: vi.fn() })),
 }));
 
 import { usePathname } from "next/navigation";

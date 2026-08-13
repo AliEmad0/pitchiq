@@ -52,7 +52,25 @@ export function SeasonSwitcher({ seasons }: { seasons: number[] }) {
         className="ix-glow h-9 gap-1.5 rounded-lg border-transparent bg-secondary px-2.5 text-xs font-medium tabular-nums hover:bg-accent"
       >
         <CalendarDays className="size-4 text-primary" aria-hidden />
-        <SelectValue />
+        {/* TASK-M80 — below `sm` the chip is the calendar glyph alone. The
+            label is 80px of a phone header that is already ~89px over budget
+            at 320px, and the chip is the one control here that still reads
+            from its icon alone.
+
+            `sr-only`, NOT `hidden`: `display: none` would drop the value out
+            of the accessibility tree and the control would announce "Season"
+            with no indication of which season it holds. `sr-only` keeps it
+            readable to a screen reader while costing no layout width.
+
+            ⚠️ The classes go on a WRAPPER, not on `<SelectValue>` — Radix's
+            `Select.Value` renders its own span and silently ignores
+            `className`, so styling it directly is a no-op that looks correct
+            in review. That also puts it out of reach of the trigger's
+            `*:data-[slot=select-value]` rules (line-clamp/flex/gap), which
+            only ever mattered for multi-part values; this one is a year. */}
+        <span className="sr-only items-center sm:not-sr-only sm:flex">
+          <SelectValue />
+        </span>
       </SelectTrigger>
       <SelectContent>
         {seasons.map((s) => (
