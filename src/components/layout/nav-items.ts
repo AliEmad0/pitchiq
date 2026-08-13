@@ -30,10 +30,17 @@ export type NavItem = (typeof NAV_ITEMS)[number];
 // the encyclopedia. It was in neither the nav nor the sitemap before, which is why the
 // whole game was reachable only by typing the URL.
 //
-// ⚠️ `/compare` moved OUT to the "More ▾" dropdown to make room, and the count matters:
-// measured at 1024px, the header is 88px logo + 537px nav + 342px right-hand cluster and
-// fits with **exactly 0px to spare**. Six inline pills overflowed it by 22px. Adding a
-// seventh without removing one will overflow again — measure before you do.
+// `/compare` sits in "More ▾" rather than inline. That started as a forced move — six
+// inline pills overflowed the header — but TASK-M79 has since removed the constraint, so
+// which five sections lead is now a plain editorial choice.
+//
+// The budget, measured at 1024px — the tight width, because TASK-M79 reveals the pill row
+// at `lg` and keeps the ⌘K button icon-only between `lg` and `xl`: 88px logo + 454px nav
+// + 258px controls + 32px gaps + 64px padding = **896px of the 1024 available**, i.e. ~128px
+// spare (slightly less when a vertical scrollbar is showing). A seventh pill costs ~72px
+// and fits. Nothing in this row can shrink, so anything added here still spends real
+// budget — but check it by running `tests/e2e/header-overflow.spec.ts`, which sweeps twelve
+// widths in both locales, rather than by arithmetic.
 export const PRIMARY_NAV_HREFS: readonly string[] = [
   "/",
   "/teams",
