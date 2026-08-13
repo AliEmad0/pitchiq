@@ -247,8 +247,8 @@ export function GamePlay({ pool, initialPhase }: { pool: PoolCard[]; initialPhas
   if (state.phase === "preview") {
     return (
       <MatchupPreview
-        homeName={match.home.name}
-        awayName={match.away.name}
+        home={match.home}
+        away={match.away}
         referee={referee}
         weather={weather}
         onKickOff={() => dispatch({ type: "kickOff" })}

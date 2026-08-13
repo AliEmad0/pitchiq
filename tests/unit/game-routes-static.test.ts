@@ -32,7 +32,8 @@ describe("game routes stay CDN-served", () => {
 
   it("finds every game route", () => {
     // If this drops the glob broke and every assertion below is vacuous. Raise it when
-    // a route is added: /game, /game/chaos, /game/draft, /game/play.
+    // a route is added: /game (the gate), /game/demo, /game/chaos, /game/draft.
+    // TASK-1832 retired /game/play — it is a next.config redirect now, not a route.
     expect(files.length).toBeGreaterThanOrEqual(4);
   });
 

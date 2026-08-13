@@ -5519,6 +5519,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1829](#task-1829) | Card crafting — duplicates → trait badges (local)               | 📋 Backlog | P3       | S   |
 | [TASK-1830](#task-1830) | Segmented interactive match engine (live decisions, replayable) | ✅ Done    | P1       | L   |
 | [TASK-1831](#task-1831) | The full formation set — 20 shapes in three families            | ✅ Done    | P2       | M   |
+| [TASK-1832](#task-1832) | The game hub — `/game` as the mode-selection gate               | ✅ Done    | P2       | M   |
 
 _Enhancement roadmap 1813-1819 added 2026-08-03 from the owner's feature proposal (Option A — 100% client-side/static). See the locked-architecture notes above for the modifier-stack + determinism + no-backend decisions that govern them._
 
@@ -6111,6 +6112,44 @@ Every shape is 11 slots with exactly one `GK`, built from the existing 13-code `
 **⚠️ Renaming the existing four invalidates saved matches, by design.** "4-4-2" became "4-4-2 Flat", so `formationKey` changes and any match B2 stored before this fails its fingerprint check and is discarded rather than restoring into a mis-shaped XI.
 
 **Deliberately not built:** the per-shape tactical note beside the picker. Twenty notes are prose needing both catalogs, and the shape name already carries the information.
+
+### TASK-1832
+
+**The game hub — `/game` as the mode-selection gate** · ✅ Done (2026-08-13) · `P2` · `M` · Type: Feature
+
+**Description** — The game is unreachable. Nothing in the app links to any `/game/*` route — not the header, not the footer, not the mobile drawer — and the routes are absent from `sitemap.ts`, so they are not indexed either. The only place they are enumerated is `scripts/warm-e2e-routes.sh`. Every game route today is reachable **only by typing the URL**. Owner, 2026-08-13: _"I'm lost in the links and I don't know how to access the mode I need."_
+
+Design: [`docs/superpowers/specs/2026-08-13-task-1832-game-hub-design.md`](../docs/superpowers/specs/2026-08-13-task-1832-game-hub-design.md).
+
+`/game` is rewritten from a fixed Arsenal-v-Man-Utd broadcast demo into the **mode gate**: playable modes as full tiles under "Play now", every unbuilt mode as a locked chip under "Coming soon", and the three collection surfaces in their own strip. Clicking a live mode **expands it in place** to reveal the format step — ⚽ One Match or 🏆 Full Season. The whole grid renders from one pure-data registry (`domain/modes.ts`), honouring the locked rule that **modes are rule packs, not code paths**: shipping a mode later flips a status flag, and the gate updates itself.
+
+**Route consolidation** — the demo moves to `/game/demo`; `/game/play` is deleted in favour of a 308 redirect to `/game/draft`, ending the byte-identical duplicate. `/game` joins `NAV_ITEMS`, `PRIMARY_NAV_HREFS` (a sixth pill, accented, sitting last) and `sitemap.ts`. The pre-match screen is upgraded in place: both XIs on side-by-side mini-pitches, plus referee strictness and weather with their tactical impact.
+
+**⚠️ Two renames, forced by making format its own axis.** "Classic Season → One Match" is incoherent if the name already carries the format. **Classic Season** becomes **Classic** (a draft pack, format decides length), and **Survival** leaves the mode grid entirely to become an **objective on the Season format** under [TASK-1811](#task-1811).
+
+**⚠️ 🧠 Tactical H2H _is_ the existing draft loop, renamed** — no new engine code. The name is chosen to survive Phase 19: when accounts and matchmaking exist, the same mode expands to real PvP without a rename.
+
+**⚠️ `/game/pre-match` is deliberately NOT a route.** The live session — generator, seed, drafted XI — lives in memory inside `GamePlay`, so a route change drops it; surviving that means lifting session state into a `game/layout.tsx` provider or serialising through IndexedDB, for nothing visible in return. Pre-match is already a phase in `play-machine.ts` and the URL already mirrors it as `?phase=preview`.
+
+**⚠️ The 30-concept ritual is deliberately SKIPPED** (owner, 2026-08-13: _"we will change all of those designs later so we can build the base now"_). The gate ships plain and functional; its redesign is a separate ticket. Recorded so it reads as a decision rather than an oversight — and it is why the gate holds no data and no logic beyond the registry.
+
+**Day one, `season` is `planned` on every mode** — the 38-week engine is [TASK-1810](#task-1810)/[1811](#task-1811). The format step ships with one live choice and one locked choice, which is what builds the structure Season slots into. **Depends on:** TASK-1807. **Unblocks discovery for:** every Phase 18 mode ticket.
+
+**✅ Shipped 2026-08-13** ([#138](https://github.com/AliEmad0/pitchiq/pull/138)). Plan: [`docs/superpowers/plans/2026-08-13-task-1832-game-hub.md`](../docs/superpowers/plans/2026-08-13-task-1832-game-hub.md). Suite **1,903 → 1,927** on the branch alone; `tsc` + `eslint` clean. One commit per plan task, plus an E2E fix CI caught and a merge of `main` to pick up [M79](#task-m79).
+
+**⚠️ `/compare` sits in "More ▾" — originally forced, now an editorial choice.** The plan flagged the six-pill risk as a checkpoint and it fired: measured in a real browser at 1024×800 **against the geometry of the day**, the header was 88px logo + 537px nav + 342px controls and fitted with **exactly 0px to spare**; adding Game overflowed it by 22px and scrolled the body sideways. Confirmed it was this change by hiding the pill in-page and re-measuring (0px). Owner picked the spec's D8 fallback, and two `primary-nav` assertions moved with it.
+
+**⚠️ That measurement is now HISTORICAL — [TASK-M79](#task-m79) (#139) changed the geometry underneath it** while this branch was open: the pill row reveals at `lg` rather than `md` and the search button is icon-only between `lg` and `xl`. Re-measured on the merged result at 1024px: 88px + 454px + 258px + 32px gaps + 64px padding = **896px of 1024, ~128px spare**, so a seventh pill now fits and the "remove one to add one" rule no longer holds. `/compare` stays in the dropdown by choice, not by force. **Check any nav change with `tests/e2e/header-overflow.spec.ts` (twelve widths × both locales), never by arithmetic** — arithmetic against a stale constant is exactly what went out of date here.
+
+**⚠️ The pre-existing overflow this ticket found is FIXED — by M79, not here.** With the Game pill hidden the header still overflowed by **156px at 820px**: `PrimaryNav` rendered from `md:` (768px) but the header did not fit until ~1050px. It predated this ticket, was spun out rather than smuggled into this PR, and shipped as M79.
+
+**⚠️ The full `pnpm build` could not be run locally — the WSL box OOMs.** `dmesg` shows the kernel killing `next-server` (total-vm 69GB against 6.7GB of RAM) while generating 2,967 pages across 16 workers. It always reached `✓ Compiled successfully` first, so this is an environment ceiling, not a defect. **The `●`-prerender check for the four game routes was therefore delegated to CI's build gate**, which is the honest position — do not read a green local suite as proof the routes prerender. Raising it needs `.wslconfig` + `wsl --shutdown`, which would kill concurrent worktrees.
+
+**⚠️ The E2E walk failed once on a COLD `/game/draft`.** The click fired, the RSC request started, and the route's first compile blew the 12s `expect` timeout — presenting as "the link does nothing". Re-running warm passed in 16s. `/game/demo` replaced `/game/play` in `scripts/warm-e2e-routes.sh`; this is exactly what that script exists for.
+
+**Guards proved by making them fail, not by watching them pass:** renaming one Arabic key made `game-modes.test.ts` fail naming `ar.game.modeClassicName`; rendering a locked tile as `<button disabled>` made the not-focusable assertion fail. A guard nobody has seen fail is not a guard.
+
+**Deliberately not built:** the 30-concept design ritual (owner: base now, redesign later — its own ticket); `?mode=`/`?format=` URL state (nothing would read it until Season exists); `/game/pre-match` as a route; per-mode landing pages. **`/game/demo` now has no inbound link** — it is a showcase, not a mode, but the broadcast view is no longer reachable through the UI.
 
 ---
 

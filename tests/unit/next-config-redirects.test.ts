@@ -56,4 +56,20 @@ describe("next.config redirects", () => {
       );
     }
   });
+
+  // TASK-1832 — /game/play was byte-identical to /game/draft. The draft route is
+  // canonical; this keeps any shared or bookmarked link working.
+  it("redirects the retired /game/play to /game/draft in both locales", async () => {
+    const redirects = (await nextConfig.redirects?.()) ?? [];
+    const en = redirects.find((r) => r.source === "/game/play");
+    const ar = redirects.find((r) => r.source === "/ar/game/play");
+
+    expect(en, "English /game/play redirect missing").toBeDefined();
+    expect(en!.destination).toBe("/game/draft");
+    expect(en!.permanent).toBe(true);
+
+    expect(ar, "Arabic /game/play redirect missing").toBeDefined();
+    expect(ar!.destination).toBe("/ar/game/draft");
+    expect(ar!.permanent).toBe(true);
+  });
 });

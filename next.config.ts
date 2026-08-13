@@ -81,6 +81,15 @@ const nextConfig: NextConfig = {
         destination: "/ar/seasons/:season",
         permanent: true,
       },
+      // TASK-1832 — /game/play was byte-identical to /game/draft (same component, same
+      // props). The draft route is canonical; this keeps any shared or bookmarked link
+      // working rather than 404ing it.
+      //
+      // ⚠️ Next forwards the incoming query onto the destination and offers no way to
+      // strip it. Wanted here — `?phase=` survives the hop — but it is the same behaviour
+      // that caused the TASK-M71a bug, so it is noted rather than left to be rediscovered.
+      { source: "/game/play", destination: "/game/draft", permanent: true },
+      { source: "/ar/game/play", destination: "/ar/game/draft", permanent: true },
       ...sectionRedirects,
     ];
   },

@@ -145,7 +145,8 @@ describe("GamePlay", () => {
   });
 
   it("can be deep-linked straight into a phase", () => {
-    // /game/draft and /game/play mount the same container; only the entry phase differs.
+    // The container is mounted by /game/draft alone since TASK-1832 retired /game/play;
+    // `initialPhase` is what a future caller would vary.
     renderPlay(<GamePlay pool={pool} initialPhase="setup" />);
     expect(screen.getByRole("button", { name: "Auto-fill" })).toBeInTheDocument();
   });

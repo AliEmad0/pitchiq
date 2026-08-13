@@ -52,6 +52,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.5,
     },
     { url: `${base}/map`, alternates: langs("/map"), changeFrequency: "monthly", priority: 0.6 },
+    // TASK-1832 — the game hub. Only the gate is listed: the mode sub-routes
+    // (/game/draft, /game/chaos, /game/demo) are app surfaces with no indexable
+    // content, so they stay out.
+    { url: `${base}/game`, alternates: langs("/game"), changeFrequency: "monthly", priority: 0.6 },
     {
       url: `${base}/seasons`,
       alternates: langs("/seasons"),

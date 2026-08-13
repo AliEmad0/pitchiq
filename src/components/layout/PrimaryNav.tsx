@@ -67,6 +67,9 @@ export function PrimaryNav() {
                 active
                   ? "bg-background text-primary shadow-sm"
                   : "text-muted-foreground hover:text-foreground",
+                // TASK-1832 D8 — the game is the one destination that is not the
+                // encyclopedia, so it reads as a departure rather than another data page.
+                item.href === "/game" && !active && "text-primary font-semibold",
               )}
             >
               {t(item.key)}
