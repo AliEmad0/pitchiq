@@ -24,8 +24,9 @@ export default async function DraftPage({ params }: Props) {
 
   return (
     <main className="mx-auto w-full max-w-6xl px-4 py-10">
-      {/* The same container /game/play mounts — this route is its setup entry point, so
-          draft → match is a state change rather than a page load. */}
+      {/* TASK-1832 — the canonical Tactical H2H route. `/game/play` used to mount this
+          same container with the same props and is now a redirect here. The whole loop
+          (draft → pre-match → live → summary) is a state change, never a page load. */}
       <GamePlay pool={pool} initialPhase="setup" />
     </main>
   );
