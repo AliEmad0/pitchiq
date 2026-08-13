@@ -804,7 +804,16 @@
     "modeMysteryDesc": "انجُ بأطول سلسلة. ثلاث هزائم وينتهي كل شيء.",
     "collectionRecords": "السجلات",
     "collectionHallOfFame": "قاعة المشاهير",
-    "collectionAlbum": "ألبوم الملصقات"
+    "collectionAlbum": "ألبوم الملصقات",
+    "previewLineupAria": "تشكيلة {team}",
+    "refereeStrictImpact": "يشهر البطاقات كثيرًا. انتبه لتدخلاتك.",
+    "refereeLenientImpact": "يترك اللعب يجري. الخشونة تمر دون عقاب.",
+    "refereeCrowdInfluencedImpact": "يميل مع جمهور الأرض.",
+    "weatherClearImpact": "لا تأثير على اللعب.",
+    "weatherRainImpact": "لعب مفكك. التمرير يتأثر.",
+    "weatherHeavyRainImpact": "تفكك أكبر. الكرات الطويلة أجدى.",
+    "weatherWindImpact": "التسديد من بعيد يصبح غير موثوق.",
+    "weatherSnowImpact": "لعب مفكك والكرة تتوقف."
   },
   "commentary": {
     "kickoff": "🟢 انطلاق المباراة!",

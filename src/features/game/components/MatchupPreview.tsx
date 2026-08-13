@@ -1,10 +1,12 @@
 "use client";
 import { useTranslations } from "next-intl";
 import type { RefereeStyle, Weather } from "@/features/game/domain/match-types";
+import type { GameTeam } from "@/features/game/domain/team";
+import { MiniPitch } from "./MiniPitch";
 
 interface Props {
-  homeName: string;
-  awayName: string;
+  home: GameTeam;
+  away: GameTeam;
   /**
    * ⚠️ READ from the first segment's events, never recomputed.
    *
@@ -24,6 +26,12 @@ const REFEREE_KEY: Record<RefereeStyle, string> = {
   "crowd-influenced": "refereeCrowdInfluenced",
 };
 
+const REFEREE_IMPACT_KEY: Record<RefereeStyle, string> = {
+  strict: "refereeStrictImpact",
+  lenient: "refereeLenientImpact",
+  "crowd-influenced": "refereeCrowdInfluencedImpact",
+};
+
 const WEATHER_KEY: Record<Weather, string> = {
   clear: "weatherClear",
   rain: "weatherRain",
@@ -32,31 +40,36 @@ const WEATHER_KEY: Record<Weather, string> = {
   snow: "weatherSnow",
 };
 
+const WEATHER_IMPACT_KEY: Record<Weather, string> = {
+  clear: "weatherClearImpact",
+  rain: "weatherRainImpact",
+  "heavy-rain": "weatherHeavyRainImpact",
+  wind: "weatherWindImpact",
+  snow: "weatherSnowImpact",
+};
+
 /**
- * The VS screen — who you are facing, who is refereeing, and what the weather is doing.
+ * The VS screen — both XIs, who is refereeing, and what the weather is doing.
  *
- * Not trivia: a strict referee books far more, and rain makes the game scrappier. Both
- * are already decided by the time this renders, so the coach sees the conditions he is
- * committing to rather than discovering them at 20 minutes.
+ * ⚠️ This is a PHASE, not a route (TASK-1832 D9). The live session — the generator, the
+ * seed, the drafted XI — lives in `GamePlay`'s memory; navigating to a `/game/pre-match`
+ * URL would drop it, and surviving that means lifting session state into a provider above
+ * every game route for nothing visible in return.
+ *
+ * Not trivia: a strict referee books far more and rain makes the game scrappier, so each
+ * condition carries a line on what it DOES rather than only what it is.
  */
-export function MatchupPreview({
-  homeName,
-  awayName,
-  referee,
-  weather,
-  onKickOff,
-  onBack,
-}: Props) {
+export function MatchupPreview({ home, away, referee, weather, onKickOff, onBack }: Props) {
   const t = useTranslations("game");
 
   return (
     <div className="mx-auto w-full max-w-3xl">
       <h1 className="text-2xl font-extrabold tracking-tight">{t("playPreviewTitle")}</h1>
 
-      <div className="my-6 flex items-center justify-center gap-6 rounded-2xl bg-[radial-gradient(120%_80%_at_50%_-10%,#12202c,#060a0f)] p-8 ring-1 ring-cyan-400/20">
-        <span className="flex-1 text-end text-lg font-bold text-white">{homeName}</span>
-        <span className="font-mono text-sm font-black text-cyan-300">{"–"}</span>
-        <span className="flex-1 text-start text-lg font-bold text-white">{awayName}</span>
+      <div className="my-6 grid items-center gap-3 sm:grid-cols-[1fr_auto_1fr]">
+        <MiniPitch team={home} />
+        <span className="text-center font-mono text-sm font-black text-cyan-300">{"–"}</span>
+        <MiniPitch team={away} />
       </div>
 
       <dl className="grid gap-3 sm:grid-cols-2">
@@ -67,6 +80,9 @@ export function MatchupPreview({
           <dd className="mt-1 text-sm font-semibold">
             {referee != null ? t(REFEREE_KEY[referee]) : "—"}
           </dd>
+          {referee != null ? (
+            <dd className="text-muted-foreground mt-1 text-xs">{t(REFEREE_IMPACT_KEY[referee])}</dd>
+          ) : null}
         </div>
         <div className="border-border rounded-lg border p-3">
           <dt className="text-muted-foreground font-mono text-[10px] font-bold tracking-widest uppercase">
@@ -75,6 +91,9 @@ export function MatchupPreview({
           <dd className="mt-1 text-sm font-semibold">
             {weather != null ? t(WEATHER_KEY[weather]) : "—"}
           </dd>
+          {weather != null ? (
+            <dd className="text-muted-foreground mt-1 text-xs">{t(WEATHER_IMPACT_KEY[weather])}</dd>
+          ) : null}
         </div>
       </dl>
 

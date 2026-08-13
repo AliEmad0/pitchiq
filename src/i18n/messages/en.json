@@ -804,7 +804,16 @@
     "modeMysteryDesc": "Survive a run. Three losses and it's over.",
     "collectionRecords": "Records",
     "collectionHallOfFame": "Hall of Fame",
-    "collectionAlbum": "Sticker Album"
+    "collectionAlbum": "Sticker Album",
+    "previewLineupAria": "{team} line-up",
+    "refereeStrictImpact": "Books more. Keep your tackling clean.",
+    "refereeLenientImpact": "Lets it flow. A physical game goes unpunished.",
+    "refereeCrowdInfluencedImpact": "Leans toward the home crowd.",
+    "weatherClearImpact": "No effect on play.",
+    "weatherRainImpact": "Scrappier. Passing suffers.",
+    "weatherHeavyRainImpact": "Much scrappier. Long balls travel better.",
+    "weatherWindImpact": "Shots from distance become unreliable.",
+    "weatherSnowImpact": "Scrappier, and the ball holds up."
   },
   "commentary": {
     "kickoff": "🟢 Kick-off!",
