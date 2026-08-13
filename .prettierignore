@@ -69,3 +69,9 @@ data/market-value*.json
 data/player-honours.json
 data/player-transfer-history.json
 data/player-national.json
+
+# TASK-M78 manager enrichment — written by apply-manager-enrichment.ts via
+# writeJsonStableMin (sorted keys, minified). Same policy as the M75 files above.
+data/manager-enrichment.json
+data/manager-career-history.json
+data/manager-honours-history.json

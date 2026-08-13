@@ -486,3 +486,64 @@ describe("loaders — Arabic name maps (TASK-1606)", () => {
     expect(await loadArPlayerNames()).not.toBeNull();
   });
 });
+
+/**
+ * TASK-M78 — manager enrichment loaders.
+ *
+ * These read the real committed files, which is the point: `readJsonOrNull` swallows a
+ * schema mismatch and returns **null**, so a drifted schema would silently blank the
+ * manager pages with no error anywhere. Asserting a named manager's real numbers is the
+ * only thing that catches it.
+ */
+describe("manager enrichment loaders (TASK-M78)", () => {
+  const WENGER = "51";
+  const MOURINHO = "134";
+
+  it("loadManagerEnrichment() parses the committed summary rather than returning null", async () => {
+    const { loadManagerEnrichment } = await import("@/data/loaders");
+    const m = await loadManagerEnrichment();
+    expect(m).not.toBeNull();
+
+    // Arsène Wenger: 1,231 games at Arsenal across a 4-club career.
+    expect(m?.[WENGER]?.clubsManaged).toBe(4);
+    expect(m?.[WENGER]?.careerMatches).toBeGreaterThan(1700);
+
+    // Silverware only — "Manager of the Year" is an award, not a trophy.
+    expect(m?.[MOURINHO]?.trophies).toBe(26);
+    expect(m?.[MOURINHO]?.awards).toBeGreaterThan(0);
+  });
+
+  it("keeps careerPpm consistent with the W/D/L it ships", async () => {
+    const { loadManagerEnrichment } = await import("@/data/loaders");
+    const m = await loadManagerEnrichment();
+    // Assert the map is populated FIRST: a missing file makes the loop below iterate
+    // nothing and pass vacuously, which is exactly the silent-null this suite guards.
+    expect(Object.keys(m ?? {}).length).toBeGreaterThan(100);
+    for (const [id, s] of Object.entries(m ?? {})) {
+      expect(s.careerWins + s.careerDraws + s.careerLosses, `W+D+L for ${id}`).toBe(s.careerMatches);
+      const expected =
+        s.careerMatches > 0
+          ? Math.round(((3 * s.careerWins + s.careerDraws) / s.careerMatches) * 100) / 100
+          : null;
+      expect(s.careerPpm, `ppm for ${id}`).toBe(expected);
+    }
+  });
+
+  it("loadManagerCareerHistory() parses, and keeps Wenger's Arsenal spell", async () => {
+    const { loadManagerCareerHistory } = await import("@/data/loaders");
+    const m = await loadManagerCareerHistory();
+    expect(m).not.toBeNull();
+    const arsenal = m?.[WENGER]?.spells.find((s) => s.club === "Arsenal");
+    expect(arsenal?.matches).toBe(1231);
+  });
+
+  it("loadManagerHonoursHistory() parses, and classifies awards apart from silverware", async () => {
+    const { loadManagerHonoursHistory } = await import("@/data/loaders");
+    const m = await loadManagerHonoursHistory();
+    expect(m).not.toBeNull();
+    const moty = m?.[MOURINHO]?.titles.find((t) => /manager of the year/i.test(t.title));
+    expect(moty?.kind).toBe("award");
+    const ucl = m?.[MOURINHO]?.titles.find((t) => /champions league winner/i.test(t.title));
+    expect(ucl?.kind).toBe("trophy");
+  });
+});
