@@ -42,10 +42,17 @@ export async function Header() {
           <GlobalSearch />
           <ThemeToggle />
           {/* useSearchParams inside LocaleSwitcher requires a Suspense boundary
-              or every static page bails out of prerender (the AppShell gotcha). */}
-          <Suspense fallback={<Skeleton className="h-9 w-9 rounded-lg" />}>
-            <LocaleSwitcher />
-          </Suspense>
+              or every static page bails out of prerender (the AppShell gotcha).
+              TASK-M80 — below `sm` this moves into the mobile drawer instead.
+              ⚠️ `MobileNav`'s locale row is the exact complement (`sm:hidden`):
+              move one breakpoint and you must move the other, or phones get no
+              language control at all (or two of them).
+              `tests/unit/header-locale-breakpoint.test.tsx` holds them in step. */}
+          <div className="hidden sm:block">
+            <Suspense fallback={<Skeleton className="h-9 w-9 rounded-lg" />}>
+              <LocaleSwitcher />
+            </Suspense>
+          </div>
           <span className="bg-border hidden h-6 w-px sm:block" aria-hidden />
           {/* useSearchParams inside SeasonSwitcher (via nuqs) requires a
               Suspense boundary or every static page bails out of prerender.

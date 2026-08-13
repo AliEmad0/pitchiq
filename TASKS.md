@@ -6139,7 +6139,7 @@ Design: [`docs/superpowers/specs/2026-08-13-task-1832-game-hub-design.md`](../do
 
 **⚠️ `/compare` sits in "More ▾" — originally forced, now an editorial choice.** The plan flagged the six-pill risk as a checkpoint and it fired: measured in a real browser at 1024×800 **against the geometry of the day**, the header was 88px logo + 537px nav + 342px controls and fitted with **exactly 0px to spare**; adding Game overflowed it by 22px and scrolled the body sideways. Confirmed it was this change by hiding the pill in-page and re-measuring (0px). Owner picked the spec's D8 fallback, and two `primary-nav` assertions moved with it.
 
-**⚠️ That measurement is now HISTORICAL — [TASK-M79](#task-m79) (#139) changed the geometry underneath it** while this branch was open: the pill row reveals at `lg` rather than `md` and the search button is icon-only between `lg` and `xl`. Re-measured on the merged result at 1024px: 88px + 454px + 258px + 32px gaps + 64px padding = **896px of 1024, ~128px spare**, so a seventh pill now fits and the "remove one to add one" rule no longer holds. `/compare` stays in the dropdown by choice, not by force. **Check any nav change with `tests/e2e/header-overflow.spec.ts` (twelve widths × both locales), never by arithmetic** — arithmetic against a stale constant is exactly what went out of date here.
+**⚠️ That measurement is now HISTORICAL — [TASK-M79](#task-m79) (#139) changed the geometry underneath it** while this branch was open: the pill row reveals at `lg` rather than `md` and the search button is icon-only between `lg` and `xl`. Re-measured on the merged result at 1024px: 88px + 454px + 258px + 32px gaps + 64px padding = **896px of 1024, ~128px spare**, so a seventh pill now fits and the "remove one to add one" rule no longer holds. `/compare` stays in the dropdown by choice, not by force. **Check any nav change with `tests/e2e/header-overflow.spec.ts` (twenty widths × both locales), never by arithmetic** — arithmetic against a stale constant is exactly what went out of date here.
 
 **⚠️ The pre-existing overflow this ticket found is FIXED — by M79, not here.** With the Game pill hidden the header still overflowed by **156px at 820px**: `PrimaryNav` rendered from `md:` (768px) but the header did not fit until ~1050px. It predated this ticket, was spun out rather than smuggled into this PR, and shipped as M79.
 
@@ -6319,6 +6319,7 @@ Everything in the owner's A-to-Z roadmap (2026-08-11) that **cannot** be built u
 | [TASK-M73](#task-m73) | Add PFA POTY + Team of the Season — the award-blind roles                                   | ⬜ Todo | P2       | L   |
 | [TASK-M74](#task-m74) | Surface honours / transfers / caps on the player profile page                               | ⬜ Todo | P2       | M   |
 | [TASK-M79](#task-m79) | Header overflows sideways on tablet / small-laptop widths                                   | ✅ Done | P2       | S   |
+| [TASK-M80](#task-m80) | Header overflows sideways on phone widths                                                   | ✅ Done | P2       | S   |
 
 ### TASK-M01
 
@@ -7916,9 +7917,59 @@ Coverage: **5,362 players** — 29,761 honour groups, 65,437 transfer moves, 122
 
 **⛔ The measurement trap that produced a false green.** The season chip mounts behind a `<Suspense>` fallback, and a header measured at `domcontentloaded` is **~44px narrower** than the one a user sees. The first sweep reported _no overflow at any width_ and was wrong — it was measuring a header missing its widest control. Any header measurement must wait for the real season control (a `<button>` wider than the 36px icon buttons, containing a 4-digit year) before it means anything. This is the same class of error as the probe-route trap in [TASK-M72](#task-m72): assert the thing you are measuring actually rendered.
 
-**⬜ Follow-up, owner's call — a SEPARATE overflow below ~400px.** Same file, different cause, deliberately not fixed here. Measured after this fix: **34px at 375px and 16px at 393px (English), 15px at 375px (`/ar`)**. Below `sm` the pill row is long gone; the controls cluster alone is ~278px against a 375px viewport, and the **season chip is 116px of it** next to an 88px wordmark. Every available fix trades away something the owner chose — the logo wordmark, or the season control on phones — so it wants a design decision, not a breakpoint. `tests/e2e/header-overflow.spec.ts` therefore starts its sweep at 640px, with the exclusion written down in the spec.
+**✅ Follow-up now CLOSED — a SEPARATE overflow below ~400px.** Same file, different cause, deliberately not fixed here because every option traded away something the owner chose. Taken to the owner and fixed in [TASK-M80](#task-m80).
 
 **Traps for anyone touching this header again.** Nothing in the row shrinks, so **anything added here spends real budget** — a longer nav label, a sixth pill, another control. Measure before adding; the numbers above are the budget. `Header.tsx` carries the same warning at the call site.
+
+---
+
+### TASK-M80
+
+**Header overflows sideways on phone widths** · ✅ Done · `P2` · `S` · Type: Bug
+
+> **✅ FIXED 2026-08-13.** The second of the two overflows in this header, and a
+> different cause from [TASK-M79](#task-m79)'s. Below `sm` the pill row is long
+> gone, so this was the **controls cluster alone**: 182px of icon buttons plus a
+> **116px season chip**, against a 99px logo and 32px of `container-page`
+> padding. At 320px that is **89px more than the viewport** (70px on `/ar`).
+
+**The measurement.** Clean worktree off `origin/main`, dev server, settled page (the season-chip trap below). Header `scrollWidth - clientWidth`:
+
+```
+        English   /ar
+320px →   89px    70px
+360px →   49px    30px
+375px →   34px    15px
+393px →   16px     0px
+412px →    0px     0px
+```
+
+**Why this needed the owner and not a breakpoint.** Every lever trades away something deliberately chosen, and — the finding that shaped the decision — **no single soft lever reaches 320px.** Each option was measured by applying it in the live page rather than predicted by arithmetic (remaining overflow at 320px, English / Arabic):
+
+| Lever | @320px |
+| --- | --- |
+| Logo wordmark hidden below `sm` | 18 / 32 ❌ |
+| Season chip icon-only | 33 / 0 ❌ |
+| Locale switcher → drawer | 49 / 30 ❌ |
+| Season label shortened to `25/26` | 73 / 41 ❌ |
+| Wordmark hidden **+** short label | 3 / 3 ❌ |
+| **Season chip hidden entirely** | **0 / 0** ✅ |
+| **Any PAIR of the soft levers** | **0 / 0** ✅ |
+
+So it was one hard trade (no season control on phones) or two soft ones. **The owner chose the pair that keeps the brand intact:** the season chip drops its label, and the locale switcher moves into the drawer.
+
+**The fix.**
+
+1. **The season chip is the calendar glyph alone below `sm`** (116px → 60px). The label is wrapped in `sr-only sm:not-sr-only`, **not** `hidden`: `display: none` would drop the value out of the accessibility tree and the control would announce "Season" without saying *which* season it holds, while still passing every width measurement.
+2. **The locale switcher moves into the mobile drawer below `sm`** (40px). `Header`'s `hidden sm:block` and `MobileNav`'s `sm:hidden` row are exact complements — desync them and a band of widths has either no language control or two. `tests/unit/header-locale-breakpoint.test.tsx` holds them in step by reading the breakpoint *token*, the same shape as M79's nav guard.
+
+**⚠️ The trap that would have shipped a no-op.** The first attempt put the classes on `<SelectValue className="sr-only …">`. **Radix's `Select.Value` renders its own span and silently ignores `className`** — the markup reads exactly right and changes nothing. Caught by a unit test asserting the class, not by review. The classes belong on a wrapper; that also puts the value out of reach of the trigger's `*:data-[slot=select-value]` rules, which only ever mattered for multi-part values.
+
+**Done when / verified.** 0px of header overflow at 320 / 360 / 375 / 393 / 412 / 430 / 480 / 639 / 640 / 767 / 768 / 820 / 900 / 1000 / 1023 / 1024 / 1100 / 1279 / 1280 / 1440 in **both** locales — `tests/e2e/header-overflow.spec.ts`, its floor lowered from 640px to 320px. **Both guards were verified by making them fail:** reverted to pristine `origin/main` the sweep fails naming 320/360/375/393 and the drawer test fails on both halves (the header still shows the toggle, and the drawer never gets one); desyncing the two breakpoints fails the unit guard; swapping `sr-only` for `hidden` fails the a11y guard.
+
+**⛔ The same measurement trap as M79 still applies**, plus one more. The season chip mounts behind `<Suspense>`, so any header measurement must first wait for the real control. The spec's wait matches a 4-digit year in **both numeral systems** — Arabic runs as `ar-u-nu-arab` and renders ٢٠٢٥, so a plain `\d{4}` waits forever on a chip that is already on screen. It reads `textContent`, not `innerText`, because the collapsed label is `sr-only` (clipped) rather than removed.
+
+**⬜ Follow-up, owner's call — page CONTENT overflows below 640px, and it is not the header.** Surfaced by lowering the sweep's floor. At 320px the English dashboard overflows the document by **19px with the header measuring 0**: the "moments" match rows (`grid-cols-[1fr_auto_1fr]`, a 20px crest plus a club name each side) need 289px against the 288px `container-page` leaves, and the historic map's SVG adds the rest. Bisected by hiding subtrees until `documentElement.scrollWidth` dropped back. `/ar` is clean, so English label lengths are what do it. It is invisible today only because `html` is `overflow-x: hidden` — clipped, not scrollable — which is how it went unnoticed. Fixing it means deciding how a club name degrades on a 320px phone (truncate / wrap / drop the crest), which is dashboard design, not layout plumbing. **The spec therefore asserts document overflow from 640px up and header overflow at every width**, with the exclusion written down in the spec.
 
 ---
 
