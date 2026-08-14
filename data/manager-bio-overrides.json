@@ -855,6 +855,20 @@
     "nationalityCode": "no",
     "photo": "https://img.a.transfermarkt.technology/portrait/header/_1349961956.jpg"
   },
+  "lm-glenn-roeder": {
+    "birthDate": null,
+    "dateOfDeath": null,
+    "nationality": null,
+    "nationalityCode": null,
+    "photo": "https://upload.wikimedia.org/wikipedia/en/b/bb/Glenn_Roeder.jpg"
+  },
+  "lm-john-lyall": {
+    "birthDate": null,
+    "dateOfDeath": null,
+    "nationality": null,
+    "nationalityCode": null,
+    "photo": "https://upload.wikimedia.org/wikipedia/en/3/30/JohnLyall.jpg"
+  },
   "lm-ossie-ardiles": {
     "birthDate": "1952-08-03",
     "dateOfDeath": null,
