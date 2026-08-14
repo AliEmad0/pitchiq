@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 /**
  * TASK-M81 — integration against the REAL committed data.
@@ -54,24 +54,40 @@ describe("getManagerProfile — career enrichment (real data)", () => {
     expect(p!.careerSpells.every((s) => (s.matches ?? 0) > 0)).toBe(true);
   });
 
-  it("degrades cleanly for a manager with no enrichment", async () => {
+  /**
+   * ⛔ This used to hunt the committed data for a manager the enrichment did not cover
+   * ("153 of 293"). TASK-M86 closed that gap — all 293 are enriched — so the search
+   * returned nothing and the test failed on `expect(unenriched).toBeDefined()`.
+   *
+   * The gap was never the point; **degrading cleanly** was. Depending on the data being
+   * incomplete made this test a hostage to coverage improving, and it would have gone
+   * quietly vacuous long before it went red if the id had merely become rarer. It now
+   * forces the empty-enrichment path instead of hoping to find one, so it keeps testing
+   * the same behaviour at 293/293 and at any future coverage.
+   */
+  it("degrades cleanly when a manager has no enrichment", async () => {
+    vi.resetModules();
+    vi.doMock("@/data/loaders", async () => {
+      const actual = await vi.importActual<typeof import("@/data/loaders")>("@/data/loaders");
+      return {
+        ...actual,
+        loadManagerEnrichment: async () => ({}),
+        loadManagerCareerHistory: async () => ({}),
+        loadManagerHonoursHistory: async () => ({}),
+      };
+    });
+
     const { getManagerProfile } = await import("@/features/managers/manager-profile.api");
-    const { loadManagerEnrichment } = await import("@/data/loaders");
-    const map = await loadManagerEnrichment();
-    const { loadManagers } = await import("@/data/loaders");
-    const managers = await loadManagers();
+    const p = await getManagerProfile(WENGER); // a real manager, with enrichment withheld
 
-    // Find a real manager id that the enrichment does NOT cover (153 of 293).
-    const ids = new Set<string>();
-    for (const byTeam of Object.values(managers ?? {}))
-      for (const rows of Object.values(byTeam)) for (const r of rows) ids.add(r.id);
-    const unenriched = [...ids].find((id) => !map?.[id]);
-    expect(unenriched, "expected at least one manager without enrichment").toBeDefined();
-
-    const p = await getManagerProfile(unenriched!);
-    expect(p).not.toBeNull();
+    expect(p, "the profile must still render without enrichment").not.toBeNull();
     expect(p!.careerSummary).toBeNull();
     expect(p!.careerHonours).toEqual([]);
     expect(p!.careerSpells).toEqual([]);
+    // The un-enriched fields still come through — degradation, not a blank page.
+    expect(p!.name).toBeTruthy();
+
+    vi.doUnmock("@/data/loaders");
+    vi.resetModules();
   });
 });
