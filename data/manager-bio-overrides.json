@@ -841,12 +841,57 @@
     "nationality": "England",
     "nationalityCode": "gb-eng"
   },
+  "lm-archie-knox": {
+    "birthDate": null,
+    "dateOfDeath": null,
+    "photo": "https://eurn-cdn-endpoint-12-28-bqewe5hkhcapgpb3.z02.azurefd.net/10bd85a31648/media/xgchba4x/archie-knox-web-768x646.jpg"
+  },
+  "lm-bobby-gould": {
+    "birthDate": null,
+    "dateOfDeath": null,
+    "photo": "https://i2-prod.coventrytelegraph.net/article11574464.ece/ALTERNATES/s1200e/BP1407601.jpg"
+  },
+  "lm-brian-horton": {
+    "birthDate": null,
+    "dateOfDeath": null,
+    "photo": "https://ststatcityprod001.blob.core.windows.net/images/31fad13325274164a7a02e6aa4e60041.jpg"
+  },
+  "lm-chris-hutchings": {
+    "birthDate": null,
+    "dateOfDeath": null,
+    "photo": "https://i.guim.co.uk/img/static/sys-images/Football/Pix/pictures/2008/04/25/hutchings4.jpg?width=465&dpr=1&s=none&crop=none"
+  },
+  "lm-dave-bassett": {
+    "birthDate": null,
+    "dateOfDeath": null,
+    "photo": "https://f4group.co.uk/assets/dave-bassett.jpg"
+  },
   "lm-dave-merrington": {
     "birthDate": "1945-01-26",
     "dateOfDeath": null,
     "nationality": "England",
     "nationalityCode": "gb-eng",
     "photo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSjDijarMCNwqOhZ_G62JoPI018OqXzHhptB86-uDbSBe8gaq0LFbgfbIi5Uw7exVqs_vE4ijlwe4eRCQg8Mg0UKbpuuTUDNCEfjogOQZ8GKQ&s=10"
+  },
+  "lm-dave-watson": {
+    "birthDate": null,
+    "dateOfDeath": null,
+    "photo": "https://www.playmakerstats.com/img/treinadores/770/443770_med__20171126172914_dave_watson.jpg"
+  },
+  "lm-david-pleat": {
+    "birthDate": null,
+    "dateOfDeath": null,
+    "photo": "https://static.wikia.nocookie.net/tottenham-hotspur/images/e/e2/David_Pleat.jpg/revision/latest?cb=20200409172705"
+  },
+  "lm-david-webb": {
+    "birthDate": null,
+    "dateOfDeath": null,
+    "photo": "https://e0.365dm.com/26/03/1600x900/skysports-david-webb-georgia_7207036.jpg?20260330162701"
+  },
+  "lm-eddie-gray": {
+    "birthDate": null,
+    "dateOfDeath": null,
+    "photo": "https://alchetron.com/cdn/eddie-gray-footballer-born-1948-51a9b796-dcc9-48da-a723-83c3b8f1a14-resize-750.jpeg"
   },
   "lm-egil-olsen": {
     "birthDate": "1942-04-22",
@@ -855,12 +900,72 @@
     "nationalityCode": "no",
     "photo": "https://img.a.transfermarkt.technology/portrait/header/_1349961956.jpg"
   },
+  "lm-frank-barlow": {
+    "birthDate": null,
+    "dateOfDeath": null,
+    "photo": "https://e0.365dm.com/11/06/1600x900/Frank-Barlow_2607872.jpg?20110609154845"
+  },
+  "lm-frank-burrows": {
+    "birthDate": null,
+    "dateOfDeath": null,
+    "photo": "https://cdn.swanseacity.com/sites/default/files/styles/cc_960x540/public/archive/Frank%20burrows.jpg?itok=XtcMzc0C"
+  },
+  "lm-frank-clark": {
+    "birthDate": null,
+    "dateOfDeath": null,
+    "photo": "https://e0.365dm.com/11/10/2048x1152/FrankClark_2663935.jpg?20111012232644"
+  },
+  "lm-george-burley": {
+    "birthDate": null,
+    "dateOfDeath": null,
+    "photo": "https://i.guim.co.uk/img/static/sys-images/Football/Clubs/Club_Home/2009/9/9/1252527180691/George-Burley-001.jpg?width=465&dpr=1&s=none&crop=none"
+  },
   "lm-glenn-roeder": {
     "birthDate": null,
     "dateOfDeath": null,
     "nationality": null,
     "nationalityCode": null,
     "photo": "https://upload.wikimedia.org/wikipedia/en/b/bb/Glenn_Roeder.jpg"
+  },
+  "lm-graham-rix": {
+    "birthDate": null,
+    "dateOfDeath": null,
+    "photo": "https://ichef.bbci.co.uk/ace/standard/986/cpsprodpb/10a2/live/3d5f4190-e326-11ef-8ce2-a59f1a725a0e.jpg"
+  },
+  "lm-howard-wilkinson": {
+    "birthDate": null,
+    "dateOfDeath": null,
+    "photo": "https://i.guim.co.uk/img/media/e31d69526492d6b3146b7c9b00a741bf4ce1f35e/205_271_956_573/master/956.jpg?width=1200&height=1200&quality=85&auto=format&fit=crop&s=bb711714f1842e9c877659280879928d"
+  },
+  "lm-ian-branfoot": {
+    "birthDate": null,
+    "dateOfDeath": null,
+    "photo": "https://i.guim.co.uk/img/static/sys-images/Football/Clubs/Club_Home/2013/10/14/1381752767034/Ian-Branfoot-002.jpg?width=445&dpr=1&s=none&crop=none"
+  },
+  "lm-jim-barron": {
+    "birthDate": null,
+    "dateOfDeath": null,
+    "photo": "https://www.bathcityfc.com/wp-content/uploads/2018/05/2425_jim_barron.jpg"
+  },
+  "lm-jimmy-gabriel": {
+    "birthDate": null,
+    "dateOfDeath": null,
+    "photo": "https://images.squarespace-cdn.com/content/637700a81a87060cd4769e81/1675640639419-P99FRS2104N15IETOTQO/JimGabriel.jpeg?content-type=image%2Fjpeg"
+  },
+  "lm-joe-royle": {
+    "birthDate": null,
+    "dateOfDeath": null,
+    "photo": "https://img.a.transfermarkt.technology/portrait/header/_1368514193.jpg"
+  },
+  "lm-john-deehan": {
+    "birthDate": null,
+    "dateOfDeath": null,
+    "photo": "https://www.managerstats.co.uk/images/managers/john-deehan.jpg?v=001"
+  },
+  "lm-john-gorman": {
+    "birthDate": null,
+    "dateOfDeath": null,
+    "photo": "https://thewashbag.com/wp-content/uploads/2011/06/john-gorman.jpg"
   },
   "lm-john-lyall": {
     "birthDate": null,
@@ -869,11 +974,76 @@
     "nationalityCode": null,
     "photo": "https://upload.wikimedia.org/wikipedia/en/3/30/JohnLyall.jpg"
   },
+  "lm-lawrie-sanchez": {
+    "birthDate": null,
+    "dateOfDeath": null,
+    "photo": "https://newsimg.bbc.co.uk/media/images/42060000/jpg/_42060302_lawrie_sanchez_203.jpg"
+  },
+  "lm-lennie-lawrence": {
+    "birthDate": null,
+    "dateOfDeath": null,
+    "photo": "https://www.hartlepoolmail.co.uk/webimg/b25lY21zOjA4N2I1MjNmLTJmZjEtNGI3NS04MDE3LTYyNWY1NzM2MTk4NDpjOWNmNzRkYy1kYzM4LTQxNDMtYjRhOS05NmNiMjE3YjQ3ODQ=.jpg?width=1200&enable=upscale"
+  },
+  "lm-mike-walker": {
+    "birthDate": null,
+    "dateOfDeath": null,
+    "photo": "https://img.a.transfermarkt.technology/portrait/header/23575-1615564097.jpg"
+  },
   "lm-ossie-ardiles": {
     "birthDate": "1952-08-03",
     "dateOfDeath": null,
     "nationality": "Argentina",
     "nationalityCode": "ar",
     "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Osvaldo_Ardiles_%281981%29.jpg/500px-Osvaldo_Ardiles_%281981%29.jpg"
+  },
+  "lm-paul-goddard": {
+    "birthDate": null,
+    "dateOfDeath": null,
+    "photo": "https://www.sporting-heroes.net/content/thumbnails/00116/11479-zoom.jpg"
+  },
+  "lm-paul-jewell": {
+    "birthDate": null,
+    "dateOfDeath": null,
+    "photo": "https://img.a.transfermarkt.technology/portrait/header/_1368540287.jpg"
+  },
+  "lm-paul-sturrock": {
+    "birthDate": null,
+    "dateOfDeath": null,
+    "photo": "https://ichef.bbci.co.uk/ace/standard/624/cpsprodpb/11687/production/_100630317_sturrock_sns.jpg"
+  },
+  "lm-peter-shreeves": {
+    "birthDate": null,
+    "dateOfDeath": null,
+    "photo": "https://www.telegraph.co.uk/multimedia/archive/00994/sport-graphics-2002_994199a.jpg"
+  },
+  "lm-ray-harford": {
+    "birthDate": null,
+    "dateOfDeath": null,
+    "photo": "https://newsimg.bbc.co.uk/media/images/39382000/jpg/_39382229_harford203.jpg"
+  },
+  "lm-ron-noades": {
+    "birthDate": null,
+    "dateOfDeath": null,
+    "photo": "https://cdn.images.express.co.uk/img/dynamic/67/590x/450371_1.jpg?r=1686998680160"
+  },
+  "lm-steve-wigley": {
+    "birthDate": null,
+    "dateOfDeath": null,
+    "photo": "https://static.wikia.nocookie.net/fulham/images/6/6a/Steve_Wigley.png/revision/latest/scale-to-width-down/300?cb=20230908032208"
+  },
+  "lm-terry-burton": {
+    "birthDate": null,
+    "dateOfDeath": null,
+    "photo": "https://i.guim.co.uk/img/static/sys-images/Football/Clubs/Club_Home/2014/11/27/1417105218538/Terry-Burton-Arsenal-010.jpg?width=465&dpr=1&s=none&crop=none"
+  },
+  "lm-tony-book": {
+    "birthDate": null,
+    "dateOfDeath": null,
+    "photo": "https://i.guim.co.uk/img/media/0fe77e4985d6a870bf2ed67ada59d842b7774d45/0_244_5239_3144/master/5239.jpg?width=445&dpr=1&s=none&crop=none"
+  },
+  "lm-tony-parkes": {
+    "birthDate": null,
+    "dateOfDeath": null,
+    "photo": "https://i.guim.co.uk/img/static/sys-images/Sport/Pix/pictures/2009/5/19/1242722104282/Tony-Parkes-001.jpg?width=465&dpr=1&s=none&crop=none"
   }
 }
