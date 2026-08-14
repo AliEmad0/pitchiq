@@ -8004,7 +8004,7 @@ Phase 1 of the "render what we already ship" sequence that came out of the 2026-
 
 The page derived honours from **our own standings**, so it stopped at this competition's edge — it could only ever show league titles. Mourinho's page showed 3; the committed enrichment lists **26 trophies** and a 10-club career including Porto, Inter and Real Madrid.
 
-Three new sections, all self-hiding when a manager has no enrichment (**153 of 293**, so most pages must be byte-unchanged):
+Three new sections, all self-hiding when a manager has no enrichment (**153 of 293 at the time**, so most pages had to be byte-unchanged — pipeline TASK-M86 has since closed that gap to **293 of 293**, so the self-hiding path now only ever fires defensively):
 
 - **`<ManagerCareerSummary>`** — trophies · clubs managed · career matches · career PPM.
 - **`<ManagerCareerHonours>`** — every trophy, in the gold-card language TASK-1510 chose for this page; individual awards sit below as quieter pills so they can never be counted as silverware.
