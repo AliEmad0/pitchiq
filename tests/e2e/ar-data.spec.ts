@@ -16,6 +16,29 @@ test("/ar renders an Arabic name + position on a player profile", async ({ page 
   await expect(page.getByText("مهاجم").first()).toBeVisible();
 });
 
+/**
+ * TASK-M89 — the /ar entity DETAIL pages shipped the ENGLISH UI catalog.
+ *
+ * ⚠️ The two tests above did NOT catch it, and that is the lesson: they assert
+ * Arabic *entity data* (اسم اللاعب، المركز), which is resolved by
+ * `getEntityNames(locale)` from an EXPLICIT locale argument and kept working
+ * throughout. The broken thing was every string from the *message catalog*,
+ * which resolves from the request context. So a detail page rendered the Arabic
+ * player NAME inside a fully English UI, and a data-only assertion passed.
+ *
+ * These assert a UI string instead — one that can only come from `ar.json`.
+ */
+test("/ar entity detail pages render the Arabic UI catalog, not just Arabic data", async ({
+  page,
+}) => {
+  await page.goto("/ar/managers/134");
+  await expect(page.getByText("ملف المدرب").first()).toBeVisible();
+  await expect(page.getByText("Manager profile")).toHaveCount(0);
+
+  await page.goto("/ar/players/1001119");
+  await expect(page.getByText(/ملف اللاعب/).first()).toBeVisible();
+});
+
 test("/en keeps the Latin club name (data untranslated)", async ({ page }) => {
   await page.goto("/?season=2024");
   await expect(page.getByText("Manchester United").first()).toBeVisible();

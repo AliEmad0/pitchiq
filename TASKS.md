@@ -6342,7 +6342,7 @@ Everything in the owner's A-to-Z roadmap (2026-08-11) that **cannot** be built u
 | [TASK-M83](#task-m83) | Extended-stats leaderboards — lift the 54 unused fields (2010+)                              | ⬜ Todo | P3       | M   |
 | [TASK-M87](#task-m87) | Show the player enrichment summary where players are listed                                  | ⬜ Todo | P3       | S   |
 | [TASK-M88](#task-m88) | Reconcile the two diverged TASKS.md boards (colliding ticket numbers)                        | ⬜ Todo | P3       | S   |
-| [TASK-M89](#task-m89) | `/ar` entity DETAIL pages render English UI — the Arabic catalog never applies                | ⬜ Todo | P1       | M   |
+| [TASK-M89](#task-m89) | `/ar` entity DETAIL pages render English UI — the Arabic catalog never applies                | ✅ Done | P1       | M   |
 | [TASK-M90](#task-m90) | `<ImageZoom>` has no failover — lightbox breaks where the thumbnail recovers                  | ⬜ Todo | P3       | S   |
 
 ### TASK-M01
@@ -8088,7 +8088,72 @@ Anyone reading "M74 is done" gets the wrong answer depending on which repo they 
 
 ### TASK-M89
 
-**`/ar` entity DETAIL pages render English UI** · ⬜ Todo · `P1` · `M` · Type: Bug
+**`/ar` entity DETAIL pages render English UI** · ✅ Done · `P1` · `M` · Type: Bug
+
+## ✅ SHIPPED 2026-08-15 — root cause was a paramless boundary file
+
+**A route-scoped `not-found.tsx` calling `getTranslations()`.** These boundary
+files receive **no `params`**, so they can never call `setRequestLocale()` — and a
+next-intl SERVER call with no locale resolves the request config to
+`defaultLocale` **and memoizes it for the whole render**. Next prerenders the
+boundary as part of its segment's shell, so the poisoning landed **before** the
+page and the shared layout rendered. Both then produced English.
+
+`<html lang="ar" dir="rtl">` stayed correct throughout — it comes from `params`,
+not from next-intl — which is exactly what made this survive so long.
+
+**Fix:** make the boundaries client components using `useTranslations`, reading
+`NextIntlClientProvider`, which the layout hands an **explicit** `locale`. A
+client component never touches the server request config, so it cannot poison it.
+This is the shape Next already forced on `error.tsx`.
+
+### The measurement, since the ticket asked for codepoints
+
+A production build emitted `[locale]` layout renders as:
+
+| | before | after |
+| --- | --- | --- |
+| `locale=ar`, Arabic catalog | 399 | **940** |
+| `locale=ar`, English catalog | **541** | **0** |
+
+Single-variable proof: deleting **only** `teams/[id]/not-found.tsx` moved exactly
+its 2 pages (541 → 539), leaving managers and players broken. Prerendered
+artifacts, before → after: managers **2 → 18,473**, teams **73 → 20,322**,
+players **622 → 18,569**. **0 of 1,471** `/ar` pages now fall below the floor.
+
+### Scope was wider than the ticket
+
+Not "entity detail routes" — precisely the three with a colocated
+`not-found.tsx`. `fixtures/[id]` is also `force-static` with its own
+`generateStaticParams` and `dynamicParams = true`, and was **fine**, which ruled
+out all three of those as causes. `players/[id]` was the biggest victim at 537
+pages per locale and is not in the ticket's table.
+
+### Why nothing caught it
+
+`tests/e2e/ar-data.spec.ts` asserted Arabic **entity data** (`محمد صلاح`,
+`مهاجم`), which is resolved by `getEntityNames(locale)` from an **explicit**
+locale argument and kept working. So a detail page rendered the Arabic player
+name inside a fully English UI and the assertion passed. The new E2E asserts a
+**message-catalog** string instead. ⚠️ The bug **does** reproduce under `pnpm dev`
+(verified by reintroducing it), so the E2E guard is not vacuous.
+
+### Guards added
+
+- `tests/unit/i18n-boundary-locale.test.ts` — **the cause**: no paramless
+  boundary (`not-found`/`error`/`loading`/`template`) may import
+  `next-intl/server`. Runs in the normal suite, needs no build. It also asserts
+  the boundaries still localize, so it can't be satisfied by hardcoding English.
+- `tests/e2e/ar-data.spec.ts` — **the symptom**: an Arabic UI string on
+  `/ar/managers/[id]` and `/ar/players/[id]`.
+
+`src/app/[locale]/not-found.tsx` was converted too. It was not observed breaking
+a route, but it is the identical hazard, and converting it is what lets the guard
+assert the invariant with **no exemptions** — an allowlist is how the next
+instance slips back in.
+
+**Same family as TASK-M72** (`loading.tsx` above a `notFound()` segment): a
+paramless boundary file doing work the whole segment depends on.
 
 Found while verifying TASK-M81, and **confirmed on production**, so it predates that branch. Counting Arabic codepoints in the served HTML:
 

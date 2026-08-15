@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 vi.mock("@/utils/logger", () => ({
@@ -11,12 +11,17 @@ vi.mock("@/utils/logger", () => ({
   },
 }));
 
-// not-found.tsx is a Server Component that localizes via getTranslations
-// (TASK-1603); error.tsx is a Client Component using useTranslations
-// (rendered under the intl provider via renderWithIntl). There is NO
-// loading.tsx: TASK-M72 removed every loading boundary above notFound()-
-// throwing segments — a Suspense boundary lets Next flush the 200 shell
-// before the page runs, which made every unknown URL a soft 404.
+// BOTH not-found.tsx and error.tsx are Client Components using useTranslations,
+// so both render under the intl provider via renderWithIntl.
+//
+// not-found.tsx used to be a Server Component calling getTranslations — that was
+// TASK-M89: a boundary file gets no `params`, so it can never call
+// setRequestLocale(), and the server call resolved next-intl to defaultLocale and
+// poisoned the whole prerendered segment (every /ar detail page shipped the
+// English catalog). There is NO loading.tsx either: TASK-M72 removed every
+// loading boundary above notFound()-throwing segments — a Suspense boundary lets
+// Next flush the 200 shell before the page runs, which made every unknown URL a
+// soft 404. Same family: a paramless boundary doing work the segment depends on.
 vi.mock("next-intl/server", () => import("./_helpers/intl-server"));
 
 import { logger } from "@/utils/logger";
@@ -76,8 +81,8 @@ describe("error.tsx", () => {
 });
 
 describe("not-found.tsx", () => {
-  it("renders the 404 title and a back-to-dashboard link pointing at /", async () => {
-    render(await NotFound());
+  it("renders the 404 title and a back-to-dashboard link pointing at /", () => {
+    renderWithIntl(<NotFound />);
 
     expect(screen.getByText(/page not found/i)).toBeInTheDocument();
 
