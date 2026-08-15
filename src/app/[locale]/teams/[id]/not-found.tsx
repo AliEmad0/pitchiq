@@ -1,4 +1,6 @@
-import { getTranslations } from "next-intl/server";
+"use client";
+
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 
 import { BoundaryPanel } from "@/components/BoundaryPanel";
@@ -6,12 +8,17 @@ import { Button } from "@/components/ui/button";
 
 // Route-scoped 404 for `/teams/[id]` (TASK-1503 "VAR review" panel). Triggered
 // when the URL param isn't an integer or `getTeam(id)` resolves to null (the
-// team id isn't in the current Premier League snapshot). Server Component;
-// copy is localized via getTranslations (TASK-1603).
-export default async function TeamNotFound() {
-  const t = await getTranslations("notFound");
-  const tb = await getTranslations("boundaries");
-  const tn = await getTranslations("nav");
+// team id isn't in the current Premier League snapshot). Copy is localized via
+// useTranslations (TASK-1603).
+//
+// ⛔ CLIENT COMPONENT ON PURPOSE — see the note in
+// `managers/[id]/not-found.tsx`. A `getTranslations()` call here poisons
+// next-intl's request config to `defaultLocale` for the whole prerendered
+// segment (TASK-M89). Guarded by tests/unit/i18n-boundary-locale.test.ts.
+export default function TeamNotFound() {
+  const t = useTranslations("notFound");
+  const tb = useTranslations("boundaries");
+  const tn = useTranslations("nav");
   return (
     <BoundaryPanel
       tag={tb("notFoundTag")}

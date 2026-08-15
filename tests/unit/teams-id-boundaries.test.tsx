@@ -1,12 +1,9 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
-
-// not-found.tsx is a Server Component that localizes via getTranslations
-// (TASK-1603); mock next-intl/server so `render(await TeamNotFound())` resolves
-// the real English strings without a request context.
-vi.mock("next-intl/server", () => import("./_helpers/intl-server"));
+import { afterEach, describe, expect, it } from "vitest";
+import { cleanup, screen } from "@testing-library/react";
 
 import TeamNotFound from "@/app/[locale]/teams/[id]/not-found";
+
+import { renderWithIntl } from "./_helpers/intl";
 
 afterEach(() => {
   cleanup();
@@ -15,9 +12,17 @@ afterEach(() => {
 // The route's loading.tsx was REMOVED in TASK-M72: its Suspense boundary let
 // Next flush a 200 shell before the page's notFound() ran, so unknown team
 // ids were soft 404s. The page's per-section Suspense skeletons remain.
+//
+// not-found.tsx is a CLIENT Component localizing via useTranslations, so it
+// renders under the intl provider. It used to be a Server Component calling
+// getTranslations, which was TASK-M89: a boundary file receives no `params`, so
+// it can never call setRequestLocale(), and the server call resolved next-intl
+// to defaultLocale and poisoned the whole prerendered segment — every
+// /ar/teams/[id] page shipped the English catalog. Same family as the M72
+// loading.tsx above: a paramless boundary doing work its segment depends on.
 describe("/teams/[id] not-found.tsx", () => {
-  it("renders the team-specific 404 copy and two routing actions", async () => {
-    render(await TeamNotFound());
+  it("renders the team-specific 404 copy and two routing actions", () => {
+    renderWithIntl(<TeamNotFound />);
 
     // CardTitle is a div, not a semantic heading — match by text.
     expect(screen.getByText(/Team not found/)).toBeTruthy();
@@ -31,8 +36,8 @@ describe("/teams/[id] not-found.tsx", () => {
     expect(dashboardLink.getAttribute("href")).toBe("/");
   });
 
-  it("uses different copy from the root not-found (this is the team-scoped boundary)", async () => {
-    render(await TeamNotFound());
+  it("uses different copy from the root not-found (this is the team-scoped boundary)", () => {
+    renderWithIntl(<TeamNotFound />);
     // Root not-found's heading is "Page not found"; team-scoped is "Team
     // not found". Assert we are NOT the root copy.
     expect(screen.queryByText("Page not found")).toBeNull();
