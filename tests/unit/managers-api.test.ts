@@ -1,12 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { loadManagers, loadManagerBios } from "@/data/loaders";
+import { loadManagers, loadManagerBios, loadManagerEnrichment } from "@/data/loaders";
 import { getEntityNames, makeEntityNames } from "@/features/i18n/entity-names";
 import { getTeamManagers } from "@/features/teams/managers.api";
 
 vi.mock("@/data/loaders", () => ({
   loadManagers: vi.fn(),
   loadManagerBios: vi.fn(),
+  loadManagerEnrichment: vi.fn(async () => null),
 }));
 
 // Resolver defaults to identity (Latin); the /ar test overrides it once.
@@ -123,5 +124,31 @@ describe("getTeamManagers", () => {
 
     const out = await getTeamManagers(2022, 49);
     expect(out[0].name).toBe("غراهام بوتر");
+  });
+
+  // TASK-M87 — the team page shows the same manager avatar as the index, so a
+  // portrait published for one surface must reach this one too.
+  describe("crawled portrait fallback (TASK-M87)", () => {
+    beforeEach(() => {
+      vi.mocked(loadManagers).mockResolvedValue({
+        "2024": { "31": [M("44410", "Oliver Glasner", 38)] },
+      });
+      vi.mocked(loadManagerBios).mockResolvedValue({});
+    });
+
+    it("exposes the enrichment portrait as photoFallback, leaving photo as the id", async () => {
+      vi.mocked(loadManagerEnrichment).mockResolvedValue({
+        "44410": { photo: "https://img.a.transfermarkt.technology/p/22891.jpg" },
+      } as never);
+      const out = await getTeamManagers(2024, 31);
+      expect(out[0].photo).toBe("44410");
+      expect(out[0].photoFallback).toBe("https://img.a.transfermarkt.technology/p/22891.jpg");
+    });
+
+    it("leaves photoFallback null when the crawl banked nothing for him", async () => {
+      vi.mocked(loadManagerEnrichment).mockResolvedValue({ "44410": { photo: null } } as never);
+      const out = await getTeamManagers(2024, 31);
+      expect(out[0].photoFallback).toBeNull();
+    });
   });
 });

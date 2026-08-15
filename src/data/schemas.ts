@@ -384,6 +384,16 @@ export const ManagerEnrichmentSummarySchema = z.object({
   careerLosses: z.number().int(),
   /** `(3W + D) / M`, 2dp. **null when there is no record — never 0.** */
   careerPpm: z.number().nullable(),
+  /**
+   * TASK-M87 — the crawled Transfermarkt portrait, or null.
+   *
+   * A **last-resort** photo source, not a preferred one: consumers pass it as
+   * `<PlayerImage photoFallback>`, which tries it only after the owner override
+   * and both PL-CDN candidates have failed. `.default(null)` so a file written
+   * before M87 still parses — without the key here zod would silently strip it
+   * and the portrait would never reach the app, which is the bug this closes.
+   */
+  photo: z.string().nullable().default(null),
 });
 export const ManagerEnrichmentFileSchema = z.record(z.string(), ManagerEnrichmentSummarySchema);
 export type ManagerEnrichmentFile = z.infer<typeof ManagerEnrichmentFileSchema>;

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { screen } from "@testing-library/react";
+import { screen, fireEvent } from "@testing-library/react";
 import { NuqsTestingAdapter } from "nuqs/adapters/testing";
 
 import {
@@ -21,6 +21,7 @@ const row = (
   managerId: id,
   name,
   photo: id,
+  photoFallback: null,
   nationality: null,
   nationalityCode: null,
   teamId: 1,
@@ -74,5 +75,26 @@ describe("<ManagersTable>", () => {
       "/managers/58?season=2009",
     );
     expect(screen.getByText("90")).toBeInTheDocument();
+  });
+
+  // TASK-M87 — the row carrying a portrait is worth nothing if the avatar does
+  // not receive it; that "published but unread" gap is the bug this ticket closes.
+  it("threads the crawled portrait into the avatar's candidate chain", () => {
+    const tm = "https://img.a.transfermarkt.technology/p/22891.jpg";
+    const glasner = { ...row("44410", "Oliver Glasner", "Crystal Palace", 49), photoFallback: tm };
+    const { container } = renderWithIntl(
+      <NuqsTestingAdapter>
+        <ManagersTable rows={[glasner]} season={2024} />
+      </NuqsTestingAdapter>,
+    );
+    // The team crest is a local `/l.png`, so the remote src is the manager avatar.
+    const avatar = () =>
+      [...container.querySelectorAll("img")].find((i) =>
+        /^https?:/.test(i.getAttribute("src") ?? ""),
+      );
+    expect(avatar()?.getAttribute("src")).toContain("110x140/44410.png");
+    fireEvent.error(avatar()!); // current PL CDN 404s for him…
+    fireEvent.error(avatar()!); // …and so does the legacy path
+    expect(avatar()?.getAttribute("src")).toBe(tm);
   });
 });

@@ -123,7 +123,7 @@ export function ManagersTable({ rows, season }: { rows: ManagerIndexRow[]; seaso
                   <td className="px-3 py-2">
                     <span className="flex items-center gap-2">
                       <PlayerImage
-                        player={{ name: r.name, photo: r.photo }}
+                        player={{ name: r.name, photo: r.photo, photoFallback: r.photoFallback }}
                         size="sm"
                         className="rounded-full"
                       />

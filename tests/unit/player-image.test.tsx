@@ -63,6 +63,83 @@ describe("resolvePlayerPhotoSrc / playerPhotoCandidates", () => {
   });
 });
 
+// TASK-M87 — a crawled portrait is a LAST-RESORT source. It must sit after every
+// candidate the primary `photo` produces, so publishing one cannot restyle a
+// manager whose PL-CDN headshot already loads; it only fills a genuine hole.
+describe("playerPhotoCandidates fallback source (TASK-M87)", () => {
+  it("appends the fallback AFTER both PL CDN candidates", () => {
+    expect(
+      playerPhotoCandidates("44410", "https://img.a.transfermarkt.technology/p/22891.jpg"),
+    ).toEqual([
+      "https://resources.premierleague.com/premierleague25/photos/players/110x140/44410.png",
+      "https://resources.premierleague.com/premierleague/photos/players/250x250/p44410.png",
+      "https://img.a.transfermarkt.technology/p/22891.jpg",
+    ]);
+  });
+
+  it("keeps an owner-override absolute URL first, so the override stays authoritative", () => {
+    // The M86 lesson: several stored photos were hand-corrected because the
+    // automatic source had the wrong person (53250 carried Fernando Velasco).
+    expect(
+      playerPhotoCandidates(
+        "https://override.example/correct.jpg",
+        "https://img.a.transfermarkt.technology/wrong.jpg",
+      ),
+    ).toEqual([
+      "https://override.example/correct.jpg",
+      "https://img.a.transfermarkt.technology/wrong.jpg",
+    ]);
+  });
+
+  it("uses the fallback alone when the primary yields nothing", () => {
+    const tm = "https://img.a.transfermarkt.technology/p/1.jpg";
+    expect(playerPhotoCandidates(null, tm)).toEqual([tm]);
+    expect(playerPhotoCandidates("lm-mike-walker", tm)).toEqual([tm]);
+    expect(resolvePlayerPhotoSrc("lm-mike-walker", tm)).toBe(tm);
+  });
+
+  it("never repeats a candidate the primary already produced", () => {
+    const url = "https://img.a.transfermarkt.technology/p/1.jpg";
+    expect(playerPhotoCandidates(url, url)).toEqual([url]);
+  });
+
+  it("ignores a fallback that is not an absolute URL", () => {
+    // A bare id here would silently re-enter the PL-CDN path and mask a real gap.
+    expect(playerPhotoCandidates(null, "44410")).toEqual([]);
+    expect(playerPhotoCandidates(null, "")).toEqual([]);
+    expect(playerPhotoCandidates("223340", undefined)).toEqual([
+      "https://resources.premierleague.com/premierleague25/photos/players/110x140/223340.png",
+      "https://resources.premierleague.com/premierleague/photos/players/250x250/p223340.png",
+    ]);
+  });
+});
+
+describe("PlayerImage falls through to a crawled portrait (TASK-M87)", () => {
+  it("shows the fallback portrait once both PL CDN candidates fail", () => {
+    const tm = "https://img.a.transfermarkt.technology/p/22891.jpg";
+    const { container } = render(
+      <PlayerImage player={{ name: "Oliver Glasner", photo: "44410", photoFallback: tm }} />,
+    );
+    const img = () => container.querySelector("img")!;
+    expect(img().getAttribute("src")).toContain("110x140/44410.png");
+    fireEvent.error(img());
+    expect(img().getAttribute("src")).toContain("250x250/p44410.png");
+    fireEvent.error(img());
+    expect(img().getAttribute("src")).toBe(tm);
+  });
+
+  it("still lands on initials when the fallback fails too", () => {
+    const { container } = render(
+      <PlayerImage
+        player={{ name: "Oliver Glasner", photo: "44410", photoFallback: "https://img.a.tm/x.jpg" }}
+      />,
+    );
+    for (let i = 0; i < 3; i++) fireEvent.error(container.querySelector("img")!);
+    expect(container.querySelector("img")).toBeNull();
+    expect(container.textContent).toContain("OG");
+  });
+});
+
 describe("playerInitials", () => {
   it("takes first + last word initials", () => {
     expect(playerInitials("Bukayo Saka")).toBe("BS");

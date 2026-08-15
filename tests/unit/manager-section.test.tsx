@@ -12,6 +12,7 @@ const mgr = (over: Partial<ManagerProfile> = {}): ManagerProfile => ({
   id: "51070",
   name: "Bruno Lage",
   photo: "51070",
+  photoFallback: null,
   birthDate: "1976-05-12",
   dateOfDeath: null,
   age: 49,
