@@ -6343,6 +6343,7 @@ Everything in the owner's A-to-Z roadmap (2026-08-11) that **cannot** be built u
 | [TASK-M87](#task-m87) | Show the player enrichment summary where players are listed                                  | ⬜ Todo | P3       | S   |
 | [TASK-M88](#task-m88) | Reconcile the two diverged TASKS.md boards (colliding ticket numbers)                        | ⬜ Todo | P3       | S   |
 | [TASK-M89](#task-m89) | `/ar` entity DETAIL pages render English UI — the Arabic catalog never applies                | ⬜ Todo | P1       | M   |
+| [TASK-M90](#task-m90) | `<ImageZoom>` has no failover — lightbox breaks where the thumbnail recovers                  | ⬜ Todo | P3       | S   |
 
 ### TASK-M01
 
@@ -8107,6 +8108,41 @@ Rated **P1** — Arabic is half the product's localization story and these are t
 **Suggested guard:** assert an Arabic-codepoint floor on a prerendered `/ar` detail page, so a locale regression fails the build rather than being discovered by eye. Counting codepoints is what caught it; grepping for a phrase would not have, because next-intl serialises the whole catalog into every page and always "finds" the string.
 
 **Depends on:** nothing.
+
+---
+
+### TASK-M90
+
+**`<ImageZoom>` has no failover — the lightbox shows a broken image where the thumbnail recovered** · ⬜ Todo · `P3` · `S` · Type: Bug
+
+`<PlayerImage>` owns a real resolution chain: it walks `playerPhotoCandidates`, and an `onError` marks the failed src and falls to the next, ending at an initials monogram so a broken-image box is **never** shown (TASK-M28). `<ImageZoom>` sits directly beside it in the same heroes and has **none of that** — it takes a single `src: string` and renders a plain `<img src={src}>` with no `onError`.
+
+So on a hero the two disagree: the thumbnail recovers, the lightbox behind it does not.
+
+```tsx
+// src/components/ImageZoom.tsx — the whole failure surface
+<img src={src} alt={alt} className="…" />   // no onError, no candidate list
+```
+
+**Not manager-only.** All three consumers pass candidate **one** and hope:
+
+| Consumer | What it passes |
+| --- | --- |
+| `ManagerHero.tsx` | `resolvePlayerPhotoSrc(profile.photo, profile.photoFallback)` |
+| `PlayerHero.tsx` | `resolvePlayerPhotoSrc(player.photo)` |
+| `TeamHero.tsx` | `team.logo` |
+
+`resolvePlayerPhotoSrc` returns `candidates[0]`. For a numeric id that is the PL-CDN `110x140` URL **whether or not it 404s** — so neither the legacy `250x250` path nor any fallback is ever reachable from the lightbox.
+
+⚠️ **This ticket is NOT "pass `photoFallback` into `resolvePlayerPhotoSrc`" — TASK-M87 already did that**, and it deliberately does not fix this. Because the fallback is appended *after* the CDN candidates, `candidates[0]` is unchanged for every numeric id. What M87's threading did buy is legacy `lm-*` managers, whose id yields **no** candidate at all: their hero previously had no zoom whatsoever and now has one. Anyone who reads the call signature, sees the argument already threaded, and closes this as done will leave the actual defect in place.
+
+**The fix is to give the lightbox the same chain the thumbnail has** — hand `<ImageZoom>` the candidate *list* (or let it accept the failover callback), reuse the `failed`-set pattern from `PlayerImage.tsx` rather than inventing a second one, and degrade to closing/suppressing the zoom rather than showing a broken box when every candidate fails.
+
+**Known instances:** Oliver Glasner (`44410`) and Andoni Iraola (`50428`) — both PL-CDN candidates 404, thumbnail falls through to the crawled portrait, lightbox stays broken. **Players are unmeasured but structurally identical** (`PlayerHero` uses the same helper), and TASK-M28 exists precisely because some player photos 404 — worth counting before sizing the fix.
+
+**Suggested guard:** a component test that renders each hero with a photo whose first candidate fails and asserts the lightbox `src` advances — the thumbnail-only assertions in `player-image.test.tsx` pass today while this bug is live.
+
+**Depends on:** nothing. **Related:** TASK-M87 (published the fallback the lightbox cannot reach), TASK-M28 (why the thumbnail chain exists).
 
 ---
 
