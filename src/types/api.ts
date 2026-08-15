@@ -242,6 +242,26 @@ export type PlayerBirth = {
   country: string | null;
 };
 
+/**
+ * TASK-M93 — the career summary already committed on every player row.
+ *
+ * `trophies` is SILVERWARE ONLY (see the schema note: 12,720 of TM's 29,761
+ * honour groups are participation and 1,368 are runner-up, so a raw count would
+ * rank a player who never won anything above a league winner).
+ *
+ * `caps` / `internationalGoals` are nullable and null means **unknown**, never
+ * zero — an uncapped player and a player TM has no record for must not render
+ * the same. `careerFee` is a pre-formatted display string ("€52.60m").
+ */
+export type PlayerEnrichment = {
+  trophies: number;
+  honours: number;
+  awards: number;
+  caps: number | null;
+  internationalGoals: number | null;
+  careerFee: string | null;
+};
+
 export type Player = {
   id: number;
   name: string;
@@ -254,6 +274,8 @@ export type Player = {
   weight: string | null; // "71" — kg with unit dropped
   injured: boolean;
   photo: string;
+  // TASK-M93. Absent/null = this row was never enriched — NOT "has no honours".
+  enrichment?: PlayerEnrichment | null;
 };
 
 // Sub-shapes for `PlayerStatistics`. Every numeric field is nullable in the
@@ -463,6 +485,8 @@ export type SquadPlayer = {
   dateOfDeath: string | null;
   // TASK-M41: this player captained the team that season (armband marker).
   isCaptain: boolean;
+  // TASK-M93: trophy + cap counts for the squad card. Null = unenriched row.
+  enrichment?: PlayerEnrichment | null;
 };
 
 export type SquadEntry = {

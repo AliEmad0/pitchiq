@@ -239,5 +239,7 @@ function toSquadPlayer(
     nationality: names.nationality(p.nationalityCode ?? null, p.nationality ?? null),
     nationalityCode: p.nationalityCode ?? null,
     isCaptain: captainId !== null && p.id === captainId,
+    // TASK-M93 — already on the row, so the squad card costs no extra read.
+    enrichment: p.enrichment ?? null,
   };
 }

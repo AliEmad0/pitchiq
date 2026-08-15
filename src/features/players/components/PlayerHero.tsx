@@ -10,7 +10,8 @@ import { PlayerRoleBlock } from "@/features/players/components/PlayerRoleBlock";
 import { Flag } from "@/features/players/components/Flag";
 import { PlayerAge } from "@/features/players/components/PlayerAge";
 import { CaptainBadge } from "@/features/players/components/CaptainBadge";
-import { resolvePlayerPhotoSrc } from "@/features/players/player-photo";
+import { PlayerCareerSummary } from "@/features/players/components/PlayerCareerSummary";
+import { playerPhotoCandidates } from "@/features/players/player-photo";
 import type { PlayerProfile } from "@/features/players/api";
 import { formatSeasonLabel, withSeason } from "@/utils/season";
 import { formatBirthDate } from "@/utils/age";
@@ -24,9 +25,13 @@ export function PlayerHero({ player, season }: { player: PlayerProfile; season: 
   const t = useTranslations("players");
   const tc = useTranslations("common");
   const locale = useLocale();
-  // Click-to-enlarge the cover photo (only when there's a real image — the
-  // initials monogram isn't worth zooming).
-  const photoSrc = resolvePlayerPhotoSrc(player.photo);
+  // Click-to-enlarge the cover photo. TASK-M90: hand the lightbox the whole
+  // candidate list so it fails over like the thumbnail does — TASK-M28 exists
+  // precisely because some player photos 404, and `resolvePlayerPhotoSrc` returns
+  // candidate ONE, so the lightbox could never reach the legacy 250x250 path.
+  // ImageZoom renders `children` bare when the list is empty, so the initials
+  // monogram still isn't wrapped in a zoom affordance.
+  const photoCandidates = playerPhotoCandidates(player.photo);
   const cover = (
     <PlayerImage
       player={player}
@@ -35,18 +40,14 @@ export function PlayerHero({ player, season }: { player: PlayerProfile; season: 
       className="size-full rounded-none object-cover object-top"
     />
   );
-  return (
+  const card = (
     <Card className="overflow-hidden p-0" {...revealProps()}>
       <div className="flex flex-col sm:flex-row">
         {/* Cover photo — full panel height on desktop, a banner on mobile. */}
         <div className="bg-muted relative h-56 w-full shrink-0 sm:h-auto sm:w-44 sm:self-stretch lg:w-56">
-          {photoSrc ? (
-            <ImageZoom src={photoSrc} alt={player.name} triggerClassName="size-full">
-              {cover}
-            </ImageZoom>
-          ) : (
-            cover
-          )}
+          <ImageZoom src={photoCandidates} alt={player.name} triggerClassName="size-full">
+            {cover}
+          </ImageZoom>
         </div>
 
         {/* Identity block. */}
@@ -130,5 +131,21 @@ export function PlayerHero({ player, season }: { player: PlayerProfile; season: 
         </div>
       </div>
     </Card>
+  );
+
+  return (
+    <>
+      {card}
+      {/*
+        TASK-M93 — the career summary lives INSIDE the hero on purpose, unlike
+        <ManagerCareerSummary>, which is a sibling on the manager page.
+        <PlayerSeasonView> replaces its `hero` slot wholesale on a season swap,
+        so a sibling section would have to be repeated in the swap branch and
+        would silently vanish the moment a visitor changed season — the exact
+        trap flagged in <ManagerSeasonView>. The summary is season-INDEPENDENT
+        (it is the whole career), so binding it to the hero is also honest.
+      */}
+      <PlayerCareerSummary enrichment={player.enrichment} />
+    </>
   );
 }

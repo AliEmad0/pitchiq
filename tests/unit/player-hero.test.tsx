@@ -41,6 +41,9 @@ const SALAH: PlayerProfile = {
   foot: null,
   height: null,
   metrics: metrics(),
+  // TASK-M93: null = unenriched, so <PlayerCareerSummary> self-hides and these
+  // hero assertions stay about the hero.
+  enrichment: null,
 };
 
 // TASK-M70: an enriched profile — drives the role block instead of the plain
