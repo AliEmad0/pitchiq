@@ -40,7 +40,7 @@ export function ManagerSection({
         {managers.map((m) => (
           <li key={m.id} className="flex items-center gap-3">
             <PlayerImage
-              player={{ name: m.name, photo: m.photo }}
+              player={{ name: m.name, photo: m.photo, photoFallback: m.photoFallback }}
               size="md"
               deceased={!!m.dateOfDeath}
               className="shrink-0 rounded-full"

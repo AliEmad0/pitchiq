@@ -513,6 +513,30 @@ describe("manager enrichment loaders (TASK-M78)", () => {
     expect(m?.[MOURINHO]?.awards).toBeGreaterThan(0);
   });
 
+  // TASK-M87 — the crawl banked these portraits from M86 onward and the schema
+  // dropped them, so they never reached the app. Named managers, per the M86
+  // audit rule: a coverage count can look healthy while the field is missing.
+  it("ships the crawled portrait for the managers who render initials without it", async () => {
+    const { loadManagerEnrichment } = await import("@/data/loaders");
+    const m = await loadManagerEnrichment();
+    // Oliver Glasner and Andoni Iraola: both PL-CDN candidates 404, so before
+    // M87 each showed an "OG"/"AI" monogram on every surface.
+    expect(m?.["44410"]?.photo).toMatch(/^https:\/\/img\.a\.transfermarkt\.technology\//);
+    expect(m?.["50428"]?.photo).toMatch(/^https:\/\/img\.a\.transfermarkt\.technology\//);
+  });
+
+  it("carries a portrait for most managers and null — never undefined — for the rest", async () => {
+    const { loadManagerEnrichment } = await import("@/data/loaders");
+    const m = await loadManagerEnrichment();
+    const all = Object.values(m ?? {});
+    expect(all.length).toBeGreaterThan(100);
+    // `undefined` would mean the schema stripped the key (the M75 zod trap).
+    for (const [id, s] of Object.entries(m ?? {})) {
+      expect(s.photo, `photo for ${id}`).not.toBeUndefined();
+    }
+    expect(all.filter((s) => s.photo).length).toBeGreaterThan(150);
+  });
+
   it("keeps careerPpm consistent with the W/D/L it ships", async () => {
     const { loadManagerEnrichment } = await import("@/data/loaders");
     const m = await loadManagerEnrichment();
@@ -520,7 +544,9 @@ describe("manager enrichment loaders (TASK-M78)", () => {
     // nothing and pass vacuously, which is exactly the silent-null this suite guards.
     expect(Object.keys(m ?? {}).length).toBeGreaterThan(100);
     for (const [id, s] of Object.entries(m ?? {})) {
-      expect(s.careerWins + s.careerDraws + s.careerLosses, `W+D+L for ${id}`).toBe(s.careerMatches);
+      expect(s.careerWins + s.careerDraws + s.careerLosses, `W+D+L for ${id}`).toBe(
+        s.careerMatches,
+      );
       const expected =
         s.careerMatches > 0
           ? Math.round(((3 * s.careerWins + s.careerDraws) / s.careerMatches) * 100) / 100

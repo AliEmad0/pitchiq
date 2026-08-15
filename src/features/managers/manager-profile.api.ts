@@ -49,6 +49,12 @@ export type ManagerProfile = {
   id: string;
   name: string;
   photo: string;
+  /**
+   * TASK-M87 — the crawled Transfermarkt portrait, or null. `<PlayerImage>`
+   * reaches it only after every `photo` candidate has failed, so it fills the
+   * genuine holes (Glasner, Iraola) without displacing a working PL headshot.
+   */
+  photoFallback: string | null;
   birthDate: string | null;
   dateOfDeath: string | null;
   age: number | null;
@@ -160,6 +166,8 @@ export async function getManagerProfile(
     id,
     name: names.manager(id, career.name),
     photo: bio?.photo ?? id,
+    // TASK-M87 — last-resort portrait, tried after the PL-CDN candidates fail.
+    photoFallback: careerSummary?.photo ?? null,
     birthDate: bio?.birthDate ?? null,
     dateOfDeath: bio?.dateOfDeath ?? null,
     age: seedAge(bio?.birthDate ?? null, null, bio?.dateOfDeath ?? null),

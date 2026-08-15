@@ -21,6 +21,7 @@ const summary = (over: Partial<ManagerEnrichmentSummary> = {}): ManagerEnrichmen
   careerDraws: 251,
   careerLosses: 223,
   careerPpm: 2.06,
+  photo: null,
   ...over,
 });
 
@@ -70,7 +71,13 @@ describe("<ManagerCareerSummary>", () => {
   it("shows an em dash rather than inventing a 0 when there is no record", () => {
     renderWithIntl(
       <ManagerCareerSummary
-        summary={summary({ careerPpm: null, careerMatches: 0, careerWins: 0, careerDraws: 0, careerLosses: 0 })}
+        summary={summary({
+          careerPpm: null,
+          careerMatches: 0,
+          careerWins: 0,
+          careerDraws: 0,
+          careerLosses: 0,
+        })}
       />,
     );
     expect(screen.getByText("—")).toBeInTheDocument();

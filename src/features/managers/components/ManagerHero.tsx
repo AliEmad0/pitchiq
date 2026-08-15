@@ -23,11 +23,15 @@ export function ManagerHero({ profile }: { profile: ManagerProfile }) {
   const t = useTranslations("managers");
   const tc = useTranslations("common");
   const locale = useLocale();
-  const photoSrc = resolvePlayerPhotoSrc(profile.photo);
+  // TASK-M87: the zoom target gains the crawled portrait as a last resort. For a
+  // numeric id this is unchanged (the PL-CDN URL is still candidate one, 404 or
+  // not — `<ImageZoom>` has no failover); it matters for legacy `lm-*` managers,
+  // whose id yields no candidate at all, so the hero had no zoom before.
+  const photoSrc = resolvePlayerPhotoSrc(profile.photo, profile.photoFallback);
   const titles = profile.honours.length;
   const cover = (
     <PlayerImage
-      player={{ name: profile.name, photo: profile.photo }}
+      player={{ name: profile.name, photo: profile.photo, photoFallback: profile.photoFallback }}
       size="lg"
       deceased={!!profile.dateOfDeath}
       className="size-full rounded-none object-cover object-top"

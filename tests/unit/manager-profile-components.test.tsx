@@ -24,6 +24,7 @@ const PROFILE: ManagerProfile = {
   id: "58",
   name: "Alex Ferguson",
   photo: "58",
+  photoFallback: null,
   birthDate: "1941-12-31",
   dateOfDeath: null,
   age: 84,

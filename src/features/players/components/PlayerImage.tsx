@@ -57,7 +57,16 @@ const TEXT_CLASS: Record<PlayerImageSize, string> = {
   lg: "text-2xl",
 };
 
-export type PlayerImageInput = { name: string; photo: string | null } | null;
+export type PlayerImageInput = {
+  name: string;
+  photo: string | null;
+  /**
+   * TASK-M87 — a last-resort absolute URL tried only after every `photo`
+   * candidate has failed. Managers pass the crawled Transfermarkt portrait here
+   * so it fills a genuine hole without displacing a working PL-CDN headshot.
+   */
+  photoFallback?: string | null;
+} | null;
 
 export type PlayerImageProps = {
   player: PlayerImageInput;
@@ -75,7 +84,9 @@ export function PlayerImage({ player, size = "md", className, deceased }: Player
   // Track the srcs that failed to load (keyed by url, not a bare boolean) so that
   // a candidate falls through to the next, and a `player` photo change retries.
   const [failed, setFailed] = useState<ReadonlySet<string>>(new Set());
-  const src = playerPhotoCandidates(player?.photo).find((c) => !failed.has(c));
+  const src = playerPhotoCandidates(player?.photo, player?.photoFallback).find(
+    (c) => !failed.has(c),
+  );
 
   // When deceased, sizing + the caller's className move to a positioned wrapper
   // (which holds the mourning ribbon); the avatar fills it and is grayscaled.

@@ -11,6 +11,7 @@ const row = (
   managerId,
   name,
   photo: managerId,
+  photoFallback: null,
   nationality: null,
   nationalityCode: null,
   teamId: 1,

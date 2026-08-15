@@ -1,7 +1,7 @@
 import "server-only";
 
 import { getEntityNames } from "@/features/i18n/entity-names";
-import { loadManagers, loadManagerBios } from "@/data/loaders";
+import { loadManagers, loadManagerBios, loadManagerEnrichment } from "@/data/loaders";
 import { seedAge } from "@/utils/age";
 
 /**
@@ -17,6 +17,11 @@ export type ManagerProfile = {
   id: string;
   name: string;
   photo: string;
+  /**
+   * TASK-M87 — the crawled Transfermarkt portrait, tried only after `photo` has
+   * run out of candidates, so a working PL-CDN headshot is never displaced.
+   */
+  photoFallback: string | null;
   birthDate: string | null;
   dateOfDeath: string | null;
   age: number | null;
@@ -29,10 +34,11 @@ export async function getTeamManagers(
   // TASK-M71c: explicit locale for Route Handlers (see teams/api.ts getTeam).
   locale?: string,
 ): Promise<ManagerProfile[]> {
-  const [managers, bios, names] = await Promise.all([
+  const [managers, bios, names, enrichment] = await Promise.all([
     loadManagers(),
     loadManagerBios(),
     getEntityNames(locale),
+    loadManagerEnrichment(),
   ]);
   const list = managers?.[String(season)]?.[String(teamId)] ?? [];
   return list.map((m) => {
@@ -43,6 +49,7 @@ export async function getTeamManagers(
       // the team-page manager section never threaded the resolver).
       name: names.manager(m.id, m.name),
       photo: bio?.photo ?? m.id, // override photo wins, else PL id → PL-CDN
+      photoFallback: enrichment?.[m.id]?.photo ?? null, // …then the crawl (TASK-M87)
       birthDate: bio?.birthDate ?? null,
       dateOfDeath: bio?.dateOfDeath ?? null,
       age: seedAge(bio?.birthDate ?? null, null, bio?.dateOfDeath ?? null),

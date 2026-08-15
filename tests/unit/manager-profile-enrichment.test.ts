@@ -25,9 +25,9 @@ describe("getManagerProfile — career enrichment (real data)", () => {
     // Silverware won outside this league is present.
     const titles = p!.careerHonours.map((g) => g.title);
     expect(titles).toContain("UEFA Champions League winner");
-    expect(titles.some((t) => /Italian champion|Spanish champion|Portuguese champion/.test(t))).toBe(
-      true,
-    );
+    expect(
+      titles.some((t) => /Italian champion|Spanish champion|Portuguese champion/.test(t)),
+    ).toBe(true);
 
     // Awards are classified apart from trophies.
     const moty = p!.careerHonours.find((g) => /Manager of the Year/i.test(g.title));
@@ -89,5 +89,28 @@ describe("getManagerProfile — career enrichment (real data)", () => {
 
     vi.doUnmock("@/data/loaders");
     vi.resetModules();
+  });
+
+  /**
+   * TASK-M87 — real data again, and for the same reason: the portrait was
+   * captured on every crawl from M86 onward and silently dropped, so only an
+   * assertion about a NAMED manager catches it coming back.
+   */
+  describe("crawled portrait (TASK-M87)", () => {
+    it("hands Glasner the portrait his PL-CDN headshot never had", async () => {
+      const { getManagerProfile } = await import("@/features/managers/manager-profile.api");
+      // Both PL-CDN candidates 404 for 44410, so this page showed an "OG" monogram.
+      const p = await getManagerProfile("44410");
+      expect(p).not.toBeNull();
+      expect(p!.photoFallback).toMatch(/^https:\/\/img\.a\.transfermarkt\.technology\//);
+      // …and the primary is untouched, so the CDN is still tried first.
+      expect(p!.photo).toBe("44410");
+    });
+
+    it("leaves photoFallback null rather than undefined for a manager with no crawled portrait", async () => {
+      const { getManagerProfile } = await import("@/features/managers/manager-profile.api");
+      const p = await getManagerProfile(WENGER);
+      expect(p!.photoFallback === null || typeof p!.photoFallback === "string").toBe(true);
+    });
   });
 });
