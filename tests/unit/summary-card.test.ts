@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
 
 import type { MatchEvent } from "../../src/features/game/domain/match-types";
+import type { GameTeam } from "../../src/features/game/domain/team";
 import {
   scorerLine,
   scorersFrom,
   summaryFilename,
-  type MatchSummary,
+  summaryFrom,
+  type SummaryCardData,
 } from "../../src/features/game/domain/summary-card";
 
 const NAMES: Record<number, string> = { 1: "Henry", 2: "Carragher", 3: "Shearer" };
@@ -56,6 +58,21 @@ describe("scorersFrom", () => {
     ]);
   });
 
+  // ⛔ THE regression test. The engine emits an own goal with playerId UNDEFINED and the
+  // unlucky defender in `ownGoalBy` — this is the real shape, and reading `playerId`
+  // rendered every own goal as "—" on the card. The fixture above, which sets a playerId,
+  // is what hid it: no real own-goal event looks like that.
+  it("names an own-goal scorer from `ownGoalBy`, the shape the engine actually emits", () => {
+    const out = scorersFrom(
+      [goal({ minute: 61, playerId: undefined, source: "own-goal", ownGoalBy: 2, side: "away" })],
+      nameOf,
+    );
+    expect(out[0].name).toBe("Carragher");
+    expect(out[0].own).toBe(true);
+    // `side` is who the goal COUNTS FOR, not who the scorer plays for.
+    expect(out[0].side).toBe("away");
+  });
+
   it("ignores every non-goal event", () => {
     const events = [
       { minute: 1, kind: "kickoff" },
@@ -86,12 +103,12 @@ describe("scorerLine", () => {
 });
 
 describe("summaryFilename", () => {
-  const base: MatchSummary = {
+  const base: SummaryCardData = {
     home: "Nott'm Forest",
     away: "Brighton & Hove Albion",
     score: { home: 7, away: 0 },
     scorers: [],
-    formationKey: "4-4-2",
+    formationName: "4-4-2 Flat",
     seed: 1,
     code: "v1...",
   };
@@ -111,5 +128,85 @@ describe("summaryFilename", () => {
     expect(summaryFilename({ ...base, home: "!!!", away: "???" })).toBe(
       "pitchiq-team-7-0-team.png",
     );
+  });
+});
+
+describe("summaryFrom", () => {
+  const player = (playerId: number, name: string) => ({ playerId, name });
+  const team = (
+    name: string,
+    players: ReturnType<typeof player>[],
+    bench: ReturnType<typeof player>[] = [],
+  ): GameTeam =>
+    ({
+      teamId: -1,
+      name,
+      season: 0,
+      formation: { name: "4-4-2 Flat", season: 0, slots: [] },
+      players,
+      bench,
+    }) as unknown as GameTeam;
+
+  // ⚠️ `displayName` keeps a two-word name whole and only collapses three or more, so a
+  // fixture of two-word names would assert nothing about it. Van Nistelrooy also exercises
+  // the particle rule — the surname is "van Nistelrooy", not "Nistelrooy".
+  const home = team("Your XI", [player(1, "Ruud van Nistelrooy")], [player(3, "Alan Shearer")]);
+  const away = team("The Rivals", [player(2, "Jamie Carragher")]);
+
+  it("names scorers from both squads AND both benches", () => {
+    const out = summaryFrom({
+      home,
+      away,
+      events: [
+        { minute: 10, kind: "goal", side: "home", playerId: 1, source: "open" },
+        { minute: 20, kind: "goal", side: "away", playerId: 2, source: "penalty" },
+        // A substitute scoring — only reachable if the bench is in the name map.
+        { minute: 80, kind: "goal", side: "home", playerId: 3, source: "open" },
+      ] as unknown as MatchEvent[],
+      score: { home: 2, away: 1 },
+      formationName: "4-4-2 Flat",
+      seed: 99,
+      code: "v1.xyz",
+    });
+    expect(out.scorers.map((s) => s.name)).toEqual([
+      "van Nistelrooy",
+      "Jamie Carragher",
+      "Alan Shearer",
+    ]);
+    expect(out.home).toBe("Your XI");
+    expect(out.away).toBe("The Rivals");
+    expect(out.code).toBe("v1.xyz");
+    expect(out.formationName).toBe("4-4-2 Flat");
+  });
+
+  it("shortens names the way the rest of the app does", () => {
+    // Goes through `displayName`, so a card and a scoreline never disagree about a name.
+    const out = summaryFrom({
+      home,
+      away,
+      events: [
+        { minute: 10, kind: "goal", side: "home", playerId: 1, source: "open" },
+      ] as unknown as MatchEvent[],
+      score: { home: 1, away: 0 },
+      formationName: "4-4-2 Flat",
+      seed: 1,
+      code: "v1.x",
+    });
+    expect(out.scorers[0].name).toBe("van Nistelrooy");
+  });
+
+  it("falls back to an id rather than crashing on an unknown scorer", () => {
+    const out = summaryFrom({
+      home,
+      away,
+      events: [
+        { minute: 10, kind: "goal", side: "home", playerId: 4242, source: "open" },
+      ] as unknown as MatchEvent[],
+      score: { home: 1, away: 0 },
+      formationName: "4-4-2 Flat",
+      seed: 1,
+      code: "v1.x",
+    });
+    expect(out.scorers[0].name).toBe("#4242");
   });
 });
