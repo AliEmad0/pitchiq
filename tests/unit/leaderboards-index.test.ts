@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   rankBy,
   buildBoards,
+  LEADERBOARD_CATEGORIES,
+  LEADERBOARD_GROUPS,
   type MetricKey,
 } from "../../src/features/players/leaderboards-index";
 import type { ExtendedMetrics, Player } from "../../src/data/schemas";
@@ -115,6 +117,29 @@ describe("rankBy over extended metrics", () => {
     expect(
       rankBy([mk(1, { goals: 3 }), mk(2, { goals: 9 })], "goals").map((r) => r.playerId),
     ).toEqual([2, 1]);
+  });
+});
+
+describe("the category registry", () => {
+  it("gives every category a group in the union", () => {
+    for (const cat of LEADERBOARD_CATEGORIES) {
+      expect(LEADERBOARD_GROUPS, cat.key).toContain(cat.group);
+    }
+  });
+
+  // ⛔ A group defined but never assigned renders a heading over nothing on EVERY season.
+  it("leaves no group without at least one category", () => {
+    for (const group of LEADERBOARD_GROUPS) {
+      expect(
+        LEADERBOARD_CATEGORIES.some((c) => c.group === group),
+        `group "${group}" has no categories`,
+      ).toBe(true);
+    }
+  });
+
+  it("keys are unique — they are also the React keys", () => {
+    const keys = LEADERBOARD_CATEGORIES.map((c) => c.key);
+    expect(new Set(keys).size).toBe(keys.length);
   });
 });
 
