@@ -1,7 +1,12 @@
 "use client";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef } from "react";
-import { scorerLine, summaryFilename, type SummaryCardData } from "@/features/game/domain/summary-card";
+import {
+  scorerLine,
+  summaryFilename,
+  type SummaryCardData,
+} from "@/features/game/domain/summary-card";
+import { localizeDigits } from "@/utils/format";
 
 /** OG proportions — the card is meant to be pasted into a chat as an image. */
 const W = 1200;
@@ -36,8 +41,10 @@ export function SummaryCard({ data, locale }: { data: SummaryCardData; locale: s
       const body = getComputedStyle(document.body);
       const sans = body.fontFamily || "system-ui, sans-serif";
       const mono = "ui-monospace, SFMono-Regular, Menlo, monospace";
-      // Arabic-Indic digits for /ar, exactly as the rest of the app renders numbers.
-      const num = new Intl.NumberFormat(locale);
+      // ⛔ The app's own helper, NOT `Intl.NumberFormat(locale)`. Measured in the browser:
+      // `new Intl.NumberFormat("ar").format(20260817)` returns "20,260,817" — Western
+      // digits — so the card would have printed 3–1 beside a UI printing ٣–١.
+      const num = (n: number) => localizeDigits(n, locale);
 
       const text = (
         s: string,
@@ -104,7 +111,7 @@ export function SummaryCard({ data, locale }: { data: SummaryCardData; locale: s
         spacing: 8,
       });
 
-      const score = `${num.format(data.score.home)}–${num.format(data.score.away)}`;
+      const score = `${num(data.score.home)}–${num(data.score.away)}`;
       text(score, W / 2, 285, {
         size: fitted(score, W - 260, 130, 900, mono),
         weight: 900,
@@ -125,11 +132,11 @@ export function SummaryCard({ data, locale }: { data: SummaryCardData; locale: s
       // ---- scorers --------------------------------------------------------
       const shown = data.scorers.slice(0, MAX_SCORERS);
       shown.forEach((s, i) => {
-        const withLocalDigits = scorerLine(s).replace(/^\d+/, (d) => num.format(Number(d)));
+        const withLocalDigits = scorerLine(s).replace(/^\d+/, (d) => num(Number(d)));
         text(withLocalDigits, W / 2, 418 + i * 28, { size: 18, color: SOFT, align: "center" });
       });
       if (data.scorers.length > shown.length) {
-        text(`+${num.format(data.scorers.length - shown.length)}`, W / 2, 418 + shown.length * 28, {
+        text(`+${num(data.scorers.length - shown.length)}`, W / 2, 418 + shown.length * 28, {
           size: 15,
           color: FAINT,
           align: "center",
@@ -139,7 +146,7 @@ export function SummaryCard({ data, locale }: { data: SummaryCardData; locale: s
       // ---- footer ---------------------------------------------------------
       // ⚠️ A short URL, NOT the share code: a real code runs to ~150 characters and cannot
       // be set legibly here. The copied LINK is the replayable artefact, not a screenshot.
-      text(`${data.formationName}  ·  ${t("playSeed")} ${num.format(data.seed)}`, W / 2, H - 74, {
+      text(`${data.formationName}  ·  ${t("playSeed")} ${num(data.seed)}`, W / 2, H - 74, {
         size: 16,
         color: FAINT,
         align: "center",
@@ -199,7 +206,12 @@ export function SummaryCard({ data, locale }: { data: SummaryCardData; locale: s
         width={W}
         height={H}
         role="img"
-        aria-label={`${data.home} ${data.score.home}–${data.score.away} ${data.away}`}
+        // Localized here too, so the accessible name matches the painted card — and so
+        // the digit convention is assertable in a test, which pixels are not.
+        aria-label={`${data.home} ${localizeDigits(data.score.home, locale)}–${localizeDigits(
+          data.score.away,
+          locale,
+        )} ${data.away}`}
         className="w-full max-w-full rounded-2xl ring-1 ring-cyan-400/20"
       />
       <button

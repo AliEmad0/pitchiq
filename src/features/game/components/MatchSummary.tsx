@@ -2,6 +2,7 @@
 import { useTranslations } from "next-intl";
 import type { DecisionAnswer } from "@/features/game/domain/match-decisions";
 import type { SummaryCardData } from "@/features/game/domain/summary-card";
+import { localizeDigits } from "@/utils/format";
 import { ShareLink } from "./ShareLink";
 import { SummaryCard } from "./SummaryCard";
 
@@ -70,10 +71,12 @@ export function MatchSummary({
 
       <div className="my-6 flex items-center justify-center gap-6 rounded-2xl bg-[radial-gradient(120%_80%_at_50%_-10%,#12202c,#060a0f)] p-8 ring-1 ring-cyan-400/20">
         <span className="flex-1 text-end text-lg font-bold text-white">{homeName}</span>
+        {/* ⚠️ Localized digits: the card painted directly below prints ٣–١ under /ar, and
+            two digit conventions for the same score on one screen is worse than either. */}
         <span className="font-mono text-3xl font-black tabular-nums text-cyan-300">
-          {score.home}
+          {localizeDigits(score.home, locale)}
           {"–"}
-          {score.away}
+          {localizeDigits(score.away, locale)}
         </span>
         <span className="flex-1 text-start text-lg font-bold text-white">{awayName}</span>
       </div>
@@ -97,7 +100,7 @@ export function MatchSummary({
           {decisions.map((d, i) => (
             <li key={`${d.kind}-${d.minute}-${i}`} className="flex items-center gap-3 py-1.5 text-sm">
               <span className="text-muted-foreground w-10 shrink-0 font-mono tabular-nums">
-                {d.minute}
+                {localizeDigits(d.minute, locale)}
                 {"'"}
               </span>
               <span className="font-semibold">
@@ -110,7 +113,7 @@ export function MatchSummary({
 
       <div className="mt-6 flex flex-wrap items-center gap-3">
         <span className="text-muted-foreground font-mono text-xs">
-          {t("playSeed")} {seed}
+          {t("playSeed")} {localizeDigits(seed, locale)}
         </span>
         {shareCode != null ? <ShareLink code={shareCode} locale={locale} /> : null}
         <button

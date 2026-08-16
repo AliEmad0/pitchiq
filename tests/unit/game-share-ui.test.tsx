@@ -64,6 +64,14 @@ describe("SummaryCard", () => {
     expect(screen.getByRole("img", { name: "Your XI 3–1 The Rivals" })).toBeInTheDocument();
   });
 
+  it("⛔ uses the app's Eastern-Arabic digits under /ar, not Intl's", () => {
+    // Measured in the browser: `new Intl.NumberFormat("ar").format(3)` returns a WESTERN
+    // "3" in this engine, so the card would have printed 3–1 beside a UI printing ٣–١.
+    // The app's `localizeDigits` is the only correct source.
+    renderWithIntl(<SummaryCard data={data} locale="ar" />, "ar");
+    expect(screen.getByRole("img", { name: "Your XI ٣–١ The Rivals" })).toBeInTheDocument();
+  });
+
   it("does not throw when the download is pressed with nothing painted", async () => {
     renderWithIntl(<SummaryCard data={data} locale="en" />);
     await userEvent.click(screen.getByRole("button", { name: "Download card" }));
