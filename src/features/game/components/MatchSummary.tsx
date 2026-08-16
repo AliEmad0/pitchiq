@@ -1,6 +1,9 @@
 "use client";
 import { useTranslations } from "next-intl";
 import type { DecisionAnswer } from "@/features/game/domain/match-decisions";
+import type { SummaryCardData } from "@/features/game/domain/summary-card";
+import { ShareLink } from "./ShareLink";
+import { SummaryCard } from "./SummaryCard";
 
 interface Props {
   homeName: string;
@@ -9,6 +12,15 @@ interface Props {
   /** What the coach actually chose, in the order the engine asked. */
   decisions: DecisionAnswer[];
   seed: number;
+  /** The link that replays this match, or null while one cannot be built. */
+  shareCode: string | null;
+  /** What the downloadable card says. Null alongside a null `shareCode`. */
+  cardData: SummaryCardData | null;
+  locale: string;
+  /** This match arrived from someone else's link. */
+  shared?: boolean;
+  /** Our replay differs from the sender's fingerprint. */
+  drifted?: boolean;
   onNewMatch: () => void;
 }
 
@@ -32,6 +44,11 @@ export function MatchSummary({
   score,
   decisions,
   seed,
+  shareCode,
+  cardData,
+  locale,
+  shared = false,
+  drifted = false,
   onNewMatch,
 }: Props) {
   const t = useTranslations("game");
@@ -39,6 +56,17 @@ export function MatchSummary({
   return (
     <div className="mx-auto w-full max-w-3xl">
       <h1 className="text-2xl font-extrabold tracking-tight">{t("playFullTime")}</h1>
+
+      {shared ? <p className="text-muted-foreground mt-1 text-sm">{t("shareWatching")}</p> : null}
+
+      {drifted ? (
+        <p
+          role="status"
+          className="mt-3 rounded-md bg-amber-500/10 p-3 text-sm text-amber-300 ring-1 ring-amber-400/30"
+        >
+          {t("shareDrift")}
+        </p>
+      ) : null}
 
       <div className="my-6 flex items-center justify-center gap-6 rounded-2xl bg-[radial-gradient(120%_80%_at_50%_-10%,#12202c,#060a0f)] p-8 ring-1 ring-cyan-400/20">
         <span className="flex-1 text-end text-lg font-bold text-white">{homeName}</span>
@@ -49,6 +77,15 @@ export function MatchSummary({
         </span>
         <span className="flex-1 text-start text-lg font-bold text-white">{awayName}</span>
       </div>
+
+      {cardData != null ? (
+        <>
+          <h2 className="text-muted-foreground mb-2 font-mono text-[11px] font-bold tracking-widest uppercase">
+            {t("shareTitle")}
+          </h2>
+          <SummaryCard data={cardData} locale={locale} />
+        </>
+      ) : null}
 
       <h2 className="text-muted-foreground mb-2 font-mono text-[11px] font-bold tracking-widest uppercase">
         {t("playDecisionsTaken")}
@@ -71,10 +108,11 @@ export function MatchSummary({
         </ul>
       )}
 
-      <div className="mt-6 flex items-center gap-3">
+      <div className="mt-6 flex flex-wrap items-center gap-3">
         <span className="text-muted-foreground font-mono text-xs">
           {t("playSeed")} {seed}
         </span>
+        {shareCode != null ? <ShareLink code={shareCode} locale={locale} /> : null}
         <button
           type="button"
           onClick={onNewMatch}
