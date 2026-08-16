@@ -6341,7 +6341,7 @@ Everything in the owner's A-to-Z roadmap (2026-08-11) that **cannot** be built u
 | [TASK-M88](#task-m88) | Reconcile the two diverged TASKS.md boards (colliding ticket numbers)                       | ✅ Done | P3       | S   |
 | [TASK-M89](#task-m89) | `/ar` entity DETAIL pages render English UI — the Arabic catalog never applies              | ✅ Done | P1       | M   |
 | [TASK-M90](#task-m90) | `<ImageZoom>` has no failover — lightbox breaks where the thumbnail recovers                | ✅ Done | P3       | S   |
-| [TASK-M91](#task-m91) | Add PFA POTY + Team of the Season — the award-blind roles                                   | ⬜ Todo | P2       | L   |
+| [TASK-M91](#task-m91) | Add PFA POTY + Team of the Season — the award-blind roles                                   | ✅ Done | P2       | L   |
 | [TASK-M92](#task-m92) | Surface honours / transfers / caps on the player profile page                               | ✅ Done | P2       | M   |
 | [TASK-M93](#task-m93) | Show the player enrichment summary where players are listed                                 | ✅ Done | P3       | S   |
 
@@ -8141,7 +8141,64 @@ Rated **P1** — Arabic is half the product's localization story and these are t
 
 ### TASK-M91
 
-**Add PFA Player of the Year + Team of the Season — the award-blind roles** · ⬜ Todo · `P2` · `L` · Type: Data
+**Add PFA Player of the Year + Team of the Season — the award-blind roles** · ✅ Done · `P2` · `L` · Type: Data
+
+## ✅ SHIPPED 2026-08-16 — the award-blind promotion count fell 24 → 8
+
+Renumbered from `TASK-M73` by [TASK-M88](#task-m88). Two PRs: the crawl landed in the
+pipeline (`AliEmad0/pitchiq-pipeline#49`), the scoring change here.
+
+### The data
+
+Source is Wikipedia — Team of the Year lives on four **decade** pages (the overview page
+is a stub), Player of the Year on one.
+
+|                   |                                                        |
+| ----------------- | ------------------------------------------------------ |
+| Seasons           | **33**, 1992–2024, every one **exactly 11 players**    |
+| Selections        | **363** — DF **132**, MF **122**, FW **76**, GK **33** |
+| POTY              | **33** winners                                         |
+| Joined to our ids | **363 / 363**, 194 players, 0 unmatched, 0 ambiguous   |
+
+### The result — the ticket's own measure
+
+|                                       |         before |               after |
+| ------------------------------------- | -------------: | ------------------: |
+| Award-blind promotions (CB/RB/LB/CDM) |             24 |                  24 |
+| **…still scoring 0 accolades**        |         **24** |               **8** |
+| CB with any honour                    | 0 / 452 (0.0%) | **34 / 452 (7.5%)** |
+| CDM                                   |       1 (0.6%) |       **12 (6.9%)** |
+| LB                                    |       2 (1.2%) |      **18 (10.5%)** |
+| RB                                    |       3 (1.5%) |      **20 (10.2%)** |
+
+**16 of the 24 are now explained by data** — including every name the ticket listed:
+Terry, Vieira, Van Dijk, Ferdinand, Ashley Cole, Adams, Carragher and Stam, plus Kompany,
+Vidic, Campbell, Evra, Kanté, Dias, Robertson and Alexander-Arnold. Terry's score rank
+moved **#107 → #7**, Vieira's **#109 → #9**, and the curated gap for both narrowed from
++8 to +3.
+
+**The remaining 8 are an honest residue, not a bug**: Makélélé, Xabi Alonso, Ledley King,
+Thiago Silva, Azpilicueta, O'Shea, Phil Neville and Steve Bruce were genuinely never named
+in a PFA Team of the Season. The scoring cannot explain them because the award did not.
+
+### Weights
+
+POTY **1.5**, Team of the Season **0.6**, against the existing Golden Boot 1.0 / Golden
+Glove 0.8 / assist crown 0.6. Double-counting a Golden Boot winner who was also in the
+XI is deliberate — doing both is a better season than doing either. Absolute cross-role
+calibration matters less than it looks, because accolades are ranked **within role**; what
+these weights fix is the ordering _inside_ a role, which for defenders did not exist.
+
+### Curated tiers — re-reviewed, not rewritten
+
+The curated file is the owner's source of truth and this script never rewrites it. The
+report now lists the **57 entries the scoring reproduces unaided** so they can be pruned
+deliberately. Divergences rose 84 → 98, which is expected: the tiers are fixed-size
+buckets, so lifting defenders displaces other players and creates new divergences
+elsewhere.
+
+⚠️ **This changes game ratings** (`player-anchors.json` is regenerated). That is the
+intended effect of the ticket.
 
 **The measurement that justifies this ticket.** The heritage-anchor scoring ([TASK-1821](#task-1821)) weights individual honours at **0.25 — its single largest term**. Those honours can only be derived from what this repo holds: the Golden Boot and assist crown (`leaderboards-<season>.json`) and a Golden Glove synthesised from clean sheets. **No defender can win any of them.** Measured across all 2,271 scored careers:
 

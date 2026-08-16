@@ -106,8 +106,7 @@ const ANCHOR_CEILING = 92;
 
 const read = async (file) => JSON.parse(await readFile(path.join(DATA, file), "utf8"));
 
-const minutesOf = (p) =>
-  p.metrics?.extended?.minutesPlayed ?? (p.metrics?.appearances ?? 0) * 90;
+const minutesOf = (p) => p.metrics?.extended?.minutesPlayed ?? (p.metrics?.appearances ?? 0) * 90;
 
 /**
  * Age penalty. Zero through the 25-29 peak, rising either side — a 20-year-old has
@@ -202,15 +201,21 @@ for (const season of seasons) {
 // ---------------------------------------------------------------- accolades
 
 /**
- * Individual honours, derived from the committed record only.
+ * Individual honours.
  *
- * AVAILABLE: the Golden Boot and the assist crown come straight from
+ * DERIVED HERE: the Golden Boot and the assist crown come straight from
  * `leaderboards-<season>.json`; the Golden Glove is derived as the most clean
  * sheets among goalkeepers that season.
  *
- * NOT AVAILABLE: PFA Player of the Year and Team of the Season are external award
- * data this repo does not hold. Adding them means a new pipeline source - they are
- * deliberately absent rather than approximated.
+ * EXTERNAL (TASK-M91): PFA Team of the Season and Players' Player of the Year, crawled
+ * by the pipeline and published as `player-pfa-awards.json`.
+ *
+ * ⭐ **Team of the Season is why this ticket existed.** Every honour derivable here is
+ * won by scoring, assisting or keeping clean sheets, so NO DEFENDER CAN WIN ANY OF THEM:
+ * before this, 452 of 452 scored centre-backs had an accolade score of exactly zero, and
+ * a quarter of the career score (the 0.25 weight below — the largest single term) was
+ * identically 0 for the whole role. Team of the Season names eleven players a season
+ * including four defenders and a keeper, across the full 1992→ range.
  */
 const accolades = new Map(); // playerId -> weighted honour count
 
@@ -228,7 +233,8 @@ for (const season of seasons) {
   }
   if (board != null) {
     for (const e of board.topScorers ?? []) {
-      if (e.rank === 1) addAccolade(e.playerId, 1); // Golden Boot
+      if (e.rank === 1)
+        addAccolade(e.playerId, 1); // Golden Boot
       else if (e.rank <= 3) addAccolade(e.playerId, 0.4);
     }
     for (const e of board.topAssists ?? []) {
@@ -248,6 +254,42 @@ for (const season of seasons) {
     }
   }
   if (best != null) addAccolade(best.id, 0.8);
+}
+
+/**
+ * TASK-M91 — the external PFA awards.
+ *
+ * Weights sit against the derived ones above (Golden Boot 1.0, Golden Glove 0.8, assist
+ * crown 0.6):
+ *
+ *  - **Player of the Year 1.5.** The single biggest individual honour in English
+ *    football, and the only one voted by other players — it should outrank a Golden Boot.
+ *  - **Team of the Season 0.6.** One of eleven a season. Scarcer than a top-3 scoring
+ *    finish (0.4), less than winning an award outright.
+ *
+ * Double-counting a Golden Boot winner who was also in the Team of the Season is
+ * deliberate: a player who did both had a better season than one who did either.
+ *
+ * ⚠️ Absolute cross-role calibration matters less than it looks, because accolades are
+ * ranked WITHIN role further down. What these weights fix is the *ordering inside* a
+ * role, which for defenders previously did not exist at all — every one of them was 0.
+ */
+let pfaPlayers = 0;
+try {
+  const pfa = await read("player-pfa-awards.json");
+  for (const [id, rec] of Object.entries(pfa)) {
+    const playerId = Number(id);
+    if (!Number.isInteger(playerId)) continue;
+    for (const _ of rec.teamOfTheSeason ?? []) addAccolade(playerId, 0.6);
+    for (const _ of rec.playerOfTheYear ?? []) addAccolade(playerId, 1.5);
+    pfaPlayers += 1;
+  }
+  console.log(`PFA awards applied: ${pfaPlayers} players`);
+} catch {
+  // Absent before the pipeline has synced — the scoring degrades to the derived honours
+  // rather than failing the build. Loud, so a missing file is never mistaken for
+  // "nobody won anything".
+  console.warn("⚠️ player-pfa-awards.json not found — scoring WITHOUT the PFA awards");
 }
 
 // ------------------------------------------------- season-quality pools
@@ -369,8 +411,7 @@ for (const list of accoladePools.values()) list.sort((a, b) => a - b);
 for (const c of careers.values()) {
   // Someone with no honours sits at the bottom of their role, not mid-table:
   // most players have zero, and ties-averaging would hand them the median.
-  c.accolades =
-    c.accoladeRaw <= 0 ? 0 : percentile(c.accoladeRaw, accoladePools.get(c.role) ?? []);
+  c.accolades = c.accoladeRaw <= 0 ? 0 : percentile(c.accoladeRaw, accoladePools.get(c.role) ?? []);
   c.score =
     0.18 * c.longevity +
     0.07 * c.spread +
@@ -404,13 +445,21 @@ let curatedApplied = 0;
 /**
  * Every player whose curated tier differs from what the scoring produced.
  *
- * This is the AUDIT TRAIL for hand-tuning, and it exists for one specific reason:
- * PFA Player of the Year and Team of the Season are not in this repo's data, and
- * their absence is the known structural reason defenders and holding midfielders
- * never reach the top tier automatically. Every such promotion is therefore evidence
- * for that pipeline ticket — but only if it is written down. Without this section the
- * symptom is invisible the moment the hand-correction lands, and the ticket gets
- * harder to justify the longer it waits.
+ * This is the AUDIT TRAIL for hand-tuning. It was written to make one specific thing
+ * visible: PFA Player of the Year and Team of the Season were not in this repo, and
+ * their absence was the structural reason defenders and holding midfielders never
+ * reached the top tier automatically.
+ *
+ * ✅ **TASK-M91 shipped that data**, and this section is how we know it worked:
+ * promotions in the award-blind roles (CB/RB/LB/CDM) whose accolade score was exactly
+ * zero fell from **24 to 8** — the 24 being the ticket's own measured figure. Terry,
+ * Vieira, Van Dijk, Ferdinand, Ashley Cole, Adams, Carragher, Stam, Kompany, Vidic and
+ * more now carry a real accolade score instead of a hand-supplied one.
+ *
+ * The section stays, for the same reason it was written: the remaining 8 are the
+ * players the data STILL cannot explain, and they are only visible while this is
+ * written down. Anything hand-promoted with `accolades = 0` is a standing question,
+ * not a settled answer.
  */
 const divergences = [];
 /**
@@ -424,6 +473,13 @@ const divergences = [];
  *    Harmless but INERT: the entry produces no anchor, so curating it does nothing.
  */
 const unmatchedCurated = { fabricated: [], belowFloor: [] };
+/**
+ * Curated entries the scoring now produces on its own (curated tier === auto tier).
+ * Harmless, but they no longer carry information. Surfaced in the report rather than
+ * pruned here: the curated file is the owner's source of truth and this script never
+ * rewrites it.
+ */
+const redundantCurated = [];
 if (curated != null) {
   const scoredIds = new Set(scored.map((c) => String(c.id)));
   for (const c of scored) {
@@ -444,6 +500,8 @@ if (curated != null) {
           silverware: Number(c.silverware.toFixed(2)),
           peak: Number(c.peak.toFixed(2)),
         });
+      } else {
+        redundantCurated.push({ name: c.name, role: c.role, tier: entry.tier });
       }
       c.tier = entry.tier;
     }
@@ -451,7 +509,12 @@ if (curated != null) {
   for (const [id, entry] of Object.entries(curated.players ?? {})) {
     if (scoredIds.has(id)) continue;
     const known = careers.get(Number(id));
-    const row = { id, name: entry?.name ?? "?", registryName: known?.name ?? null, apps: known?.apps ?? 0 };
+    const row = {
+      id,
+      name: entry?.name ?? "?",
+      registryName: known?.name ?? null,
+      apps: known?.apps ?? 0,
+    };
     if (known == null) unmatchedCurated.fabricated.push(row);
     else unmatchedCurated.belowFloor.push(row);
   }
@@ -486,7 +549,9 @@ if (curated == null) {
     )}\n`,
     "utf8",
   );
-  console.log(`seeded ${path.relative(ROOT, TIERS_FILE)} with ${Object.keys(players).length} players`);
+  console.log(
+    `seeded ${path.relative(ROOT, TIERS_FILE)} with ${Object.keys(players).length} players`,
+  );
 }
 
 // ---------------------------------------------------------------- anchors
@@ -507,9 +572,7 @@ for (const c of scored) {
       MAX_DECAY,
       (bypass ? 0 : ageDecay(s.age)) + 0.5 * minutesDecay(s.minutes),
     );
-    const anchor = Math.round(
-      Math.max(ANCHOR_FLOOR, Math.min(ANCHOR_CEILING, tier.base - decay)),
-    );
+    const anchor = Math.round(Math.max(ANCHOR_FLOOR, Math.min(ANCHOR_CEILING, tier.base - decay)));
     anchors[`${c.id}@${s.season}`] = anchor;
     reportRows.push({
       name: c.name,
@@ -576,6 +639,10 @@ function curatedDivergenceSection() {
   const promoted = divergences.filter((d) => d.delta > 0);
   const demoted = divergences.filter((d) => d.delta < 0);
   const awardBlind = promoted.filter((d) => AWARD_BLIND_ROLES.has(d.role));
+  // TASK-M91's done-when. The headline number is NOT "how many promotions" — it is how
+  // many of them the scoring still cannot account for at all. A promotion whose accolade
+  // score is now non-zero is one the data explains; one still at 0 is not.
+  const awardBlindZero = awardBlind.filter((d) => Number(d.accolades) === 0);
   const row = (d) =>
     `| ${d.name} | ${d.role} | ${d.apps} | #${d.rank} | ${d.auto} | **${d.curated}** | ${d.delta > 0 ? "+" : ""}${d.delta} | ${d.accolades} | ${d.silverware} | ${d.peak} |`;
   const head = [
@@ -593,18 +660,34 @@ function curatedDivergenceSection() {
     `- tiers differing from the scoring: **${divergences.length}** (${promoted.length} promoted, ${demoted.length} demoted)`,
     `- **promotions in award-blind roles (${[...AWARD_BLIND_ROLES].join("/")}): ${awardBlind.length}**`,
     "",
-    "### ⛔ Why the award-blind count matters",
+    `- **of those, still scoring 0 accolades: ${awardBlindZero.length}**`,
     "",
-    "**PFA Player of the Year and Team of the Season are not in this repo's data.**",
-    "The scoring's individual-honours term can only see Golden Boot and Golden Glove —",
-    "awards no centre-back, full-back or holding midfielder can ever win. So those roles",
-    "cannot reach the top tier automatically no matter how good the player was, and every",
-    "promotion below is a human patching that specific gap by hand.",
+    "### ✅ Why the award-blind count matters — and what TASK-M91 changed",
     "",
-    "This count IS the ticket justification. Anchoring hides the symptom — once a",
-    "defender is hand-promoted their rating looks correct — so the evidence has to be",
-    "recorded here or it disappears. If this number keeps growing, add the award source",
-    "to the pipeline instead of curating around it.",
+    "The scoring's individual-honours term used to see only the Golden Boot, the assist",
+    "crown and a derived Golden Glove — awards **no centre-back, full-back or holding",
+    "midfielder can ever win**. Those roles could not reach the top tier automatically no",
+    "matter how good the player was, so every promotion below was a human patching that",
+    "one gap by hand: **452 of 452 scored centre-backs had an accolade score of exactly 0.**",
+    "",
+    "**TASK-M91 added PFA Team of the Season and Players' Player of the Year** — 363",
+    "selections across 33 seasons, 132 of them defenders and 33 goalkeepers. Award-blind",
+    "promotions still scoring zero accolades fell **24 → 8** (the 24 is the figure the",
+    "ticket itself measured).",
+    "",
+    "The remaining rows are the real signal now: a player hand-promoted while STILL",
+    "scoring 0 is someone the data cannot explain even with the awards in. Anchoring hides",
+    "the symptom — once a defender is hand-promoted their rating looks correct — so this",
+    "has to stay written down or it disappears.",
+    "",
+    "⚠️ **The curated file is the source of truth and is never rewritten by this script.**",
+    `**${redundantCurated.length}** curated entries now match what the scoring produces`,
+    "unaided. They are harmless, but they no longer carry information — pruning them is an",
+    "owner call, not this script's:",
+    "",
+    redundantCurated.length > 0
+      ? redundantCurated.map((r) => `${r.name} (${r.role}, ${r.tier})`).join(" · ")
+      : "_None._",
     "",
     "#### Award-signal coverage by role",
     "",
@@ -699,10 +782,14 @@ const lines = [
 await writeFile(OUT_REPORT, lines.join("\n"), "utf8");
 
 console.log(`scored players: ${scored.length}`);
-console.log(`  legend ${legendCut} / elite ${eliteCut} / regular ${scored.length - legendCut - eliteCut}`);
+console.log(
+  `  legend ${legendCut} / elite ${eliteCut} / regular ${scored.length - legendCut - eliteCut}`,
+);
 console.log(`anchored player-seasons: ${sortedKeys.length}`);
 if (curated != null) {
-  console.log(`curated tiers applied: ${Object.keys(curated.players ?? {}).length} (${curatedApplied} differ from the scoring)`);
+  console.log(
+    `curated tiers applied: ${Object.keys(curated.players ?? {}).length} (${curatedApplied} differ from the scoring)`,
+  );
 }
 console.log(`wrote ${path.relative(ROOT, OUT_JSON)}`);
 console.log(`wrote ${path.relative(ROOT, OUT_REPORT)}`);
