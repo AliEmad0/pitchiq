@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   rankBy,
   buildBoards,
+  buildGroupedBoards,
   LEADERBOARD_CATEGORIES,
   LEADERBOARD_GROUPS,
   type MetricKey,
@@ -117,6 +118,37 @@ describe("rankBy over extended metrics", () => {
     expect(
       rankBy([mk(1, { goals: 3 }), mk(2, { goals: 9 })], "goals").map((r) => r.playerId),
     ).toEqual([2, 1]);
+  });
+});
+
+describe("buildGroupedBoards", () => {
+  // ⚠️ `mk` sets `appearances: 38`, so EVERY fixture player ranks on the Appearances
+  // board and the `overall` group is always present. Pass `appearances: 0` to opt out.
+  it("returns groups in registry order, each holding its own boards", () => {
+    const groups = buildGroupedBoards([mk(1, { goals: 5 }), mk(2, { yellowCards: 4 })]);
+    expect(groups.map((g) => g.group)).toEqual(["overall", "attacking", "discipline"]);
+    for (const g of groups) {
+      expect(
+        g.boards.every((b) => b.cat.group === g.group),
+        g.group,
+      ).toBe(true);
+    }
+  });
+
+  // ⛔ A heading asserts that content exists. Same class as an absent-vs-empty record.
+  it("omits a group entirely when it has no boards", () => {
+    const groups = buildGroupedBoards([mk(1, { goals: 5 })]);
+    expect(groups.map((g) => g.group)).toEqual(["overall", "attacking"]);
+    expect(groups.some((g) => g.boards.length === 0)).toBe(false);
+  });
+
+  it("carries a heading message key per group", () => {
+    const groups = buildGroupedBoards([mk(1, { goals: 5 })]);
+    expect(groups.map((g) => g.titleKey)).toEqual(["groupOverall", "groupAttacking"]);
+  });
+
+  it("returns nothing at all for a player set that ranks nowhere", () => {
+    expect(buildGroupedBoards([mk(1, { appearances: 0 })])).toEqual([]);
   });
 });
 

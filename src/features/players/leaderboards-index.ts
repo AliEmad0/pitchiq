@@ -133,3 +133,28 @@ export function buildBoards(
     return { cat, rows: rankBy(pool, cat.key, { decimals: cat.decimals }) };
   }).filter((b) => b.rows.length > 0);
 }
+
+export interface LeaderboardGroupBoards {
+  group: LeaderboardGroup;
+  /** Message key in the `leaderboard` namespace, e.g. "groupAttacking". */
+  titleKey: string;
+  boards: Array<{ cat: LeaderboardCategory; rows: StatLeaderboardEntry[] }>;
+}
+
+/**
+ * `buildBoards`, split into display sections (TASK-M83).
+ *
+ * ⚠️ Layered ON TOP of `buildBoards` rather than replacing it — `/api/og/leaderboards`
+ * calls that function too and must keep its flat list.
+ *
+ * ⛔ Empty groups are dropped, not rendered empty. A heading asserts that content exists,
+ * and every season before 2008 would otherwise show five headings over nothing.
+ */
+export function buildGroupedBoards(players: Player[]): LeaderboardGroupBoards[] {
+  const boards = buildBoards(players);
+  return LEADERBOARD_GROUPS.map((group) => ({
+    group,
+    titleKey: `group${group[0]!.toUpperCase()}${group.slice(1)}`,
+    boards: boards.filter((b) => b.cat.group === group),
+  })).filter((g) => g.boards.length > 0);
+}
