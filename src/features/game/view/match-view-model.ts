@@ -116,10 +116,22 @@ const CLUB_ABBR: Record<string, string> = {
   "Charlton Athletic": "CHA",
 };
 
-function abbrOf(name: string): string {
+/**
+ * The scoreboard label for a team.
+ *
+ * ⛔ Non-Latin names are returned WHOLE, never abbreviated. This kept only `[A-Za-z]`, so
+ * an Arabic name ("تشكيلتك") produced an empty string and every Arabic match showed "TBD"
+ * on both sides. Owner's call: Arabic does not abbreviate this way, and three characters
+ * would be a meaningless fragment rather than a recognisable short form.
+ *
+ * ⚠️ The curated map is consulted FIRST — "Brighton & Hove Albion" is "BHA", not "BRI".
+ */
+export function abbrOf(name: string): string {
   if (CLUB_ABBR[name]) return CLUB_ABBR[name];
   const letters = name.replace(/[^A-Za-z]/g, "");
-  return (letters.slice(0, 3) || "TBD").toUpperCase();
+  if (letters !== "") return letters.slice(0, 3).toUpperCase();
+  const whole = name.trim();
+  return whole === "" ? "TBD" : whole;
 }
 
 function sideTeam(team: GameTeam): ViewSideTeam {
