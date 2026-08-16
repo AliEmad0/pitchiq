@@ -1,4 +1,5 @@
 import { parseCardId, type PlayerSeasonId } from "./card-id";
+import { readTokens } from "./decision-tokens";
 
 /**
  * TASK-1812 — a match as a shareable, replayable URL code.
@@ -12,12 +13,22 @@ import { parseCardId, type PlayerSeasonId } from "./card-id";
  *
  * ## Format
  *
- * `v1.<seed36>.<formationKey>.<cards>.<fingerprint36>`
+ * `v1.<seed36>.<formationSlug>.<cards>.<tokens>.<fingerprint36>`
  *
  * where `cards` is 11 `playerId@season` pairs base-36 encoded and `.`-free. Chosen over
  * JSON+base64 because a shared link is read aloud, pasted into chats that linkify, and
  * truncated by clients — a 3-4× shorter code survives that better, and every field stays
  * greppable in a bug report.
+ *
+ * ⛔ The formation travels as a SLUG OF ITS NAME, not as `formationKey`. A key is
+ * `${name}/${slots.length}` — "4-3-2-1 Christmas Tree/11" — which no URL-safe validation
+ * can accept, and an index into `FORMATIONS` is forbidden because that array's order is
+ * presentation only. See `formationSlug`/`formationBySlug`.
+ *
+ * ⛔ The payload carries the coach's DECISIONS, because a match is
+ * `(setup, seed, decisions[])` since TASK-1830. Without them a code reproduces only a
+ * match nobody coached — and the fingerprint would mismatch on every real one. They ride
+ * as a token stream; see `decision-tokens.ts`.
  *
  * ## Three rules this module exists to enforce
  *
@@ -36,19 +47,24 @@ import { parseCardId, type PlayerSeasonId } from "./card-id";
 
 export const SHARE_VERSION = "v1";
 
-/** Everything needed to reproduce a match. Mirrors `SavedMatch` minus its bookkeeping. */
+/** Everything needed to reproduce a match, as it travels in a URL. */
 export type ShareableMatch = {
   cardIds: PlayerSeasonId[];
-  /** The formation KEY, never an index — reordering `FORMATIONS` must not remap a code. */
-  formationKey: string;
+  /**
+   * ⛔ A slug of the formation NAME — never `formationKey`, which carries a slash, spaces
+   * and capitals, and never an index into `FORMATIONS`.
+   */
+  formationSlug: string;
   seed: number;
+  /** The coach's decisions. Empty means he took none. See `decision-tokens.ts`. */
+  tokens: string;
   /** The sender's event fingerprint, for drift detection only. */
   fingerprint: number;
 };
 
 const SQUAD_SIZE = 11;
-/** Formation keys are authored slugs; anything else is a tampered code. */
-const KEY_RE = /^[a-z0-9-]{2,16}$/;
+/** Slugs are lowercase, digits and dashes. "4-3-2-1-christmas-tree" is 22 characters. */
+const SLUG_RE = /^[a-z0-9-]{2,32}$/;
 
 const b36 = (n: number) => Math.trunc(n).toString(36);
 const unb36 = (s: string): number | null => {
@@ -67,8 +83,8 @@ export function encodeMatch(match: ShareableMatch): string {
   if (match.cardIds.length !== SQUAD_SIZE) {
     throw new Error(`share-code: expected ${SQUAD_SIZE} cards, got ${match.cardIds.length}`);
   }
-  if (!KEY_RE.test(match.formationKey)) {
-    throw new Error(`share-code: invalid formation key ${match.formationKey}`);
+  if (!SLUG_RE.test(match.formationSlug)) {
+    throw new Error(`share-code: invalid formation slug ${match.formationSlug}`);
   }
   const cards = match.cardIds
     .map((id) => {
@@ -79,8 +95,9 @@ export function encodeMatch(match: ShareableMatch): string {
   return [
     SHARE_VERSION,
     b36(match.seed),
-    match.formationKey,
+    match.formationSlug,
     cards,
+    match.tokens,
     b36(match.fingerprint >>> 0),
   ].join(".");
 }
@@ -94,11 +111,15 @@ export function encodeMatch(match: ShareableMatch): string {
 export function decodeMatch(code: string | null | undefined): ShareableMatch | null {
   if (typeof code !== "string" || code.length === 0 || code.length > 400) return null;
   const parts = code.split(".");
-  if (parts.length !== 5) return null;
+  if (parts.length !== 6) return null;
 
-  const [version, seedRaw, formationKey, cardsRaw, fpRaw] = parts;
+  const [version, seedRaw, formationSlug, cardsRaw, tokens, fpRaw] = parts;
   if (version !== SHARE_VERSION) return null;
-  if (!KEY_RE.test(formationKey)) return null;
+  if (!SLUG_RE.test(formationSlug)) return null;
+  // Checked HERE so a malformed stream fails as a bad code, before any match is
+  // assembled. Whether each token FITS the decision it answers can only be known during
+  // the replay, and is reported there.
+  if (readTokens(tokens) === null) return null;
 
   const seed = unb36(seedRaw);
   const fingerprint = unb36(fpRaw);
@@ -119,7 +140,7 @@ export function decodeMatch(code: string | null | undefined): ShareableMatch | n
     cardIds.push(`${playerId}@${season}`);
   }
 
-  return { cardIds, formationKey, seed, fingerprint };
+  return { cardIds, formationSlug, seed, tokens, fingerprint };
 }
 
 /**
