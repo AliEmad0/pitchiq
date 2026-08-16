@@ -5702,6 +5702,42 @@ Built: `domain/hash.ts` (shared FNV-1a + `hashEvents`), `view/match-session.ts` 
 
 **Description** — Persist runs/records and make a match shareable + replayable from its `(teams, seed)` via URL state (nuqs, matching the encyclopedia's URL-state culture). **All local** — IndexedDB for records + URL/seed state for sharing (Option A, no backend). Includes the client-side **Canvas match-summary card** (scoreline, scorers, formations, seed) as a downloadable/shareable image — no server OG render. **Depends on:** TASK-1810, TASK-1811.
 
+> ### 🔶 PARTLY BUILT 2026-08-16 — domain layer on `feat/1812-share-replay` (`3d31813`), NOT merged
+>
+> ⚠️ **The declared dependencies are real for one third of this ticket, and only that
+> third.** `TASK-1810` (XL) and `TASK-1811` (L) are both still Backlog, and _"persist
+> **runs**/records"_ needs them — a **run** is a season/Survival campaign, which 1811
+> builds, so there is nothing to persist yet. **Do not scaffold a run model to satisfy
+> this ticket.**
+>
+> The other two thirds do **not** depend on them and are already viable: the engine is
+> deterministic from `(setup, seed, decisions[])` (TASK-1830) and B2 shipped the IndexedDB
+> layer (`storage/idb.ts`, `storage/match-slot.ts` — whose own comment already calls
+> itself "the seed-share code path (TASK-1812)").
+>
+> **Done and tested on the branch (23 tests, tsc + lint clean):**
+>
+> - `src/features/game/domain/share-code.ts` — a match as a URL code,
+>   `v1.<seed>.<formation>.<cards>.<fingerprint>`. A code is **untrusted input** (it comes
+>   from a URL a stranger can edit) so every field validates and anything malformed returns
+>   `null` instead of throwing into a render. The **version prefix fails closed** — a
+>   future format silently decoding old links into a _different but plausible_ match is
+>   worse than failing. The **fingerprint is carried, not trusted**: the receiver replays
+>   independently and always renders their own replay; the fingerprint only decides whether
+>   to warn about pool/engine drift.
+> - `src/features/game/domain/summary-card.ts` — what the shareable card says, split from
+>   the painting because **jsdom has no 2D context**, so anything computed inside a paint
+>   function is untestable by construction.
+>
+> ⛔ **The trap already caught once:** `disallowedAt`. A VAR-chalked-off goal deliberately
+> **stays** in the event stream — the scoreboard counts it until the review lands, which is
+> where the drama lives — so a **final** summary must filter on `disallowedAt == null`, as
+> `match-types.ts` documents. Listing it prints a scorer for a goal that never stood.
+>
+> **Still to do:** the UI wiring only — read `?m=` on `/game/play` (nuqs) → decode →
+> replay, the Canvas paint, and the download button. Stopped deliberately rather than
+> half-wire it; a broken share button is worse than none.
+
 ### TASK-1813
 
 **Hall of Fame & retro achievements** · 📋 Backlog · `P3` · `M` · Type: Feature
