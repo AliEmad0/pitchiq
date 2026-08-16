@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CaptainBadge } from "@/features/players/components/CaptainBadge";
 import { Flag } from "@/features/players/components/Flag";
 import { PlayerAge } from "@/features/players/components/PlayerAge";
+import { PlayerHonoursInline } from "@/features/players/components/PlayerCareerSummary";
 import { PlayerImage } from "@/features/players/components/PlayerImage";
 import type { SquadPlayer } from "@/types/api";
 import { localizeDigits } from "@/utils/format";
@@ -291,6 +292,13 @@ function PlayerCard({
                 )}
               </p>
             )}
+            {/* TASK-M93 — trophies + caps, already on the row. Self-hides for an
+                unenriched player AND for an enriched one with no silverware and
+                no caps, so the grid does not sprout a row of zeros. */}
+            <PlayerHonoursInline
+              enrichment={player.enrichment ?? null}
+              className="mt-0.5 flex items-center gap-2.5"
+            />
           </div>
         </Card>
       </Link>

@@ -400,7 +400,12 @@
     "perClubBreakdown": "Per-club breakdown",
     "byClubThisSeason": "By club this season",
     "splitYellow": "Yellow",
-    "splitRed": "Red"
+    "splitRed": "Red",
+    "careerSummary": "Career summary",
+    "statTrophies": "Trophies",
+    "statCaps": "Caps",
+    "statAwards": "Awards",
+    "statCareerFee": "Career fees"
   },
   "managers": {
     "pageTitle": "Premier League managers",

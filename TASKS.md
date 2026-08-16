@@ -5786,7 +5786,7 @@ Un-anchored players fall back to the statistical model with a **role amplifier h
 
 **Not available:** PFA Player of the Year and Team of the Season are not in this repo's data — they are the missing signal behind defenders and holding midfielders never reaching the top tier automatically, and adding them is a new pipeline source. Anchors are deliberately **not** sourced from EA/FIFA ratings (proprietary, public repo, no per-season coverage).
 
-**That gap is now measured, not asserted → [TASK-M73](#task-m73).** The honours term carries 0.25 of the career score, the largest single weight, and **0 of 452 scored centre-backs can earn any honour from the data we hold** (CDM 0.6%, LB 1.2%, RB 1.5%, versus CF 12.6%). It costs **24 of the 84 curated overrides** — all promotions in CB/RB/LB/CDM, every one with an accolade component of exactly 0 (Terry, Vieira, Van Dijk, Ferdinand, Cole to `icon`; Adams, Carragher, Makélélé, Alonso, Stam, King up two tiers from `regular`). `pnpm build:anchors` now writes the full audit trail to the **"Curated divergences"** section of [`docs/superpowers/reports/player-anchors-draft.md`](../docs/superpowers/reports/player-anchors-draft.md), including a **fabricated-id tripwire** listing any curated id that matches no scored player. This has to stay written down: anchoring hides the symptom, so once a defender is hand-promoted the model looks correct and the evidence for the pipeline ticket disappears.
+**That gap is now measured, not asserted → [TASK-M91](#task-m91).** The honours term carries 0.25 of the career score, the largest single weight, and **0 of 452 scored centre-backs can earn any honour from the data we hold** (CDM 0.6%, LB 1.2%, RB 1.5%, versus CF 12.6%). It costs **24 of the 84 curated overrides** — all promotions in CB/RB/LB/CDM, every one with an accolade component of exactly 0 (Terry, Vieira, Van Dijk, Ferdinand, Cole to `icon`; Adams, Carragher, Makélélé, Alonso, Stam, King up two tiers from `regular`). `pnpm build:anchors` now writes the full audit trail to the **"Curated divergences"** section of [`docs/superpowers/reports/player-anchors-draft.md`](../docs/superpowers/reports/player-anchors-draft.md), including a **fabricated-id tripwire** listing any curated id that matches no scored player. This has to stay written down: anchoring hides the symptom, so once a defender is hand-promoted the model looks correct and the evidence for the pipeline ticket disappears.
 
 The tripwire splits its two causes, because they look identical in the file and mean opposite things: an id in **no** season of the registry is fabricated (the real alarm), while a **real** player under the 40-app scoring floor is merely inert. Current state: **0 fabricated, 3 inert** — Asamoah Gyan (34 apps), Amr Zaki (35), Asier Del Horno (25) are curated but can never be scored, so their tiers produce no anchor and change nothing. Harmless; if any of them is genuinely meant to be anchored, the scoring floor has to move, not the tier.
 
@@ -5821,7 +5821,7 @@ The tripwire splits its two causes, because they look identical in the file and 
 
 **Gate added:** the harness compares DEF/PHY saturation between the two pipelines **as a rate, not a count** (the eras have different cohort sizes, so a count drifts with the data rather than with the model) and fails if sparse exceeds rich by more than 5 percentage points. Verified to fail against the pre-fix code at 9.4%. An "un-anchored era tops must match" assertion was **deliberately not added** — it passed against the pre-fix code, so it would have been decorative, the same trap as the Layer 2 career-variation test.
 
-**⛔ Gate:** every change to the rating model must pass [`tests/unit/game-rating-harness.test.ts`](../tests/unit/game-rating-harness.test.ts) — 11,716 player-seasons swept across every role and era. **Layer 2 added two assertions, and the second one matters more than the first:** every anchored season must sit inside its ±6 window, _and_ the anchored population must not pile up on the window edges. Bounding alone is not enough — a saturated delta is bounded and useless. **Every other assertion in the harness passes under the degenerate literal implementation**, including a "seasons of one career still differ" test that looked discriminating and was not; the edge-pile-up check is the only one that separates them (0% on the floor vs 63%). It was verified to fail against the degenerate version before being kept. **Depends on:** TASK-1820. **Follow-ups:** the un-anchored pre-2003 tail (above) and [TASK-M73](#task-m73) (the award-blind roles).
+**⛔ Gate:** every change to the rating model must pass [`tests/unit/game-rating-harness.test.ts`](../tests/unit/game-rating-harness.test.ts) — 11,716 player-seasons swept across every role and era. **Layer 2 added two assertions, and the second one matters more than the first:** every anchored season must sit inside its ±6 window, _and_ the anchored population must not pile up on the window edges. Bounding alone is not enough — a saturated delta is bounded and useless. **Every other assertion in the harness passes under the degenerate literal implementation**, including a "seasons of one career still differ" test that looked discriminating and was not; the edge-pile-up check is the only one that separates them (0% on the floor vs 63%). It was verified to fail against the degenerate version before being kept. **Depends on:** TASK-1820. **Follow-ups:** the un-anchored pre-2003 tail (above) and [TASK-M91](#task-m91) (the award-blind roles).
 
 ---
 
@@ -6333,17 +6333,17 @@ Everything in the owner's A-to-Z roadmap (2026-08-11) that **cannot** be built u
 | [TASK-M70](#task-m70) | Surface player role / alt-roles / foot / height on the profile page                         | ✅ Done | P2       | M   |
 | [TASK-M71](#task-m71) | Prerender `/teams/[id]`, `/managers/[id]` + the dashboard — drop the server `?season=` read | ✅ Done | P2       | L   |
 | [TASK-M72](#task-m72) | Fix app-wide soft 404s — the not-found page returns HTTP 200                                | ✅ Done | P2       | S   |
-| [TASK-M73](#task-m73) | Add PFA POTY + Team of the Season — the award-blind roles                                   | ⬜ Todo | P2       | L   |
-| [TASK-M74](#task-m74) | Surface honours / transfers / caps on the player profile page                               | ⬜ Todo | P2       | M   |
+| [TASK-M91](#task-m91) | Add PFA POTY + Team of the Season — the award-blind roles                                   | ⬜ Todo | P2       | L   |
+| [TASK-M92](#task-m92) | Surface honours / transfers / caps on the player profile page                               | ⬜ Todo | P2       | M   |
 | [TASK-M79](#task-m79) | Header overflows sideways on tablet / small-laptop widths                                   | ✅ Done | P2       | S   |
 | [TASK-M80](#task-m80) | Header overflows sideways on phone widths                                                   | ✅ Done | P2       | S   |
 | [TASK-M81](#task-m81) | Surface the full managerial career + honours on `/managers/[id]`                            | ✅ Done | P2       | M   |
-| [TASK-M82](#task-m82) | Widen the trivia data facade — events, honours, transfers, manager enrichment                | ⬜ Todo | P2       | M   |
-| [TASK-M83](#task-m83) | Extended-stats leaderboards — lift the 54 unused fields (2010+)                              | ⬜ Todo | P3       | M   |
-| [TASK-M87](#task-m87) | Show the player enrichment summary where players are listed                                  | ⬜ Todo | P3       | S   |
-| [TASK-M88](#task-m88) | Reconcile the two diverged TASKS.md boards (colliding ticket numbers)                        | ⬜ Todo | P3       | S   |
-| [TASK-M89](#task-m89) | `/ar` entity DETAIL pages render English UI — the Arabic catalog never applies                | ✅ Done | P1       | M   |
-| [TASK-M90](#task-m90) | `<ImageZoom>` has no failover — lightbox breaks where the thumbnail recovers                  | ⬜ Todo | P3       | S   |
+| [TASK-M82](#task-m82) | Widen the trivia data facade — events, honours, transfers, manager enrichment               | ⬜ Todo | P2       | M   |
+| [TASK-M83](#task-m83) | Extended-stats leaderboards — lift the 54 unused fields (2010+)                             | ⬜ Todo | P3       | M   |
+| [TASK-M93](#task-m93) | Show the player enrichment summary where players are listed                                 | ✅ Done | P3       | S   |
+| [TASK-M88](#task-m88) | Reconcile the two diverged TASKS.md boards (colliding ticket numbers)                       | ✅ Done | P3       | S   |
+| [TASK-M89](#task-m89) | `/ar` entity DETAIL pages render English UI — the Arabic catalog never applies              | ✅ Done | P1       | M   |
+| [TASK-M90](#task-m90) | `<ImageZoom>` has no failover — lightbox breaks where the thumbnail recovers                | ✅ Done | P3       | S   |
 
 ### TASK-M01
 
@@ -7842,7 +7842,7 @@ managers    0        prerendered   (reads searchParams)
 
 ---
 
-### TASK-M73
+### TASK-M91
 
 **Add PFA Player of the Year + Team of the Season — the award-blind roles** · ⬜ Todo · `P2` · `L` · Type: Data
 
@@ -7873,7 +7873,7 @@ managers    0        prerendered   (reads searchParams)
 
 ---
 
-### TASK-M74
+### TASK-M92
 
 **Surface honours / transfers / caps on the player profile page** · ⬜ Todo · `P2` · `M` · Type: UI / Data
 
@@ -7903,7 +7903,7 @@ Coverage: **5,362 players** — 29,761 honour groups, 65,437 transfer moves, 122
 
 **Design.** Follow the M70 ritual — a layout + micro-animation chosen from a shortlist, then the design gallery — so it sits with the existing `PlayerHero` rather than beside it. Phase 18's `PlayerCard` can consume the same summary for badges.
 
-**Depends on:** nothing — the data is committed and live. **Related:** pipeline TASK-M73/M75/M76 (crawl → apply → keep current).
+**Depends on:** nothing — the data is committed and live. **Related:** pipeline TASK-M91/M75/M76 (crawl → apply → keep current).
 
 ---
 
@@ -8057,13 +8057,49 @@ Add a loader and extend `LEADERBOARD_CATEGORIES` with the ones that read well se
 
 ---
 
-### TASK-M87
+### TASK-M93
 
-**Show the player enrichment summary where players are listed** · ⬜ Todo · `P3` · `S` · Type: Feature
+**Show the player enrichment summary where players are listed** · ✅ Done · `P3` · `S` · Type: Feature
+
+## ✅ SHIPPED 2026-08-16
+
+Renumbered from the app board's `TASK-M87` by TASK-M88 — `TASK-M87` now means the
+pipeline's shipped manager-portraits ticket, in both repos, and nothing else.
+
+`enrichment` reached no component because it was dropped in the type layer, not
+missing from the data: `toApiPlayer()` and `toSquadPlayer()` both rebuilt a
+narrower object from the row. Threaded through `Player`, `SquadPlayer` and
+`PlayerProfile`, then surfaced on all three requested surfaces:
+
+| Surface        | What renders                                                              |
+| -------------- | ------------------------------------------------------------------------- |
+| Profile header | `<PlayerCareerSummary>` — trophies · caps · awards · career fees          |
+| `/compare`     | Two `<StatRow>`s (trophies, caps) in their OWN list below the season bars |
+| Squad card     | `<PlayerHonoursInline>` — trophy + cap badges                             |
+
+**`PlayerProfile.enrichment` is required, not optional**, so every construction
+site has to decide; that is what surfaced the two stale test fixtures.
+
+Three judgement calls worth keeping:
+
+- **null ≠ 0.** `caps` / `internationalGoals` are nullable and null means TM has
+  no record. A tile renders an em dash rather than a fabricated `0`, so an
+  uncapped player and an unknown one do not read identically.
+- **`trophies` is silverware only** (participation and runner-up groups are
+  excluded upstream), so `0` on a decorated player is a fact, not a gap.
+- **The summary renders INSIDE `<PlayerHero>`**, unlike `<ManagerCareerSummary>`
+  which is a sibling. `<PlayerSeasonView>` replaces its `hero` slot wholesale on
+  a season swap, so a sibling would have to be duplicated in the swap branch and
+  would silently vanish when a visitor changed season — the trap `<ManagerSeasonView>`
+  already warns about. The summary is season-independent, so binding it to the
+  hero is also the honest placement.
+
+Compare keeps career totals in a separate list from the per-season bars on
+purpose: mixing them invites reading "3 trophies" as "3 trophies in 2024-25".
 
 Every player row already carries `enrichment` — trophies, honours, awards, caps, international goals, career fee — on **18,100 of 18,126 rows (100%)**, and **no component reads it**. It costs nothing at read time because it is already on the row.
 
-A trophy count and cap count on the profile header, the compare view and the squad card. Complements TASK-M74, which is the full detail page.
+A trophy count and cap count on the profile header, the compare view and the squad card. Complements TASK-M92, which is the full detail page.
 
 **Depends on:** nothing.
 
@@ -8071,14 +8107,50 @@ A trophy count and cap count on the profile header, the compare view and the squ
 
 ### TASK-M88
 
-**Reconcile the two diverged TASKS.md boards** · ⬜ Todo · `P3` · `S` · Type: Chore
+**Reconcile the two diverged TASKS.md boards** · ✅ Done · `P3` · `S` · Type: Chore
+
+## ✅ SHIPPED 2026-08-16 — renumbered the app's three colliding Todo tickets
+
+Owner's call, from three options (renumber / prefix the pipeline `TASK-P##` /
+merge into one board). Measured first: **only three numbers ever collided**, and
+in all three the pipeline ticket is **shipped** while the app ticket had **never
+been started**.
+
+| Number | Was, on this board                 | Now       | Pipeline board keeps               |
+| ------ | ---------------------------------- | --------- | ---------------------------------- |
+| `M73`  | PFA POTY + Team of the Season      | **`M91`** | Player enrichment crawl (Done)     |
+| `M74`  | Surface honours / transfers / caps | **`M92`** | Repoint market-value source (Done) |
+| `M87`  | Player enrichment summary          | **`M93`** | Manager portraits (Done)           |
+
+**Renumbering the Todo side is what makes this safe**: shipped tickets keep their
+numbers, so every existing PR title, commit message and doc reference stays
+accurate. Renumbering the shipped side would have invalidated all of them.
+
+### What this did and did NOT fix
+
+Verified by diffing both boards' `### TASK-M##` headers:
+
+- **`M73` / `M74` / `M87` are now defined on exactly one board each** — the three
+  numbers that meant genuinely different topics.
+- **0 shared numbers have disagreeing statuses**, which is the harm this ticket
+  actually described ("reading _M74 is done_ gets the wrong answer depending on
+  which repo you opened").
+
+⚠️ **9 shared numbers still carry different WORDING** — `M03`, `M20`, `M57`,
+`M60`, `M64`, `M65`, `M66`, `M68`, `M69`. Those are **not** the same defect: each
+is one effort described from its own repo's side (`M65` is "ingest the 66-field
+payload" on the pipeline and "surface it in the accordion" here), and their
+statuses agree. That is the boards' existing convention across ~70 tickets, and
+renumbering them would invalidate a large number of shipped PR and commit
+references for no gain. Left deliberately; noted here so the next reader doesn't
+mistake it for unfinished work.
 
 This board and the pipeline repo's have diverged into two documents with **colliding ticket numbers that mean different things**:
 
-| Number | This board | Pipeline board |
-| --- | --- | --- |
-| `TASK-M73` | PFA POTY + Team of the Season (Todo) | Player enrichment crawl (Done) |
-| `TASK-M74` | Surface honours/transfers/caps (Todo) | Repoint market-value source (Done) |
+| Number     | This board                            | Pipeline board                     |
+| ---------- | ------------------------------------- | ---------------------------------- |
+| `TASK-M91` | PFA POTY + Team of the Season (Todo)  | Player enrichment crawl (Done)     |
+| `TASK-M92` | Surface honours/transfers/caps (Todo) | Repoint market-value source (Done) |
 
 Anyone reading "M74 is done" gets the wrong answer depending on which repo they opened. Either merge into one board, or give the pipeline its own prefix (`TASK-P##`) and renumber. New tickets were started at **M81** to avoid deepening it.
 
@@ -8111,10 +8183,10 @@ This is the shape Next already forced on `error.tsx`.
 
 A production build emitted `[locale]` layout renders as:
 
-| | before | after |
-| --- | --- | --- |
-| `locale=ar`, Arabic catalog | 399 | **940** |
-| `locale=ar`, English catalog | **541** | **0** |
+|                              | before  | after   |
+| ---------------------------- | ------- | ------- |
+| `locale=ar`, Arabic catalog  | 399     | **940** |
+| `locale=ar`, English catalog | **541** | **0**   |
 
 Single-variable proof: deleting **only** `teams/[id]/not-found.tsx` moved exactly
 its 2 pages (541 → 539), leaving managers and players broken. Prerendered
@@ -8157,12 +8229,12 @@ paramless boundary file doing work the whole segment depends on.
 
 Found while verifying TASK-M81, and **confirmed on production**, so it predates that branch. Counting Arabic codepoints in the served HTML:
 
-| Page | Arabic characters |
-| --- | --- |
-| `/ar` (dashboard) | 25,871 ✅ |
-| `/ar/managers` (index) | 20,286 ✅ |
-| **`/ar/managers/134`** | **2** ❌ |
-| **`/ar/teams/33`** | **73** ❌ |
+| Page                   | Arabic characters |
+| ---------------------- | ----------------- |
+| `/ar` (dashboard)      | 25,871 ✅         |
+| `/ar/managers` (index) | 20,286 ✅         |
+| **`/ar/managers/134`** | **2** ❌          |
+| **`/ar/teams/33`**     | **73** ❌         |
 
 The prerendered `/en` and `/ar` manager pages come out 239,628 vs 239,700 bytes — near-identical, because the Arabic one is rendering the **English catalog**. Every translated string on those pages is affected, including ones that shipped long ago (`careerByClub` → "المسيرة حسب النادي" appears nowhere).
 
@@ -8178,7 +8250,26 @@ Rated **P1** — Arabic is half the product's localization story and these are t
 
 ### TASK-M90
 
-**`<ImageZoom>` has no failover — the lightbox shows a broken image where the thumbnail recovered** · ⬜ Todo · `P3` · `S` · Type: Bug
+**`<ImageZoom>` has no failover — the lightbox shows a broken image where the thumbnail recovered** · ✅ Done · `P3` · `S` · Type: Bug
+
+## ✅ SHIPPED 2026-08-16
+
+`<ImageZoom>` now takes `src: string | readonly string[]` and walks the list on
+`onError`, reusing the `failed`-set pattern from `<PlayerImage>` rather than a
+second one. The heroes pass `playerPhotoCandidates(...)` — the same list the
+thumbnail uses — instead of `resolvePlayerPhotoSrc(...)`, which returned
+candidate ONE and was exactly why no fallback was reachable.
+
+Two degradations, both preferring "no zoom" to "broken box": an empty candidate
+list renders the thumbnail with no trigger at all (a monogram has nothing to
+enlarge), and an exhausted list shows the alt text instead of a broken-image icon.
+
+Guarded by `tests/unit/image-zoom-failover.test.tsx`, which asserts the
+**lightbox** image advances — the existing `player-image.test.tsx` failover tests
+passed for this bug's entire lifetime because they only looked at the thumbnail.
+**Verified non-vacuous:** 4 of its 6 tests fail against the pre-fix component. It
+also asserts the hero WIRING (that the helper yields >1 candidate), since the
+component could be correct while a hero quietly passed candidate one again.
 
 `<PlayerImage>` owns a real resolution chain: it walks `playerPhotoCandidates`, and an `onError` marks the failed src and falls to the next, ending at an initials monogram so a broken-image box is **never** shown (TASK-M28). `<ImageZoom>` sits directly beside it in the same heroes and has **none of that** — it takes a single `src: string` and renders a plain `<img src={src}>` with no `onError`.
 
@@ -8186,28 +8277,28 @@ So on a hero the two disagree: the thumbnail recovers, the lightbox behind it do
 
 ```tsx
 // src/components/ImageZoom.tsx — the whole failure surface
-<img src={src} alt={alt} className="…" />   // no onError, no candidate list
+<img src={src} alt={alt} className="…" /> // no onError, no candidate list
 ```
 
 **Not manager-only.** All three consumers pass candidate **one** and hope:
 
-| Consumer | What it passes |
-| --- | --- |
+| Consumer          | What it passes                                                |
+| ----------------- | ------------------------------------------------------------- |
 | `ManagerHero.tsx` | `resolvePlayerPhotoSrc(profile.photo, profile.photoFallback)` |
-| `PlayerHero.tsx` | `resolvePlayerPhotoSrc(player.photo)` |
-| `TeamHero.tsx` | `team.logo` |
+| `PlayerHero.tsx`  | `resolvePlayerPhotoSrc(player.photo)`                         |
+| `TeamHero.tsx`    | `team.logo`                                                   |
 
 `resolvePlayerPhotoSrc` returns `candidates[0]`. For a numeric id that is the PL-CDN `110x140` URL **whether or not it 404s** — so neither the legacy `250x250` path nor any fallback is ever reachable from the lightbox.
 
-⚠️ **This ticket is NOT "pass `photoFallback` into `resolvePlayerPhotoSrc`" — TASK-M87 already did that**, and it deliberately does not fix this. Because the fallback is appended *after* the CDN candidates, `candidates[0]` is unchanged for every numeric id. What M87's threading did buy is legacy `lm-*` managers, whose id yields **no** candidate at all: their hero previously had no zoom whatsoever and now has one. Anyone who reads the call signature, sees the argument already threaded, and closes this as done will leave the actual defect in place.
+⚠️ **This ticket is NOT "pass `photoFallback` into `resolvePlayerPhotoSrc`" — TASK-M93 already did that**, and it deliberately does not fix this. Because the fallback is appended _after_ the CDN candidates, `candidates[0]` is unchanged for every numeric id. What M87's threading did buy is legacy `lm-*` managers, whose id yields **no** candidate at all: their hero previously had no zoom whatsoever and now has one. Anyone who reads the call signature, sees the argument already threaded, and closes this as done will leave the actual defect in place.
 
-**The fix is to give the lightbox the same chain the thumbnail has** — hand `<ImageZoom>` the candidate *list* (or let it accept the failover callback), reuse the `failed`-set pattern from `PlayerImage.tsx` rather than inventing a second one, and degrade to closing/suppressing the zoom rather than showing a broken box when every candidate fails.
+**The fix is to give the lightbox the same chain the thumbnail has** — hand `<ImageZoom>` the candidate _list_ (or let it accept the failover callback), reuse the `failed`-set pattern from `PlayerImage.tsx` rather than inventing a second one, and degrade to closing/suppressing the zoom rather than showing a broken box when every candidate fails.
 
 **Known instances:** Oliver Glasner (`44410`) and Andoni Iraola (`50428`) — both PL-CDN candidates 404, thumbnail falls through to the crawled portrait, lightbox stays broken. **Players are unmeasured but structurally identical** (`PlayerHero` uses the same helper), and TASK-M28 exists precisely because some player photos 404 — worth counting before sizing the fix.
 
 **Suggested guard:** a component test that renders each hero with a photo whose first candidate fails and asserts the lightbox `src` advances — the thumbnail-only assertions in `player-image.test.tsx` pass today while this bug is live.
 
-**Depends on:** nothing. **Related:** TASK-M87 (published the fallback the lightbox cannot reach), TASK-M28 (why the thumbnail chain exists).
+**Depends on:** nothing. **Related:** TASK-M93 (published the fallback the lightbox cannot reach), TASK-M28 (why the thumbnail chain exists).
 
 ---
 

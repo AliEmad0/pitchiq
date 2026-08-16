@@ -400,7 +400,12 @@
     "perClubBreakdown": "التفصيل حسب النادي",
     "byClubThisSeason": "حسب النادي هذا الموسم",
     "splitYellow": "صفراء",
-    "splitRed": "حمراء"
+    "splitRed": "حمراء",
+    "careerSummary": "ملخص المسيرة",
+    "statTrophies": "الألقاب",
+    "statCaps": "المباريات الدولية",
+    "statAwards": "الجوائز",
+    "statCareerFee": "قيمة الانتقالات"
   },
   "managers": {
     "pageTitle": "مدربو الدوري الإنجليزي الممتاز",

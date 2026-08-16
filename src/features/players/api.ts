@@ -12,7 +12,13 @@ import {
 } from "@/data/loaders";
 import type { Player as SnapshotP, PlayerRole, PlayerSeasonSplit } from "@/data/schemas";
 
-import type { ComparisonMetrics, Player, PlayerLeaderboardEntry, TeamRef } from "@/types/api";
+import type {
+  ComparisonMetrics,
+  Player,
+  PlayerEnrichment,
+  PlayerLeaderboardEntry,
+  TeamRef,
+} from "@/types/api";
 
 import { clubLogoFromMap } from "@/utils/club-logo";
 import { logger } from "@/utils/logger";
@@ -178,6 +184,9 @@ export type PlayerProfile = {
   foot: "left" | "right" | "both" | null;
   height: number | null;
   metrics: ComparisonMetrics;
+  // TASK-M93: career summary already committed on the row (trophies, caps,
+  // career fee). Null = the row was never enriched — NOT "won nothing".
+  enrichment: PlayerEnrichment | null;
   // TASK-M07: per-club breakdown for a mid-season transferee (2017-24 era);
   // absent for single-club seasons.
   splits?: PlayerSeasonSplit[];
@@ -221,6 +230,7 @@ export async function getPlayerProfile(
     foot: player.foot ?? null,
     height: player.height ?? null,
     metrics: player.metrics,
+    enrichment: player.enrichment ?? null,
     splits: player.splits,
   };
 }
@@ -245,6 +255,9 @@ function toApiPlayer(p: SnapshotP, names: EntityNames = IDENTITY_NAMES): Player 
     weight: null,
     injured: false,
     photo: p.photo ?? "",
+    // TASK-M93 — carried through rather than re-fetched: it is already on the
+    // row, so the compare view costs nothing extra at read time.
+    enrichment: p.enrichment ?? null,
   };
 }
 

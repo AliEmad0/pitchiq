@@ -323,6 +323,34 @@ function ComparisonView({ a, b }: { a: Resolved; b: Resolved }) {
           />
         )}
       </ul>
+
+      {/*
+        TASK-M93 — career honours, in their OWN list below the season bars.
+        Deliberately not folded into COMPARISON_METRICS: those are per-season
+        stats for the two picked seasons, while these are whole-career totals
+        that do not change with the slot's season. Mixing them would invite
+        reading "3 trophies" as "3 trophies in 2024-25".
+
+        Rendered only when at least one side is enriched. `caps` null means
+        UNKNOWN, not zero, and StatRow already renders null as "—" with a
+        neutral 50/50 bar rather than implying a real ratio.
+      */}
+      {(a.player.enrichment || b.player.enrichment) && (
+        <ul className="mx-auto flex w-full max-w-2xl flex-col gap-3" {...revealProps()}>
+          <StatRow
+            label={tp("statTrophies")}
+            a={a.player.enrichment?.trophies ?? null}
+            b={b.player.enrichment?.trophies ?? null}
+            format={(n) => String(n)}
+          />
+          <StatRow
+            label={tp("statCaps")}
+            a={a.player.enrichment?.caps ?? null}
+            b={b.player.enrichment?.caps ?? null}
+            format={(n) => String(n)}
+          />
+        </ul>
+      )}
     </section>
   );
 }

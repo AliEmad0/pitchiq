@@ -6,7 +6,7 @@ import { ImageZoom } from "@/components/ImageZoom";
 import { Flag } from "@/features/players/components/Flag";
 import { PlayerAge } from "@/features/players/components/PlayerAge";
 import { PlayerImage } from "@/features/players/components/PlayerImage";
-import { resolvePlayerPhotoSrc } from "@/features/players/player-photo";
+import { playerPhotoCandidates } from "@/features/players/player-photo";
 import type { ManagerProfile } from "@/features/managers/manager-profile.api";
 import { formatBirthDate } from "@/utils/age";
 import { localizeDigits } from "@/utils/format";
@@ -23,11 +23,13 @@ export function ManagerHero({ profile }: { profile: ManagerProfile }) {
   const t = useTranslations("managers");
   const tc = useTranslations("common");
   const locale = useLocale();
-  // TASK-M87: the zoom target gains the crawled portrait as a last resort. For a
-  // numeric id this is unchanged (the PL-CDN URL is still candidate one, 404 or
-  // not — `<ImageZoom>` has no failover); it matters for legacy `lm-*` managers,
-  // whose id yields no candidate at all, so the hero had no zoom before.
-  const photoSrc = resolvePlayerPhotoSrc(profile.photo, profile.photoFallback);
+  // TASK-M87 published the crawled portrait as a last-resort candidate; TASK-M90
+  // hands the lightbox the WHOLE list rather than candidate one, so it fails over
+  // exactly like the thumbnail. Passing `resolvePlayerPhotoSrc(...)` here was the
+  // trap: it returns `candidates[0]`, which for a numeric id is the PL-CDN URL
+  // whether or not it 404s — so Glasner's thumbnail recovered and his lightbox
+  // stayed broken.
+  const photoCandidates = playerPhotoCandidates(profile.photo, profile.photoFallback);
   const titles = profile.honours.length;
   const cover = (
     <PlayerImage
@@ -41,13 +43,11 @@ export function ManagerHero({ profile }: { profile: ManagerProfile }) {
     <Card className="overflow-hidden p-0" {...revealProps()}>
       <div className="flex flex-col sm:flex-row">
         <div className="bg-muted relative h-56 w-full shrink-0 sm:h-auto sm:w-44 sm:self-stretch lg:w-52">
-          {photoSrc ? (
-            <ImageZoom src={photoSrc} alt={profile.name} triggerClassName="size-full">
-              {cover}
-            </ImageZoom>
-          ) : (
-            cover
-          )}
+          {/* ImageZoom renders `children` bare when the candidate list is empty,
+              so it owns the "nothing to enlarge" case now. */}
+          <ImageZoom src={photoCandidates} alt={profile.name} triggerClassName="size-full">
+            {cover}
+          </ImageZoom>
         </div>
 
         <div className="flex min-w-0 flex-1 flex-col justify-center gap-2 p-5 sm:p-7">

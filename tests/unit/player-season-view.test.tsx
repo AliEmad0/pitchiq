@@ -34,6 +34,7 @@ function profile(id: number, name: string): PlayerProfile {
     foot: null,
     height: null,
     metrics: [] as unknown as PlayerProfile["metrics"],
+    enrichment: null,
   };
 }
 
