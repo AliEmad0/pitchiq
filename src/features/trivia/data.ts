@@ -6,8 +6,14 @@ import {
   loadFixtureExtras,
   loadGoalAttribution,
   loadLeaderboards,
+  loadCaptains,
+  loadLineups,
+  loadManagerEnrichment,
+  loadManagerHonoursHistory,
   loadManagers,
+  loadPlayerPfaAwards,
   loadPlayers,
+  loadSeasonEvents,
   loadSearchIndex,
   loadStandings,
 } from "@/data/loaders";
@@ -33,6 +39,14 @@ function triviaData(season: number): TriviaData {
     goalAttribution: () => loadGoalAttribution(),
     managers: () => loadManagers(),
     fixtureExtras: (s = season) => loadFixtureExtras(s),
+    // TASK-M82 — see the warning on : everything here is small enough for
+    // a request-time read. The 5-8 MB player detail maps deliberately stay out.
+    events: (s = season) => loadSeasonEvents(s),
+    lineups: (s = season) => loadLineups(s),
+    managerEnrichment: () => loadManagerEnrichment(),
+    managerHonours: () => loadManagerHonoursHistory(),
+    captains: () => loadCaptains(),
+    pfaAwards: () => loadPlayerPfaAwards(),
   };
 }
 

@@ -6336,7 +6336,7 @@ Everything in the owner's A-to-Z roadmap (2026-08-11) that **cannot** be built u
 | [TASK-M79](#task-m79) | Header overflows sideways on tablet / small-laptop widths                                   | ✅ Done | P2       | S   |
 | [TASK-M80](#task-m80) | Header overflows sideways on phone widths                                                   | ✅ Done | P2       | S   |
 | [TASK-M81](#task-m81) | Surface the full managerial career + honours on `/managers/[id]`                            | ✅ Done | P2       | M   |
-| [TASK-M82](#task-m82) | Widen the trivia data facade — events, honours, transfers, manager enrichment               | ⬜ Todo | P2       | M   |
+| [TASK-M82](#task-m82) | Widen the trivia data facade — events, honours, transfers, manager enrichment               | ✅ Done | P2       | M   |
 | [TASK-M83](#task-m83) | Extended-stats leaderboards — lift the 54 unused fields (2010+)                             | ⬜ Todo | P3       | M   |
 | [TASK-M88](#task-m88) | Reconcile the two diverged TASKS.md boards (colliding ticket numbers)                       | ✅ Done | P3       | S   |
 | [TASK-M89](#task-m89) | `/ar` entity DETAIL pages render English UI — the Arabic catalog never applies              | ✅ Done | P1       | M   |
@@ -7960,7 +7960,81 @@ Verified against the real committed data, not fixtures: Mourinho 26 trophies / 1
 
 ### TASK-M82
 
-**Widen the trivia data facade** · ⬜ Todo · `P2` · `M` · Type: Feature
+**Widen the trivia data facade** · ✅ Done · `P2` · `M` · Type: Feature
+
+## ✅ SHIPPED 2026-08-16 — 8 accessors → 14, rules R1-R26 → R1-R32
+
+### ⛔ The constraint the ticket did not state
+
+`/api/trivia` is **`export const revalidate = 0`** — every rule runs on **every request**.
+So the facade could NOT simply gain the detail maps the ticket lists:
+`player-honours.json` is **5 MB**, `player-transfer-history.json` **8 MB** and
+`market-value-history.json` **5 MB**, and all three carry build-time-only warnings on
+their loaders. Adding them here would have rebuilt the exact Fluid Active-CPU shape
+TASK-M71 had to fix.
+
+**Everything the ticket asked for still shipped**, because the cheap `enrichment` summary
+(trophies · honours · awards · caps · international goals · career fee) already rides on
+every player row from TASK-M93. The trophy-cabinet and international facts read the row
+and cost nothing.
+
+### Added to the facade — all measured, all request-time safe
+
+| Accessor              | Size                                  |
+| --------------------- | ------------------------------------- |
+| `events(season?)`     | ~730 KB/season (143,901 archive-wide) |
+| `lineups(season?)`    | ~1.3 MB/season                        |
+| `managerEnrichment()` | 62 KB                                 |
+| `managerHonours()`    | 290 KB                                |
+| `captains()`          | small                                 |
+| `pfaAwards()`         | 11 KB (TASK-M91)                      |
+
+`loadSeasonEvents()` is new — `loadEvents` reads the same file and then discards every
+fixture but one, so season-wide aggregates were impossible through it.
+
+### Six new rules
+
+| Rule                              | Fact                                  | Source           |
+| --------------------------------- | ------------------------------------- | ---------------- |
+| **R27** Late deciders             | goals from the 90th minute            | events           |
+| **R28** Favourite supplier        | most frequent assister→scorer pairing | events           |
+| **R29** Spot kicks and own goals  | penalties + own goals vs open play    | events           |
+| **R30** Trophy cabinet            | career silverware + total fees        | row `enrichment` |
+| **R31** International double life | caps + international goals            | row `enrichment` |
+| **R32** The travelled manager     | national titles in 3+ countries       | manager honours  |
+
+Each keeps the engine's `verify` closure, so a fact is re-derived before it is shown.
+
+### Three data traps, each now a test
+
+- **`detail` separates the goal kinds** (`Goal` / `Penalty` / `Own`). Counting
+  `type === "Goal"` alone folds all three together and credits an own goal to the team
+  that conceded it.
+- **A 90+4 goal is `{minute: 90, extra: 4}`** — `minute >= 90` catches it; adding `extra`
+  double-counts.
+- **R32 derives the country from the TITLE, never the `competitionId`.** England appears
+  under both `GB1` and `EFD1` (the pre-Premier-League First Division), so counting
+  distinct ids scores England twice. Both carry the same title text, so the title dedupes
+  for free — and the denylist drops `European champion` (a continent), regional leagues
+  (`Champion Westfalenliga 1`) and every second-tier and age-group title.
+
+Verified against records outside our data: **Ancelotti 5 countries** (England, France,
+Germany, Italy, Spain), Mourinho 4, Guardiola 3.
+
+### ⚠️ A number in this ticket was wrong
+
+The ticket quotes **97** late goals in 2024-25. That figure **includes an own goal**; goals
+a team actually _scored_ at 90'+ number **96**. Both are asserted in
+`trivia-m82-committed-data.test.ts` so nobody "fixes" the rule to match the ticket.
+
+### Guards
+
+- `trivia-m82-rules.test.ts` — 16 synthetic cases (the logic).
+- `trivia-m82-committed-data.test.ts` — the rules actually **fire on the committed data**
+  (the wiring). A rule can pass every synthetic case and still return null in production
+  because a threshold sits above what the real data supports.
+- `tests/unit/_helpers/trivia.ts` — shared stub defaults. Widening the facade broke seven
+  test files that each wrote a full literal; the next accessor now costs one line.
 
 Phase 3 of the audit sequence. The 26 rules reach data through a facade exposing exactly **eight** accessors (standings, players, fixtures, leaderboards, seasons, goalAttribution, managers, fixtureExtras). Everything else is invisible to it — including **143,901 raw match events**.
 

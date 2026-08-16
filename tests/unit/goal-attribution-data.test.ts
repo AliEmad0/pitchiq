@@ -9,6 +9,7 @@ import { opponentSpreadRule } from "../../src/features/trivia/rules/opponent-spr
 import { favouriteOpponentRule } from "../../src/features/trivia/rules/favourite-opponent";
 import { multiGoalGamesRule } from "../../src/features/trivia/rules/multi-goal-games";
 import type { TriviaData } from "../../src/features/trivia/types";
+import { TRIVIA_DEFAULTS } from "./_helpers/trivia";
 
 async function committedMap(): Promise<GoalAttribution> {
   const raw = JSON.parse(
@@ -43,6 +44,7 @@ describe("player-goal-attribution.json (committed)", () => {
     // A minimal squad so playerName resolves; goalAttribution returns the real map.
     const players = [{ id: 1002187, name: "Didier Drogba" } as Player];
     const data: TriviaData = {
+      ...TRIVIA_DEFAULTS,
       season: 2010,
       standings: async () => null,
       players: async () => players,

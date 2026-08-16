@@ -3,8 +3,10 @@ import { describe, expect, it } from "vitest";
 import { generateTrivia } from "../../src/features/trivia/engine";
 import { RULES } from "../../src/features/trivia/rules";
 import type { RuleResult, TriviaData, TriviaRule } from "../../src/features/trivia/types";
+import { TRIVIA_DEFAULTS } from "./_helpers/trivia";
 
 const emptyData: TriviaData = {
+  ...TRIVIA_DEFAULTS,
   season: 2024,
   standings: async () => null,
   players: async () => null,
@@ -68,14 +70,17 @@ describe("generateTrivia", () => {
     expect(a[0].id).toBe(b[0].id);
   });
 
-  it("ships all 26 rules (R1-R26), each unique", () => {
+  // TASK-M82 added R27-R32 — the first rules to read the event stream, the row-level
+  // enrichment summary and the manager honours map.
+  it("ships all 32 rules (R1-R32), each unique", () => {
     const ids = RULES.map((r) => r.id);
-    expect(ids).toHaveLength(26);
-    expect(new Set(ids).size).toBe(26);
+    expect(ids).toHaveLength(32);
+    expect(new Set(ids).size).toBe(32);
   });
 
   it("produces verified facts from the real rule library (league scope)", async () => {
     const data: TriviaData = {
+      ...TRIVIA_DEFAULTS,
       ...emptyData,
       standings: async () => [
         st(1, 1, "Runaway United", 90, 20),

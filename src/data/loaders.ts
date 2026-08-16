@@ -9,6 +9,7 @@ import { currentDataSeason } from "@/utils/season";
 
 import {
   EventsFileSchema,
+  PlayerPfaAwardsFileSchema,
   FixturesFileSchema,
   LeaderboardsSchema,
   LineupsFileSchema,
@@ -34,6 +35,7 @@ import {
   ManagerEnrichmentFileSchema,
   ManagerCareerHistoryFileSchema,
   ManagerHonoursHistoryFileSchema,
+  type PlayerPfaAwardsFile,
   type PlayerHonoursFile,
   type PlayerNationalFile,
   type PlayerTransferHistoryFile,
@@ -478,6 +480,35 @@ export async function loadEvents(id: string, season: number): Promise<MatchEvent
   const all = await readJsonOrNull(`events-${season}.json`, EventsFileSchema);
   if (!all) return null;
   return all[id] ?? [];
+}
+
+/**
+ * TASK-M91 — PFA Team of the Season / Player of the Year, keyed by our player id.
+ *
+ * Tiny (~11 KB) and season-independent, so it is safe anywhere, including request-time
+ * paths. `null` when the pipeline has not synced it yet — callers render nothing rather
+ * than claiming nobody won anything.
+ */
+export async function loadPlayerPfaAwards(): Promise<PlayerPfaAwardsFile | null> {
+  return readJsonOrNull("player-pfa-awards.json", PlayerPfaAwardsFileSchema);
+}
+
+/**
+ * TASK-M82 — every event in a season, keyed by fixture id.
+ *
+ * The trivia rules need season-WIDE aggregates (late goals, assist pairings, penalty and
+ * own-goal counts) which `loadEvents` cannot express: it reads the same file and then
+ * throws away every fixture but one.
+ *
+ * Safe on a request-time path: an events file is ~730 KB, and `readJsonOrNull` caches per
+ * process so a warm lambda parses it once. That is emphatically NOT true of
+ * `player-honours.json` (5 MB) or `player-transfer-history.json` (8 MB) — see the
+ * build-time-only warning on those loaders, and do not add them to the trivia facade.
+ */
+export async function loadSeasonEvents(
+  season: number,
+): Promise<Record<string, MatchEventRaw[]> | null> {
+  return readJsonOrNull(`events-${season}.json`, EventsFileSchema);
 }
 
 // ---------------------------------------------------------------------------

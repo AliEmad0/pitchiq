@@ -5,6 +5,7 @@ import { favouriteOpponentRule } from "../../src/features/trivia/rules/favourite
 import { multiGoalGamesRule } from "../../src/features/trivia/rules/multi-goal-games";
 import type { GoalAttribution, Player } from "../../src/data/schemas";
 import type { TriviaData } from "../../src/features/trivia/types";
+import { TRIVIA_DEFAULTS } from "./_helpers/trivia";
 
 function p(id: number, name: string): Player {
   return {
@@ -34,6 +35,7 @@ function p(id: number, name: string): Player {
 /** Minimal TriviaData over a committed-map + a single focus-season squad. */
 function data(map: GoalAttribution | null, players: Player[] = []): TriviaData {
   return {
+    ...TRIVIA_DEFAULTS,
     season: 2024,
     standings: async () => null,
     players: async () => players,
