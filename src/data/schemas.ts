@@ -507,6 +507,22 @@ export const MatchEventRawSchema = z.object({
 /** events-<season>.json: keyed by fixture id → ordered event list. */
 export const EventsFileSchema = z.record(z.string(), z.array(MatchEventRawSchema));
 
+/**
+ * TASK-M91 — `player-pfa-awards.json`, keyed by OUR player id.
+ *
+ * Seasons are START years (1992 = 1992-93). Written by the pipeline's
+ * `apply-pfa-awards.ts`, which refuses to publish if any selection failed to join, so an
+ * entry here is always a resolved player rather than a best guess.
+ */
+export const PlayerPfaAwardsFileSchema = z.record(
+  z.string(),
+  z.object({
+    teamOfTheSeason: z.array(z.number().int()),
+    playerOfTheYear: z.array(z.number().int()),
+  }),
+);
+export type PlayerPfaAwardsFile = z.infer<typeof PlayerPfaAwardsFileSchema>;
+
 // === Cross-season search index (TASK-M08) ===============================
 
 /**

@@ -6,6 +6,7 @@ import { goldenGloveRule } from "../../src/features/trivia/rules/golden-glove";
 import { transferImpactRule } from "../../src/features/trivia/rules/transfer-impact";
 import type { ComparisonMetrics, Player } from "../../src/data/schemas";
 import type { TriviaData } from "../../src/features/trivia/types";
+import { TRIVIA_DEFAULTS } from "./_helpers/trivia";
 
 function metrics(over: Partial<ComparisonMetrics> = {}): ComparisonMetrics {
   return {
@@ -41,6 +42,7 @@ function player(over: Partial<Player> = {}): Player {
 /** Minimal TriviaData whose focus season returns one player. */
 function data(season: number, players: Player[]): TriviaData {
   return {
+    ...TRIVIA_DEFAULTS,
     season,
     standings: async () => null,
     players: async (s = season) => (s === season ? players : null),

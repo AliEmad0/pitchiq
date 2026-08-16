@@ -25,8 +25,15 @@ import { attendanceExtremesRule } from "./attendance-extremes";
 import { survivalThresholdRule } from "./survival-threshold";
 import { centurionsRule } from "./centurions";
 import { giantKillersRule } from "./giant-killers";
+// TASK-M82 — the first rules to read the event stream, the row-level enrichment summary
+// and the manager honours map. The facade was blind to all three.
+import { lateDecidersRule } from "./late-deciders";
+import { favouriteSupplierRule } from "./favourite-supplier";
+import { spotKicksAndOwnGoalsRule } from "./spot-kicks-and-own-goals";
+import { trophyCabinetRule, internationalDoubleLifeRule } from "./trophy-cabinet";
+import { travelledManagerRule } from "./travelled-manager";
 
-/** The full provable-fact rule library (R1-R26). Order is the default surfacing order. */
+/** The full provable-fact rule library (R1-R32). Order is the default surfacing order. */
 export const RULES: TriviaRule[] = [
   goalExtremesRule, // R1
   playerVsCollectiveRule, // R2
@@ -54,4 +61,11 @@ export const RULES: TriviaRule[] = [
   survivalThresholdRule, // R24
   centurionsRule, // R25
   giantKillersRule, // R26
+  // --- TASK-M82 -----------------------------------------------------------
+  lateDecidersRule, // R27
+  favouriteSupplierRule, // R28
+  spotKicksAndOwnGoalsRule, // R29
+  trophyCabinetRule, // R30
+  internationalDoubleLifeRule, // R31
+  travelledManagerRule, // R32
 ];

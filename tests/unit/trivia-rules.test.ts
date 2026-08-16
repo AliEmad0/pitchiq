@@ -18,6 +18,7 @@ import { careerGoalsRule } from "../../src/features/trivia/rules/career-goals";
 import { playerVsCollectiveRule } from "../../src/features/trivia/rules/player-vs-collective";
 import { headToHeadRule } from "../../src/features/trivia/rules/head-to-head";
 import { streakRule } from "../../src/features/trivia/rules/streak";
+import { TRIVIA_DEFAULTS } from "./_helpers/trivia";
 
 // --- synthetic data fixtures -------------------------------------------------
 
@@ -102,6 +103,7 @@ type SeasonData = {
 function fakeData(season: number, bySeason: Record<number, SeasonData>): TriviaData {
   const get = (s: number | undefined) => bySeason[s ?? season] ?? {};
   return {
+    ...TRIVIA_DEFAULTS,
     season,
     standings: async (s) => get(s).standings ?? null,
     players: async (s) => get(s).players ?? null,

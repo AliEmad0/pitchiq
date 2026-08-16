@@ -6,6 +6,12 @@ import type {
   GoalAttribution,
   ManagersFile,
   FixtureExtrasFile,
+  MatchEventRaw,
+  FixtureLineups,
+  ManagerEnrichmentFile,
+  ManagerHonoursHistoryFile,
+  CaptainsFile,
+  PlayerPfaAwardsFile,
 } from "@/data/schemas";
 
 /**
@@ -46,6 +52,31 @@ export interface TriviaData {
   managers(): Promise<ManagersFile | null>;
   /** TASK-M26 2c: per-season committed fixture-extras map (attendance + venue). */
   fixtureExtras(season?: number): Promise<FixtureExtrasFile | null>;
+
+  // --- TASK-M82: the facade was blind to everything below --------------------
+  //
+  // ⚠️ **Every accessor here must be cheap enough for a REQUEST-TIME read.** The
+  // trivia route is `export const revalidate = 0`, so a rule runs on every call.
+  // That rules out the big detail maps however tempting they are:
+  // `player-honours.json` (5 MB), `player-transfer-history.json` (8 MB) and
+  // `market-value-history.json` (5 MB) all carry build-time-only warnings on their
+  // loaders, and reading one here is the Fluid Active-CPU shape TASK-M71 had to fix.
+  //
+  // The honours/fees/caps facts are still reachable — the cheap `enrichment` summary
+  // is already on every player row (TASK-M93), so `players()` serves them for free.
+
+  /** Every event in a season, keyed by fixture id (~730 KB/season). 143,901 archive-wide. */
+  events(season?: number): Promise<Record<string, MatchEventRaw[]> | null>;
+  /** Per-season lineups, keyed by fixture id. */
+  lineups(season?: number): Promise<Record<string, FixtureLineups> | null>;
+  /** Manager career summary keyed by our manager id (~62 KB). */
+  managerEnrichment(): Promise<ManagerEnrichmentFile | null>;
+  /** Manager honours keyed by our manager id (~290 KB). */
+  managerHonours(): Promise<ManagerHonoursHistoryFile | null>;
+  /** Derived captains + hand-authored overrides, merged (TASK-M41/M42). */
+  captains(): Promise<CaptainsFile | null>;
+  /** TASK-M91 PFA Team of the Season / Player of the Year, by player id (~11 KB). */
+  pfaAwards(): Promise<PlayerPfaAwardsFile | null>;
 }
 
 /** Provenance — which committed records a fact was derived from. */

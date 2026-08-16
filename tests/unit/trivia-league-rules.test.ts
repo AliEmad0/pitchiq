@@ -6,6 +6,7 @@ import { centurionsRule } from "../../src/features/trivia/rules/centurions";
 import { giantKillersRule } from "../../src/features/trivia/rules/giant-killers";
 import type { Fixture, FixtureExtrasFile, Standing } from "../../src/data/schemas";
 import type { TriviaData } from "../../src/features/trivia/types";
+import { TRIVIA_DEFAULTS } from "./_helpers/trivia";
 
 export function standing(over: Partial<Standing> = {}): Standing {
   return {
@@ -52,6 +53,7 @@ export function leagueData(
   },
 ): TriviaData {
   return {
+    ...TRIVIA_DEFAULTS,
     season,
     standings: async (s = season) =>
       opts.standingsBySeason ? (opts.standingsBySeason[s] ?? null) : (opts.standings ?? null),
