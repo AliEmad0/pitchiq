@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import type { PlayerSeasonId } from "../../src/features/game/domain/card-id";
 import { FORMATIONS } from "../../src/features/game/domain/chaos-draft";
-import { formationSlug } from "../../src/features/game/domain/formation";
+import { formationByName, formationSlug } from "../../src/features/game/domain/formation";
 import {
   decodeMatch,
   encodeMatch,
@@ -28,11 +28,12 @@ const squad = (): PlayerSeasonId[] =>
 
 const match = (over: Partial<ShareableMatch> = {}): ShareableMatch => ({
   cardIds: squad(),
-  // ⛔ A REAL formation. The previous fixture said "4-4-2", which NO shipped formation
-  // produces — every 4-4-2 here carries a qualifier ("Flat", "Diamond") and `formationKey`
-  // appends "/11". That impossible fixture is why the old KEY_RE, which rejected all 20
-  // real shapes, passed its tests.
-  formationSlug: formationSlug(FORMATIONS[4]!.name),
+  // ⛔ A REAL formation, resolved BY NAME. The previous fixture said "4-4-2", which no
+  // shipped formation produces — every 4-4-2 here carries a qualifier ("Flat", "Diamond")
+  // and `formationKey` appends "/11". That impossible fixture is why the old KEY_RE, which
+  // rejected all 20 real shapes, passed its tests. (Resolved by name rather than by
+  // position: that array's order is presentation only, and a guard test enforces it.)
+  formationSlug: formationSlug(formationByName("4-4-2 Flat").name),
   seed: 123456789,
   tokens: "-2~h~-",
   fingerprint: 0xdeadbeef,

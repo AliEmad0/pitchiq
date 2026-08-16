@@ -120,11 +120,14 @@ describe("readTokens", () => {
       noop(61),
     ];
     const r = readTokens(encodeTokens(answers))!;
+    expect(r.done()).toBe(false);
     const back = answers.map((a) => {
       const got = r.next(decision(a.kind, a.minute));
       return got.ok ? got.answer : null;
     });
     expect(back).toEqual(answers);
+    // ⚠️ Leftovers mean the match changed shape under the code — the replay checks this.
+    expect(r.done()).toBe(true);
   });
 
   // ⛔ The check a verbatim answers[] cannot make.

@@ -97,6 +97,14 @@ export type NextAnswer =
 export interface TokenReader {
   /** Answer the decision the engine is raising now. */
   next(decision: MatchDecision): NextAnswer;
+  /**
+   * Every token consumed?
+   *
+   * ⚠️ Leftovers matter. A stream carrying MORE answers than the engine now raises
+   * decisions means the match changed shape underneath the code — the same condition the
+   * resume path has always rejected outright.
+   */
+  done(): boolean;
 }
 
 /**
@@ -136,6 +144,7 @@ export function readTokens(encoded: string): TokenReader | null {
       const answer = materialise(flat[i++]!, decision);
       return answer === null ? { ok: false, reason: "mismatch" } : { ok: true, answer };
     },
+    done: () => i >= flat.length,
   };
 }
 
