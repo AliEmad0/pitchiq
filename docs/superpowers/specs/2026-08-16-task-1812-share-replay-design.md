@@ -231,7 +231,11 @@ Two things the branch has not handled:
   has to match what the rest of the app uses (Eastern-Arabic numerals). Verify by
   rasterising, not by reading the source.
 
-The share code is printed on the card, so a screenshot alone is replayable.
+⚠️ **Corrected after the gallery pick.** The owner chose concept 12, "Card Frame", which
+uses the **short-URL** footer — so the card does *not* print the code, and a screenshot
+alone is **not** replayable. The copied link is the replayable artefact. A real code
+measures 143 characters, which cannot be set legibly on a 1200×630 card; that constraint
+only became visible once the concepts were painted with real data.
 
 ## 8. The 30-concept gallery
 
