@@ -80,6 +80,41 @@ export function rankHonours(groups: CareerHonourGroup[]): CareerHonourGroup[] {
  * renders nothing at all. Absence means "not enriched", never "has none", so a zero-filled
  * block would be a fabricated fact (13 rows legitimately have no enrichment).
  */
+/**
+ * Decode a transfer fee into the text it was always meant to be.
+ *
+ * ⛔ 901 of the 65,437 committed fees carry raw Transfermarkt markup —
+ * `Loan fee:<br /><i class="normaler-text">€700k</i>` — and `PlayerCareerRecord` prints
+ * fees VERBATIM by design, so they shipped to production as literal tags.
+ *
+ * ⚠️ Printing verbatim is the correct rule and is NOT what is being changed here: these
+ * labels are heterogeneous ("free transfer", "End of loan", "€1.40m") and coercing them
+ * would invent a free transfer for every loan. This only DECODES the source — the value
+ * still reaches the component untouched in meaning, and the other 64,536 fees are
+ * returned byte-identical.
+ *
+ * Cleaned at this boundary rather than in the component so every consumer gets text, and
+ * the component's verbatim rule stays honest.
+ */
+export function feeText(fee: string | null): string | null {
+  if (fee == null) return null;
+  const text = fee
+    // A line break in the source is a space here, or the label runs into the amount.
+    .replace(/<br\s*\/?>/gi, " ")
+    .replace(/<[^>]*>/g, "")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#0*39;/g, "'")
+    .replace(/\s+/g, " ")
+    .trim();
+  // Markup with nothing in it is not a fee. Null, not "", so the row shows its own dash
+  // rather than an empty cell that reads as a real "no fee".
+  return text === "" ? null : text;
+}
+
 export async function getPlayerCareerRecord(playerId: number): Promise<PlayerCareerRecord | null> {
   const key = String(playerId);
   const [honours, transfers, national] = await Promise.all([
@@ -97,7 +132,7 @@ export async function getPlayerCareerRecord(playerId: number): Promise<PlayerCar
   const moves = (t?.moves ?? []).map((m) => ({
     season: m.season,
     date: m.date,
-    fee: m.fee,
+    fee: feeText(m.fee),
     from: m.from,
     to: m.to,
   }));
