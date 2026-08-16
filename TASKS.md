@@ -5702,13 +5702,17 @@ Built: `domain/hash.ts` (shared FNV-1a + `hashEvents`), `view/match-session.ts` 
 
 **Description** — Persist runs/records and make a match shareable + replayable from its `(teams, seed)` via URL state (nuqs, matching the encyclopedia's URL-state culture). **All local** — IndexedDB for records + URL/seed state for sharing (Option A, no backend). Includes the client-side **Canvas match-summary card** (scoreline, scorers, formations, seed) as a downloadable/shareable image — no server OG render. **Depends on:** TASK-1810, TASK-1811.
 
-> ### 🔶 PARTLY BUILT 2026-08-16 — domain layer on `feat/1812-share-replay` (`3d31813`), NOT merged
+> ### 🔶 TWO THIRDS SHIPPED 2026-08-16 — share + replay + the card. Ticket stays open.
+>
+> Design: [`docs/superpowers/specs/2026-08-16-task-1812-share-replay-design.md`](../docs/superpowers/specs/2026-08-16-task-1812-share-replay-design.md);
+> plan: [`docs/superpowers/plans/2026-08-16-task-1812-share-replay.md`](../docs/superpowers/plans/2026-08-16-task-1812-share-replay.md).
 >
 > ⚠️ **The declared dependencies are real for one third of this ticket, and only that
-> third.** `TASK-1810` (XL) and `TASK-1811` (L) are both still Backlog, and _"persist
-> **runs**/records"_ needs them — a **run** is a season/Survival campaign, which 1811
-> builds, so there is nothing to persist yet. **Do not scaffold a run model to satisfy
-> this ticket.**
+> third — which is why the ticket is still `📋 Backlog`.** `TASK-1810` (XL) and
+> `TASK-1811` (L) are both still Backlog, and _"persist **runs**/records"_ needs them — a
+> **run** is a season/Survival campaign, which 1811 builds, so there is nothing to persist
+> yet. **Do not scaffold a run model to satisfy this ticket.** The mode gate's `records`
+> entry in `COLLECTION_SURFACES` stays `status: "planned"` for the same reason.
 >
 > The other two thirds do **not** depend on them and are already viable: the engine is
 > deterministic from `(setup, seed, decisions[])` (TASK-1830) and B2 shipped the IndexedDB
@@ -5734,9 +5738,65 @@ Built: `domain/hash.ts` (shared FNV-1a + `hashEvents`), `view/match-session.ts` 
 > where the drama lives — so a **final** summary must filter on `disallowedAt == null`, as
 > `match-types.ts` documents. Listing it prints a scorer for a goal that never stood.
 >
-> **Still to do:** the UI wiring only — read `?m=` on `/game/play` (nuqs) → decode →
-> replay, the Canvas paint, and the download button. Stopped deliberately rather than
-> half-wire it; a broken share button is worse than none.
+> **Shipped:** a finished match becomes `/game/draft?m=<code>`; opening it replays that
+> match and plays the full 90 as a broadcast, then lands on full time with a copy-link
+> control and a downloadable Canvas card. (`/game/play` still 301s to `/game/draft` and Next
+> forwards the query, so an older link keeps working.) Verified in a real browser in both
+> locales, not only in the suite.
+>
+> ⛔ **Three defects in the shipped domain layer, all found by measuring rather than
+> reading:**
+>
+> 1. **`KEY_RE` rejected all 20 real formations.** It validated `/^[a-z0-9-]{2,16}$/` but
+>    encoded `formationKey`, which is `` `${name}/${slots.length}` `` — "4-3-2-1 Christmas
+>    Tree/11". Every real match would have thrown on encode. The fixture said `"4-4-2"`, a
+>    key **no formation produces**; a test using a shape that ships would have caught it on
+>    day one. Fixed by carrying a slug of the NAME (`formationSlug`/`formationBySlug`), with
+>    a guard test that the 20 slugs are unique — a collision restores a match into the wrong
+>    shape.
+> 2. **The code carried no decisions.** A match is `(setup, seed, decisions[])` since
+>    TASK-1830, so a code without them reproduces a match nobody coached and the fingerprint
+>    mismatches on every real one. They now ride as a **token stream** (below).
+> 3. **Own goals rendered as "—".** `scorersFrom` read `e.playerId`, but the engine emits an
+>    own goal with `playerId` **undefined** and the unlucky defender in `ownGoalBy`, with
+>    `side` set to the side the goal COUNTS FOR. The module's own docstring claimed the
+>    opposite. Found only by dumping a real match; the synthetic fixture set a `playerId` no
+>    own goal has.
+>
+> **The token stream** (`domain/decision-tokens.ts`). A coach answers ~31 decisions per
+> match — `SUB_WINDOW` is 55'–85' and a `sub-offer` is raised every minute — so a verbatim
+> `DecisionAnswer[]` runs past 210 characters. A token encodes only WHAT was chosen;
+> `minute`, `side` and `kind` come back from the replay, because the engine raises the same
+> decisions in the same order. A real code measures **143 characters**. ⭐ The property that
+> matters more than the size: it is **self-validating** — a token whose kind disagrees with
+> the decision being raised proves the code is stale or tampered with, and is REFUSED. A
+> verbatim array cannot make that check; it would quietly produce a different match.
+>
+> **One replay path** (`view/match-replay.ts`). `replayWith` takes an **answer source** —
+> an array for resume, a token reader for share — so `storage/match-slot.ts`'s claim that
+> the two are one code path is now literally true. They differ only in drift policy: resume
+> **discards**, share **keeps its own replay and warns**. `replayMatch` kept its exact
+> signature and `game-match-replay.test.ts` is **untouched and still green**, which is the
+> proof resume did not change.
+>
+> **Arrival rules:** a share link outranks a saved match (resume suppressed, slot never
+> written); a bad code clears `?m=` and shows the ordinary hub rather than an error screen;
+> drift warns and never substitutes.
+>
+> ⚠️ **The card prints a short URL, not the code.** A real code is ~150 characters and
+> cannot be set legibly, so a screenshot is NOT replayable — the copied link is the
+> replayable artefact. Design is concept 12 "Card Frame" from the 30-concept gallery.
+>
+> ⛔ **`Intl.NumberFormat("ar")` returns WESTERN digits** in the browser. The card would
+> have printed 3–1 beside a UI printing ٣–١. Use the app's `localizeDigits`; asserted via
+> the canvas `aria-label`, since pixels are not assertable.
+>
+> **Two pre-existing defects fixed alongside**, both surfaced by verifying in Arabic:
+> `abbrOf` kept only `[A-Za-z]`, so every Arabic scoreboard read **TBD** on both sides; and
+> the full-time screen listed ~31 no-op sub-offers as "Substitution", claiming thirty
+> substitutions the coach never made (now `view/decision-summary.ts` — real actions listed,
+> the rest counted). ⚠️ `PlayerCard.clubAbbr` shares the Latin-only pattern but is **not**
+> affected: zero committed club names are non-Latin and that card face is English-only.
 
 ### TASK-1813
 

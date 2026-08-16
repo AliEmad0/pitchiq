@@ -48,3 +48,35 @@ export function formationByName(name: string): Formation {
   if (!found) throw new Error(`unknown formation: ${name}`);
   return found;
 }
+
+/**
+ * A formation's URL-safe identity, for share codes (TASK-1812).
+ *
+ * ⛔ NOT `formationKey`. That is `${name}/${slots.length}` — a slash, spaces and capitals,
+ * e.g. "4-3-2-1 Christmas Tree/11" — which cannot travel in a URL and which every
+ * validating regex will reject. And never an index into `FORMATIONS`: that array's order
+ * is presentation only, so an index would silently remap old codes when a shape is added.
+ */
+export function formationSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+/**
+ * Resolve a slug back to a shape.
+ *
+ * ⚠️ Returns null rather than throwing, unlike `formationByName` — this reads a value a
+ * stranger controls, where an unknown shape is bad input and not a programming error.
+ */
+export function formationBySlug(slug: string): Formation | null {
+  if (slug === "") return null;
+  return FORMATIONS.find((f) => formationSlug(f.name) === slug) ?? null;
+}
+
+/** The name half of a formation key. `lastIndexOf` so a name containing "/" still works. */
+export function formationNameFromKey(key: string): string {
+  const i = key.lastIndexOf("/");
+  return i === -1 ? key : key.slice(0, i);
+}

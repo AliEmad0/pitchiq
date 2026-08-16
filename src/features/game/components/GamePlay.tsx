@@ -1,11 +1,17 @@
 "use client";
-import { useTranslations } from "next-intl";
-import { parseAsStringLiteral, useQueryState } from "nuqs";
+import { useLocale, useTranslations } from "next-intl";
+import { parseAsString, parseAsStringLiteral, useQueryState } from "nuqs";
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import type { PlayerSeasonId } from "@/features/game/domain/card-id";
 import type { PoolCard } from "@/features/game/domain/chaos-draft";
-import { formationKey, type Formation } from "@/features/game/domain/formation";
+import {
+  formationKey,
+  formationNameFromKey,
+  type Formation,
+} from "@/features/game/domain/formation";
 import { hashEvents } from "@/features/game/domain/hash";
+import { decodeMatch } from "@/features/game/domain/share-code";
+import { summaryFrom } from "@/features/game/domain/summary-card";
 import type { DecisionAnswer, MatchDecision } from "@/features/game/domain/match-decisions";
 import type {
   MatchEvent,
@@ -22,6 +28,7 @@ import type { StreamStep } from "@/features/game/view/match-stream";
 import { createPlayState, playReducer, type PlayPhase } from "@/features/game/view/play-machine";
 import { scoreAt } from "@/features/game/view/score";
 import { randomSeed } from "@/features/game/view/seed";
+import { buildShareCode, replayShared } from "@/features/game/view/share-link";
 import { DecisionPrompt } from "./DecisionPrompt";
 import { DraftHub } from "./DraftHub";
 import { MatchSummary } from "./MatchSummary";
@@ -51,6 +58,7 @@ interface Match {
  */
 export function GamePlay({ pool, initialPhase }: { pool: PoolCard[]; initialPhase?: PlayPhase }) {
   const t = useTranslations("game");
+  const locale = useLocale();
   const [state, dispatch] = useReducer(playReducer, createPlayState(initialPhase));
 
   const streamRef = useRef<MatchSession["stream"] | null>(null);
@@ -88,6 +96,22 @@ export function GamePlay({ pool, initialPhase }: { pool: PoolCard[]; initialPhas
   useEffect(() => {
     void setPhaseParam(state.phase === "setup" ? null : state.phase);
   }, [state.phase, setPhaseParam]);
+
+  /**
+   * A shared match, read from the URL (TASK-1812).
+   *
+   * ⚠️ READ ONCE, on mount. Unlike `phase` this one is read, but it only chooses WHICH
+   * match we enter — never where we are inside it. The reducer stays the single driver of
+   * phase.
+   */
+  const [shareCode, setShareCode] = useQueryState(
+    "m",
+    parseAsString.withOptions({ history: "replace", shallow: true }),
+  );
+  /** Watching someone else's match. Suppresses persistence and the resume offer. */
+  const [shared, setShared] = useState(false);
+  /** Our replay differs from the sender's fingerprint — warn, never substitute. */
+  const [drifted, setDrifted] = useState(false);
 
   /** Fold one step of the stream into view state. */
   const consume = useCallback((step: StreamStep) => {
@@ -142,9 +166,59 @@ export function GamePlay({ pool, initialPhase }: { pool: PoolCard[]; initialPhas
    * and the prerender has no IndexedDB — reading during render would fail the build or
    * bake one visitor's match into the CDN copy.
    */
+  /**
+   * Enter a match someone shared (TASK-1812).
+   *
+   * The replay resolves to a FINISHED match in well under 100ms, so there is nothing to
+   * stream: hand the view the whole event list and the existing `resume` transition takes
+   * us to `live`, where `pending` is null, `holdAt` falls to undefined and `MatchView`
+   * plays the full 90 with commentary and speed control. No new phase, no new screen.
+   */
+  useEffect(() => {
+    if (shareCode == null || shareCode === "") return;
+
+    const decoded = decodeMatch(shareCode);
+    const replayed =
+      decoded == null
+        ? null
+        : replayShared(pool, decoded, { home: t("yourXi"), away: t("rivals") });
+
+    if (replayed == null) {
+      // ⚠️ A bad code is not an error screen. Someone following a mangled link should land
+      // on something that works, so drop the parameter and show the ordinary hub.
+      void setShareCode(null);
+      return;
+    }
+
+    streamRef.current = replayed.session.stream;
+    setMatch({
+      home: replayed.session.home,
+      away: replayed.session.away,
+      seed: replayed.session.seed,
+    });
+    setEvents(replayed.events);
+    setAnswers(replayed.answers);
+    setResult(replayed.result);
+    setPending(null);
+    setSquad({
+      cardIds: decoded!.cardIds,
+      formationKey: formationKey(replayed.session.home.formation),
+    });
+    setShared(true);
+    setDrifted(replayed.drifted);
+    setOffer(null);
+    dispatch({ type: "resume", seed: replayed.session.seed });
+    // Mount only, for the same reason as the restore effect below.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     let live = true;
     void (async () => {
+      // ⚠️ A share link OUTRANKS a saved match. Offering Resume on top of someone else's
+      // match would put two matches on one screen, and the visitor's own is not lost —
+      // it is simply left in the slot untouched.
+      if (shareCode != null && shareCode !== "") return;
       const record = await loadMatch();
       if (!live || record == null) return;
       const restored = replayMatch(pool, record, { home: t("yourXi"), away: t("rivals") });
@@ -170,6 +244,9 @@ export function GamePlay({ pool, initialPhase }: { pool: PoolCard[]; initialPhas
    * the preview would offer a resume into a match that had not started.
    */
   useEffect(() => {
+    // ⛔ Never persist a shared match. Watching someone else's must not overwrite your own,
+    // and a shared match is finished on arrival so there would be nothing to resume into.
+    if (shared) return;
     if (state.phase !== "live" || match == null || squad == null || result != null) return;
     void saveMatch({
       cardIds: squad.cardIds,
@@ -179,7 +256,7 @@ export function GamePlay({ pool, initialPhase }: { pool: PoolCard[]; initialPhas
       fingerprint: hashEvents(events),
       eventCount: events.length,
     });
-  }, [state.phase, match, squad, answers, events, result]);
+  }, [state.phase, match, squad, answers, events, result, shared]);
 
   const resume = () => {
     if (offer == null) return;
@@ -264,6 +341,31 @@ export function GamePlay({ pool, initialPhase }: { pool: PoolCard[]; initialPhas
   }
 
   if (state.phase === "summary" && result != null) {
+    // The link for THIS match. Built from live state rather than stored, because the tuple
+    // that replays it is exactly what is already in hand.
+    const code =
+      squad == null
+        ? null
+        : buildShareCode({
+            cardIds: squad.cardIds,
+            formationKey: squad.formationKey,
+            seed: match.seed,
+            answers,
+            fingerprint: hashEvents(events),
+          });
+    const cardData =
+      squad == null || code == null
+        ? null
+        : summaryFrom({
+            home: match.home,
+            away: match.away,
+            events,
+            score: result.score,
+            formationName: formationNameFromKey(squad.formationKey),
+            seed: match.seed,
+            code,
+          });
+
     return (
       <MatchSummary
         homeName={match.home.name}
@@ -271,8 +373,18 @@ export function GamePlay({ pool, initialPhase }: { pool: PoolCard[]; initialPhas
         score={result.score}
         decisions={answers}
         seed={match.seed}
+        shareCode={code}
+        cardData={cardData}
+        locale={locale}
+        shared={shared}
+        drifted={drifted}
         onNewMatch={() => {
           void clearMatch();
+          // ⚠️ Clear `?m=` too, or "New match" re-enters the shared match on the next
+          // mount and the coach can never get back to their own draft.
+          void setShareCode(null);
+          setShared(false);
+          setDrifted(false);
           dispatch({ type: "newMatch" });
         }}
       />

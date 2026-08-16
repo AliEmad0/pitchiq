@@ -1,6 +1,11 @@
 "use client";
 import { useTranslations } from "next-intl";
 import type { DecisionAnswer } from "@/features/game/domain/match-decisions";
+import type { SummaryCardData } from "@/features/game/domain/summary-card";
+import { splitDecisions } from "@/features/game/view/decision-summary";
+import { localizeDigits } from "@/utils/format";
+import { ShareLink } from "./ShareLink";
+import { SummaryCard } from "./SummaryCard";
 
 interface Props {
   homeName: string;
@@ -9,6 +14,15 @@ interface Props {
   /** What the coach actually chose, in the order the engine asked. */
   decisions: DecisionAnswer[];
   seed: number;
+  /** The link that replays this match, or null while one cannot be built. */
+  shareCode: string | null;
+  /** What the downloadable card says. Null alongside a null `shareCode`. */
+  cardData: SummaryCardData | null;
+  locale: string;
+  /** This match arrived from someone else's link. */
+  shared?: boolean;
+  /** Our replay differs from the sender's fingerprint. */
+  drifted?: boolean;
   onNewMatch: () => void;
 }
 
@@ -32,35 +46,63 @@ export function MatchSummary({
   score,
   decisions,
   seed,
+  shareCode,
+  cardData,
+  locale,
+  shared = false,
+  drifted = false,
   onNewMatch,
 }: Props) {
   const t = useTranslations("game");
+  const { taken, declined } = splitDecisions(decisions);
 
   return (
     <div className="mx-auto w-full max-w-3xl">
       <h1 className="text-2xl font-extrabold tracking-tight">{t("playFullTime")}</h1>
 
+      {shared ? <p className="text-muted-foreground mt-1 text-sm">{t("shareWatching")}</p> : null}
+
+      {drifted ? (
+        <p
+          role="status"
+          className="mt-3 rounded-md bg-amber-500/10 p-3 text-sm text-amber-300 ring-1 ring-amber-400/30"
+        >
+          {t("shareDrift")}
+        </p>
+      ) : null}
+
       <div className="my-6 flex items-center justify-center gap-6 rounded-2xl bg-[radial-gradient(120%_80%_at_50%_-10%,#12202c,#060a0f)] p-8 ring-1 ring-cyan-400/20">
         <span className="flex-1 text-end text-lg font-bold text-white">{homeName}</span>
+        {/* ⚠️ Localized digits: the card painted directly below prints ٣–١ under /ar, and
+            two digit conventions for the same score on one screen is worse than either. */}
         <span className="font-mono text-3xl font-black tabular-nums text-cyan-300">
-          {score.home}
+          {localizeDigits(score.home, locale)}
           {"–"}
-          {score.away}
+          {localizeDigits(score.away, locale)}
         </span>
         <span className="flex-1 text-start text-lg font-bold text-white">{awayName}</span>
       </div>
 
+      {cardData != null ? (
+        <>
+          <h2 className="text-muted-foreground mb-2 font-mono text-[11px] font-bold tracking-widest uppercase">
+            {t("shareTitle")}
+          </h2>
+          <SummaryCard data={cardData} locale={locale} />
+        </>
+      ) : null}
+
       <h2 className="text-muted-foreground mb-2 font-mono text-[11px] font-bold tracking-widest uppercase">
         {t("playDecisionsTaken")}
       </h2>
-      {decisions.length === 0 ? (
+      {taken.length === 0 ? (
         <p className="text-muted-foreground text-sm">{t("playNoDecisions")}</p>
       ) : (
         <ul className="divide-border/60 divide-y">
-          {decisions.map((d, i) => (
+          {taken.map((d, i) => (
             <li key={`${d.kind}-${d.minute}-${i}`} className="flex items-center gap-3 py-1.5 text-sm">
               <span className="text-muted-foreground w-10 shrink-0 font-mono tabular-nums">
-                {d.minute}
+                {localizeDigits(d.minute, locale)}
                 {"'"}
               </span>
               <span className="font-semibold">
@@ -71,10 +113,19 @@ export function MatchSummary({
         </ul>
       )}
 
-      <div className="mt-6 flex items-center gap-3">
+      {/* ⚠️ Counted, not hidden. A coach who turned every offer down did something, and
+          omitting them entirely would say he was never asked. */}
+      {declined > 0 ? (
+        <p className="text-muted-foreground mt-2 text-xs">
+          {t("playOffersDeclined", { count: declined, n: localizeDigits(declined, locale) })}
+        </p>
+      ) : null}
+
+      <div className="mt-6 flex flex-wrap items-center gap-3">
         <span className="text-muted-foreground font-mono text-xs">
-          {t("playSeed")} {seed}
+          {t("playSeed")} {localizeDigits(seed, locale)}
         </span>
+        {shareCode != null ? <ShareLink code={shareCode} locale={locale} /> : null}
         <button
           type="button"
           onClick={onNewMatch}
