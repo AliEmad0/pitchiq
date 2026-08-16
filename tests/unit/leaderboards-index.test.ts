@@ -9,6 +9,8 @@ import {
   type MetricKey,
 } from "../../src/features/players/leaderboards-index";
 import type { ExtendedMetrics, Player } from "../../src/data/schemas";
+import ar from "../../src/i18n/messages/ar.json";
+import en from "../../src/i18n/messages/en.json";
 
 const mk = (id: number, over: Partial<Player["metrics"]>, name = `P${id}`): Player => ({
   id,
@@ -172,6 +174,66 @@ describe("the category registry", () => {
   it("keys are unique — they are also the React keys", () => {
     const keys = LEADERBOARD_CATEGORIES.map((c) => c.key);
     expect(new Set(keys).size).toBe(keys.length);
+  });
+});
+
+const NEW_KEYS = [
+  "extended.touches",
+  "extended.totalPasses",
+  "duelsWon",
+  "extended.clearances",
+  "extended.foulsWon",
+  "extended.offsides",
+  "extended.headedGoals",
+  "extended.leftFootGoals",
+] as const;
+
+describe("the eight extended-stat boards", () => {
+  it("are all registered", () => {
+    const keys = LEADERBOARD_CATEGORIES.map((c) => c.key);
+    for (const k of NEW_KEYS) expect(keys, k).toContain(k);
+    expect(LEADERBOARD_CATEGORIES).toHaveLength(22);
+  });
+
+  it("every category's message keys resolve in BOTH locales", () => {
+    for (const cat of LEADERBOARD_CATEGORIES) {
+      expect(en.leaderboard, `en ${cat.titleKey}`).toHaveProperty(cat.titleKey);
+      expect(en.leaderboard, `en ${cat.valueLabelKey}`).toHaveProperty(cat.valueLabelKey);
+      expect(ar.leaderboard, `ar ${cat.titleKey}`).toHaveProperty(cat.titleKey);
+      expect(ar.leaderboard, `ar ${cat.valueLabelKey}`).toHaveProperty(cat.valueLabelKey);
+    }
+  });
+
+  it("every group heading key resolves in BOTH locales", () => {
+    for (const group of LEADERBOARD_GROUPS) {
+      const key = `group${group[0]!.toUpperCase()}${group.slice(1)}`;
+      expect(en.leaderboard, `en ${key}`).toHaveProperty(key);
+      expect(ar.leaderboard, `ar ${key}`).toHaveProperty(key);
+    }
+  });
+
+  // ⚠️ The coverage bonus the ticket did not know about: rows carry `extended` from 2008,
+  // two seasons earlier than the side file the ticket describes.
+  it("a 2008-shaped player set DOES produce the new boards", () => {
+    const groups = buildGroupedBoards([
+      // ⚠️ `mkExt` is built on `mk`, so this player also ranks on Appearances — that is
+      // realistic (a real row has both) and irrelevant to what is asserted below.
+      mkExt(1, { touches: 2200, totalPasses: 1400, clearances: 90, foulsWon: 30 }),
+    ]);
+    const keys = groups.flatMap((g) => g.boards.map((b) => b.cat.key));
+    expect(keys).toContain("extended.touches");
+    expect(keys).toContain("extended.clearances");
+  });
+
+  // ⛔ 1992–2007 must be untouched: no extended boards, and no empty headings.
+  it("a pre-2008 player set produces NONE of them and no empty group", () => {
+    const groups = buildGroupedBoards([mk(1, { goals: 12 }), mk(2, { assists: 7 })]);
+    const keys = groups.flatMap((g) => g.boards.map((b) => b.cat.key));
+    for (const k of NEW_KEYS) {
+      if (k === "duelsWon") continue; // a base metric — available in every era
+      expect(keys, k).not.toContain(k);
+    }
+    expect(groups.every((g) => g.boards.length > 0)).toBe(true);
   });
 });
 

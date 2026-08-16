@@ -92,6 +92,18 @@ export const LEADERBOARD_CATEGORIES: readonly LeaderboardCategory[] = [
   { key: "xa", group: "attacking", title: "Expected Assists (xA)", valueLabel: "xA", titleKey: "catXaTitle", valueLabelKey: "catXaValue", decimals: 1 }, // prettier-ignore
   { key: "yellowCards", group: "discipline", title: "Yellow Cards", valueLabel: "Yellow", titleKey: "catYellowCardsTitle", valueLabelKey: "catYellowCardsValue", accent: "yellow" }, // prettier-ignore
   { key: "redCards", group: "discipline", title: "Red Cards", valueLabel: "Red", titleKey: "catRedCardsTitle", valueLabelKey: "catRedCardsValue", accent: "red" }, // prettier-ignore
+
+  // TASK-M83 — the extended per-season stats, already on every 2008+ player row as
+  // `metrics.extended`. ⚠️ `duelsWon` has NO `extended.` prefix: it has been a top-level
+  // `ComparisonMetrics` field all along and simply never had a board.
+  { key: "extended.touches", group: "passing", title: "Touches", valueLabel: "Touches", titleKey: "catTouchesTitle", valueLabelKey: "catTouchesValue" }, // prettier-ignore
+  { key: "extended.totalPasses", group: "passing", title: "Passes", valueLabel: "Passes", titleKey: "catPassesTitle", valueLabelKey: "catPassesValue" }, // prettier-ignore
+  { key: "duelsWon", group: "defending", title: "Duels Won", valueLabel: "Duels", titleKey: "catDuelsWonTitle", valueLabelKey: "catDuelsWonValue" }, // prettier-ignore
+  { key: "extended.clearances", group: "defending", title: "Clearances", valueLabel: "Clearances", titleKey: "catClearancesTitle", valueLabelKey: "catClearancesValue" }, // prettier-ignore
+  { key: "extended.foulsWon", group: "discipline", title: "Fouls Won", valueLabel: "Fouls won", titleKey: "catFoulsWonTitle", valueLabelKey: "catFoulsWonValue" }, // prettier-ignore
+  { key: "extended.offsides", group: "discipline", title: "Offsides", valueLabel: "Offsides", titleKey: "catOffsidesTitle", valueLabelKey: "catOffsidesValue" }, // prettier-ignore
+  { key: "extended.headedGoals", group: "attacking", title: "Headed Goals", valueLabel: "Headers", titleKey: "catHeadedGoalsTitle", valueLabelKey: "catHeadedGoalsValue", accent: "amber" }, // prettier-ignore
+  { key: "extended.leftFootGoals", group: "attacking", title: "Left-Footed Goals", valueLabel: "Left foot", titleKey: "catLeftFootGoalsTitle", valueLabelKey: "catLeftFootGoalsValue", accent: "amber" }, // prettier-ignore
 ];
 
 /**
