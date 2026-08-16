@@ -778,6 +778,7 @@
     "playDecisionsTaken": "Decisions you took",
     "playNoDecisions": "The match ran without asking you anything.",
     "playSeed": "Seed",
+    "playOffersDeclined": "{count, plural, one {{n} offer declined} other {{n} offers declined}}",
     "shareTitle": "Share this match",
     "shareCopy": "Copy link",
     "shareCopied": "Link copied",

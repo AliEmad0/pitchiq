@@ -778,6 +778,7 @@
     "playDecisionsTaken": "قراراتك",
     "playNoDecisions": "مرت المباراة دون أن تُسأل عن شيء.",
     "playSeed": "البذرة",
+    "playOffersDeclined": "{count, plural, zero {لم تُرفض أي عروض} one {عرض واحد مرفوض} two {عرضان مرفوضان} few {{n} عروض مرفوضة} many {{n} عرضًا مرفوضًا} other {{n} عرض مرفوض}}",
     "shareTitle": "شارك هذه المباراة",
     "shareCopy": "نسخ الرابط",
     "shareCopied": "تم نسخ الرابط",

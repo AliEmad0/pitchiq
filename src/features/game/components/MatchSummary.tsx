@@ -2,6 +2,7 @@
 import { useTranslations } from "next-intl";
 import type { DecisionAnswer } from "@/features/game/domain/match-decisions";
 import type { SummaryCardData } from "@/features/game/domain/summary-card";
+import { splitDecisions } from "@/features/game/view/decision-summary";
 import { localizeDigits } from "@/utils/format";
 import { ShareLink } from "./ShareLink";
 import { SummaryCard } from "./SummaryCard";
@@ -53,6 +54,7 @@ export function MatchSummary({
   onNewMatch,
 }: Props) {
   const t = useTranslations("game");
+  const { taken, declined } = splitDecisions(decisions);
 
   return (
     <div className="mx-auto w-full max-w-3xl">
@@ -93,11 +95,11 @@ export function MatchSummary({
       <h2 className="text-muted-foreground mb-2 font-mono text-[11px] font-bold tracking-widest uppercase">
         {t("playDecisionsTaken")}
       </h2>
-      {decisions.length === 0 ? (
+      {taken.length === 0 ? (
         <p className="text-muted-foreground text-sm">{t("playNoDecisions")}</p>
       ) : (
         <ul className="divide-border/60 divide-y">
-          {decisions.map((d, i) => (
+          {taken.map((d, i) => (
             <li key={`${d.kind}-${d.minute}-${i}`} className="flex items-center gap-3 py-1.5 text-sm">
               <span className="text-muted-foreground w-10 shrink-0 font-mono tabular-nums">
                 {localizeDigits(d.minute, locale)}
@@ -110,6 +112,14 @@ export function MatchSummary({
           ))}
         </ul>
       )}
+
+      {/* ⚠️ Counted, not hidden. A coach who turned every offer down did something, and
+          omitting them entirely would say he was never asked. */}
+      {declined > 0 ? (
+        <p className="text-muted-foreground mt-2 text-xs">
+          {t("playOffersDeclined", { count: declined, n: localizeDigits(declined, locale) })}
+        </p>
+      ) : null}
 
       <div className="mt-6 flex flex-wrap items-center gap-3">
         <span className="text-muted-foreground font-mono text-xs">
