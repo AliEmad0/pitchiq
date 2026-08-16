@@ -7,6 +7,8 @@ import { playerOgImagePath } from "@/app/api/og/player-card";
 import { findPlayerSeasons, loadClubLogos, loadPlayers } from "@/data/loaders";
 import { getEntityNames } from "@/features/i18n/entity-names";
 import { getPlayerProfile } from "@/features/players/api";
+import { PlayerCareerRecord } from "@/features/players/components/PlayerCareerRecord";
+import { getPlayerCareerRecord } from "@/features/players/career-record.api";
 import { PlayerHero } from "@/features/players/components/PlayerHero";
 import { PlayerMarketValue } from "@/features/players/components/PlayerMarketValue";
 import { PlayerSeasonSplits } from "@/features/players/components/PlayerSeasonSplits";
@@ -104,10 +106,13 @@ export default async function PlayerProfilePage({ params }: Props) {
   // `known` powers the page-local season switcher (TASK-M10), scoped to the
   // seasons this player actually appears in. Fetched in parallel with the
   // current-season profile since they're independent.
-  const [currentProfile, known, clubLogos] = await Promise.all([
+  const [currentProfile, known, clubLogos, careerRecord] = await Promise.all([
     getPlayerProfile(playerId, currentSeason, locale),
     findPlayerSeasons(playerId),
     loadClubLogos(),
+    // TASK-M92 — prerender-only read of the three large detail files. Safe here because
+    // this route is `force-static`; see the warning in career-record.api.ts.
+    getPlayerCareerRecord(playerId),
   ]);
 
   // A genuinely unknown id appears in no season → real notFound().
@@ -132,7 +137,19 @@ export default async function PlayerProfilePage({ params }: Props) {
       clubLogos={clubLogos}
       displayName={displayName}
       hero={profile && <PlayerHero player={profile} season={initialSeason} />}
-      careerBlock={<PlayerMarketValue playerId={playerId} plSeasons={known.seasons} />}
+      careerBlock={
+        <>
+          <PlayerMarketValue playerId={playerId} plSeasons={known.seasons} />
+          {/*
+            TASK-M92 — honours / transfers / international. Season-INVARIANT, so it goes
+            in `careerBlock` beside the market-value block (the TASK-M68 slot), never in
+            `children`: the wrapper replaces `children` wholesale on a `?season=` swap,
+            and the swap is driven by `/api/players/[id]/profile`, which must NOT read
+            these ~5 MB / ~8 MB files. Rendered once, in the prerender only.
+          */}
+          <PlayerCareerRecord record={careerRecord} />
+        </>
+      }
     >
       {profile && (
         <>

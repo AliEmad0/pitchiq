@@ -6342,7 +6342,7 @@ Everything in the owner's A-to-Z roadmap (2026-08-11) that **cannot** be built u
 | [TASK-M89](#task-m89) | `/ar` entity DETAIL pages render English UI — the Arabic catalog never applies              | ✅ Done | P1       | M   |
 | [TASK-M90](#task-m90) | `<ImageZoom>` has no failover — lightbox breaks where the thumbnail recovers                | ✅ Done | P3       | S   |
 | [TASK-M91](#task-m91) | Add PFA POTY + Team of the Season — the award-blind roles                                   | ⬜ Todo | P2       | L   |
-| [TASK-M92](#task-m92) | Surface honours / transfers / caps on the player profile page                               | ⬜ Todo | P2       | M   |
+| [TASK-M92](#task-m92) | Surface honours / transfers / caps on the player profile page                               | ✅ Done | P2       | M   |
 | [TASK-M93](#task-m93) | Show the player enrichment summary where players are listed                                 | ✅ Done | P3       | S   |
 
 ### TASK-M01
@@ -8172,7 +8172,51 @@ Rated **P1** — Arabic is half the product's localization story and these are t
 
 ### TASK-M92
 
-**Surface honours / transfers / caps on the player profile page** · ⬜ Todo · `P2` · `M` · Type: UI / Data
+**Surface honours / transfers / caps on the player profile page** · ✅ Done · `P2` · `M` · Type: UI / Data
+
+## ✅ SHIPPED 2026-08-16 — concept 14, owner-picked
+
+Renumbered from `TASK-M74` by [TASK-M88](#task-m88).
+
+**The ritual ran.** A playable 30-concept gallery was built against the **real committed
+data** — not mockups — and stress-tested on four deliberately awkward careers: Cristiano
+Ronaldo (50 trophies / 42 honour groups), Michael Hector (34 moves, mostly loans),
+Son Heung-min (148 caps, 3 trophies) and Carlos Baleba (0 trophies, 3 moves). Owner picked
+**concept 14, "Headline + fold"**, and asked for the international block **after**
+transfers.
+
+**What shipped:** each section shows its five strongest rows and folds the remainder into
+a native `<details>`. Order is honours → transfers → international.
+
+`<details>` rather than tabs or a lazy fetch is load-bearing: the full record stays in the
+DOM, so it remains **crawlable and Ctrl-F-able** on a `force-static` page. A tabbed variant
+(gallery concept 16) would have shipped two thirds of the record invisible to search.
+
+### Where it renders, and why that slot
+
+`careerBlock` — the season-INVARIANT slot TASK-M68 created for the market-value block —
+**not** `children`. `<PlayerSeasonView>` replaces `children` wholesale on a `?season=`
+swap, and that swap is driven by `/api/players/[id]/profile`, a request-time route which
+must never touch these files. Career facts do not change with the season anyway.
+
+⚠️ **The three files are ~5 MB and ~8 MB and are read at PRERENDER ONLY**
+(`career-record.api.ts` carries the warning). `readJsonOrNull` caches per process, so a
+full prerender pass parses each once. Anything request-time must keep reading the cheap
+`enrichment` summary on the player row instead.
+
+### The three data rules, each with a test
+
+| Rule                                | Why                                                                                               | Test                                                          |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| **Silverware ≠ honour count**       | 25,886 of 29,761 groups are `participation`, 1,597 runner-up                                      | counts only `kind: "trophy"`; ranking puts participation last |
+| **Fees are strings, never numbers** | 1,321 distinct values; `-`, `free transfer`, `End of loan`, `loan transfer`, `?` are 54,325 moves | all five asserted to render verbatim                          |
+| **Absence ≠ "has none"**            | 13 rows legitimately unenriched                                                                   | renders an empty DOM, and omits any individual empty section  |
+
+Also: unknown international goals render an em dash, never `0`.
+
+**Verified:** 2012 tests green, tsc + lint clean, production build clean, and the block
+renders in 8/8 sampled prerendered pages in **both** locales (honours 7/8 — the eighth
+player genuinely has no honour groups, so the section is correctly omitted).
 
 **The data already shipped — this ticket is UI only.** Exactly the M70 split: the pipeline landed the enrichment, nothing renders it yet.
 
