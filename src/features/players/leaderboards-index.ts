@@ -1,14 +1,44 @@
 import type { StatLeaderboardEntry } from "@/features/players/components/StatLeaderboard";
-import type { ComparisonMetrics, Player } from "@/data/schemas";
+import type { ComparisonMetrics, ExtendedMetrics, Player } from "@/data/schemas";
 
 type Accent = "amber" | "blue" | "yellow" | "red";
+
+/**
+ * What a board can rank by: a top-level metric, or one of the 54 extended fields
+ * addressed as `extended.<field>` (TASK-M83).
+ *
+ * ⛔ The `Exclude` is load-bearing. `"extended"` is itself a key of `ComparisonMetrics`,
+ * so without it `key: "extended"` type-checks and `rankBy` sorts OBJECTS with `>` — which
+ * does not throw, it just produces a meaningless order. The type is the only thing between
+ * that and a shipped board.
+ */
+export type BaseMetricKey = Exclude<keyof ComparisonMetrics, "extended">;
+export type MetricKey = BaseMetricKey | `extended.${Extract<keyof ExtendedMetrics, string>}`;
+
+const EXTENDED_PREFIX = "extended.";
+
+/**
+ * The number a board ranks on, or null when this player has none.
+ *
+ * ⚠️ Rows before 2008 carry no `metrics.extended` at all, so the optional chain is the
+ * normal path rather than defensive padding.
+ */
+function metricValue(p: Player, key: MetricKey): number | null {
+  if (key.startsWith(EXTENDED_PREFIX)) {
+    const field = key.slice(EXTENDED_PREFIX.length) as keyof ExtendedMetrics;
+    const v = p.metrics.extended?.[field];
+    return typeof v === "number" ? v : null;
+  }
+  const v = p.metrics[key as BaseMetricKey];
+  return typeof v === "number" ? v : null;
+}
 
 // `title`/`valueLabel` are the English fallback (used by the OG-card route,
 // which stays English/brand). `titleKey`/`valueLabelKey` are message keys in the
 // `leaderboard` namespace — the `/leaderboards` page resolves them via `t(...)`
 // so the boards are localized (TASK-1603).
 export type LeaderboardCategory = {
-  key: keyof ComparisonMetrics;
+  key: MetricKey;
   title: string;
   valueLabel: string;
   titleKey: string;
@@ -53,12 +83,12 @@ export const LEADERBOARD_CATEGORIES: readonly LeaderboardCategory[] = [
  */
 export function rankBy(
   players: Player[],
-  key: keyof ComparisonMetrics,
+  key: MetricKey,
   opts: { n?: number; decimals?: number } = {},
 ): StatLeaderboardEntry[] {
   const { n = 10, decimals } = opts;
   const scored = players
-    .map((p) => ({ p, v: p.metrics[key] }))
+    .map((p) => ({ p, v: metricValue(p, key) }))
     .filter((x): x is { p: Player; v: number } => typeof x.v === "number" && x.v > 0)
     .sort((a, b) => b.v - a.v || a.p.id - b.p.id)
     .slice(0, n);

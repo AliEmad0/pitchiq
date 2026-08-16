@@ -1,8 +1,7 @@
 import { ImageResponse } from "next/og";
 
-import type { ComparisonMetrics } from "@/data/schemas";
 import { loadPlayers } from "@/data/loaders";
-import { buildBoards } from "@/features/players/leaderboards-index";
+import { buildBoards, type MetricKey } from "@/features/players/leaderboards-index";
 import { eraForSeason } from "@/utils/era";
 import { currentDataSeason, formatSeasonLabel, parseSeason } from "@/utils/season";
 
@@ -17,7 +16,10 @@ export const runtime = "nodejs";
 // Preferred tile order — most recognizable stats first. Intersected with the
 // boards the season actually has (`buildBoards` omits empty ones), so old
 // seasons (core stats only) show fewer tiles and modern (2017+) fills all 8.
-const TILE_ORDER: ReadonlyArray<keyof ComparisonMetrics> = [
+// ⚠️ `MetricKey`, not `keyof ComparisonMetrics` (TASK-M83): these are BOARD keys, and a
+// board key can now address a nested extended field. Type-only — this list and the card
+// it renders are unchanged.
+const TILE_ORDER: ReadonlyArray<MetricKey> = [
   "goals",
   "assists",
   "cleanSheets",

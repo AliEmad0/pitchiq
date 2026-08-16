@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { rankBy, buildBoards } from "../../src/features/players/leaderboards-index";
-import type { Player } from "../../src/data/schemas";
+import {
+  rankBy,
+  buildBoards,
+  type MetricKey,
+} from "../../src/features/players/leaderboards-index";
+import type { ExtendedMetrics, Player } from "../../src/data/schemas";
 
 const mk = (id: number, over: Partial<Player["metrics"]>, name = `P${id}`): Player => ({
   id,
@@ -71,5 +75,56 @@ describe("buildBoards", () => {
     const cs = boards.find((b) => b.cat.key === "cleanSheets");
     expect(cs).toBeDefined();
     expect(cs!.rows.map((r) => r.playerId)).toEqual([1]); // midfielder excluded
+  });
+});
+
+/** A player whose row carries `metrics.extended`, as every 2008+ row does. */
+const mkExt = (id: number, ext: Partial<ExtendedMetrics>, name = `E${id}`): Player => {
+  const base = mk(id, {}, name);
+  return { ...base, metrics: { ...base.metrics, extended: ext as ExtendedMetrics } };
+};
+
+describe("rankBy over extended metrics", () => {
+  it("resolves an extended.* key from metrics.extended", () => {
+    const players = [
+      mkExt(1, { touches: 900 }),
+      mkExt(2, { touches: 2500 }),
+      mkExt(3, { touches: 1700 }),
+    ];
+    const rows = rankBy(players, "extended.touches");
+    expect(rows.map((r) => r.playerId)).toEqual([2, 3, 1]);
+    expect(rows[0].value).toBe(2500);
+  });
+
+  // ⚠️ Not NaN, not a throw — a pre-2008 row simply has no `extended` object, and the
+  // board must omit the player rather than rank them at the bottom.
+  it("produces NO row for a player with no metrics.extended at all", () => {
+    const rows = rankBy([mk(1, {}), mkExt(2, { touches: 10 })], "extended.touches");
+    expect(rows.map((r) => r.playerId)).toEqual([2]);
+  });
+
+  it("produces no row when the specific extended field is null or zero", () => {
+    const rows = rankBy(
+      [mkExt(1, { touches: null }), mkExt(2, { touches: 0 }), mkExt(3, { touches: 5 })],
+      "extended.touches",
+    );
+    expect(rows.map((r) => r.playerId)).toEqual([3]);
+  });
+
+  it("still resolves a base metric key exactly as before", () => {
+    expect(
+      rankBy([mk(1, { goals: 3 }), mk(2, { goals: 9 })], "goals").map((r) => r.playerId),
+    ).toEqual([2, 1]);
+  });
+});
+
+describe("the metric key cannot address the extended OBJECT", () => {
+  it('⛔ rejects key: "extended" at compile time', () => {
+    // ⚠️ Enforced by `pnpm type-check`, NOT by this suite — vitest does not type-check, so
+    // a green run here proves nothing on its own. Ranking by the object would compare
+    // objects with `>`, which silently yields a meaningless order instead of throwing.
+    // @ts-expect-error "extended" is deliberately excluded from MetricKey
+    const bad: MetricKey = "extended";
+    expect(bad).toBe("extended");
   });
 });
