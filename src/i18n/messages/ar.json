@@ -405,7 +405,25 @@
     "statTrophies": "الألقاب",
     "statCaps": "المباريات الدولية",
     "statAwards": "الجوائز",
-    "statCareerFee": "قيمة الانتقالات"
+    "statCareerFee": "قيمة الانتقالات",
+    "careerRecord": "سجل المسيرة",
+    "honoursTitle": "الإنجازات",
+    "transfersTitle": "الانتقالات",
+    "internationalTitle": "المستوى الدولي",
+    "trophyCount": "{count} لقب",
+    "feeSum": "{total} قيمة الانتقالات",
+    "showAllHonours": "عرض كل الإنجازات ({count})",
+    "showAllMoves": "عرض كل الانتقالات ({count})",
+    "intlGoals": "أهداف",
+    "debut": "أول ظهور {year}",
+    "honourKind": {
+      "trophy": "لقب",
+      "award": "جائزة فردية",
+      "promotion": "صعود",
+      "relegation": "هبوط",
+      "runner-up": "وصيف",
+      "participation": "ضمن الفريق"
+    }
   },
   "managers": {
     "pageTitle": "مدربو الدوري الإنجليزي الممتاز",

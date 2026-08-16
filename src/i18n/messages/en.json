@@ -405,7 +405,25 @@
     "statTrophies": "Trophies",
     "statCaps": "Caps",
     "statAwards": "Awards",
-    "statCareerFee": "Career fees"
+    "statCareerFee": "Career fees",
+    "careerRecord": "Career record",
+    "honoursTitle": "Honours",
+    "transfersTitle": "Transfers",
+    "internationalTitle": "International",
+    "trophyCount": "{count} silverware",
+    "feeSum": "{total} in fees",
+    "showAllHonours": "Show all {count} honours",
+    "showAllMoves": "Show all {count} moves",
+    "intlGoals": "goals",
+    "debut": "Debut {year}",
+    "honourKind": {
+      "trophy": "Silverware",
+      "award": "Individual award",
+      "promotion": "Promotion",
+      "relegation": "Relegation",
+      "runner-up": "Runner-up",
+      "participation": "Squad member"
+    }
   },
   "managers": {
     "pageTitle": "Premier League managers",
