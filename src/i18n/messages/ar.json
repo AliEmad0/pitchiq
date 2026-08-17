@@ -877,7 +877,14 @@
     "weatherRainImpact": "لعب مفكك. التمرير يتأثر.",
     "weatherHeavyRainImpact": "تفكك أكبر. الكرات الطويلة أجدى.",
     "weatherWindImpact": "التسديد من بعيد يصبح غير موثوق.",
-    "weatherSnowImpact": "لعب مفكك والكرة تتوقف."
+    "weatherSnowImpact": "لعب مفكك والكرة تتوقف.",
+    "dailyTitle": "تحدي اليوم رقم {n}",
+    "dailyShareTitle": "تحدي بيتش آي كيو اليومي",
+    "dailySpentDone": "لقد لعبت تحدي اليوم. يصل تحدٍ جديد عند منتصف الليل بتوقيت UTC.",
+    "dailySpentCleared": "تم بدء تحدي اليوم بالفعل على هذا الجهاز.",
+    "dailyStreak": "🔥 {streak}   🏆 {best}",
+    "dailyShareCopy": "نسخ النتيجة",
+    "dailyShareCopied": "تم النسخ"
   },
   "commentary": {
     "kickoff": "🟢 انطلاق المباراة!",

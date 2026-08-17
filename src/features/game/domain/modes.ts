@@ -160,8 +160,9 @@ export const GAME_MODES: readonly GameMode[] = [
     emoji: "📅",
     nameKey: "modeDailyName",
     descriptionKey: "modeDailyDesc",
-    href: null,
-    formats: planned,
+    href: "/game/daily",
+    // A season-long daily is a contradiction — the format that fits is the single match.
+    formats: { single: "live", season: "planned" },
     ticket: "TASK-1817",
   },
   {
