@@ -1,6 +1,9 @@
 import "fake-indexeddb/auto";
 import { screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { PlayerRole } from "@/data/schemas";
+import { makeCardId } from "@/features/game/domain/card-id";
 import type { PoolCard } from "@/features/game/domain/chaos-draft";
 import { dayKey } from "@/features/game/domain/daily";
 import { saveDaily } from "@/features/game/storage/daily-slot";
@@ -12,9 +15,48 @@ vi.mock("@/utils/motion", () => ({ prefersReducedMotion: () => true }));
 // container reaches `prefersReducedMotion` through `DraftRoom`.
 const { DailyChallenge } = await import("@/features/game/components/DailyChallenge");
 
-// An empty pool is legitimate here: `roomDeals` returns empty hands and nothing
-// crashes. These tests are about the day/lock lifecycle, not about drafting.
-const pool: PoolCard[] = [];
+const ROLES: PlayerRole[] = [
+  "GK",
+  "RB",
+  "CB",
+  "LB",
+  "CDM",
+  "CM",
+  "CAM",
+  "RM",
+  "LM",
+  "RW",
+  "LW",
+  "SS",
+  "CF",
+];
+
+/**
+ * A pool deep enough for any of the twenty shapes to fill, since the day picks the shape
+ * and these tests must not care which day they run on.
+ */
+const pool: PoolCard[] = ROLES.flatMap((role, r) =>
+  Array.from({ length: 12 }, (_, i) => ({
+    cardId: makeCardId(r * 100 + i, 2020),
+    playerId: r * 100 + i,
+    season: 2020,
+    name: `${role}-${i}`,
+    role,
+    altRoles: [],
+    foot: null,
+    height: null,
+    provenance: null,
+    ratings: {
+      attack: 50,
+      creation: 50,
+      defense: 50,
+      physical: 50,
+      discipline: 50,
+      overall: 50 + i,
+    },
+    club: "Club",
+  })),
+);
 
 const mount = () => renderWithIntl(<DailyChallenge pool={pool} />);
 
@@ -68,6 +110,33 @@ describe("DailyChallenge", () => {
     mount();
     await waitFor(() => expect(screen.getByTestId("daily-header")).toBeTruthy());
     expect(screen.queryByTestId("daily-spent")).toBeNull();
+  });
+
+  it("⛔ KICKOFF spends the day — writes the record and the marker", async () => {
+    // ⚠️ This is the test that had to exist. The marker assertions above set
+    // sessionStorage by hand, so they prove `wasStarted` READS a marker and say nothing
+    // about anything WRITING one — commenting out `markStarted` left all of them green.
+    // Verified by doing exactly that: this is the only test that goes red without it.
+    const user = userEvent.setup();
+    mount();
+    await waitFor(() => expect(screen.getByTestId("daily-header")).toBeTruthy());
+
+    // Drafting is free and spends nothing — fill all eleven slots.
+    for (let i = 0; i < 11; i++) {
+      const cards = screen.queryAllByRole("button", { name: /rated \d+$/ });
+      if (cards.length === 0) break;
+      await user.click(cards[0]!);
+    }
+
+    // Still nothing spent: the commit point is kickoff, not the draft.
+    expect(sessionStorage.getItem(`daily_active_lock_${today()}`)).toBeNull();
+
+    const kick = await screen.findByRole("button", { name: /kick.?off/i });
+    await user.click(kick);
+
+    await waitFor(() =>
+      expect(sessionStorage.getItem(`daily_active_lock_${today()}`)).toBe("1"),
+    );
   });
 
   it("⚠️ an EARLIER day's finished record does not spend today", async () => {
