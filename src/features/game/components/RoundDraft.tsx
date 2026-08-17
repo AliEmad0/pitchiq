@@ -5,6 +5,7 @@ import type { PoolCard } from "@/features/game/domain/chaos-draft";
 import { formationByName, type Formation } from "@/features/game/domain/formation";
 import type { DraftSpec } from "@/features/game/domain/rule-packs";
 import { randomSeed } from "@/features/game/view/seed";
+import { Link } from "@/i18n/navigation";
 import { DraftRoom } from "./DraftRoom";
 import { FormationPicker } from "./FormationPicker";
 
@@ -20,8 +21,8 @@ interface Props {
   pool: PoolCard[];
   draft: DraftSpec;
   onConfirm: (players: PoolCard[], formation: Formation) => void;
-  /** Back to the pack's chooser, when it has one. */
-  onBack?: () => void;
+  /** Back to the pack's chooser, when it has one. A route, not a callback. */
+  backHref?: string;
 }
 
 /**
@@ -37,7 +38,7 @@ interface Props {
  * `force-static`, so entropy at render time would either fail the build or bake one
  * visitor's draft into the CDN copy — the same rule the hub follows.
  */
-export function RoundDraft({ pool, draft, onConfirm, onBack }: Props) {
+export function RoundDraft({ pool, draft, onConfirm, backHref }: Props) {
   const t = useTranslations("game");
   const [formation, setFormation] = useState<Formation>(() => formationByName(DEFAULT_FORMATION));
   const [seed, setSeed] = useState<number | null>(null);
@@ -56,14 +57,13 @@ export function RoundDraft({ pool, draft, onConfirm, onBack }: Props) {
           >
             {t("roomStart")}
           </button>
-          {onBack != null ? (
-            <button
-              type="button"
-              onClick={onBack}
+          {backHref != null ? (
+            <Link
+              href={backHref}
               className="border-border rounded-md border px-4 py-2 text-sm font-semibold"
             >
               {t("modeBack")}
-            </button>
+            </Link>
           ) : null}
         </div>
       </div>

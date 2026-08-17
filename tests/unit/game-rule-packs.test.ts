@@ -16,17 +16,18 @@ describe("rule packs", () => {
     expect(packFor("nonsense")).toBeNull();
   });
 
-  it("⚠️ Legacy offers exactly the TEN owner-chosen clubs", () => {
-    // Pinned because the club menu IS the payload decision — one prerendered page holds
-    // every selectable club's cards, so silently growing this grows the static payload.
-    expect(LEGACY_CLUBS).toEqual([33, 40, 47, 42, 49, 45, 66, 34, 48, 50]);
+  it("⚠️ Legacy offers EVERY club, and says so as data rather than a list", () => {
+    // This was a curated ten while one prerendered page had to hold every selectable
+    // club's cards. The club is a route segment now, so breadth costs pages, not payload —
+    // and the club set is resolved from the standings so it cannot rot as seasons land.
+    expect(LEGACY_CLUBS).toBe("all");
   });
 
   it("Legacy's recipe is club-history shaped and Chaos's is top-teams shaped", () => {
     const legacy = packFor("legacy")!;
     expect(legacy.pool.kind).toBe("clubHistory");
     if (legacy.pool.kind !== "clubHistory") throw new Error("unreachable");
-    expect(legacy.pool.teams).toEqual([...LEGACY_CLUBS]);
+    expect(legacy.pool.teams).toBe("all");
     expect(CHAOS_PACK.pool.kind).toBe("topTeams");
   });
 

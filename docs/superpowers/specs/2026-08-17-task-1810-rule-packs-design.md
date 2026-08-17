@@ -186,6 +186,48 @@ still defaults on.
 Cards are drawn per club across its seasons so an XI spans decades — the mode's whole appeal
 is a 1990s full-back beside a modern forward.
 
+### 5.2 ⚠️ The card set — owner change #2, 2026-08-17 (after §5.1 was built)
+
+The owner rejected the sampled pool outright:
+
+> every player in the PL, every card for the exact player in the exact season — if Salah
+> played 10 seasons for Liverpool he has 10 cards. And every club, not ten.
+
+**Measured before redesigning** (767 B/enriched card, from the built pools):
+
+| Pool | Cards | Payload |
+| --- | --- | --- |
+| Ten clubs, per-era sample (§5 as built) | 300 | 230 KB |
+| Ten clubs, every player-season | 8,755 | ~6.7 MB |
+| Whole PL, every player-season | 18,126 | ~13.3 MB |
+
+The cards exist; the *page* was the constraint. §5's "the club menu and the payload are the
+same decision" was true only because one prerendered page held every selectable club's cards.
+
+⭐ **So the club moves into the URL**, and the constraint dissolves:
+
+- `/game/[mode]` — the **menu**. 51 clubs, name + seasons served, **no cards at all**
+  (154 KB, zero JavaScript: it is a server component rendering links). Counts come from
+  `clubChoices()`, which reads the **standings only** — counting each club's cards would
+  mean building the whole card universe to render a list.
+- `/game/[mode]/[club]` — the **draft**. One club's complete history: 933 cards for
+  Manchester United, all 34 seasons, 925 KB. `buildPool(spec, only)` narrows to one club so
+  each page builds 34 standings reads and at most 34 squads, never all 51 clubs.
+
+Because breadth now costs *pages* rather than *payload*, the curated ten is gone: **every
+club that ever played in the Premier League** is offered, resolved from the standings rather
+than hardcoded — 34-season ever-presents down to one-season Swindon, Blackpool and Luton.
+
+**No dedupe, pure RNG** (owner): a round of three may offer the same player from different
+seasons — a live draft offered *Gary Neville rated 88* in round 3 and *Gary Neville rated 52*
+in round 5, which is the mode working, not a bug. Giggs has 22 cards, Scholes 19, Neville 17.
+The seed is still drawn per click, so every visit deals differently.
+
+⚠️ **The one cost that cannot be measured here:** photo resolution pixel-probes each distinct
+photo over the network at build time. It is cached per distinct photo, so this goes from ~250
+probes to ~5,115 league-wide. `next build` cannot run in this environment — **CI is the only
+place the build time can be observed**, and it is the gate to watch on this PR.
+
 ---
 
 ## 6. Testing

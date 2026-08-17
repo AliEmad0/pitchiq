@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { buildPool } from "@/features/game/adapter/pool";
-import { ModePlay } from "@/features/game/components/ModePlay";
+import { buildPool, clubChoices } from "@/features/game/adapter/pool";
+import { GamePlay } from "@/features/game/components/GamePlay";
+import { ModeChooser } from "@/features/game/components/ModeChooser";
 import { packFor, routedPacks } from "@/features/game/domain/rule-packs";
 
 // force-static like every other /game route. The whole TASK-M71 arc exists to keep routes
@@ -15,9 +16,9 @@ type Props = { params: Promise<{ locale: string; mode: string }> };
 /**
  * One page file, one prerendered page per live rule pack.
  *
- * ⚠️ This is what makes unlocking a mode a DATA change: add a pack with a chooser and its
- * page appears here. `/game/draft`, `/game/chaos` and `/game/daily` are unaffected — Next
- * resolves static segments before dynamic ones.
+ * ⚠️ This is what makes unlocking a mode a DATA change: add a pack and its page appears
+ * here. `/game/draft`, `/game/chaos` and `/game/daily` are unaffected — Next resolves
+ * static segments before dynamic ones.
  */
 export async function generateStaticParams(): Promise<Array<{ mode: string }>> {
   return routedPacks().map((p) => ({ mode: p.id }));
@@ -41,11 +42,16 @@ export default async function ModePage({ params }: Props) {
   const pack = packFor(mode);
   if (pack == null) notFound();
 
-  const pool = await buildPool(pack.pool);
-
   return (
     <main className="mx-auto w-full max-w-6xl px-4 py-10">
-      <ModePlay pool={pool} chooser={pack.chooser} draft={pack.draft} />
+      {/* A pack that needs a choice shows the MENU here and carries no cards at all; the
+          pool lives one segment deeper, scoped to the choice. A pack without a chooser
+          drafts straight from its own pool. */}
+      {pack.chooser != null ? (
+        <ModeChooser mode={pack.id} choices={await clubChoices()} />
+      ) : (
+        <GamePlay pool={await buildPool(pack.pool)} initialPhase="setup" draft={pack.draft} />
+      )}
     </main>
   );
 }

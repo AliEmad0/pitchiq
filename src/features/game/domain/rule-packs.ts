@@ -25,10 +25,20 @@ export type PoolSpec =
       cardsPerTeamSeason: number;
     }
   | {
-      /** The Legacy shape: one club's history, sampled per ERA so an XI spans decades. */
+      /**
+       * The Legacy shape: a club's COMPLETE history — every rated player-season it ever
+       * fielded, one card each.
+       *
+       * ⚠️ No sampling and no per-player dedupe (owner decision, 2026-08-17). A player who
+       * spent ten seasons at a club has ten cards, and two of them may be dealt into the
+       * same round; "which season was peak Salah" is a choice the mode WANTS to offer.
+       *
+       * ⚠️ This is only affordable because the club is part of the URL. One page per club
+       * carries ~900 cards; a single page carrying every club's would be ~6.7 MB.
+       */
       kind: "clubHistory";
-      teams: number[];
-      cardsPerEraPerTeam: number;
+      /** `"all"` = every club that ever played in the PL, resolved from the standings. */
+      teams: number[] | "all";
     };
 
 /**
@@ -86,28 +96,17 @@ export interface RulePack {
 }
 
 /**
- * The ten clubs Legacy Club offers, by team id, in the owner's chosen order.
+ * The clubs Legacy Club offers.
  *
- * ⚠️ THIS LIST IS THE PAYLOAD. One prerendered page holds every selectable club's cards
- * (~10 clubs × 3 eras × 10 cards ≈ 300, the same order as Chaos's 252), so adding clubs
- * grows the static payload of a `force-static` route. All 51 clubs would be ~1,530.
+ * ⭐ EVERY club that ever played in the Premier League (owner decision, 2026-08-17),
+ * resolved from the committed standings rather than listed here — a hardcoded list would
+ * silently rot the first time the data grew a season.
  *
- * Nine are ever-presents; Manchester City (29 seasons) was added by owner decision. Every
- * one has cards in all three provenance eras — measured against the committed standings,
- * not assumed.
+ * ⚠️ This was a curated ten while one prerendered page had to hold every selectable club's
+ * cards. Moving the club into the URL removed that constraint: each club now has its own
+ * page carrying only its own cards, so breadth costs pages rather than payload.
  */
-export const LEGACY_CLUBS: readonly number[] = [
-  33, // Manchester United — 34 seasons
-  40, // Liverpool — 34
-  47, // Tottenham Hotspur — 34
-  42, // Arsenal — 34
-  49, // Chelsea — 34
-  45, // Everton — 34
-  66, // Aston Villa — 31
-  34, // Newcastle United — 31
-  48, // West Ham United — 30
-  50, // Manchester City — 29
-];
+export const LEGACY_CLUBS = "all" as const;
 
 /**
  * The Chaos pool, re-expressed as a recipe.
@@ -132,11 +131,11 @@ export const CHAOS_PACK: RulePack = {
  * Legacy Club.
  *
  * The draft is the owner's 2026-08-17 mechanic: **eleven consecutive rounds of three
- * cards**, one round per formation slot, drawn from the chosen club across all its seasons.
+ * cards**, one round per formation slot, drawn from the chosen club's ENTIRE history.
  */
 const LEGACY_PACK: RulePack = {
   id: "legacy",
-  pool: { kind: "clubHistory", teams: [...LEGACY_CLUBS], cardsPerEraPerTeam: 10 },
+  pool: { kind: "clubHistory", teams: LEGACY_CLUBS },
   chooser: { kind: "club" },
   draft: { handSize: 3, roam: "sequential" },
   constraints: [],

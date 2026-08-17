@@ -52,14 +52,14 @@ export function GamePlay({
   pool,
   initialPhase,
   draft,
-  onBack,
+  backHref,
 }: {
   pool: PoolCard[];
   initialPhase?: PlayPhase;
   /** The pack's draft rules. Absent means the shipped free-build hub. */
   draft?: DraftSpec;
-  /** Leave setup entirely — back to the pack's chooser, when it has one. */
-  onBack?: () => void;
+  /** Where "choose a different club" goes. A link, because the choice is a ROUTE now. */
+  backHref?: string;
 }) {
   const t = useTranslations("game");
   const locale = useLocale();
@@ -263,7 +263,7 @@ export function GamePlay({
     return (
       <>
         {draft != null ? (
-          <RoundDraft pool={pool} draft={draft} onConfirm={confirmSquad} onBack={onBack} />
+          <RoundDraft pool={pool} draft={draft} onConfirm={confirmSquad} backHref={backHref} />
         ) : (
           <DraftHub pool={pool} onConfirm={confirmSquad} />
         )}

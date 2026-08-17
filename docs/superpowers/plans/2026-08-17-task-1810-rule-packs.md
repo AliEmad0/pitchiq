@@ -1038,6 +1038,28 @@ a red Build check — CI is the only place `next build` runs, so it is the sole 
 
 ---
 
+## ⚠️ AMENDMENT 2 — the card set and the route shape (2026-08-17, after Tasks 4a–7 were built)
+
+Tasks 4a–4c, 5 and 6 are **done and committed**. The owner then rejected the sampled pool:
+every player-season, every club. See spec §5.2 for the measurements that forced the redesign.
+
+**What changed, as built:**
+
+| Task | Change |
+| --- | --- |
+| 8a | `clubHistory` spec drops `cardsPerEraPerTeam`; `teams` becomes `number[] \| "all"`, and `LEGACY_CLUBS` is now the literal `"all"`. No sampling, no per-player dedupe. |
+| 8b | `buildPool(spec, only?)` narrows a club-history pool to ONE club. New `clubChoices()` reads the **standings only** and backs the menu. |
+| 8c | Routes split: `/game/[mode]` is the menu (no cards), `/game/[mode]/[club]` is the draft. Three ways to 404: unknown mode, mode without a chooser, club that never played in the PL. |
+| 8d | `ModePlay` **deleted** — its client-side filter only made sense while one page held every club. `ModeChooser` (a SERVER component rendering links) replaces it; `GamePlay`/`RoundDraft` take `backHref` instead of `onBack`. |
+| 8e | Tests rewritten: the ten-club pin became "offers every club", the per-era assertions became "every season a player spent at the club is its own card", plus two `clubChoices` guards (51 clubs, ever-presents first; ships names and counts only, never cards). Route floor 6 → 7. |
+
+⛔ **The Chaos control was untouched throughout** and still passes — the seam's whole point.
+
+⚠️ **Unmeasurable here:** build-time photo probing goes from ~250 to ~5,115 distinct fetches.
+CI's Build check is the only place that shows up. Watch it before merging.
+
+---
+
 ## Self-review notes
 
 - **Spec §3 the seam** → Task 1 (types, registry, layering guard).
