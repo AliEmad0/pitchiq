@@ -26,6 +26,7 @@ import { ScrollToTop } from "@/components/ScrollToTop";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { EraController } from "@/components/theme/EraController";
+import { DailyBubble } from "@/features/game/components/DailyBubble";
 import { routing } from "@/i18n/routing";
 import { REVEAL_GATE_SCRIPT } from "@/utils/reveal";
 import { getSiteUrl } from "@/utils/site-url";
@@ -194,6 +195,11 @@ export default async function LocaleLayout({
                 </div>
                 <main className="flex flex-1 flex-col">{children}</main>
                 <Footer />
+                {/* TASK-1817 — the daily challenge sits two clicks deep behind the mode
+                    gate, and a daily only becomes a habit if returning is frictionless.
+                    The header's width budget is measured and already spent (TASK-M79/M80),
+                    so this floats instead of taking a seventh pill. */}
+                <DailyBubble />
               </QueryProvider>
             </ThemeProvider>
           </NuqsAdapter>

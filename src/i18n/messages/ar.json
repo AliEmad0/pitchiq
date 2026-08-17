@@ -884,7 +884,10 @@
     "dailySpentCleared": "تم بدء تحدي اليوم بالفعل على هذا الجهاز.",
     "dailyStreak": "🔥 {streak}   🏆 {best}",
     "dailyShareCopy": "نسخ النتيجة",
-    "dailyShareCopied": "تم النسخ"
+    "dailyShareCopied": "تم النسخ",
+    "bubbleLabel": "اليومي",
+    "bubbleUnplayed": "العب تحدي اليوم",
+    "bubblePlayed": "تحدي اليوم — اعرض نتيجة اليوم"
   },
   "commentary": {
     "kickoff": "🟢 انطلاق المباراة!",

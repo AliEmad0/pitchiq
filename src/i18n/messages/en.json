@@ -884,7 +884,10 @@
     "dailySpentCleared": "Today's challenge has already been started on this device.",
     "dailyStreak": "🔥 {streak}   🏆 {best}",
     "dailyShareCopy": "Copy result",
-    "dailyShareCopied": "Copied"
+    "dailyShareCopied": "Copied",
+    "bubbleLabel": "Daily",
+    "bubbleUnplayed": "Play today's daily challenge",
+    "bubblePlayed": "Daily challenge — see today's result"
   },
   "commentary": {
     "kickoff": "🟢 Kick-off!",
