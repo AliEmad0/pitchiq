@@ -3,8 +3,9 @@ import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import type { PlayerSeasonId } from "@/features/game/domain/card-id";
 import type { PoolCard } from "@/features/game/domain/chaos-draft";
-import { roomDeals } from "@/features/game/domain/draft-room";
+import { HAND_SIZE, roomDeals } from "@/features/game/domain/draft-room";
 import type { Formation } from "@/features/game/domain/formation";
+import type { DraftSpec } from "@/features/game/domain/rule-packs";
 import { createRoomState, isRoomComplete, roomReducer } from "@/features/game/view/room-state";
 import { prefersReducedMotion } from "@/utils/motion";
 
@@ -15,6 +16,10 @@ interface Props {
   onComplete: (cardIds: PlayerSeasonId[]) => void;
   /** Seconds before the room picks for you, or null to disable. Mirrors DecisionPrompt. */
   limit?: number | null;
+  /** Candidates per round (TASK-1810). Defaults to the shipped five. */
+  handSize?: DraftSpec["handSize"];
+  /** Whether the board is navigable (TASK-1810). Defaults to the shipped free roam. */
+  roam?: DraftSpec["roam"];
 }
 
 /**
@@ -26,11 +31,28 @@ interface Props {
  *
  * ⚠️ The hands are computed ONCE from `(pool, formation, seed)`. They do not depend on
  * which slots have been visited — that is what lets free roam and seed-sharing coexist.
+ *
+ * ⭐ TASK-1810 runs the SAME room as consecutive rounds for Legacy Club. Only two things
+ * change — how many cards a hand holds, and whether the board is navigable — because
+ * `roomReducer` already advances to the next unfilled slot on every pick. Sequential
+ * progression was always the reducer's behaviour; free roam is the UI additionally
+ * permitting the `open` action.
  */
-export function DraftRoom({ pool, formation, seed, onComplete, limit = 15 }: Props) {
+export function DraftRoom({
+  pool,
+  formation,
+  seed,
+  onComplete,
+  limit = 15,
+  handSize = HAND_SIZE,
+  roam = "free",
+}: Props) {
   const t = useTranslations("game");
   const reduced = prefersReducedMotion();
-  const hands = useMemo(() => roomDeals(pool, formation, seed), [pool, formation, seed]);
+  const hands = useMemo(
+    () => roomDeals(pool, formation, seed, handSize),
+    [pool, formation, seed, handSize],
+  );
   const [state, dispatch] = useReducer(roomReducer, formation, createRoomState);
   const byId = useMemo(() => new Map(pool.map((c) => [c.cardId, c])), [pool]);
 
@@ -47,6 +69,15 @@ export function DraftRoom({ pool, formation, seed, onComplete, limit = 15 }: Pro
   const open = state.open;
   const hand = open == null ? [] : hands[open];
   const editing = open != null && state.picks[open] != null;
+
+  /**
+   * Which round the coach is on, when the room runs sequentially.
+   *
+   * ⚠️ Counted from the FILLED PICKS rather than from `open + 1`. They agree while slots
+   * fill in order, but `nextUnfilled` wraps, so deriving it from the open index would
+   * count backwards the moment it ever did.
+   */
+  const round = state.picks.filter((p) => p != null).length + 1;
 
   const [left, setLeft] = useState<number | null>(limit);
 
@@ -89,14 +120,47 @@ export function DraftRoom({ pool, formation, seed, onComplete, limit = 15 }: Pro
 
       <div className="mt-4 grid gap-5 md:grid-cols-[minmax(200px,300px)_1fr]">
         <div
-          role="group"
-          aria-label={t("roomTitle")}
+          // Sequential rounds leave the board decorative — the round line below carries the
+          // state, so exposing an empty group here would only add noise.
+          role={roam === "free" ? "group" : undefined}
+          aria-label={roam === "free" ? t("roomTitle") : undefined}
           className="border-border relative aspect-[3/4] rounded-md border bg-[#0e1a22]"
         >
           {formation.slots.map((s, i) => {
             const inRow = formation.slots.filter((x) => x.row === s.row).length;
             const picked = state.picks[i];
             const card = picked != null ? byId.get(picked) : undefined;
+            const position = {
+              left: `${(s.col / (inRow + 1)) * 100}%`,
+              top: `${100 - (s.row / (rows + 1)) * 100}%`,
+            };
+            const face = card ? (card.ratings?.overall ?? 0) : s.role;
+            const marker = `absolute grid h-8 w-8 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full font-mono text-[9px] font-bold ${
+              card ? "bg-amber-400 text-black" : "bg-slate-700 text-slate-300"
+            } ${open === i ? "ring-2 ring-cyan-400" : ""}`;
+
+            /**
+             * ⛔ INERT SPANS, never disabled buttons.
+             *
+             * A sequential room does not let the coach choose a slot, so eleven buttons
+             * would be eleven dead stops in the tab order leading nowhere — the same rule
+             * that governs locked tiles on the mode gate. The board stays a progress
+             * picture and `aria-hidden` keeps it out of the accessibility tree, because
+             * "Round 4 of 11" says the identical thing in one string.
+             */
+            if (roam === "sequential") {
+              return (
+                <span
+                  key={`${s.row}-${s.col}`}
+                  aria-hidden="true"
+                  style={position}
+                  className={marker}
+                >
+                  {face}
+                </span>
+              );
+            }
+
             return (
               <button
                 key={`${s.row}-${s.col}`}
@@ -104,15 +168,10 @@ export function DraftRoom({ pool, formation, seed, onComplete, limit = 15 }: Pro
                 aria-current={open === i ? "true" : undefined}
                 aria-label={t("roomSlot", { n: i + 1, total: formation.slots.length })}
                 onClick={() => dispatch({ type: "open", index: i })}
-                style={{
-                  left: `${(s.col / (inRow + 1)) * 100}%`,
-                  top: `${100 - (s.row / (rows + 1)) * 100}%`,
-                }}
-                className={`absolute grid h-8 w-8 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full font-mono text-[9px] font-bold ${
-                  card ? "bg-amber-400 text-black" : "bg-slate-700 text-slate-300"
-                } ${open === i ? "ring-2 ring-cyan-400" : ""}`}
+                style={position}
+                className={marker}
               >
-                {card ? (card.ratings?.overall ?? 0) : s.role}
+                {face}
               </button>
             );
           })}
@@ -123,6 +182,11 @@ export function DraftRoom({ pool, formation, seed, onComplete, limit = 15 }: Pro
             <p className="text-sm font-bold">{t("roomDone")}</p>
           ) : (
             <div className="flex flex-wrap gap-3">
+              {roam === "sequential" ? (
+                <p className="w-full text-sm font-extrabold">
+                  {t("roomRound", { n: round, total: formation.slots.length })}
+                </p>
+              ) : null}
               <p className="w-full font-mono text-xs font-bold">
                 {editing
                   ? t("roomEditing")

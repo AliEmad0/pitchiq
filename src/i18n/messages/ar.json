@@ -813,6 +813,7 @@
     "roomNoTimer": "بلا حد زمني",
     "roomDone": "اكتملت التشكيلة",
     "roomEditing": "تعديل مركز مكتمل — بلا مؤقت",
+    "roomRound": "الجولة {n} من {total}",
     "formationBackFour": "رباعي الدفاع",
     "formationBackThree": "ثلاثي أو خماسي الدفاع",
     "formationHistoric": "تشكيلات تاريخية",

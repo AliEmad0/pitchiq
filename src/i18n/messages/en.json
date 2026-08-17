@@ -813,6 +813,7 @@
     "roomNoTimer": "No time limit",
     "roomDone": "Squad complete",
     "roomEditing": "Editing a filled slot — no timer",
+    "roomRound": "Round {n} of {total}",
     "formationBackFour": "Back four",
     "formationBackThree": "Back three or five",
     "formationHistoric": "Historic",

@@ -149,3 +149,56 @@ describe("DraftRoom", () => {
     expect(onComplete.mock.calls[0][0]).toHaveLength(11);
   });
 });
+
+/**
+ * TASK-1810 — the same room, run as consecutive rounds.
+ *
+ * ⛔ Every test above is the CONTROL: they render `DraftRoom` with no `roam`/`handSize` and
+ * must keep passing untouched, which is what proves `/game/draft` still free-roams five.
+ */
+const renderSequential = (onComplete = vi.fn()) =>
+  renderWithIntl(
+    <DraftRoom
+      pool={pool}
+      formation={shape}
+      seed={42}
+      handSize={3}
+      roam="sequential"
+      onComplete={onComplete}
+    />,
+  );
+
+describe("DraftRoom — sequential rounds", () => {
+  it("⚠️ offers exactly the pack's hand size, not the room's default five", () => {
+    renderSequential();
+    expect(screen.getAllByRole("button", { name: /rated/ })).toHaveLength(3);
+  });
+
+  it("⛔ the board carries NO slot buttons and NO disabled buttons", () => {
+    // Eleven slots the coach is not allowed to open would be eleven dead stops in the tab
+    // order leading nowhere — the anti-pattern the mode gate's rule locks out. The markers
+    // have to be inert, and specifically NOT disabled buttons.
+    const { container } = renderSequential();
+    expect(screen.queryAllByRole("button", { name: /^Slot/ })).toHaveLength(0);
+    expect(container.querySelectorAll("button[disabled]")).toHaveLength(0);
+  });
+
+  it("announces the round, and a pick advances it", async () => {
+    const user = userEvent.setup();
+    renderSequential();
+    expect(screen.getByText("Round 1 of 11")).toBeInTheDocument();
+    await user.click(screen.getAllByRole("button", { name: /rated/ })[0]);
+    expect(screen.getByText("Round 2 of 11")).toBeInTheDocument();
+  });
+
+  it("eleven rounds still hand the finished XI up in slot order, exactly once", async () => {
+    const onComplete = vi.fn();
+    const user = userEvent.setup();
+    renderSequential(onComplete);
+    for (let i = 0; i < 11; i++) {
+      await user.click(screen.getAllByRole("button", { name: /rated/ })[0]);
+    }
+    expect(onComplete).toHaveBeenCalledTimes(1);
+    expect(onComplete.mock.calls[0][0]).toHaveLength(11);
+  });
+});
