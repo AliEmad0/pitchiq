@@ -5495,8 +5495,8 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1805](#task-1805) | Hybrid opponent model (modern squad / historical record)        | ✅ Done    | P2       | M   |
 | [TASK-1806](#task-1806) | Chaos Draft — first end-to-end vertical slice                   | ✅ Done    | P2       | L   |
 | [TASK-1807](#task-1807) | Draft hub + live match loop (A ✅ B1 ✅ B2 ✅ C ✅)             | ✅ Done    | P2       | L   |
-| [TASK-1808](#task-1808) | Live tactical pitch UI + speed controls (1x/2x/skip)            | 📋 Backlog | P3       | L   |
-| [TASK-1809](#task-1809) | Key-event animations (goal/red-card overlays, pulsing nodes)    | 📋 Backlog | P3       | L   |
+| [TASK-1808](#task-1808) | Live tactical pitch UI + speed controls (1x/2x/skip)            | ✅ Done    | P3       | L   |
+| [TASK-1809](#task-1809) | Key-event animations — **gallery pass only** (code shipped)     | 📋 Backlog | P3       | S   |
 | [TASK-1810](#task-1810) | Remaining six modes as rule packs                               | 📋 Backlog | P3       | XL  |
 | [TASK-1811](#task-1811) | Season-mode engine (ghost-of-real-season, Survival, Legacy)     | 📋 Backlog | P3       | L   |
 | [TASK-1812](#task-1812) | Persistence, records, shareable seeded matches                  | 📋 Backlog | P3       | M   |
@@ -5674,15 +5674,38 @@ Built: `domain/hash.ts` (shared FNV-1a + `hashEvents`), `view/match-session.ts` 
 
 ### TASK-1808
 
-**Live tactical pitch UI + speed controls** · 📋 Backlog · `P3` · `L` · Type: Feature
+**Live tactical pitch UI + speed controls** · ✅ Done · `P3` · `L` · Type: Feature
 
 **Description** — A CSS/Tailwind tactical pitch rendering the chosen formation (reuse the fixture-page grid convention), streaming the match minute-by-minute with 1x / 2x / Skip controls. Reads the pre-computed `MatchEvent[]` (engine already ran); the UI is a renderer over a proven event stream. **Depends on:** TASK-1806.
 
+**Shipped** — built incrementally rather than as one ticket, then **verified and flipped 2026-08-17**. `MatchPitch`/`TacticalPitch` render the chosen shape off the formation's `row`/`col` grid; `MatchView` streams the match minute-by-minute with a dwell on key events; `Scoreboard`, `WinProbBar`, `CommentaryCaption` and `RosterPanel` surround it. Landed across PR #85 (the Broadcast × Win-Probability view), PR #88 (tactical mini-map, roster, overlays) and PR #117 (live pitch + lineup).
+
+**⚠️ Two deviations from the description, both deliberate:**
+
+- **Speed is 1× / 2× / 4×, not "1x / 2x / Skip".** A third speed serves the same intent — get through a match quickly — while keeping the commentary and overlays legible, which a hard skip discards entirely. `Play` / `Pause` / `Restart` sit alongside it. If a true jump-to-full-time is ever wanted it is a small addition, not a rebuild.
+- **It no longer reads a pre-computed `MatchEvent[]`.** TASK-1830 made the engine a generator and TASK-1807 B1 drives it live, so the view streams from a running match and the coach can intervene. That is a superset of what this ticket asked for — "a renderer over a proven event stream" still describes it, the stream is just no longer finished before the first frame.
+
 ### TASK-1809
 
-**Key-event animations** · 📋 Backlog · `P3` · `L` · Type: Feature
+**Key-event animations — the gallery pass** · 📋 Backlog · `P3` · `S` · Type: Chore
 
-**Description** — Goal / red-card modal overlays with glow, pulsing player nodes, momentum cues — **transform/opacity only** (the CI motion audit fails any keyframe animating a layout property) and all `prefers-reduced-motion`-gated. New Radix surfaces must be added to the central reduce rule in `globals.css`. Follows the design-gallery ritual (20 live-animated designs, desktop + mobile, era + light/dark toggles) before implementation. **Depends on:** TASK-1808.
+**⚠️ RESCOPED 2026-08-17 — the implementation already shipped; only the design ritual is outstanding.** Verified against the code, not assumed. Owner's call: keep the ticket open for the ritual rather than closing it or re-running the ritual against live animations.
+
+**~~Original description~~** — ~~Goal / red-card modal overlays with glow, pulsing player nodes, momentum cues — **transform/opacity only** and all `prefers-reduced-motion`-gated. New Radix surfaces must be added to the central reduce rule in `globals.css`.~~ **All of this is built** (PR #88, with PR #117's additions):
+
+| Requirement | Where |
+| --- | --- |
+| Goal / red-card modal overlays with glow | `components/EventOverlay.tsx` — six event kinds (goal, card, penalty, VAR, injury, substitution), each with its own icon, label and accent so a penalty never reads as a goal |
+| Pulsing nodes + momentum cues | `components/GlowPulse.tsx` in `Scoreboard` and `WinProbBar`; `@keyframes pitch-glow-pulse` |
+| transform / opacity only | `@keyframes game-event-in` — `opacity` + `transform` only; `tests/unit/motion-audit.test.ts` green |
+| `prefers-reduced-motion` gated | explicit `@media (prefers-reduced-motion: reduce)` block zeroing `.game-event-overlay`; `MatchView` hides the transport controls under `reduced` |
+| New Radix surfaces in the central reduce rule | none were added, so nothing to register — the existing dialog/sheet rule is untouched |
+
+**Remaining scope — the design-gallery ritual only.** 20 live-animated designs, desktop + mobile, era + light/dark toggles, built **playable with real cards** (see the concept-gallery convention: one engine, N layouts, click a thumbnail to play it). The TASK-1806 plan flagged this as still owed — it shipped the pitch view via the 30-concept → 30-animation ritual and noted that **1809 needs "their own design-gallery pass"** — but the animations were built inside PR #88's refinements without one.
+
+⚠️ **This ritual runs against animations that are already live.** Anything preferred over what shipped is a follow-up change to `EventOverlay` / `GlowPulse` / the keyframes, not a greenfield build — so the ticket is `S`, and its risk is that the gallery produces a design the owner prefers and the shipped one has to be replaced.
+
+**Depends on:** TASK-1808 (done).
 
 ### TASK-1810
 
