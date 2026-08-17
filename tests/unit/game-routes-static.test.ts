@@ -33,9 +33,11 @@ describe("game routes stay CDN-served", () => {
   it("finds every game route", () => {
     // If this drops the glob broke and every assertion below is vacuous. Raise it when
     // a route is added: /game (the gate), /game/demo, /game/chaos, /game/draft,
-    // /game/daily (TASK-1817).
+    // /game/daily (TASK-1817), /game/[mode] (TASK-1810).
     // TASK-1832 retired /game/play — it is a next.config redirect now, not a route.
-    expect(files.length).toBeGreaterThanOrEqual(5);
+    // ⚠️ `/game/[mode]` is ONE FILE standing for N prerendered modes, so this counts
+    // FILES, not pages — do not "fix" it downward when the pack list grows.
+    expect(files.length).toBeGreaterThanOrEqual(6);
   });
 
   it.each(files.map((f) => [f.slice(f.indexOf("src")), f]))(
