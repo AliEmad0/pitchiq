@@ -5504,7 +5504,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1814](#task-1814) | Momentum engine + data-derived personality traits (modifiers)   | 📋 Backlog | P3       | L   |
 | [TASK-1815](#task-1815) | Post-match analytics — xG timeline + retro newspaper headlines  | 📋 Backlog | P3       | M   |
 | [TASK-1816](#task-1816) | "What-If" historical scenario mode (rule pack)                  | 📋 Backlog | P3       | M   |
-| [TASK-1817](#task-1817) | Daily seeded challenge — client-only (streaks, PB, seed replay) | 📋 Backlog | P3       | M   |
+| [TASK-1817](#task-1817) | Daily seeded challenge — client-only (streaks, PB, seed replay) | ✅ Done    | P3       | M   |
 | [TASK-1818](#task-1818) | Rogue-like / Mystery Market mode (local run history)            | 📋 Backlog | P3       | L   |
 | [TASK-1819](#task-1819) | Retro sticker album & collection book (IndexedDB)               | 📋 Backlog | P3       | S   |
 | [TASK-1820](#task-1820) | Rating model — absolute/cross-position stats + GK pipeline      | ✅ Done    | P2       | L   |
@@ -5824,9 +5824,21 @@ Built: `domain/hash.ts` (shared FNV-1a + `hashEvents`), `view/match-session.ts` 
 
 ### TASK-1817
 
-**Daily seeded challenge — client-only** · 📋 Backlog · `P3` · `M` · Type: Feature
+**Daily seeded challenge — client-only** · ✅ Done · `P3` · `M` · Type: Feature
 
 **Description** — One deterministic fixture per day: the seed is **derived client-side from the UTC date** (a `setup` input, never read inside the engine), the same match for everyone, **one attempt/day** tracked in IndexedDB. Local **streaks + personal bests**, **Wordle-style text** share, and **seed-URL replay**. **No global leaderboard** (Option A — would need a backend; deferred as a standalone infra ticket if ever wanted). **Depends on:** TASK-1806, TASK-1812.
+
+**Shipped** (design: [`docs/superpowers/specs/2026-08-17-task-1817-daily-challenge-design.md`](../docs/superpowers/specs/2026-08-17-task-1817-daily-challenge-design.md); plan: [`docs/superpowers/plans/2026-08-17-task-1817-daily-challenge.md`](../docs/superpowers/plans/2026-08-17-task-1817-daily-challenge.md)) — `/game/daily`, `force-static`, built on the **Draft Room**: the day fixes the shape and deals the same eleven hands to everyone, so the only variables are who you pick and how you coach. `domain/daily.ts` derives shape, deal and match seeds from the UTC date (`hashStr` → XOR-split, the `chaosMatchup` idiom); `domain/daily-stats.ts` derives streaks/bests from the record history; `domain/daily-share.ts` builds the six-cell match-story strip and the share text; `storage/daily-slot.ts` holds one replay-tuple record per day in a new `daily` store (IndexedDB v2). `view/use-match-driver.ts` was extracted from `GamePlay` so both containers drive one engine. A floating `DailyBubble` links to it from every page, with a dot while the day is unplayed.
+
+**⚠️ Five rules this ticket pinned**
+
+1. **The day key is ANCHORED at kickoff.** A match can straddle midnight, so a 23:58 kickoff finishing at 00:03 records under the day it *began* — nothing inside a live session re-reads the clock. Resume is current-day only; an earlier day's unfinished record is never offered, and `computeStats` already reads it as "not won".
+2. **`dayKey` uses the UTC getters only.** Local getters break it for everyone outside UTC and break it invisibly, because the developer's own machine usually agrees. Pinned by a test at an instant where local and UTC dates differ.
+3. **`DAILY_SHAPES` is FROZEN, not append-only.** The pick is `hash(day) % length`, so *appending* re-maps every past day exactly as reordering would, and no scheme keeps a uniform pick stable over a growing set. A golden table makes any edit fail loudly instead of silently invalidating history.
+4. **Stats are derived, never counted.** No stored counter can drift from the history it summarises. The streak walk steps through `dayKeyOffset`, not the record list, so a gap day breaks a streak rather than being treated as contiguous.
+5. ⛔ **The tamper measure is a SPEED BUMP, not a lock.** `sessionStorage` is per-tab and dies with the tab, and the same "clear site data" that wipes IndexedDB wipes it. In a 100% client-side design no client-side measure can be authoritative — which is exactly why there is no global leaderboard. Do not build one on top of it.
+
+**⚠️ Two tests that were passing for the wrong reason**, both found by sabotage rather than review: the marker assertions set `sessionStorage` by hand, so removing `markStarted` left every test green until a test drove a real kickoff; and `game-mode-gate`'s tile count asserted a literal `2`, which reports "the count changed" rather than "the rule broke" — it now derives from `isPlayable`. Separately, `computeStats` first keyed its yesterday-fallback off `isWin`, which resurrected a dead streak on a day that had been played and *lost*.
 
 ### TASK-1818
 
