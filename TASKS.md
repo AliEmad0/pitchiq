@@ -6433,7 +6433,7 @@ Everything in the owner's A-to-Z roadmap (2026-08-11) that **cannot** be built u
 | [TASK-M80](#task-m80) | Header overflows sideways on phone widths                                                   | ✅ Done | P2       | S   |
 | [TASK-M81](#task-m81) | Surface the full managerial career + honours on `/managers/[id]`                            | ✅ Done | P2       | M   |
 | [TASK-M82](#task-m82) | Widen the trivia data facade — events, honours, transfers, manager enrichment               | ✅ Done | P2       | M   |
-| [TASK-M83](#task-m83) | Extended-stats leaderboards — lift the 54 unused fields (2010+)                             | ⬜ Todo | P3       | M   |
+| [TASK-M83](#task-m83) | Extended-stats leaderboards — eight new boards, grouped (2008+)                             | ✅ Done | P3       | M   |
 | [TASK-M88](#task-m88) | Reconcile the two diverged TASKS.md boards (colliding ticket numbers)                       | ✅ Done | P3       | S   |
 | [TASK-M89](#task-m89) | `/ar` entity DETAIL pages render English UI — the Arabic catalog never applies              | ✅ Done | P1       | M   |
 | [TASK-M90](#task-m90) | `<ImageZoom>` has no failover — lightbox breaks where the thumbnail recovers                | ✅ Done | P3       | S   |
@@ -8150,15 +8150,70 @@ Each rule keeps the engine's `verify` closure, so a new fact is still re-derived
 
 ### TASK-M83
 
-**Extended-stats leaderboards** · ⬜ Todo · `P3` · `M` · Type: Feature
+**Extended-stats leaderboards** · ✅ Done · `P3` · `M` · Type: Feature
 
-Phase 4 of the audit sequence. `data/player-history-stats.json` is **15.6 MB** covering **54 extended fields × 8,329 player-seasons (2010-2025)** and is **not read at runtime at all** — no loader exists. Only seven of the 54 were ever lifted onto player rows.
-
-Add a loader and extend `LEADERBOARD_CATEGORIES` with the ones that read well season-over-season: most touches, most passes, most duels won, most clearances, most fouls won, most offsides, most headed goals, most left-footed goals. Boards already self-omit when a season has no data, so 1992-2009 is unaffected.
-
-⚠️ Decide deliberately whether to lift fields onto player rows (bigger `players-*.json`, simple reads) or read the side-map at request time (no row churn). The rows are what the whole app builds from.
+Phase 4 of the audit sequence. Extend `LEADERBOARD_CATEGORIES` with the extended stats that read well season-over-season: most touches, most passes, most duels won, most clearances, most fouls won, most offsides, most headed goals, most left-footed goals. Boards already self-omit when a season has no data.
 
 **Depends on:** nothing.
+
+## ✅ SHIPPED 2026-08-17 — eight boards, and the page grouped into five sections
+
+Design: [`docs/superpowers/specs/2026-08-17-task-m83-extended-stats-leaderboards-design.md`](../docs/superpowers/specs/2026-08-17-task-m83-extended-stats-leaderboards-design.md);
+plan: [`docs/superpowers/plans/2026-08-17-task-m83-extended-stats-leaderboards.md`](../docs/superpowers/plans/2026-08-17-task-m83-extended-stats-leaderboards.md).
+
+### ⛔ The ticket's own premise was wrong — measured before building
+
+This ticket said _"only seven of the 54 were ever lifted onto player rows"_ and asked for a
+deliberate **lift-onto-rows vs read-the-side-map** decision. **That decision was moot: all
+54 were already on the rows**, as `metrics.extended`, since TASK-M65.
+
+| | |
+| --- | --- |
+| Rows carrying `metrics.extended` | ~95% per season, **2008–2025** |
+| Field comparisons, row vs `player-history-stats.json` | **58,303** |
+| Disagreements | **0** |
+
+So the shipped work needed **no loader, no schema change, no data change, and no growth in
+`players-*.json`** — and never reads the 15.28 MB side file, so the
+prerender-vs-request-time hazard never arises. It also turned out to cover **2008+**, two
+seasons better than the ticket's "2010+".
+
+⚠️ **`data/player-history-stats.json` (15.28 MB) is now provably redundant for the app** —
+100% duplicated onto the rows. Deleting it would cut real repo weight, but it may be the
+pipeline's rebuild source: **that is a pipeline-repo decision, deliberately not taken here.**
+
+### What shipped
+
+`LeaderboardCategory.key` widened from `keyof ComparisonMetrics` to a `MetricKey` that can
+also address `extended.<field>`; `rankBy` resolves it through one helper. All 14 existing
+entries were left byte-identical.
+
+⛔ **The `Exclude<keyof ComparisonMetrics, "extended">` in that type is load-bearing.**
+`"extended"` is itself a key of `ComparisonMetrics`, so without it `key: "extended"`
+type-checks and `rankBy` sorts **objects** with `>` — which does not throw, it silently
+produces a meaningless order. Pinned by a `@ts-expect-error` that was **verified to fail**
+(`TS2578 Unused '@ts-expect-error' directive`) with the `Exclude` removed. ⚠️ It is enforced
+by `pnpm type-check` only — vitest does not type-check, so a green suite proves nothing here.
+
+⚠️ **`duelsWon` needed no extended read.** It has been a top-level `ComparisonMetrics` field
+all along and simply never had a board.
+
+### Grouping — five sections, not four
+
+`appearances` belongs to none of attacking/passing/defending/discipline, so it has its own
+`overall` heading rather than being forced somewhere untrue. Verified in the browser:
+**[1, 8, 3, 6, 4] = 22 boards** on a modern season.
+
+⛔ **Empty groups are dropped, not rendered empty** — a heading asserts content exists.
+Season 2000 renders **four** sections (Passing & possession disappears entirely) with none
+of the extended boards and no empty heading.
+
+⚠️ `buildBoards` kept its exact signature because `/api/og/leaderboards` calls it too;
+grouping is `buildGroupedBoards` layered on top. That route's `TILE_ORDER` did need
+retyping to `MetricKey` — type-only, the card is unchanged.
+
+Verified in both locales by **counting Arabic codepoints**, not by grepping the page (which
+always "finds" a string, since next-intl serialises the whole catalog into every page).
 
 ---
 

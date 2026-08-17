@@ -1,14 +1,62 @@
 import type { StatLeaderboardEntry } from "@/features/players/components/StatLeaderboard";
-import type { ComparisonMetrics, Player } from "@/data/schemas";
+import type { ComparisonMetrics, ExtendedMetrics, Player } from "@/data/schemas";
 
 type Accent = "amber" | "blue" | "yellow" | "red";
+
+/**
+ * What a board can rank by: a top-level metric, or one of the 54 extended fields
+ * addressed as `extended.<field>` (TASK-M83).
+ *
+ * ⛔ The `Exclude` is load-bearing. `"extended"` is itself a key of `ComparisonMetrics`,
+ * so without it `key: "extended"` type-checks and `rankBy` sorts OBJECTS with `>` — which
+ * does not throw, it just produces a meaningless order. The type is the only thing between
+ * that and a shipped board.
+ */
+export type BaseMetricKey = Exclude<keyof ComparisonMetrics, "extended">;
+export type MetricKey = BaseMetricKey | `extended.${Extract<keyof ExtendedMetrics, string>}`;
+
+const EXTENDED_PREFIX = "extended.";
+
+/**
+ * The number a board ranks on, or null when this player has none.
+ *
+ * ⚠️ Rows before 2008 carry no `metrics.extended` at all, so the optional chain is the
+ * normal path rather than defensive padding.
+ */
+function metricValue(p: Player, key: MetricKey): number | null {
+  if (key.startsWith(EXTENDED_PREFIX)) {
+    const field = key.slice(EXTENDED_PREFIX.length) as keyof ExtendedMetrics;
+    const v = p.metrics.extended?.[field];
+    return typeof v === "number" ? v : null;
+  }
+  const v = p.metrics[key as BaseMetricKey];
+  return typeof v === "number" ? v : null;
+}
+
+/**
+ * Section headings on `/leaderboards`, in display order (TASK-M83).
+ *
+ * ⚠️ FIVE groups, not four. `appearances` belongs to none of attacking/passing/defending/
+ * discipline, and forcing it into one would be a worse lie than giving it its own heading.
+ */
+export const LEADERBOARD_GROUPS = [
+  "overall",
+  "attacking",
+  "passing",
+  "defending",
+  "discipline",
+] as const;
+
+export type LeaderboardGroup = (typeof LEADERBOARD_GROUPS)[number];
 
 // `title`/`valueLabel` are the English fallback (used by the OG-card route,
 // which stays English/brand). `titleKey`/`valueLabelKey` are message keys in the
 // `leaderboard` namespace — the `/leaderboards` page resolves them via `t(...)`
 // so the boards are localized (TASK-1603).
 export type LeaderboardCategory = {
-  key: keyof ComparisonMetrics;
+  key: MetricKey;
+  /** Required — a category with no section must not compile. */
+  group: LeaderboardGroup;
   title: string;
   valueLabel: string;
   titleKey: string;
@@ -22,27 +70,40 @@ export type LeaderboardCategory = {
 
 // Display order: attacking → keeping/defending → advanced → discipline.
 export const LEADERBOARD_CATEGORIES: readonly LeaderboardCategory[] = [
-  { key: "goals", title: "Goals", valueLabel: "Goals", titleKey: "catGoalsTitle", valueLabelKey: "catGoalsValue", accent: "amber" }, // prettier-ignore
-  { key: "assists", title: "Assists", valueLabel: "Assists", titleKey: "catAssistsTitle", valueLabelKey: "catAssistsValue", accent: "blue" }, // prettier-ignore
-  { key: "appearances", title: "Appearances", valueLabel: "Apps", titleKey: "catAppearancesTitle", valueLabelKey: "catAppearancesValue" }, // prettier-ignore
+  { key: "goals", group: "attacking", title: "Goals", valueLabel: "Goals", titleKey: "catGoalsTitle", valueLabelKey: "catGoalsValue", accent: "amber" }, // prettier-ignore
+  { key: "assists", group: "attacking", title: "Assists", valueLabel: "Assists", titleKey: "catAssistsTitle", valueLabelKey: "catAssistsValue", accent: "blue" }, // prettier-ignore
+  { key: "appearances", group: "overall", title: "Appearances", valueLabel: "Apps", titleKey: "catAppearancesTitle", valueLabelKey: "catAppearancesValue" }, // prettier-ignore
   {
     key: "cleanSheets",
+    group: "defending",
     title: "Clean Sheets",
     valueLabel: "CS",
     titleKey: "catCleanSheetsTitle",
     valueLabelKey: "catCleanSheetsValue",
     positions: ["Goalkeeper", "Defender"],
   },
-  { key: "saves", title: "Saves", valueLabel: "Saves", titleKey: "catSavesTitle", valueLabelKey: "catSavesValue" }, // prettier-ignore
-  { key: "keyPasses", title: "Key Passes", valueLabel: "Key passes", titleKey: "catKeyPassesTitle", valueLabelKey: "catKeyPassesValue" }, // prettier-ignore
-  { key: "tackles", title: "Tackles", valueLabel: "Tackles", titleKey: "catTacklesTitle", valueLabelKey: "catTacklesValue" }, // prettier-ignore
-  { key: "interceptions", title: "Interceptions", valueLabel: "Int", titleKey: "catInterceptionsTitle", valueLabelKey: "catInterceptionsValue" }, // prettier-ignore
-  { key: "dribblesCompleted", title: "Dribbles", valueLabel: "Dribbles", titleKey: "catDribblesTitle", valueLabelKey: "catDribblesValue" }, // prettier-ignore
-  { key: "shotsOnTarget", title: "Shots on Target", valueLabel: "SoT", titleKey: "catShotsOnTargetTitle", valueLabelKey: "catShotsOnTargetValue" }, // prettier-ignore
-  { key: "xg", title: "Expected Goals (xG)", valueLabel: "xG", titleKey: "catXgTitle", valueLabelKey: "catXgValue", decimals: 1 }, // prettier-ignore
-  { key: "xa", title: "Expected Assists (xA)", valueLabel: "xA", titleKey: "catXaTitle", valueLabelKey: "catXaValue", decimals: 1 }, // prettier-ignore
-  { key: "yellowCards", title: "Yellow Cards", valueLabel: "Yellow", titleKey: "catYellowCardsTitle", valueLabelKey: "catYellowCardsValue", accent: "yellow" }, // prettier-ignore
-  { key: "redCards", title: "Red Cards", valueLabel: "Red", titleKey: "catRedCardsTitle", valueLabelKey: "catRedCardsValue", accent: "red" }, // prettier-ignore
+  { key: "saves", group: "defending", title: "Saves", valueLabel: "Saves", titleKey: "catSavesTitle", valueLabelKey: "catSavesValue" }, // prettier-ignore
+  { key: "keyPasses", group: "passing", title: "Key Passes", valueLabel: "Key passes", titleKey: "catKeyPassesTitle", valueLabelKey: "catKeyPassesValue" }, // prettier-ignore
+  { key: "tackles", group: "defending", title: "Tackles", valueLabel: "Tackles", titleKey: "catTacklesTitle", valueLabelKey: "catTacklesValue" }, // prettier-ignore
+  { key: "interceptions", group: "defending", title: "Interceptions", valueLabel: "Int", titleKey: "catInterceptionsTitle", valueLabelKey: "catInterceptionsValue" }, // prettier-ignore
+  { key: "dribblesCompleted", group: "attacking", title: "Dribbles", valueLabel: "Dribbles", titleKey: "catDribblesTitle", valueLabelKey: "catDribblesValue" }, // prettier-ignore
+  { key: "shotsOnTarget", group: "attacking", title: "Shots on Target", valueLabel: "SoT", titleKey: "catShotsOnTargetTitle", valueLabelKey: "catShotsOnTargetValue" }, // prettier-ignore
+  { key: "xg", group: "attacking", title: "Expected Goals (xG)", valueLabel: "xG", titleKey: "catXgTitle", valueLabelKey: "catXgValue", decimals: 1 }, // prettier-ignore
+  { key: "xa", group: "attacking", title: "Expected Assists (xA)", valueLabel: "xA", titleKey: "catXaTitle", valueLabelKey: "catXaValue", decimals: 1 }, // prettier-ignore
+  { key: "yellowCards", group: "discipline", title: "Yellow Cards", valueLabel: "Yellow", titleKey: "catYellowCardsTitle", valueLabelKey: "catYellowCardsValue", accent: "yellow" }, // prettier-ignore
+  { key: "redCards", group: "discipline", title: "Red Cards", valueLabel: "Red", titleKey: "catRedCardsTitle", valueLabelKey: "catRedCardsValue", accent: "red" }, // prettier-ignore
+
+  // TASK-M83 — the extended per-season stats, already on every 2008+ player row as
+  // `metrics.extended`. ⚠️ `duelsWon` has NO `extended.` prefix: it has been a top-level
+  // `ComparisonMetrics` field all along and simply never had a board.
+  { key: "extended.touches", group: "passing", title: "Touches", valueLabel: "Touches", titleKey: "catTouchesTitle", valueLabelKey: "catTouchesValue" }, // prettier-ignore
+  { key: "extended.totalPasses", group: "passing", title: "Passes", valueLabel: "Passes", titleKey: "catPassesTitle", valueLabelKey: "catPassesValue" }, // prettier-ignore
+  { key: "duelsWon", group: "defending", title: "Duels Won", valueLabel: "Duels", titleKey: "catDuelsWonTitle", valueLabelKey: "catDuelsWonValue" }, // prettier-ignore
+  { key: "extended.clearances", group: "defending", title: "Clearances", valueLabel: "Clearances", titleKey: "catClearancesTitle", valueLabelKey: "catClearancesValue" }, // prettier-ignore
+  { key: "extended.foulsWon", group: "discipline", title: "Fouls Won", valueLabel: "Fouls won", titleKey: "catFoulsWonTitle", valueLabelKey: "catFoulsWonValue" }, // prettier-ignore
+  { key: "extended.offsides", group: "discipline", title: "Offsides", valueLabel: "Offsides", titleKey: "catOffsidesTitle", valueLabelKey: "catOffsidesValue" }, // prettier-ignore
+  { key: "extended.headedGoals", group: "attacking", title: "Headed Goals", valueLabel: "Headers", titleKey: "catHeadedGoalsTitle", valueLabelKey: "catHeadedGoalsValue", accent: "amber" }, // prettier-ignore
+  { key: "extended.leftFootGoals", group: "attacking", title: "Left-Footed Goals", valueLabel: "Left foot", titleKey: "catLeftFootGoalsTitle", valueLabelKey: "catLeftFootGoalsValue", accent: "amber" }, // prettier-ignore
 ];
 
 /**
@@ -53,12 +114,12 @@ export const LEADERBOARD_CATEGORIES: readonly LeaderboardCategory[] = [
  */
 export function rankBy(
   players: Player[],
-  key: keyof ComparisonMetrics,
+  key: MetricKey,
   opts: { n?: number; decimals?: number } = {},
 ): StatLeaderboardEntry[] {
   const { n = 10, decimals } = opts;
   const scored = players
-    .map((p) => ({ p, v: p.metrics[key] }))
+    .map((p) => ({ p, v: metricValue(p, key) }))
     .filter((x): x is { p: Player; v: number } => typeof x.v === "number" && x.v > 0)
     .sort((a, b) => b.v - a.v || a.p.id - b.p.id)
     .slice(0, n);
@@ -83,4 +144,29 @@ export function buildBoards(
       : players;
     return { cat, rows: rankBy(pool, cat.key, { decimals: cat.decimals }) };
   }).filter((b) => b.rows.length > 0);
+}
+
+export interface LeaderboardGroupBoards {
+  group: LeaderboardGroup;
+  /** Message key in the `leaderboard` namespace, e.g. "groupAttacking". */
+  titleKey: string;
+  boards: Array<{ cat: LeaderboardCategory; rows: StatLeaderboardEntry[] }>;
+}
+
+/**
+ * `buildBoards`, split into display sections (TASK-M83).
+ *
+ * ⚠️ Layered ON TOP of `buildBoards` rather than replacing it — `/api/og/leaderboards`
+ * calls that function too and must keep its flat list.
+ *
+ * ⛔ Empty groups are dropped, not rendered empty. A heading asserts that content exists,
+ * and every season before 2008 would otherwise show five headings over nothing.
+ */
+export function buildGroupedBoards(players: Player[]): LeaderboardGroupBoards[] {
+  const boards = buildBoards(players);
+  return LEADERBOARD_GROUPS.map((group) => ({
+    group,
+    titleKey: `group${group[0]!.toUpperCase()}${group.slice(1)}`,
+    boards: boards.filter((b) => b.cat.group === group),
+  })).filter((g) => g.boards.length > 0);
 }
