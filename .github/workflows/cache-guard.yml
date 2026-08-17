@@ -152,6 +152,17 @@ jobs:
           # searchParams and stays dynamic by design).
           check "teams index"                  "/teams"
           check "a historical season-section"  "/seasons/2003/teams"
+          # TASK-1810 — the game routes, which this guard had never covered at all
+          # even though `/game/*` is where the app is still growing. The two
+          # PARAMETERISED ones matter most: `/game/[mode]` and `/game/[mode]/[club]`
+          # prerender from `generateStaticParams`, and a route whose params silently
+          # stop being generated does not error — it falls back to rendering on
+          # demand, which is precisely the 2026-07 shape. 102 club pages hang off
+          # the second one, so it is the single highest-leverage probe here.
+          check "the game gate"                "/game"
+          check "legacy club menu"             "/game/legacy"
+          check "legacy club draft"            "/game/legacy/40"
+          check "legacy club draft — Arabic"   "/ar/game/legacy/40"
 
           echo
           if [ "$fail" -ne 0 ]; then

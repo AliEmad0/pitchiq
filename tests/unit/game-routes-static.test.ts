@@ -48,4 +48,29 @@ describe("game routes stay CDN-served", () => {
       expect(source).toMatch(/export const dynamic\s*=\s*"force-static"/);
     },
   );
+
+  /**
+   * ⛔ A DYNAMIC segment needs more than `force-static` (TASK-1810).
+   *
+   * `force-static` fixes how a route renders; it does NOT stop Next rendering params that
+   * `generateStaticParams` never returned. Those are built on demand and cached — one
+   * lambda per invented URL, which is the 2026-07 Fluid Active-CPU shape exactly. Both
+   * parameterised game routes back a closed set (the rule packs; the 51 PL clubs), so
+   * anything outside it must 404 without the page running.
+   */
+  const dynamicRoutes = files.filter((f) => /\[[^\]]+\][/\\]page\.tsx$/.test(f));
+
+  it("finds the parameterised game routes", () => {
+    // Guards the guard: if this glob stops matching, every assertion below is vacuous.
+    expect(dynamicRoutes.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it.each(dynamicRoutes.map((f) => [f.slice(f.indexOf("src")), f]))(
+    "%s closes its param set",
+    (_label, file) => {
+      const source = readFileSync(file, "utf8");
+      expect(source).toMatch(/export const dynamicParams\s*=\s*false/);
+      expect(source).toMatch(/export async function generateStaticParams/);
+    },
+  );
 });
