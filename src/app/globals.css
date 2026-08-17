@@ -1906,3 +1906,80 @@
   opacity: 0.7;
   z-index: 3;
 }
+
+/* ---------------------------------------------------------------------------
+   TASK-1810 — the Legacy club sheet.
+   Owner-picked: concept 09 "Sticker Album" with concept 06 "Foil Sweep".
+
+   ⛔ The sheen is a TRANSLATING GRADIENT, never a brightness filter. The motion
+   audit allowlists compositor-friendly properties only, and "filter" is rejected —
+   a brightness sweep would fail that gate and repaint every frame besides. Moving a
+   gradient across the sheet is also closer to what real foil does.
+--------------------------------------------------------------------------- */
+@keyframes game-sticker-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes game-foil-sweep {
+  0% {
+    opacity: 0;
+    transform: translateX(-60%) skewX(-14deg);
+  }
+  14% {
+    opacity: 1;
+  }
+  86% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(240%) skewX(-14deg);
+  }
+}
+
+.sticker-sheet {
+  position: relative;
+  overflow: hidden;
+}
+
+/* The foil. Starts after the stickers have settled, so it reads as a highlight
+   passing over a finished sheet rather than part of the arrival. */
+.sticker-sheet::after {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 30%;
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    transparent,
+    color-mix(in oklch, var(--primary) 26%, transparent),
+    transparent
+  );
+  animation: game-foil-sweep 1150ms 620ms var(--ease-in-out-soft) both;
+}
+
+.sticker-slot {
+  animation: game-sticker-in 360ms var(--ease-out-soft) both;
+  animation-delay: calc(var(--i, 0) * 24ms);
+}
+
+/* ⚠️ BOTH selectors, not just the container. The treatment is two separate
+   animations, so gating only one leaves the other running for a reduced-motion
+   visitor while still screenshotting correctly. */
+@media (prefers-reduced-motion: reduce) {
+  .sticker-slot {
+    animation: none;
+  }
+  .sticker-sheet::after {
+    display: none;
+  }
+}
