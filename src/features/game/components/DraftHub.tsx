@@ -2,7 +2,7 @@
 import { useTranslations } from "next-intl";
 import { useMemo, useReducer, useState } from "react";
 import type { PlayerSeasonId } from "@/features/game/domain/card-id";
-import { FORMATIONS, type PoolCard } from "@/features/game/domain/chaos-draft";
+import type { PoolCard } from "@/features/game/domain/chaos-draft";
 import { formationByName, type Formation } from "@/features/game/domain/formation";
 import { fillGaps } from "@/features/game/domain/fill-gaps";
 import { mulberry32 } from "@/features/game/domain/rng";
@@ -17,6 +17,7 @@ import { randomSeed } from "@/features/game/view/seed";
 import { prefersReducedMotion } from "@/utils/motion";
 import { CardPool } from "./CardPool";
 import { DraftRoom } from "./DraftRoom";
+import { FormationPicker } from "./FormationPicker";
 import { TacticalPitch } from "./TacticalPitch";
 
 /**
@@ -37,18 +38,6 @@ const INITIAL_SEED = 20260811;
  */
 const DEFAULT_FORMATION = "4-4-2 Flat";
 
-/**
- * Family boundaries into `FORMATIONS`, for grouping the picker only.
- *
- * ⚠️ Presentation, not identity. Nothing may resolve a shape through these — use
- * `formationByName`. If the array is ever reordered, only these three ranges change.
- */
-const FAMILIES = [
-  { labelKey: "formationBackFour", from: 0, to: 10 },
-  { labelKey: "formationBackThree", from: 10, to: 16 },
-  { labelKey: "formationHistoric", from: 16, to: 20 },
-] as const;
-
 interface Props {
   pool: PoolCard[];
   /**
@@ -65,7 +54,6 @@ interface Props {
 export function DraftHub({ pool, onConfirm }: Props) {
   const t = useTranslations("game");
   const reduced = prefersReducedMotion();
-  const [formationIndex, setFormationIndex] = useState(0);
   const [state, dispatch] = useReducer(
     draftReducer,
     createDraftState(formationByName(DEFAULT_FORMATION), INITIAL_SEED),
@@ -115,9 +103,8 @@ export function DraftHub({ pool, onConfirm }: Props) {
       slots: fillGaps(pool, state.formation, empty, mulberry32(randomSeed())),
     });
   };
-  const changeFormation = (i: number) => {
-    setFormationIndex(i);
-    dispatch({ type: "setFormation", formation: FORMATIONS[i] });
+  const changeFormation = (formation: Formation) => {
+    dispatch({ type: "setFormation", formation });
   };
 
   /** Resolve the slots to cards and hand them up. The container takes it from here. */
@@ -151,26 +138,7 @@ export function DraftHub({ pool, onConfirm }: Props) {
       <p className="text-muted-foreground mb-4 mt-1 text-sm">{t("draftSubtitle")}</p>
 
       <div className="mb-3">
-        <label htmlFor="formation" className="sr-only">
-          {t("draftFormation")}
-        </label>
-        <select
-          id="formation"
-          aria-label={t("draftFormation")}
-          value={formationIndex}
-          onChange={(e) => changeFormation(Number(e.target.value))}
-          className="border-border bg-background rounded-md border px-3 py-1.5 font-mono text-xs font-bold"
-        >
-          {FAMILIES.map(({ labelKey, from, to }) => (
-            <optgroup key={labelKey} label={t(labelKey)}>
-              {FORMATIONS.slice(from, to).map((f, i) => (
-                <option key={f.name} value={from + i}>
-                  {f.name}
-                </option>
-              ))}
-            </optgroup>
-          ))}
-        </select>
+        <FormationPicker value={state.formation} onChange={changeFormation} />
       </div>
 
       <TacticalPitch

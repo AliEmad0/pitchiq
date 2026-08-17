@@ -13,6 +13,7 @@ import { hashEvents } from "@/features/game/domain/hash";
 import { decodeMatch } from "@/features/game/domain/share-code";
 import { summaryFrom } from "@/features/game/domain/summary-card";
 import type { RefereeStyle, Weather } from "@/features/game/domain/match-types";
+import type { DraftSpec } from "@/features/game/domain/rule-packs";
 import { clearMatch, loadMatch, saveMatch } from "@/features/game/storage/match-slot";
 import { buildMatchViewModel } from "@/features/game/view/match-view-model";
 import { replayMatch, type RestoredMatch } from "@/features/game/view/match-replay";
@@ -27,6 +28,7 @@ import { MatchSummary } from "./MatchSummary";
 import { MatchupPreview } from "./MatchupPreview";
 import { MatchView } from "./MatchView";
 import { ResumeDialog } from "./ResumeDialog";
+import { RoundDraft } from "./RoundDraft";
 
 /** Seconds a decision waits before answering itself. Extendable per WCAG 2.2.1. */
 const DECISION_LIMIT = 20;
@@ -41,8 +43,24 @@ const DECISION_LIMIT = 20;
  * ⚠️ Only the coach's decisions surface. `createStream` answers the opponent's with
  * `defaultAnswer` — every decision the engine raises must be answered or the generator
  * hangs, and the away side behaving exactly as it does in a batch match is deliberate.
+ *
+ * ⚠️ `draft` changes the SETUP PHASE ONLY (TASK-1810). A rule pack that declares one gets
+ * the round-based room in place of the free-build hub; preview, live and summary are
+ * identical either way, because both paths hand up the same `(players, formation)`.
  */
-export function GamePlay({ pool, initialPhase }: { pool: PoolCard[]; initialPhase?: PlayPhase }) {
+export function GamePlay({
+  pool,
+  initialPhase,
+  draft,
+  onBack,
+}: {
+  pool: PoolCard[];
+  initialPhase?: PlayPhase;
+  /** The pack's draft rules. Absent means the shipped free-build hub. */
+  draft?: DraftSpec;
+  /** Leave setup entirely — back to the pack's chooser, when it has one. */
+  onBack?: () => void;
+}) {
   const t = useTranslations("game");
   const locale = useLocale();
   const [state, dispatch] = useReducer(playReducer, createPlayState(initialPhase));
@@ -244,7 +262,11 @@ export function GamePlay({ pool, initialPhase }: { pool: PoolCard[]; initialPhas
   if (state.phase === "setup" || match == null) {
     return (
       <>
-        <DraftHub pool={pool} onConfirm={confirmSquad} />
+        {draft != null ? (
+          <RoundDraft pool={pool} draft={draft} onConfirm={confirmSquad} onBack={onBack} />
+        ) : (
+          <DraftHub pool={pool} onConfirm={confirmSquad} />
+        )}
         {offer != null ? (
           <ResumeDialog
             homeName={offer.session.home.name}
