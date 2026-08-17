@@ -87,16 +87,23 @@ independent streams, one source of truth.
 
 ### ⚠️ `DAILY_SHAPES` — a frozen roster, not an index into `FORMATIONS`
 
-The day's shape is drawn from an explicit, frozen list of formation **names** declared in
-this file, resolved through `formationByName`.
+The day's shape is drawn from an explicit list of formation **names** declared in this
+file and resolved through `formationByName`. It starts as all twenty names in a fixed
+order.
 
-Drawing from `FORMATIONS` directly would be wrong twice over. That array's order is
-presentation-only and a guard test already forbids positional access; worse, **reordering
-or extending it would silently rewrite every past day's challenge**, so a stored record
-would replay into a different match than the one that was played. The roster is documented
-**append-only, never reorder**, which pins each day's shape permanently.
+Drawing from `FORMATIONS` directly would be wrong twice over: that array's order is
+presentation-only and a guard test already forbids positional access, and **reordering or
+extending it would rewrite every past day's challenge**, so a stored record would replay
+into a match nobody played.
 
-`DAILY_SHAPES` starts as all twenty names in a fixed order.
+⛔ **The roster is FROZEN — not "append-only".** The pick is `hash(day) % length`, so
+*appending* a shape re-maps every day exactly as reordering would. There is no scheme that
+keeps a uniform pick stable over a growing set, so the roster does not grow silently.
+
+The guard is therefore a **golden table**: a test pins the roster's exact contents and the
+shape of several named days. Any edit to `DAILY_SHAPES` fails it loudly and has to be
+accepted deliberately, with the understanding that it invalidates stored history — which
+the fingerprint check then discards rather than mis-replays.
 
 ---
 
@@ -332,7 +339,9 @@ fixture here is built from `loadChaosPool` output and a genuinely simulated matc
   never offered for resume.
 - **Session lock** — no record plus a today-keyed marker renders spent; a *yesterday*-keyed
   marker does not lock today.
-- **Roster stability** — appending to `DAILY_SHAPES` leaves earlier days' shapes unchanged.
+- **Roster golden table** — the exact `DAILY_SHAPES` contents plus the resolved shape for
+  several named days. Any edit to the roster must fail this test rather than silently
+  re-map history.
 - **Strip** — against a real simulated match, including a VAR-disallowed goal and an own
   goal. Both-scored → 🟨; a 90+ goal lands in cell six.
 - **Stats** — a gap day breaks the streak; a draw breaks it; today-unplayed still shows
