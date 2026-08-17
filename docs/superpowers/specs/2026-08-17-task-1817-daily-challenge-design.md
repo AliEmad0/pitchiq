@@ -75,6 +75,12 @@ daySeeds(key: string): { formation: number; deal: number; match: number }
 dayFormation(key: string): Formation
 ```
 
+⚠️ **`dayKey` reads UTC fields only** — `getUTCFullYear` / `getUTCMonth` / `getUTCDate`,
+never the local-time getters and never `toISOString().slice(0, 10)` on a date that has
+been locally adjusted. A player in UTC+13 and one in UTC−8 must get the same challenge at
+the same moment, which is the entire point of a daily. Month is zero-based and both month
+and day pad to two digits; a test asserts a known instant in three offsets.
+
 `daySeeds` hashes the key with FNV-1a to a uint32, then XOR-splits it with three distinct
 golden constants — the idiom `chaosMatchup` already uses (`seed ^ 0x9e3779b9`). Three
 independent streams, one source of truth.
@@ -115,6 +121,27 @@ re-entered and re-drafted freely.
 Abandoning after kickoff leaves the day **unfinished, not lost and not a forced loss** — it
 resumes exactly where it stopped, because the record holds the replay tuple.
 
+### 4.1 The UTC day boundary
+
+A match can straddle midnight. Kicking off at `23:58` and reaching full time at `00:03`
+must not write the result under a day the coach never played.
+
+⚠️ **The day key is anchored at kickoff and immutable for the rest of the session.**
+`DailyChallenge` captures `kickoffDayKey` at the commit point and every downstream write —
+the replay tuple, the score, `done: true` — is keyed by it. **Nothing inside a live session
+may call `dayKey(new Date())` again**; the anchored value is the only day that session
+knows. Re-evaluating mid-match is the bug this rule exists to prevent, and it is the kind
+that only appears for a handful of players for five minutes a day.
+
+The same anchor feeds the strip and the share text, so a match played across the boundary
+shares as the day it began.
+
+**After a reload, only the current UTC day is resumable.** An unfinished record belonging
+to an earlier day is never resumed and never offered — it simply stays unfinished, which
+`computeStats` already reads as "not won", so it breaks the streak like any other unplayed
+day. The alternative, offering yesterday's half-match alongside today's fresh one, puts two
+challenges on one screen to rescue a corner case measured in minutes per day.
+
 ---
 
 ## 5. Storage
@@ -154,6 +181,29 @@ resumed into a different match — the TASK-1807 B2 rule, inherited for free.
 
 Every operation swallows failure, matching `match-slot.ts`: a challenge that cannot be
 saved is better than a thrown error at the 90th minute.
+
+### 5.1 Tamper resistance — a speed bump, stated as one
+
+With no backend, a player can clear IndexedDB and replay the day for a better score.
+Two measures raise the cost:
+
+**Session lock.** Kickoff writes `daily_active_lock_<kickoffDayKey>` to `sessionStorage`
+alongside the IndexedDB record. On hydration, if IndexedDB holds **no** record for today
+but a lock marker for today exists, the day renders as **spent** rather than offering a
+fresh attempt. The marker is keyed by day, so yesterday's lock can never lock today.
+
+**Derived records only.** The record persists the raw replay tuple and nothing else; every
+streak, best and margin is re-derived by `computeStats`. Editing a stored payload in
+DevTools therefore cannot inject a streak — it can only change a match that must still
+replay consistently, and the fingerprint check discards it when it does not.
+
+⛔ **Neither measure is a lock, and the spec should not pretend otherwise.** `sessionStorage`
+is per-tab and dies with the tab, so a new tab defeats it outright — and the same DevTools
+"clear site data" that wipes IndexedDB wipes it too. It catches the casual in-tab reset and
+nothing more. **In a 100% client-side design no client-side measure can be authoritative**,
+which is exactly why there is no global leaderboard: the only scores published anywhere are
+the player's own, to themselves. This is worth writing down so a later reader does not
+mistake the marker for integrity it cannot provide, or build a leaderboard on top of it.
 
 ---
 
@@ -212,7 +262,32 @@ code and links to `/game/draft`. No new URL scheme, no second codec.
 
 ---
 
-## 8. Architecture — extracting `useMatchDriver`
+## 8. Tab lifecycle and day rollover
+
+A tab left open overnight holds a stale day. Interacting with it after midnight UTC would
+otherwise play yesterday's challenge on today's date, or write today's result under
+yesterday's key.
+
+`DailyChallenge` listens to `visibilitychange` and `window.onfocus` and compares the
+`activeDayKey` in state against `dayKey(new Date())`. On a change:
+
+- **Idle** (lobby, draft room, or a full-time result screen) → silently re-hydrate: resolve
+  the new day, re-derive its shape, hands and seeds, re-read the record, and reset the
+  challenge card. No dialog; the coach simply finds today's challenge waiting.
+- **Mid-match** → **do not interrupt.** The session runs to full time under its anchored
+  `kickoffDayKey` and writes its result there. The hub re-hydrates when the coach returns
+  to the result screen, so the rollover is applied at the first moment it costs nothing.
+
+⚠️ The listeners are the only place a live session may observe that the date moved, and
+even there they must not touch `kickoffDayKey` — they schedule a re-hydration, they do not
+retarget the match in flight.
+
+⚠️ Both listeners are removed on unmount, and neither runs during prerender: the route is
+`force-static` and the day resolves after mount.
+
+---
+
+## 9. Architecture — extracting `useMatchDriver`
 
 `GamePlay` is 417 lines and owns the generator, events, answers, result, persistence,
 share and resume. The daily needs all of that with a different seed source, a different
@@ -235,7 +310,7 @@ signature.
 
 ---
 
-## 9. Testing
+## 10. Testing
 
 ⛔ **Real data, real formations, real engine output.** Three defects in TASK-1812 hid
 behind fixtures that could not occur — a regex that rejected all twenty real formation
@@ -246,6 +321,17 @@ fixture here is built from `loadChaosPool` output and a genuinely simulated matc
 - **Determinism** — a day key yields the same shape, hands, opponent and match across
   runs; two adjacent days differ. Assert against a *named* expected shape, not merely
   self-consistency: a relationship test stays green through a total change in output.
+- **UTC resolution** — one fixed instant resolves to the same `dayKey` with the process in
+  UTC+13, UTC and UTC−8 (`TZ` set per case). A local-getter implementation must go red
+  here, so the test is written against an instant where local and UTC dates differ.
+- **Midnight anchoring** — a session that kicks off at `23:58` and finishes at `00:03`
+  writes its record, score and share text under the **starting** day. Verified by driving
+  the clock forward mid-session, not by trusting the read path.
+- **Rollover on refocus** — idle re-hydrates to the new day; a live session does not, and
+  its anchored key survives a `visibilitychange`. An earlier day's unfinished record is
+  never offered for resume.
+- **Session lock** — no record plus a today-keyed marker renders spent; a *yesterday*-keyed
+  marker does not lock today.
 - **Roster stability** — appending to `DAILY_SHAPES` leaves earlier days' shapes unchanged.
 - **Strip** — against a real simulated match, including a VAR-disallowed goal and an own
   goal. Both-scored → 🟨; a 90+ goal lands in cell six.
@@ -274,7 +360,7 @@ fully green suite.
 
 ---
 
-## 10. Out of scope
+## 11. Out of scope
 
 - **No global leaderboard** — needs a backend; Phase 19.
 - **No past-day archive.** The per-day records make one possible later; it is not built.
@@ -284,7 +370,7 @@ fully green suite.
 
 ---
 
-## 11. Ticket status
+## 12. Ticket status
 
 TASK-1817 flips to ✅ Done when this ships — unlike TASK-1812, it has no blocked third.
 Statuses are flipped as **part of** shipping, not deferred.
