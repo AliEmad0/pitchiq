@@ -35,6 +35,16 @@ describe("rule packs", () => {
     expect(CHAOS_PACK.chooser).toBeUndefined();
   });
 
+  it("⚠️ Legacy drafts in 3-card sequential rounds; Chaos keeps the room's defaults", () => {
+    // The owner's mechanic lives on the PACK, not inside a Legacy-specific component —
+    // that is what hands Captain's Draft and Budget Cap the same two knobs later.
+    expect(packFor("legacy")!.draft).toEqual({ handSize: 3, roam: "sequential" });
+    // ⛔ Undefined, NOT a spelled-out `{ handSize: 5, roam: "free" }`. Chaos runs the
+    // shipped hub, and restating its defaults here would make them a second source of
+    // truth that could drift from `HAND_SIZE`.
+    expect(CHAOS_PACK.draft).toBeUndefined();
+  });
+
   it("⛔ domain/rule-packs.ts imports nothing from adapter/", () => {
     // The seam's entire value is this boundary — an adapter import here would let a client
     // component pull server-only code, which the game's layering forbids outright.

@@ -86,6 +86,30 @@ describe("roomDeals", () => {
     expect(a.map((h) => h.map((c) => c.cardId))).toEqual(b.map((h) => h.map((c) => c.cardId)));
   });
 
+  it("⚠️ deals a hand of the REQUESTED size (TASK-1810 — Legacy rounds offer three)", () => {
+    const hands = roomDeals(pool, shape, 42, 3);
+    expect(hands).toHaveLength(11);
+    for (const h of hands) expect(h).toHaveLength(3);
+  });
+
+  it("⛔ THE CONTROL — the three-argument call still deals five", () => {
+    // This half is what proves `/game/draft` is untouched. The parameter defaults to the
+    // shipped constant, so every existing caller deals exactly what it dealt before.
+    expect(HAND_SIZE).toBe(5);
+    for (const h of roomDeals(pool, shape, 42)) expect(h).toHaveLength(HAND_SIZE);
+  });
+
+  it("⚠️ a three-card round keeps BOTH construction guarantees", () => {
+    // The hard ban and the no-duplicates property come from the loop this parameter
+    // changes, so they are re-asserted at the new size rather than assumed to carry over.
+    const hands = roomDeals(pool, shape, 42, 3);
+    hands.forEach((hand, i) => {
+      for (const c of hand) expect(canPlay(c, shape.slots[i].role), `${c.name} @ ${i}`).toBe(true);
+    });
+    const ids = hands.flat().map((c) => c.cardId);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
   it("⚠️ a starved pool yields a SHORT hand, never an ineligible candidate", () => {
     // The real pool cannot reach this branch (TASK-1831 measured every slot of every
     // shape), so without a deliberately thin pool it would never be exercised — and

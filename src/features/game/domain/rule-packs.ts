@@ -49,10 +49,38 @@ export interface ChooserSpec {
   kind: "club";
 }
 
+/**
+ * How a pack drafts its XI.
+ *
+ * ⚠️ These are a mode's RULES, which is why they live here rather than inside a
+ * Legacy-specific component: round size and whether the board is free-roam are exactly the
+ * knobs Captain's Draft and Budget Cap will want, and putting them on the pack keeps ONE
+ * draft machine instead of one per mode.
+ */
+export interface DraftSpec {
+  /** Cards offered per round. The Draft Room's shipped default is `HAND_SIZE` (5). */
+  handSize: number;
+  /**
+   * `free` — every slot is clickable at any time (the shipped `/game/draft` room).
+   * `sequential` — consecutive rounds, one per slot; the room advances itself.
+   *
+   * ⭐ This governs the UI ONLY. `roomReducer` already moves `open` to the next unfilled
+   * slot on every pick, so sequential progression is the reducer's existing behaviour —
+   * free roam is nothing more than the UI also permitting the `open` action.
+   */
+  roam: "free" | "sequential";
+}
+
 export interface RulePack {
   id: ModeId;
   pool: PoolSpec;
   chooser?: ChooserSpec;
+  /**
+   * ⚠️ Absent means "the room's shipped defaults", never a spelled-out `{ 5, "free" }`.
+   * Restating them would make this a second source of truth that could drift from
+   * `HAND_SIZE`.
+   */
+  draft?: DraftSpec;
   constraints: Constraint[];
   objective: Objective;
 }
@@ -100,10 +128,17 @@ export const CHAOS_PACK: RulePack = {
   objective: "win",
 };
 
+/**
+ * Legacy Club.
+ *
+ * The draft is the owner's 2026-08-17 mechanic: **eleven consecutive rounds of three
+ * cards**, one round per formation slot, drawn from the chosen club across all its seasons.
+ */
 const LEGACY_PACK: RulePack = {
   id: "legacy",
   pool: { kind: "clubHistory", teams: [...LEGACY_CLUBS], cardsPerEraPerTeam: 10 },
   chooser: { kind: "club" },
+  draft: { handSize: 3, roam: "sequential" },
   constraints: [],
   objective: "win",
 };
