@@ -1,15 +1,19 @@
 const DB_NAME = "pitchiq-game";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 /**
  * Every object store in the database.
  *
- * ⚠️ Later tickets add their own — TASK-1812 records, TASK-1813 achievements,
- * TASK-1817 collections. Add the name here and bump `DB_VERSION`; the upgrade handler
- * creates stores idempotently by name, so it never assumes a single fixed schema and an
- * existing database gains the new store rather than being rebuilt.
+ * ⚠️ Later tickets add their own — TASK-1813 achievements, TASK-1819 collections. Add the
+ * name here and bump `DB_VERSION`; the upgrade handler creates stores idempotently by
+ * name, so it never assumes a single fixed schema and an existing database gains the new
+ * store rather than being rebuilt.
+ *
+ * TASK-1817 added `daily` exactly that way, taking the database to v2.
+ * `game-daily-slot.test.ts` holds the test that proves an existing `match` record survived
+ * the upgrade — the claim above was an assertion until then.
  */
-const STORES = ["match"] as const;
+const STORES = ["match", "daily"] as const;
 export type StoreName = (typeof STORES)[number];
 
 /**
@@ -81,4 +85,15 @@ export async function idbPut(store: StoreName, key: string, value: unknown): Pro
 export async function idbDel(store: StoreName, key: string): Promise<void> {
   if (!available()) return;
   await run(store, "readwrite", (s) => s.delete(key));
+}
+
+/**
+ * Every value in a store.
+ *
+ * Used for the daily history, where streaks are DERIVED from the full record list rather
+ * than read from a stored counter that could drift away from it.
+ */
+export async function idbGetAll<T>(store: StoreName): Promise<T[]> {
+  if (!available()) return [];
+  return (await run<T[] | undefined>(store, "readonly", (s) => s.getAll())) ?? [];
 }

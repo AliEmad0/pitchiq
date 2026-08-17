@@ -1,7 +1,7 @@
 "use client";
 import { useLocale, useTranslations } from "next-intl";
 import { parseAsString, parseAsStringLiteral, useQueryState } from "nuqs";
-import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { useEffect, useMemo, useReducer, useState } from "react";
 import type { PlayerSeasonId } from "@/features/game/domain/card-id";
 import type { PoolCard } from "@/features/game/domain/chaos-draft";
 import {
@@ -12,20 +12,12 @@ import {
 import { hashEvents } from "@/features/game/domain/hash";
 import { decodeMatch } from "@/features/game/domain/share-code";
 import { summaryFrom } from "@/features/game/domain/summary-card";
-import type { DecisionAnswer, MatchDecision } from "@/features/game/domain/match-decisions";
-import type {
-  MatchEvent,
-  MatchResult,
-  RefereeStyle,
-  Weather,
-} from "@/features/game/domain/match-types";
-import type { GameTeam } from "@/features/game/domain/team";
+import type { RefereeStyle, Weather } from "@/features/game/domain/match-types";
 import { clearMatch, loadMatch, saveMatch } from "@/features/game/storage/match-slot";
 import { buildMatchViewModel } from "@/features/game/view/match-view-model";
 import { replayMatch, type RestoredMatch } from "@/features/game/view/match-replay";
-import { buildSession, type MatchSession } from "@/features/game/view/match-session";
-import type { StreamStep } from "@/features/game/view/match-stream";
 import { createPlayState, playReducer, type PlayPhase } from "@/features/game/view/play-machine";
+import { useMatchDriver } from "@/features/game/view/use-match-driver";
 import { scoreAt } from "@/features/game/view/score";
 import { randomSeed } from "@/features/game/view/seed";
 import { buildShareCode, replayShared } from "@/features/game/view/share-link";
@@ -38,12 +30,6 @@ import { ResumeDialog } from "./ResumeDialog";
 
 /** Seconds a decision waits before answering itself. Extendable per WCAG 2.2.1. */
 const DECISION_LIMIT = 20;
-
-interface Match {
-  home: GameTeam;
-  away: GameTeam;
-  seed: number;
-}
 
 /**
  * The match session: draft → preview → live → summary, in one container.
@@ -61,12 +47,11 @@ export function GamePlay({ pool, initialPhase }: { pool: PoolCard[]; initialPhas
   const locale = useLocale();
   const [state, dispatch] = useReducer(playReducer, createPlayState(initialPhase));
 
-  const streamRef = useRef<MatchSession["stream"] | null>(null);
-  const [match, setMatch] = useState<Match | null>(null);
-  const [events, setEvents] = useState<MatchEvent[]>([]);
-  const [pending, setPending] = useState<MatchDecision | null>(null);
-  const [answers, setAnswers] = useState<DecisionAnswer[]>([]);
-  const [result, setResult] = useState<MatchResult | null>(null);
+  // The match itself lives in the driver (TASK-1817), shared with the daily challenge.
+  // This container still owns the PHASE, the storage slot and the share code.
+  const driver = useMatchDriver();
+  const { match, events, answers, pending, result } = driver;
+
   /** What the coach drafted, kept so the live match can be written to storage. */
   const [squad, setSquad] = useState<{ cardIds: PlayerSeasonId[]; formationKey: string } | null>(
     null,
@@ -113,50 +98,15 @@ export function GamePlay({ pool, initialPhase }: { pool: PoolCard[]; initialPhas
   /** Our replay differs from the sender's fingerprint — warn, never substitute. */
   const [drifted, setDrifted] = useState(false);
 
-  /** Fold one step of the stream into view state. */
-  const consume = useCallback((step: StreamStep) => {
-    setEvents((prior) => [...prior, ...step.events]);
-    if (step.kind === "done") {
-      setResult(step.result);
-      setPending(null);
-    } else {
-      setPending(step.decision);
-    }
-  }, []);
-
-  /**
-   * Build the match and run to the first decision.
-   *
-   * The first segment is what carries the referee and the weather — they are the first
-   * two draws inside `runMatch`, so reading them here is the only way to show the coach
-   * the official who is actually taking charge.
-   */
+  /** Build the match and run to the first decision. */
   const confirmSquad = (players: PoolCard[], formation: Formation) => {
     const seed = randomSeed();
-    const session = buildSession(pool, players, formation, seed, {
-      home: t("yourXi"),
-      away: t("rivals"),
-    });
-    streamRef.current = session.stream;
+    driver.start(pool, players, formation, seed, { home: t("yourXi"), away: t("rivals") });
     setSquad({
       cardIds: players.map((p) => p.cardId),
       formationKey: formationKey(formation),
     });
-
-    setMatch({ home: session.home, away: session.away, seed });
-    setEvents([]);
-    setAnswers([]);
-    setResult(null);
-    consume(session.stream.advance());
     dispatch({ type: "confirmSquad", seed });
-  };
-
-  const answer = (a: DecisionAnswer) => {
-    const stream = streamRef.current;
-    if (stream == null) return;
-    setAnswers((prior) => [...prior, a]);
-    setPending(null);
-    consume(stream.answer(a));
   };
 
   /**
@@ -190,16 +140,9 @@ export function GamePlay({ pool, initialPhase }: { pool: PoolCard[]; initialPhas
       return;
     }
 
-    streamRef.current = replayed.session.stream;
-    setMatch({
-      home: replayed.session.home,
-      away: replayed.session.away,
-      seed: replayed.session.seed,
-    });
-    setEvents(replayed.events);
-    setAnswers(replayed.answers);
-    setResult(replayed.result);
-    setPending(null);
+    // ⚠️ `pending: null` — a shared match is finished on arrival, so there is nothing
+    // waiting to be answered.
+    driver.adopt({ ...replayed, pending: null });
     setSquad({
       cardIds: decoded!.cardIds,
       formationKey: formationKey(replayed.session.home.formation),
@@ -260,12 +203,7 @@ export function GamePlay({ pool, initialPhase }: { pool: PoolCard[]; initialPhas
 
   const resume = () => {
     if (offer == null) return;
-    streamRef.current = offer.session.stream;
-    setMatch({ home: offer.session.home, away: offer.session.away, seed: offer.session.seed });
-    setEvents(offer.events);
-    setAnswers(offer.answers);
-    setResult(offer.result);
-    setPending(offer.pending);
+    driver.adopt(offer);
     // ⚠️ Taken from the RECORD, never reconstructed from the session: a resumed match must
     // keep saving under the same identity, and `GameTeam` holds cards rather than the
     // formation key. Rebuilding either would be a second source of truth.
@@ -397,7 +335,7 @@ export function GamePlay({ pool, initialPhase }: { pool: PoolCard[]; initialPhas
         <MatchView model={model} holdAt={pending?.minute ?? (result == null ? 0 : undefined)} />
       ) : null}
       {pending != null ? (
-        <DecisionPrompt decision={pending} limit={DECISION_LIMIT} onAnswer={answer} />
+        <DecisionPrompt decision={pending} limit={DECISION_LIMIT} onAnswer={driver.answer} />
       ) : null}
       {result != null ? (
         <button

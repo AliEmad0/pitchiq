@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
-import { COLLECTION_SURFACES, GAME_MODES } from "@/features/game/domain/modes";
+import { COLLECTION_SURFACES, GAME_MODES, isPlayable } from "@/features/game/domain/modes";
 import en from "@/i18n/messages/en.json";
 import { renderWithIntl } from "./_helpers/intl";
 
@@ -67,10 +67,19 @@ describe("ModeGate", () => {
 
   it("exposes a control for the playable modes only", () => {
     renderWithIntl(<ModeGate />);
-    // Exactly two playable modes today: H2H and Chaos. Every other tile is inert, so the
-    // gate contributes two tab stops rather than eleven.
+    // ⚠️ Derived from the registry, not hardcoded — this used to assert a literal 2 and so
+    // had to be edited every time a mode shipped, which is a test that reports "the count
+    // changed" rather than "the rule broke". The rule is that only PLAYABLE modes get a
+    // control; every locked tile stays inert, so the gate contributes a handful of tab
+    // stops rather than eleven.
+    //
+    // Cross-checking the DOM against `isPlayable` is not circular: if the gate rendered
+    // every tile as a button this would read eleven against three and still fail.
+    const playable = GAME_MODES.filter(isPlayable);
     const tiles = screen.getAllByRole("button").filter((b) => b.hasAttribute("aria-expanded"));
-    expect(tiles).toHaveLength(2);
+    expect(tiles).toHaveLength(playable.length);
+    // And the roster must still contain locked modes, or the assertion above is vacuous.
+    expect(playable.length).toBeLessThan(GAME_MODES.length);
   });
 });
 
