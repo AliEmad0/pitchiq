@@ -5730,6 +5730,15 @@ The TASK-1806 plan had flagged this pass as owed — it shipped the pitch view v
 
 **Description** — Legacy Club (draft a chosen club's historical stars season-by-season), Classic Season (a real season vs 19 real opponents), Captain's Draft (iconic captain first, curated build-around), Budget Cap Draft ($100M dynamically-priced cards), Chemistry Draft (nation/club/season link bonuses — note: the single stored nationality undercounts links; see M56 follow-up), Survival Mode (start near relegation, hit point targets). Each is a `{ buildPool, constraints, objective }` rule pack over the shared draft machine + engine. **Depends on:** TASK-1806.
 
+**Progress — PR 1 of 5: the seam + Legacy Club (single format) is LIVE.**
+
+- ⚠️ The ticket text above is **stale in two ways**. It is **five** modes, not six — Survival was reassigned by TASK-1832 D7 to an *objective on the Season format* owned by TASK-1811. And each pack is a declarative `{ pool, chooser, draft, constraints, objective }` **recipe**, not a `buildPool` function: a builder slot would be a signature only server code can satisfy, which is how `adapter/*` leaks into a client component.
+- **Shipped:** `domain/rule-packs.ts` (pure, guarded against adapter imports), `adapter/pool.ts#buildPool`, Chaos re-expressed as a recipe with its **252-card control** proving the seam changed no behaviour, and **Legacy Club** on `/game/[mode]` + `/game/[mode]/[club]`.
+- **Legacy's draft** is the owner's mechanic: club → formation → **11 consecutive rounds of 3**, running the shipped Draft Room with `handSize`/`roam` from the pack. `roomReducer` already advanced on every pick, so sequential progression needed no reducer change.
+- **The card set is complete** (owner, 2026-08-17): **every club that ever played in the PL** (51, resolved from the standings) and **every player-season** as its own card — Giggs 22 cards, Scholes 19. No dedupe: a round may offer the same player from two seasons. The club is a **route segment** because a club's full history is ~900 cards; all 51 on one page would be ~6.7 MB.
+- ⬜ **Still to come — PRs 2–5**, each with a measured data gap: Captain's Draft (`captains.json` covers 20 seasons thinly — 1997 has 2 entries), Budget Cap (`market-values.json` is 2003–2025, so all eleven 1990s seasons are unpriced), Chemistry (single stored nationality undercounts links), Classic (data complete, but its interesting form is the season one → TASK-1811).
+- ⛔ **Stays `📋 Backlog` until PR 5** — one of five modes ships here, the same discipline TASK-1812 used.
+
 ### TASK-1811
 
 **Season-mode engine** · 📋 Backlog · `P3` · `L` · Type: Feature

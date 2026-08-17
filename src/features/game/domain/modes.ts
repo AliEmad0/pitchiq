@@ -136,8 +136,13 @@ export const GAME_MODES: readonly GameMode[] = [
     emoji: "🏛️",
     nameKey: "modeLegacyName",
     descriptionKey: "modeLegacyDesc",
-    href: null,
-    formats: planned,
+    // ⚠️ Served by the parameterised `/game/[mode]` route, not a route of its own — the
+    // segment only resolves because a rule pack backs the id, which `game-modes.test.ts`
+    // asserts separately from "the route file exists".
+    href: "/game/legacy",
+    // TASK-1810 ships the single-match format. "Season by season" is TASK-1811 — the
+    // registry's per-format status is exactly what lets those ship in separate PRs.
+    formats: { single: "live", season: "planned" },
     ticket: "TASK-1810",
   },
   {

@@ -25,11 +25,17 @@ export const HAND_SIZE = 5;
  * ⚠️ The rng is drawn PER PICK, in slot order. Shuffling each bag independently, or
  * drawing all the indices up front, changes the draw sequence — and every room ever
  * shared by seed would then deal differently.
+ *
+ * ⚠️ `handSize` DEFAULTS to `HAND_SIZE` (TASK-1810), so every caller that predates the
+ * rule packs deals exactly what it dealt before. Legacy Club passes 3. Note that the size
+ * is part of the draw: the rng advances once per card, so the same seed at a different
+ * hand size is a different room by design, not a regression.
  */
 export function roomDeals(
   pool: readonly PoolCard[],
   formation: Formation,
   seed: number,
+  handSize: number = HAND_SIZE,
 ): PoolCard[][] {
   const rng = mulberry32(seed);
   const used = new Set<string>();
@@ -37,7 +43,7 @@ export function roomDeals(
   return formation.slots.map((slot) => {
     const bag = pool.filter((c) => !used.has(c.cardId) && canPlay(c, slot.role));
     const hand: PoolCard[] = [];
-    while (hand.length < HAND_SIZE && bag.length > 0) {
+    while (hand.length < handSize && bag.length > 0) {
       const [card] = bag.splice(Math.floor(rng() * bag.length), 1);
       hand.push(card);
       used.add(card.cardId);

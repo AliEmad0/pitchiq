@@ -2,6 +2,7 @@ import { readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { COLLECTION_SURFACES, GAME_MODES, MODE_GROUPS } from "@/features/game/domain/modes";
+import { packFor } from "@/features/game/domain/rule-packs";
 import ar from "@/i18n/messages/ar.json";
 import en from "@/i18n/messages/en.json";
 
@@ -41,10 +42,26 @@ describe("the mode registry", () => {
   });
 
   it("points every href at a route that exists", () => {
-    const routes = gameRoutes();
+    // ⚠️ The walk yields DIRECTORY names, so TASK-1810's parameterised route arrives as
+    // `/game/[mode]` and a literal `toContain` would fail on `/game/legacy`. A dynamic
+    // segment matches any one path segment, so compare shape-wise.
+    const patterns = gameRoutes().map((r) => new RegExp(`^${r.replace(/\[[^\]]+\]/g, "[^/]+")}$`));
     for (const mode of GAME_MODES) {
       if (mode.href == null) continue;
-      expect(routes, `${mode.id} -> ${mode.href}`).toContain(mode.href);
+      expect(patterns.some((p) => p.test(mode.href!)), `${mode.id} -> ${mode.href}`).toBe(true);
+    }
+  });
+
+  it("⛔ every href served by the DYNAMIC route is backed by a rule pack", () => {
+    // The half a shape-wise match cannot see: `/game/anything` matches `/game/[mode]`, but
+    // the page calls notFound() unless a pack resolves. Without this a mode could be
+    // flipped live and 404 on click while both other guards stayed green — the loosening
+    // above would have bought that hole outright.
+    const literal = new Set(gameRoutes());
+    for (const mode of GAME_MODES) {
+      if (mode.href == null || literal.has(mode.href)) continue;
+      const id = mode.href.split("/").pop()!;
+      expect(packFor(id), `${mode.id} -> ${mode.href} has no rule pack`).not.toBeNull();
     }
   });
 
