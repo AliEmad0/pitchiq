@@ -529,7 +529,84 @@ git commit --no-verify -m "refactor(game): Chaos builds through the rule-pack se
 
 ---
 
-## Task 4: The shared mode container
+## ⚠️ AMENDMENT — Tasks 4+ were rewritten mid-implementation (2026-08-17)
+
+Tasks 1–3 are **done and committed** (`5575a87`): the seam, `buildPool`, and Chaos
+delegating through it with its 252-card control passing.
+
+The owner then replaced Legacy's draft mechanic: **11 consecutive rounds, 3 cards each, from
+the chosen club**, with the coach picking the formation first. See spec §5.1. Task 4 below is
+superseded by Tasks 4a–4c; Tasks 5–7 are unchanged except that `ModePlay` now takes a
+`DraftSpec`.
+
+⭐ **The key discovery, which shrinks this a lot:** `roomReducer` already advances `open` to
+the next unfilled slot on every `pick`. **Sequential progression is already the behaviour** —
+free roam is only the UI permitting the `open` action. So no reducer change is needed.
+
+⛔ `DraftRoom` and `room-state.ts` are shared with the shipped `/game/draft`. TASK-1823's
+tests are the control and must pass **untouched**.
+
+### Task 4a: `DraftSpec` on the rule pack, and a parameterised hand size
+
+**Files:** `src/features/game/domain/rule-packs.ts`, `src/features/game/domain/draft-room.ts`,
+`tests/unit/game-rule-packs.test.ts`, `tests/unit/game-draft-room.test.ts`
+
+- [ ] Add to `rule-packs.ts`:
+
+```ts
+export interface DraftSpec {
+  /** Cards offered per round. The room's shipped default is 5; Legacy uses 3. */
+  handSize: number;
+  /**
+   * `free` — any slot clickable at any time (the shipped Draft Room).
+   * `sequential` — 11 consecutive rounds; the room advances itself.
+   * ⚠️ The reducer already advances on pick, so this only governs the UI.
+   */
+  roam: "free" | "sequential";
+}
+```
+
+and `draft: { handSize: 3, roam: "sequential" }` on `LEGACY_PACK`.
+
+- [ ] In `domain/draft-room.ts`, give `roomDeals` a fourth parameter
+      `handSize: number = HAND_SIZE`, and use it in place of the constant. ⚠️ **Default to
+      `HAND_SIZE`** so every existing caller is byte-identical.
+- [ ] Test: `roomDeals(pool, shape, 42, 3)` yields hands of 3, and the existing 3-arg call
+      still yields 5 — the second half is what proves `/game/draft` is unaffected.
+- [ ] Run `npx vitest run tests/unit/game-draft-room.test.ts tests/unit/game-rule-packs.test.ts`
+- [ ] Commit.
+
+### Task 4b: `DraftRoom` learns `roam`
+
+**Files:** `src/features/game/components/DraftRoom.tsx`, `tests/unit/game-draft-room-view.test.tsx`
+
+- [ ] Add props `handSize?: number` and `roam?: "free" | "sequential"` (defaults `5` / `"free"`).
+- [ ] Pass `handSize` into `roomDeals`.
+- [ ] When `roam === "sequential"`, render slots as **inert `<span>` progress markers**, not
+      buttons and ⛔ **not disabled buttons** — nine dead tab stops leading nowhere is the
+      exact anti-pattern the mode gate's locked rule forbids. Show "Round N of 11".
+- [ ] Test: with `roam="sequential"` there are **no** slot buttons and exactly `handSize`
+      card buttons; picking advances the round. With defaults, TASK-1823's existing
+      free-roam tests pass **untouched**.
+- [ ] Commit.
+
+### Task 4c: `ModePlay` — club → formation → rounds
+
+**Files:** `src/features/game/components/ModePlay.tsx`, `src/features/game/components/GamePlay.tsx`,
+`tests/unit/game-mode-play.test.tsx`, both message catalogs
+
+- [ ] `ModePlay({ pool, chooser, draft })`: club picker (client-side filter, labels from
+      card data) → shape picker → hand off.
+- [ ] `GamePlay` takes optional `draft?: DraftSpec`; when present its `setup` phase renders
+      the shape picker + `DraftRoom` (with `handSize`/`roam`) instead of `DraftHub`.
+      Everything downstream — preview, live, summary — is untouched.
+- [ ] Tests: choosing a club shows only that club's cards; a round offers exactly 3; the
+      room is sequential; `GamePlay` without `draft` still renders the hub (the control).
+- [ ] Commit.
+
+---
+
+## ~~Task 4: The shared mode container~~ (superseded by 4a–4c above; kept for its i18n keys and the chooser code, which are still correct)
 
 **Files:**
 - Create: `src/features/game/components/ModePlay.tsx`

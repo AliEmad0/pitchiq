@@ -142,8 +142,46 @@ in the payload, so choosing a club filters an array. No navigation, no second ro
 nothing added to the match machine — which matters because *pre-match is a phase, not a
 route* and the live session lives in component memory.
 
-Handoff is the existing `GamePlay({ pool, initialPhase })` with the filtered pool. Draft,
-preview, live and summary are untouched.
+### 5.1 ⚠️ The draft mechanic — owner change, 2026-08-17 (mid-implementation)
+
+The original design handed the filtered pool to the existing free-build draft hub. The owner
+replaced that with a **round-based draft**:
+
+> 11 consecutive rounds to complete the starting XI. Each round offers **3 player cards**,
+> drawn at random from the chosen club across all its seasons, for that round's position.
+
+Flow: **club → formation → 11 rounds of 3.** The formation is picked by the coach (owner
+decision), reusing the shape picker the draft hub already ships, because the round's position
+comes from the formation's slot.
+
+**This is rule-pack data, not a Legacy-specific component.** Round count, hand size and
+whether the board is free-roam or sequential are a mode's *rules*, so `RulePack` gains:
+
+```ts
+interface DraftSpec {
+  handSize: number;                 // Legacy: 3. The room's shipped default is 5.
+  roam: "free" | "sequential";      // Legacy: sequential.
+}
+```
+
+That keeps ONE draft machine and hands Captain's Draft and Budget Cap the same knobs.
+
+⭐ **Most of "sequential" already exists.** `roomReducer` advances `open` to the next
+unfilled slot on every `pick` (`nextUnfilled`, which wraps). So sequential progression is
+already the behaviour — **free roam is purely the UI permitting the `open` action**. The
+change is therefore:
+
+1. `roomDeals(pool, formation, seed, handSize)` — parameterise the hardcoded `HAND_SIZE = 5`,
+   **defaulting to 5** so `/game/draft` is untouched.
+2. `DraftRoom` takes `roam`; when `"sequential"` the slots render as inert progress markers
+   rather than buttons — ⚠️ **not disabled buttons**, per the locked rule that dead tab stops
+   leading nowhere are forbidden.
+3. `GamePlay` takes an optional `draft?: DraftSpec`; when present its `setup` phase renders
+   the shape picker + room instead of the hub. Downstream phases are untouched.
+
+⛔ **`DraftRoom` and `room-state.ts` are shared with the shipped `/game/draft`.** TASK-1823's
+existing tests are the control: they must pass **untouched**, which is what proves free roam
+still defaults on.
 
 Cards are drawn per club across its seasons so an XI spans decades — the mode's whole appeal
 is a 1990s full-back beside a modern forward.
