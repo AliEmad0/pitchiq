@@ -5496,7 +5496,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1806](#task-1806) | Chaos Draft — first end-to-end vertical slice                   | ✅ Done    | P2       | L   |
 | [TASK-1807](#task-1807) | Draft hub + live match loop (A ✅ B1 ✅ B2 ✅ C ✅)             | ✅ Done    | P2       | L   |
 | [TASK-1808](#task-1808) | Live tactical pitch UI + speed controls (1x/2x/skip)            | ✅ Done    | P3       | L   |
-| [TASK-1809](#task-1809) | Key-event animations — **gallery pass only** (code shipped)     | 📋 Backlog | P3       | S   |
+| [TASK-1809](#task-1809) | Key-event animations — gallery pass ran, hybrid 05+14+15 chosen | ✅ Done    | P3       | S   |
 | [TASK-1810](#task-1810) | Remaining six modes as rule packs                               | 📋 Backlog | P3       | XL  |
 | [TASK-1811](#task-1811) | Season-mode engine (ghost-of-real-season, Survival, Legacy)     | 📋 Backlog | P3       | L   |
 | [TASK-1812](#task-1812) | Persistence, records, shareable seeded matches                  | 📋 Backlog | P3       | M   |
@@ -5687,9 +5687,28 @@ Built: `domain/hash.ts` (shared FNV-1a + `hashEvents`), `view/match-session.ts` 
 
 ### TASK-1809
 
-**Key-event animations — the gallery pass** · 📋 Backlog · `P3` · `S` · Type: Chore
+**Key-event animations — the gallery pass** · ✅ Done · `P3` · `S` · Type: Chore
 
-**⚠️ RESCOPED 2026-08-17 — the implementation already shipped; only the design ritual is outstanding.** Verified against the code, not assumed. Owner's call: keep the ticket open for the ritual rather than closing it or re-running the ritual against live animations.
+**✅ CLOSED 2026-08-17 — the ritual ran, and the owner's pick changed the shipped animation.** The implementation had landed inside PR #88 without its mandated design pass; that debt is now settled rather than waived.
+
+**The gallery** — 20 live animation treatments, judged against the real committed era palettes (all three eras × light/dark), desktop and mobile, with the real labels, accents and commentary strings. Built as a broadcast vision-mixer: a program monitor over a numbered multiviewer, one shared renderer at `transform: scale()` for the thumbnails so a preview can never disagree with the thing it previews. **Monitor 01 was the shipped treatment, labelled as such**, so "keep what we have" was an explicit option rather than the default you get by not deciding. Every treatment was authored inside the motion-audit allowlist, so nothing on offer could be chosen and then found unbuildable.
+
+**The pick: a HYBRID of designs 05 + 14 + 15.** Three animations reading as one gesture:
+
+| From | What it contributes |
+| --- | --- |
+| 05 Spring Overshoot | `game-event-in` — the card springs in from `scale(0.55)` on `--ease-pop`, the app's existing overshoot curve |
+| 14 Kinetic Type | `game-event-rise` — icon, label, name and commentary cascade upward at 40 / 110 / 180 / 250ms |
+| 15 Slow Burn | `game-event-glow` — an accent glow grows over 800ms and **holds** while the clock is stopped |
+
+**⚠️ Two things the hybrid forced that neither half needed alone:**
+
+- **The accent had to become a CUSTOM PROPERTY.** `EventOverlay` passed it only as an inline `borderColor`, and a keyframe cannot read that — the glow would have silently fallen back to its default and every event kind would have glowed identically. It now also sets `--game-event-accent`, verified in a browser by measuring that three different accents resolve to three different `oklab()` glows.
+- **`game-event-glow` carries the card's resting drop shadow in BOTH stops.** It holds its end state (`both`), so a keyframe naming only the glow would drop the card's depth the instant the animation finished.
+
+**⚠️ The reduce gate had to grow from one selector to five.** The cascade is four separate animations on four elements, so the old container-only gate would have left the content sliding for someone who asked it not to — and would still have looked correct in a screenshot.
+
+**Verified by sabotage, not by review** — four separate breakages, each producing exactly one expected failure and each restored to green: dropping the children from the reduce gate, flattening the spring back to `scale(0.9)`, equalising the cascade delays, and stripping the accent custom property.
 
 **~~Original description~~** — ~~Goal / red-card modal overlays with glow, pulsing player nodes, momentum cues — **transform/opacity only** and all `prefers-reduced-motion`-gated. New Radix surfaces must be added to the central reduce rule in `globals.css`.~~ **All of this is built** (PR #88, with PR #117's additions):
 
@@ -5701,9 +5720,7 @@ Built: `domain/hash.ts` (shared FNV-1a + `hashEvents`), `view/match-session.ts` 
 | `prefers-reduced-motion` gated | explicit `@media (prefers-reduced-motion: reduce)` block zeroing `.game-event-overlay`; `MatchView` hides the transport controls under `reduced` |
 | New Radix surfaces in the central reduce rule | none were added, so nothing to register — the existing dialog/sheet rule is untouched |
 
-**Remaining scope — the design-gallery ritual only.** 20 live-animated designs, desktop + mobile, era + light/dark toggles, built **playable with real cards** (see the concept-gallery convention: one engine, N layouts, click a thumbnail to play it). The TASK-1806 plan flagged this as still owed — it shipped the pitch view via the 30-concept → 30-animation ritual and noted that **1809 needs "their own design-gallery pass"** — but the animations were built inside PR #88's refinements without one.
-
-⚠️ **This ritual runs against animations that are already live.** Anything preferred over what shipped is a follow-up change to `EventOverlay` / `GlowPulse` / the keyframes, not a greenfield build — so the ticket is `S`, and its risk is that the gallery produces a design the owner prefers and the shipped one has to be replaced.
+The TASK-1806 plan had flagged this pass as owed — it shipped the pitch view via the 30-concept → 30-animation ritual and noted that **1809 needs "their own design-gallery pass"**. The stated risk (that a gallery run against live animations produces something the owner prefers, forcing a replacement) is exactly what happened, and was the right outcome.
 
 **Depends on:** TASK-1808 (done).
 

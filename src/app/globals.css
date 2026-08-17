@@ -425,13 +425,49 @@
   }
 }
 
-/* TASK-1806 refinement — high-impact event banner (goal / red card): a full-pitch
-   overlay that pops in as the drama lands while playback holds. opacity + transform
-   only (motion-audit allowlist); reduce-gated (and only mounted when motion is on). */
+/* TASK-1806 refinement / TASK-1809 — high-impact event banner (goal / red card): a
+   full-pitch overlay that lands as the drama does, while playback holds.
+
+   The treatment is the one the TASK-1809 design-gallery pass chose: a HYBRID of gallery
+   designs 05 (spring overshoot), 14 (kinetic type) and 15 (slow burn). Three animations
+   read as one gesture — the card springs in past its resting size, its content cascades
+   up behind it, and an accent glow grows and then holds while the clock is stopped.
+
+   opacity / transform / box-shadow only (motion-audit allowlist), and every step is
+   reduce-gated below. ⚠️ The cascade is FOUR separate animations on four elements, so a
+   gate covering only the container would leave the content sliding for someone who asked
+   it not to — and would still look correct in a screenshot. */
 @keyframes game-event-in {
   0% {
     opacity: 0;
-    transform: scale(0.9);
+    transform: scale(0.55);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ⚠️ Carries the card's resting drop shadow in BOTH stops. This animation holds its end
+   state (`both`), so naming only the glow would silently drop the depth the card is drawn
+   with the moment the animation finishes. */
+@keyframes game-event-glow {
+  0% {
+    box-shadow:
+      0 18px 44px rgba(0, 0, 0, 0.55),
+      0 0 0 0 transparent;
+  }
+  100% {
+    box-shadow:
+      0 18px 44px rgba(0, 0, 0, 0.55),
+      0 0 46px 4px color-mix(in oklab, var(--game-event-accent, #f6c000) 45%, transparent);
+  }
+}
+
+@keyframes game-event-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(14px);
   }
   100% {
     opacity: 1;
@@ -440,11 +476,37 @@
 }
 
 .game-event-overlay {
-  animation: game-event-in var(--motion-duration-base) var(--ease-out-soft);
+  /* The spring rides --ease-pop, the app's existing overshoot curve. The glow runs longer
+     and holds, so the moment keeps its weight after the movement has stopped. */
+  animation:
+    game-event-in 460ms var(--ease-pop),
+    game-event-glow 800ms var(--ease-out-soft) both;
+}
+
+/* The cascade. Delays STRICTLY increase down the card — equal delays render as one block
+   fading in, which is gallery design 01, the treatment this replaces. */
+.game-event-icon {
+  animation: game-event-rise 300ms var(--ease-pop) 40ms both;
+}
+
+.game-event-kind {
+  animation: game-event-rise 300ms var(--ease-pop) 110ms both;
+}
+
+.game-event-who {
+  animation: game-event-rise 300ms var(--ease-pop) 180ms both;
+}
+
+.game-event-line {
+  animation: game-event-rise 300ms var(--ease-pop) 250ms both;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .game-event-overlay {
+  .game-event-overlay,
+  .game-event-icon,
+  .game-event-kind,
+  .game-event-who,
+  .game-event-line {
     animation: none;
   }
 }

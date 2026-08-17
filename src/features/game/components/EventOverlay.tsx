@@ -36,17 +36,23 @@ export function EventOverlay({ event }: Props) {
       aria-label={g("eventAria")}
       className="absolute inset-0 z-20 grid place-items-center bg-black/45 px-4"
     >
+      {/* TASK-1809 — the four `game-event-*` classes are the cascade's steps, and the
+          accent travels as a CUSTOM PROPERTY as well as a border colour so the glow
+          keyframe can reach it. A keyframe cannot read an inline `borderColor`. */}
       <div
         className="game-event-overlay flex w-full max-w-sm flex-col items-center gap-2 rounded-xl border-t-4 bg-[#06140d]/95 px-6 py-5 text-center text-white shadow-2xl"
-        style={{ borderColor: accent }}
+        style={{ borderColor: accent, "--game-event-accent": accent } as React.CSSProperties}
       >
-        <span aria-hidden="true" className="text-4xl leading-none">
+        <span aria-hidden="true" className="game-event-icon text-4xl leading-none">
           {icon}
         </span>
-        <span className="font-mono text-sm font-black tracking-[0.2em]" style={{ color: accent }}>
+        <span
+          className="game-event-kind font-mono text-sm font-black tracking-[0.2em]"
+          style={{ color: accent }}
+        >
           {label}
         </span>
-        <span className="flex items-center gap-2 text-lg font-extrabold">
+        <span className="game-event-who flex items-center gap-2 text-lg font-extrabold">
           <span
             className="grid h-7 w-7 place-items-center rounded-md bg-white/10 font-mono text-sm tabular-nums"
             aria-hidden="true"
@@ -55,7 +61,7 @@ export function EventOverlay({ event }: Props) {
           </span>
           {event.name}
         </span>
-        <span className="text-sm text-[#c7d2c9]">
+        <span className="game-event-line text-sm text-[#c7d2c9]">
           {t(event.commentary.key, commentaryArgs(event.commentary))}
         </span>
       </div>
