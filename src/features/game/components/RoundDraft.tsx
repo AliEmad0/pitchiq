@@ -1,7 +1,8 @@
 "use client";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
-import type { PoolCard } from "@/features/game/domain/chaos-draft";
+import { FORMATIONS, type PoolCard } from "@/features/game/domain/chaos-draft";
+import { canField } from "@/features/game/domain/draft-room";
 import { formationByName, type Formation } from "@/features/game/domain/formation";
 import type { DraftSpec } from "@/features/game/domain/rule-packs";
 import { randomSeed } from "@/features/game/view/seed";
@@ -40,16 +41,38 @@ interface Props {
  */
 export function RoundDraft({ pool, draft, onConfirm, backHref }: Props) {
   const t = useTranslations("game");
-  const [formation, setFormation] = useState<Formation>(() => formationByName(DEFAULT_FORMATION));
-  const [seed, setSeed] = useState<number | null>(null);
   const byId = useMemo(() => new Map(pool.map((c) => [c.cardId, c])), [pool]);
+
+  /**
+   * Only the shapes this club can actually field.
+   *
+   * ⚠️ Necessary because `onePerPlayer` collapses a club's cards to its distinct players.
+   * Measured across all 51 clubs: 46 can field all 20 shapes, but Barnsley and Oldham each
+   * strand three slots of a 2-3-5 Pyramid — five forward slots out of a 26-player history.
+   * Offering an unfillable shape would deadlock the draft with no way back.
+   */
+  const shapes = useMemo(
+    () => (draft.onePerPlayer === true ? FORMATIONS.filter((f) => canField(pool, f)) : FORMATIONS),
+    [pool, draft.onePerPlayer],
+  );
+
+  /**
+   * ⚠️ The opening shape must be one the club can FIELD, not a fixed name — the default
+   * 4-4-2 is fillable everywhere today, but a picker whose value is not among its options
+   * shows a blank control, and the club that breaks it would be some future promoted side
+   * nobody tested.
+   */
+  const [formation, setFormation] = useState<Formation>(
+    () => shapes.find((f) => f.name === DEFAULT_FORMATION) ?? shapes[0] ?? formationByName(DEFAULT_FORMATION),
+  );
+  const [seed, setSeed] = useState<number | null>(null);
 
   if (seed == null) {
     return (
       <div className="mx-auto w-full max-w-5xl">
         <h2 className="text-xl font-extrabold tracking-tight">{t("roomTitle")}</h2>
         <div className="mt-4 flex flex-wrap items-center gap-3">
-          <FormationPicker value={formation} onChange={setFormation} />
+          <FormationPicker value={formation} onChange={setFormation} shapes={shapes} />
           <button
             type="button"
             onClick={() => setSeed(randomSeed())}
@@ -77,6 +100,12 @@ export function RoundDraft({ pool, draft, onConfirm, backHref }: Props) {
       seed={seed}
       handSize={draft.handSize}
       roam={draft.roam}
+      standout={draft.standout}
+      onePerPlayer={draft.onePerPlayer}
+      lockPicks={draft.lockPicks}
+      // `undefined` would fall through to the room's shipped 15s default, so a pack that
+      // declares no clock has to pass the null explicitly.
+      limit={draft.timer === undefined ? undefined : draft.timer}
       onComplete={(cardIds) => {
         // Slot order in, slot order out — the container takes it from here, exactly as it
         // does for the hub.
