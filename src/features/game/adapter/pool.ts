@@ -1,5 +1,5 @@
 import "server-only";
-import { loadPlayers, loadStandings } from "@/data/loaders";
+import { loadCaptains, loadPlayers, loadStandings } from "@/data/loaders";
 import type { EnrichedCard } from "@/features/game/domain/player-card";
 import type { PoolSpec } from "@/features/game/domain/rule-packs";
 import { EARLIEST_SEASON, currentDataSeason } from "@/utils/season";
@@ -135,6 +135,40 @@ async function clubHistory(
  * `only` narrows a club-history pool to a single club — the parameterised
  * `/game/[mode]/[club]` route passes it so each page carries just that club's cards.
  */
+/**
+ * How many real captaincies each player in the pool has, across every season and club.
+ *
+ * TASK-1810 — the armband goes to the most-capped captain in the drafted XI, and the next
+ * most is vice. Counting happens here because `captains.json` is a server-only read and
+ * the ranking runs in a client component.
+ *
+ * ⚠️ NARROWED to the pool. The full map is season → team → player across 34 seasons;
+ * shipping all of it would put a second payload on a page already carrying ~900 cards.
+ *
+ * ⚠️ Counted per PLAYER across every club, never per club. The rule is "most real
+ * captaincies", full stop — Gerrard's four happen to be Liverpool's, but a player who
+ * captained two clubs carries both.
+ *
+ * ⚠️ Coverage is genuinely thin: 20 seasons, 164 distinct captains, and the all-time
+ * maximum is 9. Most Legacy XIs will contain nobody with a record at all, which is why
+ * `rankCaptains` treats its rating fallback as the common path rather than an edge case.
+ */
+export async function captaincyCounts(
+  playerIds: Iterable<number>,
+): Promise<Record<number, number>> {
+  const captains = await loadCaptains();
+  if (captains == null) return {};
+  const wanted = new Set(playerIds);
+  const out: Record<number, number> = {};
+  for (const byTeam of Object.values(captains)) {
+    for (const playerId of Object.values(byTeam)) {
+      if (!wanted.has(playerId)) continue;
+      out[playerId] = (out[playerId] ?? 0) + 1;
+    }
+  }
+  return out;
+}
+
 export async function buildPool(spec: PoolSpec, only?: number): Promise<EnrichedCard[]> {
   const career = await loadCareerIndex();
   const pool =

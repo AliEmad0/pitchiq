@@ -24,6 +24,7 @@ import { randomSeed } from "@/features/game/view/seed";
 import { buildShareCode, replayShared } from "@/features/game/view/share-link";
 import { DecisionPrompt } from "./DecisionPrompt";
 import { DraftHub } from "./DraftHub";
+import { MatchLive } from "./MatchLive";
 import { MatchProgramme } from "./MatchProgramme";
 import { MatchSummary } from "./MatchSummary";
 import { MatchupPreview } from "./MatchupPreview";
@@ -55,6 +56,7 @@ export function GamePlay({
   draft,
   backHref,
   screens,
+  captaincies,
 }: {
   pool: PoolCard[];
   initialPhase?: PlayPhase;
@@ -70,6 +72,13 @@ export function GamePlay({
    * `mode === "legacy"` branch here is exactly the shape that rule forbids.
    */
   screens?: ScreensSpec;
+  /**
+   * playerId -> real captaincies, narrowed to this club at build time (TASK-1810).
+   *
+   * Only the Legacy screens read it; the armband rule needs real captaincies and
+   * `captains.json` is a server-only read.
+   */
+  captaincies?: Record<number, number>;
 }) {
   const t = useTranslations("game");
   const locale = useLocale();

@@ -1,0 +1,78 @@
+import { describe, expect, it } from "vitest";
+import type { SubOfferDecision } from "@/features/game/domain/match-decisions";
+import { answerFor, benchLabel, declineOf, subOfferOf } from "@/features/game/view/bench-state";
+
+const offer = (minute: number, suggests: boolean): SubOfferDecision => ({
+  kind: "sub-offer",
+  minute,
+  side: "home",
+  events: [],
+  stoppage: false,
+  engineSuggests: suggests,
+  suggestedOff: 3,
+  suggestedReason: "tactical",
+  legalOff: [],
+  legalOn: [],
+});
+
+describe("answerFor", () => {
+  it("auto mode executes the engine's own recommendation", () => {
+    // The owner's ruling: ignore the amber button for 20s and the change is made for you.
+    const a = answerFor(offer(60, true), "auto");
+    expect(a.kind).toBe("sub-offer");
+    expect((a as { off?: number }).off).toBe(3);
+  });
+
+  it("⛔ manual mode NEVER substitutes for you", () => {
+    // "Manual subs only" — the window expires with no change made.
+    expect((answerFor(offer(60, true), "manual") as { off?: number }).off).toBeUndefined();
+  });
+
+  it("declines in either mode when the engine is not suggesting anything", () => {
+    for (const mode of ["auto", "manual"] as const) {
+      expect((answerFor(offer(60, false), mode) as { off?: number }).off).toBeUndefined();
+    }
+  });
+
+  it("⛔ ALWAYS answers — an unanswered decision hangs the generator", () => {
+    // There is no "leave it pending". Both modes must produce a real answer carrying the
+    // decision's own minute and side, or the match stops dead.
+    for (const mode of ["auto", "manual"] as const) {
+      expect(answerFor(offer(73, false), mode)).toMatchObject({ minute: 73, side: "home" });
+    }
+  });
+});
+
+describe("declineOf", () => {
+  it("is the least disruptive answer for every decision kind", () => {
+    const base = { minute: 40, side: "home" as const, events: [] };
+    expect(declineOf({ ...base, kind: "response", concededBy: "away" })).toMatchObject({
+      choice: "hold",
+    });
+    expect(declineOf({ ...base, kind: "injury-sub", off: 2, legalOn: [] })).toMatchObject({
+      on: undefined,
+    });
+    expect(declineOf({ ...base, kind: "dismissal", legalOff: [], legalOn: [] })).toMatchObject({
+      kind: "dismissal",
+    });
+    expect((declineOf(offer(40, true)) as { off?: number }).off).toBeUndefined();
+  });
+});
+
+describe("benchLabel", () => {
+  it("reads 'Change available' only while one actually is", () => {
+    expect(benchLabel(offer(60, true))).toBe("available");
+    expect(benchLabel(offer(60, false))).toBe("idle");
+    expect(benchLabel(null)).toBe("idle");
+  });
+});
+
+describe("subOfferOf", () => {
+  it("recognises a sub offer and ignores every other decision kind", () => {
+    expect(subOfferOf(offer(60, true))).not.toBeNull();
+    expect(subOfferOf(null)).toBeNull();
+    expect(
+      subOfferOf({ kind: "response", minute: 5, side: "home", events: [], concededBy: "away" }),
+    ).toBeNull();
+  });
+});
