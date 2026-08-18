@@ -95,10 +95,28 @@ export interface DraftSpec {
   onePerPlayer?: boolean;
 }
 
+/**
+ * Which match screens a pack uses (TASK-1810).
+ *
+ * `"legacy"` is the owner-designed pair: the matchday PROGRAMME at `?phase=preview` and
+ * the SPLIT FEED at `?phase=live`. Absent means the shipped `MatchupPreview`/`MatchView`.
+ *
+ * ⚠️ A pack FIELD rather than a component swap, for exactly the reason `draft` is one:
+ * "modes are rule packs (data), not code paths" is the locked architecture, and a
+ * `mode === "legacy"` branch inside `GamePlay` is the precise shape that rule forbids.
+ *
+ * ⚠️ Keeping it optional is what leaves `/game/draft`, `/game/chaos` and `/game/daily`
+ * — and their tests, which are the control proving this change did not reach them —
+ * completely untouched.
+ */
+export type ScreensSpec = "legacy";
+
 export interface RulePack {
   id: ModeId;
   pool: PoolSpec;
   chooser?: ChooserSpec;
+  /** Absent means the shipped match screens. See `ScreensSpec`. */
+  screens?: ScreensSpec;
   /**
    * ⚠️ Absent means "the room's shipped defaults", never a spelled-out `{ 5, "free" }`.
    * Restating them would make this a second source of truth that could drift from
@@ -152,6 +170,7 @@ const LEGACY_PACK: RulePack = {
   id: "legacy",
   pool: { kind: "clubHistory", teams: LEGACY_CLUBS },
   chooser: { kind: "club" },
+  screens: "legacy",
   draft: {
     handSize: 5,
     roam: "free",

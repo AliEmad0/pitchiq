@@ -13,7 +13,7 @@ import { hashEvents } from "@/features/game/domain/hash";
 import { decodeMatch } from "@/features/game/domain/share-code";
 import { summaryFrom } from "@/features/game/domain/summary-card";
 import type { RefereeStyle, Weather } from "@/features/game/domain/match-types";
-import type { DraftSpec } from "@/features/game/domain/rule-packs";
+import type { DraftSpec, ScreensSpec } from "@/features/game/domain/rule-packs";
 import { clearMatch, loadMatch, saveMatch } from "@/features/game/storage/match-slot";
 import { buildMatchViewModel } from "@/features/game/view/match-view-model";
 import { replayMatch, type RestoredMatch } from "@/features/game/view/match-replay";
@@ -24,6 +24,7 @@ import { randomSeed } from "@/features/game/view/seed";
 import { buildShareCode, replayShared } from "@/features/game/view/share-link";
 import { DecisionPrompt } from "./DecisionPrompt";
 import { DraftHub } from "./DraftHub";
+import { MatchProgramme } from "./MatchProgramme";
 import { MatchSummary } from "./MatchSummary";
 import { MatchupPreview } from "./MatchupPreview";
 import { MatchView } from "./MatchView";
@@ -53,6 +54,7 @@ export function GamePlay({
   initialPhase,
   draft,
   backHref,
+  screens,
 }: {
   pool: PoolCard[];
   initialPhase?: PlayPhase;
@@ -60,6 +62,14 @@ export function GamePlay({
   draft?: DraftSpec;
   /** Where "choose a different club" goes. A link, because the choice is a ROUTE now. */
   backHref?: string;
+  /**
+   * Which match screens the pack uses (TASK-1810). Absent = the shipped ones.
+   *
+   * ⚠️ A pack FIELD, never a mode check. This container must not learn about game modes —
+   * "modes are rule packs, not code paths" is the locked architecture, and a
+   * `mode === "legacy"` branch here is exactly the shape that rule forbids.
+   */
+  screens?: ScreensSpec;
 }) {
   const t = useTranslations("game");
   const locale = useLocale();
@@ -282,20 +292,33 @@ export function GamePlay({
   }
 
   if (state.phase === "preview") {
-    return (
+    const onKickOff = () => dispatch({ type: "kickOff" });
+    const onBack = () => {
+      // ⚠️ Cleared in the handler, never in an effect. An effect gated on "phase is
+      // not live" would race the restore effect on mount and wipe the record before
+      // it could be read.
+      void clearMatch();
+      dispatch({ type: "backToSetup" });
+    };
+    // TASK-1810: the owner-designed matchday programme, for packs that ask for it.
+    // Everything else keeps the shipped VS screen.
+    return screens === "legacy" ? (
+      <MatchProgramme
+        home={match.home}
+        away={match.away}
+        referee={referee}
+        weather={weather}
+        onKickOff={onKickOff}
+        onBack={onBack}
+      />
+    ) : (
       <MatchupPreview
         home={match.home}
         away={match.away}
         referee={referee}
         weather={weather}
-        onKickOff={() => dispatch({ type: "kickOff" })}
-        onBack={() => {
-          // ⚠️ Cleared in the handler, never in an effect. An effect gated on "phase is
-          // not live" would race the restore effect on mount and wipe the record before
-          // it could be read.
-          void clearMatch();
-          dispatch({ type: "backToSetup" });
-        }}
+        onKickOff={onKickOff}
+        onBack={onBack}
       />
     );
   }

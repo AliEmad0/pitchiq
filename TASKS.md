@@ -5695,11 +5695,11 @@ Built: `domain/hash.ts` (shared FNV-1a + `hashEvents`), `view/match-session.ts` 
 
 **The pick: a HYBRID of designs 05 + 14 + 15.** Three animations reading as one gesture:
 
-| From | What it contributes |
-| --- | --- |
+| From                | What it contributes                                                                                          |
+| ------------------- | ------------------------------------------------------------------------------------------------------------ |
 | 05 Spring Overshoot | `game-event-in` — the card springs in from `scale(0.55)` on `--ease-pop`, the app's existing overshoot curve |
-| 14 Kinetic Type | `game-event-rise` — icon, label, name and commentary cascade upward at 40 / 110 / 180 / 250ms |
-| 15 Slow Burn | `game-event-glow` — an accent glow grows over 800ms and **holds** while the clock is stopped |
+| 14 Kinetic Type     | `game-event-rise` — icon, label, name and commentary cascade upward at 40 / 110 / 180 / 250ms                |
+| 15 Slow Burn        | `game-event-glow` — an accent glow grows over 800ms and **holds** while the clock is stopped                 |
 
 **⚠️ Two things the hybrid forced that neither half needed alone:**
 
@@ -5712,13 +5712,13 @@ Built: `domain/hash.ts` (shared FNV-1a + `hashEvents`), `view/match-session.ts` 
 
 **~~Original description~~** — ~~Goal / red-card modal overlays with glow, pulsing player nodes, momentum cues — **transform/opacity only** and all `prefers-reduced-motion`-gated. New Radix surfaces must be added to the central reduce rule in `globals.css`.~~ **All of this is built** (PR #88, with PR #117's additions):
 
-| Requirement | Where |
-| --- | --- |
-| Goal / red-card modal overlays with glow | `components/EventOverlay.tsx` — six event kinds (goal, card, penalty, VAR, injury, substitution), each with its own icon, label and accent so a penalty never reads as a goal |
-| Pulsing nodes + momentum cues | `components/GlowPulse.tsx` in `Scoreboard` and `WinProbBar`; `@keyframes pitch-glow-pulse` |
-| transform / opacity only | `@keyframes game-event-in` — `opacity` + `transform` only; `tests/unit/motion-audit.test.ts` green |
-| `prefers-reduced-motion` gated | explicit `@media (prefers-reduced-motion: reduce)` block zeroing `.game-event-overlay`; `MatchView` hides the transport controls under `reduced` |
-| New Radix surfaces in the central reduce rule | none were added, so nothing to register — the existing dialog/sheet rule is untouched |
+| Requirement                                   | Where                                                                                                                                                                         |
+| --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Goal / red-card modal overlays with glow      | `components/EventOverlay.tsx` — six event kinds (goal, card, penalty, VAR, injury, substitution), each with its own icon, label and accent so a penalty never reads as a goal |
+| Pulsing nodes + momentum cues                 | `components/GlowPulse.tsx` in `Scoreboard` and `WinProbBar`; `@keyframes pitch-glow-pulse`                                                                                    |
+| transform / opacity only                      | `@keyframes game-event-in` — `opacity` + `transform` only; `tests/unit/motion-audit.test.ts` green                                                                            |
+| `prefers-reduced-motion` gated                | explicit `@media (prefers-reduced-motion: reduce)` block zeroing `.game-event-overlay`; `MatchView` hides the transport controls under `reduced`                              |
+| New Radix surfaces in the central reduce rule | none were added, so nothing to register — the existing dialog/sheet rule is untouched                                                                                         |
 
 The TASK-1806 plan had flagged this pass as owed — it shipped the pitch view via the 30-concept → 30-animation ritual and noted that **1809 needs "their own design-gallery pass"**. The stated risk (that a gallery run against live animations produces something the owner prefers, forcing a replacement) is exactly what happened, and was the right outcome.
 
@@ -5732,10 +5732,13 @@ The TASK-1806 plan had flagged this pass as owed — it shipped the pitch view v
 
 **Progress — PR 1 of 5: the seam + Legacy Club (single format) is LIVE.**
 
-- ⚠️ The ticket text above is **stale in two ways**. It is **five** modes, not six — Survival was reassigned by TASK-1832 D7 to an *objective on the Season format* owned by TASK-1811. And each pack is a declarative `{ pool, chooser, draft, constraints, objective }` **recipe**, not a `buildPool` function: a builder slot would be a signature only server code can satisfy, which is how `adapter/*` leaks into a client component.
+- ⚠️ The ticket text above is **stale in two ways**. It is **five** modes, not six — Survival was reassigned by TASK-1832 D7 to an _objective on the Season format_ owned by TASK-1811. And each pack is a declarative `{ pool, chooser, draft, constraints, objective }` **recipe**, not a `buildPool` function: a builder slot would be a signature only server code can satisfy, which is how `adapter/*` leaks into a client component.
 - **Shipped:** `domain/rule-packs.ts` (pure, guarded against adapter imports), `adapter/pool.ts#buildPool`, Chaos re-expressed as a recipe with its **252-card control** proving the seam changed no behaviour, and **Legacy Club** on `/game/[mode]` + `/game/[mode]/[club]`.
 - **Legacy's draft** is the owner's mechanic: club → formation → **11 consecutive rounds of 3**, running the shipped Draft Room with `handSize`/`roam` from the pack. `roomReducer` already advanced on every pick, so sequential progression needed no reducer change.
 - **The card set is complete** (owner, 2026-08-17): **every club that ever played in the PL** (51, resolved from the standings) and **every player-season** as its own card — Giggs 22 cards, Scholes 19. No dedupe: a round may offer the same player from two seasons. The club is a **route segment** because a club's full history is ~900 cards; all 51 on one page would be ~6.7 MB.
+- **The MATCH SCREENS are owner-designed and agreed** (spec: `docs/superpowers/specs/2026-08-18-task-1810-match-screens-design.md`; plan: `docs/superpowers/plans/2026-08-18-task-1810-match-screens.md`). `?phase=preview` is the **matchday programme** — a hybrid of gallery concepts 12/21/22 — and `?phase=live` is the **split feed** (concept 02). Both are selected by a new `screens` field on the pack, so `/game/draft`, `/game/chaos` and `/game/daily` keep the shipped `MatchupPreview`/`MatchView`; `tests/unit/game-screens-gate.test.tsx` is the control, verified by sabotage. **The programme is SHIPPED here; the split feed is the next PR.**
+- ⛔ **The live pitch's player animation is NOT agreed** — two attempts rejected (ambient random passing; an event-driven replay). It needs its own design pass and the live screen ships with a static both-teams pitch until then. The 30-concept animation galleries are **parked** by the owner (2026-08-18).
+- ⭐ **`view/coach-policy.ts` was already built and wired into nothing.** It implements the exact Bench-button model the redesign asks for — request → open at the next stoppage, 5-minute grace, one opportunity per window — with a full passing test file, while `GamePlay` rendered `DecisionPrompt` on every decision instead. The live-screen PR wires it rather than writing a second one.
 - ⬜ **Still to come — PRs 2–5**, each with a measured data gap: Captain's Draft (`captains.json` covers 20 seasons thinly — 1997 has 2 entries), Budget Cap (`market-values.json` is 2003–2025, so all eleven 1990s seasons are unpriced), Chemistry (single stored nationality undercounts links), Classic (data complete, but its interesting form is the season one → TASK-1811).
 - ⛔ **Stays `📋 Backlog` until PR 5** — one of five modes ships here, the same discipline TASK-1812 used.
 
@@ -5881,13 +5884,13 @@ The TASK-1806 plan had flagged this pass as owed — it shipped the pitch view v
 
 **⚠️ Five rules this ticket pinned**
 
-1. **The day key is ANCHORED at kickoff.** A match can straddle midnight, so a 23:58 kickoff finishing at 00:03 records under the day it *began* — nothing inside a live session re-reads the clock. Resume is current-day only; an earlier day's unfinished record is never offered, and `computeStats` already reads it as "not won".
+1. **The day key is ANCHORED at kickoff.** A match can straddle midnight, so a 23:58 kickoff finishing at 00:03 records under the day it _began_ — nothing inside a live session re-reads the clock. Resume is current-day only; an earlier day's unfinished record is never offered, and `computeStats` already reads it as "not won".
 2. **`dayKey` uses the UTC getters only.** Local getters break it for everyone outside UTC and break it invisibly, because the developer's own machine usually agrees. Pinned by a test at an instant where local and UTC dates differ.
-3. **`DAILY_SHAPES` is FROZEN, not append-only.** The pick is `hash(day) % length`, so *appending* re-maps every past day exactly as reordering would, and no scheme keeps a uniform pick stable over a growing set. A golden table makes any edit fail loudly instead of silently invalidating history.
+3. **`DAILY_SHAPES` is FROZEN, not append-only.** The pick is `hash(day) % length`, so _appending_ re-maps every past day exactly as reordering would, and no scheme keeps a uniform pick stable over a growing set. A golden table makes any edit fail loudly instead of silently invalidating history.
 4. **Stats are derived, never counted.** No stored counter can drift from the history it summarises. The streak walk steps through `dayKeyOffset`, not the record list, so a gap day breaks a streak rather than being treated as contiguous.
 5. ⛔ **The tamper measure is a SPEED BUMP, not a lock.** `sessionStorage` is per-tab and dies with the tab, and the same "clear site data" that wipes IndexedDB wipes it. In a 100% client-side design no client-side measure can be authoritative — which is exactly why there is no global leaderboard. Do not build one on top of it.
 
-**⚠️ Two tests that were passing for the wrong reason**, both found by sabotage rather than review: the marker assertions set `sessionStorage` by hand, so removing `markStarted` left every test green until a test drove a real kickoff; and `game-mode-gate`'s tile count asserted a literal `2`, which reports "the count changed" rather than "the rule broke" — it now derives from `isPlayable`. Separately, `computeStats` first keyed its yesterday-fallback off `isWin`, which resurrected a dead streak on a day that had been played and *lost*.
+**⚠️ Two tests that were passing for the wrong reason**, both found by sabotage rather than review: the marker assertions set `sessionStorage` by hand, so removing `markStarted` left every test green until a test drove a real kickoff; and `game-mode-gate`'s tile count asserted a literal `2`, which reports "the count changed" rather than "the rule broke" — it now derives from `isPlayable`. Separately, `computeStats` first keyed its yesterday-fallback off `isWin`, which resurrected a dead streak on a day that had been played and _lost_.
 
 ### TASK-1818
 
@@ -8228,11 +8231,11 @@ This ticket said _"only seven of the 54 were ever lifted onto player rows"_ and 
 deliberate **lift-onto-rows vs read-the-side-map** decision. **That decision was moot: all
 54 were already on the rows**, as `metrics.extended`, since TASK-M65.
 
-| | |
-| --- | --- |
-| Rows carrying `metrics.extended` | ~95% per season, **2008–2025** |
-| Field comparisons, row vs `player-history-stats.json` | **58,303** |
-| Disagreements | **0** |
+|                                                       |                                |
+| ----------------------------------------------------- | ------------------------------ |
+| Rows carrying `metrics.extended`                      | ~95% per season, **2008–2025** |
+| Field comparisons, row vs `player-history-stats.json` | **58,303**                     |
+| Disagreements                                         | **0**                          |
 
 So the shipped work needed **no loader, no schema change, no data change, and no growth in
 `players-*.json`** — and never reads the 15.28 MB side file, so the
