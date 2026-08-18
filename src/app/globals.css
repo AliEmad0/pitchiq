@@ -2596,3 +2596,542 @@
     animation: none;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   TASK-1810 — `?phase=live`, the split feed (owner's pick: concept 02).
+
+   Scoreboard across the top, pitch left, comments right, team sheets beneath,
+   and the Bench as an ordinary control that turns amber when a change exists.
+--------------------------------------------------------------------------- */
+.lg-live {
+  max-width: 1180px;
+  margin-inline: auto;
+  padding: 20px 16px 64px;
+}
+
+/* ---- scoreboard ---- */
+.lg-board {
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 12px;
+}
+.lg-board-main {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+}
+.lg-board-team {
+  font-size: clamp(15px, 3vw, 22px);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lg-board-main > .lg-board-team:last-child {
+  text-align: end;
+}
+.lg-board-score {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  font-size: clamp(30px, 7vw, 48px);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.lg-board-dash {
+  color: var(--chalk-faint);
+  font-size: 0.55em;
+}
+/* ⚠️ Referee + weather sit BENEATH a rule, per the design — they are conditions,
+   not part of the scoreline. */
+.lg-board-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid color-mix(in srgb, var(--rule) 60%, transparent);
+}
+.lg-clock {
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--alert);
+}
+.lg-chip {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--chalk-dim);
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  padding: 3px 10px;
+}
+
+/* ---- the split ---- */
+.lg-split {
+  display: grid;
+  gap: 14px;
+  margin-top: 16px;
+}
+@media (min-width: 900px) {
+  .lg-split {
+    grid-template-columns: 1.45fr 1fr;
+  }
+}
+/* ⛔ `align-items: stretch` does NOT equalise these two. The feed's own content grows
+   the grid row, which left the pitch short with dead space under it. The feed pane is
+   RELATIVE and its list is taken OUT OF FLOW, so the pitch's aspect-ratio is the only
+   thing setting the row height. */
+.lg-split-feed {
+  position: relative;
+  min-height: 220px;
+}
+.lg-feed-pane {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.lg-feed-title {
+  flex: none;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--chalk-faint);
+}
+.lg-feed {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* ---- a comment ---- */
+.lg-line {
+  display: grid;
+  grid-template-columns: 4ch 1fr;
+  gap: 10px;
+  padding: 8px 12px;
+  border-bottom: 1px solid color-mix(in srgb, var(--rule) 55%, transparent);
+}
+.lg-line-min {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--chalk-faint);
+  padding-top: 2px;
+}
+.lg-line-text {
+  font-size: 13px;
+  line-height: 1.45;
+}
+/* Weighted by importance: a goal gets an amber wash and heavier type; a half-chance
+   recedes. The feed should be skimmable without reading it. */
+.lg-line-loud {
+  background: color-mix(in srgb, var(--alert) 12%, transparent);
+}
+.lg-line-loud .lg-line-text {
+  font-weight: 800;
+  font-size: 14px;
+}
+.lg-line-loud .lg-line-min {
+  color: var(--alert);
+}
+.lg-line-mid .lg-line-text {
+  font-weight: 600;
+}
+.lg-line-quiet .lg-line-text {
+  color: var(--chalk-dim);
+}
+
+/* ---- the pitch ---- */
+.lg-pitch {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 105 / 68;
+  border-radius: 10px;
+  border: 2px solid color-mix(in srgb, var(--chalk) 26%, transparent);
+  background: repeating-linear-gradient(90deg, var(--turf-a) 0 8.33%, var(--turf-b) 8.33% 16.66%);
+  overflow: hidden;
+  box-shadow: 0 18px 44px rgb(0 0 0 / 40%);
+}
+.lg-halfway {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  background: color-mix(in srgb, var(--chalk) 26%, transparent);
+}
+.lg-circle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  height: 30%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border: 2px solid color-mix(in srgb, var(--chalk) 26%, transparent);
+  border-radius: 50%;
+}
+.lg-box {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 58%;
+  width: 15%;
+  border: 2px solid color-mix(in srgb, var(--chalk) 26%, transparent);
+}
+.lg-box-l {
+  left: -1px;
+  border-left: 0;
+  border-radius: 0 4px 4px 0;
+}
+.lg-box-r {
+  right: -1px;
+  border-right: 0;
+  border-radius: 4px 0 0 4px;
+}
+.lg-box-six {
+  height: 27%;
+  width: 6.5%;
+}
+.lg-spot {
+  position: absolute;
+  top: 50%;
+  height: 4px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--chalk) 60%, transparent);
+  transform: translate(-50%, -50%);
+}
+.lg-spot-c {
+  left: 50%;
+}
+.lg-spot-l {
+  left: 11%;
+}
+.lg-spot-r {
+  left: 89%;
+}
+
+/* ---- a player pip ---- */
+/* ⛔ When the animation is finally designed, move these by `transform: translate()`,
+   never by `left`/`top` — animating a layout property re-lays-out the pitch every
+   frame and the motion audit rejects it. The translate below is a static centring
+   offset, which is why a future animation must compose onto it rather than replace it. */
+.lg-pip {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 45%);
+}
+.lg-pip-home {
+  background: var(--home);
+  color: var(--ink-home);
+}
+.lg-pip-away {
+  background: var(--away);
+  color: var(--ink-away);
+}
+.lg-pip-c {
+  position: absolute;
+  top: -6px;
+  inset-inline-end: -6px;
+  font-size: 8px;
+  line-height: 1.3;
+  background: var(--chalk);
+  color: var(--ground);
+  border-radius: 3px;
+  padding: 0 3px;
+}
+.lg-pip-y {
+  position: absolute;
+  bottom: -4px;
+  inset-inline-start: -4px;
+  width: 5px;
+  height: 7px;
+  border-radius: 1px;
+  background: var(--alert);
+}
+
+/* ---- controls ---- */
+.lg-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+.lg-speeds {
+  display: inline-flex;
+  overflow: hidden;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+}
+.lg-speed {
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--chalk-dim);
+}
+.lg-speed-on {
+  background: var(--panel-2);
+  color: var(--chalk);
+}
+
+/* The Bench button. ⛔ ALWAYS present — the SAME control turns amber when a change is
+   available, so nothing new ever appears on screen uninvited. */
+.lg-benchbtn {
+  margin-inline-start: auto;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--chalk);
+  background: var(--panel);
+  transition:
+    background-color var(--motion-duration-fast) var(--ease-out-soft),
+    color var(--motion-duration-fast) var(--ease-out-soft),
+    border-color var(--motion-duration-fast) var(--ease-out-soft);
+}
+.lg-benchbtn-on {
+  background: var(--alert);
+  border-color: var(--alert);
+  color: var(--ink-home);
+}
+.lg-manual {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--chalk-dim);
+}
+.lg-manual-hint {
+  color: var(--chalk-faint);
+  font-size: 11px;
+}
+
+/* ---- the team sheets ---- */
+.lg-sheets {
+  display: grid;
+  gap: 16px;
+  margin-top: 22px;
+}
+@media (min-width: 760px) {
+  .lg-sheets {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.lg-sheet-cap {
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--chalk-faint);
+}
+.lg-sheet-home .lg-sheet-cap {
+  color: var(--home);
+}
+.lg-sheet-away .lg-sheet-cap {
+  color: var(--away);
+}
+.lg-sheet-row {
+  display: grid;
+  grid-template-columns: 4ch 1fr auto 3ch;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 4px;
+  border-bottom: 1px solid color-mix(in srgb, var(--rule) 60%, transparent);
+  transition: transform var(--motion-duration-fast) var(--ease-out-soft);
+}
+/* Rows with events lift slightly, so the sheet can be skimmed for who did something. */
+.lg-sheet-live {
+  transform: translateX(3px);
+  background: color-mix(in srgb, var(--panel-2) 70%, transparent);
+}
+/* Sent off or substituted — the row stays, greyed. */
+.lg-sheet-gone {
+  opacity: 0.42;
+}
+.lg-sheet-pos {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  color: var(--chalk-faint);
+}
+.lg-sheet-name {
+  font-size: 14px;
+  font-weight: 600;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lg-sheet-c {
+  display: inline-grid;
+  place-items: center;
+  margin-inline-start: 6px;
+  padding: 0 3px;
+  font-size: 9px;
+  font-weight: 800;
+  background: var(--chalk);
+  color: var(--ground);
+  border-radius: 3px;
+}
+.lg-sheet-marks {
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+.lg-sheet-ovr {
+  font-family: var(--font-mono), monospace;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
+
+/* ---- the bench popup ---- */
+.lg-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: color-mix(in srgb, var(--ground) 88%, transparent);
+}
+.lg-bench {
+  width: min(980px, 100%);
+  max-height: 88vh;
+  overflow-y: auto;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  padding: 20px;
+}
+.lg-bench-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.lg-bench-title {
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+}
+.lg-bench-none {
+  color: var(--chalk-dim);
+  font-size: 14px;
+  padding: 18px 0 24px;
+}
+.lg-bench-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+  gap: 10px;
+  margin-bottom: 20px;
+}
+/* ⛔ `position: relative` on the WRAPPER so the hit target can cover the card as a
+   SIBLING. A card that is itself a <button> throws away a nested one, and a control
+   inside PlayerCard's 3D flip does not hit-test reliably. */
+.lg-bench-card {
+  position: relative;
+  border-radius: 10px;
+  outline: 2px solid transparent;
+  transition: outline-color var(--motion-duration-fast) var(--ease-out-soft);
+}
+.lg-bench-picked {
+  outline-color: var(--alert);
+}
+.lg-bench-hit {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+}
+.lg-bench-flags {
+  position: absolute;
+  inset-block-start: 4px;
+  inset-inline-start: 4px;
+  z-index: 3;
+  display: grid;
+  gap: 3px;
+  justify-items: start;
+  pointer-events: none;
+}
+.lg-flag {
+  font-family: var(--font-mono), monospace;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  border-radius: 3px;
+  padding: 1px 4px;
+}
+.lg-flag-sug {
+  background: var(--alert);
+  color: var(--ink-home);
+}
+.lg-flag-cap {
+  background: var(--chalk);
+  color: var(--ground);
+}
+.lg-bench-go {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--rule);
+}
+.lg-confirm {
+  background: var(--cta);
+  color: var(--ink-cta);
+  border-radius: 8px;
+  padding: 12px 22px;
+  font-size: 14px;
+  font-weight: 900;
+}
+.lg-confirm:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lg-sheet-row,
+  .lg-bench-card,
+  .lg-benchbtn {
+    transition: none;
+  }
+  .lg-sheet-live {
+    transform: none;
+  }
+}

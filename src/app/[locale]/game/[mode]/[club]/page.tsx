@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { buildPool, clubChoices } from "@/features/game/adapter/pool";
+import { buildPool, captaincyCounts, clubChoices } from "@/features/game/adapter/pool";
 import { GamePlay } from "@/features/game/components/GamePlay";
 import { packFor, routedPacks } from "@/features/game/domain/rule-packs";
 
@@ -58,6 +58,9 @@ export default async function ModeClubPage({ params }: Props) {
   if (choice == null) notFound();
 
   const pool = await buildPool(pack.pool, choice.id);
+  // Build time, and narrowed to this club's players — the armband rule needs real
+  // captaincies, and the full season → team → player map would be a second payload.
+  const captaincies = await captaincyCounts(pool.map((c) => c.playerId));
 
   return (
     <main className="mx-auto w-full max-w-6xl px-4 py-10">
@@ -66,6 +69,7 @@ export default async function ModeClubPage({ params }: Props) {
         initialPhase="setup"
         draft={pack.draft}
         screens={pack.screens}
+        captaincies={captaincies}
         backHref={`/game/${pack.id}`}
       />
     </main>
