@@ -21,8 +21,8 @@ playable prototype. The prototypes are the specification — build against them.
 | --------------------- | -------------------------------------------------------------------------- | ----------------- |
 | `/game/legacy`        | Concept 09 **Sticker Album** + motion 06 **Foil Sweep**                    | ✅ shipped (#167) |
 | `/game/legacy/[club]` | **Centre-pitch draft**, landscape                                          | ✅ shipped (#167) |
-| `?phase=preview`      | Hybrid of **12 Star Spotlight + 21 Programme Spread + 22 Chalk & Compare** | ⬜ prototype only |
-| `?phase=live`         | Concept 02 **Split Feed**                                                  | ⬜ prototype only |
+| `?phase=preview`      | Hybrid of **12 Star Spotlight + 21 Programme Spread + 22 Chalk & Compare** | ✅ shipped (#169) |
+| `?phase=live`         | Concept 02 **Split Feed**                                                  | ✅ shipped (#170) |
 
 **Prototypes (the source of truth for layout and behaviour):**
 
