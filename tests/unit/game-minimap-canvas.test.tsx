@@ -117,6 +117,7 @@ const draw = (over: { home?: MiniMapSide; away?: MiniMapSide; minute?: number } 
       minute={over.minute ?? 10}
       seed={7}
       reduced
+      running={false}
       label="Both teams on the pitch"
       colors={COLORS}
     />,

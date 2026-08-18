@@ -48,6 +48,8 @@ export interface Actor {
    * shifts and an outfielder inherits the goal line while the real goal stands empty.
    */
   keeper: boolean;
+  /** Carrying a yellow. Drawn as a ring on his dot, not only listed in the feed. */
+  booked: boolean;
   /** True once sent off — the renderer drops him and nothing marks him. */
   off: boolean;
 }
@@ -167,6 +169,7 @@ export function createState(home: SideSpec, away: SideSpec): MiniMapState {
         vel: vec(0, 0),
         state: i === 0 ? "keeper" : "idle",
         keeper: i === 0,
+        booked: false,
         off: false,
       };
     });

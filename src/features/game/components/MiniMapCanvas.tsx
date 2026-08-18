@@ -48,6 +48,13 @@ interface Props {
   minute: number;
   seed: number;
   reduced: boolean;
+  /**
+   * False at full time.
+   *
+   * ⚠️ Without this the loop keeps running after the final whistle and the dots carry on
+   * playing a match that has finished — reported straight from the preview.
+   */
+  running: boolean;
   label: string;
   /** Palette, read from the `.lg-root` tokens so the map cannot drift from the theme. */
   colors: {
@@ -70,7 +77,17 @@ interface Props {
  *
  * ⛔ Seeded, never `Math.random()`. Determinism is the game's core invariant.
  */
-export function MiniMapCanvas({ home, away, events, minute, seed, reduced, label, colors }: Props) {
+export function MiniMapCanvas({
+  home,
+  away,
+  events,
+  minute,
+  seed,
+  reduced,
+  running,
+  label,
+  colors,
+}: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stateRef = useRef<MiniMapState | null>(null);
   const rngRef = useRef<() => number>(mulberry32(seed));
@@ -113,6 +130,7 @@ export function MiniMapCanvas({ home, away, events, minute, seed, reduced, label
       if (occ != null) {
         a.playerId = occ.playerId;
         a.number = occ.number;
+        a.booked = side.booked.includes(occ.playerId);
       }
     });
 
@@ -208,8 +226,10 @@ export function MiniMapCanvas({ home, away, events, minute, seed, reduced, label
     };
 
     fit();
-    if (reduced) {
-      // ⛔ No loop at all for a reduced-motion viewer: one settled frame, nothing moving.
+    if (reduced || !running) {
+      // ⛔ No loop at all for a reduced-motion viewer, and none once the match is over:
+      // the whistle has gone, so the pitch settles back into its shape and holds.
+      if (!running) resetScene(s, s.possession);
       aim(s);
       step(s, 0);
       draw(ctx, canvas, s, colorsRef.current);
@@ -228,7 +248,7 @@ export function MiniMapCanvas({ home, away, events, minute, seed, reduced, label
       window.cancelAnimationFrame(raf);
       ro.disconnect();
     };
-  }, [reduced]);
+  }, [reduced, running]);
 
   const onPitch = (side: MiniMapSide): Occupant[] =>
     side.players.filter((p): p is Occupant => p != null);
@@ -354,6 +374,15 @@ function drawActor(
     ctx.arc(x, y, r * 1.5, 0, Math.PI * 2);
     ctx.stroke();
     ctx.globalAlpha = 1;
+  }
+
+  // A booking rides on the DOT, not only in the feed and the team sheet.
+  if (a.booked) {
+    ctx.strokeStyle = "#ffc63d";
+    ctx.lineWidth = Math.max(1, r * 0.3);
+    ctx.beginPath();
+    ctx.arc(x, y, r * 1.24, 0, Math.PI * 2);
+    ctx.stroke();
   }
 
   ctx.fillStyle = fill;

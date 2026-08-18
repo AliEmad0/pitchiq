@@ -2,10 +2,10 @@
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { armbandAt, rankCaptains } from "@/features/game/domain/captaincy";
+import { mulberry32 } from "@/features/game/domain/rng";
 import { decadeSpan } from "@/features/game/domain/matchup";
 import type { CommentaryRef } from "@/features/game/domain/commentary";
 import type { DecisionAnswer, MatchDecision } from "@/features/game/domain/match-decisions";
-import type { RefereeStyle, Weather } from "@/features/game/domain/match-types";
 import type { GameTeam } from "@/features/game/domain/team";
 import { answerFor, benchLabel, subOfferOf, type SubMode } from "@/features/game/view/bench-state";
 import { commentaryArgs } from "@/features/game/view/commentary-view";
@@ -58,23 +58,16 @@ interface Props {
   pending: MatchDecision | null;
   /** playerId → real captaincies, narrowed to this club at build time. */
   captaincies: Record<number, number>;
-  referee: RefereeStyle | null;
-  weather: Weather | null;
+  /**
+   * Real Premier League referees, from the committed fixtures.
+   *
+   * ⚠️ The NAME is cosmetic and picked from the match seed; the engine's `RefereeStyle` is
+   * what actually governs bookings. Naming the official reads far better than labelling
+   * him "STRICT", which is what the scoreboard used to show.
+   */
+  referees: readonly string[];
   onAnswer: (a: DecisionAnswer) => void;
 }
-
-const REFEREE_KEY: Record<RefereeStyle, string> = {
-  strict: "refereeStrict",
-  lenient: "refereeLenient",
-  "crowd-influenced": "refereeCrowdInfluenced",
-};
-const WEATHER_KEY: Record<Weather, string> = {
-  clear: "weatherClear",
-  rain: "weatherRain",
-  "heavy-rain": "weatherHeavyRain",
-  wind: "weatherWind",
-  snow: "weatherSnow",
-};
 
 /** How loudly a line is printed. A goal shouts; a half-chance recedes. */
 function weightOf(kind: ViewEvent["kind"]): "loud" | "mid" | "quiet" {
@@ -108,8 +101,7 @@ export function MatchLive({
   holdAt,
   pending,
   captaincies,
-  referee,
-  weather,
+  referees,
   onAnswer,
 }: Props) {
   const t = useTranslations("game");
@@ -317,16 +309,17 @@ export function MatchLive({
       player: r.player,
       captain: band != null && r.player.playerId === band,
       onPitch: r.onPitch,
-      own: shown.filter((e) => e.side === side && e.playerId === r.player.playerId),
+      // ⚠️ The tallies come from `lineupAt`, which already counts goals, assists, cards
+      // and the substitution NUMBER. Re-deriving them by filtering events on `playerId`
+      // silently drops every assist — an assist rides on the GOAL event under
+      // `assistPlayerId`, so the scorer's row would claim it and the provider's row would
+      // show nothing at all.
+      badges: r.badges,
+      injured: shown.some(
+        (e) => e.kind === "injury" && e.side === side && e.playerId === r.player.playerId,
+      ),
     }));
 
-  /**
-   * The sheet's caption: shape, the decade the XI is drawn from, and the captain.
-   *
-   * ⚠️ Built from the real `GameTeam`, not the view model. `ViewSideTeam` carries neither
-   * the formation nor a season — `PitchPlayer` drops both — so the caption is the one
-   * thing on this screen that genuinely needs the source team.
-   */
   const captionOf = (side: "home" | "away", band: number | null) => {
     const team = side === "home" ? teams.home : teams.away;
     const span = decadeSpan(team);
@@ -341,26 +334,68 @@ export function MatchLive({
 
   const atEnd = minute >= lastMinute;
 
+  /**
+   * The whistle has actually gone.
+   *
+   * ⚠️ Distinct from `atEnd`, which is only "as far as the engine has been driven". A hold
+   * for a pending decision also reaches the ceiling, and the match is very much still on.
+   */
+  const finished = holdAt == null && atEnd;
+
+  const redsOf = (lineup: ReturnType<typeof lineupAt>) =>
+    [...lineup.badges.values()].filter((b) => b.red).length;
+  const homeReds = redsOf(homeLineup);
+  const awayReds = redsOf(awayLineup);
+
+  /**
+   * Which official is taking charge — the NAME.
+   *
+   * ⚠️ Drawn from the match seed, never `Math.random()`, so a replayed match keeps the same
+   * referee. Offset from the seed the engine uses so the two streams cannot correlate.
+   */
+  const refName =
+    referees.length === 0
+      ? null
+      : (referees[Math.floor(mulberry32(model.seed + 1)() * referees.length)] ?? null);
+
   return (
     <div className="lg-root lg-live">
       {/* ---- scoreboard ---- */}
       <header className="lg-board">
         <div className="lg-board-main">
-          <span className="lg-board-team lg-home">{model.home.name}</span>
+          <span className="lg-board-team lg-home">
+            {model.home.name}
+            {/* A dismissal belongs on the scoreboard — it is the single biggest thing that
+                has happened to a side, and burying it in the feed hides it. */}
+            {homeReds > 0 ? (
+              <span className="lg-board-red" title={t("badgeRed")}>
+                {homeReds > 1 ? `${homeReds}×` : ""}
+              </span>
+            ) : null}
+          </span>
           <span className="lg-board-score">
             <span className="lg-home">{homeScore}</span>
             <span className="lg-board-dash">–</span>
             <span className="lg-away">{awayScore}</span>
           </span>
-          <span className="lg-board-team lg-away">{model.away.name}</span>
+          <span className="lg-board-team lg-away">
+            {awayReds > 0 ? (
+              <span className="lg-board-red" title={t("badgeRed")}>
+                {awayReds > 1 ? `${awayReds}×` : ""}
+              </span>
+            ) : null}
+            {model.away.name}
+          </span>
         </div>
         <div className="lg-board-meta">
           <span className="lg-clock" data-testid="live-clock">
             {minute}
             {"'"}
           </span>
-          {referee != null ? <span className="lg-chip">{t(REFEREE_KEY[referee])}</span> : null}
-          {weather != null ? <span className="lg-chip">{t(WEATHER_KEY[weather])}</span> : null}
+          {/* ⚠️ The referee's NAME, not his style. `refereeStyle` still governs bookings —
+              it is simply not what a scoreboard should say. The weather chip is gone; the
+              pre-match programme still explains what both conditions DO. */}
+          {refName != null ? <span className="lg-chip">{refName}</span> : null}
         </div>
       </header>
 
@@ -377,6 +412,7 @@ export function MatchLive({
             minute={minute}
             seed={model.seed}
             reduced={reduced}
+            running={!finished}
             label={t("livePitchAria")}
             colors={MAP_COLORS}
           />

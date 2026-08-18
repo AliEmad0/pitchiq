@@ -57,6 +57,7 @@ export function GamePlay({
   backHref,
   screens,
   captaincies,
+  referees,
 }: {
   pool: PoolCard[];
   initialPhase?: PlayPhase;
@@ -79,6 +80,13 @@ export function GamePlay({
    * `captains.json` is a server-only read.
    */
   captaincies?: Record<number, number>;
+  /**
+   * Real referee names, from the committed fixtures (TASK-1810).
+   *
+   * ⚠️ Cosmetic only — the engine's own `RefereeStyle` still decides how tightly the match
+   * is refereed. This just lets the scoreboard name him instead of labelling him "STRICT".
+   */
+  referees?: readonly string[];
 }) {
   const t = useTranslations("game");
   const locale = useLocale();
@@ -393,8 +401,7 @@ export function GamePlay({
             holdAt={pending?.minute ?? (result == null ? 0 : undefined)}
             pending={pending}
             captaincies={captaincies ?? {}}
-            referee={referee}
-            weather={weather}
+            referees={referees ?? []}
             onAnswer={driver.answer}
           />
         ) : (

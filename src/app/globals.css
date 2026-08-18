@@ -2043,6 +2043,15 @@
   overflow: hidden;
 }
 /* halfway line + centre circle */
+/* ⛔ `pointer-events: none` on every decoration.
+   A `::after` box is painted after the element's CHILDREN, so the centre circle sits on
+   top of the position buttons underneath it and swallows their clicks — the middle CM of
+   a 4-4-2 was unselectable. The markings are decoration and must never take a hit. */
+.pd-pitch::before,
+.pd-pitch::after,
+.pd-box {
+  pointer-events: none;
+}
 .pd-pitch::before {
   content: "";
   position: absolute;
@@ -2140,6 +2149,8 @@
   color: #1d2027;
 }
 .pd-tag {
+  /* A label, not a control, and wide enough to overlap the spot beneath it. */
+  pointer-events: none;
   max-width: 96px;
   font-size: 10.5px;
   font-weight: 700;
@@ -2509,13 +2520,18 @@
 .lg-xi-away .lg-xi-title {
   color: var(--away);
 }
+/* ⚠️ The wrapper MUST carry the ratio. `.pc-card` is `width:100%; height:100%`, so with
+   an undimensioned parent it has nothing to fill and the cards pile on top of one another
+   — which is exactly what the three fixed columns produced. `auto-fill` also lets the row
+   drop to two-up on a narrow screen instead of squashing. */
 .lg-xi-cards {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
+  gap: 6px;
 }
 .lg-xi-card {
   min-width: 0;
+  aspect-ratio: 11 / 16;
 }
 
 /* ---- conditions ---- */
@@ -2631,6 +2647,23 @@
 }
 .lg-board-main > .lg-board-team:last-child {
   text-align: end;
+}
+/* The dismissal marker on the scoreboard — a real red card, drawn rather than an emoji
+   so it keeps its shape across platforms. A count rides beside it for a second red. */
+.lg-board-red {
+  display: inline-grid;
+  place-items: center;
+  margin-inline: 6px;
+  min-width: 11px;
+  height: 15px;
+  padding: 0 2px;
+  border-radius: 2px;
+  background: #e5384a;
+  color: #fff;
+  font-family: var(--font-mono), monospace;
+  font-size: 9px;
+  font-weight: 800;
+  vertical-align: middle;
 }
 .lg-board-score {
   display: inline-flex;
@@ -2865,7 +2898,8 @@
 }
 .lg-sheet-row {
   display: grid;
-  grid-template-columns: 4ch 1fr auto 3ch;
+  /* number · position · name · what he did · rating */
+  grid-template-columns: 2.5ch 4ch 1fr auto 3ch;
   align-items: center;
   gap: 8px;
   padding: 7px 4px;
@@ -2880,6 +2914,14 @@
 /* Sent off or substituted — the row stays, greyed. */
 .lg-sheet-gone {
   opacity: 0.42;
+}
+.lg-sheet-num {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+  color: var(--chalk-dim);
 }
 .lg-sheet-pos {
   font-family: var(--font-mono), monospace;
@@ -2906,8 +2948,15 @@
   border-radius: 3px;
 }
 .lg-sheet-marks {
-  font-size: 12px;
-  letter-spacing: 1px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.lg-mark {
+  font-size: 11px;
+  font-family: var(--font-mono), monospace;
+  line-height: 1;
+  white-space: nowrap;
 }
 .lg-sheet-ovr {
   font-family: var(--font-mono), monospace;
