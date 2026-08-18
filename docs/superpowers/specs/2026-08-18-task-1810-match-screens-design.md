@@ -1,16 +1,28 @@
 # TASK-1810 — Legacy match screens: approved designs
 
-**Status:** designs AGREED with the owner and prototyped; **`?phase=preview` and `?phase=live` are NOT yet built in the app.** The club sheet and the draft are shipped (PRs #166, #167).
+**Status:** designs AGREED with the owner, and **ALL FOUR SCREENS ARE NOW BUILT** — the club
+sheet and the draft in #167, `?phase=preview` in #169, `?phase=live` in #170.
+
+⛔ **One thing in here is still unsolved: the pitch mini-map player animation (§3.1).** Two
+attempts were rejected and it needs its own design pass; `LivePitch` ships deliberately
+static. ⏸ The 30-concept animation galleries remain **parked**.
+
+✅ **§5.3 is now CLOSED** (owner, 2026-08-18): the clock keeps running, the Bench glows amber,
+and after 20 seconds the engine executes its own recommendation — with a **"Manual subs
+only"** toggle that bypasses the timer so the window expires with no change made. ⚠️ Note
+that the shipped `fallbackFor` **declines** rather than executes, so auto-mode uses
+`defaultAnswer`; and because a sub-offer is raised _every minute_ of the window, only a
+genuine "change available" opens the amber window.
 
 Each design was chosen through the owner's 30-concept gallery ritual and then iterated as a
 playable prototype. The prototypes are the specification — build against them.
 
-| Screen | Design | State |
-| --- | --- | --- |
-| `/game/legacy` | Concept 09 **Sticker Album** + motion 06 **Foil Sweep** | ✅ shipped (#167) |
-| `/game/legacy/[club]` | **Centre-pitch draft**, landscape | ✅ shipped (#167) |
-| `?phase=preview` | Hybrid of **12 Star Spotlight + 21 Programme Spread + 22 Chalk & Compare** | ⬜ prototype only |
-| `?phase=live` | Concept 02 **Split Feed** | ⬜ prototype only |
+| Screen                | Design                                                                     | State             |
+| --------------------- | -------------------------------------------------------------------------- | ----------------- |
+| `/game/legacy`        | Concept 09 **Sticker Album** + motion 06 **Foil Sweep**                    | ✅ shipped (#167) |
+| `/game/legacy/[club]` | **Centre-pitch draft**, landscape                                          | ✅ shipped (#167) |
+| `?phase=preview`      | Hybrid of **12 Star Spotlight + 21 Programme Spread + 22 Chalk & Compare** | ⬜ prototype only |
+| `?phase=live`         | Concept 02 **Split Feed**                                                  | ⬜ prototype only |
 
 **Prototypes (the source of truth for layout and behaviour):**
 
@@ -56,7 +68,7 @@ Top to bottom, one column, max ~980px:
 4. **The teams** — both XIs **as cards**, three across, gold and rose, each carrying rating,
    position, season and a reserved portrait window. ⚠️ Owner change: this was a list; it is
    cards now. At this size the five attribute numbers are omitted deliberately.
-5. **Conditions** — referee and weather, each with a line on what it *does*.
+5. **Conditions** — referee and weather, each with a line on what it _does_.
 6. **Kick off** — ⚠️ **full width**, with a pulse that breathes a glow ring outward every
    2.4s plus a barely-there scale. It animates **box-shadow and transform ONLY** — the
    motion audit rejects `filter`, and a glowing button is exactly where you would reach for
@@ -87,8 +99,8 @@ beneath a rule**.
 
 The owner reviewed two attempts and rejected both:
 
-1. *Ambient possession* — random passes between players. Rejected: unrelated to the match.
-2. *Event-driven replay* — each event makes its side attack, both teams shift into one half,
+1. _Ambient possession_ — random passes between players. Rejected: unrelated to the match.
+2. _Event-driven replay_ — each event makes its side attack, both teams shift into one half,
    the ball goes to the named player, a shot flies at the goal being attacked and a goal
    ticks the scoreline. **Closer, and the requirements below came from it, but the motion
    itself was still not right.**
@@ -116,7 +128,7 @@ never `left`/`top` — animating layout properties re-lays-out the pitch every f
   wash and heavier type; a half-chance recedes.
 - ⛔ **Resolve through `commentaryArgs()`, not `ref.values`.** The catalog interpolates the
   DISPLAY args (`{homeScoreFmt}`, `{minuteFmt}`) which that bridge derives. Substituting the
-  raw values leaves every scoreline as a bare dash — *"…buries it. –"*, *"Half-time: –"*.
+  raw values leaves every scoreline as a bare dash — _"…buries it. –"_, _"Half-time: –"_.
   This actually shipped into a prototype and the owner caught it.
 - The template also carries a trailing `({minuteFmt}')`. The feed prints the minute in its
   own column, so decide once whether to keep the suffix — do not render it twice.
@@ -125,7 +137,7 @@ never `left`/`top` — animating layout properties re-lays-out the pitch every f
 
 Two ruled columns, gold and rose, each row `POS · name · rating`, with the caption carrying
 formation, decade span and the captain. **Each player carries his own match on his row** —
-the same event stream regrouped by *who* rather than *when*. Rows with events lift slightly.
+the same event stream regrouped by _who_ rather than _when_. Rows with events lift slightly.
 ⚠️ A red card renders 🟥, not the yellow badge.
 
 ### 3.4 The substitution — a button and a popup
@@ -134,7 +146,7 @@ the same event stream regrouped by *who* rather than *when*. Rows with events li
 `DecisionPrompt`, which appears unbidden and blocks the match.
 
 - **Bench** is an ordinary control that is always present. When a change is available the
-  *same* button turns amber and reads "Change available". No new panel appears.
+  _same_ button turns amber and reads "Change available". No new panel appears.
 - Opening it gives a decision screen where every player is a **card**, not a list row.
 - Choose one **off** and one **on**; **Confirm stays disabled until both are picked**.
 - The engine's own recommendation is surfaced as a **SUGGESTED** flag, and the captain is
