@@ -2284,3 +2284,42 @@
     transition: none;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   TASK-1810 — one theme for the whole Legacy flow (owner instruction, 2026-08-18).
+
+   The three chosen pre-match concepts each arrived with a different palette
+   (neutral cards, light newsprint, wood-framed green). The owner's instruction
+   was explicit: ONE theme. Everything sits on pitch-and-chalk.
+
+   ⛔ Zero hard-coded colours outside this block. The coding is consistent per
+   section: your side is ALWAYS gold, theirs ALWAYS rose, and --cta is reserved
+   for the single action on a page.
+
+   ⚠️ Scoped to `.lg-root`, never `:root`. Names like `--home` and `--panel` are
+   generic enough that defining them globally would put a second meaning on them
+   across every other feature in the app.
+--------------------------------------------------------------------------- */
+.lg-root {
+  --ground: #0a0f0d;
+  --panel: #101714;
+  --panel-2: #16201c;
+  --rule: #24332c;
+  --chalk: #e8efe9;
+  --chalk-dim: #93a89b;
+  --chalk-faint: #63776b;
+  --home: #f2d98a;
+  --home-deep: #b7892a;
+  --away: #ff7d9b;
+  --away-deep: #a8324c;
+  --cta: #35e0ff;
+  --alert: #ffc63d;
+  --turf-a: #123a2a;
+  --turf-b: #0e3022;
+  --ink-home: #2b1e00;
+  --ink-away: #2b0710;
+  --ink-cta: #00232b;
+
+  background: var(--ground);
+  color: var(--chalk);
+}
