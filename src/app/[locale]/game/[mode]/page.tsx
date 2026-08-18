@@ -11,6 +11,17 @@ import { packFor, routedPacks } from "@/features/game/domain/rule-packs";
 export const dynamic = "force-static";
 export const revalidate = 86400;
 
+/**
+ * ⛔ NO on-demand rendering, ever.
+ *
+ * `force-static` alone is not enough on a DYNAMIC segment: params outside
+ * `generateStaticParams` would still be rendered at request time and cached, which is the
+ * exact shape of the 2026-07 Fluid Active-CPU outage — every unknown URL a crawler invents
+ * would run a function. The pack list is a closed set, so anything outside it is bad input
+ * and 404s without the page ever running.
+ */
+export const dynamicParams = false;
+
 type Props = { params: Promise<{ locale: string; mode: string }> };
 
 /**

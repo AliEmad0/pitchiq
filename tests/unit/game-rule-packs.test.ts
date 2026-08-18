@@ -36,10 +36,21 @@ describe("rule packs", () => {
     expect(CHAOS_PACK.chooser).toBeUndefined();
   });
 
-  it("⚠️ Legacy drafts in 3-card sequential rounds; Chaos keeps the room's defaults", () => {
+  it("⚠️ Legacy deals five, free-roam, final picks and no clock; Chaos keeps the defaults", () => {
     // The owner's mechanic lives on the PACK, not inside a Legacy-specific component —
-    // that is what hands Captain's Draft and Budget Cap the same two knobs later.
-    expect(packFor("legacy")!.draft).toEqual({ handSize: 3, roam: "sequential" });
+    // that is what hands Captain's Draft and Budget Cap the same knobs later.
+    //
+    // ⚠️ `timer: null` is asserted explicitly. It is the one field whose ABSENCE would be
+    // silently wrong: undefined falls through to the room's shipped 15-second countdown,
+    // which would put a clock on a decision that cannot be revised.
+    expect(packFor("legacy")!.draft).toEqual({
+      handSize: 5,
+      roam: "free",
+      timer: null,
+      lockPicks: true,
+      standout: true,
+      onePerPlayer: true,
+    });
     // ⛔ Undefined, NOT a spelled-out `{ handSize: 5, roam: "free" }`. Chaos runs the
     // shipped hub, and restating its defaults here would make them a second source of
     // truth that could drift from `HAND_SIZE`.

@@ -8,6 +8,16 @@ import { packFor, routedPacks } from "@/features/game/domain/rule-packs";
 export const dynamic = "force-static";
 export const revalidate = 86400;
 
+/**
+ * ⛔ NO on-demand rendering, ever — and this route is where it matters most.
+ *
+ * `force-static` does not stop a dynamic segment rendering unknown params at request time.
+ * `/game/legacy/999999` would otherwise build a pool, run a lambda and cache a page, so a
+ * crawler walking invented ids could burn Fluid Active CPU indefinitely. The club list is
+ * closed, so anything outside it 404s before the page runs.
+ */
+export const dynamicParams = false;
+
 type Props = { params: Promise<{ locale: string; mode: string; club: string }> };
 
 /**

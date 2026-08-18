@@ -79,6 +79,20 @@ export interface DraftSpec {
    * free roam is nothing more than the UI also permitting the `open` action.
    */
   roam: "free" | "sequential";
+  /**
+   * Seconds before the room answers for you, or `null` for no clock at all.
+   *
+   * ⚠️ `null` is a real choice, not an oversight: with picks final there is nothing to
+   * revise, so a countdown would be forcing an irreversible decision rather than keeping
+   * a reversible one moving.
+   */
+  timer?: number | null;
+  /** A filled slot cannot be reopened — the pick is final. */
+  lockPicks?: boolean;
+  /** Guarantee one card at `STANDOUT_OVR`+, or the best available, in every hand. */
+  standout?: boolean;
+  /** A player may be offered in at most one hand, so no XI can field him twice. */
+  onePerPlayer?: boolean;
 }
 
 export interface RulePack {
@@ -130,14 +144,22 @@ export const CHAOS_PACK: RulePack = {
 /**
  * Legacy Club.
  *
- * The draft is the owner's 2026-08-17 mechanic: **eleven consecutive rounds of three
- * cards**, one round per formation slot, drawn from the chosen club's ENTIRE history.
+ * The draft (owner, 2026-08-18): **click any position, get five cards, and the pick is
+ * final.** No clock, no player twice, and one card in every hand is a standout — 80+ where
+ * the club has one, otherwise the best it can offer for that position.
  */
 const LEGACY_PACK: RulePack = {
   id: "legacy",
   pool: { kind: "clubHistory", teams: LEGACY_CLUBS },
   chooser: { kind: "club" },
-  draft: { handSize: 3, roam: "sequential" },
+  draft: {
+    handSize: 5,
+    roam: "free",
+    timer: null,
+    lockPicks: true,
+    standout: true,
+    onePerPlayer: true,
+  },
   constraints: [],
   objective: "win",
 };

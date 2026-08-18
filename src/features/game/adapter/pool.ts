@@ -77,14 +77,21 @@ function everySeason(): number[] {
  * which must stay cheap: it ships 51 names, not 18,126 cards. Counting each club's cards
  * for the menu would mean building the entire card universe to render a list.
  */
-export async function clubChoices(): Promise<Array<{ id: number; name: string; seasons: number }>> {
-  const seen = new Map<number, { name: string; seasons: number }>();
+export async function clubChoices(): Promise<
+  Array<{ id: number; name: string; seasons: number; first: number; last: number }>
+> {
+  const seen = new Map<number, { name: string; seasons: number; first: number; last: number }>();
   for (const season of everySeason()) {
     for (const row of (await loadStandings(season)) ?? []) {
       const prior = seen.get(row.teamId);
       // The LATEST name wins — clubs get renamed, and the current name is the one a
       // visitor will recognise.
-      seen.set(row.teamId, { name: row.teamName, seasons: (prior?.seasons ?? 0) + 1 });
+      seen.set(row.teamId, {
+        name: row.teamName,
+        seasons: (prior?.seasons ?? 0) + 1,
+        first: Math.min(prior?.first ?? season, season),
+        last: Math.max(prior?.last ?? season, season),
+      });
     }
   }
   return [...seen.entries()]

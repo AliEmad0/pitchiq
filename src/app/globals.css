@@ -1906,3 +1906,381 @@
   opacity: 0.7;
   z-index: 3;
 }
+
+/* ---------------------------------------------------------------------------
+   TASK-1810 — the Legacy club sheet.
+   Owner-picked: concept 09 "Sticker Album" with concept 06 "Foil Sweep".
+
+   ⛔ The sheen is a TRANSLATING GRADIENT, never a brightness filter. The motion
+   audit allowlists compositor-friendly properties only, and "filter" is rejected —
+   a brightness sweep would fail that gate and repaint every frame besides. Moving a
+   gradient across the sheet is also closer to what real foil does.
+--------------------------------------------------------------------------- */
+@keyframes game-sticker-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes game-foil-sweep {
+  0% {
+    opacity: 0;
+    transform: translateX(-60%) skewX(-14deg);
+  }
+  14% {
+    opacity: 1;
+  }
+  86% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(240%) skewX(-14deg);
+  }
+}
+
+.sticker-sheet {
+  position: relative;
+  overflow: hidden;
+}
+
+/* The foil. Starts after the stickers have settled, so it reads as a highlight
+   passing over a finished sheet rather than part of the arrival. */
+.sticker-sheet::after {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 30%;
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    transparent,
+    color-mix(in oklch, var(--primary) 26%, transparent),
+    transparent
+  );
+  animation: game-foil-sweep 1150ms 620ms var(--ease-in-out-soft) both;
+}
+
+.sticker-slot {
+  animation: game-sticker-in 360ms var(--ease-out-soft) both;
+  animation-delay: calc(var(--i, 0) * 24ms);
+}
+
+/* ⚠️ BOTH selectors, not just the container. The treatment is two separate
+   animations, so gating only one leaves the other running for a reduced-motion
+   visitor while still screenshotting correctly. */
+@media (prefers-reduced-motion: reduce) {
+  .sticker-slot {
+    animation: none;
+  }
+  .sticker-sheet::after {
+    display: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   TASK-1810 — the Legacy pitch draft (owner-designed, 2026-08-18).
+
+   A landscape pitch is the surface; a veil carries the five cards. The deal is a
+   SWAP, not one element flipped 180°: the deck back turns edge-on and hands over
+   to the card face turning in from the other edge.
+
+   ⛔ Why a swap. The real `PlayerCard` owns its own `rotateY` flip for the detail
+   side, and nesting one 3D flip inside another composes the rotations — the face
+   ends up pointing away. A swap keeps the two independent, and avoids nesting
+   `preserve-3d`, which Safari renders unreliably.
+--------------------------------------------------------------------------- */
+@keyframes game-deal-back {
+  from {
+    transform: rotateY(0deg);
+    visibility: visible;
+  }
+  to {
+    transform: rotateY(90deg);
+    visibility: hidden;
+  }
+}
+
+@keyframes game-deal-front {
+  0% {
+    transform: rotateY(-90deg) scale(1.04);
+    visibility: visible;
+  }
+  70% {
+    transform: rotateY(7deg) scale(1.03);
+  }
+  100% {
+    transform: rotateY(0deg) scale(1);
+    visibility: visible;
+  }
+}
+
+.pd-root {
+  --pd-step: 300ms;
+  --pd-half: 575ms;
+}
+
+/* ---- the pitch ---- */
+.pd-pitch-wrap {
+  display: grid;
+  place-items: center;
+}
+.pd-pitch {
+  position: relative;
+  width: 100%;
+  max-width: 980px;
+  aspect-ratio: 105 / 68;
+  border-radius: 12px;
+  border: 2px solid rgb(255 255 255 / 30%);
+  background: repeating-linear-gradient(90deg, #14603f 0 8.33%, #0f4c32 8.33% 16.66%);
+  box-shadow: 0 22px 60px rgb(0 0 0 / 45%);
+  overflow: hidden;
+}
+/* halfway line + centre circle */
+.pd-pitch::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  background: rgb(255 255 255 / 30%);
+}
+.pd-pitch::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  height: 30%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border: 2px solid rgb(255 255 255 / 30%);
+  border-radius: 50%;
+}
+.pd-box {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 58%;
+  width: 15%;
+  border: 2px solid rgb(255 255 255 / 30%);
+}
+.pd-box-left {
+  left: -1px;
+  border-left: 0;
+  border-radius: 0 4px 4px 0;
+}
+.pd-box-right {
+  right: -1px;
+  border-right: 0;
+  border-radius: 4px 0 0 4px;
+}
+.pd-box-six {
+  height: 27%;
+  width: 6.5%;
+}
+
+/* ⚠️ The pitch shrinks while the shape bar is up so all eleven spots clear it —
+   a shape you cannot see whole is a shape you cannot judge. */
+.pd-shaping .pd-pitch {
+  height: min(calc(100vh - 340px), 56vh);
+  width: auto;
+  max-width: 100%;
+}
+
+/* ---- a position ---- */
+.pd-spot {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  width: 96px;
+  transition:
+    inset-inline-start 340ms var(--ease-out-soft),
+    top 340ms var(--ease-out-soft);
+}
+.pd-disc {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  font-weight: 800;
+  color: #cfe3d7;
+  background: rgb(8 20 15 / 62%);
+  border: 2px dashed rgb(255 255 255 / 38%);
+  transition:
+    transform 180ms var(--ease-pop),
+    border-color 180ms;
+}
+.pd-spot:not(:disabled):hover .pd-disc {
+  transform: scale(1.09);
+  border-color: #35e0ff;
+}
+.pd-filled .pd-disc {
+  border-style: solid;
+  border-color: rgb(0 0 0 / 35%);
+  background: linear-gradient(160deg, #f2d98a, #b7892a);
+  color: #241a05;
+  font-size: 16px;
+  font-weight: 900;
+}
+.pd-silver .pd-disc {
+  background: linear-gradient(160deg, #dfe3ea, #9aa3b1);
+  color: #1d2027;
+}
+.pd-tag {
+  max-width: 96px;
+  font-size: 10.5px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #f2f7f4;
+  text-shadow: 0 1px 3px rgb(0 0 0 / 95%);
+}
+
+/* ---- the shape bar: opaque, and it blocks the pitch behind it ---- */
+.pd-shapebar {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 46;
+  background: var(--background);
+  border-top: 1px solid var(--border);
+  padding: 16px 20px 20px;
+  box-shadow: 0 -18px 30px var(--background);
+}
+.pd-shapebar-inner {
+  margin: 0 auto;
+  max-width: 1080px;
+}
+.pd-chip {
+  font-size: 12.5px;
+  font-weight: 650;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--muted);
+}
+.pd-chip[aria-pressed="true"] {
+  background: #35e0ff;
+  border-color: #35e0ff;
+  color: #05222b;
+}
+.pd-confirm {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+  padding-top: 13px;
+  border-top: 1px solid var(--border);
+}
+.pd-lock {
+  background: #35e0ff;
+  color: #05222b;
+  font-weight: 800;
+  font-size: 14px;
+  padding: 10px 22px;
+  border-radius: 8px;
+}
+
+/* ---- the veil ---- */
+.pd-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgb(6 9 13 / 82%);
+  backdrop-filter: blur(7px);
+  text-align: center;
+}
+.pd-veil-inner {
+  width: 100%;
+  max-width: 1000px;
+}
+.pd-hand {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+}
+.pd-close {
+  margin-top: 24px;
+  border: 1px solid var(--border);
+  background: var(--muted);
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+/* ---- a dealt card ---- */
+.pd-card {
+  position: relative;
+  width: 176px;
+  aspect-ratio: 11 / 16;
+  perspective: 1300px;
+}
+.pd-back,
+.pd-front {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+}
+.pd-back {
+  background: linear-gradient(150deg, #1c2536, #0d131e);
+  border: 1px solid #2c3648;
+  animation: game-deal-back var(--pd-half) var(--ease-in-out-soft) forwards;
+  animation-delay: calc(var(--pd-i) * var(--pd-step));
+}
+.pd-front {
+  /* Hidden until its own leg starts — `forwards` leaves it alone during the delay. */
+  visibility: hidden;
+  animation: game-deal-front var(--pd-half) var(--ease-out-soft) forwards;
+  animation-delay: calc(var(--pd-i) * var(--pd-step) + var(--pd-half));
+}
+/* ⛔ The only control on a card, and it sits OUTSIDE the turning faces: a rotated,
+   backface-hidden surface does not hit-test reliably, so a pick button inside the
+   flip looks clickable and is not. */
+.pd-pick {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  border-radius: 12px;
+  cursor: pointer;
+}
+.pd-pick:hover {
+  box-shadow: 0 0 0 3px #35e0ff;
+}
+
+/* ⚠️ ALL FOUR animated selectors, not just the container. The deal is two legs per
+   card plus two positional transitions, so gating one leaves the rest running for a
+   reduced-motion visitor while still screenshotting correctly. */
+@media (prefers-reduced-motion: reduce) {
+  .pd-back {
+    animation: none;
+    visibility: hidden;
+  }
+  .pd-front {
+    animation: none;
+    visibility: visible;
+  }
+  .pd-spot,
+  .pd-disc {
+    transition: none;
+  }
+}

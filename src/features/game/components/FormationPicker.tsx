@@ -20,6 +20,11 @@ interface Props {
   /** The shape currently chosen. Held by the caller, which owns the draft state. */
   value: Formation;
   onChange: (formation: Formation) => void;
+  /**
+   * The shapes to offer. Defaults to all twenty; Legacy narrows it to the ones the chosen
+   * club can actually field once cards are deduped by player (TASK-1810).
+   */
+  shapes?: readonly Formation[];
 }
 
 /**
@@ -32,8 +37,9 @@ interface Props {
  * `formationByName`. An index would type-check and read fine while making the array's
  * order — which is presentation only — load-bearing.
  */
-export function FormationPicker({ value, onChange }: Props) {
+export function FormationPicker({ value, onChange, shapes = FORMATIONS }: Props) {
   const t = useTranslations("game");
+  const offered = new Set(shapes.map((f) => f.name));
   return (
     <>
       <label htmlFor="formation" className="sr-only">
@@ -46,15 +52,20 @@ export function FormationPicker({ value, onChange }: Props) {
         onChange={(e) => onChange(formationByName(e.target.value))}
         className="border-border bg-background rounded-md border px-3 py-1.5 font-mono text-xs font-bold"
       >
-        {FAMILIES.map(({ labelKey, from, to }) => (
-          <optgroup key={labelKey} label={t(labelKey)}>
-            {FORMATIONS.slice(from, to).map((f) => (
-              <option key={f.name} value={f.name}>
-                {f.name}
-              </option>
-            ))}
-          </optgroup>
-        ))}
+        {FAMILIES.map(({ labelKey, from, to }) => {
+          const group = FORMATIONS.slice(from, to).filter((f) => offered.has(f.name));
+          // A family whose every shape is unfillable is dropped entirely rather than
+          // rendered as a heading over nothing.
+          return group.length === 0 ? null : (
+            <optgroup key={labelKey} label={t(labelKey)}>
+              {group.map((f) => (
+                <option key={f.name} value={f.name}>
+                  {f.name}
+                </option>
+              ))}
+            </optgroup>
+          );
+        })}
       </select>
     </>
   );

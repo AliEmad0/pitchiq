@@ -20,6 +20,12 @@ interface Props {
   handSize?: DraftSpec["handSize"];
   /** Whether the board is navigable (TASK-1810). Defaults to the shipped free roam. */
   roam?: DraftSpec["roam"];
+  /** Guarantee one strong card per hand (TASK-1810). */
+  standout?: boolean;
+  /** A player may be offered in at most one hand (TASK-1810). */
+  onePerPlayer?: boolean;
+  /** A filled slot cannot be reopened — the pick is final (TASK-1810). */
+  lockPicks?: boolean;
 }
 
 /**
@@ -46,12 +52,15 @@ export function DraftRoom({
   limit = 15,
   handSize = HAND_SIZE,
   roam = "free",
+  standout = false,
+  onePerPlayer = false,
+  lockPicks = false,
 }: Props) {
   const t = useTranslations("game");
   const reduced = prefersReducedMotion();
   const hands = useMemo(
-    () => roomDeals(pool, formation, seed, handSize),
-    [pool, formation, seed, handSize],
+    () => roomDeals(pool, formation, seed, { handSize, standout, onePerPlayer }),
+    [pool, formation, seed, handSize, standout, onePerPlayer],
   );
   const [state, dispatch] = useReducer(roomReducer, formation, createRoomState);
   const byId = useMemo(() => new Map(pool.map((c) => [c.cardId, c])), [pool]);
@@ -156,6 +165,19 @@ export function DraftRoom({
                   style={position}
                   className={marker}
                 >
+                  {face}
+                </span>
+              );
+            }
+
+            /**
+             * ⛔ A locked, filled slot becomes an inert span too — same rule, same reason.
+             * With `lockPicks` the pick is final, so a filled slot has nothing to offer a
+             * click; leaving it focusable would promise an action that does not exist.
+             */
+            if (lockPicks && card != null) {
+              return (
+                <span key={`${s.row}-${s.col}`} aria-hidden="true" style={position} className={marker}>
                   {face}
                 </span>
               );

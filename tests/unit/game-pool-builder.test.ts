@@ -66,12 +66,26 @@ describe("clubChoices", () => {
     }
   }, 120_000);
 
-  it("⛔ ships names and counts ONLY — never cards", async () => {
+  it("⛔ ships labels ONLY — never cards", async () => {
     // The menu page must stay cheap. If a card-shaped field ever appears here, the chooser
     // has started carrying the payload the route split exists to avoid.
     const clubs = await clubChoices();
     for (const c of clubs.slice(0, 5)) {
-      expect(Object.keys(c).sort()).toEqual(["id", "name", "seasons"]);
+      expect(Object.keys(c).sort()).toEqual(["first", "id", "last", "name", "seasons"]);
     }
+  }, 120_000);
+
+  it("⚠️ the span each sticker prints is real, and brackets the seasons served", async () => {
+    // The Sticker Album prints a club's span, so a wrong `first`/`last` is visible on the
+    // sheet. A one-season club must read as a single year, not a range.
+    const clubs = await clubChoices();
+    for (const c of clubs) {
+      expect(c.first, c.name).toBeLessThanOrEqual(c.last);
+      expect(c.last - c.first + 1, `${c.name} cannot serve more seasons than its span`)
+        .toBeGreaterThanOrEqual(c.seasons);
+    }
+    const luton = clubs.find((c) => c.name.includes("Luton"))!;
+    expect(luton.seasons).toBe(1);
+    expect(luton.first).toBe(luton.last);
   }, 120_000);
 });
