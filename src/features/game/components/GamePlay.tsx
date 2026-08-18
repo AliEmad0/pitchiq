@@ -386,9 +386,25 @@ export function GamePlay({
   return (
     <div>
       {model != null ? (
-        <MatchView model={model} holdAt={pending?.minute ?? (result == null ? 0 : undefined)} />
+        screens === "legacy" ? (
+          <MatchLive
+            model={model}
+            teams={{ home: match.home, away: match.away }}
+            holdAt={pending?.minute ?? (result == null ? 0 : undefined)}
+            pending={pending}
+            captaincies={captaincies ?? {}}
+            referee={referee}
+            weather={weather}
+            onAnswer={driver.answer}
+          />
+        ) : (
+          <MatchView model={model} holdAt={pending?.minute ?? (result == null ? 0 : undefined)} />
+        )
       ) : null}
-      {pending != null ? (
+      {/* ⛔ The shipped prompt is for the OTHER packs only. Legacy's affordance is the
+          Bench button, and a modal appearing over it unbidden is the exact complaint this
+          redesign exists to answer. `MatchLive` answers its own decisions. */}
+      {pending != null && screens !== "legacy" ? (
         <DecisionPrompt decision={pending} limit={DECISION_LIMIT} onAnswer={driver.answer} />
       ) : null}
       {result != null ? (

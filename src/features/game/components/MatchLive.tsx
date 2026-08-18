@@ -136,6 +136,22 @@ export function MatchLive({
     setPlaying(true);
   }, [reduced, minute, lastMinute]);
 
+  /**
+   * ⚠️ Reduced motion must FOLLOW the ceiling, not merely start at it.
+   *
+   * `minute` is seeded from `ceiling` once, and the clock effect above returns early when
+   * `reduced` — so without this the screen sticks at whatever minute the FIRST decision
+   * happened to land on and never shows the rest of the match. A viewer who has asked for
+   * no animation wants the whole match as it arrives, not a frozen early frame.
+   *
+   * Found by measurement: the live test intermittently had no half-time line in the feed,
+   * because the first decision can be raised before minute 45.
+   */
+  useEffect(() => {
+    if (!reduced) return;
+    setMinute(lastMinute);
+  }, [reduced, lastMinute]);
+
   const started = useRef(false);
   useEffect(() => {
     if (!reduced && !started.current) {
@@ -199,8 +215,7 @@ export function MatchLive({
     [model.home.players, counts],
   );
   const offPitch = useMemo(
-    () =>
-      new Set(homeLineup.roster.filter((r) => !r.onPitch).map((r) => r.player.playerId)),
+    () => new Set(homeLineup.roster.filter((r) => !r.onPitch).map((r) => r.player.playerId)),
     [homeLineup],
   );
   const armband = armbandAt(captaincy, offPitch);
@@ -235,7 +250,9 @@ export function MatchLive({
       // ⛔ commentaryArgs, NEVER ref.values. The catalog interpolates {homeScoreFmt} and
       // {minuteFmt}, which that bridge derives; substituting the raw values leaves every
       // scoreline a bare dash — "…buries it. –".
-      text: stripMinuteSuffix(tRoot(e.commentary.key, commentaryArgs(e.commentary as CommentaryRef))),
+      text: stripMinuteSuffix(
+        tRoot(e.commentary.key, commentaryArgs(e.commentary as CommentaryRef)),
+      ),
       weight: weightOf(e.kind),
       id: `e${i}`,
     }));
@@ -262,7 +279,11 @@ export function MatchLive({
           },
     );
 
-  const sheetOf = (lineup: ReturnType<typeof lineupAt>, side: "home" | "away", band: number | null): SheetRow[] =>
+  const sheetOf = (
+    lineup: ReturnType<typeof lineupAt>,
+    side: "home" | "away",
+    band: number | null,
+  ): SheetRow[] =>
     lineup.roster.map((r) => ({
       player: r.player,
       captain: band != null && r.player.playerId === band,
@@ -305,7 +326,7 @@ export function MatchLive({
           <span className="lg-board-team lg-away">{model.away.name}</span>
         </div>
         <div className="lg-board-meta">
-          <span className="lg-clock">
+          <span className="lg-clock" data-testid="live-clock">
             {minute}
             {"'"}
           </span>
