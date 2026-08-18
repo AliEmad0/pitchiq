@@ -26,6 +26,15 @@ import { formatSeasonLabel } from "@/utils/season";
 interface Props {
   card: EnrichedCard;
   reduced?: boolean;
+  /**
+   * Whether the card owns its own click (TASK-1810).
+   *
+   * ⚠️ `false` renders the FACE ONLY, as a plain element — no button, no flip, no detail
+   * side. The Legacy draft needs this: there, a tap on a card means "I choose this player",
+   * and a card that is itself a button cannot host that without nesting one button inside
+   * another, which the HTML parser resolves by throwing the inner one away.
+   */
+  interactive?: boolean;
 }
 
 // Rendered as data (never a translatable string): the brand mark.
@@ -354,7 +363,7 @@ function CardBack({ card, back }: { card: EnrichedCard; back: BackDesign }) {
   );
 }
 
-export function PlayerCard({ card, reduced }: Props) {
+export function PlayerCard({ card, reduced, interactive = true }: Props) {
   const t = useTranslations("game");
   const [flipped, setFlipped] = useState(false);
   // The card face is English-only in every locale (owner decision): a FUT-style card
@@ -369,6 +378,15 @@ export function PlayerCard({ card, reduced }: Props) {
       ? { src: card.photoUrl ?? null, kind: card.photoKind, onError: reactive.onError }
       : reactive;
   const front = FRONTS[pickFront(card, photo.kind)]({ card, d, name, photo });
+
+  // Face only: no button, no flip, nothing to click. The caller owns the interaction.
+  if (!interactive) {
+    return (
+      <div dir="ltr" className="block" style={{ width: 176, aspectRatio: "11 / 16" }}>
+        <div className="relative h-full w-full">{front}</div>
+      </div>
+    );
+  }
 
   return (
     <button

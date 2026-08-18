@@ -27,8 +27,8 @@ import { DraftHub } from "./DraftHub";
 import { MatchSummary } from "./MatchSummary";
 import { MatchupPreview } from "./MatchupPreview";
 import { MatchView } from "./MatchView";
+import { PitchDraft } from "./PitchDraft";
 import { ResumeDialog } from "./ResumeDialog";
-import { RoundDraft } from "./RoundDraft";
 
 /** Seconds a decision waits before answering itself. Extendable per WCAG 2.2.1. */
 const DECISION_LIMIT = 20;
@@ -263,7 +263,7 @@ export function GamePlay({
     return (
       <>
         {draft != null ? (
-          <RoundDraft pool={pool} draft={draft} onConfirm={confirmSquad} backHref={backHref} />
+          <PitchDraft pool={pool} draft={draft} onConfirm={confirmSquad} backHref={backHref} />
         ) : (
           <DraftHub pool={pool} onConfirm={confirmSquad} />
         )}
