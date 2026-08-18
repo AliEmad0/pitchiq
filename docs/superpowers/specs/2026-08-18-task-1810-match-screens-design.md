@@ -1,0 +1,152 @@
+# TASK-1810 — Legacy match screens: approved designs
+
+**Status:** designs AGREED with the owner and prototyped; **`?phase=preview` and `?phase=live` are NOT yet built in the app.** The club sheet and the draft are shipped (PRs #166, #167).
+
+Each design was chosen through the owner's 30-concept gallery ritual and then iterated as a
+playable prototype. The prototypes are the specification — build against them.
+
+| Screen | Design | State |
+| --- | --- | --- |
+| `/game/legacy` | Concept 09 **Sticker Album** + motion 06 **Foil Sweep** | ✅ shipped (#167) |
+| `/game/legacy/[club]` | **Centre-pitch draft**, landscape | ✅ shipped (#167) |
+| `?phase=preview` | Hybrid of **12 Star Spotlight + 21 Programme Spread + 22 Chalk & Compare** | ⬜ prototype only |
+| `?phase=live` | Concept 02 **Split Feed** | ⬜ prototype only |
+
+**Prototypes (the source of truth for layout and behaviour):**
+
+- Pre-match — https://claude.ai/code/artifact/01cfa9f6-0a77-4e32-a5ce-b706b0203f96
+- Live — https://claude.ai/code/artifact/58373674-910c-41e3-884c-866758f9935a
+- Draft (already built) — https://claude.ai/code/artifact/bc2dce5b-ee81-4d57-be04-61dc3976568a
+
+---
+
+## 1. One theme across the whole flow
+
+⚠️ The three chosen pre-match concepts each arrived with a **different palette** (neutral
+cards, light newsprint, wood-framed green). The owner's instruction was explicit: one theme.
+Everything now sits on the pitch-and-chalk token set the draft already uses.
+
+```
+--ground #0a0f0d   --panel #101714   --panel-2 #16201c   --rule #24332c
+--chalk  #e8efe9   --chalk-dim #93a89b   --chalk-faint #63776b
+--home   #f2d98a / --home-deep #b7892a      (YOUR side, always gold)
+--away   #ff7d9b / --away-deep #a8324c      (THEIRS, always rose)
+--cta    #35e0ff                            (reserved for the ONE action on a page)
+--alert  #ffc63d                            (a waiting decision, a goal, the clock)
+--turf-a #123a2a / --turf-b #0e3022         (mown stripes)
+--ink-home / --ink-away / --ink-cta         (text ON each accent)
+```
+
+⛔ **Zero hard-coded colours** outside that block — verified programmatically on both
+prototypes. The colour coding is consistent per section: your rating is gold in the
+spotlight, in the comparison bars, in the teamsheet and on the pitch.
+
+---
+
+## 2. `?phase=preview` — the matchday programme
+
+Top to bottom, one column, max ~980px:
+
+1. **Masthead** — kicker, `HOME v AWAY` with a double rule, subline of shapes / squad
+   averages / the decade span the XI is drawn from.
+2. **Star Spotlight** — each side's best player, rating at ~68px, name, season, a tag
+   ("Your talisman" / "Theirs"), with an accent hairline along the card's top edge.
+3. **Tale of the Tape** — Overall / Attack / Midfield / Defence as **opposed bars**, gold
+   left, rose right, computed from the XI's role groups.
+4. **The teams** — both XIs **as cards**, three across, gold and rose, each carrying rating,
+   position, season and a reserved portrait window. ⚠️ Owner change: this was a list; it is
+   cards now. At this size the five attribute numbers are omitted deliberately.
+5. **Conditions** — referee and weather, each with a line on what it *does*.
+6. **Kick off** — ⚠️ **full width**, with a pulse that breathes a glow ring outward every
+   2.4s plus a barely-there scale. It animates **box-shadow and transform ONLY** — the
+   motion audit rejects `filter`, and a glowing button is exactly where you would reach for
+   it by reflex.
+
+---
+
+## 3. `?phase=live` — the split feed
+
+**Scoreboard** across the top: names, score, a beating clock, and **referee + weather chips
+beneath a rule**.
+
+**The split** — pitch left, commentary right, ⚠️ **stretched to the same row height**
+(`align-items: stretch`, feed is a flex column with a scrolling body).
+
+### 3.1 The pitch is a mini-map, not a formation diagram
+
+- **Both XIs** are on it: yours attacking right, theirs **mirrored** (`x` → `100 - x`).
+  Positions come from each side's own formation slots.
+- **A ball moves between real players** — passes within a side, ~1 in 5 turned over, and
+  every 7th a shot at the attacked goal before resetting. The man in possession is ringed.
+- ⛔ The ball moves by **`transform: translate()`**, never `left`/`top` — animating layout
+  properties re-lays-out the pitch every frame.
+- **Full markings**: touchlines, goal lines, both penalty areas, six-yard boxes, centre
+  circle, and the three spots.
+- ⚠️ The app already has `domain/pitch-sim.ts` (seeded ambient possession, ball always on a
+  real player). **Drive the real thing — do not reimplement the prototype's `Math.random`.**
+
+### 3.2 Commentary — "the comments"
+
+- Newest first, minute in its own column, **weighted by importance**: a goal gets an amber
+  wash and heavier type; a half-chance recedes.
+- ⛔ **Resolve through `commentaryArgs()`, not `ref.values`.** The catalog interpolates the
+  DISPLAY args (`{homeScoreFmt}`, `{minuteFmt}`) which that bridge derives. Substituting the
+  raw values leaves every scoreline as a bare dash — *"…buries it. –"*, *"Half-time: –"*.
+  This actually shipped into a prototype and the owner caught it.
+- The template also carries a trailing `({minuteFmt}')`. The feed prints the minute in its
+  own column, so decide once whether to keep the suffix — do not render it twice.
+
+### 3.3 Team sheets
+
+Two ruled columns, gold and rose, each row `POS · name · rating`, with the caption carrying
+formation, decade span and the captain. **Each player carries his own match on his row** —
+the same event stream regrouped by *who* rather than *when*. Rows with events lift slightly.
+⚠️ A red card renders 🟥, not the yellow badge.
+
+### 3.4 The substitution — a button and a popup
+
+⛔ **Nothing sits on screen uninvited.** This was the owner's complaint about the shipped
+`DecisionPrompt`, which appears unbidden and blocks the match.
+
+- **Bench** is an ordinary control that is always present. When a change is available the
+  *same* button turns amber and reads "Change available". No new panel appears.
+- Opening it gives a decision screen where every player is a **card**, not a list row.
+- Choose one **off** and one **on**; **Confirm stays disabled until both are picked**.
+- The engine's own recommendation is surfaced as a **SUGGESTED** flag, and the captain is
+  flagged too.
+- Closes three ways: Close, Not now, Escape.
+- ⚠️ The prototype's popup is created on open and removed on dismiss. In the app, the
+  decision still **pauses the generator** — the button is the affordance, not a way to
+  ignore a decision the engine is waiting on. Resolve that: either the clock keeps running
+  behind an unanswered decision, or the match visibly waits. **Not yet decided.**
+
+### 3.5 Captains — owner requirement
+
+- The armband goes to the player with the **most real captaincies** in `data/captains.json`
+  (season → teamId → playerId; count per player). Next most is **vice**. With no record at
+  all, fall back to rating.
+- Measured on the sample XI: **Steven Gerrard 4 → captain, van Dijk 3 → vice.**
+- Shown as a **C** badge on the pitch pip and beside the name on the sheet; **V** for vice.
+- ⛔ **If the captain leaves the pitch — red card or substitution — the vice inherits the
+  armband**, and the handover is written into the commentary.
+- ⚠️ `captains.json` covers **20 seasons thinly** (1997 has 2 entries), so many clubs will
+  have no recorded captain at all. The fallback is not an edge case.
+
+---
+
+## 4. Settled by the owner — do NOT re-raise
+
+- **The same player may appear on both teams.** Legacy draws the opponent from the same
+  club's history, so van Dijk 94 can face van Dijk 92. This is fine.
+- **The squads may be uneven.** 87 v 67 is fine; the draft takes the best card in each hand
+  while the opponent is generated another way.
+
+---
+
+## 5. Still open
+
+- **The animation passes.** The club sheet has one (Foil Sweep). The draft, the pre-match
+  and the live screen have not had their 30-concept motion galleries.
+- **Section 3.4's unanswered-decision question.**
+- Both screens must ship with the CPU guards the rest of `/game/*` has: `force-static`,
+  `dynamicParams = false` on dynamic segments, and the daily cache-guard probe.

@@ -5737,6 +5737,13 @@ The TASK-1806 plan had flagged this pass as owed — it shipped the pitch view v
 - **Legacy's draft** is the owner's mechanic: club → formation → **11 consecutive rounds of 3**, running the shipped Draft Room with `handSize`/`roam` from the pack. `roomReducer` already advanced on every pick, so sequential progression needed no reducer change.
 - **The card set is complete** (owner, 2026-08-17): **every club that ever played in the PL** (51, resolved from the standings) and **every player-season** as its own card — Giggs 22 cards, Scholes 19. No dedupe: a round may offer the same player from two seasons. The club is a **route segment** because a club's full history is ~900 cards; all 51 on one page would be ~6.7 MB.
 - ⬜ **Still to come — PRs 2–5**, each with a measured data gap: Captain's Draft (`captains.json` covers 20 seasons thinly — 1997 has 2 entries), Budget Cap (`market-values.json` is 2003–2025, so all eleven 1990s seasons are unpriced), Chemistry (single stored nationality undercounts links), Classic (data complete, but its interesting form is the season one → TASK-1811).
+
+**Progress — the match screens are DESIGNED and AGREED, not yet built (2026-08-18).**
+
+- The owner ran the 30-concept gallery ritual on all four Legacy screens and picked: `/game/legacy` = **Sticker Album + Foil Sweep**, the draft = **centre-pitch**, `?phase=preview` = a **hybrid of Star Spotlight + Programme Spread + Chalk & Compare**, `?phase=live` = **Split Feed**. The first two **shipped** in #167; the last two exist only as prototypes.
+- ⛔ **The specification is [`docs/superpowers/specs/2026-08-18-task-1810-match-screens-design.md`](docs/superpowers/specs/2026-08-18-task-1810-match-screens-design.md)** plus the linked playable prototypes. It carries the one-theme token set, the pitch mini-map rules, the captain rule (most real captaincies; vice inherits on a red card or substitution), and the substitution redesign — **a bench button and a popup, because nothing may sit on screen uninvited**.
+- ⚠️ Two things the owner has **settled**: the same player may turn out for both teams, and uneven squad ratings are fine. Do not re-raise them.
+- ⬜ Not yet done: building both screens, the animation passes for the draft/preview/live, and the open question in spec §3.4 (what the match does while a decision goes unanswered).
 - ⛔ **Stays `📋 Backlog` until PR 5** — one of five modes ships here, the same discipline TASK-1812 used.
 
 ### TASK-1811
