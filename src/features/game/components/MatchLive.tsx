@@ -15,7 +15,7 @@ import { OVERLAY_KINDS } from "@/features/game/view/match-view-model";
 import { scoreAt } from "@/features/game/view/score";
 import { prefersReducedMotion } from "@/utils/motion";
 import { BenchDialog } from "./BenchDialog";
-import { LivePitch, type Pip } from "./LivePitch";
+import { MiniMapCanvas, type MiniMapSide } from "./MiniMapCanvas";
 import { TeamSheets, type SheetRow } from "./TeamSheets";
 
 /**
@@ -28,6 +28,23 @@ const TICK_MS = 280;
 const DWELL_MS = 2500;
 const DWELL_FLOOR = 1500;
 const SPEEDS = [1, 2, 4] as const;
+
+/**
+ * The mini-map's palette.
+ *
+ * ⚠️ Canvas cannot read a CSS custom property, so these repeat the `.lg-root` token values
+ * rather than referencing them. Keep them in step with the token block in `globals.css` —
+ * gold is always your side, rose always theirs.
+ */
+const MAP_COLORS = {
+  home: "#f2d98a",
+  away: "#ff7d9b",
+  inkHome: "#2b1e00",
+  inkAway: "#2b0710",
+  chalk: "#e8efe9",
+  turfA: "#123a2a",
+  turfB: "#0e3022",
+} as const;
 
 /** Seconds an amber "change available" window stays open before it resolves itself. */
 const DECISION_LIMIT = 20;
@@ -268,16 +285,28 @@ export function MatchLive({
   }, [shown, tRoot, handover]);
 
   // ---- pitch + sheets ----
-  const pipsOf = (lineup: ReturnType<typeof lineupAt>, band: number | null): (Pip | null)[] =>
-    lineup.slots.map((sl) =>
-      sl == null
-        ? null
-        : {
-            player: sl,
-            booked: lineup.badges.get(sl.playerId)?.yellow === true,
-            captain: band != null && sl.playerId === band,
-          },
-    );
+  /**
+   * The mini-map's view of one side.
+   *
+   * ⚠️ Built from `lineupAt`, so a dismissal really removes a dot and a substitute really
+   * takes the shape his predecessor held — the map and the team sheet can never disagree
+   * about who is on the pitch.
+   */
+  const mapSideOf = (
+    lineup: ReturnType<typeof lineupAt>,
+    team: { players: { row: number; col: number }[] },
+    band: number | null,
+  ): MiniMapSide => ({
+    // Shape from the STARTING slots — the formation does not change mid-match.
+    slots: team.players.map((p) => ({ row: p.row, col: p.col })),
+    // Occupancy from the LINEUP, which already carries substitutes in the slot they
+    // inherited and a null where a dismissal left a gap.
+    players: lineup.slots.map((sl) =>
+      sl == null ? null : { playerId: sl.playerId, number: sl.number },
+    ),
+    booked: [...lineup.badges.entries()].filter(([, b]) => b.yellow).map(([id]) => id),
+    captain: band,
+  });
 
   const sheetOf = (
     lineup: ReturnType<typeof lineupAt>,
@@ -341,10 +370,15 @@ export function MatchLive({
           aspect-ratio alone sets the height. */}
       <div className="lg-split">
         <div className="lg-split-pitch">
-          <LivePitch
-            home={pipsOf(homeLineup, armband)}
-            away={pipsOf(awayLineup, null)}
+          <MiniMapCanvas
+            home={mapSideOf(homeLineup, model.home, armband)}
+            away={mapSideOf(awayLineup, model.away, null)}
+            events={shown}
+            minute={minute}
+            seed={model.seed}
+            reduced={reduced}
             label={t("livePitchAria")}
+            colors={MAP_COLORS}
           />
         </div>
         <div className="lg-split-feed">

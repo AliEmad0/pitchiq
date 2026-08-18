@@ -2759,122 +2759,23 @@
   color: var(--chalk-dim);
 }
 
-/* ---- the pitch ---- */
-.lg-pitch {
+/* ---- the mini-map ---- */
+/* TASK-1810 — the FIFA-style mini-map. The turf, the markings, the dots and the ball are
+   all painted by `MiniMapCanvas` on a 2D context, so this only has to size the surface.
+   The old `.lg-pitch` / `.lg-box` / `.lg-pip` rules were deleted with `LivePitch`; keeping
+   them would leave a second, silently-wrong description of how the pitch looks. */
+.lg-map {
   position: relative;
+  width: 100%;
+}
+.lg-map-canvas {
+  display: block;
   width: 100%;
   aspect-ratio: 105 / 68;
   border-radius: 10px;
   border: 2px solid color-mix(in srgb, var(--chalk) 26%, transparent);
-  background: repeating-linear-gradient(90deg, var(--turf-a) 0 8.33%, var(--turf-b) 8.33% 16.66%);
-  overflow: hidden;
+  background: var(--turf-b);
   box-shadow: 0 18px 44px rgb(0 0 0 / 40%);
-}
-.lg-halfway {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  width: 2px;
-  background: color-mix(in srgb, var(--chalk) 26%, transparent);
-}
-.lg-circle {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  height: 30%;
-  aspect-ratio: 1;
-  transform: translate(-50%, -50%);
-  border: 2px solid color-mix(in srgb, var(--chalk) 26%, transparent);
-  border-radius: 50%;
-}
-.lg-box {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  height: 58%;
-  width: 15%;
-  border: 2px solid color-mix(in srgb, var(--chalk) 26%, transparent);
-}
-.lg-box-l {
-  left: -1px;
-  border-left: 0;
-  border-radius: 0 4px 4px 0;
-}
-.lg-box-r {
-  right: -1px;
-  border-right: 0;
-  border-radius: 4px 0 0 4px;
-}
-.lg-box-six {
-  height: 27%;
-  width: 6.5%;
-}
-.lg-spot {
-  position: absolute;
-  top: 50%;
-  height: 4px;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--chalk) 60%, transparent);
-  transform: translate(-50%, -50%);
-}
-.lg-spot-c {
-  left: 50%;
-}
-.lg-spot-l {
-  left: 11%;
-}
-.lg-spot-r {
-  left: 89%;
-}
-
-/* ---- a player pip ---- */
-/* ⛔ When the animation is finally designed, move these by `transform: translate()`,
-   never by `left`/`top` — animating a layout property re-lays-out the pitch every
-   frame and the motion audit rejects it. The translate below is a static centring
-   offset, which is why a future animation must compose onto it rather than replace it. */
-.lg-pip {
-  position: absolute;
-  transform: translate(-50%, -50%);
-  display: grid;
-  place-items: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  font-family: var(--font-mono), monospace;
-  font-size: 11px;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-  box-shadow: 0 2px 6px rgb(0 0 0 / 45%);
-}
-.lg-pip-home {
-  background: var(--home);
-  color: var(--ink-home);
-}
-.lg-pip-away {
-  background: var(--away);
-  color: var(--ink-away);
-}
-.lg-pip-c {
-  position: absolute;
-  top: -6px;
-  inset-inline-end: -6px;
-  font-size: 8px;
-  line-height: 1.3;
-  background: var(--chalk);
-  color: var(--ground);
-  border-radius: 3px;
-  padding: 0 3px;
-}
-.lg-pip-y {
-  position: absolute;
-  bottom: -4px;
-  inset-inline-start: -4px;
-  width: 5px;
-  height: 7px;
-  border-radius: 1px;
-  background: var(--alert);
 }
 
 /* ---- controls ---- */
