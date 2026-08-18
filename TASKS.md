@@ -5743,7 +5743,7 @@ The TASK-1806 plan had flagged this pass as owed — it shipped the pitch view v
 - The owner ran the 30-concept gallery ritual on all four Legacy screens and picked: `/game/legacy` = **Sticker Album + Foil Sweep**, the draft = **centre-pitch**, `?phase=preview` = a **hybrid of Star Spotlight + Programme Spread + Chalk & Compare**, `?phase=live` = **Split Feed**. The first two **shipped** in #167; the last two exist only as prototypes.
 - ⛔ **The specification is [`docs/superpowers/specs/2026-08-18-task-1810-match-screens-design.md`](docs/superpowers/specs/2026-08-18-task-1810-match-screens-design.md)** plus the linked playable prototypes. It carries the one-theme token set, the pitch mini-map rules, the captain rule (most real captaincies; vice inherits on a red card or substitution), and the substitution redesign — **a bench button and a popup, because nothing may sit on screen uninvited**.
 - ⚠️ Two things the owner has **settled**: the same player may turn out for both teams, and uneven squad ratings are fine. Do not re-raise them.
-- ⬜ Not yet done: building both screens, the animation passes for the draft/preview/live, and the open question in spec §3.4 (what the match does while a decision goes unanswered).
+- ⬜ Not yet done: **building both screens**. ⛔ The pitch **mini-map player animation is still unsolved** — two attempts were rejected (ambient possession, then an event-driven replay); it needs its own pass and must not be built from the prototype. ⏸ The **30-concept animation galleries are PARKED** by the owner for the draft/preview/live. Also open: spec §3.4 (what the match does while a decision goes unanswered).
 - ⛔ **Stays `📋 Backlog` until PR 5** — one of five modes ships here, the same discipline TASK-1812 used.
 
 ### TASK-1811

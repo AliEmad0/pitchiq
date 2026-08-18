@@ -72,18 +72,43 @@ beneath a rule**.
 **The split** — pitch left, commentary right, ⚠️ **stretched to the same row height**
 (`align-items: stretch`, feed is a flex column with a scrolling body).
 
-### 3.1 The pitch is a mini-map, not a formation diagram
+### 3.1 The pitch — ⚠️ AGREED IN PART ONLY
 
-- **Both XIs** are on it: yours attacking right, theirs **mirrored** (`x` → `100 - x`).
+**Agreed and ready to build:**
+
+- **Both XIs** on one pitch: yours attacking right, theirs **mirrored** (`x` → `100 - x`).
   Positions come from each side's own formation slots.
-- **A ball moves between real players** — passes within a side, ~1 in 5 turned over, and
-  every 7th a shot at the attacked goal before resetting. The man in possession is ringed.
-- ⛔ The ball moves by **`transform: translate()`**, never `left`/`top` — animating layout
-  properties re-lays-out the pitch every frame.
 - **Full markings**: touchlines, goal lines, both penalty areas, six-yard boxes, centre
   circle, and the three spots.
-- ⚠️ The app already has `domain/pitch-sim.ts` (seeded ambient possession, ball always on a
-  real player). **Drive the real thing — do not reimplement the prototype's `Math.random`.**
+- **Captain armband** and **bookings** ride on the player's pip.
+- The pitch **sets the row height** (see §3 above).
+
+⛔ **NOT AGREED — the interactive player animation is still open (2026-08-18).**
+
+The owner reviewed two attempts and rejected both:
+
+1. *Ambient possession* — random passes between players. Rejected: unrelated to the match.
+2. *Event-driven replay* — each event makes its side attack, both teams shift into one half,
+   the ball goes to the named player, a shot flies at the goal being attacked and a goal
+   ticks the scoreline. **Closer, and the requirements below came from it, but the motion
+   itself was still not right.**
+
+His stated requirement, verbatim in substance: it should read like **the FIFA mini-map** —
+the attacking team pressing and **mixing with** the defending team, **defenders blocking
+attackers**, and everything **tied to the events**: to score, the home side must be in the
+away half with the ball, and the shot hitting the away net is what records the goal.
+
+⚠️ **Do not build this from the prototype.** Treat it as an unsolved design problem needing
+its own pass — most likely per-player movement with marking and pressing, not a whole-team
+offset. The rest of the live screen is settled and can ship without it; a static both-teams
+pitch is an acceptable first cut.
+
+⚠️ The app already has `domain/pitch-sim.ts` (seeded ambient possession, ball always on a
+real player). **Drive the real thing — do not reimplement the prototype's `Math.random`,**
+which also breaks the Phase-18 determinism rule.
+
+⛔ Whatever the motion becomes: move players and the ball by **`transform: translate()`**,
+never `left`/`top` — animating layout properties re-lays-out the pitch every frame.
 
 ### 3.2 Commentary — "the comments"
 
@@ -143,10 +168,18 @@ the same event stream regrouped by *who* rather than *when*. Rows with events li
 
 ---
 
-## 5. Still open
+## 5. Still open — in the owner's priority order
 
-- **The animation passes.** The club sheet has one (Foil Sweep). The draft, the pre-match
-  and the live screen have not had their 30-concept motion galleries.
-- **Section 3.4's unanswered-decision question.**
-- Both screens must ship with the CPU guards the rest of `/game/*` has: `force-static`,
-  `dynamicParams = false` on dynamic segments, and the daily cache-guard probe.
+1. ⛔ **The pitch mini-map animation (§3.1).** Two attempts rejected. Needs its own design
+   pass before any of it is written into the app.
+2. ⏸ **The 30-concept animation galleries — PARKED by the owner (2026-08-18).** The draft,
+   the pre-match and the live screen have not had a motion ritual and are **not to get one
+   for now**. Only `/game/legacy` has one (Foil Sweep), and it shipped.
+3. **§3.4's unanswered-decision question** — what the match does while a decision the engine
+   is waiting on goes unanswered.
+4. Both screens must ship with the CPU guards the rest of `/game/*` has: `force-static`,
+   `dynamicParams = false` on dynamic segments, and the daily cache-guard probe.
+
+⭐ **Everything else on these two screens is agreed and buildable as-is.** The layouts, the
+theme, the cards, the commentary treatment, the team sheets, the captain rule and the
+bench-button substitution are all settled — the open items above do not block starting.
