@@ -2323,3 +2323,276 @@
   background: var(--ground);
   color: var(--chalk);
 }
+
+/* ---------------------------------------------------------------------------
+   TASK-1810 — `?phase=preview`, the matchday programme.
+
+   Owner's pick: a hybrid of concepts 12 (Star Spotlight), 21 (Programme Spread)
+   and 22 (Chalk & Compare), all re-based onto the `.lg-root` tokens above.
+--------------------------------------------------------------------------- */
+.lg-prog {
+  max-width: 980px;
+  margin-inline: auto;
+  padding: 24px 16px 64px;
+}
+.lg-kicker {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--chalk-faint);
+}
+.lg-h2 {
+  font-size: 12px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--chalk-dim);
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 6px;
+  margin-bottom: 14px;
+}
+.lg-home {
+  color: var(--home);
+}
+.lg-away {
+  color: var(--away);
+}
+
+/* ---- masthead ---- */
+.lg-prog-mast {
+  border-bottom: 3px double var(--rule);
+  padding-bottom: 16px;
+}
+.lg-prog-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 12px;
+  margin-top: 6px;
+  font-size: clamp(28px, 6vw, 46px);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+.lg-prog-v {
+  color: var(--chalk-faint);
+  font-size: 0.5em;
+}
+.lg-prog-sub {
+  margin-top: 8px;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  color: var(--chalk-dim);
+}
+
+/* ---- star spotlight ---- */
+.lg-prog-stars {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr 1fr;
+  margin: 22px 0;
+}
+.lg-star {
+  position: relative;
+  display: grid;
+  gap: 2px;
+  padding: 18px 16px 16px;
+  border-radius: 10px;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  overflow: hidden;
+}
+/* the accent hairline along the card's top edge */
+.lg-star::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 3px;
+}
+.lg-star-home::before {
+  background: linear-gradient(90deg, var(--home), var(--home-deep));
+}
+.lg-star-away::before {
+  background: linear-gradient(90deg, var(--away), var(--away-deep));
+}
+.lg-star-tag {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--chalk-faint);
+}
+.lg-star-ovr {
+  font-size: 68px;
+  line-height: 1;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+.lg-star-home .lg-star-ovr {
+  color: var(--home);
+}
+.lg-star-away .lg-star-ovr {
+  color: var(--away);
+}
+.lg-star-name {
+  font-size: 18px;
+  font-weight: 800;
+}
+.lg-star-season {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  color: var(--chalk-dim);
+}
+
+/* ---- tale of the tape ---- */
+.lg-prog-tape {
+  margin: 26px 0;
+}
+.lg-tape-row {
+  display: grid;
+  grid-template-columns: 3ch 1fr 3ch;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.lg-tape-n {
+  font-family: var(--font-mono), monospace;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+.lg-tape-track {
+  display: flex;
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--panel-2);
+}
+.lg-tape-fill-home {
+  background: linear-gradient(90deg, var(--home-deep), var(--home));
+}
+.lg-tape-fill-away {
+  background: linear-gradient(90deg, var(--away), var(--away-deep));
+  margin-inline-start: auto;
+}
+.lg-tape-label {
+  grid-column: 1 / -1;
+  text-align: center;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--chalk-faint);
+}
+
+/* ---- both XIs ---- */
+.lg-prog-grid {
+  display: grid;
+  gap: 20px;
+}
+@media (min-width: 860px) {
+  .lg-prog-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.lg-xi-title {
+  margin-bottom: 10px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.lg-xi-home .lg-xi-title {
+  color: var(--home);
+}
+.lg-xi-away .lg-xi-title {
+  color: var(--away);
+}
+.lg-xi-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.lg-xi-card {
+  min-width: 0;
+}
+
+/* ---- conditions ---- */
+.lg-cond-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr 1fr;
+}
+.lg-cond {
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.lg-cond dt {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--chalk-faint);
+}
+.lg-cond-v {
+  margin-top: 4px;
+  font-size: 15px;
+  font-weight: 800;
+}
+.lg-cond-i {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--chalk-dim);
+}
+
+/* ---- kick off ---- */
+.lg-prog-go {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 28px;
+}
+.lg-ghost {
+  border: 1px solid var(--rule);
+  color: var(--chalk-dim);
+  border-radius: 8px;
+  padding: 12px 18px;
+  font-size: 14px;
+  font-weight: 700;
+}
+.lg-kick {
+  flex: 1;
+  border-radius: 10px;
+  padding: 18px;
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: var(--cta);
+  color: var(--ink-cta);
+  animation: lg-kick-pulse 2400ms var(--ease-in-out-soft) infinite;
+}
+
+/* ⛔ box-shadow + transform ONLY. The motion audit rejects `filter`, and a glowing
+   button is exactly where reflex reaches for it; a brightness sweep would also
+   repaint every frame. The ring breathes outward and fades. */
+@keyframes lg-kick-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--cta) 55%, transparent);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 14px color-mix(in srgb, var(--cta) 0%, transparent);
+    transform: scale(1.012);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lg-kick {
+    animation: none;
+  }
+}

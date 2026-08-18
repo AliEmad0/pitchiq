@@ -61,7 +61,12 @@ export default async function ModePage({ params }: Props) {
       {pack.chooser != null ? (
         <ModeChooser mode={pack.id} choices={await clubChoices()} />
       ) : (
-        <GamePlay pool={await buildPool(pack.pool)} initialPhase="setup" draft={pack.draft} />
+        <GamePlay
+          pool={await buildPool(pack.pool)}
+          initialPhase="setup"
+          draft={pack.draft}
+          screens={pack.screens}
+        />
       )}
     </main>
   );

@@ -72,21 +72,44 @@ export function makeTeam(
 ): GameTeam {
   // ⚠️ By NAME, never `FORMATIONS[i]` — that array's order is presentation only.
   const shape = formationByName("4-4-2 Flat");
+  const club = opts.name ?? "T";
   const players: GamePlayer[] = shape.slots.map((slot, i) => {
     const overall = opts.ratings === undefined ? 75 : (opts.ratings[i] ?? null);
     const season = opts.seasons?.[i] ?? 2020;
+    // ⚠️ Deliberately an ENRICHED card, not a bare GamePlayer. `buildSession` hands
+    // `makeGameTeam` the drafted `PoolCard[]` straight through, so at runtime a team's
+    // players carry the full card — club, photo and bio included — and `PlayerCard`
+    // reads those fields unguarded (`clubAbbr(card.club)` throws on undefined). A bare
+    // fixture here would fail against a component that is correct.
     return {
       cardId: `${500 + i}@${season}`,
       playerId: 500 + i,
       season,
-      name: `${opts.name ?? "T"}${i}`,
+      name: `${club}${i}`,
       role: slot.role,
       altRoles: [],
       foot: null,
       height: null,
       provenance: null,
       ratings: overall === null ? null : { ...RATINGS, overall },
-    };
+      club,
+      teamId: 1,
+      photo: null,
+      photoKind: "none",
+      photoUrl: null,
+      age: null,
+      nationality: null,
+      nationalityCode: null,
+      careerClubs: [club],
+      stats: {
+        goals: null,
+        assists: null,
+        appearances: null,
+        cleanSheets: null,
+        yellowCards: null,
+        redCards: null,
+      },
+    } as GamePlayer;
   });
-  return makeGameTeam(1, opts.name ?? "T", 2020, shape, players, []);
+  return makeGameTeam(1, club, 2020, shape, players, []);
 }
