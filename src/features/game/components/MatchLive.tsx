@@ -14,8 +14,17 @@ import type { MatchViewModel, ViewEvent } from "@/features/game/view/match-view-
 import { OVERLAY_KINDS } from "@/features/game/view/match-view-model";
 import { scoreAt } from "@/features/game/view/score";
 import { prefersReducedMotion } from "@/utils/motion";
+import {
+  type SimState,
+  buildUp,
+  frameFromSim,
+  goalKick,
+  initSim,
+  restSim,
+  stepSim,
+} from "@/features/game/domain/pitch-sim";
 import { BenchDialog } from "./BenchDialog";
-import { MiniMapCanvas, type MiniMapSide } from "./MiniMapCanvas";
+import { MatchPitch } from "./MatchPitch";
 import { TeamSheets, type SheetRow } from "./TeamSheets";
 
 /**
@@ -28,23 +37,6 @@ const TICK_MS = 280;
 const DWELL_MS = 2500;
 const DWELL_FLOOR = 1500;
 const SPEEDS = [1, 2, 4] as const;
-
-/**
- * The mini-map's palette.
- *
- * ⚠️ Canvas cannot read a CSS custom property, so these repeat the `.lg-root` token values
- * rather than referencing them. Keep them in step with the token block in `globals.css` —
- * gold is always your side, rose always theirs.
- */
-const MAP_COLORS = {
-  home: "#f2d98a",
-  away: "#ff7d9b",
-  inkHome: "#2b1e00",
-  inkAway: "#2b0710",
-  chalk: "#e8efe9",
-  turfA: "#123a2a",
-  turfB: "#0e3022",
-} as const;
 
 /** Seconds an amber "change available" window stays open before it resolves itself. */
 const DECISION_LIMIT = 20;
@@ -67,6 +59,8 @@ interface Props {
    */
   referees: readonly string[];
   onAnswer: (a: DecisionAnswer) => void;
+  /** Leave the match. Rendered only once the whistle has actually gone. */
+  onFullTime?: () => void;
 }
 
 /** How loudly a line is printed. A goal shouts; a half-chance recedes. */
@@ -103,6 +97,7 @@ export function MatchLive({
   captaincies,
   referees,
   onAnswer,
+  onFullTime,
 }: Props) {
   const t = useTranslations("game");
   const tRoot = useTranslations();
@@ -168,6 +163,38 @@ export function MatchLive({
       setPlaying(true);
     }
   }, [reduced]);
+
+  /**
+   * The pitch movement — ⭐ the SAME simulation `/game/daily` runs.
+   *
+   * Owner's instruction after two rejected bespoke attempts: make it move like the shipped
+   * broadcast pitch. So this drives `domain/pitch-sim.ts` exactly as `MatchView` does
+   * rather than keeping a second, differently-behaving model alongside it. One beat per
+   * minute; a real goal injects a celebration, and the beat BEFORE it builds up with the
+   * scoring side already attacking so the goal reads as earned rather than teleported.
+   */
+  const [sim, setSim] = useState<SimState>(() => (reduced ? restSim() : initSim()));
+  const rngRef = useRef<() => number>(mulberry32(model.seed));
+  const lastSimMinute = useRef(0);
+
+  useEffect(() => {
+    if (reduced || minute === lastSimMinute.current) return;
+    lastSimMinute.current = minute;
+    if (minute === 0) return;
+    const ctx = { home: model.home.players, away: model.away.players };
+    const goalNow = model.events.find((e) => e.minute === minute && e.kind === "goal" && e.side);
+    const goalNext = model.events.find(
+      (e) => e.minute === minute + 1 && e.kind === "goal" && e.side,
+    );
+    setSim((s) => {
+      if (goalNow?.side) return goalKick(goalNow.side, goalNow.scorerSlot ?? 10);
+      // ⚠️ Only at REAL full time. Resetting at a segment boundary would freeze the pitch
+      // mid-match every time a decision came up.
+      if (holdAt == null && minute >= lastMinute) return restSim();
+      if (goalNext?.side) return buildUp(goalNext.side, goalNext.scorerSlot ?? 10);
+      return stepSim(s, ctx, rngRef.current);
+    });
+  }, [minute, reduced, model.events, model.home.players, model.away.players, lastMinute, holdAt]);
 
   // ---- decisions ----
   const offer = subOfferOf(pending);
@@ -278,27 +305,20 @@ export function MatchLive({
 
   // ---- pitch + sheets ----
   /**
-   * The mini-map's view of one side.
+   * Per-slot state for the pitch — the same shape `MatchView` feeds it.
    *
-   * ⚠️ Built from `lineupAt`, so a dismissal really removes a dot and a substitute really
-   * takes the shape his predecessor held — the map and the team sheet can never disagree
-   * about who is on the pitch.
+   * ⚠️ From `lineupAt`, so a dismissal really removes a dot and a substitute really takes
+   * the shape his predecessor held. The map and the team sheet can never disagree about
+   * who is on the pitch.
    */
-  const mapSideOf = (
-    lineup: ReturnType<typeof lineupAt>,
-    team: { players: { row: number; col: number }[] },
-    band: number | null,
-  ): MiniMapSide => ({
-    // Shape from the STARTING slots — the formation does not change mid-match.
-    slots: team.players.map((p) => ({ row: p.row, col: p.col })),
-    // Occupancy from the LINEUP, which already carries substitutes in the slot they
-    // inherited and a null where a dismissal left a gap.
-    players: lineup.slots.map((sl) =>
-      sl == null ? null : { playerId: sl.playerId, number: sl.number },
-    ),
-    booked: [...lineup.badges.entries()].filter(([, b]) => b.yellow).map(([id]) => id),
-    captain: band,
-  });
+  const slotStatus = (lineup: ReturnType<typeof lineupAt>) =>
+    lineup.slots.map((sl) =>
+      sl == null
+        ? null
+        : { number: sl.number, booked: lineup.badges.get(sl.playerId)?.yellow === true },
+    );
+
+  const frame = frameFromSim(model.home.players, model.away.players, sim);
 
   const sheetOf = (
     lineup: ReturnType<typeof lineupAt>,
@@ -388,6 +408,12 @@ export function MatchLive({
           </span>
         </div>
         <div className="lg-board-meta">
+          {/* The clock is the biggest thing in this row and sits dead centre, with a
+              pulsing LIVE beside it while the match is on. */}
+          <span className="lg-livetag" aria-hidden={finished ? "true" : undefined}>
+            {finished ? null : <span className="lg-livetag-dot" />}
+            <span className="lg-livetag-word">{finished ? t("playFullTime") : t("live")}</span>
+          </span>
           <span className="lg-clock" data-testid="live-clock">
             {minute}
             {"'"}
@@ -405,16 +431,14 @@ export function MatchLive({
           aspect-ratio alone sets the height. */}
       <div className="lg-split">
         <div className="lg-split-pitch">
-          <MiniMapCanvas
-            home={mapSideOf(homeLineup, model.home, armband)}
-            away={mapSideOf(awayLineup, model.away, null)}
-            events={shown}
-            minute={minute}
-            seed={model.seed}
-            reduced={reduced}
-            running={!finished}
+          <MatchPitch
+            frame={frame}
+            homeNumbers={model.home.players.map((p) => p.number)}
+            awayNumbers={model.away.players.map((p) => p.number)}
+            homeSlots={slotStatus(homeLineup)}
+            awaySlots={slotStatus(awayLineup)}
+            animate={!reduced}
             label={t("livePitchAria")}
-            colors={MAP_COLORS}
           />
         </div>
         <div className="lg-split-feed">
@@ -436,6 +460,15 @@ export function MatchLive({
       </div>
 
       {/* ---- controls ---- */}
+      {/* ⚠️ The whistle button lives INSIDE this screen, not in the container.
+          It has to look exactly like Kick off — full width, the one --cta on the page —
+          and outside `.lg-root` it would inherit none of the theme's tokens. */}
+      {finished && onFullTime != null ? (
+        <button type="button" onClick={onFullTime} className="lg-kick lg-kick-end">
+          {t("playFullTime")}
+        </button>
+      ) : null}
+
       <div className="lg-controls">
         {!reduced ? (
           <>

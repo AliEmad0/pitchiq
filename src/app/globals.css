@@ -2524,14 +2524,34 @@
    an undimensioned parent it has nothing to fill and the cards pile on top of one another
    — which is exactly what the three fixed columns produced. `auto-fill` also lets the row
    drop to two-up on a narrow screen instead of squashing. */
+.lg-xi {
+  /* One knob. 176 × 256 is the card's design size, as used by the draft. */
+  --lg-card-w: 176px;
+  --lg-card-h: 256px;
+  --lg-card-scale: 0.5;
+}
 .lg-xi-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 6px;
 }
+/* The wrapper reserves the SCALED footprint; the card inside keeps its real size and is
+   scaled down into it. Sizing the card itself would squash its internals instead. */
 .lg-xi-card {
-  min-width: 0;
-  aspect-ratio: 11 / 16;
+  width: calc(var(--lg-card-w) * var(--lg-card-scale));
+  height: calc(var(--lg-card-h) * var(--lg-card-scale));
+  flex: none;
+}
+.lg-xi-card > * {
+  width: var(--lg-card-w);
+  height: var(--lg-card-h);
+  transform: scale(var(--lg-card-scale));
+  transform-origin: top left;
+}
+@media (min-width: 1100px) {
+  .lg-xi {
+    --lg-card-scale: 0.62;
+  }
 }
 
 /* ---- conditions ---- */
@@ -2605,6 +2625,15 @@
     box-shadow: 0 0 0 14px color-mix(in srgb, var(--cta) 0%, transparent);
     transform: scale(1.012);
   }
+}
+
+/* Full time is the SAME control as Kick off — full width, the one --cta on the page.
+   It does not pulse: there is nothing left to anticipate. */
+.lg-kick-end {
+  display: block;
+  width: 100%;
+  margin-top: 18px;
+  animation: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2685,17 +2714,57 @@
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 12px;
   margin-top: 10px;
   padding-top: 10px;
   border-top: 1px solid color-mix(in srgb, var(--rule) 60%, transparent);
 }
+/* The clock is the headline of this row — big, centred, and the same amber as the
+   waiting-decision state so the eye reads "the match is running". */
 .lg-clock {
   font-family: var(--font-mono), monospace;
-  font-size: 13px;
-  font-weight: 800;
+  font-size: clamp(26px, 5vw, 38px);
+  font-weight: 900;
+  line-height: 1;
   font-variant-numeric: tabular-nums;
   color: var(--alert);
+}
+.lg-livetag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.lg-livetag-word {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--away);
+}
+.lg-livetag-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--away);
+  animation: lg-live-pulse 1600ms var(--ease-in-out-soft) infinite;
+}
+/* ⛔ opacity + transform only — the motion audit rejects anything that repaints. */
+@keyframes lg-live-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(0.72);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lg-livetag-dot {
+    animation: none;
+  }
 }
 .lg-chip {
   font-family: var(--font-mono), monospace;

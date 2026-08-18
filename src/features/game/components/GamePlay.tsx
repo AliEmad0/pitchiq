@@ -403,6 +403,10 @@ export function GamePlay({
             captaincies={captaincies ?? {}}
             referees={referees ?? []}
             onAnswer={driver.answer}
+            onFullTime={() => {
+              void clearMatch();
+              dispatch({ type: "fullTime" });
+            }}
           />
         ) : (
           <MatchView model={model} holdAt={pending?.minute ?? (result == null ? 0 : undefined)} />
@@ -414,7 +418,7 @@ export function GamePlay({
       {pending != null && screens !== "legacy" ? (
         <DecisionPrompt decision={pending} limit={DECISION_LIMIT} onAnswer={driver.answer} />
       ) : null}
-      {result != null ? (
+      {result != null && screens !== "legacy" ? (
         <button
           type="button"
           onClick={() => {

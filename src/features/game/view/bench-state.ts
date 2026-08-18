@@ -51,7 +51,21 @@ export function declineOf(d: MatchDecision): DecisionAnswer {
  * round silently disables every automatic substitution in the game.
  */
 export function answerFor(d: MatchDecision, mode: SubMode): DecisionAnswer {
-  return mode === "manual" ? declineOf(d) : defaultAnswer(d);
+  if (mode === "manual") return declineOf(d);
+
+  const auto = defaultAnswer(d);
+  // ⛔ STRIP the `reason`. `defaultAnswer` attaches one whenever the engine suggested the
+  // change, and `encodeTokens` THROWS on a sub-offer that carries one — so every match
+  // that made an automatic substitution crashed the moment the full-time screen built its
+  // share code. `share-link.test.ts` had already written the rule down: no coach path sets
+  // a reason, and this is the first coach path that could.
+  //
+  // ⚠️ The substitution itself is untouched — only the label is dropped, and the engine
+  // falls back to "tactical", which is what a coach-made change is anyway.
+  if (auto.kind === "sub-offer" && auto.reason != null) {
+    return { kind: "sub-offer", minute: auto.minute, side: auto.side, off: auto.off, on: auto.on };
+  }
+  return auto;
 }
 
 /**

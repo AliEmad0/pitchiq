@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { SubOfferDecision } from "@/features/game/domain/match-decisions";
+import { encodeTokens } from "@/features/game/domain/decision-tokens";
 import { answerFor, benchLabel, declineOf, subOfferOf } from "@/features/game/view/bench-state";
 
 const offer = (minute: number, suggests: boolean): SubOfferDecision => ({
@@ -56,6 +57,31 @@ describe("declineOf", () => {
       kind: "dismissal",
     });
     expect((declineOf(offer(40, true)) as { off?: number }).off).toBeUndefined();
+  });
+});
+
+describe("⛔ the answer must be ENCODABLE into a share code", () => {
+  it("auto mode carries no `reason`", () => {
+    /**
+     * `defaultAnswer` attaches a `reason` whenever the engine suggested the change, and
+     * `encodeTokens` THROWS on one — "a sub `reason` cannot be carried by a share code".
+     *
+     * That crashed the full-time screen of every Legacy match that made an automatic
+     * substitution, and it took a real browser to find because the crash is in
+     * `buildShareCode`, three components away from the bench.
+     */
+    const a = answerFor(offer(60, true), "auto");
+    expect(a).not.toHaveProperty("reason");
+    expect((a as { off?: number }).off).toBe(3); // the change itself is untouched
+  });
+
+  it("every mode produces a stream encodeTokens accepts", () => {
+    const answers = [
+      answerFor(offer(60, true), "auto"),
+      answerFor(offer(61, false), "auto"),
+      answerFor(offer(62, true), "manual"),
+    ];
+    expect(() => encodeTokens(answers)).not.toThrow();
   });
 });
 
