@@ -89,7 +89,13 @@ async function kickOff(user: ReturnType<typeof userEvent.setup>) {
 
 const live = () =>
   render(
-    <GamePlay pool={pool} draft={LEGACY_DRAFT} screens="legacy" captaincies={{ 0: 4, 10: 3 }} />,
+    <GamePlay
+      pool={pool}
+      draft={LEGACY_DRAFT}
+      screens="legacy"
+      captaincies={{ 0: 4, 10: 3 }}
+      referees={["M Oliver"]}
+    />,
   );
 
 describe("MatchLive — the split feed", () => {
@@ -213,6 +219,31 @@ describe("MatchLive — the split feed", () => {
     // bare /^\d+'$/ matches a dozen elements.
     const clock = screen.getByTestId("live-clock").textContent ?? "";
     expect(Number.parseInt(clock, 10)).toBeGreaterThanOrEqual(45);
+  });
+
+  it("names the REFEREE on the scoreboard, and shows no weather", async () => {
+    // Reported from the preview: the board read "STRICT" and "CLEAR". Real referees are
+    // in the committed fixtures, so it can name the official instead of grading him.
+    const user = userEvent.setup();
+    live();
+    await kickOff(user);
+
+    expect(screen.getByText("M Oliver")).toBeInTheDocument();
+    for (const label of [/^Strict$/, /^Clear$/, /^Rain$/]) {
+      expect(screen.queryByText(label)).not.toBeInTheDocument();
+    }
+  });
+
+  it("puts the shirt NUMBER on every team-sheet row", async () => {
+    const user = userEvent.setup();
+    live();
+    await kickOff(user);
+
+    // The same number his dot wears on the pitch, so the two can be read together.
+    const rows = screen.getAllByTestId("sheet-row");
+    for (const row of rows.slice(0, 11)) {
+      expect(row.textContent ?? "").toMatch(/^\d+/);
+    }
   });
 
   it("shows both team sheets, eleven rows a side at kick-off", async () => {

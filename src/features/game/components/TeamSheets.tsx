@@ -1,13 +1,22 @@
 "use client";
 import { useTranslations } from "next-intl";
-import type { PitchPlayer, ViewEvent } from "@/features/game/view/match-view-model";
+import type { PlayerBadges } from "@/features/game/view/lineup-state";
+import type { PitchPlayer } from "@/features/game/view/match-view-model";
 
 export interface SheetRow {
   player: PitchPlayer;
   captain: boolean;
   onPitch: boolean;
-  /** This player's own match, in minute order. */
-  own: ViewEvent[];
+  /**
+   * What happened to him, already tallied.
+   *
+   * ⚠️ Taken from `lineupAt`, never re-derived from the event list. An ASSIST is recorded
+   * on the goal event under `assistPlayerId`, so filtering events by `playerId` misses
+   * every assist — which is exactly what the first version of this sheet did.
+   */
+  badges: PlayerBadges;
+  /** He was carried off. */
+  injured: boolean;
 }
 
 interface Props {
@@ -19,50 +28,68 @@ interface Props {
 }
 
 /**
- * One glyph per thing that happened to him.
- *
- * ⚠️ A red card renders 🟥, NOT the yellow badge. They are the same event kind separated
- * only by `card`, which is exactly how a sending-off ends up looking like a booking.
- */
-function marks(own: ViewEvent[]): string {
-  return own
-    .map((e) => {
-      if (e.kind === "goal") return "⚽";
-      if (e.kind === "card") return e.card === "red" ? "🟥" : "🟨";
-      if (e.kind === "substitution") return "🔄";
-      if (e.kind === "injury") return "🚑";
-      return "";
-    })
-    .join("");
-}
-
-/**
  * TASK-1810 — the team sheets, two ruled columns.
  *
- * ⭐ Each player carries HIS OWN MATCH on his row: the same event stream the feed prints,
- * regrouped by *who* rather than by *when*. That is the whole idea — the feed answers
- * "what just happened", the sheet answers "what has he done".
- *
- * Rows with events lift slightly, so a sheet can be skimmed for the players who did
- * something without reading any of it.
+ * ⭐ Each player carries HIS OWN MATCH on his row: the feed answers "what just happened",
+ * the sheet answers "what has he done".
  */
 export function TeamSheets({ home, away, homeCaption, awayCaption, title }: Props) {
   const t = useTranslations("game");
+
+  /** One badge per thing that happened to him, in the order a report would list them. */
+  const marksOf = (r: SheetRow) => {
+    const b = r.badges;
+    const out: Array<{ key: string; glyph: string; label: string }> = [];
+    if (b.goals > 0) {
+      out.push({
+        key: "g",
+        glyph: b.goals > 1 ? `⚽${b.goals}` : "⚽",
+        label: t("badgeGoal"),
+      });
+    }
+    if (b.assists > 0) {
+      out.push({
+        key: "a",
+        glyph: b.assists > 1 ? `🅰${b.assists}` : "🅰",
+        label: t("badgeAssist"),
+      });
+    }
+    // ⚠️ A yellow AND a red is a SECOND booking, not two separate offences — it must read
+    // 🟨🟥, because a straight red and a second yellow are different things.
+    if (b.yellow && b.red) {
+      out.push({ key: "y2", glyph: "🟨🟥", label: t("badgeSecondYellow") });
+    } else if (b.red) {
+      out.push({ key: "r", glyph: "🟥", label: t("badgeRed") });
+    } else if (b.yellow) {
+      out.push({ key: "y", glyph: "🟨", label: t("badgeYellow") });
+    }
+    if (r.injured) out.push({ key: "inj", glyph: "🚑", label: t("badgeInjury") });
+    // The substitution NUMBER, so two changes in one match can be told apart.
+    if (b.subOn != null) {
+      out.push({ key: "on", glyph: `▲${b.subOn}`, label: t("badgeSubOn") });
+    }
+    if (b.subOff != null) {
+      out.push({ key: "off", glyph: `▼${b.subOff}`, label: t("badgeSubOff") });
+    }
+    return out;
+  };
 
   const column = (rows: SheetRow[], side: "home" | "away", caption: string) => (
     <div className={`lg-sheet lg-sheet-${side}`}>
       <p className="lg-sheet-cap">{caption}</p>
       <ul className="lg-sheet-list">
         {rows.map((r, i) => {
-          const m = marks(r.own);
+          const marks = marksOf(r);
           return (
             <li
               key={`${side}-${r.player.playerId}-${i}`}
               data-testid="sheet-row"
-              className={`lg-sheet-row${m !== "" ? " lg-sheet-live" : ""}${
+              className={`lg-sheet-row${marks.length > 0 ? " lg-sheet-live" : ""}${
                 r.onPitch ? "" : " lg-sheet-gone"
               }`}
             >
+              {/* The shirt number — the same one his dot wears on the pitch. */}
+              <span className="lg-sheet-num">{r.player.number}</span>
               <span className="lg-sheet-pos">{r.player.role}</span>
               <span className="lg-sheet-name">
                 {r.player.name}
@@ -72,8 +99,12 @@ export function TeamSheets({ home, away, homeCaption, awayCaption, title }: Prop
                   </span>
                 ) : null}
               </span>
-              <span className="lg-sheet-marks" aria-hidden="true">
-                {m}
+              <span className="lg-sheet-marks">
+                {marks.map((m) => (
+                  <span key={m.key} className="lg-mark" title={m.label} aria-label={m.label}>
+                    {m.glyph}
+                  </span>
+                ))}
               </span>
               <span className="lg-sheet-ovr">{r.player.rating ?? "—"}</span>
             </li>

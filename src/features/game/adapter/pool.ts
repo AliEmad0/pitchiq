@@ -1,5 +1,5 @@
 import "server-only";
-import { loadCaptains, loadPlayers, loadStandings } from "@/data/loaders";
+import { loadCaptains, loadFixtures, loadPlayers, loadStandings } from "@/data/loaders";
 import type { EnrichedCard } from "@/features/game/domain/player-card";
 import type { PoolSpec } from "@/features/game/domain/rule-packs";
 import { EARLIEST_SEASON, currentDataSeason } from "@/utils/season";
@@ -115,7 +115,11 @@ async function clubHistory(
   only?: number,
 ): Promise<EnrichedCard[]> {
   const teams =
-    only != null ? [only] : spec.teams === "all" ? (await clubChoices()).map((c) => c.id) : spec.teams;
+    only != null
+      ? [only]
+      : spec.teams === "all"
+        ? (await clubChoices()).map((c) => c.id)
+        : spec.teams;
 
   const out: EnrichedCard[] = [];
   for (const teamId of teams) {
@@ -167,6 +171,27 @@ export async function captaincyCounts(
     }
   }
   return out;
+}
+
+/**
+ * Every referee who has actually taken a Premier League match, by name.
+ *
+ * ⭐ REAL names, from the committed fixtures — "M Oliver", "A Taylor" — rather than an
+ * invented list. `fixtures-<season>.json` carries a `referee` on every row, so the game can
+ * name the official instead of only describing his style.
+ *
+ * ⚠️ Build time only, and the loaders cache per process, so this is one read of each
+ * season no matter how many club pages are prerendered.
+ */
+export async function refereeNames(): Promise<string[]> {
+  const seen = new Set<string>();
+  for (const season of everySeason()) {
+    for (const f of (await loadFixtures(season)) ?? []) {
+      const name = f.referee?.trim();
+      if (name != null && name !== "") seen.add(name);
+    }
+  }
+  return [...seen].sort((a, b) => a.localeCompare(b));
 }
 
 export async function buildPool(spec: PoolSpec, only?: number): Promise<EnrichedCard[]> {

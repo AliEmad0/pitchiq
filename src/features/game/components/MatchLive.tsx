@@ -2,10 +2,10 @@
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { armbandAt, rankCaptains } from "@/features/game/domain/captaincy";
+import { mulberry32 } from "@/features/game/domain/rng";
 import { decadeSpan } from "@/features/game/domain/matchup";
 import type { CommentaryRef } from "@/features/game/domain/commentary";
 import type { DecisionAnswer, MatchDecision } from "@/features/game/domain/match-decisions";
-import type { RefereeStyle, Weather } from "@/features/game/domain/match-types";
 import type { GameTeam } from "@/features/game/domain/team";
 import { answerFor, benchLabel, subOfferOf, type SubMode } from "@/features/game/view/bench-state";
 import { commentaryArgs } from "@/features/game/view/commentary-view";
@@ -14,8 +14,17 @@ import type { MatchViewModel, ViewEvent } from "@/features/game/view/match-view-
 import { OVERLAY_KINDS } from "@/features/game/view/match-view-model";
 import { scoreAt } from "@/features/game/view/score";
 import { prefersReducedMotion } from "@/utils/motion";
+import {
+  type SimState,
+  buildUp,
+  frameFromSim,
+  goalKick,
+  initSim,
+  restSim,
+  stepSim,
+} from "@/features/game/domain/pitch-sim";
 import { BenchDialog } from "./BenchDialog";
-import { MiniMapCanvas, type MiniMapSide } from "./MiniMapCanvas";
+import { MatchPitch } from "./MatchPitch";
 import { TeamSheets, type SheetRow } from "./TeamSheets";
 
 /**
@@ -29,23 +38,6 @@ const DWELL_MS = 2500;
 const DWELL_FLOOR = 1500;
 const SPEEDS = [1, 2, 4] as const;
 
-/**
- * The mini-map's palette.
- *
- * ⚠️ Canvas cannot read a CSS custom property, so these repeat the `.lg-root` token values
- * rather than referencing them. Keep them in step with the token block in `globals.css` —
- * gold is always your side, rose always theirs.
- */
-const MAP_COLORS = {
-  home: "#f2d98a",
-  away: "#ff7d9b",
-  inkHome: "#2b1e00",
-  inkAway: "#2b0710",
-  chalk: "#e8efe9",
-  turfA: "#123a2a",
-  turfB: "#0e3022",
-} as const;
-
 /** Seconds an amber "change available" window stays open before it resolves itself. */
 const DECISION_LIMIT = 20;
 
@@ -58,23 +50,18 @@ interface Props {
   pending: MatchDecision | null;
   /** playerId → real captaincies, narrowed to this club at build time. */
   captaincies: Record<number, number>;
-  referee: RefereeStyle | null;
-  weather: Weather | null;
+  /**
+   * Real Premier League referees, from the committed fixtures.
+   *
+   * ⚠️ The NAME is cosmetic and picked from the match seed; the engine's `RefereeStyle` is
+   * what actually governs bookings. Naming the official reads far better than labelling
+   * him "STRICT", which is what the scoreboard used to show.
+   */
+  referees: readonly string[];
   onAnswer: (a: DecisionAnswer) => void;
+  /** Leave the match. Rendered only once the whistle has actually gone. */
+  onFullTime?: () => void;
 }
-
-const REFEREE_KEY: Record<RefereeStyle, string> = {
-  strict: "refereeStrict",
-  lenient: "refereeLenient",
-  "crowd-influenced": "refereeCrowdInfluenced",
-};
-const WEATHER_KEY: Record<Weather, string> = {
-  clear: "weatherClear",
-  rain: "weatherRain",
-  "heavy-rain": "weatherHeavyRain",
-  wind: "weatherWind",
-  snow: "weatherSnow",
-};
 
 /** How loudly a line is printed. A goal shouts; a half-chance recedes. */
 function weightOf(kind: ViewEvent["kind"]): "loud" | "mid" | "quiet" {
@@ -108,9 +95,9 @@ export function MatchLive({
   holdAt,
   pending,
   captaincies,
-  referee,
-  weather,
+  referees,
   onAnswer,
+  onFullTime,
 }: Props) {
   const t = useTranslations("game");
   const tRoot = useTranslations();
@@ -176,6 +163,38 @@ export function MatchLive({
       setPlaying(true);
     }
   }, [reduced]);
+
+  /**
+   * The pitch movement — ⭐ the SAME simulation `/game/daily` runs.
+   *
+   * Owner's instruction after two rejected bespoke attempts: make it move like the shipped
+   * broadcast pitch. So this drives `domain/pitch-sim.ts` exactly as `MatchView` does
+   * rather than keeping a second, differently-behaving model alongside it. One beat per
+   * minute; a real goal injects a celebration, and the beat BEFORE it builds up with the
+   * scoring side already attacking so the goal reads as earned rather than teleported.
+   */
+  const [sim, setSim] = useState<SimState>(() => (reduced ? restSim() : initSim()));
+  const rngRef = useRef<() => number>(mulberry32(model.seed));
+  const lastSimMinute = useRef(0);
+
+  useEffect(() => {
+    if (reduced || minute === lastSimMinute.current) return;
+    lastSimMinute.current = minute;
+    if (minute === 0) return;
+    const ctx = { home: model.home.players, away: model.away.players };
+    const goalNow = model.events.find((e) => e.minute === minute && e.kind === "goal" && e.side);
+    const goalNext = model.events.find(
+      (e) => e.minute === minute + 1 && e.kind === "goal" && e.side,
+    );
+    setSim((s) => {
+      if (goalNow?.side) return goalKick(goalNow.side, goalNow.scorerSlot ?? 10);
+      // ⚠️ Only at REAL full time. Resetting at a segment boundary would freeze the pitch
+      // mid-match every time a decision came up.
+      if (holdAt == null && minute >= lastMinute) return restSim();
+      if (goalNext?.side) return buildUp(goalNext.side, goalNext.scorerSlot ?? 10);
+      return stepSim(s, ctx, rngRef.current);
+    });
+  }, [minute, reduced, model.events, model.home.players, model.away.players, lastMinute, holdAt]);
 
   // ---- decisions ----
   const offer = subOfferOf(pending);
@@ -286,27 +305,20 @@ export function MatchLive({
 
   // ---- pitch + sheets ----
   /**
-   * The mini-map's view of one side.
+   * Per-slot state for the pitch — the same shape `MatchView` feeds it.
    *
-   * ⚠️ Built from `lineupAt`, so a dismissal really removes a dot and a substitute really
-   * takes the shape his predecessor held — the map and the team sheet can never disagree
-   * about who is on the pitch.
+   * ⚠️ From `lineupAt`, so a dismissal really removes a dot and a substitute really takes
+   * the shape his predecessor held. The map and the team sheet can never disagree about
+   * who is on the pitch.
    */
-  const mapSideOf = (
-    lineup: ReturnType<typeof lineupAt>,
-    team: { players: { row: number; col: number }[] },
-    band: number | null,
-  ): MiniMapSide => ({
-    // Shape from the STARTING slots — the formation does not change mid-match.
-    slots: team.players.map((p) => ({ row: p.row, col: p.col })),
-    // Occupancy from the LINEUP, which already carries substitutes in the slot they
-    // inherited and a null where a dismissal left a gap.
-    players: lineup.slots.map((sl) =>
-      sl == null ? null : { playerId: sl.playerId, number: sl.number },
-    ),
-    booked: [...lineup.badges.entries()].filter(([, b]) => b.yellow).map(([id]) => id),
-    captain: band,
-  });
+  const slotStatus = (lineup: ReturnType<typeof lineupAt>) =>
+    lineup.slots.map((sl) =>
+      sl == null
+        ? null
+        : { number: sl.number, booked: lineup.badges.get(sl.playerId)?.yellow === true },
+    );
+
+  const frame = frameFromSim(model.home.players, model.away.players, sim);
 
   const sheetOf = (
     lineup: ReturnType<typeof lineupAt>,
@@ -317,16 +329,17 @@ export function MatchLive({
       player: r.player,
       captain: band != null && r.player.playerId === band,
       onPitch: r.onPitch,
-      own: shown.filter((e) => e.side === side && e.playerId === r.player.playerId),
+      // ⚠️ The tallies come from `lineupAt`, which already counts goals, assists, cards
+      // and the substitution NUMBER. Re-deriving them by filtering events on `playerId`
+      // silently drops every assist — an assist rides on the GOAL event under
+      // `assistPlayerId`, so the scorer's row would claim it and the provider's row would
+      // show nothing at all.
+      badges: r.badges,
+      injured: shown.some(
+        (e) => e.kind === "injury" && e.side === side && e.playerId === r.player.playerId,
+      ),
     }));
 
-  /**
-   * The sheet's caption: shape, the decade the XI is drawn from, and the captain.
-   *
-   * ⚠️ Built from the real `GameTeam`, not the view model. `ViewSideTeam` carries neither
-   * the formation nor a season — `PitchPlayer` drops both — so the caption is the one
-   * thing on this screen that genuinely needs the source team.
-   */
   const captionOf = (side: "home" | "away", band: number | null) => {
     const team = side === "home" ? teams.home : teams.away;
     const span = decadeSpan(team);
@@ -341,26 +354,74 @@ export function MatchLive({
 
   const atEnd = minute >= lastMinute;
 
+  /**
+   * The whistle has actually gone.
+   *
+   * ⚠️ Distinct from `atEnd`, which is only "as far as the engine has been driven". A hold
+   * for a pending decision also reaches the ceiling, and the match is very much still on.
+   */
+  const finished = holdAt == null && atEnd;
+
+  const redsOf = (lineup: ReturnType<typeof lineupAt>) =>
+    [...lineup.badges.values()].filter((b) => b.red).length;
+  const homeReds = redsOf(homeLineup);
+  const awayReds = redsOf(awayLineup);
+
+  /**
+   * Which official is taking charge — the NAME.
+   *
+   * ⚠️ Drawn from the match seed, never `Math.random()`, so a replayed match keeps the same
+   * referee. Offset from the seed the engine uses so the two streams cannot correlate.
+   */
+  const refName =
+    referees.length === 0
+      ? null
+      : (referees[Math.floor(mulberry32(model.seed + 1)() * referees.length)] ?? null);
+
   return (
     <div className="lg-root lg-live">
       {/* ---- scoreboard ---- */}
       <header className="lg-board">
         <div className="lg-board-main">
-          <span className="lg-board-team lg-home">{model.home.name}</span>
+          <span className="lg-board-team lg-home">
+            {model.home.name}
+            {/* A dismissal belongs on the scoreboard — it is the single biggest thing that
+                has happened to a side, and burying it in the feed hides it. */}
+            {homeReds > 0 ? (
+              <span className="lg-board-red" title={t("badgeRed")}>
+                {homeReds > 1 ? `${homeReds}×` : ""}
+              </span>
+            ) : null}
+          </span>
           <span className="lg-board-score">
             <span className="lg-home">{homeScore}</span>
             <span className="lg-board-dash">–</span>
             <span className="lg-away">{awayScore}</span>
           </span>
-          <span className="lg-board-team lg-away">{model.away.name}</span>
+          <span className="lg-board-team lg-away">
+            {awayReds > 0 ? (
+              <span className="lg-board-red" title={t("badgeRed")}>
+                {awayReds > 1 ? `${awayReds}×` : ""}
+              </span>
+            ) : null}
+            {model.away.name}
+          </span>
         </div>
         <div className="lg-board-meta">
+          {/* The clock is the biggest thing in this row and sits dead centre, with a
+              pulsing LIVE beside it while the match is on. */}
+          <span className="lg-livetag" aria-hidden={finished ? "true" : undefined}>
+            {finished ? null : <span className="lg-livetag-dot" />}
+            <span className="lg-livetag-word">{finished ? t("playFullTime") : t("live")}</span>
+          </span>
           <span className="lg-clock" data-testid="live-clock">
             {minute}
             {"'"}
           </span>
-          {referee != null ? <span className="lg-chip">{t(REFEREE_KEY[referee])}</span> : null}
-          {weather != null ? <span className="lg-chip">{t(WEATHER_KEY[weather])}</span> : null}
+          {/* ⚠️ The referee's NAME, not his style. `refereeStyle` still governs bookings —
+              it is simply not what a scoreboard should say. The weather chip is gone; the
+              pre-match programme still explains what both conditions DO. */}
+          {refName != null ? <span className="lg-chip">{refName}</span> : null}
         </div>
       </header>
 
@@ -370,15 +431,14 @@ export function MatchLive({
           aspect-ratio alone sets the height. */}
       <div className="lg-split">
         <div className="lg-split-pitch">
-          <MiniMapCanvas
-            home={mapSideOf(homeLineup, model.home, armband)}
-            away={mapSideOf(awayLineup, model.away, null)}
-            events={shown}
-            minute={minute}
-            seed={model.seed}
-            reduced={reduced}
+          <MatchPitch
+            frame={frame}
+            homeNumbers={model.home.players.map((p) => p.number)}
+            awayNumbers={model.away.players.map((p) => p.number)}
+            homeSlots={slotStatus(homeLineup)}
+            awaySlots={slotStatus(awayLineup)}
+            animate={!reduced}
             label={t("livePitchAria")}
-            colors={MAP_COLORS}
           />
         </div>
         <div className="lg-split-feed">
@@ -400,6 +460,15 @@ export function MatchLive({
       </div>
 
       {/* ---- controls ---- */}
+      {/* ⚠️ The whistle button lives INSIDE this screen, not in the container.
+          It has to look exactly like Kick off — full width, the one --cta on the page —
+          and outside `.lg-root` it would inherit none of the theme's tokens. */}
+      {finished && onFullTime != null ? (
+        <button type="button" onClick={onFullTime} className="lg-kick lg-kick-end">
+          {t("playFullTime")}
+        </button>
+      ) : null}
+
       <div className="lg-controls">
         {!reduced ? (
           <>
