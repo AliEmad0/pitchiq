@@ -1,8 +1,9 @@
 import type { PlayerRole } from "@/data/schemas";
+import { formationByName } from "@/features/game/domain/formation";
 import type { MatchSetup } from "@/features/game/domain/match-types";
 import type { GamePlayer } from "@/features/game/domain/player";
 import type { PlayerRatings } from "@/features/game/domain/ratings";
-import { makeGameTeam } from "@/features/game/domain/team";
+import { type GameTeam, makeGameTeam } from "@/features/game/domain/team";
 
 /**
  * A plain, evenly-matched fixture for engine tests that care about the LOOP rather than
@@ -45,3 +46,47 @@ export const matchSetup = (seed: number): MatchSetup => ({
   seed,
   targetGoalsPerMatch: 2.7,
 });
+
+/**
+ * A team with REAL formation slots, for anything that groups an XI by position.
+ *
+ * ⛔ `matchSetup` above CANNOT be used for that. Its `SHAPE` carries an EMPTY `slots`
+ * array, so anything bucketing players by their slot's role sees nothing at all and
+ * reports zeroes — a test written against it would pass over a function that does nothing.
+ *
+ * ⚠️ 4-4-2 Flat's slot order is GK, LB, CB, CB, RB, LM, CM, CM, RM, CF, CF: the defence
+ * bucket is FIVE (the keeper included), the midfield four, the attack two. Get that wrong
+ * and the expected values in a comparison test are quietly nonsense.
+ *
+ * `ratings[i] === null` means that player is genuinely unrated — a real case in Legacy,
+ * where a club's thinner seasons carry cards the rating pipeline could not score.
+ */
+export function makeTeam(
+  opts: {
+    name?: string;
+    /** One entry per slot. Omit for a flat 75; `null` for an unrated player. */
+    ratings?: Array<number | null>;
+    /** One entry per slot. Omit for 2020 throughout. */
+    seasons?: number[];
+  } = {},
+): GameTeam {
+  // ⚠️ By NAME, never `FORMATIONS[i]` — that array's order is presentation only.
+  const shape = formationByName("4-4-2 Flat");
+  const players: GamePlayer[] = shape.slots.map((slot, i) => {
+    const overall = opts.ratings === undefined ? 75 : (opts.ratings[i] ?? null);
+    const season = opts.seasons?.[i] ?? 2020;
+    return {
+      cardId: `${500 + i}@${season}`,
+      playerId: 500 + i,
+      season,
+      name: `${opts.name ?? "T"}${i}`,
+      role: slot.role,
+      altRoles: [],
+      foot: null,
+      height: null,
+      provenance: null,
+      ratings: overall === null ? null : { ...RATINGS, overall },
+    };
+  });
+  return makeGameTeam(1, opts.name ?? "T", 2020, shape, players, []);
+}

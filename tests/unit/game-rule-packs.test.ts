@@ -68,3 +68,15 @@ describe("rule packs", () => {
     expect(src).not.toMatch(/server-only/);
   });
 });
+
+describe("screens (TASK-1810)", () => {
+  it("Legacy declares the programme + split-feed screens", () => {
+    expect(packFor("legacy")?.screens).toBe("legacy");
+  });
+
+  it("⛔ a pack that does not declare them keeps the SHIPPED match screens", () => {
+    // The control for TASK-1810: Chaos must reach MatchupPreview/MatchView exactly as it
+    // always has. `screens` being optional is the whole reason the redesign is contained.
+    expect(CHAOS_PACK.screens).toBeUndefined();
+  });
+});
