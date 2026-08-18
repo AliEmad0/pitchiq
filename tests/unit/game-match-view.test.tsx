@@ -72,6 +72,25 @@ describe("MatchView", () => {
     expect(board.textContent).toContain("ARS00MUN");
   });
 
+  it("⚠️ reduced motion FOLLOWS a ceiling that moves — it does not freeze at the first hold", () => {
+    /**
+     * `minute` is seeded from the ceiling ONCE and the clock effect returns early when
+     * `reduced`, so without an effect tracking the ceiling this view sticks at whatever
+     * minute the first decision landed on: no later goal, card or substitution ever
+     * appears and the roster stays on the starting eleven.
+     *
+     * Found on `MatchLive`, where the identical defect failed that suite on 5 of 10 runs.
+     * `MatchView` is the shipped screen for /game/draft, /game/chaos and /game/daily.
+     */
+    const board = () => screen.getByRole("group", { name: /Live scoreboard/i });
+    const { rerender } = renderWithIntl(<MatchView model={liveModel} holdAt={30} />);
+    expect(board().textContent).toContain("ARS00MUN");
+
+    // The next segment arrives and releases the hold — the goal at 60' must now show.
+    rerender(<MatchView model={liveModel} />);
+    expect(board().textContent).toContain("ARS10MUN");
+  });
+
   it("renders the whole match when nothing is held", () => {
     // The same model without a hold reaches full time and counts the goal, so the test
     // above is about the hold and not about the fixture.

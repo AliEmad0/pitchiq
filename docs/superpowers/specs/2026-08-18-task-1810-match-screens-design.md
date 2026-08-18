@@ -84,7 +84,7 @@ beneath a rule**.
 **The split** — pitch left, commentary right, ⚠️ **stretched to the same row height**
 (`align-items: stretch`, feed is a flex column with a scrolling body).
 
-### 3.1 The pitch — ⚠️ AGREED IN PART ONLY
+### 3.1 The pitch — ✅ NOW FULLY AGREED AND BUILT
 
 **Agreed and ready to build:**
 
@@ -95,7 +95,37 @@ beneath a rule**.
 - **Captain armband** and **bookings** ride on the player's pip.
 - The pitch **sets the row height** (see §3 above).
 
-⛔ **NOT AGREED — the interactive player animation is still open (2026-08-18).**
+✅ **The player animation is AGREED AND BUILT (owner's architecture, 2026-08-18).**
+
+The owner supplied the design after rejecting two attempts. It is implemented as
+`domain/minimap.ts` (pure, seeded) plus `components/MiniMapCanvas.tsx` (Canvas 2D +
+`requestAnimationFrame`).
+
+- **Normalised pitch**, 105 × 68 m. Every actor carries `pos`, `target`, `vel` and a
+  `state` (`idle` / `running` / `pressing` / `carrying` / `shooting` / `keeper`).
+- **The loop never touches React state.** 23 moving objects through `useState` would
+  re-render the subtree 60 times a second; the sim lives in a ref and paints straight to
+  the canvas, so React re-runs only when the MINUTE changes.
+- **Lerp smoothing**, `dt`-scaled — a 144 Hz screen must not run the match faster.
+- **A virtual z-axis** for lofted passes and shots: `z(t) = 4h·t·(1−t)`, with a shadow
+  left on the turf and the ball's dot scaled by height.
+- **One-to-one marking**, assigned greedily by distance, each marker sitting goal-side of
+  his man and LEADING him by his velocity. This is what makes the two sets of dots
+  interleave; marking "the nearest attacker" independently let three defenders converge on
+  one man and produced the two-blocks read that was rejected.
+- **The nearest outfielder presses the carrier**, leading him and closing faster than a
+  player holding shape. Aimed at where the carrier _is_, a presser trails him forever.
+- **The penalty scene** clears all twenty other players outside the box, puts the ball on
+  the spot and the keeper on his line.
+- ⛔ **Seeded throughout.** `Math.random()` would break byte-for-byte replay, which is why
+  the prototype's code was not ported.
+
+⚠️ Two rules the build had to discover: a set-piece scene must OWN its targets (re-aiming
+during a penalty drags everyone back into the box), and the map is keyed by **slot**, not
+by player — built from the starting eleven, a substitute gets no dot and his side finishes
+with ten.
+
+Kept for the record, the two rejected attempts:
 
 The owner reviewed two attempts and rejected both:
 
@@ -110,17 +140,16 @@ the attacking team pressing and **mixing with** the defending team, **defenders 
 attackers**, and everything **tied to the events**: to score, the home side must be in the
 away half with the ball, and the shot hitting the away net is what records the goal.
 
-⚠️ **Do not build this from the prototype.** Treat it as an unsolved design problem needing
-its own pass — most likely per-player movement with marking and pressing, not a whole-team
-offset. The rest of the live screen is settled and can ship without it; a static both-teams
-pitch is an acceptable first cut.
+⭐ The diagnosis in the second rejection was right: it needed **per-player movement with
+marking and pressing, not a whole-team offset**. That is exactly what `aim()` now does.
 
-⚠️ The app already has `domain/pitch-sim.ts` (seeded ambient possession, ball always on a
-real player). **Drive the real thing — do not reimplement the prototype's `Math.random`,**
-which also breaks the Phase-18 determinism rule.
+⚠️ `domain/pitch-sim.ts` still backs the SHIPPED `MatchView` for the other packs. The
+mini-map is a separate, richer model; the two are not merged, and neither uses
+`Math.random`.
 
-⛔ Whatever the motion becomes: move players and the ball by **`transform: translate()`**,
-never `left`/`top` — animating layout properties re-lays-out the pitch every frame.
+⛔ The `transform: translate()` rule no longer applies here — nothing is laid out by CSS.
+The pitch, the markings, the dots and the ball are all painted to a canvas, so there are no
+layout properties to animate.
 
 ### 3.2 Commentary — "the comments"
 
@@ -182,8 +211,8 @@ the same event stream regrouped by _who_ rather than _when_. Rows with events li
 
 ## 5. Still open — in the owner's priority order
 
-1. ⛔ **The pitch mini-map animation (§3.1).** Two attempts rejected. Needs its own design
-   pass before any of it is written into the app.
+1. ✅ **The pitch mini-map animation (§3.1) — DONE.** The owner supplied the architecture
+   and it is built; see §3.1.
 2. ⏸ **The 30-concept animation galleries — PARKED by the owner (2026-08-18).** The draft,
    the pre-match and the live screen have not had a motion ritual and are **not to get one
    for now**. Only `/game/legacy` has one (Foil Sweep), and it shipped.

@@ -100,6 +100,23 @@ export function MatchView({ model, holdAt }: Props) {
     setPlaying(true);
   }, [reduced, minute, lastMinute]);
 
+  /**
+   * ⚠️ Reduced motion must FOLLOW the ceiling, not merely start at it.
+   *
+   * `minute` is seeded from `ceiling` once and the clock effect above returns early when
+   * `reduced`, so without this the view sticks at whatever minute the FIRST decision
+   * landed on and never shows the rest of the match — no later goal, card or substitution
+   * ever appears, and the roster stays frozen at the starting eleven.
+   *
+   * Measured on the identical defect in `MatchLive`: removing this effect fails that
+   * screen's suite on 5 of 10 runs, because the first decision can be raised before
+   * half-time. A viewer who asked for no animation still wants the whole match.
+   */
+  useEffect(() => {
+    if (!reduced) return;
+    setMinute(lastMinute);
+  }, [reduced, lastMinute]);
+
   // Ambient possession — one beat per minute. A real goal injects a celebration,
   // and the beat BEFORE it builds up with the scoring side already attacking so
   // the goal reads as earned rather than teleported.
