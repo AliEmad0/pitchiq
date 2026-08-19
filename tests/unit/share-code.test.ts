@@ -37,6 +37,10 @@ const match = (over: Partial<ShareableMatch> = {}): ShareableMatch => ({
   seed: 123456789,
   tokens: "-2~h~-",
   fingerprint: 0xdeadbeef,
+  // ⛔ Explicit, not defaulted. `rival` is part of the match's IDENTITY since v2, and a
+  // fixture that omitted it would let a code encode "no club chosen" for a match that had
+  // one — exactly the drift the version bump exists to make impossible.
+  rival: null,
   ...over,
 });
 
@@ -97,7 +101,11 @@ describe("a code is untrusted input", () => {
       "v1.zz.4-4-2-flat.a-b.-.ff", // wrong squad size
       `${SHARE_VERSION}.!!.4-4-2-flat.${"1-1_".repeat(11).slice(0, -1)}.-.ff`, // non-base36 seed
       `${SHARE_VERSION}.1.<script>.${"1-1_".repeat(11).slice(0, -1)}.-.ff`, // injected slug
-      `${SHARE_VERSION}.1.4-4-2-flat.${"1-1_".repeat(11).slice(0, -1)}.-.ff.extra`, // 7 fields
+      // ⚠️ EIGHT fields. This said "7 fields" and was correct until v2 made seven the real
+      // count — at which point it was asserting that a valid field count is rejected, and
+      // passing only because `.extra` is not a valid rival segment. A structural test must
+      // be re-read whenever the structure changes.
+      `${SHARE_VERSION}.1.4-4-2-flat.${"1-1_".repeat(11).slice(0, -1)}.-.ff.-.extra`,
       "x".repeat(500),
     ]) {
       expect(decodeMatch(bad as string), String(bad)).toBeNull();
@@ -107,8 +115,24 @@ describe("a code is untrusted input", () => {
   it("rejects an unknown version instead of guessing", () => {
     // The dangerous failure: a future format decoding into a DIFFERENT but plausible
     // match. Failing closed is the only safe behaviour.
-    const code = encodeMatch(match()).replace(/^v1/, "v2");
+    // ⚠️ Built from SHARE_VERSION rather than naming a version. This hard-coded "v2" as the
+    // impossible future one — and the day v2 actually shipped it began asserting that a
+    // VALID code is rejected. A version test must never name a version that can become real.
+    const code = encodeMatch(match()).replace(SHARE_VERSION, "v99");
     expect(decodeMatch(code)).toBeNull();
+  });
+
+  /**
+   * ⛔ There is deliberately NO upgrade path from v1 (owner, 2026-08-19).
+   *
+   * A v1 code carries nothing about which club the opponent came from, so "upgrading" one
+   * means inventing an opponent — and the receiver would replay a plausible but different
+   * match against a side the sender never faced. Failing closed is the whole point of the
+   * prefix.
+   */
+  it("refuses a v1 code rather than replaying it against an invented opponent", () => {
+    const v1 = `v1.${encodeMatch(match()).split(".").slice(1, 6).join(".")}`;
+    expect(decodeMatch(v1)).toBeNull();
   });
 
   it("rejects a season outside the archive", () => {
@@ -179,5 +203,46 @@ describe("fingerprint is carried, not trusted", () => {
 
   it("compares unsigned, so a negative hash still matches itself", () => {
     expect(fingerprintMatches(match({ fingerprint: -1 }), 0xffffffff)).toBe(true);
+  });
+});
+
+/**
+ * ⭐ The rival is part of the match's IDENTITY (owner, 2026-08-19).
+ *
+ * The receiver rebuilds the opponent by re-running the same draft over the same cards, so a
+ * code that dropped the club or the policy would replay against a different eleven — and the
+ * fingerprint check would report it as drift the SENDER caused, which is the worst kind of
+ * wrong answer: confident, plausible, and blaming the wrong side.
+ */
+describe("the rival a code carries", () => {
+  it("round-trips the club and the policy", () => {
+    for (const policy of ["random", "best", "strong"] as const) {
+      const code = encodeMatch(match({ rival: { teamId: 40, policy } }));
+      expect(decodeMatch(code)?.rival).toEqual({ teamId: 40, policy });
+    }
+  });
+
+  it("round-trips 'no club chosen' as null, not as a default", () => {
+    expect(decodeMatch(encodeMatch(match({ rival: null })))?.rival).toBeNull();
+  });
+
+  it("⚠️ distinguishes the two — a chosen rival and none are different matches", () => {
+    const none = encodeMatch(match({ rival: null }));
+    const chosen = encodeMatch(match({ rival: { teamId: 40, policy: "strong" } }));
+    expect(none).not.toBe(chosen);
+  });
+
+  it("refuses a tampered policy character rather than defaulting it", () => {
+    const parts = encodeMatch(match({ rival: { teamId: 40, policy: "strong" } })).split(".");
+    parts[6] = `${parts[6]!.slice(0, -1)}x`;
+    expect(decodeMatch(parts.join("."))).toBeNull();
+  });
+
+  it("refuses a non-numeric or zero team id", () => {
+    for (const bad of ["0s", "-s", "s"]) {
+      const parts = encodeMatch(match({ rival: { teamId: 40, policy: "strong" } })).split(".");
+      parts[6] = bad;
+      expect(decodeMatch(parts.join("."))).toBeNull();
+    }
   });
 });

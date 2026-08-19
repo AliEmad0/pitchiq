@@ -43,6 +43,10 @@ ROUTES=(
   "/game/draft"
   "/game/daily"
   "/game/legacy"
+  "/game/legacy/40"
+  # The rival squad the draft screen fetches as soon as it mounts (TASK-1810
+  # follow-up). Cold, it is a full club-history build.
+  "/api/game/rivals/40"
   "/game/demo"
   "/definitely-not-a-page"
   "/api/search?q=haaland"

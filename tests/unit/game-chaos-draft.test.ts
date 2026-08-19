@@ -50,6 +50,72 @@ const pool: PoolCard[] = ROLES.flatMap((role, r) =>
   }),
 );
 
+/**
+ * A pool where EVERY card clears the standout bar, so `strong` draws inside the band rather
+ * than falling back.
+ *
+ * ⚠️ Six per role at 80-90, mirroring `pool` above. Two fixtures rather than one because the
+ * two halves of `strong` — draw from the band, fall back to the best there is — are
+ * different code paths and a single fixture can only exercise one of them.
+ */
+const strongPool: PoolCard[] = ROLES.flatMap((role, r) =>
+  Array.from({ length: 6 }, (_, i) => {
+    const id = 5000 + r * 100 + i;
+    return {
+      cardId: `${id}@2020` as const,
+      playerId: id,
+      season: 2000 + (i % 20),
+      name: `${role}-strong-${i}`,
+      role,
+      altRoles: [],
+      foot: null,
+      height: null,
+      provenance: null,
+      ratings: {
+        attack: 50,
+        creation: 50,
+        defense: 50,
+        physical: 50,
+        discipline: 50,
+        overall: 80 + i * 2,
+      },
+      club: `Club ${r}`,
+    };
+  }),
+);
+
+/**
+ * A club that is strong in some positions and thin in others — the real shape of most.
+ *
+ * ⚠️ Neither `pool` nor `strongPool` can exercise the fallback and the band in ONE draft,
+ * and it is the interleaving of the two that the rng-ordering rule is about.
+ */
+const mixedPool: PoolCard[] = ROLES.flatMap((role, r) =>
+  Array.from({ length: 6 }, (_, i) => {
+    const id = 9000 + r * 100 + i;
+    return {
+      cardId: `${id}@2020` as const,
+      playerId: id,
+      season: 2000 + (i % 20),
+      name: `${role}-mixed-${i}`,
+      role,
+      altRoles: [],
+      foot: null,
+      height: null,
+      provenance: null,
+      ratings: {
+        attack: 50,
+        creation: 50,
+        defense: 50,
+        physical: 50,
+        discipline: 50,
+        overall: r % 2 === 0 ? 82 + i : 60 + i,
+      },
+      club: `Club ${r}`,
+    };
+  }),
+);
+
 describe("chaosDraft", () => {
   it("is deterministic for a given seed", () => {
     const a = chaosDraft(pool, 42);
@@ -173,5 +239,103 @@ describe("chaosMatchup — an opponent policy", () => {
       shipped.home.players.map((p) => p.cardId),
     );
     expect(same.homeStyle).toBe(shipped.homeStyle);
+  });
+});
+
+/**
+ * ⭐ Owner's answer to what `best` costs (2026-08-19): "selecting from Arsenal's card pool
+ * randomly rather than strictly taking their top-rated cards … so Arsenal feels fresh with
+ * different line-ups, formations and ratings (staying around the 82–90 range) every time".
+ *
+ * A club that always fields its single strongest XI is the same match forever. `strong`
+ * draws inside the standout band instead — the quality of `best`, the variety of `random`.
+ */
+describe("chaosDraft — the `strong` policy", () => {
+  const ovr = (t: ReturnType<typeof chaosDraft>) => t.players.map((p) => p.ratings?.overall ?? 0);
+  const mean = (ns: number[]) => ns.reduce((a, b) => a + b, 0) / ns.length;
+
+  /**
+   * ⛔ NOT "every pick is the pool's top card". Two centre-back slots means the second one
+   * gets the second-best centre-back — an assertion that each slot got the maximum is
+   * unsatisfiable, and writing it is how this test first failed against correct code (the
+   * same trap the `best` suite above records).
+   *
+   * ⚠️ 12 of the 51 real clubs have never had a player reach 80, so this is the COMMON path
+   * for them, not an edge case.
+   */
+  it("falls back to best-available for a club with nobody at the bar", () => {
+    for (let seed = 1; seed <= 40; seed++) {
+      const strong = chaosDraft(pool, seed, "Rivals", { policy: "strong" });
+      const best = chaosDraft(pool, seed, "Rivals", { policy: "best" });
+      expect(strong.players).toHaveLength(11);
+      expect(strong.players.map((p) => p.cardId)).toEqual(best.players.map((p) => p.cardId));
+    }
+  });
+
+  it("⚠️ VARIES the line-up — the whole reason it exists rather than `best`", () => {
+    const seen = new Set<string>();
+    for (let seed = 1; seed <= 40; seed++) {
+      seen.add(
+        chaosDraft(strongPool, seed, "Rivals", { policy: "strong" })
+          .players.map((p) => p.playerId)
+          .sort((a, b) => a - b)
+          .join(","),
+      );
+    }
+    // `best` would produce ONE XI across all forty seeds.
+    expect(seen.size).toBeGreaterThan(20);
+    expect(
+      new Set(
+        Array.from({ length: 40 }, (_, i) =>
+          chaosDraft(strongPool, i + 1, "Rivals", { policy: "best" })
+            .players.map((p) => p.playerId)
+            .join(","),
+        ),
+      ).size,
+    ).toBeLessThanOrEqual(FORMATIONS.length);
+  });
+
+  it("stays inside the band — no line-up drops to the pool's floor", () => {
+    for (let seed = 1; seed <= 40; seed++) {
+      const team = chaosDraft(strongPool, seed, "Rivals", { policy: "strong" });
+      // Every card in the band is 80+, so a whole XI of them cannot average below it.
+      expect(Math.min(...ovr(team))).toBeGreaterThanOrEqual(80);
+      expect(mean(ovr(team))).toBeGreaterThanOrEqual(80);
+    }
+  });
+
+  it("is deterministic — the same seed replays the same XI", () => {
+    const a = chaosDraft(strongPool, 4242, "Rivals", { policy: "strong" });
+    const b = chaosDraft(strongPool, 4242, "Rivals", { policy: "strong" });
+    expect(a.players.map((p) => p.cardId)).toEqual(b.players.map((p) => p.cardId));
+    expect(a.bench?.map((p) => p.cardId)).toEqual(b.bench?.map((p) => p.cardId));
+  });
+
+  /**
+   * ⛔ Verified BY SABOTAGE, and the first version of this test was vacuous.
+   *
+   * `strongFor` draws its rng BEFORE deciding whether the band is empty, so every slot costs
+   * exactly one number whether or not the club has cover there. Move that draw inside the
+   * branch and a MIXED club — some roles at the bar, some below — shifts every later slot's
+   * draw, so the same seed produces a different XI.
+   *
+   * ⚠️ The fixture has to be mixed. Tested against a pool that was entirely above the bar or
+   * entirely below it, the sabotage changed nothing at all and the test passed over it.
+   */
+  it("costs one rng draw per slot whether or not the band has anyone in it", () => {
+    const seen = new Set<string>();
+    for (let seed = 1; seed <= 30; seed++) {
+      seen.add(
+        chaosDraft(mixedPool, seed, "Rivals", { policy: "strong" })
+          .players.map((p) => p.cardId)
+          .join(","),
+      );
+    }
+    // The property under test is an EXACT stream, so pin it: this is what the unconditional
+    // draw produces, and it is not what the conditional one does.
+    expect(
+      chaosDraft(mixedPool, 7, "Rivals", { policy: "strong" }).players.map((p) => p.cardId),
+    ).toMatchSnapshot();
+    expect(seen.size).toBeGreaterThan(10);
   });
 });

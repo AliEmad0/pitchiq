@@ -1,12 +1,17 @@
 import type { PlayerSeasonId } from "@/features/game/domain/card-id";
-import { FORMATIONS, type DraftPolicy, type PoolCard } from "@/features/game/domain/chaos-draft";
+import { FORMATIONS, type PoolCard } from "@/features/game/domain/chaos-draft";
 import type { NextAnswer, TokenReader } from "@/features/game/domain/decision-tokens";
 import { formationKey } from "@/features/game/domain/formation";
 import { hashEvents } from "@/features/game/domain/hash";
 import type { DecisionAnswer, MatchDecision } from "@/features/game/domain/match-decisions";
 import type { MatchEvent, MatchResult } from "@/features/game/domain/match-types";
 import type { SavedMatch } from "@/features/game/storage/match-slot";
-import { buildSession, type MatchSession, type SessionNames } from "./match-session";
+import {
+  buildSession,
+  type MatchSession,
+  type RivalSetup,
+  type SessionNames,
+} from "./match-session";
 
 export interface RestoredMatch {
   session: MatchSession;
@@ -103,8 +108,8 @@ export function replayWith(
   source: AnswerSource,
   names: SessionNames,
   options: ReplayOptions,
-  /** The pack's opponent rule — the replay must build the SAME opponent. See `buildSession`. */
-  opponent?: DraftPolicy,
+  /** The replay must build the SAME opponent, from the same cards. See `buildSession`. */
+  rival?: RivalSetup,
 ): ReplayedMatch | null {
   const byId = new Map(pool.map((c) => [c.cardId, c]));
   const players: PoolCard[] = [];
@@ -118,7 +123,7 @@ export function replayWith(
   if (formation == null) return null;
   if (formation.slots.length !== players.length) return null;
 
-  const session = buildSession(pool, players, formation, setup.seed, names, opponent);
+  const session = buildSession(pool, players, formation, setup.seed, names, rival);
   const events: MatchEvent[] = [];
   const answers: DecisionAnswer[] = [];
   let pending: MatchDecision | null = null;
@@ -164,7 +169,7 @@ export function replayMatch(
   pool: PoolCard[],
   record: SavedMatch,
   names: SessionNames,
-  opponent?: DraftPolicy,
+  rival?: RivalSetup,
 ): RestoredMatch | null {
   const replayed = replayWith(
     pool,
@@ -176,7 +181,7 @@ export function replayMatch(
       expectedFingerprint: record.fingerprint,
       expectedEventCount: record.eventCount,
     },
-    opponent,
+    rival,
   );
   if (replayed == null) return null;
   return {

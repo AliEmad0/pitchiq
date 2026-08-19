@@ -29,6 +29,18 @@ export interface SavedMatch {
   /** `hashEvents` over the events seen. The gate against a drifted pool or engine. */
   fingerprint: number;
   eventCount: number;
+  /**
+   * The club he chose to face, and how it drafted. Absent = his own pool (owner, 2026-08-19).
+   *
+   * ⛔ Part of the match's IDENTITY, exactly as the share code's copy is. Resume re-runs
+   * `buildSession`, so a record without this rebuilds a DIFFERENT opponent — and because
+   * resume verifies by fingerprint, the mismatch surfaces as "your saved match is corrupt"
+   * rather than as the missing field it actually is.
+   *
+   * ⚠️ Optional so a record written before this shipped still loads. It replays against the
+   * coach's own pool, which is what it was actually played against.
+   */
+  rival?: { teamId: number; policy: "random" | "best" | "strong" };
 }
 
 const KEY = "current";

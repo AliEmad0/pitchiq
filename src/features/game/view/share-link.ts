@@ -1,5 +1,5 @@
 import type { PlayerSeasonId } from "@/features/game/domain/card-id";
-import type { DraftPolicy, PoolCard } from "@/features/game/domain/chaos-draft";
+import type { PoolCard } from "@/features/game/domain/chaos-draft";
 import { encodeTokens, readTokens } from "@/features/game/domain/decision-tokens";
 import {
   formationBySlug,
@@ -9,9 +9,9 @@ import {
 } from "@/features/game/domain/formation";
 import type { DecisionAnswer } from "@/features/game/domain/match-decisions";
 import { DEFAULT_SHARE_PATH } from "@/features/game/domain/summary-card";
-import { encodeMatch, type ShareableMatch } from "@/features/game/domain/share-code";
+import { encodeMatch, type RivalRef, type ShareableMatch } from "@/features/game/domain/share-code";
 import { replayWith, tokenSource, type ReplayedMatch } from "./match-replay";
-import type { SessionNames } from "./match-session";
+import type { RivalSetup, SessionNames } from "./match-session";
 
 /**
  * TASK-1812 — turning a finished match into a link, and a link back into a match.
@@ -33,6 +33,8 @@ export function buildShareCode(args: {
   seed: number;
   answers: readonly DecisionAnswer[];
   fingerprint: number;
+  /** The club he chose to face. Absent = his own pool. See `ShareableMatch.rival`. */
+  rival?: RivalRef | null;
 }): string {
   return encodeMatch({
     cardIds: [...args.cardIds] as PlayerSeasonId[],
@@ -40,6 +42,7 @@ export function buildShareCode(args: {
     seed: args.seed,
     tokens: encodeTokens(args.answers),
     fingerprint: args.fingerprint,
+    rival: args.rival ?? null,
   });
 }
 
@@ -57,7 +60,7 @@ export function replayShared(
   pool: PoolCard[],
   shared: ShareableMatch,
   names: SessionNames,
-  opponent?: DraftPolicy,
+  rival?: RivalSetup,
 ): ReplayedMatch | null {
   const formation = formationBySlug(shared.formationSlug);
   if (formation == null) return null;
@@ -75,7 +78,7 @@ export function replayShared(
     names,
     // ⚠️ `keep`, and no expected event count — see the drift table in the design doc.
     { onDrift: "keep", expectedFingerprint: shared.fingerprint },
-    opponent,
+    rival,
   );
 }
 

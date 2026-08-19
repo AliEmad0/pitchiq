@@ -5,6 +5,14 @@ import { parseAsString, parseAsStringLiteral, useQueryState } from "nuqs";
 import { useEffect, useMemo, useReducer, useState } from "react";
 import type { PlayerSeasonId } from "@/features/game/domain/card-id";
 import type { DraftPolicy, PoolCard } from "@/features/game/domain/chaos-draft";
+import type { RivalRef } from "@/features/game/domain/share-code";
+import {
+  loadRival,
+  policyOf,
+  type ChosenRival,
+  type Difficulty,
+} from "@/features/game/view/rival-choice";
+import type { RivalSetup } from "@/features/game/view/match-session";
 import {
   formationKey,
   formationNameFromKey,
@@ -31,7 +39,7 @@ import { MatchProgramme } from "./MatchProgramme";
 import { MatchSummary } from "./MatchSummary";
 import { MatchupPreview } from "./MatchupPreview";
 import { MatchView } from "./MatchView";
-import { PitchDraft } from "./PitchDraft";
+import { PitchDraft, type ClubChoice } from "./PitchDraft";
 import { ResumeDialog } from "./ResumeDialog";
 
 /** Seconds a decision waits before answering itself. Extendable per WCAG 2.2.1. */
@@ -59,6 +67,8 @@ export function GamePlay({
   backHref,
   screens,
   opponent,
+  rivals,
+  clubId,
   captaincies,
   referees,
 }: {
@@ -84,6 +94,15 @@ export function GamePlay({
    * different opponent and reads as a corrupt save.
    */
   opponent?: DraftPolicy;
+  /**
+   * The clubs he can choose to face (owner, 2026-08-19). Absent = no picker at all.
+   *
+   * ⚠️ NAMES ONLY — 51 of them, not their squads. The chosen club's cards are fetched from
+   * a prerendered route; see `view/rival-choice.ts` for why a prop would be ~1.2 MB.
+   */
+  rivals?: readonly ClubChoice[];
+  /** The club whose page this is, preselected so doing nothing plays the shipped match. */
+  clubId?: number;
   /**
    * playerId -> real captaincies, narrowed to this club at build time (TASK-1810).
    *
@@ -136,6 +155,41 @@ export function GamePlay({
   const [coachMoves, setCoachMoves] = useState<DecisionAnswer[]>([]);
   /** An unfinished match found in storage, replayed and verified, awaiting the coach. */
   const [offer, setOffer] = useState<RestoredMatch | null>(null);
+  /**
+   * The club being faced, and how it drafted (owner, 2026-08-19).
+   *
+   * ⛔ Kept in state rather than re-derived, because it is part of the match's IDENTITY.
+   * Everything that rebuilds this match — the storage record, the share code, the resume —
+   * has to be handed the SAME club and the SAME policy or it drafts a different eleven.
+   */
+  const [rival, setRival] = useState<{ setup: ChosenRival | null; difficulty: Difficulty } | null>(
+    null,
+  );
+  /** The rival belonging to the RESTORE OFFER, held until he accepts it. */
+  const [offerRival, setOfferRival] = useState<{
+    setup: ChosenRival | null;
+    difficulty: Difficulty;
+  } | null>(null);
+
+  /** The rival as the session builder wants it. */
+  const rivalSetup = (
+    chosen: { setup: ChosenRival | null; difficulty: Difficulty } | null,
+  ): RivalSetup =>
+    chosen?.setup == null
+      ? { policy: opponent }
+      : {
+          policy: policyOf(chosen.difficulty),
+          pool: chosen.setup.cards,
+          name: chosen.setup.name,
+        };
+
+  /** The rival as a share code carries it. */
+  const rivalRef = (
+    chosen: { setup: ChosenRival | null; difficulty: Difficulty } | null,
+  ): RivalRef | null =>
+    chosen?.setup == null
+      ? null
+      : { teamId: chosen.setup.teamId, policy: policyOf(chosen.difficulty) };
 
   /**
    * The phase, mirrored into the URL.
@@ -177,15 +231,21 @@ export function GamePlay({
   const [drifted, setDrifted] = useState(false);
 
   /** Build the match and run to the first decision. */
-  const confirmSquad = (players: PoolCard[], formation: Formation) => {
+  const confirmSquad = (
+    players: PoolCard[],
+    formation: Formation,
+    chosen?: { setup: ChosenRival | null; difficulty: Difficulty },
+  ) => {
     const seed = randomSeed();
+    const picked = chosen ?? null;
+    setRival(picked);
     driver.start(
       pool,
       players,
       formation,
       seed,
       { home: t("yourXi"), away: t("rivals") },
-      opponent,
+      rivalSetup(picked),
     );
     setSquad({
       cardIds: players.map((p) => p.cardId),
@@ -211,31 +271,67 @@ export function GamePlay({
    */
   useEffect(() => {
     if (shareCode == null || shareCode === "") return;
-
     const decoded = decodeMatch(shareCode);
-    const replayed =
-      decoded == null
-        ? null
-        : replayShared(pool, decoded, { home: t("yourXi"), away: t("rivals") }, opponent);
-
-    if (replayed == null) {
+    if (decoded == null) {
       // ⚠️ A bad code is not an error screen. Someone following a mangled link should land
       // on something that works, so drop the parameter and show the ordinary hub.
       void setShareCode(null);
       return;
     }
 
-    // ⚠️ `pending: null` — a shared match is finished on arrival, so there is nothing
-    // waiting to be answered.
-    driver.adopt({ ...replayed, pending: null });
-    setSquad({
-      cardIds: decoded!.cardIds,
-      formationKey: formationKey(replayed.session.home.formation),
-    });
-    setShared(true);
-    setDrifted(replayed.drifted);
-    setOffer(null);
-    dispatch({ type: "resume", seed: replayed.session.seed });
+    let live = true;
+    void (async () => {
+      /**
+       * ⛔ The rival's cards must be IN HAND before the replay, not after it.
+       *
+       * The opponent is rebuilt by re-running its draft over those cards, so replaying
+       * first and fetching afterwards would reproduce a different eleven and then blame
+       * the mismatch on the sender's build.
+       */
+      const chosen = decoded.rival == null ? null : await loadRival(decoded.rival.teamId);
+      if (!live) return;
+      if (decoded.rival != null && chosen == null) {
+        // The club could not be loaded, so this match is not reproducible here. Dropping
+        // the code is honest; replaying it against a substitute opponent would not be.
+        void setShareCode(null);
+        return;
+      }
+
+      const picked =
+        chosen == null
+          ? null
+          : {
+              setup: chosen,
+              difficulty: (decoded.rival!.policy === "best" ? "best" : "balanced") as Difficulty,
+            };
+      const replayed = replayShared(
+        pool,
+        decoded,
+        { home: t("yourXi"), away: t("rivals") },
+        picked == null ? { policy: opponent } : rivalSetup(picked),
+      );
+      if (!live) return;
+      if (replayed == null) {
+        void setShareCode(null);
+        return;
+      }
+
+      // ⚠️ `pending: null` — a shared match is finished on arrival, so there is nothing
+      // waiting to be answered.
+      setRival(picked);
+      driver.adopt({ ...replayed, pending: null });
+      setSquad({
+        cardIds: decoded.cardIds,
+        formationKey: formationKey(replayed.session.home.formation),
+      });
+      setShared(true);
+      setDrifted(replayed.drifted);
+      setOffer(null);
+      dispatch({ type: "resume", seed: replayed.session.seed });
+    })();
+    return () => {
+      live = false;
+    };
     // Mount only, for the same reason as the restore effect below.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -249,11 +345,27 @@ export function GamePlay({
       if (shareCode != null && shareCode !== "") return;
       const record = await loadMatch();
       if (!live || record == null) return;
+      // ⛔ Same rule as the share path: the rival's cards before the replay, never after.
+      const chosen = record.rival == null ? null : await loadRival(record.rival.teamId);
+      if (!live) return;
+      if (record.rival != null && chosen == null) {
+        // A saved match whose opponent cannot be rebuilt is not resumable, and discarding
+        // it is the existing policy for every other kind of drift.
+        void clearMatch();
+        return;
+      }
+      const picked =
+        chosen == null
+          ? null
+          : {
+              setup: chosen,
+              difficulty: (record.rival!.policy === "best" ? "best" : "balanced") as Difficulty,
+            };
       const restored = replayMatch(
         pool,
         record,
         { home: t("yourXi"), away: t("rivals") },
-        opponent,
+        picked == null ? { policy: opponent } : rivalSetup(picked),
       );
       if (!live) return;
       if (restored == null) {
@@ -261,6 +373,7 @@ export function GamePlay({
         void clearMatch();
         return;
       }
+      setOfferRival(picked);
       setOffer(restored);
     })();
     return () => {
@@ -288,11 +401,17 @@ export function GamePlay({
       answers,
       fingerprint: hashEvents(events),
       eventCount: events.length,
+      rival: rivalRef(rival) ?? undefined,
     });
-  }, [state.phase, match, squad, answers, events, result, shared]);
+    // ⚠️ `rival` is deliberately in the deps: a resumed match adopts its club AFTER the
+    // first save, so leaving it out would persist the next write against the wrong opponent.
+  }, [state.phase, match, squad, answers, events, result, shared, rival]);
 
   const resume = () => {
     if (offer == null) return;
+    // ⛔ Adopted WITH its rival. The record was replayed against that club, and every
+    // save and share from here on has to name the same one.
+    setRival(offerRival);
     driver.adopt(offer);
     // ⚠️ Taken from the RECORD, never reconstructed from the session: a resumed match must
     // keep saving under the same identity, and `GameTeam` holds cards rather than the
@@ -335,7 +454,14 @@ export function GamePlay({
     return (
       <>
         {draft != null ? (
-          <PitchDraft pool={pool} draft={draft} onConfirm={confirmSquad} backHref={backHref} />
+          <PitchDraft
+            pool={pool}
+            draft={draft}
+            onConfirm={confirmSquad}
+            backHref={backHref}
+            rivals={rivals}
+            clubId={clubId}
+          />
         ) : (
           <DraftHub pool={pool} onConfirm={confirmSquad} />
         )}
@@ -397,6 +523,7 @@ export function GamePlay({
             seed: match.seed,
             answers,
             fingerprint: hashEvents(events),
+            rival: rivalRef(rival),
           });
     const cardData =
       squad == null || code == null
@@ -434,6 +561,7 @@ export function GamePlay({
           void setShareCode(null);
           setShared(false);
           setDrifted(false);
+          setRival(null);
           dispatch({ type: "newMatch" });
         }}
       />

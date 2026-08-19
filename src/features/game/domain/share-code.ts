@@ -13,7 +13,7 @@ import { readTokens } from "./decision-tokens";
  *
  * ## Format
  *
- * `v1.<seed36>.<formationSlug>.<cards>.<tokens>.<fingerprint36>`
+ * `v2.<seed36>.<formationSlug>.<cards>.<tokens>.<fingerprint36>.<rival>`
  *
  * where `cards` is 11 `playerId@season` pairs base-36 encoded and `.`-free. Chosen over
  * JSON+base64 because a shared link is read aloud, pasted into chats that linkify, and
@@ -45,7 +45,27 @@ import { readTokens } from "./decision-tokens";
  *    whether to warn, never what to render.
  */
 
-export const SHARE_VERSION = "v1";
+/**
+ * ⛔ Bumped to `v2` for the RIVAL (owner, 2026-08-19).
+ *
+ * A `v1` code says nothing about which club the opponent came from or how it drafted, so
+ * replaying one now would build a plausible but DIFFERENT match — the precise failure the
+ * version prefix exists to prevent. `decodeMatch` refuses them; there is no upgrade path,
+ * deliberately, because there is no honest default for a field the sender never carried.
+ */
+export const SHARE_VERSION = "v2";
+
+/** How a rival's policy travels — one character, so the segment stays short. */
+const POLICY_TOKEN = { random: "r", best: "b", strong: "s" } as const;
+const POLICY_OF: Record<string, RivalRef["policy"]> = { r: "random", b: "best", s: "strong" };
+/** No club was chosen: the opponent comes out of the coach's own pool, as it always did. */
+const NO_RIVAL = "-";
+
+/** Which club the coach chose to face, and how it drafted. */
+export type RivalRef = {
+  teamId: number;
+  policy: "random" | "best" | "strong";
+};
 
 /** Everything needed to reproduce a match, as it travels in a URL. */
 export type ShareableMatch = {
@@ -60,6 +80,14 @@ export type ShareableMatch = {
   tokens: string;
   /** The sender's event fingerprint, for drift detection only. */
   fingerprint: number;
+  /**
+   * The club the coach chose to face. `null` = his own pool, the shipped behaviour.
+   *
+   * ⛔ Part of the match's IDENTITY, not a label. The receiver rebuilds the opponent by
+   * re-running the same draft over the same cards, so a code without this replays against
+   * a different eleven and the fingerprint check reports it as drift the sender caused.
+   */
+  rival: RivalRef | null;
 };
 
 const SQUAD_SIZE = 11;
@@ -99,6 +127,9 @@ export function encodeMatch(match: ShareableMatch): string {
     cards,
     match.tokens,
     b36(match.fingerprint >>> 0),
+    match.rival == null
+      ? NO_RIVAL
+      : `${b36(match.rival.teamId)}${POLICY_TOKEN[match.rival.policy]}`,
   ].join(".");
 }
 
@@ -111,9 +142,9 @@ export function encodeMatch(match: ShareableMatch): string {
 export function decodeMatch(code: string | null | undefined): ShareableMatch | null {
   if (typeof code !== "string" || code.length === 0 || code.length > 400) return null;
   const parts = code.split(".");
-  if (parts.length !== 6) return null;
+  if (parts.length !== 7) return null;
 
-  const [version, seedRaw, formationSlug, cardsRaw, tokens, fpRaw] = parts;
+  const [version, seedRaw, formationSlug, cardsRaw, tokens, fpRaw, rivalRaw] = parts;
   if (version !== SHARE_VERSION) return null;
   if (!SLUG_RE.test(formationSlug)) return null;
   // Checked HERE so a malformed stream fails as a bad code, before any match is
@@ -124,6 +155,16 @@ export function decodeMatch(code: string | null | undefined): ShareableMatch | n
   const seed = unb36(seedRaw);
   const fingerprint = unb36(fpRaw);
   if (seed === null || fingerprint === null) return null;
+
+  let rival: RivalRef | null = null;
+  if (rivalRaw !== NO_RIVAL) {
+    const policy = POLICY_OF[rivalRaw.slice(-1)];
+    const teamId = unb36(rivalRaw.slice(0, -1));
+    // A team id is a positive integer from a closed set the receiving page validates; an
+    // unknown policy character is a tampered code and gets no benefit of the doubt.
+    if (policy === undefined || teamId === null || teamId <= 0) return null;
+    rival = { teamId, policy };
+  }
 
   const chunks = cardsRaw.split("_");
   if (chunks.length !== SQUAD_SIZE) return null;
@@ -140,7 +181,7 @@ export function decodeMatch(code: string | null | undefined): ShareableMatch | n
     cardIds.push(`${playerId}@${season}`);
   }
 
-  return { cardIds, formationSlug, seed, tokens, fingerprint };
+  return { cardIds, formationSlug, seed, tokens, fingerprint, rival };
 }
 
 /**

@@ -13,6 +13,21 @@ export interface SessionNames {
   away: string;
 }
 
+/**
+ * The opponent half of a match's identity (owner, 2026-08-19).
+ *
+ * Empty means the shipped behaviour: a random XI out of the coach's own pool, called
+ * whatever `names.away` says.
+ */
+export interface RivalSetup {
+  /** How the rival drafts. Absent = the shipped random draw. */
+  policy?: DraftPolicy;
+  /** The rival's own cards, when the coach chose a club to face. */
+  pool?: PoolCard[];
+  /** The rival's club name, shown on the scoreboard and the team sheet. */
+  name?: string;
+}
+
 export interface MatchSession {
   home: GameTeam;
   away: GameTeam;
@@ -34,27 +49,30 @@ export function buildSession(
   seed: number,
   names: SessionNames,
   /**
-   * The pack's opponent rule (owner round 2, 2026-08-19). Absent = the shipped random draw.
+   * Who the coach is playing, and how that side is drafted.
    *
-   * ⛔ It must reach EVERY path that rebuilds this match, not just the live one. Resume and
-   * share both re-run `buildSession` and verify the result by fingerprint, so a replay that
-   * forgot the policy drafts a different opponent, produces different events, and presents
-   * as a corrupt save rather than as the missing argument it is.
+   * ⛔ EVERY field here is part of the match's IDENTITY, and every path that rebuilds the
+   * match must pass the same values. Resume and share both re-run `buildSession` and verify
+   * the result by fingerprint, so a replay missing any of this drafts a different opponent,
+   * produces different events, and presents as a corrupt save rather than as the missing
+   * argument it is.
    *
-   * ⚠️ The exclusion below is gated on this argument rather than applied unconditionally,
-   * and that is deliberate. Withholding the coach's XI from the home draft changes his
-   * BENCH, which would move `/game/draft`, `/game/chaos` and every stored daily challenge
-   * — a determinism change three shipped modes never asked for.
+   * ⚠️ The exclusion below is gated on `policy` rather than applied unconditionally, and
+   * that is deliberate. Withholding the coach's XI from the home draft changes his BENCH,
+   * which would move `/game/draft`, `/game/chaos` and every stored daily challenge — a
+   * determinism change three shipped modes never asked for.
    */
-  opponent?: DraftPolicy,
+  rival: RivalSetup = {},
 ): MatchSession {
   const matchup = chaosMatchup(
     pool,
     seed,
     { home: names.home, away: names.away },
     {
-      opponent,
-      exclude: opponent == null ? undefined : new Set(players.map((p) => p.playerId)),
+      opponent: rival.policy,
+      rivalPool: rival.pool,
+      rivalName: rival.name,
+      exclude: rival.policy == null ? undefined : new Set(players.map((p) => p.playerId)),
     },
   );
   const home = makeGameTeam(-1, names.home, 0, formation, players, matchup.home.bench);

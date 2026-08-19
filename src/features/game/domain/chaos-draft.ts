@@ -1,4 +1,5 @@
 import type { PlayerRole } from "@/data/schemas";
+import { STANDOUT_OVR } from "./draft-room";
 import { canPlay } from "./eligibility";
 import { fillGaps } from "./fill-gaps";
 import type { Formation, FormationSlot } from "./formation";
@@ -122,15 +123,26 @@ const BENCH_SHAPE: PlayerRole[] = ["GK", "CB", "CM", "CF", "RW"];
 /**
  * How a slot chooses among the cards eligible for it.
  *
- * `random` — the shipped Chaos behaviour, a seeded draw. `best` — the highest-rated card
- * available, no entropy at all.
+ * - `random` — the shipped Chaos behaviour, a seeded draw over everything eligible.
+ * - `best` — the highest-rated card available, no entropy at all. Always the same XI.
+ * - `strong` — a seeded draw over the cards at `STANDOUT_OVR` or better, falling back to
+ *   the best available when a club has none for that slot.
  *
  * ⭐ `best` exists because of an owner report (2026-08-19): the Legacy opponent was
  * fielding 39s and 44s against a coach whose every round guarantees an 80+ standout. Its
  * pool is a club's COMPLETE history — hundreds of squad players — so a uniform draw lands
  * far below the coach by construction, and no amount of re-seeding fixes that.
+ *
+ * ⭐ `strong` is the owner's answer to what `best` costs: a club that always fields its
+ * single strongest XI is the same match every time. Drawing inside the 80+ band keeps the
+ * quality and gives the line-up back its variety — measured on Liverpool, whose rank-30
+ * player is an 84 and rank-45 an 82, so the band IS the 82–90 range he asked for.
+ *
+ * ⚠️ The bar is `STANDOUT_OVR`, reused rather than reinvented. It is already what the pack
+ * guarantees inside the coach's own hands, so the rival is drafted to the standard the
+ * coach is promised — one number, one meaning.
  */
-export type DraftPolicy = "random" | "best";
+export type DraftPolicy = "random" | "best" | "strong";
 
 export interface DraftOptions {
   /** Absent means `random`, i.e. exactly what `/game/chaos` has always drafted. */
@@ -143,6 +155,38 @@ export interface DraftOptions {
    * on the pitch in the other shirt: peak van Dijk marking peak van Dijk.
    */
   exclude?: ReadonlySet<number>;
+}
+
+/** Eligible, unused cards for `role`; falls back to anything free, exactly as the shipped draw does. */
+function candidatesFor(pool: PoolCard[], role: PlayerRole, used: ReadonlySet<number>): PoolCard[] {
+  const free = pool.filter((c) => !used.has(c.playerId));
+  const eligible = free.filter((c) => canPlay(c, role));
+  return eligible.length > 0 ? eligible : free;
+}
+
+/**
+ * A seeded draw from the standout band, or the best card there is.
+ *
+ * ⛔ The rng is drawn EXACTLY ONCE per slot whether or not the band is empty. A branch that
+ * skipped the draw for a club with no 80+ cards would give that club a different stream from
+ * the same seed, and the bench below shares it — so a thin club's XI would depend on how many
+ * of its slots happened to find a standout.
+ */
+function strongFor(
+  pool: PoolCard[],
+  role: PlayerRole,
+  used: ReadonlySet<number>,
+  rng: () => number,
+): PoolCard | null {
+  const from = candidatesFor(pool, role, used);
+  const roll = rng();
+  if (from.length === 0) return null;
+  const band = from.filter((c) => (c.ratings?.overall ?? 0) >= STANDOUT_OVR);
+  if (band.length === 0) return bestFor(pool, role, used);
+  // Sorted before the draw: `pool` order is an input we do not control, and an unsorted
+  // draw would make the same seed pick differently after an unrelated data refresh.
+  const sorted = [...band].sort((a, b) => a.cardId.localeCompare(b.cardId));
+  return sorted[Math.floor(roll * sorted.length)] ?? null;
 }
 
 /** The best card for `role` that nobody has taken, or null. Rating desc, then cardId. */
@@ -185,7 +229,14 @@ export function chaosDraft(
   // `/game/chaos` has ever produced — the route prerenders from this.
   const byCardId = new Map(pool.map((c) => [c.cardId, c]));
   const chosen: PoolCard[] = [];
-  if (policy === "best") {
+  if (policy === "strong") {
+    for (const slot of shape.slots) {
+      const card = strongFor(pool, slot.role, used, rng);
+      if (card == null) continue;
+      used.add(card.playerId);
+      chosen.push(card);
+    }
+  } else if (policy === "best") {
     // ⚠️ Greedy in SLOT order, which is goalkeeper-first. No rng is drawn at all, so this
     // path cannot shift the `random` path's stream — the two never run together anyway,
     // but the bench below shares the same `rng` and would notice.
@@ -216,6 +267,13 @@ export function chaosDraft(
   const bench: PoolCard[] = [];
   for (let i = 0; i < BENCH_SIZE; i++) {
     const want = BENCH_SHAPE[i % BENCH_SHAPE.length];
+    if (policy === "strong") {
+      const card = strongFor(pool, want, used, rng);
+      if (card == null) break;
+      used.add(card.playerId);
+      bench.push(card);
+      continue;
+    }
     if (policy === "best") {
       const card = bestFor(pool, want, used);
       if (card == null) break;
@@ -259,7 +317,22 @@ export interface MatchupOptions {
    * superstars rather than the squad depth a bench is meant to be.
    */
   opponent?: DraftPolicy;
-  /** The coach's drafted playerIds — withheld from BOTH auto-drafts. See `DraftOptions`. */
+  /**
+   * The cards the OPPONENT draws from. Absent = the coach's own pool.
+   *
+   * ⭐ This is what "I want to face Arsenal" means (owner, 2026-08-19). Absent, both sides
+   * come out of one club's history and the rival is your own reserves — which is the
+   * arrangement that produced van Dijk marking van Dijk.
+   */
+  rivalPool?: PoolCard[];
+  /** What the opponent is CALLED. Absent = `names.away`. */
+  rivalName?: string;
+  /**
+   * The coach's drafted playerIds — withheld from BOTH auto-drafts. See `DraftOptions`.
+   *
+   * ⚠️ Still right when the rival is a different club: a `playerId` is stable across clubs,
+   * so a man who turned out for both would otherwise line up against himself.
+   */
   exclude?: ReadonlySet<number>;
 }
 
@@ -270,9 +343,12 @@ export function chaosMatchup(
   names: { home: string; away: string } = { home: "Your XI", away: "Rivals" },
   options: MatchupOptions = {},
 ): ChaosMatchup {
-  const { opponent, exclude } = options;
+  const { opponent, exclude, rivalPool, rivalName } = options;
   const home = chaosDraft(pool, seed, names.home, { exclude });
-  const away = chaosDraft(pool, seed ^ 0x9e3779b9, names.away, { policy: opponent, exclude });
+  const away = chaosDraft(rivalPool ?? pool, seed ^ 0x9e3779b9, rivalName ?? names.away, {
+    policy: opponent,
+    exclude,
+  });
   const sr = mulberry32(seed ^ 0x51ed270b);
   return {
     home,

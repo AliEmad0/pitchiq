@@ -1,0 +1,17 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`chaosDraft — the \`strong\` policy > costs one rng draw per slot whether or not the band has anyone in it 1`] = `
+[
+  "9000@2020",
+  "9305@2020",
+  "9204@2020",
+  "9202@2020",
+  "9105@2020",
+  "9402@2020",
+  "9505@2020",
+  "9504@2020",
+  "10004@2020",
+  "10201@2020",
+  "9905@2020",
+]
+`;
