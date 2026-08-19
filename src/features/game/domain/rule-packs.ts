@@ -1,3 +1,4 @@
+import type { DraftPolicy } from "./chaos-draft";
 import type { ModeId } from "./modes";
 
 /**
@@ -118,6 +119,20 @@ export interface RulePack {
   /** Absent means the shipped match screens. See `ScreensSpec`. */
   screens?: ScreensSpec;
   /**
+   * How the auto-drafted opponent picks his XI. Absent = the shipped random draw.
+   *
+   * ⭐ Owner report, 2026-08-19: a pack whose HANDS guarantee an 80+ standout every round
+   * cannot face an opponent drawn uniformly from the same pool. The coach's XI is
+   * top-decile by construction and the opponent's is average, so the match is settled by
+   * the draft rules rather than by anything that happens on the pitch — no re-seeding
+   * fixes that, because the distribution itself is the problem.
+   *
+   * ⚠️ Declaring this ALSO withholds the coach's own XI from both auto-drafts. Both sides
+   * draw from one club pool, so a best-available opponent otherwise fields the very men
+   * the coach just picked. See `view/match-session.ts`.
+   */
+  opponent?: DraftPolicy;
+  /**
    * ⚠️ Absent means "the room's shipped defaults", never a spelled-out `{ 5, "free" }`.
    * Restating them would make this a second source of truth that could drift from
    * `HAND_SIZE`.
@@ -171,6 +186,7 @@ const LEGACY_PACK: RulePack = {
   pool: { kind: "clubHistory", teams: LEGACY_CLUBS },
   chooser: { kind: "club" },
   screens: "legacy",
+  opponent: "best",
   draft: {
     handSize: 5,
     roam: "free",

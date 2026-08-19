@@ -106,12 +106,23 @@ export function PitchDraft({ pool, draft, onConfirm, backHref }: Props) {
       ? []
       : veil.mode === "round"
         ? (hands[veil.slot] ?? [])
-        : [byId.get(state.picks[veil.slot] as PlayerSeasonId)].filter((c): c is PoolCard => c != null);
+        : [byId.get(state.picks[veil.slot] as PlayerSeasonId)].filter(
+            (c): c is PoolCard => c != null,
+          );
 
   return (
     <div className={`pd-root${locked ? "" : " pd-shaping"}`}>
       <div className="pd-pitch-wrap">
-        <div className="pd-pitch">
+        {/* ⛔ `dir="ltr"`, deliberately, and the ONE place in the app that opts out of RTL
+            (owner's call, 2026-08-19). A football pitch is not text: its markings are drawn
+            with PHYSICAL properties (`.pd-box-left` / `.pd-box-right`, the halfway line) and
+            a spot is centred with a physical `translate(-50%, -50%)`, while the spots
+            themselves were placed with `inset-inline-start`. Under `/ar` only the spots
+            mirrored — the goalmouths stayed put and the centring shifted the wrong way — so
+            the keeper stood in the centre circle and the forwards on their own goal line.
+            Pinning the pitch to one direction makes both locales render the identical
+            layout; the labels on it are player names, which do not localize either. */}
+        <div className="pd-pitch" dir="ltr">
           <span className="pd-box pd-box-left" />
           <span className="pd-box pd-box-left pd-box-six" />
           <span className="pd-box pd-box-right" />
@@ -127,7 +138,11 @@ export function PitchDraft({ pool, draft, onConfirm, backHref }: Props) {
               top: `${(s.col / (inRow + 1)) * 100}%`,
             };
             const label = card
-              ? t("pitchViewPick", { role: s.role, name: card.name, ovr: card.ratings?.overall ?? 0 })
+              ? t("pitchViewPick", {
+                  role: s.role,
+                  name: card.name,
+                  ovr: card.ratings?.overall ?? 0,
+                })
               : t("pitchFillSlot", { role: s.role });
 
             return (
@@ -152,7 +167,12 @@ export function PitchDraft({ pool, draft, onConfirm, backHref }: Props) {
 
       {/* ⛔ Not dismissable: no close control, and the veil ignores clicks on itself. */}
       {locked ? null : (
-        <div className="pd-shapebar" role="dialog" aria-modal="true" aria-label={t("pitchShapeTitle")}>
+        <div
+          className="pd-shapebar"
+          role="dialog"
+          aria-modal="true"
+          aria-label={t("pitchShapeTitle")}
+        >
           <div className="pd-shapebar-inner">
             <h2 className="text-base font-extrabold tracking-tight">{t("pitchShapeTitle")}</h2>
             <p className="text-muted-foreground mb-3 mt-0.5 text-xs">{t("pitchShapeHint")}</p>
@@ -185,7 +205,10 @@ export function PitchDraft({ pool, draft, onConfirm, backHref }: Props) {
               </span>
               <div className="flex items-center gap-2">
                 {backHref != null ? (
-                  <Link href={backHref} className="border-border rounded-md border px-4 py-2 text-sm font-semibold">
+                  <Link
+                    href={backHref}
+                    className="border-border rounded-md border px-4 py-2 text-sm font-semibold"
+                  >
                     {t("modeBack")}
                   </Link>
                 ) : null}
@@ -258,7 +281,9 @@ export function PitchDraft({ pool, draft, onConfirm, backHref }: Props) {
             </div>
 
             {veil.mode === "round" ? (
-              <p className="text-muted-foreground mt-6 font-mono text-[11px]">{t("pitchNoTimer")}</p>
+              <p className="text-muted-foreground mt-6 font-mono text-[11px]">
+                {t("pitchNoTimer")}
+              </p>
             ) : (
               <button type="button" onClick={() => setVeil(null)} className="pd-close">
                 {t("pitchClose")}

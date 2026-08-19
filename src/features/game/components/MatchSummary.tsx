@@ -1,6 +1,7 @@
 "use client";
 import { useTranslations } from "next-intl";
 import type { DecisionAnswer } from "@/features/game/domain/match-decisions";
+import type { GamePlayer } from "@/features/game/domain/player";
 import type { SummaryCardData } from "@/features/game/domain/summary-card";
 import { splitDecisions } from "@/features/game/view/decision-summary";
 import { localizeDigits } from "@/utils/format";
@@ -23,12 +24,29 @@ interface Props {
    * keep the old behaviour, because there every answer really is his.
    */
   coachMoves?: DecisionAnswer[];
+  /**
+   * Everyone a decision can name — the coach's XI AND his bench (owner round 2, 2026-08-19).
+   *
+   * ⛔ The bench half is not optional. A substitution's `on` is BY DEFINITION someone who
+   * was not on the pitch, so a roster of starters alone resolves the man going off and
+   * leaves the man coming on as a bare id.
+   *
+   * Absent = the shipped behaviour, a bare "Substitution" with no names.
+   */
+  roster?: readonly GamePlayer[];
   seed: number;
   /** The link that replays this match, or null while one cannot be built. */
   shareCode: string | null;
   /** What the downloadable card says. Null alongside a null `shareCode`. */
   cardData: SummaryCardData | null;
   locale: string;
+  /**
+   * The route this match replays on — where "Copy link" points.
+   *
+   * Absent = the canonical `/game/draft`, which is right for the packs served there and
+   * wrong for every pack with its own pool. See `view/share-link.ts#shareUrl`.
+   */
+  sharePath?: string;
   /** This match arrived from someone else's link. */
   shared?: boolean;
   /** Our replay differs from the sender's fingerprint. */
@@ -56,10 +74,12 @@ export function MatchSummary({
   score,
   decisions,
   coachMoves,
+  roster,
   seed,
   shareCode,
   cardData,
   locale,
+  sharePath,
   shared = false,
   drifted = false,
   onNewMatch,
@@ -69,6 +89,49 @@ export function MatchSummary({
   const taken = coachMoves ?? derived.taken;
   // A declined-offer count is meaningless once the engine is answering for him.
   const declined = coachMoves != null ? 0 : derived.declined;
+
+  /**
+   * Who a decision actually named (owner round 2, 2026-08-19).
+   *
+   * ⛔ The screen used to say "80' Substitution" and nothing else — the coach could not
+   * tell which change he had made, let alone whether it was the right one. A decision is
+   * only legible as the two men it swapped.
+   *
+   * ⚠️ A missing id is rendered as a LABEL, never skipped. A row that silently dropped
+   * half a substitution would read as a change that only took a player off.
+   */
+  const byId = new Map((roster ?? []).map((p) => [p.playerId, p]));
+  const nameOf = (playerId: number | undefined) => {
+    if (playerId == null) return null;
+    const p = byId.get(playerId);
+    return {
+      name: p?.name ?? t("decisionUnknownPlayer"),
+      ovr: p?.ratings?.overall ?? null,
+    };
+  };
+  /** The men a single answer moved, in the order a match report would list them. */
+  const partsOf = (
+    d: DecisionAnswer,
+  ): Array<{ key: string; label: string; who: NonNullable<ReturnType<typeof nameOf>> }> => {
+    const out: Array<{ key: string; label: string; who: NonNullable<ReturnType<typeof nameOf>> }> =
+      [];
+    // ⛔ No roster, no detail — the shipped packs pass none and must render exactly the row
+    // they always did. Falling through would print "Off unnamed —" on every one of them.
+    if (roster == null) return out;
+    const push = (key: string, label: string, playerId: number | undefined) => {
+      const who = nameOf(playerId);
+      if (who != null) out.push({ key, label, who });
+    };
+    if (d.kind === "sub-offer" || d.kind === "dismissal") {
+      push("off", t("decisionWentOff"), d.off);
+      push("on", t("decisionCameOn"), d.on);
+    }
+    if (d.kind === "injury-sub") push("on", t("decisionCameOn"), d.on);
+    // ⛔ `inGoal` is mutually exclusive with off/on — an outfielder taking the gloves is
+    // the OTHER answer to a dismissal, never a third field alongside a substitution.
+    if (d.kind === "dismissal") push("gk", t("decisionInGoal"), d.inGoal);
+    return out;
+  };
 
   return (
     <div className="mx-auto w-full max-w-3xl">
@@ -114,20 +177,40 @@ export function MatchSummary({
             {t("playDecisionsTaken")}
           </h2>
           <ul className="divide-border/60 divide-y">
-            {taken.map((d, i) => (
-              <li
-                key={`${d.kind}-${d.minute}-${i}`}
-                className="flex items-center gap-3 py-1.5 text-sm"
-              >
-                <span className="text-muted-foreground w-10 shrink-0 font-mono tabular-nums">
-                  {localizeDigits(d.minute, locale)}
-                  {"'"}
-                </span>
-                <span className="font-semibold">
-                  {d.kind === "response" ? t(CHOICE_KEY[d.choice]) : t(`decision${label(d.kind)}`)}
-                </span>
-              </li>
-            ))}
+            {taken.map((d, i) => {
+              const parts = partsOf(d);
+              return (
+                <li
+                  key={`${d.kind}-${d.minute}-${i}`}
+                  data-testid="decision-row"
+                  className="flex flex-wrap items-center gap-x-3 gap-y-1 py-1.5 text-sm"
+                >
+                  <span className="text-muted-foreground w-10 shrink-0 font-mono tabular-nums">
+                    {localizeDigits(d.minute, locale)}
+                    {"'"}
+                  </span>
+                  <span className="font-semibold">
+                    {d.kind === "response"
+                      ? t(CHOICE_KEY[d.choice])
+                      : t(`decision${label(d.kind)}`)}
+                  </span>
+                  {parts.map((p) => (
+                    <span key={p.key} className="flex items-center gap-1.5">
+                      <span className="text-muted-foreground font-mono text-[10px] tracking-widest uppercase">
+                        {p.label}
+                      </span>
+                      <span>{p.who.name}</span>
+                      {/* ⚠️ Localized digits — a rating painted beside an Arabic name in
+                          Western numerals reads as a different alphabet mid-sentence, and
+                          the card directly above prints ٨٣. */}
+                      <span className="rounded bg-cyan-400/10 px-1.5 font-mono text-xs font-bold text-cyan-300 tabular-nums">
+                        {p.who.ovr == null ? "—" : localizeDigits(p.who.ovr, locale)}
+                      </span>
+                    </span>
+                  ))}
+                </li>
+              );
+            })}
           </ul>
         </>
       )}
@@ -144,7 +227,7 @@ export function MatchSummary({
         <span className="text-muted-foreground font-mono text-xs">
           {t("playSeed")} {localizeDigits(seed, locale)}
         </span>
-        {shareCode != null ? <ShareLink code={shareCode} locale={locale} /> : null}
+        {shareCode != null ? <ShareLink code={shareCode} locale={locale} path={sharePath} /> : null}
         <button
           type="button"
           onClick={onNewMatch}

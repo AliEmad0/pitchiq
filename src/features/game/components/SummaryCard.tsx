@@ -2,18 +2,25 @@
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef } from "react";
 import {
+  CARD_H,
+  CARD_W,
+  FOOTER_TOP,
+  scorerLayout,
   scorerLine,
   summaryFilename,
   type SummaryCardData,
 } from "@/features/game/domain/summary-card";
 import { localizeDigits } from "@/utils/format";
 
-/** OG proportions — the card is meant to be pasted into a chat as an image. */
-const W = 1200;
-const H = 630;
-
-/** Beyond this the list stops reading as a scoreline and starts reading as a table. */
-const MAX_SCORERS = 6;
+/**
+ * OG proportions — the card is meant to be pasted into a chat as an image.
+ *
+ * ⛔ Re-exported from the domain, never restated. The scorer block's layout is computed
+ * there against exactly these numbers, and a second copy here is how the two came to
+ * disagree about where the footer starts.
+ */
+const W = CARD_W;
+const H = CARD_H;
 
 const GROUND = "#060a0f";
 const LIFT = "#12202c";
@@ -130,14 +137,21 @@ export function SummaryCard({ data, locale }: { data: SummaryCardData; locale: s
       ctx.fillRect(W / 2 - 200, 372, 400, 2);
 
       // ---- scorers --------------------------------------------------------
-      const shown = data.scorers.slice(0, MAX_SCORERS);
+      // ⛔ The geometry comes from `scorerLayout`, which is the only thing that knows where
+      // the footer begins. Six scorers used to be painted straight through it.
+      const layout = scorerLayout(data.scorers.length);
+      const shown = data.scorers.slice(0, layout.shown);
       shown.forEach((s, i) => {
         const withLocalDigits = scorerLine(s).replace(/^\d+/, (d) => num(Number(d)));
-        text(withLocalDigits, W / 2, 418 + i * 28, { size: 18, color: SOFT, align: "center" });
+        text(withLocalDigits, W / 2, layout.first + i * layout.step, {
+          size: layout.size,
+          color: SOFT,
+          align: "center",
+        });
       });
-      if (data.scorers.length > shown.length) {
-        text(`+${num(data.scorers.length - shown.length)}`, W / 2, 418 + shown.length * 28, {
-          size: 15,
+      if (layout.overflow > 0) {
+        text(`+${num(layout.overflow)}`, W / 2, layout.first + shown.length * layout.step, {
+          size: Math.max(13, layout.size - 3),
           color: FAINT,
           align: "center",
         });
@@ -146,13 +160,15 @@ export function SummaryCard({ data, locale }: { data: SummaryCardData; locale: s
       // ---- footer ---------------------------------------------------------
       // ⚠️ A short URL, NOT the share code: a real code runs to ~150 characters and cannot
       // be set legibly here. The copied LINK is the replayable artefact, not a screenshot.
-      text(`${data.formationName}  ·  ${t("playSeed")} ${num(data.seed)}`, W / 2, H - 74, {
+      text(`${data.formationName}  ·  ${t("playSeed")} ${num(data.seed)}`, W / 2, FOOTER_TOP, {
         size: 16,
         color: FAINT,
         align: "center",
         font: mono,
       });
-      text(`${window.location.host}/game/draft`, W / 2, H - 44, {
+      // ⛔ The route the match was actually played on — `/game/draft` cannot replay a
+      // Legacy match, because it does not carry that club's cards.
+      text(`${window.location.host}${data.path}`, W / 2, H - 44, {
         size: 17,
         color: "rgba(34,211,238,.55)",
         align: "center",

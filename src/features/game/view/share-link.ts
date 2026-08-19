@@ -1,5 +1,5 @@
 import type { PlayerSeasonId } from "@/features/game/domain/card-id";
-import type { PoolCard } from "@/features/game/domain/chaos-draft";
+import type { DraftPolicy, PoolCard } from "@/features/game/domain/chaos-draft";
 import { encodeTokens, readTokens } from "@/features/game/domain/decision-tokens";
 import {
   formationBySlug,
@@ -8,6 +8,7 @@ import {
   formationSlug,
 } from "@/features/game/domain/formation";
 import type { DecisionAnswer } from "@/features/game/domain/match-decisions";
+import { DEFAULT_SHARE_PATH } from "@/features/game/domain/summary-card";
 import { encodeMatch, type ShareableMatch } from "@/features/game/domain/share-code";
 import { replayWith, tokenSource, type ReplayedMatch } from "./match-replay";
 import type { SessionNames } from "./match-session";
@@ -56,6 +57,7 @@ export function replayShared(
   pool: PoolCard[],
   shared: ShareableMatch,
   names: SessionNames,
+  opponent?: DraftPolicy,
 ): ReplayedMatch | null {
   const formation = formationBySlug(shared.formationSlug);
   if (formation == null) return null;
@@ -73,16 +75,24 @@ export function replayShared(
     names,
     // ⚠️ `keep`, and no expected event count — see the drift table in the design doc.
     { onDrift: "keep", expectedFingerprint: shared.fingerprint },
+    opponent,
   );
 }
 
 /**
- * The canonical share URL.
+ * The share URL for a match — the route it was PLAYED on, plus its code.
  *
- * `/game/draft` is the canonical route since TASK-1832; `/game/play` permanently redirects
- * to it and Next forwards the query, so an older `/game/play?m=…` link still works.
+ * ⛔ `path` is not cosmetic (owner-reported, 2026-08-19). A share code carries card ids, and
+ * a card only resolves against the pool the receiving route ships. Legacy's pools are
+ * per-club, so a Legacy code opened at `/game/draft` finds none of its cards, `replayShared`
+ * returns null, and the visitor lands on an ordinary draft hub with no sign anything failed.
+ * Every "Copy link" on a Legacy match was doing exactly that.
+ *
+ * `/game/draft` remains the default: it is the canonical route since TASK-1832, and
+ * `/game/play` permanently redirects to it with the query forwarded, so an older
+ * `/game/play?m=…` link still works.
  */
-export function shareUrl(code: string, locale: string): string {
+export function shareUrl(code: string, locale: string, path: string = DEFAULT_SHARE_PATH): string {
   const prefix = locale === "en" ? "" : `/${locale}`;
-  return `${prefix}/game/draft?m=${code}`;
+  return `${prefix}${path}?m=${code}`;
 }

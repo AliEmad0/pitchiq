@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import type { MatchEvent } from "../../src/features/game/domain/match-types";
 import type { GameTeam } from "../../src/features/game/domain/team";
 import {
+  FOOTER_TOP,
+  scorerLayout,
   scorerLine,
   scorersFrom,
   summaryFilename,
@@ -111,6 +113,7 @@ describe("summaryFilename", () => {
     formationName: "4-4-2 Flat",
     seed: 1,
     code: "v1...",
+    path: "/game/draft",
   };
 
   it("strips punctuation that breaks filenames and shells", () => {
@@ -208,5 +211,57 @@ describe("summaryFrom", () => {
       code: "v1.x",
     });
     expect(out.scorers[0].name).toBe("#4242");
+  });
+});
+
+/**
+ * ⛔ Owner-reported, 2026-08-19: a six-scorer card printed its last scorer straight through
+ * the shape-and-seed line.
+ *
+ * ⚠️ Nothing could have caught it. The layout was three constants inside a canvas paint
+ * function — 418, ×28, cap 6 — that nobody ever compared against the footer at H−74, and a
+ * canvas paints in jsdom's void, so no test could see the pixels. The arithmetic is the
+ * thing under test; moving it out of the paint function is what makes it testable at all.
+ */
+describe("scorerLayout", () => {
+  it("⛔ never reaches the footer, at any scoreline the card can produce", () => {
+    // 0 through a comfortably impossible 14 — the cap folds the tail into "+N", which is
+    // itself a printed row and was the WORST case: it landed exactly on the URL baseline.
+    for (let n = 0; n <= 14; n++) {
+      const l = scorerLayout(n);
+      expect(l.last).toBeLessThan(FOOTER_TOP);
+    }
+  });
+
+  it("⚠️ the SIX-scorer card specifically — the shipped numbers put it 2px past the line", () => {
+    const l = scorerLayout(6);
+    expect(l.shown).toBe(6);
+    expect(l.overflow).toBe(0);
+    // The shipped layout computed 418 + 5×28 = 558 against a footer at 556.
+    expect(l.first + 5 * l.step).toBeLessThan(FOOTER_TOP);
+  });
+
+  it("keeps the shipped spacing for a short list, so the common card is unchanged", () => {
+    for (const n of [1, 2, 3, 4]) {
+      const l = scorerLayout(n);
+      expect(l.step).toBe(28);
+      expect(l.size).toBe(18);
+      expect(l.first).toBe(418);
+    }
+  });
+
+  it("⚠️ shrinks the TEXT with the step — lines that tighten must not overlap either", () => {
+    const tight = scorerLayout(12);
+    const roomy = scorerLayout(2);
+    expect(tight.step).toBeLessThan(roomy.step);
+    expect(tight.size).toBeLessThan(roomy.size);
+    // A line's glyphs must fit inside its own row.
+    expect(tight.size).toBeLessThanOrEqual(tight.step);
+  });
+
+  it("caps the printed list and counts the rest", () => {
+    const l = scorerLayout(9);
+    expect(l.shown).toBe(6);
+    expect(l.overflow).toBe(3);
   });
 });

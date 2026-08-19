@@ -173,3 +173,29 @@ describe("PitchDraft", () => {
     expect(screen.queryByRole("link", { name: "Choose a different club" })).toBeNull();
   });
 });
+
+/**
+ * ⛔ Owner-reported, 2026-08-19: `/ar/game/legacy/47` drew the keeper inside the centre
+ * circle and the forwards on their own goal line.
+ *
+ * A pitch is not text. Its markings are PHYSICAL (`.pd-box-left` / `.pd-box-right`, the
+ * halfway line) and a spot is centred with a physical `translate(-50%, -50%)`, but the
+ * spots were placed with `inset-inline-start` — so under RTL only the players mirrored,
+ * against goalmouths that had not moved and a centring that now pushed the wrong way.
+ *
+ * ⚠️ Asserting the inline `insetInlineStart` values would NOT catch this: they are
+ * identical in both locales, which is the whole problem. The direction the container
+ * resolves them against is the thing under test.
+ */
+describe("PitchDraft — the pitch never mirrors", () => {
+  it("pins the pitch to LTR so both locales lay out identically", () => {
+    const { container } = render(<GamePlay pool={pool} draft={LEGACY} />);
+    expect(container.querySelector(".pd-pitch")?.getAttribute("dir")).toBe("ltr");
+  });
+
+  it("still places every spot with a logical inset, so nothing else had to change", () => {
+    const { container } = render(<GamePlay pool={pool} draft={LEGACY} />);
+    const spot = container.querySelector<HTMLElement>(".pd-spot");
+    expect(spot?.style.insetInlineStart).toMatch(/%$/);
+  });
+});

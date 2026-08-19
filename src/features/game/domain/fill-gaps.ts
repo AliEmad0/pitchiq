@@ -22,11 +22,19 @@ export function fillGaps(
   formation: Formation,
   slots: readonly (PlayerSeasonId | null)[],
   rng: () => number,
+  /**
+   * playerIds this draft may not touch, on top of whatever is already placed.
+   *
+   * ⚠️ Omitting it draws exactly as before — the shipped Auto-fill and `/game/chaos` both
+   * pass nothing, so their streams are untouched. It exists for a second squad drafted
+   * from the same pool, which must not field a man already in the first.
+   */
+  reserved?: ReadonlySet<number>,
 ): (PlayerSeasonId | null)[] {
   const out = [...slots];
   // Keyed by playerId, not cardId: the same player in two seasons is two cards but
   // still one man, and he cannot turn out twice in the same XI.
-  const used = new Set<number>();
+  const used = new Set<number>(reserved ?? []);
   for (const id of out) {
     if (id == null) continue;
     const card = pool.find((c) => c.cardId === id);

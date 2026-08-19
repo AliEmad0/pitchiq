@@ -1,18 +1,31 @@
 import { describe, expect, it } from "vitest";
 import { commentate } from "@/features/game/domain/commentary";
+import { scoreAt } from "@/features/game/view/score";
 import type { MatchResult } from "@/features/game/domain/match-types";
 import type { GamePlayer } from "@/features/game/domain/player";
 import { makeGameTeam } from "@/features/game/domain/team";
 
 function player(playerId: number, name: string): GamePlayer {
   return {
-    cardId: `${playerId}@2020`, playerId, season: 2020, name, role: "CF", altRoles: [],
-    foot: null, height: null, provenance: null,
+    cardId: `${playerId}@2020`,
+    playerId,
+    season: 2020,
+    name,
+    role: "CF",
+    altRoles: [],
+    foot: null,
+    height: null,
+    provenance: null,
     ratings: { attack: 50, creation: 50, defense: 50, physical: 50, discipline: 50, overall: 50 },
   };
 }
-const home = makeGameTeam(1, "Home", 2020, { name: "", season: 2020, slots: [] }, [player(10, "Scorer H"), player(11, "Booked H")]);
-const away = makeGameTeam(2, "Away", 2020, { name: "", season: 2020, slots: [] }, [player(20, "Scorer A")]);
+const home = makeGameTeam(1, "Home", 2020, { name: "", season: 2020, slots: [] }, [
+  player(10, "Scorer H"),
+  player(11, "Booked H"),
+]);
+const away = makeGameTeam(2, "Away", 2020, { name: "", season: 2020, slots: [] }, [
+  player(20, "Scorer A"),
+]);
 
 const result: MatchResult = {
   seed: 1,
@@ -47,10 +60,23 @@ describe("commentate", () => {
   });
 
   it("resolves the scorer name and folds the running score", () => {
-    expect(commented[1].commentary.values).toMatchObject({ player: "Scorer H", minute: 12, homeScore: 1, awayScore: 0 });
-    expect(commented[3].commentary.values).toMatchObject({ player: "Scorer A", homeScore: 1, awayScore: 1 });
+    expect(commented[1].commentary.values).toMatchObject({
+      player: "Scorer H",
+      minute: 12,
+      homeScore: 1,
+      awayScore: 0,
+    });
+    expect(commented[3].commentary.values).toMatchObject({
+      player: "Scorer A",
+      homeScore: 1,
+      awayScore: 1,
+    });
     expect(commented[4].commentary.values).toMatchObject({ homeScore: 1, awayScore: 1 }); // halftime score
-    expect(commented[5].commentary.values).toMatchObject({ player: "Scorer H", homeScore: 2, awayScore: 1 });
+    expect(commented[5].commentary.values).toMatchObject({
+      player: "Scorer H",
+      homeScore: 2,
+      awayScore: 1,
+    });
     expect(commented[7].commentary.values).toMatchObject({ homeScore: 2, awayScore: 1 }); // final
   });
 
@@ -61,5 +87,46 @@ describe("commentate", () => {
 
   it("is deterministic (same result → same refs)", () => {
     expect(commentate(result, home, away)).toEqual(commented);
+  });
+});
+
+/**
+ * ⛔ Owner-reported, 2026-08-19: the scoreboard read 0–2 while the feed's own full-time
+ * line read 1–2. A goal chalked off at 6' kept its place in the running tally, so EVERY
+ * scoreline printed after the verdict was inflated by one for the rest of the match.
+ *
+ * ⚠️ The goal's OWN line must still say 1–0. It was given, celebrated, and only then
+ * reviewed — that is the drama `disallowedAt` exists to create, and it is the same clock
+ * rule `view/score.ts#scoreAt` follows.
+ */
+describe("commentate — a disallowed goal", () => {
+  const varResult: MatchResult = {
+    seed: 2,
+    score: { home: 0, away: 1 },
+    events: [
+      { minute: 0, kind: "kickoff" },
+      { minute: 5, kind: "goal", side: "home", playerId: 10, disallowedAt: 6 },
+      { minute: 5, kind: "var", side: "home", playerId: 10, varOutcome: "review-goal" },
+      { minute: 6, kind: "var", side: "home", playerId: 10, varOutcome: "goal-disallowed-offside" },
+      { minute: 29, kind: "goal", side: "away", playerId: 20 },
+      { minute: 45, kind: "halftime" },
+      { minute: 92, kind: "fulltime" },
+    ],
+  };
+  const commented = commentate(varResult, home, away);
+
+  it("still celebrates it at its own minute", () => {
+    expect(commented[1].commentary.values).toMatchObject({ homeScore: 1, awayScore: 0 });
+  });
+
+  it("removes it from every scoreline printed after the verdict", () => {
+    expect(commented[4].commentary.values).toMatchObject({ homeScore: 0, awayScore: 1 });
+    expect(commented[5].commentary.values).toMatchObject({ homeScore: 0, awayScore: 1 });
+    expect(commented[6].commentary.values).toMatchObject({ homeScore: 0, awayScore: 1 });
+  });
+
+  it("agrees with the scoreboard the view paints from the same events", () => {
+    const { homeScore, awayScore } = commented[6].commentary.values;
+    expect({ home: homeScore, away: awayScore }).toEqual(scoreAt(varResult.events, 92));
   });
 });

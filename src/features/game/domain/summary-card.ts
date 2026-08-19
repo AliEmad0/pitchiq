@@ -36,6 +36,15 @@ export type SummaryCardData = {
    * assume which of the two a given card design prints.
    */
   code: string;
+  /**
+   * The route the match was played on, printed on the card.
+   *
+   * ⛔ Owner-reported, 2026-08-19: the card and the Copy link button both hard-coded
+   * `/game/draft`. A Legacy match's cards belong to ONE club's pool, which `/game/draft`
+   * does not carry — so following the link resolved no cards, `replayShared` returned null,
+   * and the visitor silently landed on an ordinary draft hub instead of the shared match.
+   */
+  path: string;
 };
 
 /**
@@ -75,6 +84,78 @@ export function scorersFrom(
       };
     })
     .sort((a, b) => a.minute - b.minute);
+}
+
+/**
+ * ⛔ THE CARD'S GEOMETRY LIVES HERE, not in the paint function (owner-reported, 2026-08-19).
+ *
+ * The shipped card started its scorer list at a fixed baseline, stepped a fixed 28px and
+ * capped the list at six — and nobody ever checked those three numbers against each other.
+ * A sixth scorer lands at `418 + 5×28 = 558`, **two pixels below** the footer's first
+ * baseline at `H − 74 = 556`, so the last scorer printed straight through the shape-and-seed
+ * line. The overflow "+N" was worse: `418 + 6×28 = 586`, exactly the URL's baseline.
+ *
+ * ⚠️ It could not be caught by any test that existed. A canvas paints in jsdom's void — the
+ * whole point of this module is that WHAT the card says is testable — but nothing here knew
+ * WHERE anything went, so a collision was invisible by construction. The layout is arithmetic
+ * and belongs beside the rest of the card's decisions, where a test can assert the one
+ * property that matters: the block never reaches the footer.
+ */
+/**
+ * Where a shared match replays when the caller names no route.
+ *
+ * `/game/draft` is the canonical loop and the only route whose pool a code built there can
+ * resolve against. Every OTHER pack must pass its own route — see `SummaryCardData.path`.
+ */
+export const DEFAULT_SHARE_PATH = "/game/draft";
+
+export const CARD_W = 1200;
+export const CARD_H = 630;
+/** The first footer baseline (shape · seed). Nothing above it may descend past this. */
+export const FOOTER_TOP = CARD_H - 74;
+/** Beyond this the list stops reading as a scoreline and starts reading as a table. */
+export const MAX_SCORERS = 6;
+
+const SCORER_TOP = 418;
+/** Clear air between the last scorer and the footer, so they read as separate blocks. */
+const FOOTER_CLEARANCE = 24;
+const MAX_STEP = 28;
+const MAX_SIZE = 18;
+const MIN_SIZE = 13;
+
+export interface ScorerLayout {
+  /** How many scorers are printed. */
+  shown: number;
+  /** How many are summarised as "+N" — zero means no overflow line. */
+  overflow: number;
+  /** Baseline of the first line. */
+  first: number;
+  /** Distance between baselines; shrinks so a long list still clears the footer. */
+  step: number;
+  /** Font size, tracking the step so the lines never touch. */
+  size: number;
+  /** Baseline of the LAST thing printed, overflow line included. */
+  last: number;
+}
+
+/** Fit `total` scorers into the band between the divider and the footer. */
+export function scorerLayout(total: number): ScorerLayout {
+  const shown = Math.min(total, MAX_SCORERS);
+  const overflow = total - shown;
+  const rows = shown + (overflow > 0 ? 1 : 0);
+  const bottom = FOOTER_TOP - FOOTER_CLEARANCE;
+  const step = rows > 1 ? Math.min(MAX_STEP, (bottom - SCORER_TOP) / (rows - 1)) : MAX_STEP;
+  // ⚠️ The size follows the step. Holding 18px while the step falls to 19 would stack the
+  // lines against each other — the same defect one block lower down.
+  const size = Math.max(MIN_SIZE, Math.min(MAX_SIZE, Math.round(step * 0.66)));
+  return {
+    shown,
+    overflow,
+    first: SCORER_TOP,
+    step,
+    size,
+    last: SCORER_TOP + Math.max(0, rows - 1) * step,
+  };
 }
 
 /** "23' Henry (pen)" · "67' Carragher (og)" — the line printed under the scoreline. */
@@ -117,6 +198,8 @@ export function summaryFrom(args: {
   formationName: string;
   seed: number;
   code: string;
+  /** The route that can replay this match. See `SummaryCardData.path`. */
+  path?: string;
 }): SummaryCardData {
   const names = new Map(
     [
@@ -134,5 +217,6 @@ export function summaryFrom(args: {
     formationName: args.formationName,
     seed: args.seed,
     code: args.code,
+    path: args.path ?? DEFAULT_SHARE_PATH,
   };
 }
