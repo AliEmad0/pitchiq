@@ -17,6 +17,7 @@ const data: SummaryCardData = {
   formationName: "4-6-0 Strikerless",
   seed: 20260817,
   code: "v1.abc",
+  path: "/game/draft",
 };
 
 describe("ShareLink", () => {
@@ -46,6 +47,52 @@ describe("ShareLink", () => {
     await userEvent.click(screen.getByRole("button", { name: "Copy link" }));
 
     expect(writeText.mock.calls[0]![0]).toContain("/ar/game/draft?m=v1.abc");
+  });
+});
+
+/**
+ * ⛔ Owner-reported, 2026-08-19: every "Copy link" on a Legacy match pointed at
+ * `/game/draft`, which does not carry that club's cards — so the code resolved nothing,
+ * `replayShared` returned null, and the recipient landed on an ordinary draft hub with no
+ * sign anything had failed.
+ *
+ * ⚠️ Declared BEFORE the `SummaryCard` block, and that is load-bearing. Its download test
+ * clicks a synthetic `<a href="blob:…">`, which happy-dom treats as a navigation and leaves
+ * `window.location.origin` as the string "null" — so `new URL(path, origin)` throws for
+ * every test that runs after it, and the failure reads as a broken share link.
+ */
+describe("ShareLink — the route the match was played on", () => {
+  /**
+   * ⚠️ Bare `userEvent.click`, never `userEvent.setup()` — matching the two tests above.
+   * `setup()` installs its OWN clipboard stub over this one, so the spy is never called and
+   * the assertion fails against perfectly correct code.
+   */
+  const clipboard = () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    // ⚠️ `Object.assign` cannot be used — `navigator.clipboard` is a getter-only property.
+    Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
+    return writeText;
+  };
+
+  it("copies a link back to the route it was given", async () => {
+    const writeText = clipboard();
+    renderWithIntl(<ShareLink code="v1.abc" locale="en" path="/game/legacy/40" />);
+    await userEvent.click(screen.getByRole("button", { name: "Copy link" }));
+    expect(writeText.mock.calls[0]![0]).toContain("/game/legacy/40?m=v1.abc");
+  });
+
+  it("carries the locale prefix in front of that route, not in front of a constant", async () => {
+    const writeText = clipboard();
+    renderWithIntl(<ShareLink code="v1.abc" locale="ar" path="/game/legacy/40" />);
+    await userEvent.click(screen.getByRole("button", { name: "Copy link" }));
+    expect(writeText.mock.calls[0]![0]).toContain("/ar/game/legacy/40?m=v1.abc");
+  });
+
+  it("⚠️ keeps the canonical route when no path is given — the shipped packs pass none", async () => {
+    const writeText = clipboard();
+    renderWithIntl(<ShareLink code="v1.abc" locale="en" />);
+    await userEvent.click(screen.getByRole("button", { name: "Copy link" }));
+    expect(writeText.mock.calls[0]![0]).toContain("/game/draft?m=v1.abc");
   });
 });
 

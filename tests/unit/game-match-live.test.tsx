@@ -235,4 +235,33 @@ describe("MatchLive — the split feed", () => {
     const marks = screen.getAllByText("C");
     expect(marks.length).toBeGreaterThan(0);
   });
+
+  /**
+   * ⛔ Owner-reported, 2026-08-19: the opponent's sheet read "no recorded captain" in every
+   * match. Not because the rule found nothing — `rankCaptains` falls back to rating and
+   * only returns null for an EMPTY XI, so that caption was unreachable in practice — but
+   * because the away column was handed a literal `null`.
+   */
+  it("puts an armband on the OPPONENT's sheet too", async () => {
+    const user = userEvent.setup();
+    live();
+    await kickOff(user);
+
+    const away = document.querySelector(".lg-sheet-away");
+    expect(away).not.toBeNull();
+    expect(within(away as HTMLElement).getAllByText("C").length).toBeGreaterThan(0);
+  });
+
+  it("⚠️ never claims a side has no captain when it has eleven players", async () => {
+    const user = userEvent.setup();
+    live();
+    await kickOff(user);
+
+    // The positive half matters as much as the negative: assert BOTH captions name someone.
+    expect(screen.queryByText(/no recorded captain/i)).not.toBeInTheDocument();
+    expect(document.querySelectorAll(".lg-sheet-cap")).toHaveLength(2);
+    for (const cap of document.querySelectorAll(".lg-sheet-cap")) {
+      expect(cap.textContent ?? "").toMatch(/captain \S/i);
+    }
+  });
 });

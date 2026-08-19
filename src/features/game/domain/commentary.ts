@@ -50,7 +50,31 @@ export function commentate(result: MatchResult, home: GameTeam, away: GameTeam):
   let a = 0;
   const out: CommentedEvent[] = [];
 
+  /**
+   * Goals that have been given and are still under review.
+   *
+   * ⛔ A chalked-off goal used to stay in the running tally forever, so every scoreline
+   * printed after the verdict was inflated by one — the feed's own full-time line read
+   * 1–2 while the scoreboard beside it, which counts through `view/score.ts#scoreAt`,
+   * read 0–2. Owner-reported, 2026-08-19.
+   *
+   * ⚠️ It is REMOVED at the verdict minute, never suppressed at the goal's own. The goal
+   * is given first, in full, and only then doubted — that is the drama `disallowedAt`
+   * exists to create, and the clock is what protects it here exactly as it does there.
+   */
+  const underReview: MatchEvent[] = [];
+  const settle = (minute: number) => {
+    for (let i = underReview.length - 1; i >= 0; i--) {
+      const goal = underReview[i]!;
+      if ((goal.disallowedAt ?? Infinity) > minute) continue;
+      if (goal.side === "home") h -= 1;
+      else a -= 1;
+      underReview.splice(i, 1);
+    }
+  };
+
   for (const event of result.events) {
+    settle(event.minute);
     let commentary: CommentaryRef;
     switch (event.kind) {
       case "kickoff":
@@ -59,6 +83,7 @@ export function commentate(result: MatchResult, home: GameTeam, away: GameTeam):
       case "goal": {
         if (event.side === "home") h += 1;
         else if (event.side === "away") a += 1;
+        if (event.disallowedAt != null && event.side != null) underReview.push(event);
         const player = nameOf(event, home, away);
         // A set-piece goal has ALREADY been described by its own event on the line
         // above ("PENALTY — sends the keeper the wrong way"). Repeating the full goal

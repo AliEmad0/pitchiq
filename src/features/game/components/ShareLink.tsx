@@ -10,7 +10,16 @@ import { shareUrl } from "@/features/game/view/share-link";
  * copied out of a preview deployment points at that deployment instead of silently at
  * production.
  */
-export function ShareLink({ code, locale }: { code: string; locale: string }) {
+export function ShareLink({
+  code,
+  locale,
+  path,
+}: {
+  code: string;
+  locale: string;
+  /** The route this match replays on. Absent = the canonical `/game/draft`. */
+  path?: string;
+}) {
   const t = useTranslations("game");
   const [copied, setCopied] = useState(false);
   const timer = useRef<number | null>(null);
@@ -24,7 +33,7 @@ export function ShareLink({ code, locale }: { code: string; locale: string }) {
   }, []);
 
   const copy = async () => {
-    const url = new URL(shareUrl(code, locale), window.location.origin).toString();
+    const url = new URL(shareUrl(code, locale, path), window.location.origin).toString();
     await navigator.clipboard.writeText(url);
     setCopied(true);
     if (timer.current != null) window.clearTimeout(timer.current);

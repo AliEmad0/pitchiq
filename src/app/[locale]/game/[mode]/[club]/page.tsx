@@ -75,6 +75,7 @@ export default async function ModeClubPage({ params }: Props) {
         initialPhase="setup"
         draft={pack.draft}
         screens={pack.screens}
+        opponent={pack.opponent}
         captaincies={captaincies}
         referees={referees}
         backHref={`/game/${pack.id}`}

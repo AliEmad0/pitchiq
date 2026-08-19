@@ -1,9 +1,10 @@
 "use client";
 import { useLocale, useTranslations } from "next-intl";
+import { usePathname } from "@/i18n/navigation";
 import { parseAsString, parseAsStringLiteral, useQueryState } from "nuqs";
 import { useEffect, useMemo, useReducer, useState } from "react";
 import type { PlayerSeasonId } from "@/features/game/domain/card-id";
-import type { PoolCard } from "@/features/game/domain/chaos-draft";
+import type { DraftPolicy, PoolCard } from "@/features/game/domain/chaos-draft";
 import {
   formationKey,
   formationNameFromKey,
@@ -57,6 +58,7 @@ export function GamePlay({
   draft,
   backHref,
   screens,
+  opponent,
   captaincies,
   referees,
 }: {
@@ -75,6 +77,14 @@ export function GamePlay({
    */
   screens?: ScreensSpec;
   /**
+   * How the pack's auto-drafted opponent picks his XI (owner round 2, 2026-08-19).
+   *
+   * ⛔ Passed to the live start AND to both replay paths. Resume and share re-run
+   * `buildSession` and verify by fingerprint, so a replay built without it drafts a
+   * different opponent and reads as a corrupt save.
+   */
+  opponent?: DraftPolicy;
+  /**
    * playerId -> real captaincies, narrowed to this club at build time (TASK-1810).
    *
    * Only the Legacy screens read it; the armband rule needs real captaincies and
@@ -91,6 +101,19 @@ export function GamePlay({
 }) {
   const t = useTranslations("game");
   const locale = useLocale();
+  /**
+   * The route this match is being played on — where its share link must point.
+   *
+   * ⛔ Never a constant (owner-reported, 2026-08-19). A share code carries card ids, and a
+   * card only resolves against the pool the RECEIVING route ships. Legacy's pools are
+   * per-club, so a Legacy link pointing at `/game/draft` silently dropped its match and
+   * opened an ordinary draft hub instead.
+   *
+   * ⚠️ Locale-stripped by `@/i18n/navigation`, because `shareUrl` adds the prefix back. It
+   * is nullable under the test stub, and falling through to the canonical route there is
+   * exactly right — that IS the route those tests render.
+   */
+  const sharePath = usePathname() ?? undefined;
   const [state, dispatch] = useReducer(playReducer, createPlayState(initialPhase));
 
   // The match itself lives in the driver (TASK-1817), shared with the daily challenge.
@@ -156,7 +179,14 @@ export function GamePlay({
   /** Build the match and run to the first decision. */
   const confirmSquad = (players: PoolCard[], formation: Formation) => {
     const seed = randomSeed();
-    driver.start(pool, players, formation, seed, { home: t("yourXi"), away: t("rivals") });
+    driver.start(
+      pool,
+      players,
+      formation,
+      seed,
+      { home: t("yourXi"), away: t("rivals") },
+      opponent,
+    );
     setSquad({
       cardIds: players.map((p) => p.cardId),
       formationKey: formationKey(formation),
@@ -186,7 +216,7 @@ export function GamePlay({
     const replayed =
       decoded == null
         ? null
-        : replayShared(pool, decoded, { home: t("yourXi"), away: t("rivals") });
+        : replayShared(pool, decoded, { home: t("yourXi"), away: t("rivals") }, opponent);
 
     if (replayed == null) {
       // ⚠️ A bad code is not an error screen. Someone following a mangled link should land
@@ -219,7 +249,12 @@ export function GamePlay({
       if (shareCode != null && shareCode !== "") return;
       const record = await loadMatch();
       if (!live || record == null) return;
-      const restored = replayMatch(pool, record, { home: t("yourXi"), away: t("rivals") });
+      const restored = replayMatch(
+        pool,
+        record,
+        { home: t("yourXi"), away: t("rivals") },
+        opponent,
+      );
       if (!live) return;
       if (restored == null) {
         // Diverged, or the pool moved under it. A stale save is not the coach's problem.
@@ -374,6 +409,7 @@ export function GamePlay({
             formationName: formationNameFromKey(squad.formationKey),
             seed: match.seed,
             code,
+            path: sharePath,
           });
 
     return (
@@ -383,10 +419,12 @@ export function GamePlay({
         score={result.score}
         decisions={answers}
         coachMoves={screens === "legacy" ? coachMoves : undefined}
+        roster={[...match.home.players, ...(match.home.bench ?? [])]}
         seed={match.seed}
         shareCode={code}
         cardData={cardData}
         locale={locale}
+        sharePath={sharePath}
         shared={shared}
         drifted={drifted}
         onNewMatch={() => {

@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useRef, useState } from "react";
-import type { PoolCard } from "@/features/game/domain/chaos-draft";
+import type { DraftPolicy, PoolCard } from "@/features/game/domain/chaos-draft";
 import type { Formation } from "@/features/game/domain/formation";
 import type { DecisionAnswer, MatchDecision } from "@/features/game/domain/match-decisions";
 import type { MatchEvent, MatchResult } from "@/features/game/domain/match-types";
@@ -35,6 +35,8 @@ export interface MatchDriver {
     formation: Formation,
     seed: number,
     names: SessionNames,
+    /** The pack's opponent rule. See `buildSession`. */
+    opponent?: DraftPolicy,
   ) => void;
   answer: (a: DecisionAnswer) => void;
   adopt: (replayed: AdoptableMatch) => void;
@@ -75,8 +77,8 @@ export function useMatchDriver(): MatchDriver {
   }, []);
 
   const start = useCallback<MatchDriver["start"]>(
-    (pool, players, formation, seed, names) => {
-      const session = buildSession(pool, players, formation, seed, names);
+    (pool, players, formation, seed, names, opponent) => {
+      const session = buildSession(pool, players, formation, seed, names, opponent);
       streamRef.current = session.stream;
       setMatch({ home: session.home, away: session.away, seed });
       setEvents([]);

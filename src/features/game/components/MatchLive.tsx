@@ -315,6 +315,31 @@ export function MatchLive({
   const armband = armbandAt(captaincy, offPitch);
 
   /**
+   * The opponent's captain — the SAME rule, applied to the other sheet.
+   *
+   * ⛔ Owner-reported, 2026-08-19: the away caption read "no recorded captain" in every
+   * single match, because `null` was passed for that side rather than because the rule had
+   * found nothing. `rankCaptains` falls back to rating and only ever returns null for an
+   * EMPTY XI, so "no recorded captain" was unreachable in practice and read as a bug.
+   *
+   * ⚠️ The away side is drafted from the same club pool, so the build-time `captaincies`
+   * map covers it too — real armbands rank ahead of ratings on both sheets.
+   */
+  const awayCaptaincy = useMemo(
+    () =>
+      rankCaptains(
+        model.away.players.map((p) => ({ playerId: p.playerId, rating: p.rating ?? 0 })),
+        counts,
+      ),
+    [model.away.players, counts],
+  );
+  const awayOffPitch = useMemo(
+    () => new Set(awayLineup.roster.filter((r) => !r.onPitch).map((r) => r.player.playerId)),
+    [awayLineup],
+  );
+  const awayArmband = armbandAt(awayCaptaincy, awayOffPitch);
+
+  /**
    * The handover line (spec §3.5).
    *
    * ⛔ Emitted by the VIEW, never pushed into `MatchEvent[]`. The engine must not learn
@@ -597,9 +622,9 @@ export function MatchLive({
 
       <TeamSheets
         home={sheetOf(homeLineup, "home", armband)}
-        away={sheetOf(awayLineup, "away", null)}
+        away={sheetOf(awayLineup, "away", awayArmband)}
         homeCaption={captionOf("home", armband)}
-        awayCaption={captionOf("away", null)}
+        awayCaption={captionOf("away", awayArmband)}
         title={t("lineups")}
       />
 

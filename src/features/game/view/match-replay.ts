@@ -1,5 +1,5 @@
 import type { PlayerSeasonId } from "@/features/game/domain/card-id";
-import { FORMATIONS, type PoolCard } from "@/features/game/domain/chaos-draft";
+import { FORMATIONS, type DraftPolicy, type PoolCard } from "@/features/game/domain/chaos-draft";
 import type { NextAnswer, TokenReader } from "@/features/game/domain/decision-tokens";
 import { formationKey } from "@/features/game/domain/formation";
 import { hashEvents } from "@/features/game/domain/hash";
@@ -44,9 +44,7 @@ export function arraySource(answers: readonly DecisionAnswer[]): AnswerSource {
   let i = 0;
   return {
     next: () =>
-      i < answers.length
-        ? { ok: true, answer: answers[i++]! }
-        : { ok: false, reason: "exhausted" },
+      i < answers.length ? { ok: true, answer: answers[i++]! } : { ok: false, reason: "exhausted" },
     done: () => i >= answers.length,
   };
 }
@@ -105,6 +103,8 @@ export function replayWith(
   source: AnswerSource,
   names: SessionNames,
   options: ReplayOptions,
+  /** The pack's opponent rule — the replay must build the SAME opponent. See `buildSession`. */
+  opponent?: DraftPolicy,
 ): ReplayedMatch | null {
   const byId = new Map(pool.map((c) => [c.cardId, c]));
   const players: PoolCard[] = [];
@@ -118,7 +118,7 @@ export function replayWith(
   if (formation == null) return null;
   if (formation.slots.length !== players.length) return null;
 
-  const session = buildSession(pool, players, formation, setup.seed, names);
+  const session = buildSession(pool, players, formation, setup.seed, names, opponent);
   const events: MatchEvent[] = [];
   const answers: DecisionAnswer[] = [];
   let pending: MatchDecision | null = null;
@@ -164,6 +164,7 @@ export function replayMatch(
   pool: PoolCard[],
   record: SavedMatch,
   names: SessionNames,
+  opponent?: DraftPolicy,
 ): RestoredMatch | null {
   const replayed = replayWith(
     pool,
@@ -175,6 +176,7 @@ export function replayMatch(
       expectedFingerprint: record.fingerprint,
       expectedEventCount: record.eventCount,
     },
+    opponent,
   );
   if (replayed == null) return null;
   return {
