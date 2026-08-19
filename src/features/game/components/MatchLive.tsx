@@ -14,6 +14,12 @@ import {
   subOfferOf,
   type SubMode,
 } from "@/features/game/view/bench-state";
+import {
+  createCoachState,
+  requestSubstitution,
+  shouldOpenPrompt,
+  spendRequest,
+} from "@/features/game/view/coach-policy";
 import { commentaryArgs } from "@/features/game/view/commentary-view";
 import { lineupAt } from "@/features/game/view/lineup-state";
 import type { MatchViewModel, ViewEvent } from "@/features/game/view/match-view-model";
@@ -123,6 +129,14 @@ export function MatchLive({
   const [speed, setSpeed] = useState<number>(1);
   const [mode, setMode] = useState<SubMode>("auto");
   const [benchOpen, setBenchOpen] = useState(false);
+  /**
+   * Whether the coach has ASKED for a change (`view/coach-policy.ts`).
+   *
+   * ⚠️ A request is not a substitution. Play does not stop because a manager wants it to,
+   * so the request waits for the next stoppage — or `REQUEST_GRACE` minutes, because the
+   * engine emits no ball-out-of-play event and without a bound the button looks broken.
+   */
+  const [coach, setCoach] = useState(createCoachState());
 
   const lastMinute = ceiling;
   /** Stopped by a hold rather than by the viewer, so the clock may restart itself. */
@@ -221,6 +235,10 @@ export function MatchLive({
    */
   const emergency = emergencyKeeperOf(pending);
   const amber = benchLabel(offer) === "available" || emergency != null;
+  /** The coach asked, and this offer is the first chance to honour it. */
+  const wantsOpen = offer != null && shouldOpenPrompt(coach, offer);
+  /** He has asked and is still waiting for a break in play. */
+  const awaiting = coach.requestedAt != null && !benchOpen;
 
   /**
    * Resolve a decision nobody answered.
@@ -233,15 +251,33 @@ export function MatchLive({
    * ⚠️ Only a genuine "change available" opens the amber window, and its expiry answer is
    * the one thing the two modes disagree about.
    */
+  /**
+   * Honour a standing request at the next stoppage.
+   *
+   * ⚠️ This panel is INVITED — he pressed Bench and is waiting for it — so it does not
+   * break the "nothing on screen uninvited" rule the redesign exists for.
+   *
+   * ⛔ Declared BEFORE the auto-answer effect below, and that effect skips while
+   * `wantsOpen`. Effects run in order, so the offer would otherwise be answered away in
+   * the same commit and the dialog would open onto nothing.
+   */
   useEffect(() => {
-    if (pending == null || benchOpen) return;
+    if (!wantsOpen || benchOpen) return;
+    setBenchOpen(true);
+    // Opening spends the opportunity: the prompt cannot be re-opened over and over
+    // within one window to shop around.
+    setCoach(spendRequest());
+  }, [wantsOpen, benchOpen]);
+
+  useEffect(() => {
+    if (pending == null || benchOpen || wantsOpen) return;
     if (!amber) {
       onAnswer(answerFor(pending, mode));
       return;
     }
     const id = window.setTimeout(() => onAnswer(answerFor(pending, mode)), DECISION_LIMIT * 1000);
     return () => window.clearTimeout(id);
-  }, [pending, benchOpen, amber, mode, onAnswer]);
+  }, [pending, benchOpen, wantsOpen, amber, mode, onAnswer]);
 
   // ---- what is on screen at this minute ----
   const shown = useMemo(
@@ -526,14 +562,26 @@ export function MatchLive({
         {/* ⛔ ALWAYS present, and the SAME button turns amber. No new panel appears. */}
         <button
           type="button"
-          onClick={() => setBenchOpen(true)}
-          className={`lg-benchbtn${amber ? " lg-benchbtn-on" : ""}`}
+          onClick={() => {
+            // A change is live right now — open it. Otherwise ASK, and the dialog opens
+            // itself at the next break in play.
+            if (amber) {
+              setBenchOpen(true);
+              setCoach(spendRequest());
+              return;
+            }
+            setCoach((c) => requestSubstitution(c, minute));
+          }}
+          disabled={awaiting}
+          className={`lg-benchbtn${amber ? " lg-benchbtn-on" : ""}${awaiting ? " lg-benchbtn-wait" : ""}`}
         >
           {emergency != null
             ? t("benchKeeperNeeded")
             : amber
               ? t("benchAvailable")
-              : t("benchOpen")}
+              : awaiting
+                ? t("benchRequested")
+                : t("benchOpen")}
         </button>
 
         <label className="lg-manual">

@@ -799,6 +799,7 @@
     "benchKeeperGone": "طُرد حارس مرماك ولم يتبقَّ لديك أي تبديلات.",
     "benchWhoInGoal": "اختر لاعبًا ليحرس المرمى",
     "benchSendInGoal": "أرسله إلى المرمى",
+    "benchRequested": "بانتظار توقف اللعب",
     "benchOpen": "البدلاء",
     "benchPanelTitle": "دكة البدلاء",
     "benchAvailable": "تغيير متاح",

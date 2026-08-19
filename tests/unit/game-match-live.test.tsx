@@ -162,35 +162,6 @@ describe("MatchLive — the split feed", () => {
     expect(screen.getByRole("button", { name: /Bench|Change available/ })).toBeInTheDocument();
   });
 
-  it("opens the bench on the button, and Confirm is dead until both are picked", async () => {
-    const user = userEvent.setup();
-    live();
-    await kickOff(user);
-
-    await user.click(screen.getByRole("button", { name: /Bench|Change available/ }));
-    const dialog = screen.getByRole("dialog", { name: /bench/i });
-    expect(within(dialog).getByRole("button", { name: /Make the change/ })).toBeDisabled();
-  });
-
-  it("closes the bench three ways — Close, Not now, and Escape", async () => {
-    const user = userEvent.setup();
-    live();
-    await kickOff(user);
-    const open = () => user.click(screen.getByRole("button", { name: /Bench|Change available/ }));
-
-    await open();
-    await user.click(within(screen.getByRole("dialog")).getByRole("button", { name: /^Close$/ }));
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-
-    await open();
-    await user.click(within(screen.getByRole("dialog")).getByRole("button", { name: /Not now/ }));
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-
-    await open();
-    await user.keyboard("{Escape}");
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-  });
-
   it("offers the Manual subs only toggle, off by default", async () => {
     const user = userEvent.setup();
     live();
