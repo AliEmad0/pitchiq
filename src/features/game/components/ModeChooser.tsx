@@ -32,6 +32,16 @@ export async function ModeChooser({ mode, choices }: { mode: string; choices: Mo
 
   return (
     <div className="mx-auto w-full max-w-5xl">
+      {/* ⚠️ The way back out. This page is reached from the mode gate, but nothing on it
+          returned there — the only exit was the browser's back button. */}
+      <Link
+        href="/game"
+        className="text-muted-foreground hover:text-foreground mb-3 inline-flex items-center gap-1.5 text-sm font-semibold"
+      >
+        <span aria-hidden="true">←</span>
+        {t("modeBackToHub")}
+      </Link>
+
       <h1 className="text-2xl font-extrabold tracking-tight">{t("legacyTitle")}</h1>
       <p className="text-muted-foreground mb-6 mt-1 text-sm">{t("legacyPick")}</p>
 
