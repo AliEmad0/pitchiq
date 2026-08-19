@@ -11,8 +11,18 @@ interface Props {
   homeName: string;
   awayName: string;
   score: { home: number; away: number };
-  /** What the coach actually chose, in the order the engine asked. */
+  /** Every answer in the replay stream, coach-made or engine-made. */
   decisions: DecisionAnswer[];
+  /**
+   * Only what the COACH chose himself.
+   *
+   * WARNING: when present this REPLACES the derivation from `decisions`. In auto mode the
+   * engine answers most offers with its own recommendation, and those land in the replay
+   * stream looking exactly like a coach's — which is how this screen came to list five
+   * substitutions for a match the coach never touched. The shipped packs pass nothing and
+   * keep the old behaviour, because there every answer really is his.
+   */
+  coachMoves?: DecisionAnswer[];
   seed: number;
   /** The link that replays this match, or null while one cannot be built. */
   shareCode: string | null;
@@ -45,6 +55,7 @@ export function MatchSummary({
   awayName,
   score,
   decisions,
+  coachMoves,
   seed,
   shareCode,
   cardData,
@@ -54,7 +65,10 @@ export function MatchSummary({
   onNewMatch,
 }: Props) {
   const t = useTranslations("game");
-  const { taken, declined } = splitDecisions(decisions);
+  const derived = splitDecisions(decisions);
+  const taken = coachMoves ?? derived.taken;
+  // A declined-offer count is meaningless once the engine is answering for him.
+  const declined = coachMoves != null ? 0 : derived.declined;
 
   return (
     <div className="mx-auto w-full max-w-3xl">
@@ -92,25 +106,30 @@ export function MatchSummary({
         </>
       ) : null}
 
-      <h2 className="text-muted-foreground mb-2 font-mono text-[11px] font-bold tracking-widest uppercase">
-        {t("playDecisionsTaken")}
-      </h2>
-      {taken.length === 0 ? (
-        <p className="text-muted-foreground text-sm">{t("playNoDecisions")}</p>
-      ) : (
-        <ul className="divide-border/60 divide-y">
-          {taken.map((d, i) => (
-            <li key={`${d.kind}-${d.minute}-${i}`} className="flex items-center gap-3 py-1.5 text-sm">
-              <span className="text-muted-foreground w-10 shrink-0 font-mono tabular-nums">
-                {localizeDigits(d.minute, locale)}
-                {"'"}
-              </span>
-              <span className="font-semibold">
-                {d.kind === "response" ? t(CHOICE_KEY[d.choice]) : t(`decision${label(d.kind)}`)}
-              </span>
-            </li>
-          ))}
-        </ul>
+      {/* Hidden entirely when he took none: a heading over "no decisions" is noise on a
+          screen about what he did. */}
+      {taken.length === 0 ? null : (
+        <>
+          <h2 className="text-muted-foreground mb-2 font-mono text-[11px] font-bold tracking-widest uppercase">
+            {t("playDecisionsTaken")}
+          </h2>
+          <ul className="divide-border/60 divide-y">
+            {taken.map((d, i) => (
+              <li
+                key={`${d.kind}-${d.minute}-${i}`}
+                className="flex items-center gap-3 py-1.5 text-sm"
+              >
+                <span className="text-muted-foreground w-10 shrink-0 font-mono tabular-nums">
+                  {localizeDigits(d.minute, locale)}
+                  {"'"}
+                </span>
+                <span className="font-semibold">
+                  {d.kind === "response" ? t(CHOICE_KEY[d.choice]) : t(`decision${label(d.kind)}`)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </>
       )}
 
       {/* ⚠️ Counted, not hidden. A coach who turned every offer down did something, and

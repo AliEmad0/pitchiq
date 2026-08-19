@@ -10,6 +10,7 @@ import {
   type Formation,
 } from "@/features/game/domain/formation";
 import { hashEvents } from "@/features/game/domain/hash";
+import type { DecisionAnswer } from "@/features/game/domain/match-decisions";
 import { decodeMatch } from "@/features/game/domain/share-code";
 import { summaryFrom } from "@/features/game/domain/summary-card";
 import type { RefereeStyle, Weather } from "@/features/game/domain/match-types";
@@ -101,6 +102,15 @@ export function GamePlay({
   const [squad, setSquad] = useState<{ cardIds: PlayerSeasonId[]; formationKey: string } | null>(
     null,
   );
+  /**
+   * The changes the coach made HIMSELF (TASK-1810).
+   *
+   * ⚠️ Not derived from `answers`. In auto mode the engine answers most offers with its
+   * own recommendation, and those are indistinguishable from a coach's once they are in
+   * the replay stream — which is how the full-time screen came to claim five
+   * substitutions in a match the coach never touched.
+   */
+  const [coachMoves, setCoachMoves] = useState<DecisionAnswer[]>([]);
   /** An unfinished match found in storage, replayed and verified, awaiting the coach. */
   const [offer, setOffer] = useState<RestoredMatch | null>(null);
 
@@ -372,6 +382,7 @@ export function GamePlay({
         awayName={match.away.name}
         score={result.score}
         decisions={answers}
+        coachMoves={screens === "legacy" ? coachMoves : undefined}
         seed={match.seed}
         shareCode={code}
         cardData={cardData}
@@ -403,6 +414,7 @@ export function GamePlay({
             captaincies={captaincies ?? {}}
             referees={referees ?? []}
             onAnswer={driver.answer}
+            onCoachMove={(a) => setCoachMoves((prior) => [...prior, a])}
             onFullTime={() => {
               void clearMatch();
               dispatch({ type: "fullTime" });

@@ -59,6 +59,13 @@ interface Props {
    */
   referees: readonly string[];
   onAnswer: (a: DecisionAnswer) => void;
+  /**
+   * The coach made this change himself, through the bench.
+   *
+   * ⚠️ Distinct from `onAnswer`, which fires for EVERY decision including the ones the
+   * engine answers for him. Only what he chose belongs on the full-time screen.
+   */
+  onCoachMove?: (a: DecisionAnswer) => void;
   /** Leave the match. Rendered only once the whistle has actually gone. */
   onFullTime?: () => void;
 }
@@ -97,6 +104,7 @@ export function MatchLive({
   captaincies,
   referees,
   onAnswer,
+  onCoachMove,
   onFullTime,
 }: Props) {
   const t = useTranslations("game");
@@ -407,9 +415,12 @@ export function MatchLive({
             {model.away.name}
           </span>
         </div>
+        {/* ⚠️ The SAME `1fr auto 1fr` tracks as the scoreline above. Both outer columns
+            take equal space, so the middle track is centred whatever it contains — which
+            puts the clock exactly under the score's dash. Centring this row's contents as
+            a group instead would centre LIVE + clock + referee together, leaving the clock
+            off to one side. */}
         <div className="lg-board-meta">
-          {/* The clock is the biggest thing in this row and sits dead centre, with a
-              pulsing LIVE beside it while the match is on. */}
           <span className="lg-livetag" aria-hidden={finished ? "true" : undefined}>
             {finished ? null : <span className="lg-livetag-dot" />}
             <span className="lg-livetag-word">{finished ? t("playFullTime") : t("live")}</span>
@@ -536,7 +547,15 @@ export function MatchLive({
           onConfirm={(off, on) => {
             setBenchOpen(false);
             if (pending != null) {
-              onAnswer({ kind: "sub-offer", minute: pending.minute, side: pending.side, off, on });
+              const move: DecisionAnswer = {
+                kind: "sub-offer",
+                minute: pending.minute,
+                side: pending.side,
+                off,
+                on,
+              };
+              onAnswer(move);
+              onCoachMove?.(move);
             }
           }}
         />
