@@ -3070,10 +3070,18 @@
   font-size: 14px;
   padding: 18px 0 24px;
 }
+/* Same trick as the programme XI: the card is DESIGNED at 176x256 and fills its box, so
+   the wrapper reserves the SCALED footprint and the card is scaled into it. Sizing the
+   card down instead squashes its internals and the faces overlap. */
+.lg-bench {
+  --lg-card-w: 176px;
+  --lg-card-h: 256px;
+  --lg-card-scale: 0.62;
+}
 .lg-bench-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
-  gap: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-bottom: 20px;
 }
 /* ⛔ `position: relative` on the WRAPPER so the hit target can cover the card as a
@@ -3081,9 +3089,19 @@
    inside PlayerCard's 3D flip does not hit-test reliably. */
 .lg-bench-card {
   position: relative;
+  width: calc(var(--lg-card-w) * var(--lg-card-scale));
+  height: calc(var(--lg-card-h) * var(--lg-card-scale));
+  flex: none;
   border-radius: 10px;
   outline: 2px solid transparent;
   transition: outline-color var(--motion-duration-fast) var(--ease-out-soft);
+}
+.lg-bench-card > .pc-card,
+.lg-bench-card > div:first-child {
+  width: var(--lg-card-w);
+  height: var(--lg-card-h);
+  transform: scale(var(--lg-card-scale));
+  transform-origin: top left;
 }
 .lg-bench-picked {
   outline-color: var(--alert);

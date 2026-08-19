@@ -96,11 +96,26 @@ describe("sub-offer", () => {
     expect(suggested.length).toBeGreaterThan(0);
   });
 
-  it("never offers the goalkeeper as an outfield change", () => {
+  it("⚠️ OFFERS the goalkeeper to the coach — he may change his keeper", () => {
+    /**
+     * Changed deliberately (owner, 2026-08-19): the bench screen could not substitute a
+     * goalkeeper at all, because `legalOffFor` mirrored `pickPlayerOff`'s outfield-only
+     * rule. `legalOff` is the COACH's menu, and a coach can absolutely change his keeper.
+     */
+    const { seen } = record(setup(23));
+    const offers = seen.filter((d) => d.kind === "sub-offer");
+    expect(offers.length).toBeGreaterThan(0);
+    expect(offers.some((d) => d.legalOff.some((p) => p.role === "GK"))).toBe(true);
+  });
+
+  it("⛔ but the ENGINE never suggests pulling the goalkeeper itself", () => {
+    // The automatic path keeps its own outfield-only filter inside `pickPlayerOff`, so
+    // opening the coach's menu must not let the engine hook its own keeper.
     const { seen } = record(setup(23));
     for (const d of seen) {
-      if (d.kind !== "sub-offer") continue;
-      for (const p of d.legalOff) expect(p.role).not.toBe("GK");
+      if (d.kind !== "sub-offer" || !d.engineSuggests) continue;
+      const suggested = d.legalOff.find((p) => p.playerId === d.suggestedOff);
+      if (suggested != null) expect(suggested.role).not.toBe("GK");
     }
   });
 

@@ -391,9 +391,20 @@ export function* runMatch(
     return true;
   };
 
-  /** Who this side may take off. Mirrors `pickPlayerOff` — outfield only. */
+  /**
+   * Who this side may take off.
+   *
+   * ⚠️ Includes the GOALKEEPER, deliberately — a coach can change his keeper, and this
+   * list is the COACH's menu. It used to mirror `pickPlayerOff`'s outfield-only rule,
+   * which quietly made the keeper unsubstitutable on the bench screen.
+   *
+   * ⛔ This does NOT let the engine pull a keeper by itself: `pickPlayerOff` filters to
+   * outfielders on its own, so the automatic path is unchanged. And `pickPlayerOn` already
+   * handles a departing keeper — `role === "GK"` returns the bench's first entry, which is
+   * always the spare keeper.
+   */
   const legalOffFor = (side: Side): GamePlayer[] =>
-    state[side].subsUsed >= MAX_SUBS ? [] : squads[side].filter((p) => p.role !== "GK");
+    state[side].subsUsed >= MAX_SUBS ? [] : [...squads[side]];
 
   /** Who this side may bring on. Mirrors the availability rule inside `substitute`. */
   const legalOnFor = (side: Side): GamePlayer[] =>
