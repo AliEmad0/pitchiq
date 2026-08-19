@@ -2925,6 +2925,13 @@
     color var(--motion-duration-fast) var(--ease-out-soft),
     border-color var(--motion-duration-fast) var(--ease-out-soft);
 }
+/* A request stands and play has not stopped yet. Dimmed and inert, because pressing
+   again would only re-ask for something already asked. */
+.lg-benchbtn-wait {
+  opacity: 0.55;
+  cursor: progress;
+  font-size: 12px;
+}
 .lg-benchbtn-on {
   background: var(--alert);
   border-color: var(--alert);

@@ -799,6 +799,7 @@
     "benchKeeperGone": "Your goalkeeper has been sent off and you have no substitutions left.",
     "benchWhoInGoal": "Pick an outfielder to take the gloves",
     "benchSendInGoal": "Send him in goal",
+    "benchRequested": "Waiting for a break in play",
     "benchOpen": "Bench",
     "benchPanelTitle": "The bench",
     "benchAvailable": "Change available",
