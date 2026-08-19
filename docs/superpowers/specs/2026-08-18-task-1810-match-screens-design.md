@@ -200,6 +200,35 @@ the same event stream regrouped by _who_ rather than _when_. Rows with events li
 
 ---
 
+## 3.6 What shipped beyond the original design (2026-08-19)
+
+The owner reviewed the deployed screens and asked for these; all are live.
+
+- **The bench is a REQUEST.** `view/coach-policy.ts` — written long before this and wired
+  into nothing — now backs it. Pressing Bench with a change already on offer opens the
+  dialog; otherwise it asks, and the dialog opens at the next stoppage (or after
+  `REQUEST_GRACE`). Opening spends the opportunity.
+- **The coach may substitute his goalkeeper.** `legalOffFor` no longer filters him out;
+  the automatic picker keeps its own outfield-only rule.
+- **An emergency keeper.** Keeper sent off with no substitutions left → an outfielder takes
+  the gloves, carried through the share code as the `g` token.
+- **The scoreboard names the referee** (real officials, from the committed fixtures) and no
+  longer shows the weather. A red card shows beside the side that has one. The clock is
+  large and sits in the same grid column as the score.
+- **The team sheet** carries shirt numbers, goals, assists, a second yellow rendered as
+  🟨🟥, straight reds, injuries and the substitution number.
+- **The full-time screen lists only what the COACH chose** — auto-answered offers are not
+  his — and is hidden entirely when he chose nothing.
+- **The pitch movement is the shipped `domain/pitch-sim.ts`**, the same one `/game/daily`
+  runs (owner's instruction after two rejected bespoke attempts). The Canvas mini-map built
+  for §3.1 was deleted rather than kept as a second, differently-behaving model.
+
+⛔ **The one that bit hardest:** a `sub-offer` answer carrying a `reason` cannot be encoded,
+and `buildShareCode` runs during render — so auto-substitution crashed the full-time screen
+of every Legacy match until the reason was stripped.
+
+---
+
 ## 4. Settled by the owner — do NOT re-raise
 
 - **The same player may appear on both teams.** Legacy draws the opponent from the same
