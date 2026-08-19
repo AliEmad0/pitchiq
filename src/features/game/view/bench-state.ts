@@ -1,6 +1,7 @@
 import {
   type DecisionAnswer,
   type MatchDecision,
+  type DismissalDecision,
   type SubOfferDecision,
   defaultAnswer,
 } from "@/features/game/domain/match-decisions";
@@ -81,4 +82,16 @@ export function benchLabel(pending: SubOfferDecision | null): "idle" | "availabl
 /** The pending decision, if it is a substitution offer this bench can act on. */
 export function subOfferOf(d: MatchDecision | null): SubOfferDecision | null {
   return d != null && d.kind === "sub-offer" ? d : null;
+}
+
+/**
+ * The pending decision, if the coach must put somebody in goal.
+ *
+ * ⚠️ Only when the engine actually offers candidates. It populates `emergencyKeepers`
+ * exactly when the keeper has gone AND no substitution remains — with a bench keeper
+ * available the coach should bring him on instead, and offering both would be a choice
+ * between a real option and a worse one.
+ */
+export function emergencyKeeperOf(d: MatchDecision | null): DismissalDecision | null {
+  return d != null && d.kind === "dismissal" && d.emergencyKeepers.length > 0 ? d : null;
 }

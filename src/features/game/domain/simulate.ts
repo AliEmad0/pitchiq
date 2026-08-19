@@ -790,15 +790,48 @@ export function* runMatch(
       const red = redsSoFar[prompted];
       prompted += 1;
       const hit: Side = red.side ?? "home";
+      // Did that red card take the keeper off? `squads` already has him removed, so the
+      // question is simply whether anyone is left wearing the gloves.
+      const keeperGone = !squads[hit].some((pl) => pl.role === "GK");
+      const canStillSubstitute = legalOnFor(hit).length > 0;
       const reshape = yield {
         kind: "dismissal",
         minute: m,
         side: hit,
         legalOff: legalOffFor(hit),
         legalOn: legalOnFor(hit),
+        keeperGone,
+        // ⚠️ Offered ONLY when no substitution is possible. With a bench keeper still
+        // available, putting an outfielder in goal is not a choice worth presenting.
+        emergencyKeepers: keeperGone && !canStillSubstitute ? [...squads[hit]] : [],
         events: [...state.events],
       };
-      if (reshape.kind === "dismissal" && reshape.off != null) {
+
+      if (reshape.kind === "dismissal" && reshape.inGoal != null) {
+        /**
+         * An outfielder takes the gloves.
+         *
+         * ⚠️ His ROLE changes, which is the whole mechanism: the engine finds a keeper by
+         * `role === "GK"`, and `powerOf` weights every contribution by role — so a centre
+         * back in goal makes that side measurably worse there, exactly as he should be.
+         *
+         * ⛔ Guarded on there being no keeper. An answer that tried to reassign while a
+         * keeper is still standing would otherwise leave the side with two.
+         */
+        const taker = squads[hit].find((pl) => pl.playerId === reshape.inGoal);
+        if (taker != null && !squads[hit].some((pl) => pl.role === "GK")) {
+          const i = squads[hit].indexOf(taker);
+          squads[hit][i] = { ...taker, role: "GK" };
+          /**
+           * ⛔ NO event is emitted.
+           *
+           * A `substitution` whose `subOnPlayerId` is its own `playerId` commentates as
+           * "X replaces X". Reassigning a role is not a substitution and the event stream
+           * must not claim it was one — the VIEW announces the handover, the same way it
+           * announces the captain's armband changing hands.
+           */
+        }
+      } else if (reshape.kind === "dismissal" && reshape.off != null) {
         const off = squads[hit].find((pl) => pl.playerId === reshape.off);
         const on =
           reshape.on != null ? benches[hit].find((pl) => pl.playerId === reshape.on) : undefined;

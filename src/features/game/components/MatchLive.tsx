@@ -7,7 +7,13 @@ import { decadeSpan } from "@/features/game/domain/matchup";
 import type { CommentaryRef } from "@/features/game/domain/commentary";
 import type { DecisionAnswer, MatchDecision } from "@/features/game/domain/match-decisions";
 import type { GameTeam } from "@/features/game/domain/team";
-import { answerFor, benchLabel, subOfferOf, type SubMode } from "@/features/game/view/bench-state";
+import {
+  answerFor,
+  benchLabel,
+  emergencyKeeperOf,
+  subOfferOf,
+  type SubMode,
+} from "@/features/game/view/bench-state";
 import { commentaryArgs } from "@/features/game/view/commentary-view";
 import { lineupAt } from "@/features/game/view/lineup-state";
 import type { MatchViewModel, ViewEvent } from "@/features/game/view/match-view-model";
@@ -206,7 +212,15 @@ export function MatchLive({
 
   // ---- decisions ----
   const offer = subOfferOf(pending);
-  const amber = benchLabel(offer) === "available";
+  /**
+   * The keeper is off and nobody can come on — somebody has to go in goal.
+   *
+   * ⚠️ Treated as amber so it is NOT answered away instantly. This is the one decision the
+   * coach cannot be allowed to miss silently: declining it leaves the goal unguarded for
+   * the rest of the match.
+   */
+  const emergency = emergencyKeeperOf(pending);
+  const amber = benchLabel(offer) === "available" || emergency != null;
 
   /**
    * Resolve a decision nobody answered.
@@ -515,7 +529,11 @@ export function MatchLive({
           onClick={() => setBenchOpen(true)}
           className={`lg-benchbtn${amber ? " lg-benchbtn-on" : ""}`}
         >
-          {amber ? t("benchAvailable") : t("benchOpen")}
+          {emergency != null
+            ? t("benchKeeperNeeded")
+            : amber
+              ? t("benchAvailable")
+              : t("benchOpen")}
         </button>
 
         <label className="lg-manual">
@@ -543,6 +561,24 @@ export function MatchLive({
           legalOn={offer?.legalOn ?? []}
           suggestedOff={offer?.suggestedOff}
           captainId={armband}
+          emergency={
+            emergency == null
+              ? undefined
+              : {
+                  candidates: emergency.emergencyKeepers,
+                  onChoose: (playerId) => {
+                    setBenchOpen(false);
+                    const move: DecisionAnswer = {
+                      kind: "dismissal",
+                      minute: emergency.minute,
+                      side: emergency.side,
+                      inGoal: playerId,
+                    };
+                    onAnswer(move);
+                    onCoachMove?.(move);
+                  },
+                }
+          }
           onClose={() => setBenchOpen(false)}
           onConfirm={(off, on) => {
             setBenchOpen(false);

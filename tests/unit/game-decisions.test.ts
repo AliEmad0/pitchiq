@@ -91,13 +91,29 @@ describe("defaultAnswer", () => {
 
   it("lets the engine pick the replacement for a forced injury", () => {
     expect(
-      defaultAnswer({ kind: "injury-sub", minute: 55, side: "home", off: 4, legalOn: [], events: [] }),
+      defaultAnswer({
+        kind: "injury-sub",
+        minute: 55,
+        side: "home",
+        off: 4,
+        legalOn: [],
+        events: [],
+      }),
     ).toEqual({ kind: "injury-sub", minute: 55, side: "home", on: undefined });
   });
 
   it("declines a dismissal reshape", () => {
     expect(
-      defaultAnswer({ kind: "dismissal", minute: 70, side: "home", legalOff: [], legalOn: [], events: [] }),
+      defaultAnswer({
+        kind: "dismissal",
+        minute: 70,
+        side: "home",
+        legalOff: [],
+        legalOn: [],
+        keeperGone: false,
+        emergencyKeepers: [],
+        events: [],
+      }),
     ).toEqual({ kind: "dismissal", minute: 70, side: "home", off: undefined, on: undefined });
   });
 });

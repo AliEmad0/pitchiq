@@ -93,6 +93,20 @@ export interface DismissalDecision extends DecisionBase {
   kind: "dismissal";
   legalOff: GamePlayer[];
   legalOn: GamePlayer[];
+  /**
+   * The side just lost its GOALKEEPER.
+   *
+   * A red card for anyone else reshapes the XI; a red card for the keeper leaves the goal
+   * unguarded, and the coach has to answer a different question.
+   */
+  keeperGone: boolean;
+  /**
+   * Who could go in goal, if nobody can be brought on.
+   *
+   * ⚠️ Empty while substitutions remain — with a bench keeper available, putting an
+   * outfielder in goal is not a choice anyone should be offered.
+   */
+  emergencyKeepers: GamePlayer[];
 }
 
 export type MatchDecision =
@@ -127,6 +141,14 @@ export interface DismissalAnswer extends AnswerBase {
   kind: "dismissal";
   off?: number;
   on?: number;
+  /**
+   * An outfielder already on the pitch takes the gloves.
+   *
+   * ⛔ Mutually exclusive with `off`/`on`. Substituting and reassigning are the two
+   * answers to a dismissal, never both — the engine would otherwise have to decide which
+   * one won, and a share code would carry an instruction it could not express.
+   */
+  inGoal?: number;
 }
 
 export type DecisionAnswer = SubAnswer | ResponseAnswer | InjurySubAnswer | DismissalAnswer;
