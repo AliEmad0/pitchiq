@@ -60,6 +60,9 @@ export function encodeTokens(answers: readonly DecisionAnswer[]): string {
     if (a.kind === "sub-offer" && a.reason != null) {
       throw new Error("decision-tokens: a sub `reason` cannot be carried by a share code");
     }
+    if (a.kind === "dismissal" && a.inGoal != null && (a.off != null || a.on != null)) {
+      throw new Error("decision-tokens: a dismissal cannot both substitute and reassign");
+    }
 
     // Only a sub-offer no-op is run-length encoded; a dismissal no-op is a different kind
     // and must stay distinguishable.
@@ -80,8 +83,18 @@ export function encodeTokens(answers: readonly DecisionAnswer[]): string {
         out.push(a.on == null ? "i" : `i${b36(a.on)}`);
         break;
       case "dismissal":
+        // `g` is its OWN head, not a third field on `d`. A dismissal either substitutes or
+        // reassigns, and separate heads make a stream that tries to do both ungrammatical
+        // rather than merely odd — which is the property that lets a tampered code be
+        // refused instead of replayed into a different, plausible match.
         out.push(
-          a.off == null ? "d" : a.on == null ? `d${b36(a.off)}` : `d${b36(a.off)}-${b36(a.on)}`,
+          a.inGoal != null
+            ? `g${b36(a.inGoal)}`
+            : a.off == null
+              ? "d"
+              : a.on == null
+                ? `d${b36(a.off)}`
+                : `d${b36(a.off)}-${b36(a.on)}`,
         );
         break;
     }
@@ -132,7 +145,7 @@ export function readTokens(encoded: string): TokenReader | null {
       for (let i = 0; i < n; i++) flat.push(NOOP);
       continue;
     }
-    if (!/^[szoihd][0-9a-z-]*$/.test(tok)) return null;
+    if (!/^[szoihdg][0-9a-z-]*$/.test(tok)) return null;
     if (!wellFormed(tok)) return null;
     flat.push(tok);
   }
@@ -161,6 +174,8 @@ function wellFormed(tok: string): boolean {
   if (head === "s") return pair(rest, true);
   if (head === "d") return pair(rest, false);
   if (head === "i") return rest === "" || unb36(rest) !== null;
+  // An emergency keeper is always a specific player: `g` alone says nothing.
+  if (head === "g") return unb36(rest) !== null;
   return rest === "";
 }
 
@@ -194,6 +209,11 @@ function materialise(tok: string, d: MatchDecision): DecisionAnswer | null {
     if (rest === "") return { kind: "injury-sub", ...base };
     const on = unb36(rest);
     return on === null ? null : { kind: "injury-sub", ...base, on };
+  }
+  if (head === "g") {
+    if (d.kind !== "dismissal") return null;
+    const inGoal = unb36(rest);
+    return inGoal === null ? null : { kind: "dismissal", ...base, inGoal };
   }
   if (head === "d") {
     if (d.kind !== "dismissal") return null;

@@ -14,6 +14,14 @@ interface Props {
   captainId: number | null;
   onConfirm: (off: number, on: number) => void;
   onClose: () => void;
+  /**
+   * The keeper has gone and there is nobody left to bring on — one of these players has
+   * to go in goal.
+   *
+   * ⚠️ When present this REPLACES the two-list substitution flow. There is no change to
+   * make: the only question is who wears the gloves.
+   */
+  emergency?: { candidates: GamePlayer[]; onChoose: (playerId: number) => void };
 }
 
 /**
@@ -33,6 +41,7 @@ export function BenchDialog({
   captainId,
   onConfirm,
   onClose,
+  emergency,
 }: Props) {
   const t = useTranslations("game");
   const reduced = prefersReducedMotion();
@@ -96,7 +105,13 @@ export function BenchDialog({
           </button>
         </div>
 
-        {nothingToDo ? (
+        {emergency != null ? (
+          <>
+            <p className="lg-bench-none">{t("benchKeeperGone")}</p>
+            <h3 className="lg-h2">{t("benchWhoInGoal")}</h3>
+            {pickList(emergency.candidates, off, setOff, "off")}
+          </>
+        ) : nothingToDo ? (
           // A side with an empty bench, or one already at its substitution limit. Say so
           // rather than showing two empty grids and a dead Confirm.
           <p className="lg-bench-none">{t("benchNothing")}</p>
@@ -115,14 +130,19 @@ export function BenchDialog({
           </button>
           <button
             type="button"
-            // ⛔ Dead until BOTH are chosen.
-            disabled={off == null || on == null}
+            // ⛔ Dead until the choice is complete: one player for the gloves, or BOTH
+            // ends of a substitution.
+            disabled={emergency != null ? off == null : off == null || on == null}
             onClick={() => {
+              if (emergency != null) {
+                if (off != null) emergency.onChoose(off);
+                return;
+              }
               if (off != null && on != null) onConfirm(off, on);
             }}
             className="lg-confirm"
           >
-            {t("benchConfirm")}
+            {emergency != null ? t("benchSendInGoal") : t("benchConfirm")}
           </button>
         </div>
       </div>

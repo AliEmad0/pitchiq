@@ -53,7 +53,16 @@ describe("declineOf", () => {
     expect(declineOf({ ...base, kind: "injury-sub", off: 2, legalOn: [] })).toMatchObject({
       on: undefined,
     });
-    expect(declineOf({ ...base, kind: "dismissal", legalOff: [], legalOn: [] })).toMatchObject({
+    expect(
+      declineOf({
+        ...base,
+        kind: "dismissal",
+        legalOff: [],
+        legalOn: [],
+        keeperGone: false,
+        emergencyKeepers: [],
+      }),
+    ).toMatchObject({
       kind: "dismissal",
     });
     expect((declineOf(offer(40, true)) as { off?: number }).off).toBeUndefined();
