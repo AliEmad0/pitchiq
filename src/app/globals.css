@@ -2666,6 +2666,13 @@
   gap: 12px;
 }
 .lg-board-team {
+  /* ⚠️ `flex`, not the old inline text box (crests, owner 2026-08-20). The name still has
+     to ellipsis when a club name is long, which needs `min-width: 0` on BOTH the flex
+     container and the text inside it — a flex item's default `min-width: auto` refuses to
+     shrink below its content and pushes the crest off the board instead of truncating. */
+  display: flex;
+  align-items: center;
+  gap: 9px;
   font-size: clamp(15px, 3vw, 22px);
   font-weight: 800;
   letter-spacing: -0.01em;
@@ -2673,6 +2680,13 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.lg-board-main > .lg-board-team:last-child {
+  justify-content: end;
+}
+/* The crest never shrinks; the NAME is what gives way. */
+.lg-board-crest {
+  flex: 0 0 auto;
 }
 .lg-board-main > .lg-board-team:last-child {
   text-align: end;
@@ -2796,6 +2810,12 @@
    the grid row, which left the pitch short with dead space under it. The feed pane is
    RELATIVE and its list is taken OUT OF FLOW, so the pitch's aspect-ratio is the only
    thing setting the row height. */
+/* ⛔ RELATIVE because the big-moment banner is `absolute inset-0` (owner, 2026-08-20).
+   Without this the overlay escapes to the nearest positioned ancestor and covers the whole
+   page instead of the pitch. */
+.lg-split-pitch {
+  position: relative;
+}
 .lg-split-feed {
   position: relative;
   min-height: 220px;
@@ -3205,6 +3225,11 @@
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--muted-foreground);
+}
+.pd-select-wrap {
+  display: flex;
+  align-items: center;
+  gap: 9px;
 }
 .pd-select {
   min-width: 220px;

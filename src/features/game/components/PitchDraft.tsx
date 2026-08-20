@@ -12,6 +12,7 @@ import { useRival, type ChosenRival, type Difficulty } from "@/features/game/vie
 import { randomSeed } from "@/features/game/view/seed";
 import { Link } from "@/i18n/navigation";
 import { prefersReducedMotion } from "@/utils/motion";
+import { ClubCrest } from "./ClubCrest";
 import { PlayerCard } from "./PlayerCard";
 
 /** The shape the picker opens on, resolved by NAME — the array's order is presentation. */
@@ -235,17 +236,23 @@ export function PitchDraft({ pool, draft, onConfirm, backHref, rivals, clubId }:
               <div className="pd-rival">
                 <label className="pd-rival-field">
                   <span className="pd-rival-label">{t("rivalPick")}</span>
-                  <select
-                    className="pd-select"
-                    value={rivalId ?? ""}
-                    onChange={(e) => setRivalId(Number(e.target.value))}
-                  >
-                    {rivals.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.id === clubId ? t("rivalOwnClub", { name: c.name }) : c.name}
-                      </option>
-                    ))}
-                  </select>
+                  {/* The crest sits BESIDE the select, not inside it — an <option> cannot
+                      carry an image, and a club is far quicker to recognise by its badge
+                      than by reading a name out of a list of fifty-one. */}
+                  <span className="pd-select-wrap">
+                    <ClubCrest teamId={rivalId} size={26} />
+                    <select
+                      className="pd-select"
+                      value={rivalId ?? ""}
+                      onChange={(e) => setRivalId(Number(e.target.value))}
+                    >
+                      {rivals.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.id === clubId ? t("rivalOwnClub", { name: c.name }) : c.name}
+                        </option>
+                      ))}
+                    </select>
+                  </span>
                 </label>
 
                 <div className="pd-rival-field">

@@ -165,6 +165,16 @@ export function GamePlay({
   const [rival, setRival] = useState<{ setup: ChosenRival | null; difficulty: Difficulty } | null>(
     null,
   );
+  /**
+   * The two clubs' ids, for their crests (owner, 2026-08-20).
+   *
+   * ⚠️ The AWAY id is the rival the coach chose, and it is null whenever he faces his own
+   * club's pool — the mode's behaviour before a rival could be picked, and still the
+   * fallback when the squad fetch fails. `ClubCrest` renders nothing for a null id, so the
+   * scoreboard degrades to the bare name it showed before.
+   */
+  const crests = { home: clubId ?? null, away: rival?.setup?.teamId ?? null };
+
   /** The rival belonging to the RESTORE OFFER, held until he accepts it. */
   const [offerRival, setOfferRival] = useState<{
     setup: ChosenRival | null;
@@ -537,6 +547,8 @@ export function GamePlay({
             seed: match.seed,
             code,
             path: sharePath,
+            homeTeamId: crests.home,
+            awayTeamId: crests.away,
           });
 
     return (
@@ -552,6 +564,7 @@ export function GamePlay({
         cardData={cardData}
         locale={locale}
         sharePath={sharePath}
+        crests={crests}
         shared={shared}
         drifted={drifted}
         onNewMatch={() => {
@@ -579,6 +592,7 @@ export function GamePlay({
             pending={pending}
             captaincies={captaincies ?? {}}
             referees={referees ?? []}
+            crests={crests}
             onAnswer={driver.answer}
             onCoachMove={(a) => setCoachMoves((prior) => [...prior, a])}
             onFullTime={() => {

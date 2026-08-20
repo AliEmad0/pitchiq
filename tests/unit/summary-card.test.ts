@@ -114,6 +114,8 @@ describe("summaryFilename", () => {
     seed: 1,
     code: "v1...",
     path: "/game/draft",
+    homeTeamId: null,
+    awayTeamId: null,
   };
 
   it("strips punctuation that breaks filenames and shells", () => {

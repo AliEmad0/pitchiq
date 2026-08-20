@@ -5,6 +5,7 @@ import type { GamePlayer } from "@/features/game/domain/player";
 import type { SummaryCardData } from "@/features/game/domain/summary-card";
 import { splitDecisions } from "@/features/game/view/decision-summary";
 import { localizeDigits } from "@/utils/format";
+import { ClubCrest } from "./ClubCrest";
 import { ShareLink } from "./ShareLink";
 import { SummaryCard } from "./SummaryCard";
 
@@ -47,6 +48,8 @@ interface Props {
    * wrong for every pack with its own pool. See `view/share-link.ts#shareUrl`.
    */
   sharePath?: string;
+  /** The two clubs' ids, for their crests. See `MatchLive`'s prop of the same name. */
+  crests?: { home: number | null; away: number | null };
   /** This match arrived from someone else's link. */
   shared?: boolean;
   /** Our replay differs from the sender's fingerprint. */
@@ -80,6 +83,7 @@ export function MatchSummary({
   cardData,
   locale,
   sharePath,
+  crests,
   shared = false,
   drifted = false,
   onNewMatch,
@@ -149,7 +153,10 @@ export function MatchSummary({
       ) : null}
 
       <div className="my-6 flex items-center justify-center gap-6 rounded-2xl bg-[radial-gradient(120%_80%_at_50%_-10%,#12202c,#060a0f)] p-8 ring-1 ring-cyan-400/20">
-        <span className="flex-1 text-end text-lg font-bold text-white">{homeName}</span>
+        <span className="flex flex-1 items-center justify-end gap-2.5 text-end text-lg font-bold text-white">
+          <ClubCrest teamId={crests?.home} size={34} />
+          {homeName}
+        </span>
         {/* ⚠️ Localized digits: the card painted directly below prints ٣–١ under /ar, and
             two digit conventions for the same score on one screen is worse than either. */}
         <span className="font-mono text-3xl font-black tabular-nums text-cyan-300">
@@ -157,7 +164,10 @@ export function MatchSummary({
           {"–"}
           {localizeDigits(score.away, locale)}
         </span>
-        <span className="flex-1 text-start text-lg font-bold text-white">{awayName}</span>
+        <span className="flex flex-1 items-center justify-start gap-2.5 text-start text-lg font-bold text-white">
+          {awayName}
+          <ClubCrest teamId={crests?.away} size={34} />
+        </span>
       </div>
 
       {cardData != null ? (

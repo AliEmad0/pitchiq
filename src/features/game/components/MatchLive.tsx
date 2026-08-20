@@ -24,6 +24,7 @@ import { commentaryArgs } from "@/features/game/view/commentary-view";
 import { lineupAt } from "@/features/game/view/lineup-state";
 import type { MatchViewModel, ViewEvent } from "@/features/game/view/match-view-model";
 import { OVERLAY_KINDS } from "@/features/game/view/match-view-model";
+import { overlayFor } from "@/features/game/view/overlay-event";
 import { scoreAt } from "@/features/game/view/score";
 import { prefersReducedMotion } from "@/utils/motion";
 import {
@@ -36,6 +37,8 @@ import {
   stepSim,
 } from "@/features/game/domain/pitch-sim";
 import { BenchDialog } from "./BenchDialog";
+import { ClubCrest } from "./ClubCrest";
+import { EventOverlay } from "./EventOverlay";
 import { MatchPitch } from "./MatchPitch";
 import { TeamSheets, type SheetRow } from "./TeamSheets";
 
@@ -70,6 +73,14 @@ interface Props {
    * him "STRICT", which is what the scoreboard used to show.
    */
   referees: readonly string[];
+  /**
+   * The two clubs' ids, for their crests (owner, 2026-08-20).
+   *
+   * ⚠️ NOT derivable from the model. `model.home.name` is the LABEL "Your XI", and the XI
+   * itself spans thirty years of one club — the identity lives in the route's club param
+   * and in the rival the coach picked, so it has to be handed down.
+   */
+  crests?: { home: number | null; away: number | null };
   onAnswer: (a: DecisionAnswer) => void;
   /**
    * The coach made this change himself, through the bench.
@@ -115,6 +126,7 @@ export function MatchLive({
   pending,
   captaincies,
   referees,
+  crests,
   onAnswer,
   onCoachMove,
   onFullTime,
@@ -285,6 +297,19 @@ export function MatchLive({
     [model.events, minute],
   );
   const { home: homeScore, away: awayScore } = scoreAt(model.events, minute);
+
+  /**
+   * The big-moment banner over the pitch (owner, 2026-08-20) — the SAME one `/game/draft`
+   * shows, from the same derivation in `view/overlay-event.ts`.
+   *
+   * ⚠️ Built from the last event the CLOCK has reached, never from `model.events.at(-1)`.
+   * The model runs ahead of the clock during a live match — a decision's snapshot can carry
+   * the VAR verdict for a goal the crowd is still celebrating — so reading the raw list
+   * would announce a goal before it is scored and chalk it off in the same breath.
+   */
+  const overlay = reduced
+    ? undefined
+    : overlayFor(shown[shown.length - 1], minute, { home: model.home, away: model.away });
 
   const homeLineup = useMemo(
     () => lineupAt(model.home, model.events, "home", minute),
@@ -467,6 +492,7 @@ export function MatchLive({
       <header className="lg-board">
         <div className="lg-board-main">
           <span className="lg-board-team lg-home">
+            <ClubCrest teamId={crests?.home} size={30} className="lg-board-crest" />
             {model.home.name}
             {/* A dismissal belongs on the scoreboard — it is the single biggest thing that
                 has happened to a side, and burying it in the feed hides it. */}
@@ -488,6 +514,7 @@ export function MatchLive({
               </span>
             ) : null}
             {model.away.name}
+            <ClubCrest teamId={crests?.away} size={30} className="lg-board-crest" />
           </span>
         </div>
         {/* ⚠️ The SAME `1fr auto 1fr` tracks as the scoreline above. Both outer columns
@@ -526,6 +553,7 @@ export function MatchLive({
             animate={!reduced}
             label={t("livePitchAria")}
           />
+          {overlay ? <EventOverlay event={overlay} /> : null}
         </div>
         <div className="lg-split-feed">
           <div className="lg-feed-pane">

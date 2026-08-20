@@ -1,15 +1,12 @@
 "use client";
 import { useTranslations } from "next-intl";
-import type { CommentaryRef } from "@/features/game/domain/commentary";
 import { commentaryArgs } from "@/features/game/view/commentary-view";
+import type { OverlayEvent } from "@/features/game/view/overlay-event";
 
-export interface OverlayEvent {
-  kind: "goal" | "card" | "penalty" | "var" | "injury" | "substitution";
-  card?: "yellow" | "red";
-  name: string;
-  number: number;
-  commentary: CommentaryRef;
-}
+// ⚠️ The shape moved to `view/overlay-event.ts` alongside the derivation that builds it
+// (owner, 2026-08-20) — two screens show these banners now. Re-exported here so every
+// existing import keeps resolving.
+export type { OverlayEvent };
 
 interface Props {
   event: OverlayEvent;

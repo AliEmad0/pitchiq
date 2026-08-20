@@ -18,6 +18,8 @@ const data: SummaryCardData = {
   seed: 20260817,
   code: "v1.abc",
   path: "/game/draft",
+  homeTeamId: 40,
+  awayTeamId: 3,
 };
 
 describe("ShareLink", () => {
