@@ -10,6 +10,7 @@ import {
   summaryFilename,
   type SummaryCardData,
 } from "@/features/game/domain/summary-card";
+import { clubLogo } from "@/utils/club-logo";
 import { localizeDigits } from "@/utils/format";
 
 /**
@@ -36,10 +37,41 @@ const FAINT = "rgba(159,179,200,.45)";
  * `domain/summary-card.ts`, because jsdom has no 2D context and anything computed inside a
  * paint function is untestable by construction.
  */
+/** Crest size and its gap from the fixture line, in card units. */
+const CREST = 54;
+
+/**
+ * Load a crest, or resolve null.
+ *
+ * ⛔ NEVER rejects. A missing or blocked crest must leave the card otherwise complete —
+ * the alternative is a share card that fails to paint at all because one PNG 404'd.
+ */
+function loadCrest(teamId: number | null): Promise<HTMLImageElement | null> {
+  if (teamId == null) return Promise.resolve(null);
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = clubLogo(teamId, 0);
+  });
+}
+
 export function SummaryCard({ data, locale }: { data: SummaryCardData; locale: string }) {
   const ref = useRef<HTMLCanvasElement>(null);
   const t = useTranslations("game");
   const fullTime = t("playFullTime");
+  /**
+   * The crests, once they have loaded.
+   *
+   * ⚠️ Held in a ref rather than passed through state: `paint` already re-runs on every
+   * `data` change, and putting images in state would repaint the whole card twice for a
+   * decoration. The draw is sequenced after both loads resolve, so a crest is either
+   * painted with the card or not at all — never flashed in afterwards.
+   */
+  const crests = useRef<{ home: HTMLImageElement | null; away: HTMLImageElement | null }>({
+    home: null,
+    away: null,
+  });
 
   const paint = useCallback(
     (ctx: CanvasRenderingContext2D) => {
@@ -127,11 +159,28 @@ export function SummaryCard({ data, locale }: { data: SummaryCardData; locale: s
       });
 
       const fixture = `${data.home}   v   ${data.away}`;
-      text(fixture, W / 2, 340, {
-        size: fitted(fixture, W - 200, 26, 400, sans),
-        color: SOFT,
-        align: "center",
-      });
+      const fixtureSize = fitted(fixture, W - 200 - CREST * 2, 26, 400, sans);
+      text(fixture, W / 2, 340, { size: fixtureSize, color: SOFT, align: "center" });
+
+      // ---- crests, one either side of the fixture line ---------------------
+      // ⚠️ Measured against the text that is actually painted, not against a guess: the
+      // fixture shrinks to fit, so a fixed offset would collide with a short name and float
+      // away from a long one.
+      ctx.font = `400 ${fixtureSize}px ${sans}`;
+      const half = ctx.measureText(fixture).width / 2;
+      const mid = 340 - fixtureSize * 0.36;
+      if (crests.current.home) {
+        ctx.drawImage(
+          crests.current.home,
+          W / 2 - half - CREST - 14,
+          mid - CREST / 2,
+          CREST,
+          CREST,
+        );
+      }
+      if (crests.current.away) {
+        ctx.drawImage(crests.current.away, W / 2 + half + 14, mid - CREST / 2, CREST, CREST);
+      }
 
       ctx.fillStyle = "rgba(159,179,200,.2)";
       ctx.fillRect(W / 2 - 200, 372, 400, 2);
@@ -196,12 +245,20 @@ export function SummaryCard({ data, locale }: { data: SummaryCardData; locale: s
     };
 
     // ⚠️ Canvas does not repaint when a webfont arrives, so painting before the font loads
-    // bakes a fallback face into the downloaded image.
-    void document.fonts.ready.then(draw);
+    // bakes a fallback face into the downloaded image. The crests are awaited for the same
+    // reason — an image that arrives after the paint is simply absent from the download.
+    void Promise.all([
+      document.fonts.ready,
+      loadCrest(data.homeTeamId),
+      loadCrest(data.awayTeamId),
+    ]).then(([, home, away]) => {
+      crests.current = { home, away };
+      draw();
+    });
     return () => {
       cancelled = true;
     };
-  }, [paint]);
+  }, [paint, data.homeTeamId, data.awayTeamId]);
 
   const download = () => {
     ref.current?.toBlob((blob) => {

@@ -19,7 +19,8 @@ import { scoreAt } from "@/features/game/view/score";
 import { prefersReducedMotion } from "@/utils/motion";
 import { CommentaryCaption } from "./CommentaryCaption";
 import { CommentaryFeed } from "./CommentaryFeed";
-import { EventOverlay, type OverlayEvent } from "./EventOverlay";
+import { overlayFor } from "@/features/game/view/overlay-event";
+import { EventOverlay } from "./EventOverlay";
 import { MatchPitch } from "./MatchPitch";
 import { RosterPanel } from "./RosterPanel";
 import { Scoreboard } from "./Scoreboard";
@@ -204,48 +205,10 @@ export function MatchView({ model, holdAt }: Props) {
   const awaySlots = slotStatus(awayLineup);
 
   // A goal or red card that just landed → a full-pitch banner while the clock holds.
-  const overlayEvent: OverlayEvent | undefined = (() => {
-    if (reduced || !current || minute !== current.minute || current.minute === 0 || !current.side)
-      return undefined;
-    const team = current.side === "home" ? model.home : model.away;
-    if (current.kind === "goal" && current.scorerSlot != null) {
-      const pl = team.players[current.scorerSlot];
-      if (pl)
-        return { kind: "goal", name: pl.name, number: pl.number, commentary: current.commentary };
-    }
-    if (current.kind === "card" && current.card === "red" && current.bookedSlot != null) {
-      const pl = team.players[current.bookedSlot];
-      if (pl)
-        return {
-          kind: "card",
-          card: "red",
-          name: pl.name,
-          number: pl.number,
-          commentary: current.commentary,
-        };
-    }
-    // Phases 2-5: a penalty, a VAR overturn, an injury or a substitution all deserve
-    // the pitch to stop for them.
-    if (current.kind === "penalty" || current.kind === "var" || current.kind === "injury") {
-      const pl = current.scorerSlot != null ? team.players[current.scorerSlot] : undefined;
-      return {
-        kind: current.kind,
-        name: pl?.name ?? team.name,
-        number: pl?.number ?? 0,
-        commentary: current.commentary,
-      };
-    }
-    if (current.kind === "substitution" && current.offSlot != null) {
-      const pl = team.players[current.offSlot];
-      return {
-        kind: "substitution",
-        name: current.subOnName ?? pl?.name ?? team.name,
-        number: pl?.number ?? 0,
-        commentary: current.commentary,
-      };
-    }
-    return undefined;
-  })();
+  // ⚠️ Shared with `MatchLive` — see `view/overlay-event.ts`.
+  const overlayEvent = reduced
+    ? undefined
+    : overlayFor(current, minute, { home: model.home, away: model.away });
 
   const atEnd = minute >= lastMinute;
   const toggle = () => {

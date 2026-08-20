@@ -45,6 +45,15 @@ export type SummaryCardData = {
    * and the visitor silently landed on an ordinary draft hub instead of the shared match.
    */
   path: string;
+  /**
+   * The two clubs, for their crests (owner, 2026-08-20). Null when unknown.
+   *
+   * ⚠️ Ids, not URLs. The card is painted in the browser and resolves the path itself, so
+   * the data layer never has to know where crests live — and a test can assert the ids
+   * without touching a canvas.
+   */
+  homeTeamId: number | null;
+  awayTeamId: number | null;
 };
 
 /**
@@ -200,6 +209,9 @@ export function summaryFrom(args: {
   code: string;
   /** The route that can replay this match. See `SummaryCardData.path`. */
   path?: string;
+  /** The two clubs, for their crests. See `SummaryCardData.homeTeamId`. */
+  homeTeamId?: number | null;
+  awayTeamId?: number | null;
 }): SummaryCardData {
   const names = new Map(
     [
@@ -218,5 +230,7 @@ export function summaryFrom(args: {
     seed: args.seed,
     code: args.code,
     path: args.path ?? DEFAULT_SHARE_PATH,
+    homeTeamId: args.homeTeamId ?? null,
+    awayTeamId: args.awayTeamId ?? null,
   };
 }
