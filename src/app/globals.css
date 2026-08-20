@@ -3182,3 +3182,61 @@
     transform: none;
   }
 }
+
+/* ---- the rival picker (owner, 2026-08-19) ---- */
+.pd-rival {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 12px 20px;
+  margin: 4px 0 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.pd-rival-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.pd-rival-label {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+.pd-select {
+  min-width: 220px;
+  max-width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--background);
+  color: var(--foreground);
+  padding: 7px 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.pd-diffs {
+  display: flex;
+  gap: 6px;
+}
+.pd-diff {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+.pd-diff-on {
+  border-color: #35e0ff;
+  color: #d6f7ff;
+  background: rgb(53 224 255 / 12%);
+}
+.pd-rival-note {
+  flex-basis: 100%;
+  font-size: 11px;
+  color: var(--muted-foreground);
+}

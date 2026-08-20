@@ -8,6 +8,7 @@ import type { Formation } from "@/features/game/domain/formation";
 import type { EnrichedCard } from "@/features/game/domain/player-card";
 import type { DraftSpec } from "@/features/game/domain/rule-packs";
 import { createRoomState, isRoomComplete, roomReducer } from "@/features/game/view/room-state";
+import { useRival, type ChosenRival, type Difficulty } from "@/features/game/view/rival-choice";
 import { randomSeed } from "@/features/game/view/seed";
 import { Link } from "@/i18n/navigation";
 import { prefersReducedMotion } from "@/utils/motion";
@@ -23,12 +24,31 @@ const FAMILIES = [
   { labelKey: "formationHistoric", from: 16, to: 20 },
 ] as const;
 
+/** One entry in the rival menu — the id and the name, nothing else. */
+export interface ClubChoice {
+  id: number;
+  name: string;
+}
+
 interface Props {
   pool: PoolCard[];
   draft: DraftSpec;
-  onConfirm: (players: PoolCard[], formation: Formation) => void;
+  onConfirm: (
+    players: PoolCard[],
+    formation: Formation,
+    rival: { setup: ChosenRival | null; difficulty: Difficulty },
+  ) => void;
   /** Back to the club menu. A route, not a callback. */
   backHref?: string;
+  /**
+   * Every club he can choose to face (owner, 2026-08-19).
+   *
+   * ⚠️ Names only — 51 of them, not their squads. The chosen club's cards are FETCHED; see
+   * `view/rival-choice.ts` for why a prop would put ~1.2 MB on the page.
+   */
+  rivals?: readonly ClubChoice[];
+  /** The club whose page this is, preselected so doing nothing plays the shipped match. */
+  clubId?: number;
 }
 
 /**
@@ -44,9 +64,14 @@ interface Props {
  * two mechanics differ in every interaction, so sharing one component would mean a prop for
  * each difference and a shipped surface at risk on every change.
  */
-export function PitchDraft({ pool, draft, onConfirm, backHref }: Props) {
+export function PitchDraft({ pool, draft, onConfirm, backHref, rivals, clubId }: Props) {
   const t = useTranslations("game");
   const reduced = prefersReducedMotion();
+
+  /** Who he has chosen to face, and how hard they play. */
+  const [rivalId, setRivalId] = useState<number | null>(clubId ?? null);
+  const [difficulty, setDifficulty] = useState<Difficulty>("balanced");
+  const rival = useRival(rivals != null && rivals.length > 0 ? rivalId : null);
 
   /**
    * Only shapes this club can field.
@@ -91,8 +116,14 @@ export function PitchDraft({ pool, draft, onConfirm, backHref }: Props) {
     const players = state.picks
       .map((id) => (id != null ? byId.get(id) : undefined))
       .filter((c): c is PoolCard => c != null);
-    if (players.length === state.picks.length) onConfirm(players, shape);
-  }, [locked, state, byId, onConfirm, shape]);
+    if (players.length !== state.picks.length) return;
+    // ⚠️ `null` when the fetch never landed — the match is played against the coach's own
+    // pool rather than blocked. See `RivalState`.
+    onConfirm(players, shape, {
+      setup: rival.status === "ready" ? rival.rival : null,
+      difficulty,
+    });
+  }, [locked, state, byId, onConfirm, shape, rival, difficulty]);
 
   const previewShape = (f: Formation) => {
     if (locked) return;
@@ -199,6 +230,60 @@ export function PitchDraft({ pool, draft, onConfirm, backHref }: Props) {
                 </div>
               );
             })}
+            {/* ---- who you face (owner, 2026-08-19) ---- */}
+            {rivals != null && rivals.length > 0 ? (
+              <div className="pd-rival">
+                <label className="pd-rival-field">
+                  <span className="pd-rival-label">{t("rivalPick")}</span>
+                  <select
+                    className="pd-select"
+                    value={rivalId ?? ""}
+                    onChange={(e) => setRivalId(Number(e.target.value))}
+                  >
+                    {rivals.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.id === clubId ? t("rivalOwnClub", { name: c.name }) : c.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <div className="pd-rival-field">
+                  <span className="pd-rival-label">{t("rivalDifficulty")}</span>
+                  {/* A radio GROUP, not two buttons: these are two states of one setting and
+                      a screen reader must hear them that way. */}
+                  <div role="radiogroup" aria-label={t("rivalDifficulty")} className="pd-diffs">
+                    {(["balanced", "best"] as const).map((d) => (
+                      <button
+                        key={d}
+                        type="button"
+                        role="radio"
+                        aria-checked={difficulty === d}
+                        onClick={() => setDifficulty(d)}
+                        className={`pd-diff${difficulty === d ? " pd-diff-on" : ""}`}
+                      >
+                        {t(d === "best" ? "rivalBest" : "rivalBalanced")}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* ⚠️ Announced, never blocking. A slow or failed fetch still lets him lock
+                    in and play — against his own club's pool, which is what the mode did
+                    before a rival could be chosen at all. */}
+                <p className="pd-rival-note" role="status">
+                  {rival.status === "loading"
+                    ? t("rivalLoading")
+                    : rival.status === "unavailable"
+                      ? t("rivalUnavailable")
+                      : t("rivalReady", {
+                          name: rival.rival.name,
+                          n: rival.rival.cards.length,
+                        })}
+                </p>
+              </div>
+            ) : null}
+
             <div className="pd-confirm">
               <span className="text-muted-foreground font-mono text-[11px]">
                 {t("pitchShapeFinal")}

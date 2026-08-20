@@ -67,6 +67,9 @@ export default async function ModeClubPage({ params }: Props) {
   // captaincies, and the full season → team → player map would be a second payload.
   const captaincies = await captaincyCounts(pool.map((c) => c.playerId));
   const referees = await refereeNames();
+  // ⚠️ Names only. The chosen club's SQUAD is fetched from its own prerendered route — see
+  // `view/rival-choice.ts`; 51 squads on this page would be ~1.2 MB on top of ~700 KB.
+  const rivals = (await clubChoices()).map((c) => ({ id: c.id, name: c.name }));
 
   return (
     <main className="mx-auto w-full max-w-6xl px-4 py-10">
@@ -76,6 +79,8 @@ export default async function ModeClubPage({ params }: Props) {
         draft={pack.draft}
         screens={pack.screens}
         opponent={pack.opponent}
+        rivals={rivals}
+        clubId={choice.id}
         captaincies={captaincies}
         referees={referees}
         backHref={`/game/${pack.id}`}

@@ -17,6 +17,18 @@ import { describe, expect, it } from "vitest";
  */
 const GAME_ROUTES = join(process.cwd(), "src", "app", "[locale]", "game");
 
+/**
+ * The game's DATA routes, outside `/[locale]` because they serve JSON rather than a screen.
+ *
+ * ⛔ Held to the same rule and for a sharper reason: a page that goes dynamic costs a lambda
+ * per view, but this one is fetched by the draft screen on every club change — so without
+ * `force-static` plus a closed param set it is a lambda per interaction, which is the 2026-07
+ * Fluid Active-CPU shape in miniature.
+ */
+const GAME_API_ROUTES = [
+  join(process.cwd(), "src", "app", "api", "game", "rivals", "[club]", "route.ts"),
+];
+
 function pageFiles(dir: string): string[] {
   const out: string[] = [];
   for (const entry of readdirSync(dir)) {
@@ -69,6 +81,16 @@ describe("game routes stay CDN-served", () => {
     "%s closes its param set",
     (_label, file) => {
       const source = readFileSync(file, "utf8");
+      expect(source).toMatch(/export const dynamicParams\s*=\s*false/);
+      expect(source).toMatch(/export async function generateStaticParams/);
+    },
+  );
+
+  it.each(GAME_API_ROUTES.map((f) => [f.slice(f.indexOf("src")), f]))(
+    "%s is prerendered too",
+    (_label, file) => {
+      const source = readFileSync(file, "utf8");
+      expect(source).toMatch(/export const dynamic\s*=\s*"force-static"/);
       expect(source).toMatch(/export const dynamicParams\s*=\s*false/);
       expect(source).toMatch(/export async function generateStaticParams/);
     },
