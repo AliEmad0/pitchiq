@@ -5,6 +5,7 @@ import { decadeSpan, squadAverage, starOf, taleOfTheTape } from "@/features/game
 import type { EnrichedCard } from "@/features/game/domain/player-card";
 import type { GameTeam } from "@/features/game/domain/team";
 import { prefersReducedMotion } from "@/utils/motion";
+import { ClubCrest } from "./ClubCrest";
 import { PlayerCard } from "./PlayerCard";
 
 interface Props {
@@ -19,6 +20,8 @@ interface Props {
    */
   referee: RefereeStyle | null;
   weather: Weather | null;
+  /** The two clubs' ids, for their crests. See `MatchLive`'s prop of the same name. */
+  crests?: { home: number | null; away: number | null };
   onKickOff: () => void;
   onBack: () => void;
 }
@@ -64,7 +67,7 @@ const WEATHER_IMPACT_KEY: Record<Weather, string> = {
  * ⚠️ Reached only by a pack that declares `screens: "legacy"`. Chaos and the shipped draft
  * still render `MatchupPreview`.
  */
-export function MatchProgramme({ home, away, referee, weather, onKickOff, onBack }: Props) {
+export function MatchProgramme({ home, away, referee, weather, crests, onKickOff, onBack }: Props) {
   const t = useTranslations("game");
   const reduced = prefersReducedMotion();
 
@@ -85,9 +88,15 @@ export function MatchProgramme({ home, away, referee, weather, onKickOff, onBack
       <header className="lg-prog-mast">
         <p className="lg-kicker">{t("progKicker")}</p>
         <h1 className="lg-prog-title">
-          <span className="lg-home">{home.name}</span>
+          <span className="lg-home">
+            <ClubCrest teamId={crests?.home} size={40} />
+            {home.name}
+          </span>
           <span className="lg-prog-v">{t("progVersus")}</span>
-          <span className="lg-away">{away.name}</span>
+          <span className="lg-away">
+            {away.name}
+            <ClubCrest teamId={crests?.away} size={40} />
+          </span>
         </h1>
         <p className="lg-prog-sub">
           {t("progSubline", {

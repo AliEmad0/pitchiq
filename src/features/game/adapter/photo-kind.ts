@@ -44,7 +44,21 @@ export async function resolvePhoto(photo: string | null | undefined): Promise<Re
   } else {
     const buf = await fetchBuffer(candidates[0]!, 4000);
     if (buf == null) {
-      result = { kind: "photo", url: candidates[1] ?? candidates[0]! }; // 404 → legacy 250x250 (bg)
+      /**
+       * ⛔ Keep the MODERN url, not the legacy one (owner-reported, 2026-08-20).
+       *
+       * This branch is reached for two very different reasons — the image genuinely does
+       * not exist, or our own 4-second fetch timed out — and it cannot tell them apart.
+       * Recording the legacy 250×250 URL treats every failure as the first case, and the
+       * legacy CDN now answers **403** for most codes (measured: Robertson, Salah, van
+       * Dijk all 403; only older codes such as Trent's still 200). So a transient build
+       * hiccup was being baked into the payload as a permanently broken image.
+       *
+       * ⚠️ `kind: "photo"` is still right — we could not inspect the pixels, and every card
+       * family renders a background shot acceptably, whereas a wrong "cutout" floats an
+       * opaque rectangle over the card art.
+       */
+      result = { kind: "photo", url: candidates[0]! };
     } else {
       try {
         // Judge by CORNER transparency, not whole-image opacity: a cutout
