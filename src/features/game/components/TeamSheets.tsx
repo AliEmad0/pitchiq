@@ -22,9 +22,20 @@ export interface SheetRow {
 interface Props {
   home: SheetRow[];
   away: SheetRow[];
+  /**
+   * The substitutes still sitting down (owner, 2026-08-20).
+   *
+   * ⛔ Distinct from the rows in `home`/`away`. Those come from `lineupAt`, which appends a
+   * substitute the moment he comes ON — so before this the bench was invisible and the
+   * coach could not see who he had, only who he had already used.
+   */
+  homeBench?: SheetRow[];
+  awayBench?: SheetRow[];
   homeCaption: string;
   awayCaption: string;
   title: string;
+  /** Heading for the substitutes block. */
+  benchTitle: string;
 }
 
 /**
@@ -33,7 +44,16 @@ interface Props {
  * ⭐ Each player carries HIS OWN MATCH on his row: the feed answers "what just happened",
  * the sheet answers "what has he done".
  */
-export function TeamSheets({ home, away, homeCaption, awayCaption, title }: Props) {
+export function TeamSheets({
+  home,
+  away,
+  homeBench = [],
+  awayBench = [],
+  homeCaption,
+  awayCaption,
+  title,
+  benchTitle,
+}: Props) {
   const t = useTranslations("game");
 
   /** One badge per thing that happened to him, in the order a report would list them. */
@@ -74,50 +94,62 @@ export function TeamSheets({ home, away, homeCaption, awayCaption, title }: Prop
     return out;
   };
 
-  const column = (rows: SheetRow[], side: "home" | "away", caption: string) => (
+  const list = (rows: SheetRow[], side: "home" | "away", bench: boolean) => (
+    <ul className={`lg-sheet-list${bench ? " lg-sheet-subs" : ""}`}>
+      {rows.map((r, i) => {
+        const marks = marksOf(r);
+        return (
+          <li
+            key={`${side}-${bench ? "b" : "x"}-${r.player.playerId}-${i}`}
+            data-testid="sheet-row"
+            className={`lg-sheet-row${marks.length > 0 ? " lg-sheet-live" : ""}${
+              r.onPitch ? "" : " lg-sheet-gone"
+            }`}
+          >
+            {/* The shirt number — the same one his dot wears on the pitch. */}
+            <span className="lg-sheet-num">{r.player.number}</span>
+            <span className="lg-sheet-pos">{r.player.role}</span>
+            <span className="lg-sheet-name">
+              {r.player.name}
+              {r.captain ? (
+                <span className="lg-sheet-c" title={t("benchCaptain")}>
+                  C
+                </span>
+              ) : null}
+            </span>
+            <span className="lg-sheet-marks">
+              {marks.map((m) => (
+                <span key={m.key} className="lg-mark" title={m.label} aria-label={m.label}>
+                  {m.glyph}
+                </span>
+              ))}
+            </span>
+            <span className="lg-sheet-ovr">{r.player.rating ?? "—"}</span>
+          </li>
+        );
+      })}
+    </ul>
+  );
+
+  const column = (rows: SheetRow[], bench: SheetRow[], side: "home" | "away", caption: string) => (
     <div className={`lg-sheet lg-sheet-${side}`}>
       <p className="lg-sheet-cap">{caption}</p>
-      <ul className="lg-sheet-list">
-        {rows.map((r, i) => {
-          const marks = marksOf(r);
-          return (
-            <li
-              key={`${side}-${r.player.playerId}-${i}`}
-              data-testid="sheet-row"
-              className={`lg-sheet-row${marks.length > 0 ? " lg-sheet-live" : ""}${
-                r.onPitch ? "" : " lg-sheet-gone"
-              }`}
-            >
-              {/* The shirt number — the same one his dot wears on the pitch. */}
-              <span className="lg-sheet-num">{r.player.number}</span>
-              <span className="lg-sheet-pos">{r.player.role}</span>
-              <span className="lg-sheet-name">
-                {r.player.name}
-                {r.captain ? (
-                  <span className="lg-sheet-c" title={t("benchCaptain")}>
-                    C
-                  </span>
-                ) : null}
-              </span>
-              <span className="lg-sheet-marks">
-                {marks.map((m) => (
-                  <span key={m.key} className="lg-mark" title={m.label} aria-label={m.label}>
-                    {m.glyph}
-                  </span>
-                ))}
-              </span>
-              <span className="lg-sheet-ovr">{r.player.rating ?? "—"}</span>
-            </li>
-          );
-        })}
-      </ul>
+      {list(rows, side, false)}
+      {/* ⚠️ Hidden when the bench is empty rather than rendered as a heading over nothing —
+          a side can legitimately have used every substitute. */}
+      {bench.length === 0 ? null : (
+        <>
+          <p className="lg-sheet-benchcap">{benchTitle}</p>
+          {list(bench, side, true)}
+        </>
+      )}
     </div>
   );
 
   return (
     <section className="lg-sheets" aria-label={title}>
-      {column(home, "home", homeCaption)}
-      {column(away, "away", awayCaption)}
+      {column(home, homeBench, "home", homeCaption)}
+      {column(away, awayBench, "away", awayCaption)}
     </section>
   );
 }

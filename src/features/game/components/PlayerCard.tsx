@@ -372,10 +372,32 @@ export function PlayerCard({ card, reduced, interactive = true }: Props) {
   const d: Fmt = (n) => String(n ?? 0);
   const name = displayName(card.name);
   const reactive = usePlayerPhoto(card.photo);
-  // Prefer the build-time pixel-accurate kind/url; fall back to runtime resolve.
+  /**
+   * The BAKED photo is preferred — it is pixel-accurate about cutout-vs-background, which
+   * only a build-time fetch can know — but it must be recoverable.
+   *
+   * ⛔ Owner-reported, 2026-08-20: Andrew Robertson's card rendered with no image at all.
+   * The code, the CDN and the PNG were all fine (75 kB, 220×280); what was wrong was the
+   * URL BAKED BESIDE THEM. `resolvePhoto` fetches the modern CDN at build time with a
+   * 4-second timeout and, on ANY failure, records the LEGACY 250×250 URL — which now
+   * answers 403 for most codes. So one transient build-time timeout became a permanently
+   * broken image, and because `photoKind != null` the runtime candidate chain was skipped
+   * exactly where it was needed.
+   *
+   * ⚠️ `bakedFailed` is what makes it recoverable: the first error abandons the baked URL
+   * and hands the card back to the reactive chain, which starts at the modern CDN again.
+   * Passing `reactive.onError` alone did nothing — it advanced an index the `src` did not
+   * come from.
+   */
+  const [bakedFailed, setBakedFailed] = useState(false);
+  useEffect(() => setBakedFailed(false), [card.photoUrl]);
   const photo: Photo =
-    card.photoKind != null
-      ? { src: card.photoUrl ?? null, kind: card.photoKind, onError: reactive.onError }
+    card.photoKind != null && !bakedFailed
+      ? {
+          src: card.photoUrl ?? null,
+          kind: card.photoKind,
+          onError: () => setBakedFailed(true),
+        }
       : reactive;
   const front = FRONTS[pickFront(card, photo.kind)]({ card, d, name, photo });
 

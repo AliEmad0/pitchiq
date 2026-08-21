@@ -504,6 +504,7 @@ export function GamePlay({
       <MatchProgramme
         home={match.home}
         away={match.away}
+        crests={crests}
         referee={referee}
         weather={weather}
         onKickOff={onKickOff}

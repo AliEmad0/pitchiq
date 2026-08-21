@@ -141,3 +141,68 @@ describe("the bench dialog, once open", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 });
+
+/**
+ * ⛔ OWNER-REPORTED, 2026-08-20 — the worst bug of the round.
+ *
+ * He pressed Bench, the button read "Waiting for a break in play", and it never opened:
+ * through two goals, and then past the final whistle, still reading "waiting". The Bench
+ * button is `disabled` while a request stands, so he was locked out of his own bench for
+ * the rest of the match.
+ *
+ * The cause is structural. The engine raises a `sub-offer` ONLY between 55' and 85', and
+ * `shouldOpenPrompt` is only ever consulted against one — so a request made after 85', or
+ * any request still standing at full time, could never be answered by anything.
+ */
+const liveAt = (pending: MatchDecision | null, holdAt: number | undefined) => (
+  <MatchLive
+    model={model}
+    teams={{ home, away }}
+    holdAt={holdAt}
+    pending={pending}
+    captaincies={{}}
+    referees={["M Oliver"]}
+    onAnswer={vi.fn()}
+  />
+);
+
+describe("a bench request nothing can honour", () => {
+  it("⛔ recovers when the offers stop coming", async () => {
+    const user = userEvent.setup();
+    const { rerender } = render(offer(60, false));
+    await user.click(screen.getByRole("button", { name: /^Bench$/ }));
+    expect(screen.getByRole("button", { name: /Waiting for a break/ })).toBeDisabled();
+
+    // No offer any more, and the clock has run past the grace. Before the fix the button
+    // stayed disabled here for the rest of the match.
+    rerender(liveAt(null, 66));
+    expect(screen.queryByRole("button", { name: /Waiting for a break/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^Bench$/ })).toBeEnabled();
+  });
+
+  it("⛔ never says 'waiting' after the whistle", async () => {
+    const user = userEvent.setup();
+    const { rerender } = render(offer(84, false));
+    await user.click(screen.getByRole("button", { name: /^Bench$/ }));
+
+    // `holdAt` undefined + the clock at the end = the match is actually over.
+    rerender(liveAt(null, undefined));
+    expect(screen.queryByRole("button", { name: /Waiting for a break/ })).not.toBeInTheDocument();
+  });
+
+  it("⚠️ says the window is SHUT rather than pretending a break is coming", () => {
+    /**
+     * "Waiting for a break in play" was not merely stale outside 55'–85', it was untrue:
+     * nothing was coming, because the engine raises no offer at all out there. Naming the
+     * real state is what stops the coach waiting for something that cannot happen.
+     */
+    render(null);
+    const b = screen.getByRole("button", { name: /Substitutions closed/ });
+    expect(b).toBeDisabled();
+  });
+
+  it("⚠️ and is pressable again once the window opens", () => {
+    render(offer(60, false));
+    expect(screen.getByRole("button", { name: /^Bench$/ })).toBeEnabled();
+  });
+});

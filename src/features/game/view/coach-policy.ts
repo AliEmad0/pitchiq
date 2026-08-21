@@ -39,3 +39,33 @@ export function shouldOpenPrompt(st: CoachState, d: SubOfferDecision): boolean {
   if (d.stoppage) return true;
   return d.minute >= st.requestedAt + REQUEST_GRACE;
 }
+
+/**
+ * A standing request that nothing can honour any more (owner-reported, 2026-08-20).
+ *
+ * ⛔ THE BUG THIS EXISTS FOR. `shouldOpenPrompt` is only ever consulted against a
+ * `sub-offer`, and the engine raises those ONLY between `SUB_WINDOW_START` (55') and
+ * `SUB_WINDOW_END` (85'). So a request made after 85' — or any request still standing when
+ * the whistle goes — could never be answered by anything, because nothing would ever be
+ * raised again. The Bench button is disabled while a request stands, so the coach was
+ * locked out of his own bench for the rest of the match and the label read "Waiting for a
+ * break in play" all the way past full time.
+ *
+ * ⚠️ `hasOffer` is load-bearing, not a convenience. The grace bound is what makes BOTH
+ * rules fire, so they race on the same minute: without this guard a request would be
+ * thrown away on the very tick that was about to honour it, and pressing Bench then
+ * waiting exactly the grace period would evaporate the request instead of opening it.
+ *
+ * ⚠️ Strictly AFTER the grace, so `shouldOpenPrompt`'s inclusive bound always gets its turn
+ * first even if an offer appears late in the same minute.
+ */
+export function requestLapsed(
+  st: CoachState,
+  minute: number,
+  ctx: { finished: boolean; hasOffer: boolean },
+): boolean {
+  if (st.requestedAt == null) return false;
+  if (ctx.finished) return true;
+  if (ctx.hasOffer) return false;
+  return minute > st.requestedAt + REQUEST_GRACE;
+}

@@ -16,13 +16,19 @@ import {
 } from "@/features/game/view/bench-state";
 import {
   createCoachState,
+  requestLapsed,
   requestSubstitution,
   shouldOpenPrompt,
   spendRequest,
 } from "@/features/game/view/coach-policy";
+import { SUB_WINDOW_END, SUB_WINDOW_START } from "@/features/game/domain/squad";
 import { commentaryArgs } from "@/features/game/view/commentary-view";
 import { lineupAt } from "@/features/game/view/lineup-state";
-import type { MatchViewModel, ViewEvent } from "@/features/game/view/match-view-model";
+import type {
+  MatchViewModel,
+  ViewEvent,
+  ViewSideTeam,
+} from "@/features/game/view/match-view-model";
 import { OVERLAY_KINDS } from "@/features/game/view/match-view-model";
 import { overlayFor } from "@/features/game/view/overlay-event";
 import { scoreAt } from "@/features/game/view/score";
@@ -236,6 +242,16 @@ export function MatchLive({
     });
   }, [minute, reduced, model.events, model.home.players, model.away.players, lastMinute, holdAt]);
 
+  const atEnd = minute >= lastMinute;
+
+  /**
+   * The whistle has actually gone.
+   *
+   * ⚠️ Distinct from `atEnd`, which is only "as far as the engine has been driven". A hold
+   * for a pending decision also reaches the ceiling, and the match is very much still on.
+   */
+  const finished = holdAt == null && atEnd;
+
   // ---- decisions ----
   const offer = subOfferOf(pending);
   /**
@@ -251,6 +267,14 @@ export function MatchLive({
   const wantsOpen = offer != null && shouldOpenPrompt(coach, offer);
   /** He has asked and is still waiting for a break in play. */
   const awaiting = coach.requestedAt != null && !benchOpen;
+  /**
+   * Substitutions are open at all (`domain/squad.ts`).
+   *
+   * ⚠️ Read from the engine's OWN window constants, never re-stated. The button used to
+   * say "waiting for a break in play" outside it, which is not what was happening: nothing
+   * was coming, because the engine raises no offer at all before 55' or after 85'.
+   */
+  const windowOpen = minute >= SUB_WINDOW_START && minute <= SUB_WINDOW_END;
 
   /**
    * Resolve a decision nobody answered.
@@ -280,6 +304,17 @@ export function MatchLive({
     // within one window to shop around.
     setCoach(spendRequest());
   }, [wantsOpen, benchOpen]);
+
+  /**
+   * Drop a request nothing can honour (owner-reported, 2026-08-20).
+   *
+   * ⛔ Without this the Bench button is disabled for the rest of the match. See
+   * `view/coach-policy.ts#requestLapsed` for why a late request can never be answered.
+   */
+  useEffect(() => {
+    if (!requestLapsed(coach, minute, { finished, hasOffer: offer != null })) return;
+    setCoach(createCoachState());
+  }, [coach, minute, finished, offer]);
 
   useEffect(() => {
     if (pending == null || benchOpen || wantsOpen) return;
@@ -448,6 +483,28 @@ export function MatchLive({
       ),
     }));
 
+  /**
+   * The substitutes still sitting down (owner, 2026-08-20).
+   *
+   * ⛔ NOT `lineup.roster` — that appends a substitute the moment he comes ON, so the bench
+   * was invisible until it had been spent. This is the squad's bench minus everyone the
+   * roster already shows, which is exactly "who is still available".
+   */
+  const benchOf = (lineup: ReturnType<typeof lineupAt>, team: ViewSideTeam): SheetRow[] => {
+    const shown = new Set(lineup.roster.map((r) => r.player.playerId));
+    return team.bench
+      .filter((p) => !shown.has(p.playerId))
+      .map((player) => ({
+        player,
+        captain: false,
+        // ⚠️ Deliberately `false`: an unused substitute is not on the pitch, and the row
+        // styling that says so is the honest one.
+        onPitch: false,
+        badges: { goals: 0, assists: 0, yellow: false, red: false },
+        injured: false,
+      }));
+  };
+
   const captionOf = (side: "home" | "away", band: number | null) => {
     const team = side === "home" ? teams.home : teams.away;
     const span = decadeSpan(team);
@@ -459,16 +516,6 @@ export function MatchLive({
       captain: name != null ? t("liveCaptainIs", { name }) : t("liveNoCaptain"),
     });
   };
-
-  const atEnd = minute >= lastMinute;
-
-  /**
-   * The whistle has actually gone.
-   *
-   * ⚠️ Distinct from `atEnd`, which is only "as far as the engine has been driven". A hold
-   * for a pending decision also reaches the ceiling, and the match is very much still on.
-   */
-  const finished = holdAt == null && atEnd;
 
   const redsOf = (lineup: ReturnType<typeof lineupAt>) =>
     [...lineup.badges.values()].filter((b) => b.red).length;
@@ -625,7 +672,7 @@ export function MatchLive({
             }
             setCoach((c) => requestSubstitution(c, minute));
           }}
-          disabled={awaiting}
+          disabled={awaiting || (!windowOpen && !amber && emergency == null)}
           className={`lg-benchbtn${amber ? " lg-benchbtn-on" : ""}${awaiting ? " lg-benchbtn-wait" : ""}`}
         >
           {emergency != null
@@ -634,7 +681,9 @@ export function MatchLive({
               ? t("benchAvailable")
               : awaiting
                 ? t("benchRequested")
-                : t("benchOpen")}
+                : windowOpen
+                  ? t("benchOpen")
+                  : t("benchClosed")}
         </button>
 
         <label className="lg-manual">
@@ -651,6 +700,9 @@ export function MatchLive({
       <TeamSheets
         home={sheetOf(homeLineup, "home", armband)}
         away={sheetOf(awayLineup, "away", awayArmband)}
+        homeBench={benchOf(homeLineup, model.home)}
+        awayBench={benchOf(awayLineup, model.away)}
+        benchTitle={t("liveSubs")}
         homeCaption={captionOf("home", armband)}
         awayCaption={captionOf("away", awayArmband)}
         title={t("lineups")}
