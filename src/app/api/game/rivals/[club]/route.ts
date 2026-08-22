@@ -21,7 +21,7 @@ import { clubChoices } from "@/features/game/adapter/pool";
  */
 export const dynamic = "force-static";
 export const dynamicParams = false;
-export const revalidate = 86400;
+export const revalidate = false; // see docs/adr or CLAUDE.md — deploys are the only data change
 
 export async function generateStaticParams(): Promise<Array<{ club: string }>> {
   return (await clubChoices()).map((c) => ({ club: String(c.id) }));

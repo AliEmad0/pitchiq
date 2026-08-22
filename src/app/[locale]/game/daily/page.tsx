@@ -9,7 +9,7 @@ import { DailyChallenge } from "@/features/game/components/DailyChallenge";
 // ⚠️ The prerendered HTML therefore carries NO day-specific content — the day resolves
 // after mount inside the container, or a CDN copy would assert a stale challenge.
 export const dynamic = "force-static";
-export const revalidate = 86400;
+export const revalidate = false; // see docs/adr or CLAUDE.md — deploys are the only data change
 
 type Props = { params: Promise<{ locale: string }> };
 

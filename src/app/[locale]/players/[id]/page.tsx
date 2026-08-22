@@ -40,7 +40,7 @@ export const dynamicParams = true;
 // were never served from the CDN. With force-static the same page returns
 // `public` + HIT. See docs/hosting-cost.md.
 export const dynamic = "force-static";
-export const revalidate = 86400;
+export const revalidate = false; // see docs/adr or CLAUDE.md — deploys are the only data change
 
 // `pnpm build` pre-renders every current-season PL player as an SSG route.
 // ~570 players today — bounded enough that SSG pays off; older seasons fall

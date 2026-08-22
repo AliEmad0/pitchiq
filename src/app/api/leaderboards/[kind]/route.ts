@@ -8,7 +8,10 @@ import {
 } from "@/features/players/leaderboards.api";
 import { logger } from "@/utils/logger";
 
-export const revalidate = 60;
+// ⚠️ Request-driven (it reads searchParams), so this is only about the TIMER: the committed
+// JSON behind it cannot change without a deploy, and 60s meant regenerating identical output
+// every minute for every distinct query. See tests/unit/route-revalidate.test.ts.
+export const revalidate = false;
 
 type Slug = "scorers" | "assists" | "yellow-cards" | "red-cards";
 

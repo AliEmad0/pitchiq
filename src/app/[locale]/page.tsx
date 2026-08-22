@@ -23,7 +23,7 @@ type Props = {
 // Historical seasons live at /seasons/<year> (TASK-M71a); `/?season=YYYY`
 // 308-redirects there at the edge via next.config.ts.
 export const dynamic = "force-static";
-export const revalidate = 86400;
+export const revalidate = false; // see docs/adr or CLAUDE.md — deploys are the only data change
 
 // Next's title.template only wraps *child* segments, so the root dashboard
 // spells out its absolute title here. Dynamic OG (matchday-ticket) is pinned to

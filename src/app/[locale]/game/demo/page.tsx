@@ -7,7 +7,7 @@ import { simulate } from "@/features/game/domain/simulate";
 import { buildMatchViewModel } from "@/features/game/view/match-view-model";
 
 export const dynamic = "force-static";
-export const revalidate = 86400;
+export const revalidate = false; // see docs/adr or CLAUDE.md — deploys are the only data change
 
 // TASK-1832 — this was `/game` until the hub took that URL. It is a SHOWCASE, not a mode:
 // one fixed match, built at build time, played back. It deliberately has no entry in the

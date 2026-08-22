@@ -31,7 +31,7 @@ export const dynamicParams = true;
 // `revalidate` alone lets the render fall back to dynamic (`private, no-store`
 // + x-vercel-cache MISS), which made every page view cost a function.
 export const dynamic = "force-static";
-export const revalidate = 86400;
+export const revalidate = false; // see docs/adr or CLAUDE.md — deploys are the only data change
 
 export async function generateStaticParams(): Promise<Array<{ id: string }>> {
   const fixtures = await loadFixtures(currentDataSeason());

@@ -13,7 +13,7 @@ type Props = { params: Promise<{ locale: string }> };
 
 // ⚠️ HOSTING COST — force-static is load-bearing; no `searchParams` here.
 export const dynamic = "force-static";
-export const revalidate = 86400;
+export const revalidate = false; // see docs/adr or CLAUDE.md — deploys are the only data change
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
@@ -49,12 +49,8 @@ export default async function SeasonsPage({ params }: Props) {
             champion={entry.champion}
             // Season-accurate crest (TASK-M54): Blackburn 1994-95 gets its
             // 90s badge, not today's.
-            crest={
-              entry.champion ? clubLogoFromMap(entry.champion.id, entry.season, logos) : null
-            }
-            clubColor={
-              entry.champion ? (colors?.[String(entry.champion.id)]?.home ?? null) : null
-            }
+            crest={entry.champion ? clubLogoFromMap(entry.champion.id, entry.season, logos) : null}
+            clubColor={entry.champion ? (colors?.[String(entry.champion.id)]?.home ?? null) : null}
             index={i}
           />
         ))}

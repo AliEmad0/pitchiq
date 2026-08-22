@@ -15,7 +15,7 @@ type Props = { params: Promise<{ locale: string }> };
 // /seasons/<year>/teams; `/teams?season=YYYY` 308-redirects there in
 // next.config.ts. See docs/hosting-cost.md.
 export const dynamic = "force-static";
-export const revalidate = 86400;
+export const revalidate = false; // see docs/adr or CLAUDE.md — deploys are the only data change
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;

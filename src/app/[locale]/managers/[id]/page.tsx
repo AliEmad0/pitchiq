@@ -25,7 +25,7 @@ type Props = { params: Promise<{ locale: string; id: string }> };
 // <ManagerSeasonView>; `?season=` deep links are honoured on the client. See
 // docs/hosting-cost.md.
 export const dynamic = "force-static";
-export const revalidate = 86400;
+export const revalidate = false; // see docs/adr or CLAUDE.md — deploys are the only data change
 // New managers in future data refreshes render on demand; unknown ids still
 // notFound() below.
 export const dynamicParams = true;
