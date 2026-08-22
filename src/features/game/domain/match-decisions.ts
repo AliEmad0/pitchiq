@@ -174,7 +174,49 @@ export function defaultAnswer(d: MatchDecision): DecisionAnswer {
       return { kind: "response", minute: d.minute, side: d.side, choice: "hold" };
     case "injury-sub":
       return { kind: "injury-sub", minute: d.minute, side: d.side, on: undefined };
-    case "dismissal":
+    case "dismissal": {
+      /**
+       * ⛔ A SIDE THAT HAS LOST ITS KEEPER PUTS ONE IN GOAL (owner-reported, 2026-08-21).
+       *
+       * This used to answer every dismissal with no change at all, so a red-carded
+       * goalkeeper was simply never replaced — the side played out the match with an empty
+       * net while the reserve keeper sat on the bench, and went on making ordinary
+       * substitutions around him. **Measured before fixing: across 600 seeds a keeper is
+       * sent off in 56 matches and 47 of them finished with nobody in goal.**
+       *
+       * ⚠️ This does NOT contradict "the engine never hooks its own keeper". That rule is
+       * about substituting a FIT keeper, which `pickPlayerOff` still refuses to do. Bringing
+       * a replacement on for one who has been dismissed is the opposite situation, and it is
+       * what every real manager does within seconds.
+       *
+       * ⚠️ `emergencyKeepers` is deliberately NOT consulted here. The engine populates it
+       * only when no substitution remains, and putting an outfielder in goal while a keeper
+       * sits on the bench would be the worse of the two answers — that path stays the
+       * coach's, offered through the bench dialog.
+       */
+      if (d.keeperGone) {
+        const keeper = d.legalOn.find((p) => p.role === "GK");
+        // ⚠️ Outfield only. `legalOff` deliberately includes the goalkeeper — it is the
+        // coach's menu — and with the keeper already dismissed there should be none left,
+        // but taking one off here would undo the very change being made.
+        const sacrifice = [...d.legalOff]
+          .filter((p) => p.role !== "GK")
+          // Weakest first, then by id so the order is total and the answer is reproducible.
+          .sort(
+            (a, b) =>
+              (a.ratings?.overall ?? 0) - (b.ratings?.overall ?? 0) || a.playerId - b.playerId,
+          )[0];
+        if (keeper != null && sacrifice != null) {
+          return {
+            kind: "dismissal",
+            minute: d.minute,
+            side: d.side,
+            off: sacrifice.playerId,
+            on: keeper.playerId,
+          };
+        }
+      }
       return { kind: "dismissal", minute: d.minute, side: d.side, off: undefined, on: undefined };
+    }
   }
 }
