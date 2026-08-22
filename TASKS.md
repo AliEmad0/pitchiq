@@ -5785,7 +5785,33 @@ The TASK-1806 plan had flagged this pass as owed — it shipped the pitch view v
 > plan: [`docs/superpowers/plans/2026-08-16-task-1812-share-replay.md`](../docs/superpowers/plans/2026-08-16-task-1812-share-replay.md).
 >
 > ⚠️ **The declared dependencies are real for one third of this ticket, and only that
-> third — which is why the ticket is still `📋 Backlog`.** `TASK-1810` (XL) and
+> third — which is why the ticket is still `📋 Backlog`.**
+>
+> **Owner review rounds 3–5 (2026-08-20 → 22), shipped as #179–#182.** All from playing the
+> mode, none from reading it.
+>
+> - **#179** — club crests on the picker / live scoreboard / full-time screen / share card;
+>   the big-moment banner brought to the Legacy pitch (derivation shared via
+>   `view/overlay-event.ts`, not copied); and the **emergency keeper's first component test**.
+>   That test is a fixture by necessity: across 400 seeds the engine dismisses a keeper 39×
+>   and offers an emergency keeper **0×**. Sabotage-verified four ways.
+> - **#180** — ⛔ **the bench lock**. A request made after the 85' substitution window could
+>   never be honoured, and the button is disabled while one stands, so the coach was locked
+>   out for the rest of the match. Also: a baked photo URL that 404s now falls back to the
+>   runtime chain, crests on the programme, and the substitutes are listed.
+> - **#181** — ⛔ **a dismissed goalkeeper is now replaced**. Measured over 600 seeds: a keeper
+>   is sent off in 56 matches; **47 finished with nobody in goal → 3**. Plus the wrong-person
+>   photo blocklist (absent beats wrong).
+> - **#182** — ⭐ **no route sets a positive `revalidate`**. A Legacy page cost **4.97s of
+>   Active CPU per regeneration** and the data cannot change without a deploy, so the 24-hour
+>   timer bought nothing. 21 pages + 4 API routes, guarded.
+>
+> ⬜ **Still open from these rounds:** (1) the `emergencyKeepers` path is still unanswered in
+> auto mode — a side with no bench keeper left plays on without one (3 in 600 seeds);
+> (2) **Steve Stone vs Ian Woan** appear to share a face but their files genuinely differ —
+> needs a human eye; (3) **middleware is 63% of Fluid CPU**, inherent to next-intl's
+> `as-needed` prefixing, and wants its own ticket; (4) the **30+30 concept galleries** for
+> `/game/chaos` and `/game/draft` were requested and are **not started**. `TASK-1810` (XL) and
 > `TASK-1811` (L) are both still Backlog, and _"persist **runs**/records"_ needs them — a
 > **run** is a season/Survival campaign, which 1811 builds, so there is nothing to persist
 > yet. **Do not scaffold a run model to satisfy this ticket.** The mode gate's `records`
