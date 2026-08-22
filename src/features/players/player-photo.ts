@@ -4,6 +4,8 @@
 // client reference when imported into a Server Component. `<PlayerImage>`
 // re-exports these for its existing consumers/tests.
 
+import { isBlockedPhoto } from "./photo-blocklist";
+
 // Current PL photo CDN (post-redesign): no `p` prefix, 110x140, `premierleague25`.
 const FPL_PHOTO_BASE = "https://resources.premierleague.com/premierleague25/photos/players/110x140";
 // Legacy CDN, kept as a fallback for the codes still served only there.
@@ -15,6 +17,9 @@ const isAbsoluteUrl = (s: string): boolean => /^https?:\/\//i.test(s);
 /** The candidates a `photo` field produces on its own, before any fallback. */
 function primaryPhotoCandidates(photo: string | null | undefined): string[] {
   if (!photo) return [];
+  // ⛔ A photo known to show the WRONG PERSON produces nothing, so every surface falls back
+  // to its no-photo state. Absent beats wrong — see `photo-blocklist.ts`.
+  if (isBlockedPhoto(photo)) return [];
   if (isAbsoluteUrl(photo)) return [photo];
   if (/^\d+$/.test(photo))
     return [`${FPL_PHOTO_BASE}/${photo}.png`, `${FPL_PHOTO_BASE_LEGACY}/p${photo}.png`];
