@@ -672,6 +672,7 @@ export function MatchLive({
             }
             setCoach((c) => requestSubstitution(c, minute));
           }}
+          data-testid="bench-button"
           disabled={awaiting || (!windowOpen && !amber && emergency == null)}
           className={`lg-benchbtn${amber ? " lg-benchbtn-on" : ""}${awaiting ? " lg-benchbtn-wait" : ""}`}
         >
