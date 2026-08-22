@@ -159,7 +159,16 @@ describe("MatchLive — the split feed", () => {
 
     // The complaint this redesign answers: `DecisionPrompt` appearing unbidden.
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Bench|Change available/ })).toBeInTheDocument();
+    /**
+     * ⛔ By TESTID, never by label. This assertion is "the bench control is on screen and no
+     * dialog came with it" — the wording is not the point, and enumerating it made the test
+     * depend on which minute the first decision happened to land on. The button has FIVE
+     * accessible names (Bench / Change available / Waiting for a break in play /
+     * Substitutions closed / Who goes in goal?), and it failed in CI the day a fifth was
+     * added: outside the 55'-85' window it reads "Substitutions closed", which the old
+     * `/Bench|Change available/` did not match. It passed locally purely by luck of timing.
+     */
+    expect(screen.getByTestId("bench-button")).toBeInTheDocument();
   });
 
   it("offers the Manual subs only toggle, off by default", async () => {
