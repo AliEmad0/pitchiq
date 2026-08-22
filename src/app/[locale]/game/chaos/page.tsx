@@ -4,7 +4,7 @@ import { loadChaosPool } from "@/features/game/adapter/chaos-pool";
 import { ChaosDraft } from "@/features/game/components/ChaosDraft";
 
 export const dynamic = "force-static";
-export const revalidate = 86400;
+export const revalidate = false; // see docs/adr or CLAUDE.md — deploys are the only data change
 
 type Props = { params: Promise<{ locale: string }> };
 

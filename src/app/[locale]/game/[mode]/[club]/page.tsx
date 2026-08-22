@@ -11,7 +11,7 @@ import { GamePlay } from "@/features/game/components/GamePlay";
 import { packFor, routedPacks } from "@/features/game/domain/rule-packs";
 
 export const dynamic = "force-static";
-export const revalidate = 86400;
+export const revalidate = false; // see docs/adr or CLAUDE.md — deploys are the only data change
 
 /**
  * ⛔ NO on-demand rendering, ever — and this route is where it matters most.

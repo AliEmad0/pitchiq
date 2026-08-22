@@ -15,7 +15,7 @@ type Props = { params: Promise<{ locale: string; year: string; section: string }
 // searchParams. All five section indexes for the 33 historical seasons are
 // prerendered here.
 export const dynamic = "force-static";
-export const revalidate = 86400;
+export const revalidate = false; // see docs/adr or CLAUDE.md — deploys are the only data change
 // Every valid (year, section) is prerendered; anything else is a real 404.
 export const dynamicParams = false;
 

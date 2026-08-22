@@ -17,7 +17,7 @@ type Props = { params: Promise<{ locale: string; year: string }> };
 // `force-static` does NOT override, and it would then prerender nothing at all.
 // See docs/hosting-cost.md.
 export const dynamic = "force-static";
-export const revalidate = 86400;
+export const revalidate = false; // see docs/adr or CLAUDE.md — deploys are the only data change
 // Every committed season is prerendered, so an unknown year is a real 404
 // rather than an on-demand render of a page that cannot have data.
 export const dynamicParams = false;

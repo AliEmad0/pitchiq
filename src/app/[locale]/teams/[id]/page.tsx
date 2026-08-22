@@ -30,7 +30,7 @@ type Props = { params: Promise<{ locale: string; id: string }> };
 // <TeamSeasonView>; `?season=` deep links are honoured on the client. See
 // docs/hosting-cost.md.
 export const dynamic = "force-static";
-export const revalidate = 86400;
+export const revalidate = false; // see docs/adr or CLAUDE.md — deploys are the only data change
 // Ids outside the prerendered set (e.g. a future data refresh adds a club)
 // render on demand; the page still notFound()s ids in no committed season.
 export const dynamicParams = true;

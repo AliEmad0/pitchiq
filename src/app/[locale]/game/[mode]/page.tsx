@@ -9,7 +9,7 @@ import { packFor, routedPacks } from "@/features/game/domain/rule-packs";
 // force-static like every other /game route. The whole TASK-M71 arc exists to keep routes
 // CDN-served, and a route with only `revalidate` falls back to a dynamic render.
 export const dynamic = "force-static";
-export const revalidate = 86400;
+export const revalidate = false; // see docs/adr or CLAUDE.md — deploys are the only data change
 
 /**
  * ⛔ NO on-demand rendering, ever.

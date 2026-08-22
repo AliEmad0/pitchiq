@@ -10,7 +10,7 @@ type Props = { params: Promise<{ locale: string }> };
 
 // ⚠️ HOSTING COST — force-static; NEVER read searchParams (see /teams, TASK-M71b).
 export const dynamic = "force-static";
-export const revalidate = 86400;
+export const revalidate = false; // see docs/adr or CLAUDE.md — deploys are the only data change
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;

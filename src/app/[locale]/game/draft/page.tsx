@@ -6,7 +6,7 @@ import { GamePlay } from "@/features/game/components/GamePlay";
 // force-static, exactly like /game and /game/chaos. The M71 arc exists to keep every
 // route CDN-served; a dynamic render here would put game weight back on a lambda.
 export const dynamic = "force-static";
-export const revalidate = 86400;
+export const revalidate = false; // see docs/adr or CLAUDE.md — deploys are the only data change
 
 type Props = { params: Promise<{ locale: string }> };
 

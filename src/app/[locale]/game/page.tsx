@@ -5,7 +5,7 @@ import { ModeGate } from "@/features/game/components/ModeGate";
 // force-static like every /game/* route. The gate loads NO data — it renders from
 // domain/modes.ts alone — so there is nothing here that could pull it onto a lambda.
 export const dynamic = "force-static";
-export const revalidate = 86400;
+export const revalidate = false; // see docs/adr or CLAUDE.md — deploys are the only data change
 
 type Props = { params: Promise<{ locale: string }> };
 
