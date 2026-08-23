@@ -568,6 +568,285 @@
   }
 }
 
+/* TASK-1834 — "The Market" draft hub (owner's pick from the 30-concept gallery,
+   refined 2026-08-23). Self-contained colors like the pc- card system: the market is
+   a broadcast surface and reads identically in both themes. */
+.draft-ticker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  background: #05070a;
+  border: 2px solid #1b2733;
+  border-radius: 12px;
+  padding: 12px 18px;
+  margin-bottom: 14px;
+}
+.draft-ticker-cell {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+}
+.draft-ticker-label {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #8fa3b4;
+}
+.draft-ticker-num {
+  font-family: var(--font-mono), monospace;
+  font-size: 44px;
+  font-weight: 900;
+  line-height: 1.05;
+  color: #a3e635;
+  text-shadow: 0 0 18px rgba(163, 230, 53, 0.35);
+}
+.draft-ticker-of {
+  font-size: 18px;
+  opacity: 0.6;
+  margin-inline-start: 2px;
+}
+.draft-ticker-dot {
+  color: #5b6b7a;
+  font-size: 26px;
+}
+
+/* The market and the pitch share ONE height; only the pool scrolls, and only on Y. */
+.draft-market {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: 16px;
+  align-items: stretch;
+  height: 640px;
+}
+@media (max-width: 900px) {
+  .draft-market {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+  .tp-pitch {
+    height: 480px;
+  }
+}
+.draft-pool {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border: 1px solid rgba(34, 211, 238, 0.22);
+  border-radius: 12px;
+  background: rgba(6, 10, 15, 0.82);
+  padding: 12px;
+}
+.draft-pool-grid {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-content: flex-start;
+  justify-content: center;
+}
+.draft-pool-card {
+  padding: 0;
+  border: none;
+  background: none;
+  border-radius: 14px;
+  cursor: pointer;
+}
+.draft-pool-selected {
+  outline: 2px solid #67e8f9;
+  outline-offset: 2px;
+}
+.draft-pool-placed {
+  outline: 2px solid rgba(52, 211, 153, 0.55);
+  outline-offset: 2px;
+}
+/* ⚠️ The wrapper carries the scaled footprint; the card keeps its 176×256 design size
+   and scales into it — sizing `.pc-card` itself squashes its internals (the lg-xi
+   lesson). */
+.draft-pool-cardbox {
+  display: block;
+  width: calc(176px * 0.62);
+  height: calc(256px * 0.62);
+  overflow: hidden;
+  border-radius: 10px;
+}
+.draft-pool-cardbox > * {
+  width: 176px;
+  height: 256px;
+  transform: scale(0.62);
+  transform-origin: top left;
+}
+
+/* The full-detail vertical pitch. Row 1 (the keeper) stands at the foot. */
+.tp-pitch {
+  position: relative;
+  height: 100%;
+  min-height: 560px;
+  border-radius: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  overflow: hidden;
+  background: repeating-linear-gradient(0deg, #14603f 0 10%, #0f4c32 10% 20%);
+}
+.tp-pitch::after {
+  content: "";
+  position: absolute;
+  inset: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  pointer-events: none;
+}
+.tp-line {
+  position: absolute;
+}
+.tp-half {
+  left: 10px;
+  right: 10px;
+  top: 50%;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.3);
+}
+.tp-circle {
+  left: 50%;
+  top: 50%;
+  width: 110px;
+  height: 110px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+.tp-spot {
+  left: 50%;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.45);
+  transform: translate(-50%, -50%);
+}
+.tp-box {
+  left: 23%;
+  right: 23%;
+  height: 84px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+.tp-box-top {
+  top: 10px;
+  border-top: none;
+}
+.tp-box-bottom {
+  bottom: 10px;
+  border-bottom: none;
+}
+.tp-six {
+  left: 36%;
+  right: 36%;
+  height: 36px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+.tp-six-top {
+  top: 10px;
+  border-top: none;
+}
+.tp-six-bottom {
+  bottom: 10px;
+  border-bottom: none;
+}
+.tp-slot {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+.tp-chip {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(6, 32, 18, 0.85);
+  border: 2px dashed rgba(255, 255, 255, 0.55);
+  display: grid;
+  place-items: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+}
+.tp-role {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #dff3e6;
+}
+.tp-ovr {
+  font-family: var(--font-mono), monospace;
+  font-size: 16px;
+  font-weight: 900;
+  color: #eafff2;
+}
+.tp-name {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  color: #e2fbff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tp-filled .tp-chip {
+  border-style: solid;
+  border-color: rgba(103, 232, 249, 0.8);
+}
+.tp-selected .tp-chip {
+  border-style: solid;
+  border-color: #67e8f9;
+  box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.25);
+}
+.tp-legal .tp-chip {
+  border-style: solid;
+  border-color: #34d399;
+  box-shadow: 0 0 0 4px rgba(52, 211, 153, 0.22);
+}
+.tp-invalid .tp-chip {
+  border-style: solid;
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.22);
+}
+
+/* Play spans the whole line and pulses while armed. Transform + box-shadow only —
+   the motion audit rejects anything that lays out — and the reduce gate is doubled:
+   the media query for the OS setting, `data-reduced` for the app's own hook. */
+.draft-play:not(:disabled) {
+  animation: draft-play-pulse 1.6s ease-in-out infinite;
+}
+.draft-play[data-reduced="true"] {
+  animation: none !important;
+}
+@keyframes draft-play-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.5);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 26px 8px rgba(34, 211, 238, 0.3);
+    transform: scale(1.008);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .draft-play {
+    animation: none !important;
+  }
+}
+
 /* Draft Room: "Flip Reveal" (animation 07 of 30, TASK-1823). Candidates arrive
    face-down and turn over on Y; rejected cards fold away on X, so accepting and
    discarding read as opposites in one physical language rather than as two unrelated

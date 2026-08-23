@@ -3,6 +3,8 @@ import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import type { PlayerSeasonId } from "@/features/game/domain/card-id";
 import type { PoolCard } from "@/features/game/domain/chaos-draft";
+import type { EnrichedCard } from "@/features/game/domain/player-card";
+import { PlayerCard } from "./PlayerCard";
 
 interface Props {
   cards: readonly PoolCard[];
@@ -19,13 +21,19 @@ const STAGGER_CAP = 24;
 const STAGGER_MS = 18;
 
 /**
- * The lower-third pool strip.
+ * The card market (TASK-1834 "The Market", the owner's pick): the pool browses as the
+ * REAL PlayerCard faces — the same Vault/premium artwork every other surface deals —
+ * in a grid that scrolls vertically only.
  *
- * Grid Cascade: when eligibility changes the eligible cards sort to the front and the
- * strip restages in a staggered wave, so THE POOL is the feedback surface — no banner,
- * no toast. The re-order is a React key reorder; the motion is a per-card
- * `animation-delay` over a transform/opacity keyframe, which is what keeps it clear of
- * the motion audit's ban on animating layout properties.
+ * Grid Cascade survives the redesign: when eligibility changes the eligible cards sort
+ * to the front and the wall restages in a staggered wave, so THE POOL is the feedback
+ * surface — no banner, no toast. The re-order is a React key reorder; the motion is a
+ * per-card `animation-delay` over a transform/opacity keyframe, which is what keeps it
+ * clear of the motion audit's ban on animating layout properties.
+ *
+ * ⚠️ Each card renders `interactive={false}` — the FACE as a plain element. The market
+ * tile is itself a button, and a card that is its own button nested inside it would be
+ * silently ejected by the HTML parser (the TASK-1810 lesson).
  */
 export function CardPool({ cards, eligible, placed, selectedCard, onSelectCard, reduced }: Props) {
   const t = useTranslations("game");
@@ -46,17 +54,13 @@ export function CardPool({ cards, eligible, placed, selectedCard, onSelectCard, 
   const stageKey = eligible ? eligible.length : -1;
 
   return (
-    <div
-      role="group"
-      aria-label={t("draftPoolAria")}
-      className="mt-4 rounded-xl border border-cyan-400/20 bg-[#060a0f]/80 p-3"
-    >
+    <div role="group" aria-label={t("draftPoolAria")} className="draft-pool">
       {eligibleSet != null ? (
         <p className="mb-2 font-mono text-[10px] uppercase tracking-wider text-cyan-200/70">
           {t("draftEligibleCount", { count: eligibleSet.size })}
         </p>
       ) : null}
-      <div className="grid max-h-64 grid-cols-2 gap-2 overflow-y-auto sm:grid-cols-4 lg:grid-cols-6">
+      <div className="draft-pool-grid">
         {ordered.map((card, i) => {
           const allowed = eligibleSet == null || eligibleSet.has(card.cardId);
           const isPlaced = placedSet.has(card.cardId);
@@ -67,6 +71,7 @@ export function CardPool({ cards, eligible, placed, selectedCard, onSelectCard, 
               disabled={!allowed}
               onClick={() => onSelectCard(card.cardId)}
               aria-pressed={selectedCard === card.cardId}
+              aria-label={card.name}
               data-placed={isPlaced ? "true" : undefined}
               style={
                 reduced
@@ -77,19 +82,18 @@ export function CardPool({ cards, eligible, placed, selectedCard, onSelectCard, 
                     }
               }
               className={[
-                "draft-card rounded-lg border p-2 text-start",
+                "draft-card draft-pool-card",
                 selectedCard === card.cardId
-                  ? "border-cyan-300 bg-cyan-400/20"
+                  ? "draft-pool-selected"
                   : isPlaced
-                    ? "border-emerald-400/50 bg-emerald-400/10"
-                    : "border-white/10 bg-white/5",
-                allowed ? "hover:border-cyan-300/60" : "opacity-30",
+                    ? "draft-pool-placed"
+                    : "",
+                allowed ? "" : "opacity-30",
               ].join(" ")}
             >
-              <span className="block truncate text-[11px] font-semibold text-white">
-                {card.name}
+              <span className="draft-pool-cardbox">
+                <PlayerCard card={card as EnrichedCard} reduced={reduced} interactive={false} />
               </span>
-              <span className="block font-mono text-[10px] text-cyan-200/60">{card.role}</span>
             </button>
           );
         })}

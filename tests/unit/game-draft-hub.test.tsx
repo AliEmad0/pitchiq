@@ -43,11 +43,16 @@ const pool: PoolCard[] = ROLES.flatMap((role, r) =>
 );
 
 describe("DraftHub formation picker", () => {
-  it("offers all twenty formations, grouped by family", () => {
+  it("offers all twenty formations as chips, grouped by family", () => {
+    // TASK-1834: the owner chose the Legacy shape bar's chip language over the old
+    // `<select>`, so the picker is a group of pressable buttons under family labels.
     renderWithIntl(<DraftHub pool={pool} onConfirm={vi.fn()} />);
-    const select = screen.getByRole("combobox", { name: "Formation" });
-    expect(select.querySelectorAll("option")).toHaveLength(20);
-    expect(select.querySelectorAll("optgroup")).toHaveLength(3);
+    const picker = screen.getByRole("group", { name: "Formation" });
+    expect(picker.querySelectorAll("button")).toHaveLength(20);
+    expect(picker.querySelectorAll('button[aria-pressed="true"]')).toHaveLength(1);
+    for (const family of ["Back four", "Back three or five", "Historic"]) {
+      expect(screen.getByText(family)).toBeInTheDocument();
+    }
   });
 
   it("changing formation still renders eleven slots", async () => {
@@ -57,7 +62,7 @@ describe("DraftHub formation picker", () => {
     const user = userEvent.setup();
     renderWithIntl(<DraftHub pool={pool} onConfirm={vi.fn()} />);
     const pitch = screen.getByRole("group", { name: "Formation slots" });
-    await user.selectOptions(screen.getByRole("combobox", { name: "Formation" }), "2-3-5 Pyramid");
+    await user.click(screen.getByRole("button", { name: "2-3-5 Pyramid" }));
     expect(pitch.querySelectorAll("button")).toHaveLength(11);
   });
 });
@@ -92,7 +97,7 @@ describe("DraftHub", () => {
     renderWithIntl(<DraftHub pool={pool} onConfirm={vi.fn()} />);
     await user.click(screen.getByRole("button", { name: "Auto-fill" }));
     expect(screen.getByRole("button", { name: "Play match" })).toBeEnabled();
-    await user.selectOptions(screen.getByRole("combobox", { name: "Formation" }), "3-5-2");
+    await user.click(screen.getByRole("button", { name: "3-5-2" }));
     expect(screen.getByRole("button", { name: "Play match" })).toBeDisabled();
     expect(screen.getAllByText(/cannot play/).length).toBeGreaterThan(0);
   });
@@ -129,7 +134,7 @@ describe("DraftHub", () => {
     const user = userEvent.setup();
     renderWithIntl(<DraftHub pool={pool} onConfirm={onConfirm} />);
     await user.click(screen.getByRole("button", { name: "Auto-fill" }));
-    await user.selectOptions(screen.getByRole("combobox", { name: "Formation" }), "3-5-2");
+    await user.click(screen.getByRole("button", { name: "3-5-2" }));
     expect(screen.getByRole("button", { name: "Play match" })).toBeDisabled();
     expect(onConfirm).not.toHaveBeenCalled();
   });
@@ -147,6 +152,17 @@ describe("DraftHub", () => {
       await user.click(screen.getAllByRole("button", { name: /rated/ })[0]);
     }
     expect(screen.getByRole("button", { name: "Play match" })).toBeEnabled();
+  });
+
+  it("the stadium board tracks the filled count", async () => {
+    // TASK-1834: the ticker is the market's summary surface — it must move with the
+    // squad, not with renders.
+    const user = userEvent.setup();
+    renderWithIntl(<DraftHub pool={pool} onConfirm={vi.fn()} />);
+    const board = screen.getByRole("status", { name: "Draft progress" });
+    expect(board).toHaveTextContent("0/11");
+    await user.click(screen.getByRole("button", { name: "Auto-fill" }));
+    expect(board).toHaveTextContent("11/11");
   });
 
   it("clear empties the pitch again", async () => {
