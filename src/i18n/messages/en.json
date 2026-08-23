@@ -701,6 +701,10 @@
     "noChampion": "No champion recorded"
   },
   "game": {
+    "draftShapeHint": "Tap a formation to see it on the pitch. Cards that no longer fit are set free.",
+    "tickerAria": "Draft progress",
+    "tickerAvg": "XI average",
+    "tickerFilled": "Filled",
     "title": "Match Simulator",
     "subtitle": "A deterministic, season-authentic match — played out live.",
     "live": "LIVE",
