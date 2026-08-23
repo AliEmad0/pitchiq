@@ -47,10 +47,6 @@ export function ChaosDraft({ pool }: { pool: EnrichedCard[] }) {
   const names = useMemo(() => ({ home: t("yourXi"), away: t("rivals") }), [t]);
   const matchup = useMemo(() => chaosMatchup(pool, seed, names), [pool, seed, names]);
   const opponentTeam = matchup.opponent.kind === "squad" ? matchup.opponent.team : matchup.home;
-  const opponentAvg = useMemo(() => {
-    const rs = opponentTeam.players.map((p) => p.ratings?.overall ?? 0);
-    return rs.length ? Math.round(rs.reduce((a, b) => a + b, 0) / rs.length) : 0;
-  }, [opponentTeam]);
 
   const model = useMemo(() => {
     const result = simulate(
@@ -100,8 +96,7 @@ export function ChaosDraft({ pool }: { pool: EnrichedCard[] }) {
     <DraftScreen
       key={seed}
       home={matchup.home}
-      opponentName={matchup.opponent.kind === "squad" ? matchup.opponent.team.name : names.away}
-      opponentAvg={opponentAvg}
+      opponent={opponentTeam}
       exiting={phase === "exiting"}
       reduced={reduced}
       onReroll={reroll}

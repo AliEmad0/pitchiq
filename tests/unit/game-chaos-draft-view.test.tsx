@@ -102,3 +102,30 @@ describe("ChaosDraft entropy", () => {
     expect(random).toHaveBeenCalled();
   });
 });
+
+describe("Match Night (TASK-1835)", () => {
+  it("shows the versus board carrying both averages and both shapes", () => {
+    renderWithIntl(<ChaosDraft pool={pool} />);
+    const board = screen.getByRole("group", { name: "Matchday board" });
+    expect(board.querySelectorAll(".mn-board-num")).toHaveLength(2);
+    expect(board.querySelectorAll(".mn-tag")).toHaveLength(2);
+  });
+
+  it("puts both formations on one pitch, a rating on every dot", () => {
+    renderWithIntl(<ChaosDraft pool={pool} />);
+    expect(document.querySelectorAll(".mn-dot-home")).toHaveLength(11);
+    expect(document.querySelectorAll(".mn-dot-away")).toHaveLength(11);
+    for (const dot of document.querySelectorAll(".mn-dot")) {
+      expect(dot.querySelector("b")?.textContent).toMatch(/^\d+$/);
+    }
+  });
+
+  it("deals both squads face to face, each card over its real back", () => {
+    renderWithIntl(<ChaosDraft pool={pool} />);
+    // 22 cards, every one carrying a back face for the flip reveal.
+    expect(document.querySelectorAll(".mn-card")).toHaveLength(22);
+    expect(document.querySelectorAll(".mn-card-backside")).toHaveLength(22);
+    expect(screen.getByRole("button", { name: /Play Match/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Re-roll/ })).toBeInTheDocument();
+  });
+});

@@ -349,7 +349,8 @@ const BACK_STYLES: Record<BackDesign, { root: CSSProperties; ov: CSSProperties; 
   },
 };
 
-function CardBack({ card, back }: { card: EnrichedCard; back: BackDesign }) {
+/** Exported for TASK-1835: Match Night deals both squads face-down on these backs. */
+export function CardBack({ card, back }: { card: EnrichedCard; back: BackDesign }) {
   const s = BACK_STYLES[back];
   return (
     <div className="pc-back" style={s.root}>
