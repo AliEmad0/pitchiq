@@ -1089,19 +1089,57 @@
   flex: 1;
 }
 
-/* Draft Room: "Flip Reveal" (animation 07 of 30, TASK-1823). Candidates arrive
-   face-down and turn over on Y; rejected cards fold away on X, so accepting and
-   discarding read as opposites in one physical language rather than as two unrelated
-   effects. Transform + opacity only — the audit rejects `filter`, and animating a
-   layout property fails outright. */
+/* Draft Room: "Flip Reveal" (animation 07 of 30, TASK-1823), dealing REAL player
+   cards since TASK-1839. Rejected cards fold away on X, so accepting and discarding
+   read as opposites in one physical language rather than as two unrelated effects.
+   Transform only — the audit rejects `filter`, and animating a layout property fails
+   outright.
+
+   ⛔ "Candidates arrive face-down and turn over" was ASPIRATIONAL until TASK-1839: the
+   candidates were text tiles, so there was no back face to turn off and the keyframe
+   started edge-on at rotateY(90deg) with a fade. They are real cards now, dealt on the
+   app's own `CardBack`, so the flip runs the full 180 and the fade is gone — a card
+   with a back has something to show at every frame, and fading one in reads as the
+   board showing through it.
+
+   ⛔ Layered footprint → scaler → flipper. The keyframe OWNS `transform`, so the 0.6
+   scale must live on its own element or the animation overwrites it the moment it runs
+   — and sizing `.pc-card` directly squashes the card's internals instead of scaling
+   them (the `lg-xi` lesson). Same three-layer build as Match Night's `.mn-card`. */
+.room-card {
+  width: calc(176px * 0.6);
+  height: calc(256px * 0.6);
+  border-radius: calc(14px * 0.6);
+}
+.room-card-scale {
+  width: 176px;
+  height: 256px;
+  transform: scale(0.6);
+  transform-origin: top left;
+  perspective: 900px;
+}
+.room-card-flip {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  animation: room-flip-in 520ms cubic-bezier(0.45, 0, 0.2, 1) both;
+}
+.room-card-front,
+.room-card-backside {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+}
+.room-card-backside {
+  transform: rotateY(180deg);
+}
 @keyframes room-flip-in {
   0% {
-    opacity: 0;
-    transform: rotateY(90deg);
+    transform: rotateY(180deg);
   }
   100% {
-    opacity: 1;
-    transform: none;
+    transform: rotateY(0deg);
   }
 }
 @keyframes room-fold-out {
@@ -1115,7 +1153,10 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .room-card {
+  /* ⚠️ The FLIPPER, not the footprint — the animation moved down a layer in TASK-1839,
+     and a gate left on `.room-card` would silence an element that no longer animates
+     while the card kept turning. Double-gated: the component also passes `reduced`. */
+  .room-card-flip {
     animation: none !important;
   }
 }
