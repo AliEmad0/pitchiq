@@ -83,12 +83,12 @@ describe("ChaosDraft entropy", () => {
   it("drafts a different XI for each visitor rather than one fixed lineup", () => {
     // Two independent visitors — distinct entropy, so distinct drafts.
     vi.spyOn(Math, "random").mockReturnValue(0.11);
-    const first = renderWithIntl(<ChaosDraft pool={pool} />);
+    const first = renderWithIntl(<ChaosDraft pool={pool} onConfirm={() => {}} />);
     const a = draftedNames();
     first.unmount();
 
     vi.spyOn(Math, "random").mockReturnValue(0.87);
-    renderWithIntl(<ChaosDraft pool={pool} />);
+    renderWithIntl(<ChaosDraft pool={pool} onConfirm={() => {}} />);
     const b = draftedNames();
 
     expect(a.length).toBeGreaterThan(0);
@@ -98,21 +98,21 @@ describe("ChaosDraft entropy", () => {
 
   it("draws fresh entropy for the draft instead of stepping a fixed sequence", () => {
     const random = vi.spyOn(Math, "random").mockReturnValue(0.42);
-    renderWithIntl(<ChaosDraft pool={pool} />);
+    renderWithIntl(<ChaosDraft pool={pool} onConfirm={() => {}} />);
     expect(random).toHaveBeenCalled();
   });
 });
 
 describe("Match Night (TASK-1835)", () => {
   it("shows the versus board carrying both averages and both shapes", () => {
-    renderWithIntl(<ChaosDraft pool={pool} />);
+    renderWithIntl(<ChaosDraft pool={pool} onConfirm={() => {}} />);
     const board = screen.getByRole("group", { name: "Matchday board" });
     expect(board.querySelectorAll(".mn-board-num")).toHaveLength(2);
     expect(board.querySelectorAll(".mn-tag")).toHaveLength(2);
   });
 
   it("puts both formations on one pitch, a rating on every dot", () => {
-    renderWithIntl(<ChaosDraft pool={pool} />);
+    renderWithIntl(<ChaosDraft pool={pool} onConfirm={() => {}} />);
     expect(document.querySelectorAll(".mn-dot-home")).toHaveLength(11);
     expect(document.querySelectorAll(".mn-dot-away")).toHaveLength(11);
     for (const dot of document.querySelectorAll(".mn-dot")) {
@@ -121,7 +121,7 @@ describe("Match Night (TASK-1835)", () => {
   });
 
   it("deals both squads face to face, each card over its real back", () => {
-    renderWithIntl(<ChaosDraft pool={pool} />);
+    renderWithIntl(<ChaosDraft pool={pool} onConfirm={() => {}} />);
     // 22 cards, every one carrying a back face for the flip reveal.
     expect(document.querySelectorAll(".mn-card")).toHaveLength(22);
     expect(document.querySelectorAll(".mn-card-backside")).toHaveLength(22);

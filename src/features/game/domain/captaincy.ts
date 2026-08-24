@@ -9,6 +9,19 @@
 export interface Captaincy {
   captain: number | null;
   vice: number | null;
+  /**
+   * The WHOLE XI, ranked by the same rule — the captain and the vice are simply its first
+   * two entries (TASK-1838).
+   *
+   * ⛔ It exists because two names are not enough. A coach who substitutes both leaders
+   * leaves nine men on the pitch and no armband, and the caption then read "no recorded
+   * captain" for the rest of the match — a sentence about the DATA, in a situation that is
+   * purely about who is still playing.
+   *
+   * ⚠️ Optional so a caller may still describe a captaincy by its two names alone; those
+   * fall back to `[captain, vice]`, which is exactly the behaviour they had before.
+   */
+  order?: readonly number[];
 }
 
 export interface CaptainCandidate {
@@ -22,6 +35,9 @@ export interface CaptainCandidate {
  * ⚠️ Real captaincies OUTRANK rating, always — that is the whole point of the rule.
  * Measured on the sample XI: Gerrard's 4 takes the armband from van Dijk's 3 even though
  * van Dijk is the better card.
+ *
+ * The full ranking is returned alongside the two names, so the armband has somewhere to
+ * go when both leaders leave. See `Captaincy.order`.
  *
  * ⚠️ The rating fallback is NOT an edge case. `captains.json` covers 20 seasons thinly
  * (1997 has two entries in the entire file), so most Legacy XIs have no recorded captain
@@ -40,18 +56,28 @@ export function rankCaptains(
     if (a.rating !== b.rating) return b.rating - a.rating;
     return a.playerId - b.playerId;
   });
-  return { captain: ranked[0]?.playerId ?? null, vice: ranked[1]?.playerId ?? null };
+  return {
+    captain: ranked[0]?.playerId ?? null,
+    vice: ranked[1]?.playerId ?? null,
+    order: ranked.map((r) => r.playerId),
+  };
 }
 
 /**
- * Who is wearing it right now.
+ * Who is wearing it right now: the highest-ranked man still on the pitch.
  *
  * ⛔ The vice is NEVER displayed as such while the captain is on the pitch — he is only
  * the fallback. He inherits the armband the moment the captain leaves, by red card or by
- * substitution, and the handover is written into the commentary.
+ * substitution, and the handover is written into the commentary. The same is true of
+ * everyone behind him: the rule does not stop after two names.
+ *
+ * ⚠️ Null means there is nobody left to wear it — an empty XI, or every ranked man off the
+ * pitch. It does NOT mean "this squad has no recorded captain": `rankCaptains` falls back
+ * to rating, so a non-empty XI always has an order.
  */
 export function armbandAt(c: Captaincy, offPitch: ReadonlySet<number>): number | null {
-  if (c.captain != null && !offPitch.has(c.captain)) return c.captain;
-  if (c.vice != null && !offPitch.has(c.vice)) return c.vice;
+  for (const id of c.order ?? [c.captain, c.vice]) {
+    if (id != null && !offPitch.has(id)) return id;
+  }
   return null;
 }

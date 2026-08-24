@@ -407,19 +407,29 @@ export function MatchLive({
    * arc rests on.
    */
   const handover = useMemo(() => {
-    if (captaincy.captain == null || !offPitch.has(captaincy.captain) || armband == null) {
-      return null;
+    if (armband == null) return null;
+    const order = captaincy.order ?? [];
+    /**
+     * Everyone ranked ahead of the current wearer — and every one of them is off the
+     * pitch, because `armbandAt` returns the FIRST man in the order who is still on it.
+     */
+    const ahead = order.slice(0, order.indexOf(armband));
+    if (ahead.length === 0) return null; // he has worn it since kick-off
+    /**
+     * ⚠️ The LATEST of their exits, not the captain's (TASK-1838). Once the armband can
+     * pass a third time, "the minute the captain left" is the minute the VICE took it —
+     * so a line naming the third man carried the second man's minute.
+     */
+    let minute: number | null = null;
+    for (const e of shown) {
+      if (e.side !== "home" || e.playerId == null || !ahead.includes(e.playerId)) continue;
+      if (e.kind !== "substitution" && !(e.kind === "card" && e.card === "red")) continue;
+      if (minute == null || e.minute > minute) minute = e.minute;
     }
-    const left = shown.find(
-      (e) =>
-        e.side === "home" &&
-        e.playerId === captaincy.captain &&
-        (e.kind === "substitution" || (e.kind === "card" && e.card === "red")),
-    );
     const name = model.home.players.find((p) => p.playerId === armband)?.name;
-    if (left == null || name == null) return null;
-    return { minute: left.minute, name };
-  }, [captaincy.captain, offPitch, armband, shown, model.home.players]);
+    if (minute == null || name == null) return null;
+    return { minute, name };
+  }, [captaincy.order, armband, shown, model.home.players]);
 
   // ---- the feed, newest first ----
   type Line = { minute: number; text: string; weight: "loud" | "mid" | "quiet"; id: string };

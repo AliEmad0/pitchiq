@@ -5525,7 +5525,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1835](#task-1835) | Redesign `/game/chaos` — "Match Night" (30-concept ritual)      | ✅ Done    | P2       | M   |
 | [TASK-1836](#task-1836) | Redesign `/game/daily` — "Arcade Cabinet" (30-concept ritual)   | ✅ Done    | P2       | M   |
 | [TASK-1837](#task-1837) | Unify `/game/draft` onto the Legacy screens + real card backs   | ✅ Done    | P2       | M   |
-| [TASK-1838](#task-1838) | Unify `/game/chaos` onto the Legacy screens (driver adoption)   | 📋 Todo    | P2       | L   |
+| [TASK-1838](#task-1838) | Unify `/game/chaos` onto the Legacy screens (driver adoption)   | ✅ Done    | P2       | L   |
 | [TASK-1839](#task-1839) | Draft Room candidates become real player cards (+ back flip)    | 📋 Todo    | P2       | M   |
 
 _Enhancement roadmap 1813-1819 added 2026-08-03 from the owner's feature proposal (Option A — 100% client-side/static). See the locked-architecture notes above for the modifier-stack + determinism + no-backend decisions that govern them._
@@ -6445,13 +6445,27 @@ Design: [`docs/superpowers/specs/2026-08-13-task-1832-game-hub-design.md`](../do
 
 ### TASK-1838
 
-**Unify `/game/chaos` onto the Legacy screens (driver adoption)** · 📋 Backlog · `P2` · `L` · Type: Design
+**Unify `/game/chaos` onto the Legacy screens (driver adoption)** · ✅ Done · `P2` · `L` · Type: Design
 
 **Description** — The second half of the owner's 2026-08-23 directive. Unlike draft, `ChaosDraft` does NOT mount `GamePlay`: it batch-`simulate()`s a finished match and renders `MatchView` directly, with no preview phase and no summary phase at all. Adopting `MatchLive`/`MatchSummary` therefore means moving chaos onto the interactive driver (`useMatchDriver` + `play-machine`), which is a behaviour change as much as a visual one — it makes chaos matches COACHABLE (Bench, live decisions) rather than a playback of a match already decided.
 
 **✅ APPROVED by the owner, 2026-08-24** — he wants "total mechanical consistency across modes": real-time tactical control (Bench substitutions, live decision prompts, mid-match coaching) on the Legacy live screen. ⛔ **Match Night must survive unchanged** — it is the chaos SETUP screen (TASK-1835) and is not in scope; only what happens AFTER "Play match" changes. **Depends on:** TASK-1837 (done).
 
 **Scope** — move `ChaosDraft` off its batch `simulate()` + `MatchView` playback onto `useMatchDriver` + `play-machine`, gaining the preview and summary phases it does not have today; render the Legacy screens for all three. ⚠️ Chaos has no club, so `captaincies`/`referees` have no per-club narrowing to do — decide whether to pass the whole-pool counts (as `/game/draft` now does) or none. ⚠️ The armband caption still needs the no-captain fix (`armbandAt` has no third-in-line when both leaders are subbed off).
+
+**✅ SHIPPED 2026-08-24.** `/game/chaos` mounts `GamePlay` like every other mode. `ChaosDraft` is now the SETUP PHASE only — it drafts and hands the XI up; it no longer simulates anything. A new pack field `setup?: SetupSpec` (`"reveal"`) chooses it, alongside the `screens="legacy"` that 1837 established. ⚠️ Both are PROPS, never a mode check: `GamePlay` still does not know a mode called chaos exists. Match Night itself was not edited — `DraftScreen` has the same props and the same three structural tests as when 1835 shipped, and they are the control.
+
+⛔ **THE SEED TRAVELS WITH THE XI, and it is the whole ticket.** `buildSession` re-runs `chaosMatchup` from the seed to draft the coach's BENCH and the RIVAL, so `confirmSquad`'s `randomSeed()` would have re-drawn the opponent between the versus board and the kick-off — the coach walks out against eleven men he was never introduced to, and nothing on screen says so. `confirmSquad` therefore takes an optional `presetSeed`; every other setup builds only the coach's own XI and leaves it empty, which keeps the shipped modes on fresh entropy per match. Guarded by a test that reads the away XI off the BOARD and off the PROGRAMME and compares the two — nothing re-derived from the same seed. Sabotage-verified: replacing `presetSeed ?? randomSeed()` with `randomSeed()` fails it and leaves the other two green.
+
+⭐ **The rest was free**, because `buildSession` already collapses to chaos's own draw: with no rival policy it calls `chaosMatchup(pool, seed, names)` with no exclusions, which is byte-for-byte the call `ChaosDraft` was already making. So chaos gained resume-from-storage, share links pointing at `/game/chaos`, the matchday programme and the Legacy summary without a line of chaos-specific match code.
+
+**`captaincies`/`referees` — the open question in the scope, decided: pass the whole-pool counts**, the same `captaincyCounts(pool.map(c => c.playerId))` + `refereeNames()` call `/game/draft` makes. Both routes draft out of `loadChaosPool()`, so narrowing one and not the other would put a real captain on one live screen and a rating fallback on the other for the identical XI.
+
+**The armband fix (also in scope, done here)** — `Captaincy` gained an `order` (the whole XI ranked by the same rule) and `armbandAt` walks it, so the armband passes to a third, fourth and fifth man. Previously "no recorded captain" appeared the moment both leaders were substituted, with nine men still on the pitch — a sentence about the DATA in a situation purely about who is still playing. `MatchLive`'s handover line was corrected with it: it now dates the change to the LATEST exit among the men ranked ahead of the current wearer, because "the minute the captain left" is the minute the VICE took it, not the third man.
+
+**DoD** — [x] full loop verified live on `/game/chaos` AND `/ar/game/chaos`: Match Night → `?phase=preview` (Tale of the tape / The teams / Conditions, 22 programme cards, 4 tape bars) → `?phase=live` (`.lg-live`, The comments, 32 sheet rows, **"Change available"** — the Bench — and both captions naming real captains) → `?phase=summary` (Full time, share card, New match, which returns to a FRESH Match Night) · [x] all eleven rival players identical between the board and the programme, in both locales · [x] no console errors · [x] suite green (2442, +6 new: 3 chaos-driver, 3 captaincy) · [x] tsc + lint clean.
+
+⬜ **Noticed, deliberately not done:** Match Night renders raw Western digits on `/ar` (`.mn-dot b` reads "90", the board averages likewise). Pre-existing since 1835 and out of scope here precisely because Match Night had to survive untouched.
 
 ---
 

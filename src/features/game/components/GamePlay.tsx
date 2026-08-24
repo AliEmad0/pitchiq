@@ -23,7 +23,7 @@ import type { DecisionAnswer } from "@/features/game/domain/match-decisions";
 import { decodeMatch } from "@/features/game/domain/share-code";
 import { summaryFrom } from "@/features/game/domain/summary-card";
 import type { RefereeStyle, Weather } from "@/features/game/domain/match-types";
-import type { DraftSpec, ScreensSpec } from "@/features/game/domain/rule-packs";
+import type { DraftSpec, ScreensSpec, SetupSpec } from "@/features/game/domain/rule-packs";
 import { clearMatch, loadMatch, saveMatch } from "@/features/game/storage/match-slot";
 import { buildMatchViewModel } from "@/features/game/view/match-view-model";
 import { replayMatch, type RestoredMatch } from "@/features/game/view/match-replay";
@@ -32,6 +32,7 @@ import { useMatchDriver } from "@/features/game/view/use-match-driver";
 import { scoreAt } from "@/features/game/view/score";
 import { randomSeed } from "@/features/game/view/seed";
 import { buildShareCode, replayShared } from "@/features/game/view/share-link";
+import { ChaosDraft } from "./ChaosDraft";
 import { DecisionPrompt } from "./DecisionPrompt";
 import { DraftHub } from "./DraftHub";
 import { MatchLive } from "./MatchLive";
@@ -64,6 +65,7 @@ export function GamePlay({
   pool,
   initialPhase,
   draft,
+  setup,
   backHref,
   screens,
   opponent,
@@ -76,6 +78,14 @@ export function GamePlay({
   initialPhase?: PlayPhase;
   /** The pack's draft rules. Absent means the shipped free-build hub. */
   draft?: DraftSpec;
+  /**
+   * How the XI is assembled (TASK-1838). Absent = the coach builds it himself.
+   *
+   * ⚠️ A pack FIELD, never a mode check — same rule as `screens`. `"reveal"` mounts the
+   * auto-draft board, whose Play hands up an XI, a formation AND the seed it drew them
+   * from; see `SetupSpec` for why the seed travels with them.
+   */
+  setup?: SetupSpec;
   /** Where "choose a different club" goes. A link, because the choice is a ROUTE now. */
   backHref?: string;
   /**
@@ -245,8 +255,18 @@ export function GamePlay({
     players: PoolCard[],
     formation: Formation,
     chosen?: { setup: ChosenRival | null; difficulty: Difficulty },
+    /**
+     * The seed the setup screen ALREADY drafted from, when it drafted anything (TASK-1838).
+     *
+     * ⛔ A reveal setup drew its rival from this seed and put him on screen. Drawing a fresh
+     * one here would re-draft that rival between the board and the kick-off, so the coach
+     * would walk out against an opponent he was never shown. Every other setup builds only
+     * the coach's own XI and leaves this empty, which is what keeps the shipped modes on
+     * fresh entropy per match.
+     */
+    presetSeed?: number,
   ) => {
-    const seed = randomSeed();
+    const seed = presetSeed ?? randomSeed();
     const picked = chosen ?? null;
     setRival(picked);
     driver.start(
@@ -463,7 +483,9 @@ export function GamePlay({
   if (state.phase === "setup" || match == null) {
     return (
       <>
-        {draft != null ? (
+        {setup === "reveal" ? (
+          <ChaosDraft pool={pool} onConfirm={confirmSquad} />
+        ) : draft != null ? (
           <PitchDraft
             pool={pool}
             draft={draft}
