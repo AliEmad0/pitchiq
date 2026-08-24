@@ -37,6 +37,17 @@ export function dayKeyOffset(key: string, days: number): string {
   return dayKey(new Date(utcMs(key) + days * MS_PER_DAY));
 }
 
+/**
+ * How long this challenge has left, in ms (TASK-1836 — the hub's countdown).
+ *
+ * ⚠️ The clock is an ARGUMENT, like every other function here. The view reads
+ * `new Date()` on its own ticking interval and passes it in; a `Date.now()` inside this
+ * module would put entropy in `domain/`, which Phase 18 forbids.
+ */
+export function msToNextUtcDay(d: Date): number {
+  return utcMs(dayKey(d)) + MS_PER_DAY - d.getTime();
+}
+
 /** Day #1. Changing this renumbers every challenge; it is not a tuning knob. */
 export const DAILY_EPOCH_UTC = "2026-08-17";
 

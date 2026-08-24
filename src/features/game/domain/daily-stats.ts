@@ -79,3 +79,39 @@ export function computeStats(records: readonly DailyOutcome[], todayKey: string)
 
   return { played, won, currentStreak, bestStreak, bestMargin };
 }
+
+/** What one square of the hub's heat calendar says (TASK-1836). */
+export type DayOutcome = "won" | "lost" | "unplayed" | "today";
+
+/**
+ * The last `days` calendar days, oldest first, each labelled for the heat calendar.
+ *
+ * ⚠️ Walks the CALENDAR, not the record list — the same reason `computeStats` does. A gap
+ * is a real unplayed day and has to render as one; iterating the records would close the
+ * gap and draw a run that never happened.
+ *
+ * Today is its own state whatever its record says: the square is where the coach IS, and
+ * colouring it as a loss before he has played reads as a verdict already delivered.
+ */
+export function recentOutcomes(
+  records: readonly DailyOutcome[],
+  todayKey: string,
+  days: number,
+): Array<{ day: string; state: DayOutcome }> {
+  const byDay = new Map(records.map((r) => [r.day, r]));
+  const out: Array<{ day: string; state: DayOutcome }> = [];
+  for (let i = days - 1; i >= 0; i--) {
+    const day = dayKeyOffset(todayKey, -i);
+    if (day === todayKey) {
+      out.push({ day, state: "today" });
+      continue;
+    }
+    const rec = byDay.get(day);
+    out.push({
+      day,
+      state:
+        rec == null || !rec.done || rec.score == null ? "unplayed" : isWin(rec) ? "won" : "lost",
+    });
+  }
+  return out;
+}

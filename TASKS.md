@@ -5523,6 +5523,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1833](#task-1833) | Design the game hub — the 30-concept ritual 1832 deferred       | 📋 Backlog | P3       | M   |
 | [TASK-1834](#task-1834) | Redesign `/game/draft` — "The Market" (30-concept ritual)       | ✅ Done    | P2       | M   |
 | [TASK-1835](#task-1835) | Redesign `/game/chaos` — "Match Night" (30-concept ritual)      | ✅ Done    | P2       | M   |
+| [TASK-1836](#task-1836) | Redesign `/game/daily` — "Arcade Cabinet" (30-concept ritual)   | ✅ Done    | P2       | M   |
 
 _Enhancement roadmap 1813-1819 added 2026-08-03 from the owner's feature proposal (Option A — 100% client-side/static). See the locked-architecture notes above for the modifier-stack + determinism + no-backend decisions that govern them._
 
@@ -6404,6 +6405,22 @@ Design: [`docs/superpowers/specs/2026-08-13-task-1832-game-hub-design.md`](../do
 **Shipped** — `DraftScreen` rebuilt to the spec above; `ChaosDraft` hands the full opponent `GameTeam` down (the old name+avg props are gone); `CardBack` exported from `PlayerCard` so the reveal deals onto the REAL seeded backs. The flip layering is footprint → scaler → flipper: the `mn-flip-in` keyframe owns `transform`, so the 0.5 card scale lives on its own element or the animation would overwrite it (and sizing `.pc-card` directly squashes its internals — the lg-xi lesson). The interactive PlayerCard keeps its own tap-to-detail flip inside the reveal wrapper; the conveyor-out exit rides the existing `chaos-deal-out` keyframe via `data-exit`. Both new `@keyframes` are transform-only and reduce-gated twice (media query + the app's hook). New `mnBoardAria`/`mnVersus` keys in en + ar; the pitch reuses `livePitchAria` ("yours attacking right", which is the layout).
 
 **DoD** — [x] gallery ran; owner-spec hybrid implemented · [x] unit suite green (3 structural Match Night tests added; 2424 total) · [x] tsc + lint clean · [x] verified live on `/game/chaos` + `/ar/game/chaos`: board 79 v 83 with real shape tags, 22 OVR dots, 22 cards on real backs, flip replays on re-roll, Play (80/20, pulsing) hands off to the live match, no console errors.
+
+---
+
+### TASK-1836
+
+**Redesign `/game/daily` — "Arcade Cabinet" (30-concept ritual)** · ✅ Done · `P2` · `M` · Type: Design
+
+**Description** — The third and last surface owed the owner's ritual. A 30-concept gallery ran against the REAL challenge (a faithful mirror of `domain/daily.ts` + the room's deal rules, so every tile dealt the true day's shape and hands); the owner then chose an INGREDIENT SET rather than one tile, and a second round of thirty compositions was built from those parts. He picked **#03 "Arcade Cabinet"** and refined it in five points: the countdown moves ABOVE day+streak with all three centred; the Gazette sits directly beneath them; the shelf is relocated and redesigned; the month heat goes full width; and picking becomes a FULL-SCREEN overlay that hands off to a pre-match screen showing both squads.
+
+**Shipped** — New `DailyHub` (marquee → Gazette → trophy strip → horizontal pitch that collects each pick, newest flipping in → full-width 28-day heat calendar → glowing coin-slot bar) and new `DailyPreview` (versus band, conditions line, both XIs as cards, pulsing kick-off). Picking runs in a `position: fixed` overlay — one position at a time, five cards **dealt face-down on the real `pickBack` K-backs and flipped over**, the pick FINAL — closing itself on the eleventh pick.
+
+⛔ **The rival on the preview is `driver.match.away`** — the opponent from the day's own session — never a second draw; drafting one here would show the coach an eleven he does not play. ⚠️ The room's state machine is reused as-is (`roomDeals` + `roomReducer`), so there is still exactly one deal implementation; the hub is a second PRESENTATION of it. ⚠️ Deal options are now `standout` + `onePerPlayer`, a **deliberate rules change** so the overlay's copy ("one is rated 80 or better", "this pick is final") is true rather than decorative. Two new pure helpers keep entropy out of the components: `msToNextUtcDay(d)` (clock passed in, per the no-clock-in-domain rule) and `recentOutcomes(records, today, days)` (walks the CALENDAR, so a skipped day stays unplayed instead of being closed over).
+
+⭐ **Three tests were vacuous until sabotage caught them** — the two new rule tests both passed with `standout`/`onePerPlayer` switched OFF (the pool made 80+ ubiquitous, and the repeat check looked at a GK→LB transition where a repeat is impossible), and the inherited cold-shell guard matched `/#\d/`, a format this redesign removed. All three now fail when the thing they guard is broken. ⛔ `onePerPlayer` is invisible unless the fixture gives one man MULTIPLE SEASONS — card key and player key partition an all-distinct pool identically.
+
+**DoD** — [x] 30 concepts presented (two rounds; owner-selected #03 + five refinements implemented) · [x] unit suite green (10 new tests; 2436 total) · [x] tsc + lint clean · [x] verified live on `/game/daily` + `/ar/game/daily`: clock above centred day+streak, Gazette beneath, full-width heat (28 squares), overlay covering the viewport with five cards on real backs, the full eleven-pick walk closing into the preview (84 v 79, rival's own 5-4-1, 22 card faces), kick-off reaching the live match and spending the day, Arabic RTL with Eastern-Arabic numerals, no console errors.
 
 ---
 

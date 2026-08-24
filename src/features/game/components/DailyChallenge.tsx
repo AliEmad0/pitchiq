@@ -22,9 +22,9 @@ import { buildMatchViewModel } from "@/features/game/view/match-view-model";
 import { createPlayState, playReducer } from "@/features/game/view/play-machine";
 import { useMatchDriver } from "@/features/game/view/use-match-driver";
 import { localizeDigits } from "@/utils/format";
+import { DailyHub } from "./DailyHub";
+import { DailyPreview } from "./DailyPreview";
 import { DecisionPrompt } from "./DecisionPrompt";
-import { DraftRoom } from "./DraftRoom";
-import { MatchupPreview } from "./MatchupPreview";
 import { MatchView } from "./MatchView";
 
 /** Seconds a decision waits before answering itself. Mirrors GamePlay. */
@@ -202,40 +202,42 @@ export function DailyChallenge({ pool }: { pool: PoolCard[] }) {
   }
 
   if (state.phase === "setup") {
+    // TASK-1836 — the owner's "Arcade Cabinet" hub replaces the plain header + room.
     return (
-      <div className="mx-auto w-full max-w-5xl">
-        <h1 data-testid="daily-header" className="text-2xl font-extrabold tracking-tight">
-          {t("dailyTitle", { n: n(dayNumber(today)) })} · {formation.name}
-        </h1>
-        {streakLine}
-        <DraftRoom
-          pool={pool}
-          formation={formation}
-          seed={seeds.deal}
-          onComplete={(cardIds) => {
-            const byId = new Map(pool.map((c) => [c.cardId, c]));
-            const players = cardIds
-              .map((id) => byId.get(id))
-              .filter((c): c is PoolCard => c != null);
-            setSquad({ cardIds });
-            driver.start(pool, players, formation, seeds.match, {
-              home: t("yourXi"),
-              away: t("rivals"),
-            });
-            dispatch({ type: "confirmSquad", seed: seeds.match });
-          }}
-        />
-      </div>
+      <DailyHub
+        pool={pool}
+        today={today}
+        dayNumber={dayNumber(today)}
+        formation={formation}
+        seed={seeds.deal}
+        stats={stats}
+        history={history}
+        onComplete={(cardIds) => {
+          const byId = new Map(pool.map((c) => [c.cardId, c]));
+          const players = cardIds.map((id) => byId.get(id)).filter((c): c is PoolCard => c != null);
+          setSquad({ cardIds });
+          driver.start(pool, players, formation, seeds.match, {
+            home: t("yourXi"),
+            away: t("rivals"),
+          });
+          dispatch({ type: "confirmSquad", seed: seeds.match });
+        }}
+      />
     );
   }
 
   if (state.phase === "preview" && driver.match != null) {
     return (
-      <MatchupPreview
+      <DailyPreview
         home={driver.match.home}
+        // ⛔ The REAL opponent, straight out of the session the coach is about to play.
         away={driver.match.away}
-        referee={(driver.events.find((e) => e.kind === "referee")?.refStyle ?? null) as RefereeStyle | null}
-        weather={(driver.events.find((e) => e.kind === "weather")?.weather ?? null) as Weather | null}
+        referee={
+          (driver.events.find((e) => e.kind === "referee")?.refStyle ?? null) as RefereeStyle | null
+        }
+        weather={
+          (driver.events.find((e) => e.kind === "weather")?.weather ?? null) as Weather | null
+        }
         onKickOff={() => {
           // ⚠️ THE COMMIT POINT. The day is spent here and its key frozen for the session.
           const anchor = dayKey(new Date());
@@ -243,7 +245,6 @@ export function DailyChallenge({ pool }: { pool: PoolCard[] }) {
           markStarted(anchor);
           dispatch({ type: "kickOff" });
         }}
-        onBack={() => dispatch({ type: "backToSetup" })}
       />
     );
   }
@@ -274,11 +275,7 @@ export function DailyChallenge({ pool }: { pool: PoolCard[] }) {
         />
       ) : null}
       {driver.pending != null ? (
-        <DecisionPrompt
-          decision={driver.pending}
-          limit={DECISION_LIMIT}
-          onAnswer={driver.answer}
-        />
+        <DecisionPrompt decision={driver.pending} limit={DECISION_LIMIT} onAnswer={driver.answer} />
       ) : null}
       {text != null ? (
         <div data-testid="daily-result" className="mt-4">

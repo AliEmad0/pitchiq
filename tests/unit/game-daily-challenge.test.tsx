@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { PlayerRole } from "@/data/schemas";
 import { makeCardId } from "@/features/game/domain/card-id";
 import type { PoolCard } from "@/features/game/domain/chaos-draft";
-import { dayKey } from "@/features/game/domain/daily";
+import { dayFormation, dayKey, dayNumber } from "@/features/game/domain/daily";
 import { saveDaily } from "@/features/game/storage/daily-slot";
 import { renderWithIntl } from "./_helpers/intl";
 
@@ -72,15 +72,24 @@ describe("DailyChallenge", () => {
   it("⚠️ renders no day-specific content before mount resolves the day", () => {
     // The route is force-static and CDN-cached; baking today's number into the
     // prerender would serve a stale challenge tomorrow.
+    //
+    // ⚠️ Asserts the SHELL IS EMPTY rather than "no #N on screen". TASK-1836's hub shows
+    // the day as a bare figure under a DAY label, so a pattern match on the old "#7"
+    // format would now pass no matter what the shell rendered — a vacuous guard on the
+    // one thing this test exists to catch.
     const { container } = mount();
     expect(container.querySelector("[data-testid=daily-loading]")).not.toBeNull();
-    expect(container.textContent).not.toMatch(/#\d/);
+    expect(container.querySelector("[data-testid=daily-header]")).toBeNull();
+    expect(container.textContent?.trim()).toBe("");
   });
 
   it("shows today's challenge number and shape after mount", async () => {
     mount();
     await waitFor(() => expect(screen.getByTestId("daily-header")).toBeTruthy());
-    expect(screen.getByTestId("daily-header").textContent).toMatch(/#\d+/);
+    // The real number for the real day — never a hardcoded one.
+    expect(screen.getByTestId("daily-day")).toHaveTextContent(String(dayNumber(today())));
+    // The shape now leads the Gazette rather than the title.
+    expect(screen.getByText(new RegExp(dayFormation(today()).name))).toBeInTheDocument();
   });
 
   it("⛔ renders a finished day as spent rather than offering a fresh attempt", async () => {
@@ -121,6 +130,9 @@ describe("DailyChallenge", () => {
     mount();
     await waitFor(() => expect(screen.getByTestId("daily-header")).toBeTruthy());
 
+    // TASK-1836: picking happens in a full-screen overlay the coach opens himself.
+    await user.click(screen.getByRole("button", { name: /Start picking/ }));
+
     // Drafting is free and spends nothing — fill all eleven slots.
     for (let i = 0; i < 11; i++) {
       const cards = screen.queryAllByRole("button", { name: /rated \d+$/ });
@@ -134,9 +146,7 @@ describe("DailyChallenge", () => {
     const kick = await screen.findByRole("button", { name: /kick.?off/i });
     await user.click(kick);
 
-    await waitFor(() =>
-      expect(sessionStorage.getItem(`daily_active_lock_${today()}`)).toBe("1"),
-    );
+    await waitFor(() => expect(sessionStorage.getItem(`daily_active_lock_${today()}`)).toBe("1"));
   });
 
   it("⚠️ an EARLIER day's finished record does not spend today", async () => {

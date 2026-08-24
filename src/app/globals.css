@@ -3801,3 +3801,550 @@
   font-size: 11px;
   color: var(--muted-foreground);
 }
+
+/* === TASK-1836 — the daily hub, "Arcade Cabinet" (owner's pick from the 30-concept
+   ritual, refined over three rounds). Self-contained broadcast colours, like the pc-
+   card system and the Market: this is a cabinet, and it reads the same in both themes. === */
+.dh-marquee {
+  border: 3px solid #22d3ee;
+  border-radius: 14px;
+  background: #04141b;
+  padding: 18px 16px;
+  text-align: center;
+  box-shadow:
+    0 0 30px rgba(34, 211, 238, 0.25),
+    inset 0 0 24px rgba(34, 211, 238, 0.12);
+}
+.dh-marquee-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: #9beeff;
+  text-shadow: 0 0 14px rgba(34, 211, 238, 0.8);
+}
+.dh-closes {
+  margin: 10px 0 0;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #5fa8bb;
+}
+.dh-clock {
+  margin: 0;
+  font-family: var(--font-mono), monospace;
+  font-size: 46px;
+  font-weight: 900;
+  line-height: 1.05;
+  color: #9beeff;
+  text-shadow: 0 0 16px rgba(34, 211, 238, 0.8);
+  font-variant-numeric: tabular-nums;
+}
+.dh-figures {
+  display: flex;
+  gap: 34px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+}
+.dh-figures > div {
+  display: grid;
+  justify-items: center;
+}
+.dh-figure-label {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #5fa8bb;
+}
+.dh-figure {
+  font-family: var(--font-mono), monospace;
+  font-size: 44px;
+  font-weight: 900;
+  line-height: 1.05;
+  color: #a3e635;
+  text-shadow: 0 0 18px rgba(163, 230, 53, 0.35);
+}
+.dh-figure-dot {
+  font-size: 26px;
+  color: #5b6b7a;
+}
+
+/* ---- the Gazette ---- */
+.dh-gazette {
+  margin-top: 12px;
+  background: #efe9d8;
+  color: #221d10;
+  border-radius: 8px;
+  padding: 14px 18px;
+}
+.dh-mast {
+  margin: 0;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.3em;
+  text-align: center;
+  border-bottom: 3px double #221d10;
+  padding-bottom: 6px;
+}
+.dh-headline {
+  margin: 10px 0 3px;
+  font-size: 30px;
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+.dh-lede {
+  margin: 0;
+  font-size: 12.5px;
+  color: #4c4530;
+}
+
+/* ---- the shelf, as a strip ---- */
+.dh-shelf {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 12px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: linear-gradient(#2a1f10, #1a1206);
+  border: 1px solid #5b3a1e;
+  box-shadow:
+    0 6px 14px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(246, 192, 0, 0.25);
+  color: #e8eff5;
+}
+.dh-trophy {
+  font-size: 26px;
+  line-height: 1;
+}
+.dh-shelf-num {
+  font-family: var(--font-mono), monospace;
+  font-size: 20px;
+  font-weight: 900;
+}
+.dh-gold {
+  color: #f6c000;
+}
+.dh-lime {
+  color: #a3e635;
+}
+.dh-shelf-label {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  color: #8fa3b4;
+  margin-inline-start: 6px;
+}
+.dh-shelf-sep {
+  opacity: 0.4;
+}
+
+/* ---- the pitch, inside the cabinet ---- */
+.dh-cabinet {
+  margin-top: 12px;
+  border: 3px solid #22d3ee;
+  border-radius: 14px;
+  background: #04141b;
+  padding: 10px;
+  box-shadow: 0 0 30px rgba(34, 211, 238, 0.2);
+}
+.dh-pitch {
+  position: relative;
+  height: 340px;
+  border-radius: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  overflow: hidden;
+  background: repeating-linear-gradient(90deg, #14603f 0 8.33%, #0f4c32 8.33% 16.66%);
+}
+.dh-line {
+  position: absolute;
+}
+.dh-mid {
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: rgba(255, 255, 255, 0.26);
+}
+.dh-circle {
+  left: 50%;
+  top: 50%;
+  width: 96px;
+  height: 96px;
+  border: 2px solid rgba(255, 255, 255, 0.26);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+.dh-box {
+  top: 26%;
+  bottom: 26%;
+  width: 50px;
+  border: 2px solid rgba(255, 255, 255, 0.26);
+}
+.dh-box-left {
+  left: -2px;
+}
+.dh-box-right {
+  right: -2px;
+}
+.dh-spot {
+  position: absolute;
+  transform: translate(-50%, -50%);
+}
+.dh-empty {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(6, 32, 18, 0.85);
+  border: 2px dashed rgba(255, 255, 255, 0.55);
+  font-family: var(--font-mono), monospace;
+  font-size: 9.5px;
+  font-weight: 800;
+  color: #dff3e6;
+}
+/* The footprint lives on the wrapper and the real size plus scale on the card. Sizing
+   `.pc-card` itself squashes its internals (the lg-xi lesson), and the flip keyframe OWNS
+   `transform`, so the scale has to sit on a different element than the animation. */
+.dh-mini {
+  display: block;
+  width: calc(176px * 0.3);
+  height: calc(256px * 0.3);
+}
+.dh-mini > * {
+  width: 176px;
+  height: 256px;
+  transform: scale(0.3);
+  transform-origin: top left;
+}
+.dh-mini-flip > * {
+  animation: dh-flip-in 700ms cubic-bezier(0.45, 0, 0.2, 1) both;
+}
+
+/* ---- the coin slot ---- */
+.dh-slotbar {
+  margin-top: 12px;
+  border: 3px solid #22d3ee;
+  border-radius: 14px;
+  background: #04141b;
+  padding: 10px;
+  text-align: center;
+  box-shadow: 0 0 22px rgba(34, 211, 238, 0.2);
+}
+.dh-insert {
+  margin: 0 0 6px;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #5fa8bb;
+}
+.dh-start {
+  display: block;
+  width: 100%;
+  border-radius: 9px;
+  border: 1px solid #22d3ee;
+  background: #22d3ee;
+  color: #04222a;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+  animation: draft-play-pulse 1.6s ease-in-out infinite;
+}
+
+/* ---- the month, full width ---- */
+.dh-month {
+  margin-top: 12px;
+  border: 1px solid #1d2a36;
+  border-radius: 12px;
+  background: #0d141c;
+  padding: 12px;
+}
+.dh-month-label {
+  margin: 0 0 8px;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #5b6b7a;
+}
+.dh-month-grid {
+  display: grid;
+  grid-template-columns: repeat(14, minmax(0, 1fr));
+  gap: 5px;
+}
+.dh-day {
+  aspect-ratio: 1;
+  border-radius: 5px;
+  border: 1px solid #1d2a36;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono), monospace;
+  font-size: 9.5px;
+  color: #8fa3b4;
+}
+.dh-day-won {
+  background: rgba(163, 230, 53, 0.28);
+  border-color: rgba(163, 230, 53, 0.5);
+}
+.dh-day-lost {
+  background: rgba(255, 47, 176, 0.2);
+  border-color: rgba(255, 47, 176, 0.4);
+}
+.dh-day-today {
+  outline: 2px solid #22d3ee;
+}
+
+/* ---- the full-screen pick overlay ---- */
+.dh-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: rgba(4, 7, 10, 0.93);
+  overflow: auto;
+  display: grid;
+  place-items: center;
+  padding: 30px 16px;
+}
+.dh-overlay-inner {
+  width: min(1000px, 96vw);
+  text-align: center;
+}
+.dh-overlay-meta {
+  margin: 0;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #5b6b7a;
+}
+.dh-overlay-role {
+  margin: 6px 0 2px;
+  font-size: 34px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: #e8eff5;
+}
+.dh-overlay-sub {
+  margin: 0 0 12px;
+  color: #8fa3b4;
+  font-size: 12.5px;
+}
+.dh-overlay-hint {
+  margin: 12px 0 0;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  color: #5b6b7a;
+}
+.dh-dots {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 14px 0 4px;
+}
+.dh-dot {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1.5px dashed rgba(255, 255, 255, 0.4);
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono), monospace;
+  font-size: 8px;
+  color: #8fa3b4;
+}
+.dh-dot-done {
+  border-style: solid;
+  border-color: #a3e635;
+  color: #a3e635;
+}
+.dh-dot-now {
+  border-style: solid;
+  border-color: #67e8f9;
+  background: rgba(34, 211, 238, 0.2);
+  color: #c9f6ff;
+}
+.dh-hand {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+.dh-pick {
+  border: none;
+  background: none;
+  padding: 0;
+  border-radius: 14px;
+  cursor: pointer;
+  perspective: 900px;
+}
+.dh-pick:hover .dh-flip,
+.dh-pick:focus-visible .dh-flip {
+  outline: 2px solid #67e8f9;
+  outline-offset: 3px;
+  border-radius: 14px;
+}
+.dh-flip {
+  position: relative;
+  display: block;
+  width: 176px;
+  height: 256px;
+  transform-style: preserve-3d;
+  animation: dh-flip-in 700ms cubic-bezier(0.45, 0, 0.2, 1) both;
+}
+.dh-flip-still {
+  animation: none;
+}
+.dh-face,
+.dh-back {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+}
+.dh-back {
+  transform: rotateY(180deg);
+}
+@keyframes dh-flip-in {
+  0% {
+    transform: rotateY(180deg);
+  }
+  100% {
+    transform: rotateY(0deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dh-flip,
+  .dh-mini-flip > *,
+  .dh-start {
+    animation: none !important;
+  }
+}
+
+/* ---- the pre-match preview ---- */
+.dh-vs {
+  display: grid;
+  grid-template-columns: 1fr 60px 1fr;
+  align-items: center;
+  justify-items: center;
+  background: #05070a;
+  border: 2px solid #1b2733;
+  border-radius: 12px;
+  padding: 14px;
+}
+.dh-vs > div {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  text-align: center;
+}
+.dh-vs-label {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #8fa3b4;
+}
+.dh-vs-num {
+  font-family: var(--font-mono), monospace;
+  font-size: 52px;
+  font-weight: 900;
+  line-height: 1.05;
+  color: #a3e635;
+  text-shadow: 0 0 18px rgba(163, 230, 53, 0.35);
+}
+.dh-vs-away {
+  color: #ff2fb0;
+  text-shadow: 0 0 18px rgba(255, 47, 176, 0.35);
+}
+.dh-vs-mid {
+  font-weight: 900;
+  font-size: 22px;
+  color: #5b6b7a;
+}
+.dh-vs-tag {
+  font-family: var(--font-mono), monospace;
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 5px;
+  background: #22d3ee;
+  color: #04222a;
+}
+.dh-vs-tag-away {
+  background: #ff2fb0;
+  color: #2b0620;
+}
+.dh-conditions {
+  margin: 8px 0 0;
+  text-align: center;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8fa3b4;
+}
+.dh-sides {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+  margin-top: 12px;
+}
+@media (max-width: 800px) {
+  .dh-sides {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .dh-pitch {
+    height: 260px;
+  }
+}
+.dh-side {
+  border-radius: 16px;
+  padding: 14px;
+  background: radial-gradient(120% 80% at 50% -10%, #12202c, #080c11);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+.dh-side-label {
+  margin: 0 0 10px;
+  text-align: center;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #8fa3b4;
+}
+.dh-side-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+.dh-side-card {
+  display: block;
+  width: calc(176px * 0.45);
+  height: calc(256px * 0.45);
+}
+.dh-side-card > * {
+  width: 176px;
+  height: 256px;
+  transform: scale(0.45);
+  transform-origin: top left;
+}
