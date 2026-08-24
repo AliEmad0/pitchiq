@@ -58,7 +58,7 @@ describe("rankCaptains", () => {
 
   it("has no vice in a one-man squad, and no captain in an empty one", () => {
     expect(rankCaptains([{ playerId: 7, rating: 70 }], new Map()).vice).toBeNull();
-    expect(rankCaptains([], new Map())).toEqual({ captain: null, vice: null });
+    expect(rankCaptains([], new Map())).toEqual({ captain: null, vice: null, order: [] });
   });
 });
 
@@ -75,8 +75,40 @@ describe("armbandAt", () => {
     expect(armbandAt({ captain: 1, vice: 2 }, new Set([2]))).toBe(1);
   });
 
-  it("returns null once both have left", () => {
+  it("returns null once both have left, when there is nobody else ranked", () => {
     expect(armbandAt({ captain: 1, vice: 2 }, new Set([1, 2]))).toBeNull();
+  });
+
+  /**
+   * ⛔ Owner-visible regression (TASK-1838): with only a captain and a vice there is no
+   * THIRD in line, so an XI that substituted both leaders showed "no recorded captain"
+   * for the rest of the match — with nine men still on the pitch, one of whom the same
+   * rule would have picked.
+   */
+  it("passes the armband on down the ranking when both leaders have left", () => {
+    const squad = [
+      { playerId: 1, rating: 90 },
+      { playerId: 2, rating: 80 },
+      { playerId: 3, rating: 70 },
+      { playerId: 4, rating: 60 },
+    ];
+    const ranked = rankCaptains(squad, new Map());
+    expect(armbandAt(ranked, new Set([1, 2]))).toBe(3);
+    expect(armbandAt(ranked, new Set([1, 2, 3]))).toBe(4);
+    // Nobody left on the pitch at all is still the honest null.
+    expect(armbandAt(ranked, new Set([1, 2, 3, 4]))).toBeNull();
+  });
+
+  it("honours a real captaincy count over rating all the way down the order", () => {
+    const squad = [
+      { playerId: 1, rating: 90 },
+      { playerId: 2, rating: 80 },
+      { playerId: 3, rating: 70 },
+    ];
+    // Player 3 has the recorded armband, so he outranks both better-rated cards.
+    const ranked = rankCaptains(squad, new Map([[3, 4]]));
+    expect(armbandAt(ranked, new Set([3]))).toBe(1);
+    expect(armbandAt(ranked, new Set([3, 1]))).toBe(2);
   });
 
   it("returns null for an XI with no recorded captain at all", () => {

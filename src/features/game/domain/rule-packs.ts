@@ -112,12 +112,30 @@ export interface DraftSpec {
  */
 export type ScreensSpec = "legacy";
 
+/**
+ * How a pack assembles the coach's XI before a ball is kicked (TASK-1838).
+ *
+ * `"reveal"` is the auto-drafted one: a whole XI is drawn for him and REVEALED — the
+ * "Match Night" board of TASK-1835 — and his only input is to re-roll it or play it.
+ * Absent means he builds his own, either in the free-roam hub or in the pack's draft room.
+ *
+ * ⚠️ A pack FIELD, for the same reason `screens` is one: "modes are rule packs (data), not
+ * code paths". `GamePlay` must not learn that a mode called chaos exists.
+ *
+ * ⛔ A reveal setup hands its SEED up with the XI. The rival it showed is redrawn from
+ * that seed at kick-off, so a pack that dropped it would field a different opponent than
+ * the one the coach was just introduced to.
+ */
+export type SetupSpec = "reveal";
+
 export interface RulePack {
   id: ModeId;
   pool: PoolSpec;
   chooser?: ChooserSpec;
   /** Absent means the shipped match screens. See `ScreensSpec`. */
   screens?: ScreensSpec;
+  /** Absent means the coach builds his own XI. See `SetupSpec`. */
+  setup?: SetupSpec;
   /**
    * How the auto-drafted opponent picks his XI. Absent = the shipped random draw.
    *

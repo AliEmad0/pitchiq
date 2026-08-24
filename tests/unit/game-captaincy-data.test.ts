@@ -33,7 +33,11 @@ describe("captaincyCounts, over data/captains.json", () => {
       ],
       counts,
     );
-    expect(ranked).toEqual({ captain: GERRARD, vice: VAN_DIJK });
+    expect(ranked).toEqual({
+      captain: GERRARD,
+      vice: VAN_DIJK,
+      order: [GERRARD, VAN_DIJK],
+    });
   });
 
   it("⚠️ NARROWS to the ids it is asked about", async () => {
