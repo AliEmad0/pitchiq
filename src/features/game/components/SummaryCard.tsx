@@ -11,7 +11,6 @@ import {
   type SummaryCardData,
 } from "@/features/game/domain/summary-card";
 import { clubLogo } from "@/utils/club-logo";
-import { localizeDigits } from "@/utils/format";
 
 /**
  * OG proportions — the card is meant to be pasted into a chat as an image.
@@ -56,7 +55,14 @@ function loadCrest(teamId: number | null): Promise<HTMLImageElement | null> {
   });
 }
 
-export function SummaryCard({ data, locale }: { data: SummaryCardData; locale: string }) {
+/**
+ * ⚠️ No `locale` prop any more (TASK-1840). It fed nothing but the digit helper, and once
+ * the card was pinned to Western digits it changed nothing — an argument that changes
+ * nothing is worse than no argument at all. `view/commentary-view.ts` dropped its own
+ * `locale` for exactly this reason when the commentary digits were pinned. The PROSE on
+ * the card still localizes: it comes from `useTranslations`, which reads the provider.
+ */
+export function SummaryCard({ data }: { data: SummaryCardData }) {
   const ref = useRef<HTMLCanvasElement>(null);
   const t = useTranslations("game");
   const fullTime = t("playFullTime");
@@ -80,10 +86,20 @@ export function SummaryCard({ data, locale }: { data: SummaryCardData; locale: s
       const body = getComputedStyle(document.body);
       const sans = body.fontFamily || "system-ui, sans-serif";
       const mono = "ui-monospace, SFMono-Regular, Menlo, monospace";
-      // ⛔ The app's own helper, NOT `Intl.NumberFormat(locale)`. Measured in the browser:
-      // `new Intl.NumberFormat("ar").format(20260817)` returns "20,260,817" — Western
-      // digits — so the card would have printed 3–1 beside a UI printing ٣–١.
-      const num = (n: number) => localizeDigits(n, locale);
+      /**
+       * ⛔ WESTERN in every locale (owner, 2026-08-24), so the whole match flow — board,
+       * programme, live feed, full time and this card — reads one numeral convention.
+       *
+       * ⚠️ This used to be `localizeDigits(n, locale)`, and that was right at the time: the
+       * full-time screen localized its digits and a card printing `3–1` beneath a screen
+       * printing `٣–١` is worse than either convention. The screen moved, so the card
+       * moves with it — the two must never be changed apart.
+       *
+       * ⛔ Do NOT "restore" this with `Intl.NumberFormat(locale)`. Measured in the browser:
+       * `new Intl.NumberFormat("ar").format(20260817)` returns "20,260,817" — grouped
+       * WESTERN digits — so it would silently add thousands separators to a seed.
+       */
+      const num = (n: number) => String(n);
 
       const text = (
         s: string,
@@ -191,8 +207,9 @@ export function SummaryCard({ data, locale }: { data: SummaryCardData; locale: s
       const layout = scorerLayout(data.scorers.length);
       const shown = data.scorers.slice(0, layout.shown);
       shown.forEach((s, i) => {
-        const withLocalDigits = scorerLine(s).replace(/^\d+/, (d) => num(Number(d)));
-        text(withLocalDigits, W / 2, layout.first + i * layout.step, {
+        // ⚠️ The leading minute needed rewriting while the card localized its digits; it
+        // is already Western now, so the line is painted exactly as `scorerLine` builds it.
+        text(scorerLine(s), W / 2, layout.first + i * layout.step, {
           size: layout.size,
           color: SOFT,
           align: "center",
@@ -224,7 +241,7 @@ export function SummaryCard({ data, locale }: { data: SummaryCardData; locale: s
         font: mono,
       });
     },
-    [data, locale, fullTime, t],
+    [data, fullTime, t],
   );
 
   useEffect(() => {
@@ -281,10 +298,7 @@ export function SummaryCard({ data, locale }: { data: SummaryCardData; locale: s
         role="img"
         // Localized here too, so the accessible name matches the painted card — and so
         // the digit convention is assertable in a test, which pixels are not.
-        aria-label={`${data.home} ${localizeDigits(data.score.home, locale)}–${localizeDigits(
-          data.score.away,
-          locale,
-        )} ${data.away}`}
+        aria-label={`${data.home} ${data.score.home}–${data.score.away} ${data.away}`}
         className="w-full max-w-full rounded-2xl ring-1 ring-cyan-400/20"
       />
       <button

@@ -157,12 +157,15 @@ export function MatchSummary({
           <ClubCrest teamId={crests?.home} size={34} />
           {homeName}
         </span>
-        {/* ⚠️ Localized digits: the card painted directly below prints ٣–١ under /ar, and
-            two digit conventions for the same score on one screen is worse than either. */}
+        {/* ⛔ WESTERN in every locale (owner, 2026-08-24), and the card painted directly
+            below now matches. A scoreline is read as a glyph rather than as prose — the
+            decision already pinned for the player cards (PR #97) and the commentary — and
+            this screen was the last one disagreeing with it: the live feed printed `0–1`
+            and full time answered `٠–١` for the same match one click later. */}
         <span className="font-mono text-3xl font-black tabular-nums text-cyan-300">
-          {localizeDigits(score.home, locale)}
+          {score.home}
           {"–"}
-          {localizeDigits(score.away, locale)}
+          {score.away}
         </span>
         <span className="flex flex-1 items-center justify-start gap-2.5 text-start text-lg font-bold text-white">
           {awayName}
@@ -175,7 +178,7 @@ export function MatchSummary({
           <h2 className="text-muted-foreground mb-2 font-mono text-[11px] font-bold tracking-widest uppercase">
             {t("shareTitle")}
           </h2>
-          <SummaryCard data={cardData} locale={locale} />
+          <SummaryCard data={cardData} />
         </>
       ) : null}
 
@@ -196,7 +199,8 @@ export function MatchSummary({
                   className="flex flex-wrap items-center gap-x-3 gap-y-1 py-1.5 text-sm"
                 >
                   <span className="text-muted-foreground w-10 shrink-0 font-mono tabular-nums">
-                    {localizeDigits(d.minute, locale)}
+                    {/* Western, like every other minute in the match. */}
+                    {d.minute}
                     {"'"}
                   </span>
                   <span className="font-semibold">
@@ -210,11 +214,11 @@ export function MatchSummary({
                         {p.label}
                       </span>
                       <span>{p.who.name}</span>
-                      {/* ⚠️ Localized digits — a rating painted beside an Arabic name in
-                          Western numerals reads as a different alphabet mid-sentence, and
-                          the card directly above prints ٨٣. */}
+                      {/* ⛔ Western: a rating is one of the four quantities pinned to
+                          Western in every locale, and the team sheet this coach just left
+                          printed the same number that way. */}
                       <span className="rounded bg-cyan-400/10 px-1.5 font-mono text-xs font-bold text-cyan-300 tabular-nums">
-                        {p.who.ovr == null ? "—" : localizeDigits(p.who.ovr, locale)}
+                        {p.who.ovr ?? "—"}
                       </span>
                     </span>
                   ))}
@@ -235,7 +239,9 @@ export function MatchSummary({
 
       <div className="mt-6 flex flex-wrap items-center gap-3">
         <span className="text-muted-foreground font-mono text-xs">
-          {t("playSeed")} {localizeDigits(seed, locale)}
+          {/* ⚠️ Western: the seed is an IDENTIFIER, read against the share link and the
+              card footer beside it, both of which are Latin. */}
+          {t("playSeed")} {seed}
         </span>
         {shareCode != null ? <ShareLink code={shareCode} locale={locale} path={sharePath} /> : null}
         <button

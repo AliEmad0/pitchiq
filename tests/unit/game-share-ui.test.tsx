@@ -104,25 +104,27 @@ describe("SummaryCard", () => {
   // CONTENT it would paint is tested in summary-card.test.ts, where it is real data
   // rather than pixels.
   it("renders its controls even when no 2D context exists", () => {
-    renderWithIntl(<SummaryCard data={data} locale="en" />);
+    renderWithIntl(<SummaryCard data={data} />);
     expect(screen.getByRole("button", { name: "Download card" })).toBeInTheDocument();
   });
 
   it("labels the canvas with the scoreline, so it is not an unnamed image", () => {
-    renderWithIntl(<SummaryCard data={data} locale="en" />);
+    renderWithIntl(<SummaryCard data={data} />);
     expect(screen.getByRole("img", { name: "Your XI 3–1 The Rivals" })).toBeInTheDocument();
   });
 
-  it("⛔ uses the app's Eastern-Arabic digits under /ar, not Intl's", () => {
-    // Measured in the browser: `new Intl.NumberFormat("ar").format(3)` returns a WESTERN
-    // "3" in this engine, so the card would have printed 3–1 beside a UI printing ٣–١.
-    // The app's `localizeDigits` is the only correct source.
-    renderWithIntl(<SummaryCard data={data} locale="ar" />, "ar");
-    expect(screen.getByRole("img", { name: "Your XI ٣–١ The Rivals" })).toBeInTheDocument();
+  it("⛔ keeps the scoreline WESTERN under /ar, matching the screen it sits on", () => {
+    // ⚠️ REVERSED DELIBERATELY (owner, 2026-08-24). This used to assert ٣–١, from a time
+    // when the full-time screen localized its digits and the card had to agree with it.
+    // Both were moved to Western so the whole match flow — board, programme, live feed,
+    // full time, and this card — reads one numeral convention. The aria-label is asserted
+    // rather than the pixels because a canvas paints in jsdom's void.
+    renderWithIntl(<SummaryCard data={data} />, "ar");
+    expect(screen.getByRole("img", { name: "Your XI 3–1 The Rivals" })).toBeInTheDocument();
   });
 
   it("does not throw when the download is pressed with nothing painted", async () => {
-    renderWithIntl(<SummaryCard data={data} locale="en" />);
+    renderWithIntl(<SummaryCard data={data} />);
     await userEvent.click(screen.getByRole("button", { name: "Download card" }));
     expect(screen.getByRole("button", { name: "Download card" })).toBeInTheDocument();
   });
