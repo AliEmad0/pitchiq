@@ -2,12 +2,15 @@
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import type { PlayerSeasonId } from "@/features/game/domain/card-id";
+import { pickBack } from "@/features/game/domain/card-design";
 import type { PoolCard } from "@/features/game/domain/chaos-draft";
+import type { EnrichedCard } from "@/features/game/domain/player-card";
 import { HAND_SIZE, roomDeals } from "@/features/game/domain/draft-room";
 import type { Formation } from "@/features/game/domain/formation";
 import type { DraftSpec } from "@/features/game/domain/rule-packs";
 import { createRoomState, isRoomComplete, roomReducer } from "@/features/game/view/room-state";
 import { prefersReducedMotion } from "@/utils/motion";
+import { CardBack, PlayerCard } from "./PlayerCard";
 
 interface Props {
   pool: PoolCard[];
@@ -216,21 +219,39 @@ export function DraftRoom({
                     ? t("roomNoTimer")
                     : t("roomTimeLeft", { s: left })}
               </p>
-              {hand.map((c) => (
+              {hand.map((c, i) => (
                 <button
                   key={c.cardId}
                   type="button"
+                  /**
+                   * ⚠️ The label carries the whole candidate, because the CARD does not:
+                   * `PlayerCard` renders a fixed English face, and the tile has to be
+                   * choosable by name and rating in both locales.
+                   */
                   aria-label={`${c.name}, ${c.role}, rated ${c.ratings?.overall ?? 0}`}
                   onClick={() => dispatch({ type: "pick", index: open, cardId: c.cardId })}
-                  className={`room-card border-border w-[104px] rounded-md border p-2 text-start ${
-                    reduced ? "" : "[animation:room-flip-in_.42s_both]"
-                  } ${state.picks[open] === c.cardId ? "ring-2 ring-cyan-400" : ""}`}
+                  className={`room-card ${
+                    state.picks[open] === c.cardId ? "ring-2 ring-cyan-400" : ""
+                  }`}
                 >
-                  <span className="block font-mono text-lg font-black">
-                    {c.ratings?.overall ?? 0}
+                  <span className="room-card-scale block">
+                    <span
+                      className="room-card-flip block"
+                      /* Dealt one after another rather than all at once — five cards
+                         turning in unison reads as a page load, not as a deal. */
+                      style={reduced ? { animation: "none" } : { animationDelay: `${i * 70}ms` }}
+                    >
+                      <span className="room-card-front block">
+                        {/* ⛔ interactive={false}. This tile is ALREADY a button, and a
+                            card that is its own button nested inside one is ejected by
+                            the HTML parser — the pick target has to stay the tile. */}
+                        <PlayerCard card={c as EnrichedCard} reduced={reduced} interactive={false} />
+                      </span>
+                      <span className="room-card-backside block" aria-hidden>
+                        <CardBack card={c as EnrichedCard} back={pickBack(c as EnrichedCard)} />
+                      </span>
+                    </span>
                   </span>
-                  <span className="block font-mono text-[10px] opacity-70">{c.role}</span>
-                  <span className="mt-1 block text-[11px] font-bold">{c.name}</span>
                 </button>
               ))}
             </div>

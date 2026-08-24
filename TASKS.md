@@ -5526,7 +5526,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1836](#task-1836) | Redesign `/game/daily` — "Arcade Cabinet" (30-concept ritual)   | ✅ Done    | P2       | M   |
 | [TASK-1837](#task-1837) | Unify `/game/draft` onto the Legacy screens + real card backs   | ✅ Done    | P2       | M   |
 | [TASK-1838](#task-1838) | Unify `/game/chaos` onto the Legacy screens (driver adoption)   | ✅ Done    | P2       | L   |
-| [TASK-1839](#task-1839) | Draft Room candidates become real player cards (+ back flip)    | 📋 Todo    | P2       | M   |
+| [TASK-1839](#task-1839) | Draft Room candidates become real player cards (+ back flip)    | ✅ Done    | P2       | M   |
 | [TASK-1840](#task-1840) | One numeral convention across the match flow (`/ar` digits)     | ✅ Done    | P2       | S   |
 
 _Enhancement roadmap 1813-1819 added 2026-08-03 from the owner's feature proposal (Option A — 100% client-side/static). See the locked-architecture notes above for the modifier-stack + determinism + no-backend decisions that govern them._
@@ -6472,13 +6472,27 @@ Design: [`docs/superpowers/specs/2026-08-13-task-1832-game-hub-design.md`](../do
 
 ### TASK-1839
 
-**Draft Room candidates become real player cards (+ back flip)** · 📋 Todo · `P2` · `M` · Type: Design
+**Draft Room candidates become real player cards (+ back flip)** · ✅ Done · `P2` · `M` · Type: Design
 
 **Description** — ✅ **Approved by the owner, 2026-08-24**, alongside TASK-1838: converting the Draft Room's candidate tiles into miniature real player cards "will make the card reveal flow feel premium and cohesive with the rest of PitchIQ".
 
 `DraftRoom`'s five candidates are currently small TEXT TILES (`.room-card`, ~104px, showing an OVR, a role and a name) and its `room-flip-in` keyframe rotates the front in with **no back face at all** — the one remaining reveal in the app that does not use the app's own card back. This is why item 4 of the 2026-08-23 unification directive could not be finished as a swap: there is no player card there to put a back on.
 
 **Scope** — render each candidate as a scaled `PlayerCard` (`interactive={false}` — the tile is already a button, and a card that is its own button nested inside one is ejected by the parser), dealt face-down on `CardBack` + `pickBack` and flipped over. ⛔ Use the **footprint → scaler → flipper** layering: the flip keyframe owns `transform`, so the scale must live on its own element. ⚠️ The room is an ENTRY PATH inside `DraftHub`, so its `onComplete` seam and the reducer stay untouched; this is presentation only. ⚠️ Watch the payload — five full cards per round is 55 across a board, all already in the pool.
+
+**✅ SHIPPED 2026-08-24 — and with it the 2026-08-23 unification directive is COMPLETE.** Every reveal in the app now turns off PitchIQ's own card back.
+
+**Shipped** — each candidate is a `PlayerCard` at `scale(0.6)` (176×256 → a **106×154** footprint, within 2px of the text tile it replaces, so nothing in the hand's layout moved), dealt face-down on the real seeded `CardBack` and flipped the full 180°. The three layers are `.room-card` (footprint, and still the button) → `.room-card-scale` (the scale, alone on its own element) → `.room-card-flip` (the keyframe). Cards deal one after another at 70ms — five turning in unison reads as a page load, not as a deal.
+
+⛔ **`room-flip-in` was rewritten, not reused.** It started at `rotateY(90deg)` with an opacity fade — **edge-on, because there was no back face to turn off**; the CSS comment above it had claimed "candidates arrive face-down and turn over" since TASK-1823, and that was aspirational for the whole time the candidates were text tiles. It now runs 180° → 0° with no fade: a card with a back has something to show at every frame, and fading one in reads as the board showing through it.
+
+⚠️ **The reduce gate moved down a layer with the animation.** It was on `.room-card`; left there it would have silenced an element that no longer animates while the card kept turning. Double-gated, as the app's rule requires: the media query plus the component's own `reduced`.
+
+⚠️ **The aria-label stays on the tile and now carries the whole candidate** (`name, role, rated N`) — the card face is English-only by the PR #97 decision, so the label is what makes a candidate choosable by name and rating on `/ar`.
+
+**⭐ Every existing room test passed untouched**, which is what proves the `onComplete` seam and the reducer really were left alone. One of them got stronger for free: "re-opening a filled slot offers the identical five" compares the candidates' `textContent`, which is now a whole card face rather than three short spans.
+
+**DoD** — [x] 4 new tests, each **sabotage-verified independently** (real `CardBack` vs a hand-written panel; a real `PlayerCard` face; ⛔ zero nested buttons; ⛔ the scale never collapsing onto the flipper) · [x] 17 room tests green, motion audit + CSS suites green · [x] tsc + lint clean · [x] verified live on `/game/draft` **and** `/ar/game/draft`: 5 tiles at 106×154, 5 real backs carrying the PitchIQ wordmark and each card's own season, **two distinct back designs** across one hand, stagger measured at 0 / 0.07 / 0.14 / 0.21 / 0.28s, zero nested buttons, the card face correctly `ltr` inside the RTL page, no horizontal overflow, no console errors.
 
 ---
 

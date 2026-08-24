@@ -202,3 +202,61 @@ describe("DraftRoom — sequential rounds", () => {
     expect(onComplete.mock.calls[0][0]).toHaveLength(11);
   });
 });
+
+/**
+ * TASK-1839 — the Draft Room's candidates are REAL player cards, dealt face-down.
+ *
+ * They were ~104px text tiles showing an OVR, a role and a name, and `room-flip-in`
+ * turned them edge-on with no back face at all — the last reveal in the app that did not
+ * wear PitchIQ's own card back, and the reason item 4 of the 2026-08-23 unification
+ * directive could not be finished as a swap.
+ */
+describe("DraftRoom — the candidates are real cards", () => {
+  it("deals every candidate face-down on the app's OWN back, not a hand-written panel", () => {
+    const { container } = render();
+    const backs = container.querySelectorAll(".room-card-backside");
+    expect(backs).toHaveLength(5);
+    // `.pc-back` is `CardBack`'s own root — a generic gradient would not carry it.
+    for (const back of backs) {
+      expect(back.querySelector(".pc-back")).not.toBeNull();
+      expect(back.textContent).toContain("PitchIQ");
+    }
+  });
+
+  it("puts a real PlayerCard face on the front of each", () => {
+    const { container } = render();
+    const fronts = container.querySelectorAll(".room-card-front");
+    expect(fronts).toHaveLength(5);
+    for (const front of fronts) {
+      expect(front.querySelector(".pc-card")).not.toBeNull();
+    }
+  });
+
+  /**
+   * ⛔ The trap this ticket was scoped around. The tile is already the pick target, and a
+   * `PlayerCard` left interactive renders its own `<button>` for the tap-to-detail flip —
+   * a button inside a button, which the HTML parser does not nest but EJECTS, so the card
+   * would land outside the tile and the pick target would lose its contents.
+   */
+  it("⛔ nests NO button inside a candidate tile", () => {
+    const { container } = render();
+    const tiles = container.querySelectorAll(".room-card");
+    expect(tiles).toHaveLength(5);
+    for (const tile of tiles) {
+      expect(tile.querySelectorAll("button")).toHaveLength(0);
+    }
+  });
+
+  /**
+   * ⛔ Layering guard: footprint → scaler → flipper. The flip keyframe owns `transform`,
+   * so a scale applied to the flipping element is overwritten the instant it runs. This
+   * asserts the two never collapse onto one element.
+   */
+  it("⛔ keeps the scale on its own element, off the flipper", () => {
+    const { container } = render();
+    const scale = container.querySelector(".room-card-scale");
+    expect(scale).not.toBeNull();
+    expect(scale?.querySelector(".room-card-flip")).not.toBeNull();
+    expect(scale?.classList.contains("room-card-flip")).toBe(false);
+  });
+});
