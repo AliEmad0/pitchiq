@@ -5528,6 +5528,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1838](#task-1838) | Unify `/game/chaos` onto the Legacy screens (driver adoption)   | ✅ Done    | P2       | L   |
 | [TASK-1839](#task-1839) | Draft Room candidates become real player cards (+ back flip)    | ✅ Done    | P2       | M   |
 | [TASK-1840](#task-1840) | One numeral convention across the match flow (`/ar` digits)     | ✅ Done    | P2       | S   |
+| [TASK-1841](#task-1841) | A mode with one applicable format goes straight in (`n/a`)      | ✅ Done    | P2       | S   |
 
 _Enhancement roadmap 1813-1819 added 2026-08-03 from the owner's feature proposal (Option A — 100% client-side/static). See the locked-architecture notes above for the modifier-stack + determinism + no-backend decisions that govern them._
 
@@ -6522,6 +6523,24 @@ So the coach watched the live feed print `0–1` and met `٠–١` for the same 
 ⚠️ **`SummaryCard` lost its `locale` prop.** It fed nothing but the digit helper and changed nothing once the digits were pinned — `commentary-view.ts` dropped its own `locale` for exactly this reason. The card's PROSE still localizes through `useTranslations`.
 
 **DoD** — [x] 5 new/reversed assertions, every one sabotage-verified (score, minute+ratings, seed, the card's aria-label, and the prose that must NOT move) · [x] the prose test scoped to its own sentence after the first form also went red on an unrelated score regression · [x] suite green · [x] tsc + lint clean · [x] verified live on `/ar/game/chaos`.
+
+---
+
+### TASK-1841
+
+**A mode with one applicable format goes straight in (`n/a`)** · ✅ Done · `P2` · `S` · Type: Feature
+
+**Description** — Owner, 2026-08-24: *"there is no Full Season for it, just when click on it go to the challenge."* The Daily Challenge tile expanded to a format choice containing exactly one destination and a locked **Full Season** box — a format that is not merely unbuilt but **a contradiction in terms**: a season-long "one challenge a day" cannot exist.
+
+**Shipped** — `ModeStatus` gains `"n/a"`. ⛔ **It is NOT a weaker `"planned"`**, and that distinction is the whole ticket: `planned` is a promise the roadmap intends to keep, `n/a` says the format will never arrive for this mode, so the gate must not advertise it at all. `applicableFormats(mode)` filters them out and `FormatChoice` never renders them; `isDirectEntry(mode)` is true when a playable mode has exactly ONE applicable format, and `ModeTile` then renders a `Link` straight to the mode instead of an expander — there is nothing to choose, so an expander would only add a click on the way to the single destination.
+
+⚠️ **The gate's own guard test had to change with it, and would otherwise have gone quietly wrong.** It counted `aria-expanded` controls against `GAME_MODES.filter(isPlayable)`. With the daily now a link that count is one short — and worse, the old form would have **passed if the daily had lost its control entirely**. It now asserts expanders for the non-direct modes and looks the direct ones up **by `href`**, because a tile's accessible name is its emoji + title + blurb.
+
+⚠️ **The `planned`-renders-as-TEXT rule is untouched and still under test** — verified live with a mode expanded: "One Match" is a link, "Full Season" is plain text, and there are **zero** disabled controls on the page. A `planned` format must never become a dead tab stop; an `n/a` one is simply absent.
+
+**⚠️ Provenance** — this arrived as **uncommitted working-tree changes with no ticket, no branch and no stash**, last written 2026-08-24 01:27–01:43 and carrying an owner quote in its tests. Three of my sessions staged around it believing a peer session was mid-edit. The owner confirmed no other session was working in this repo, so it was verified and shipped rather than left to rot or be buried by [TASK-1833](#task-1833), which redesigns these very files. Its one flaw was fixed on the way in: a comment crediting it to TASK-1836, which is the daily-hub redesign and has nothing to do with the mode gate.
+
+**DoD** — [x] 18 mode tests green (2 new), tsc + lint clean · [x] verified live on `/en/game` and `/ar/game`: the daily is a direct link (`/game/daily`, `/ar/game/daily`) with no expander and no "Full Season" anywhere, the other three playable modes still expand, zero disabled controls in either locale.
 
 ---
 

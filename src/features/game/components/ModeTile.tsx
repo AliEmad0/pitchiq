@@ -1,6 +1,7 @@
 "use client";
 import { useTranslations } from "next-intl";
-import { isPlayable, type GameMode, type ModeId } from "@/features/game/domain/modes";
+import { isDirectEntry, isPlayable, type GameMode, type ModeId } from "@/features/game/domain/modes";
+import { Link } from "@/i18n/navigation";
 import { FormatChoice } from "./FormatChoice";
 
 interface Props {
@@ -31,6 +32,28 @@ export function ModeTile({ mode, open, onOpen }: Props) {
         <span aria-hidden>{mode.emoji}</span> {name}
         <span className="ms-1 opacity-70">{t("statusPlanned")}</span>
       </div>
+    );
+  }
+
+  /**
+   * A mode with only one applicable format goes straight in (owner, 2026-08-24).
+   *
+   * The daily is the case: there is no Full Season for "one challenge a day", so expanding
+   * the tile only ever offered a single destination behind an extra click, next to a
+   * locked box for a format that is never coming.
+   */
+  if (isDirectEntry(mode)) {
+    return (
+      <Link
+        href={mode.href!}
+        className="border-border hover:border-primary/80 block rounded-lg border p-3"
+      >
+        <span className="block text-xl" aria-hidden>
+          {mode.emoji}
+        </span>
+        <span className="mt-1 block text-sm font-bold">{name}</span>
+        <span className="text-muted-foreground block text-xs">{t(mode.descriptionKey)}</span>
+      </Link>
     );
   }
 

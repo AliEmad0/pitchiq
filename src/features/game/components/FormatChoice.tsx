@@ -1,6 +1,6 @@
 "use client";
 import { useTranslations } from "next-intl";
-import { GAME_FORMATS, type GameMode } from "@/features/game/domain/modes";
+import { applicableFormats, type GameMode } from "@/features/game/domain/modes";
 import { Link } from "@/i18n/navigation";
 
 const LABEL_KEY = { single: "formatSingle", season: "formatSeason" } as const;
@@ -12,13 +12,16 @@ const HINT_KEY = { single: "formatSingleHint", season: "formatSeasonHint" } as c
  * ⚠️ A `planned` format renders as TEXT, never a disabled control. Day one that is every
  * mode's `season` — the 38-week engine is TASK-1810/1811 — so a disabled button here would
  * put a dead tab stop under every playable mode on the gate.
+ *
+ * ⚠️ An `n/a` format is not rendered at all: it is not coming, so a locked box promising it
+ * would be a lie rather than a roadmap.
  */
 export function FormatChoice({ mode }: { mode: GameMode }) {
   const t = useTranslations("game");
 
   return (
     <div className="mt-3 flex gap-2">
-      {GAME_FORMATS.map((format) => {
+      {applicableFormats(mode).map((format) => {
         const label = t(LABEL_KEY[format]);
         const live = mode.formats[format] === "live" && mode.href != null;
 

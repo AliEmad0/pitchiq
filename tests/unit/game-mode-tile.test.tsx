@@ -48,4 +48,19 @@ describe("ModeTile", () => {
     expect(screen.queryByRole("link", { name: /Full Season/ })).not.toBeInTheDocument();
     expect(screen.getByText("Full Season")).toBeInTheDocument();
   });
+
+  it("⛔ a mode with no second format goes STRAIGHT IN — no expander, no Full Season box", () => {
+    // Owner, 2026-08-24: "there is no Full Season for it, just when click on it go to the
+    // challenge." A season-long daily is a contradiction, so `season` is `n/a` rather than
+    // `planned` and the tile is a link instead of an expander.
+    const daily = GAME_MODES.find((m) => m.id === "daily")!;
+    renderWithIntl(<ModeTile mode={daily} open={false} onOpen={vi.fn()} />);
+
+    const link = screen.getByRole("link", { name: /Daily Challenge/ });
+    expect(link.getAttribute("href")).toMatch(/\/game\/daily$/);
+    // No expander, and nothing anywhere promising a season that is never coming.
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
+    expect(screen.queryByText("Full Season")).not.toBeInTheDocument();
+    expect(screen.queryByText("One Match")).not.toBeInTheDocument();
+  });
 });
