@@ -1,6 +1,7 @@
 "use client";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useReducer, useState } from "react";
+import { pickBack } from "@/features/game/domain/card-design";
 import type { PlayerSeasonId } from "@/features/game/domain/card-id";
 import { FORMATIONS, type PoolCard } from "@/features/game/domain/chaos-draft";
 import { canField, roomDeals } from "@/features/game/domain/draft-room";
@@ -13,7 +14,7 @@ import { randomSeed } from "@/features/game/view/seed";
 import { Link } from "@/i18n/navigation";
 import { prefersReducedMotion } from "@/utils/motion";
 import { ClubCrest } from "./ClubCrest";
-import { PlayerCard } from "./PlayerCard";
+import { CardBack, PlayerCard } from "./PlayerCard";
 
 /** The shape the picker opens on, resolved by NAME — the array's order is presentation. */
 const DEFAULT_FORMATION = "4-4-2 Flat";
@@ -345,7 +346,11 @@ export function PitchDraft({ pool, draft, onConfirm, backHref, rivals, clubId }:
                   className="pd-card"
                   style={{ ["--pd-i" as string]: reduced ? 0 : k }}
                 >
-                  <span className="pd-back" aria-hidden="true" />
+                  {/* TASK-1837 — the card's OWN back, seeded per card exactly as a tap
+                      flip picks it, so a face-down card is never a generic grey panel. */}
+                  <span className="pd-back" aria-hidden="true">
+                    <CardBack card={c as EnrichedCard} back={pickBack(c as EnrichedCard)} />
+                  </span>
                   <span className="pd-front">
                     <PlayerCard card={c as EnrichedCard} reduced={reduced} interactive={false} />
                   </span>

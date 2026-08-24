@@ -2774,8 +2774,9 @@
   border-radius: 12px;
 }
 .pd-back {
-  background: linear-gradient(150deg, #1c2536, #0d131e);
-  border: 1px solid #2c3648;
+  /* TASK-1837: the real `CardBack` fills this, so no placeholder skin — only the
+     geometry and the deal animation belong here now. */
+  overflow: hidden;
   animation: game-deal-back var(--pd-half) var(--ease-in-out-soft) forwards;
   animation-delay: calc(var(--pd-i) * var(--pd-step));
 }
