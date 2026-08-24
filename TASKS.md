@@ -5527,6 +5527,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1837](#task-1837) | Unify `/game/draft` onto the Legacy screens + real card backs   | ✅ Done    | P2       | M   |
 | [TASK-1838](#task-1838) | Unify `/game/chaos` onto the Legacy screens (driver adoption)   | ✅ Done    | P2       | L   |
 | [TASK-1839](#task-1839) | Draft Room candidates become real player cards (+ back flip)    | 📋 Todo    | P2       | M   |
+| [TASK-1840](#task-1840) | One numeral convention across the match flow (`/ar` digits)     | ✅ Done    | P2       | S   |
 
 _Enhancement roadmap 1813-1819 added 2026-08-03 from the owner's feature proposal (Option A — 100% client-side/static). See the locked-architecture notes above for the modifier-stack + determinism + no-backend decisions that govern them._
 
@@ -6478,6 +6479,35 @@ Design: [`docs/superpowers/specs/2026-08-13-task-1832-game-hub-design.md`](../do
 `DraftRoom`'s five candidates are currently small TEXT TILES (`.room-card`, ~104px, showing an OVR, a role and a name) and its `room-flip-in` keyframe rotates the front in with **no back face at all** — the one remaining reveal in the app that does not use the app's own card back. This is why item 4 of the 2026-08-23 unification directive could not be finished as a swap: there is no player card there to put a back on.
 
 **Scope** — render each candidate as a scaled `PlayerCard` (`interactive={false}` — the tile is already a button, and a card that is its own button nested inside one is ejected by the parser), dealt face-down on `CardBack` + `pickBack` and flipped over. ⛔ Use the **footprint → scaler → flipper** layering: the flip keyframe owns `transform`, so the scale must live on its own element. ⚠️ The room is an ENTRY PATH inside `DraftHub`, so its `onComplete` seam and the reducer stay untouched; this is presentation only. ⚠️ Watch the payload — five full cards per round is 55 across a board, all already in the pool.
+
+---
+
+### TASK-1840
+
+**One numeral convention across the match flow (`/ar` digits)** · ✅ Done · `P2` · `S` · Type: Fix
+
+**Description** — Opened from a mistaken observation while shipping TASK-1838: Match Night's ratings looked like an un-localized gap on `/ar`. **The premise was wrong** — `view/commentary-view.ts` records an owner decision that minutes, scorelines, shirt numbers **and ratings** stay Western in every locale (they are read as glyphs, not prose), the same call already made for the player cards in PR #97. Two tests pin it, both marked "REVERSED DELIBERATELY (owner's call)": [`game-commentary-catalog.test.ts`](../tests/unit/game-commentary-catalog.test.ts) asserts `not.toMatch(/[٠-٩]/)`, and [`game-commentary-view.test.ts`](../tests/unit/game-commentary-view.test.ts) the same for the `Fmt` args. **Match Night was already correct.**
+
+**⭐ What the measurement actually found — the seam is at FULL TIME, not at the board.** Walking one unbroken `/ar/game/chaos` flow in the browser:
+
+| Screen | Sample | Digits |
+| --- | --- | --- |
+| Match Night (setup) | dot OVR `83`, board avg `79`, card `83 · 25 · 2012-13` | Western |
+| Programme (preview) | tape `79`, card `83` | Western |
+| Live | shirt `1`, sheet OVR `83`, clock `30'`, feed `29' 0–1` | Western |
+| Summary | score `٢–٢`, seed `٧١٣٩٣١٦٢١` | **Eastern — no Western digit anywhere** |
+
+So the coach watched the live feed print `0–1` and met `٠–١` for the same match one click later. ⚠️ **Both sides were deliberate**: `MatchSummary` localized precisely *because* the canvas share card painted beneath it did, and two conventions for one score on one screen is worse than either. So this was a design question, not a defect — put to the owner rather than decided here.
+
+**✅ Owner's call, 2026-08-24: pin the summary to Western too** — one convention across the whole match flow, card included.
+
+**Shipped** — `MatchSummary` prints the scoreline, each decision's minute, each rating and the seed raw; `SummaryCard` paints the same way (`num` is now `String(n)`) and its `aria-label` with it. ⛔ The card and the screen **must never be changed apart** — that coupling is why the localization existed at all.
+
+⚠️ **One number stays Eastern, deliberately: the declined-offers SENTENCE.** `playOffersDeclined` interpolates into an ICU plural whose Arabic `zero`/`one`/`two` forms spell the number as a word and never interpolate at all, so a Latin digit there would land mid-sentence. That is prose, which the owner's rule explicitly leaves localized.
+
+⚠️ **`SummaryCard` lost its `locale` prop.** It fed nothing but the digit helper and changed nothing once the digits were pinned — `commentary-view.ts` dropped its own `locale` for exactly this reason. The card's PROSE still localizes through `useTranslations`.
+
+**DoD** — [x] 5 new/reversed assertions, every one sabotage-verified (score, minute+ratings, seed, the card's aria-label, and the prose that must NOT move) · [x] the prose test scoped to its own sentence after the first form also went red on an unrelated score regression · [x] suite green · [x] tsc + lint clean · [x] verified live on `/ar/game/chaos`.
 
 ---
 
