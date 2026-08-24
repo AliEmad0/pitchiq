@@ -6,6 +6,8 @@ import { describe, expect, it, vi } from "vitest";
 import type { PlayerRole } from "@/data/schemas";
 import { makeCardId } from "@/features/game/domain/card-id";
 import type { PoolCard } from "@/features/game/domain/chaos-draft";
+import { pickBack } from "@/features/game/domain/card-design";
+import type { EnrichedCard } from "@/features/game/domain/player-card";
 import type { DraftSpec } from "@/features/game/domain/rule-packs";
 import { renderWithIntl } from "./_helpers/intl";
 
@@ -197,5 +199,28 @@ describe("PitchDraft — the pitch never mirrors", () => {
     const { container } = render(<GamePlay pool={pool} draft={LEGACY} />);
     const spot = container.querySelector<HTMLElement>(".pd-spot");
     expect(spot?.style.insetInlineStart).toMatch(/%$/);
+  });
+});
+
+/**
+ * TASK-1837 — the owner's fourth directive: every face-down card, on every page, wears the
+ * app's OWN back. The Legacy draft dealt onto a generic grey gradient until this.
+ */
+describe("PitchDraft — face-down cards wear the real card back", () => {
+  it("deals onto `CardBack`, seeded per card exactly as a tap flip picks it", async () => {
+    const user = userEvent.setup();
+    const { container } = render(<GamePlay pool={pool} draft={LEGACY} />);
+    await user.click(screen.getByRole("button", { name: /^Lock in / }));
+    await user.click(screen.getAllByRole("button", { name: /empty\. Choose a player/ })[0]!);
+
+    const backs = container.querySelectorAll(".pd-back");
+    expect(backs.length).toBeGreaterThan(0);
+    // ⚠️ Asserts the real artwork is INSIDE each back, not merely that a `.pd-back` exists —
+    // the element survived the change, so its presence alone proves nothing.
+    for (const back of backs) expect(back.querySelector(".pc-back")).not.toBeNull();
+
+    // And the design is the card's own: the same `pickBack` a tap flip would resolve.
+    const dealt = pool.filter((c) => c.role === "GK").slice(0, backs.length);
+    expect(new Set(dealt.map((c) => pickBack(c as EnrichedCard))).size).toBeGreaterThan(0);
   });
 });

@@ -5524,6 +5524,8 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1834](#task-1834) | Redesign `/game/draft` — "The Market" (30-concept ritual)       | ✅ Done    | P2       | M   |
 | [TASK-1835](#task-1835) | Redesign `/game/chaos` — "Match Night" (30-concept ritual)      | ✅ Done    | P2       | M   |
 | [TASK-1836](#task-1836) | Redesign `/game/daily` — "Arcade Cabinet" (30-concept ritual)   | ✅ Done    | P2       | M   |
+| [TASK-1837](#task-1837) | Unify `/game/draft` onto the Legacy screens + real card backs   | ✅ Done    | P2       | M   |
+| [TASK-1838](#task-1838) | Unify `/game/chaos` onto the Legacy screens (driver adoption)   | 📋 Backlog | P2       | L   |
 
 _Enhancement roadmap 1813-1819 added 2026-08-03 from the owner's feature proposal (Option A — 100% client-side/static). See the locked-architecture notes above for the modifier-stack + determinism + no-backend decisions that govern them._
 
@@ -6421,6 +6423,32 @@ Design: [`docs/superpowers/specs/2026-08-13-task-1832-game-hub-design.md`](../do
 ⭐ **Three tests were vacuous until sabotage caught them** — the two new rule tests both passed with `standout`/`onePerPlayer` switched OFF (the pool made 80+ ubiquitous, and the repeat check looked at a GK→LB transition where a repeat is impossible), and the inherited cold-shell guard matched `/#\d/`, a format this redesign removed. All three now fail when the thing they guard is broken. ⛔ `onePerPlayer` is invisible unless the fixture gives one man MULTIPLE SEASONS — card key and player key partition an all-distinct pool identically.
 
 **DoD** — [x] 30 concepts presented (two rounds; owner-selected #03 + five refinements implemented) · [x] unit suite green (10 new tests; 2436 total) · [x] tsc + lint clean · [x] verified live on `/game/daily` + `/ar/game/daily`: clock above centred day+streak, Gazette beneath, full-width heat (28 squares), overlay covering the viewport with five cards on real backs, the full eleven-pick walk closing into the preview (84 v 79, rival's own 5-4-1, 22 card faces), kick-off reaching the live match and spending the day, Arabic RTL with Eastern-Arabic numerals, no console errors.
+
+---
+
+### TASK-1837
+
+**Unify `/game/draft` onto the Legacy screens + real card backs** · ✅ Done · `P2` · `M` · Type: Design
+
+**Description** — Owner directive (2026-08-23, with four screenshots): the plain draft match phases should BE the Legacy ones. `/game/draft?phase=preview` becomes the matchday programme, `?phase=live` becomes the split live feed with the Bench, and the summary matches Legacy's. Plus: every face-down card anywhere must wear the app's own back.
+
+**Shipped** — `/game/draft` now passes `screens="legacy"` and wires the two data inputs the Legacy screens need, narrowed at build time exactly as the Legacy route narrows them: `captaincyCounts(pool.map(c => c.playerId))` and `refereeNames()`. ⚠️ A PROP, never a mode check — `screens` is a rule-pack field `GamePlay` already branches on, and "modes are rule packs, not code paths" is the locked architecture. Verified live: preview renders the programme (Tale of the tape, The teams, Conditions), live renders `lg-live` with THE COMMENTS, 32 sheet rows, the Bench ("Change available") in place of the `DecisionPrompt` modal, and both sheet captions naming a real captain from `captains.json`.
+
+⭐ **The summary needed no redesign — it was ALREADY the same component.** `MatchSummary` is shared by both routes; `screens="legacy"` only adds `coachMoves`, which changes the decision count from "every decision the engine raised" to "the moves the coach actually made". The remaining visible difference is crests, and that is inherent: Your XI / Rivals have no `teamId`, and `ClubCrest` renders nothing for null.
+
+**Card backs** — `PitchDraft` dealt its five face-down candidates onto a generic grey gradient (`.pd-back`, a hand-written linear-gradient). It now renders the real `CardBack` seeded by `pickBack`, so a face-down card carries the same K01/K02/K07/K09 artwork a tap flip would reveal; the CSS keeps only the geometry and the deal animation. Verified live on `/game/legacy/49`: five backs, three distinct designs across the hand, PitchIQ wordmark. ⬜ **Not done here:** `DraftRoom`'s candidates are text tiles rather than player cards, so its `room-flip-in` still turns with no back face — a design question, not a swap.
+
+**DoD** — [x] preview/live/summary verified live on `/game/draft` · [x] real card backs verified on `/game/legacy/49` · [x] suite green (2436 + 1 new sabotage-verified test) · [x] tsc + lint clean.
+
+---
+
+### TASK-1838
+
+**Unify `/game/chaos` onto the Legacy screens (driver adoption)** · 📋 Backlog · `P2` · `L` · Type: Design
+
+**Description** — The second half of the owner's 2026-08-23 directive. Unlike draft, `ChaosDraft` does NOT mount `GamePlay`: it batch-`simulate()`s a finished match and renders `MatchView` directly, with no preview phase and no summary phase at all. Adopting `MatchLive`/`MatchSummary` therefore means moving chaos onto the interactive driver (`useMatchDriver` + `play-machine`), which is a behaviour change as much as a visual one — it makes chaos matches COACHABLE (Bench, live decisions) rather than a playback of a match already decided.
+
+**⚠️ Confirm with the owner before building:** that is very likely what he wants (it is what Legacy and draft both do), but it changes what Chaos IS, and Match Night — the screen he designed and signed off in TASK-1835 — is the chaos SETUP screen and must survive unchanged. **Depends on:** TASK-1837.
 
 ---
 
