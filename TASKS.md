@@ -5525,7 +5525,8 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1835](#task-1835) | Redesign `/game/chaos` — "Match Night" (30-concept ritual)      | ✅ Done    | P2       | M   |
 | [TASK-1836](#task-1836) | Redesign `/game/daily` — "Arcade Cabinet" (30-concept ritual)   | ✅ Done    | P2       | M   |
 | [TASK-1837](#task-1837) | Unify `/game/draft` onto the Legacy screens + real card backs   | ✅ Done    | P2       | M   |
-| [TASK-1838](#task-1838) | Unify `/game/chaos` onto the Legacy screens (driver adoption)   | 📋 Backlog | P2       | L   |
+| [TASK-1838](#task-1838) | Unify `/game/chaos` onto the Legacy screens (driver adoption)   | 📋 Todo    | P2       | L   |
+| [TASK-1839](#task-1839) | Draft Room candidates become real player cards (+ back flip)    | 📋 Todo    | P2       | M   |
 
 _Enhancement roadmap 1813-1819 added 2026-08-03 from the owner's feature proposal (Option A — 100% client-side/static). See the locked-architecture notes above for the modifier-stack + determinism + no-backend decisions that govern them._
 
@@ -6448,7 +6449,21 @@ Design: [`docs/superpowers/specs/2026-08-13-task-1832-game-hub-design.md`](../do
 
 **Description** — The second half of the owner's 2026-08-23 directive. Unlike draft, `ChaosDraft` does NOT mount `GamePlay`: it batch-`simulate()`s a finished match and renders `MatchView` directly, with no preview phase and no summary phase at all. Adopting `MatchLive`/`MatchSummary` therefore means moving chaos onto the interactive driver (`useMatchDriver` + `play-machine`), which is a behaviour change as much as a visual one — it makes chaos matches COACHABLE (Bench, live decisions) rather than a playback of a match already decided.
 
-**⚠️ Confirm with the owner before building:** that is very likely what he wants (it is what Legacy and draft both do), but it changes what Chaos IS, and Match Night — the screen he designed and signed off in TASK-1835 — is the chaos SETUP screen and must survive unchanged. **Depends on:** TASK-1837.
+**✅ APPROVED by the owner, 2026-08-24** — he wants "total mechanical consistency across modes": real-time tactical control (Bench substitutions, live decision prompts, mid-match coaching) on the Legacy live screen. ⛔ **Match Night must survive unchanged** — it is the chaos SETUP screen (TASK-1835) and is not in scope; only what happens AFTER "Play match" changes. **Depends on:** TASK-1837 (done).
+
+**Scope** — move `ChaosDraft` off its batch `simulate()` + `MatchView` playback onto `useMatchDriver` + `play-machine`, gaining the preview and summary phases it does not have today; render the Legacy screens for all three. ⚠️ Chaos has no club, so `captaincies`/`referees` have no per-club narrowing to do — decide whether to pass the whole-pool counts (as `/game/draft` now does) or none. ⚠️ The armband caption still needs the no-captain fix (`armbandAt` has no third-in-line when both leaders are subbed off).
+
+---
+
+### TASK-1839
+
+**Draft Room candidates become real player cards (+ back flip)** · 📋 Todo · `P2` · `M` · Type: Design
+
+**Description** — ✅ **Approved by the owner, 2026-08-24**, alongside TASK-1838: converting the Draft Room's candidate tiles into miniature real player cards "will make the card reveal flow feel premium and cohesive with the rest of PitchIQ".
+
+`DraftRoom`'s five candidates are currently small TEXT TILES (`.room-card`, ~104px, showing an OVR, a role and a name) and its `room-flip-in` keyframe rotates the front in with **no back face at all** — the one remaining reveal in the app that does not use the app's own card back. This is why item 4 of the 2026-08-23 unification directive could not be finished as a swap: there is no player card there to put a back on.
+
+**Scope** — render each candidate as a scaled `PlayerCard` (`interactive={false}` — the tile is already a button, and a card that is its own button nested inside one is ejected by the parser), dealt face-down on `CardBack` + `pickBack` and flipped over. ⛔ Use the **footprint → scaler → flipper** layering: the flip keyframe owns `transform`, so the scale must live on its own element. ⚠️ The room is an ENTRY PATH inside `DraftHub`, so its `onComplete` seam and the reducer stay untouched; this is presentation only. ⚠️ Watch the payload — five full cards per round is 55 across a board, all already in the pool.
 
 ---
 
