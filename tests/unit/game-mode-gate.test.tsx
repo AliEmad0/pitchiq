@@ -1,7 +1,12 @@
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
-import { COLLECTION_SURFACES, GAME_MODES, isPlayable } from "@/features/game/domain/modes";
+import {
+  COLLECTION_SURFACES,
+  GAME_MODES,
+  isDirectEntry,
+  isPlayable,
+} from "@/features/game/domain/modes";
 import en from "@/i18n/messages/en.json";
 import { renderWithIntl } from "./_helpers/intl";
 
@@ -75,9 +80,23 @@ describe("ModeGate", () => {
     //
     // Cross-checking the DOM against `isPlayable` is not circular: if the gate rendered
     // every tile as a button this would read eleven against three and still fail.
+    //
+    // ⚠️ A control is an EXPANDER OR A DIRECT LINK since TASK-1841: a mode with only one
+    // applicable format (the daily has no Full Season) goes straight in rather than
+    // opening a format choice with one option in it. Counting only `aria-expanded` would
+    // now under-count the playable modes and, worse, would pass if the daily lost its
+    // control entirely.
     const playable = GAME_MODES.filter(isPlayable);
-    const tiles = screen.getAllByRole("button").filter((b) => b.hasAttribute("aria-expanded"));
-    expect(tiles).toHaveLength(playable.length);
+    const expanders = screen.getAllByRole("button").filter((b) => b.hasAttribute("aria-expanded"));
+    const direct = playable.filter(isDirectEntry);
+    expect(expanders).toHaveLength(playable.length - direct.length);
+    for (const mode of direct) {
+      // By HREF, not by accessible name: the name is the tile's emoji + title + blurb.
+      const link = screen
+        .getAllByRole("link")
+        .find((a) => a.getAttribute("href")?.endsWith(mode.href!));
+      expect(link, `no direct link for ${mode.id}`).toBeDefined();
+    }
     // And the roster must still contain locked modes, or the assertion above is vacuous.
     expect(playable.length).toBeLessThan(GAME_MODES.length);
   });

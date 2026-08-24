@@ -34,7 +34,16 @@ export type ModeId =
  */
 export type GameFormat = "single" | "season";
 
-export type ModeStatus = "live" | "planned";
+/**
+ * What a mode offers for a given format.
+ *
+ * ⭐ `n/a` is NOT a weaker "planned" (owner, 2026-08-24): it means the format makes no
+ * sense for this mode and will never arrive, so the gate must not advertise it at all. The
+ * daily is the case that forced the distinction — a season-long "one challenge per day" is
+ * a contradiction, and showing it as a locked Full Season box promised something that was
+ * never coming.
+ */
+export type ModeStatus = "live" | "planned" | "n/a";
 
 export type ModeGroupId = "quickPlay" | "draftPacks" | "challenges";
 
@@ -166,8 +175,9 @@ export const GAME_MODES: readonly GameMode[] = [
     nameKey: "modeDailyName",
     descriptionKey: "modeDailyDesc",
     href: "/game/daily",
-    // A season-long daily is a contradiction — the format that fits is the single match.
-    formats: { single: "live", season: "planned" },
+    // A season-long daily is a contradiction, so the format is `n/a` rather than
+    // `planned`: the tile links straight into today's challenge instead of expanding.
+    formats: { single: "live", season: "n/a" },
     ticket: "TASK-1817",
   },
   {
@@ -232,6 +242,19 @@ export const GAME_FORMATS: readonly GameFormat[] = ["single", "season"];
 
 export const isPlayable = (mode: GameMode): boolean =>
   mode.href != null && Object.values(mode.formats).some((s) => s === "live");
+
+/** The formats worth showing for a mode — `n/a` ones are not a choice the player has. */
+export const applicableFormats = (mode: GameMode): GameFormat[] =>
+  GAME_FORMATS.filter((f) => mode.formats[f] !== "n/a");
+
+/**
+ * Does this tile go straight in, with no format to choose?
+ *
+ * True when a playable mode has exactly ONE applicable format — there is nothing to pick,
+ * so an expander would add a click on the way to the only destination.
+ */
+export const isDirectEntry = (mode: GameMode): boolean =>
+  isPlayable(mode) && applicableFormats(mode).length === 1;
 
 export const modesInGroup = (group: ModeGroupId): GameMode[] =>
   GAME_MODES.filter((m) => m.group === group);
