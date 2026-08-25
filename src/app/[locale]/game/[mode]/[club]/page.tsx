@@ -5,6 +5,7 @@ import {
   buildPool,
   captaincyCounts,
   clubChoices,
+  iconChoices,
   refereeNames,
 } from "@/features/game/adapter/pool";
 import { GamePlay } from "@/features/game/components/GamePlay";
@@ -33,21 +34,42 @@ type Props = { params: Promise<{ locale: string; mode: string; club: string }> }
  * ~6.7 MB. Splitting by club keeps every page force-static and CDN-served while letting
  * the card set be complete — every player, every season he played for that club.
  */
+/**
+ * One prerendered page per (pack, choice).
+ *
+ * ⛔ CHOOSER-AWARE, and this is where it must be. The first version mapped every routed
+ * pack over CLUBS, so registering Captain's Draft generated `/game/captains/<clubId>` for
+ * all 51 clubs — each handing a club id to `captainSynergy` as a captain id, returning an
+ * empty pool, filtering away every formation and killing the prerender on `shape.slots`.
+ * It failed the Vercel build. A pack's `chooser.kind` decides what this segment MEANS.
+ */
 export async function generateStaticParams(): Promise<Array<{ mode: string; club: string }>> {
-  const clubs = await clubChoices();
-  return routedPacks().flatMap((p) => clubs.map((c) => ({ mode: p.id, club: String(c.id) })));
+  const [clubs, icons] = await Promise.all([clubChoices(), iconChoices()]);
+  return routedPacks().flatMap((p) =>
+    (p.chooser?.kind === "captain" ? icons : clubs).map((c) => ({
+      mode: p.id,
+      club: String(c.id),
+    })),
+  );
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, mode, club } = await params;
   setRequestLocale(locale);
-  if (packFor(mode) == null) return {};
-  const name = (await clubChoices()).find((c) => String(c.id) === club)?.name;
+  const pack = packFor(mode);
+  if (pack == null) return {};
+  const captain = pack.chooser?.kind === "captain";
+  const name = captain
+    ? (await iconChoices()).find((i) => String(i.id) === club)?.name
+    : (await clubChoices()).find((c) => String(c.id) === club)?.name;
   if (name == null) return {};
   const t = await getTranslations("game");
-  // The club's own name is the title — it is the subject of the page, and it comes from
-  // the data rather than the catalog.
-  return { title: `${name} — ${t("legacyTitle")}`, description: t("legacyPick") };
+  // The club's — or the icon's — own name is the title. It is the subject of the page, and
+  // it comes from the data rather than the catalog.
+  return {
+    title: `${name} — ${t(captain ? "captainsTitle" : "legacyTitle")}`,
+    description: t(captain ? "captainsPick" : "legacyPick"),
+  };
 }
 
 export default async function ModeClubPage({ params }: Props) {
@@ -59,10 +81,21 @@ export default async function ModeClubPage({ params }: Props) {
   // that never played in the Premier League.
   const pack = packFor(mode);
   if (pack == null || pack.chooser == null) notFound();
-  const choice = (await clubChoices()).find((c) => String(c.id) === club);
+  const isCaptain = pack.chooser.kind === "captain";
+  const choice = isCaptain
+    ? (await iconChoices()).find((i) => String(i.id) === club)
+    : (await clubChoices()).find((c) => String(c.id) === club);
   if (choice == null) notFound();
 
   const pool = await buildPool(pack.pool, choice.id);
+  /**
+   * The icon, pulled back out of the pool he is part of.
+   *
+   * ⛔ He IS in the pool — every path that rebuilds this match resolves the saved XI
+   * against it — and he is handed to the draft separately so it can PLACE him without
+   * ever dealing him. See `roomDeals`'s `excludePlayers`.
+   */
+  const captain = isCaptain ? pool.find((c) => c.playerId === choice.id) : undefined;
   // Build time, and narrowed to this club's players — the armband rule needs real
   // captaincies, and the full season → team → player map would be a second payload.
   const captaincies = await captaincyCounts(pool.map((c) => c.playerId));
@@ -80,7 +113,10 @@ export default async function ModeClubPage({ params }: Props) {
         screens={pack.screens}
         opponent={pack.opponent}
         rivals={rivals}
-        clubId={choice.id}
+        // ⚠️ Only a club choice is a CLUB. An icon's id is a player's, and passing it here
+        // would ask `ClubCrest` for a crest that does not exist.
+        clubId={isCaptain ? undefined : choice.id}
+        captain={captain}
         captaincies={captaincies}
         referees={referees}
         backHref={`/game/${pack.id}`}

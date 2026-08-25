@@ -11,7 +11,19 @@ export interface ModeChoice {
   seasons: number;
   first: number;
   last: number;
+  /** Captain's Draft only — the icon's flag stands where a club's crest does. */
+  nationalityCode?: string | null;
 }
+
+/**
+ * What the sheet is choosing between.
+ *
+ * ⚠️ A prop, not a lookup on `mode`. This component must not learn which modes exist —
+ * "modes are rule packs, not code paths", and the pack's own `chooser.kind` is what
+ * decides. It changes the ICON and the COPY; the sticker-sheet treatment is shared,
+ * because the owner picked it for the act of choosing rather than for clubs specifically.
+ */
+export type ChooserKind = "club" | "captain";
 
 /**
  * TASK-1810 — the club menu for a rule pack that needs a choice before drafting.
@@ -25,7 +37,15 @@ export interface ModeChoice {
  * ~900 cards, so all 51 on one page would be ~6.7 MB. The club is a route segment, so this
  * page ships 51 names and costs no JavaScript at all — the whole treatment is CSS.
  */
-export async function ModeChooser({ mode, choices }: { mode: string; choices: ModeChoice[] }) {
+export async function ModeChooser({
+  mode,
+  choices,
+  kind = "club",
+}: {
+  mode: string;
+  choices: ModeChoice[];
+  kind?: ChooserKind;
+}) {
   const t = await getTranslations("game");
   const locale = await getLocale();
   const season = currentDataSeason();
@@ -42,8 +62,12 @@ export async function ModeChooser({ mode, choices }: { mode: string; choices: Mo
         {t("modeBackToHub")}
       </Link>
 
-      <h1 className="text-2xl font-extrabold tracking-tight">{t("legacyTitle")}</h1>
-      <p className="text-muted-foreground mb-6 mt-1 text-sm">{t("legacyPick")}</p>
+      <h1 className="text-2xl font-extrabold tracking-tight">
+        {t(kind === "captain" ? "captainsTitle" : "legacyTitle")}
+      </h1>
+      <p className="text-muted-foreground mb-6 mt-1 text-sm">
+        {t(kind === "captain" ? "captainsPick" : "legacyPick")}
+      </p>
 
       <ul className="sticker-sheet bg-muted/40 border-border grid grid-cols-2 gap-3 rounded-lg border p-4 sm:grid-cols-3 lg:grid-cols-5">
         {choices.map((c, i) => (
@@ -59,15 +83,24 @@ export async function ModeChooser({ mode, choices }: { mode: string; choices: Mo
               className="border-border hover:border-primary hover:bg-muted/60 flex h-full flex-col items-center gap-2 rounded-md border-2 border-dashed p-3 text-center transition-colors"
             >
               {/* The crest leads — it is what a supporter recognises before the name.
-                  `unoptimized` matches PlayerCard: these are already small local PNGs. */}
-              <Image
-                src={clubLogo(c.id, season)}
-                alt=""
-                width={44}
-                height={44}
-                unoptimized
-                className="h-11 w-11 object-contain"
-              />
+                  `unoptimized` matches PlayerCard: these are already small local PNGs.
+                  For an icon the FLAG stands in its place: a player has no crest, and his
+                  nationality is half of what the mode drafts around. */}
+              {kind === "captain" ? (
+                <span
+                  className={`fi fi-${c.nationalityCode ?? "xx"} h-11 w-11 rounded-sm`}
+                  aria-hidden="true"
+                />
+              ) : (
+                <Image
+                  src={clubLogo(c.id, season)}
+                  alt=""
+                  width={44}
+                  height={44}
+                  unoptimized
+                  className="h-11 w-11 object-contain"
+                />
+              )}
               {/* The club's name comes from the DATA — a literal here would ship English
                   into the Arabic UI and would trip the hardcoded-string guard. */}
               <span className="text-xs font-bold leading-tight">{c.name}</span>

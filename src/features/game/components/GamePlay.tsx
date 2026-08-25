@@ -71,6 +71,7 @@ export function GamePlay({
   opponent,
   rivals,
   clubId,
+  captain,
   captaincies,
   referees,
 }: {
@@ -113,6 +114,14 @@ export function GamePlay({
   rivals?: readonly ClubChoice[];
   /** The club whose page this is, preselected so doing nothing plays the shipped match. */
   clubId?: number;
+  /**
+   * The icon a `captainFirst` pack places in the XI before drafting (TASK-1810).
+   *
+   * ⚠️ Passed straight through to the draft. `GamePlay` owns the SESSION, not the draft's
+   * rules — and the captain is already in `pool`, so nothing downstream of the draft
+   * (resume, share, the replay fingerprint) needs to know he was treated specially.
+   */
+  captain?: PoolCard;
   /**
    * playerId -> real captaincies, narrowed to this club at build time (TASK-1810).
    *
@@ -493,6 +502,7 @@ export function GamePlay({
             backHref={backHref}
             rivals={rivals}
             clubId={clubId}
+            captain={captain}
           />
         ) : (
           <DraftHub pool={pool} onConfirm={confirmSquad} />

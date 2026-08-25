@@ -19,6 +19,20 @@ export const HAND_SIZE = 5;
 export const STANDOUT_OVR = 80;
 
 export interface DealOptions {
+  /**
+   * Players who must never be dealt, by `playerId` (Captain's Draft, TASK-1810).
+   *
+   * ⭐ The icon IS in the pool — every path that rebuilds a match resolves the saved XI
+   * against it, and `replayWith` returns null on the first card it cannot find, so a
+   * captain missing from the pool would make his own match unresumable and his share link
+   * dead. He is excluded from the DEALS instead, which is a different question from
+   * whether the card exists.
+   *
+   * ⛔ Determinism: this filter changes the bag, so it changes every draw after it. It is
+   * only ever non-empty for a pack that locks a slot — Legacy passes nothing and its deals
+   * are byte-identical to before.
+   */
+  excludePlayers?: ReadonlySet<number>;
   /** Candidates per hand. Defaults to the shipped five. */
   handSize?: number;
   /**
@@ -68,14 +82,17 @@ export function roomDeals(
   seed: number,
   opts: DealOptions = {},
 ): PoolCard[][] {
-  const { handSize = HAND_SIZE, standout = false, onePerPlayer = false } = opts;
+  const { handSize = HAND_SIZE, standout = false, onePerPlayer = false, excludePlayers } = opts;
   const rng = mulberry32(seed);
   const used = new Set<string | number>();
   const key = (c: PoolCard) => (onePerPlayer ? c.playerId : c.cardId);
   const ovr = (c: PoolCard) => c.ratings?.overall ?? 0;
 
   return formation.slots.map((slot) => {
-    const bag = pool.filter((c) => !used.has(key(c)) && canPlay(c, slot.role));
+    const bag = pool.filter(
+      (c) =>
+        excludePlayers?.has(c.playerId) !== true && !used.has(key(c)) && canPlay(c, slot.role),
+    );
     const hand: PoolCard[] = [];
     const take = (i: number) => {
       const [card] = bag.splice(i, 1);

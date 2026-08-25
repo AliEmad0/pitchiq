@@ -1000,7 +1000,10 @@
     "bubblePlayed": "Daily challenge — see today's result",
     "gateMarquee": "Select your game",
     "gateUnlocked": "{n} of {total} modes unlocked · insert coin",
-    "formatSelectLength": "Select length"
+    "formatSelectLength": "Select length",
+    "captainsTitle": "Captain's Draft",
+    "captainsPick": "Pick an icon. You draft his countrymen and the players he faced.",
+    "captainsWears": "Your captain"
   },
   "commentary": {
     "armbandHandover": "The armband goes to {name}.",

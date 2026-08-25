@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { buildPool, clubChoices } from "@/features/game/adapter/pool";
+import { buildPool, clubChoices, iconChoices } from "@/features/game/adapter/pool";
 import { GamePlay } from "@/features/game/components/GamePlay";
 import { ModeChooser } from "@/features/game/components/ModeChooser";
 import { packFor, routedPacks } from "@/features/game/domain/rule-packs";
@@ -38,9 +38,16 @@ export async function generateStaticParams(): Promise<Array<{ mode: string }>> {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, mode } = await params;
   setRequestLocale(locale);
-  if (packFor(mode) == null) return {};
+  const pack = packFor(mode);
+  if (pack == null) return {};
   const t = await getTranslations("game");
-  return { title: t("legacyTitle"), description: t("legacyPick") };
+  // ⚠️ Per PACK, not hardcoded. This route serves every routed pack, and it titled all of
+  // them "Legacy Club" until a second one arrived.
+  const captain = pack.chooser?.kind === "captain";
+  return {
+    title: t(captain ? "captainsTitle" : "legacyTitle"),
+    description: t(captain ? "captainsPick" : "legacyPick"),
+  };
 }
 
 export default async function ModePage({ params }: Props) {
@@ -59,7 +66,22 @@ export default async function ModePage({ params }: Props) {
           pool lives one segment deeper, scoped to the choice. A pack without a chooser
           drafts straight from its own pool. */}
       {pack.chooser != null ? (
-        <ModeChooser mode={pack.id} choices={await clubChoices()} />
+        <ModeChooser
+          mode={pack.id}
+          kind={pack.chooser.kind}
+          choices={
+            pack.chooser.kind === "captain"
+              ? (await iconChoices()).map((i) => ({
+                  id: i.id,
+                  name: i.name,
+                  seasons: i.seasons.length,
+                  first: i.seasons[0]!,
+                  last: i.seasons[i.seasons.length - 1]!,
+                  nationalityCode: i.nationalityCode,
+                }))
+              : await clubChoices()
+          }
+        />
       ) : (
         <GamePlay
           pool={await buildPool(pack.pool)}
