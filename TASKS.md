@@ -5529,7 +5529,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1839](#task-1839) | Draft Room candidates become real player cards (+ back flip)    | ✅ Done    | P2       | M   |
 | [TASK-1840](#task-1840) | One numeral convention across the match flow (`/ar` digits)     | ✅ Done    | P2       | S   |
 | [TASK-1841](#task-1841) | A mode with one applicable format goes straight in (`n/a`)      | ✅ Done    | P2       | S   |
-| [TASK-1842](#task-1842) | Nationality Draft — build a side from one country, widening    | 📋 Todo    | P3       | M   |
+| [TASK-1842](#task-1842) | Nationality Draft — build a side from one country, widening     | 📋 Todo    | P3       | M   |
 
 _Enhancement roadmap 1813-1819 added 2026-08-03 from the owner's feature proposal (Option A — 100% client-side/static). See the locked-architecture notes above for the modifier-stack + determinism + no-backend decisions that govern them._
 
@@ -5739,7 +5739,21 @@ The TASK-1806 plan had flagged this pass as owed — it shipped the pitch view v
 
 **Description** — Legacy Club (draft a chosen club's historical stars season-by-season), Classic Season (a real season vs 19 real opponents), Captain's Draft (iconic captain first, curated build-around), Budget Cap Draft ($100M dynamically-priced cards), Chemistry Draft (nation/club/season link bonuses — note: the single stored nationality undercounts links; see M56 follow-up), Survival Mode (start near relegation, hit point targets). Each is a `{ buildPool, constraints, objective }` rule pack over the shared draft machine + engine. **Depends on:** TASK-1806.
 
-**Progress — PR 3 of 5: Legacy Club AND Captain's Draft are LIVE.** The gate reads **5 of 11 unlocked**.
+**Progress — PR 4 of 5: Legacy Club, Captain's Draft AND Budget Cap are LIVE.** The gate reads **6 of 11 unlocked**.
+
+**✅ Budget Cap Draft shipped 2026-08-26.** €100M, the whole priced archive at once, and every card a real Premier League market value expressed in 2025 money. Design + measurements: [`docs/superpowers/specs/2026-08-25-task-1810-budget-cap-design.md`](docs/superpowers/specs/2026-08-25-task-1810-budget-cap-design.md).
+
+- **The data window is narrower than this ticket said.** It is not "the 1990s are unpriced" — `market-values.json` has a 2003 key holding **6 priced players out of 517**, so the usable window is **2004–2025, 22 of 34 seasons**, at 94.5% coverage (644 holes, all excluded — a card with no price cannot be bought and a zero would be a free superstar). `market-value-history.json` does not rescue it: 69 rows before 2004.
+- ⛔ **A cross-era price must be INDEXED, and the basis is the TOP 50, not the median.** Raw inflation is 6.4× on the median card (€2.8M → €18.0M), so unindexed the only rational strategy is "buy the 2000s" and half the archive is dead weight. But the middle of the market inflated faster (≈6.5×) than the top (≈4.3×), so a **median basis is wrong in the opposite direction** — an 88+ player from 2004 would cost €179M against €101M for one from 2024. On the top-50 basis every rating band is flat to 1.13–1.37×, and the cheap band drifts UP while the elite drifts DOWN, so there is no era to farm.
+- ⭐ **The mode exists because price is only a weak proxy for rating** — Pearson r(ovr, log₁₀ value) is **0.37–0.63**, so roughly three-quarters of price variance is unexplained by quality. That residue is where bargains live: **John Terry 2014, rated 95, €5M**; **Van Dijk 2024, 94, €23M**; against **Rodri 2023, 91, €120M**. ⛔ This is also why pricing is NOT derived from ratings — that would make price a monotonic function of quality, and the optimal XI arithmetic rather than a decision.
+- **The pool is cap 600**, one card per distinct player at his best-rated season: rating 70–95, median price €39M, 50 keepers, ~300 KB. ⛔ **Cap 900 was measured and rejected** — it leaves the achievable XI identical at every budget from €60M up, because the extra 300 cards are all rated 64–70 and never enter an optimal team. ⚠️ A rating-ranked cap was expected to destroy the price spread and does not (median €39M, cheapest legal XI €37M); **no stratified price reserve is needed** — the one place Captain's Draft's `nationalityReserve` lesson does not transfer.
+- **€100M is on the steep part of the curve**: best achievable XI is mean 76.8 at €60M, **80.8 at €100M**, 85.5 at €200M, against a 94.0 ceiling costing €1,474M.
+- ⛔ **THE BIG ONE, and only a real browser found it: the mode shipped unplayable.** The reserve that prevents a dead-end reads the **dealt HANDS**, so what bounds the draft is the sum of the hands' minimums — not the pool's. Measured: a 4-3-3 **pool floor is €46M**, but five random cards per slot put the **dealt-hand floor at €137M–265M**, far above the cap. Every card in every hand was disabled, correctly, because no legal XI existed; the meter read "Max this pick €0M" beside a €1.5M card. `DealOptions.cheapest` guarantees the cheapest eligible card per hand and restores the floor to €47–50M. ⚠️ Every unit fixture missed it, because they all had a cheap card in every hand by construction.
+- ⚠️ **`affordable` cannot exist; `cheapest` can.** An earlier design added an "always deal something he can afford" option — impossible, because `roomDeals` deals every hand from one seed _before_ the draft starts and cannot know what has been spent. "The cheapest eligible card" is **static**, so it can. Getting the first half right and then concluding no deal option was needed at all is what shipped the defect above.
+- ⛔ **The rival spends the SAME cap** — a new `DraftPolicy: "budget"`. `best` would field the 94.0 ceiling XI against the coach's 80.8, the 2026-08-19 balance defect again. ⚠️ The cap is part of the match's IDENTITY and rides in every `RivalSetup`: omitting it does not disable the budget, it makes the ceiling `Infinity` and silently turns the policy into best-available.
+- ⚠️ **The reserve must EXCLUDE the candidate being priced.** Reserving before the pick lets the draft buy its own safety net — a candidate can be the cheap card held as cover for a later slot. Seed 99 fielded **nine players** before that argument existed.
+- ⚠️ **Count `canPlay`, not `role`, when auditing pool coverage.** Primary-role counts say the pool holds 6 RMs and 8 LMs and would condemn the mode as unable to field a 4-4-2; `altRoles` lifts every one of the 13 slots to **50+ eligible cards**, and no formation has a slot under 11.
+- **Verified end to end in a real browser**: 11 rounds drafted greedily-expensive, €97.3M of €100M, never a dead hand, and 4 of 5 cards blocked after an opening €44M splurge.
 
 **✅ Captain's Draft shipped 2026-08-25** ([#194](https://github.com/AliEmad0/pitchiq/pull/194) foundation, [#195](https://github.com/AliEmad0/pitchiq/pull/195) live, plus the owner's six refinements). Pick an icon; draft his countrymen and the players he faced; he is in the XI before a card is dealt and he wears the armband.
 
@@ -6408,6 +6422,7 @@ Design: [`docs/superpowers/specs/2026-08-13-task-1832-game-hub-design.md`](../do
 **The pick: "Arcade cabinet"** (concept 17 of 30) — a marquee over a grid of lit slots, with the unlock count where a cabinet prints INSERT COIN. Two refinement rounds followed, because the owner accepted the frame and rejected three things inside it.
 
 **Round 2 (20 concepts), owner picked #15** — which settled all three of his asks at once:
+
 - **A logo per mode.** Eleven marks drawn as **8×8 pixel grids**, rendered as neon outlines. ⭐ Grids rather than vector paths on purpose: the gate is a cabinet, and a monoline mark fights it — the grid is the arcade's own drawing language, so the marks belong to the surface instead of sitting on it.
 - **A theme per mode.** Eleven accents, on `GameMode.accent` beside `emoji` — a mode's identity arrives with the mode, and a component-side lookup keyed by `ModeId` would be a second registry that could fall out of step.
 - **Another format step.** The two-box panel became the arcade **cursor select**: a ▶ against what you can actually pick. It states the existing rule more honestly than two boxes did — a format you cannot choose has no cursor, so the difference is visible before you read a word.
@@ -6546,14 +6561,14 @@ Design: [`docs/superpowers/specs/2026-08-13-task-1832-game-hub-design.md`](../do
 
 **⭐ What the measurement actually found — the seam is at FULL TIME, not at the board.** Walking one unbroken `/ar/game/chaos` flow in the browser:
 
-| Screen | Sample | Digits |
-| --- | --- | --- |
-| Match Night (setup) | dot OVR `83`, board avg `79`, card `83 · 25 · 2012-13` | Western |
-| Programme (preview) | tape `79`, card `83` | Western |
-| Live | shirt `1`, sheet OVR `83`, clock `30'`, feed `29' 0–1` | Western |
-| Summary | score `٢–٢`, seed `٧١٣٩٣١٦٢١` | **Eastern — no Western digit anywhere** |
+| Screen              | Sample                                                 | Digits                                  |
+| ------------------- | ------------------------------------------------------ | --------------------------------------- |
+| Match Night (setup) | dot OVR `83`, board avg `79`, card `83 · 25 · 2012-13` | Western                                 |
+| Programme (preview) | tape `79`, card `83`                                   | Western                                 |
+| Live                | shirt `1`, sheet OVR `83`, clock `30'`, feed `29' 0–1` | Western                                 |
+| Summary             | score `٢–٢`, seed `٧١٣٩٣١٦٢١`                          | **Eastern — no Western digit anywhere** |
 
-So the coach watched the live feed print `0–1` and met `٠–١` for the same match one click later. ⚠️ **Both sides were deliberate**: `MatchSummary` localized precisely *because* the canvas share card painted beneath it did, and two conventions for one score on one screen is worse than either. So this was a design question, not a defect — put to the owner rather than decided here.
+So the coach watched the live feed print `0–1` and met `٠–١` for the same match one click later. ⚠️ **Both sides were deliberate**: `MatchSummary` localized precisely _because_ the canvas share card painted beneath it did, and two conventions for one score on one screen is worse than either. So this was a design question, not a defect — put to the owner rather than decided here.
 
 **✅ Owner's call, 2026-08-24: pin the summary to Western too** — one convention across the whole match flow, card included.
 
@@ -6571,7 +6586,7 @@ So the coach watched the live feed print `0–1` and met `٠–١` for the same 
 
 **A mode with one applicable format goes straight in (`n/a`)** · ✅ Done · `P2` · `S` · Type: Feature
 
-**Description** — Owner, 2026-08-24: *"there is no Full Season for it, just when click on it go to the challenge."* The Daily Challenge tile expanded to a format choice containing exactly one destination and a locked **Full Season** box — a format that is not merely unbuilt but **a contradiction in terms**: a season-long "one challenge a day" cannot exist.
+**Description** — Owner, 2026-08-24: _"there is no Full Season for it, just when click on it go to the challenge."_ The Daily Challenge tile expanded to a format choice containing exactly one destination and a locked **Full Season** box — a format that is not merely unbuilt but **a contradiction in terms**: a season-long "one challenge a day" cannot exist.
 
 **Shipped** — `ModeStatus` gains `"n/a"`. ⛔ **It is NOT a weaker `"planned"`**, and that distinction is the whole ticket: `planned` is a promise the roadmap intends to keep, `n/a` says the format will never arrive for this mode, so the gate must not advertise it at all. `applicableFormats(mode)` filters them out and `FormatChoice` never renders them; `isDirectEntry(mode)` is true when a playable mode has exactly ONE applicable format, and `ModeTile` then renders a `Link` straight to the mode instead of an expander — there is nothing to choose, so an expander would only add a click on the way to the single destination.
 
@@ -6589,13 +6604,14 @@ So the coach watched the live feed print `0–1` and met `٠–١` for the same 
 
 **Nationality Draft — build a side from one country, widening** · 📋 Todo · `P3` · `M` · Type: Feature
 
-**Description** — Owner's mode idea, 2026-08-25: *"select the nationality and build team from this nationality — for example select Egypt, show me the available players for every position. If they are more than 5 just give me 5, and if less than 5 just show the available cards. If no players for this position give me African players in this position, and the same if I choose France — if no players in any position give me from Europe."*
+**Description** — Owner's mode idea, 2026-08-25: _"select the nationality and build team from this nationality — for example select Egypt, show me the available players for every position. If they are more than 5 just give me 5, and if less than 5 just show the available cards. If no players for this position give me African players in this position, and the same if I choose France — if no players in any position give me from Europe."_
 
 So the hand for a position is drawn from a **widening ring**: the chosen nation first, then its continent, then (implicitly) the world. The scarcity is the mode — Egypt fills a goalkeeper and a winger easily and may have nobody at centre-back, and watching the ring widen is the drama.
 
 **Shape it as a rule pack.** It is a `chooser` + a `PoolSpec`, exactly like Captain's Draft: `chooser: { kind: "nation" }` and a `nationRings` pool. The routes are already chooser-aware ([TASK-1810](#task-1810)), so the segment carries the nation and the pack supplies the rest.
 
 **What it needs that does not exist yet**
+
 - ⚠️ **A nation → continent map.** `players-*.json` carries `nationality` + `nationalityCode` (coverage measured at **5,109 / 5,115**) but NO continent. That mapping has to come from somewhere and be committed — an ISO-code → region table is the obvious route, and it must not rot when a new nation appears in the data.
 - ⚠️ **The widening has to happen PER POSITION, not per hand**, or one thin position drags the whole draft outward. Egypt should still deal Egyptians at the positions where it has them.
 - ⚠️ **The ring a card came from must be VISIBLE.** If a card silently arrives from "Africa" while the coach thinks he is drafting Egyptians, the mode's premise is broken without him knowing. A badge on the card, or a line on the hand.
