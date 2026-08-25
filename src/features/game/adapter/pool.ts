@@ -194,10 +194,149 @@ export async function refereeNames(): Promise<string[]> {
   return [...seen].sort((a, b) => a.localeCompare(b));
 }
 
+/**
+ * The curated legends who never captained a side for three full seasons (owner, 2026-08-25).
+ *
+ * ⚠️ A hardcoded list of PLAYER IDS is safe in a way a hardcoded club list is not — the
+ * comment on `LEGACY_CLUBS` rejects one because a new season silently adds clubs, but a
+ * legend's id never changes and the list is a stated editorial choice rather than a
+ * snapshot of data that moves. `tests/unit/game-captains-pack.test.ts` fails loudly if any
+ * id stops resolving to a real player, so it cannot rot quietly.
+ */
+const LEGEND_ICONS: readonly number[] = [
+  1003061, // Thierry Henry
+  1000308, // Cristiano Ronaldo
+  1001119, // Mohamed Salah
+  1001412, // Sergio Agüero
+  1003673, // Dennis Bergkamp
+  1002187, // Didier Drogba
+  1003744, // Eric Cantona
+];
+
+/** How many real seasons a man must have captained to make the roster on merit. */
+const ICON_MIN_CAPTAINCIES = 3;
+
+export interface IconChoice {
+  id: number;
+  name: string;
+  /** Drives the nationality half of the synergy pool. */
+  nationality: string | null;
+  /** Every season he actually played — the era half. */
+  seasons: number[];
+  /** Seasons he wore the armband. 0 for a curated legend. */
+  captaincies: number;
+}
+
+/**
+ * Everyone the Captain's Draft offers as an icon.
+ *
+ * ⭐ Derived from REAL captaincy records rather than a hand-picked list, which is what
+ * makes the mode's name literal: measured across the 20 covered seasons, 164 men captained
+ * a Premier League side and 39 did it for three seasons or more. The curated legends are
+ * merged on top and deduplicated.
+ *
+ * ⚠️ Reads `players-*.json` only — never a squad. Same rule as `clubChoices`: this backs a
+ * menu, and building the card universe to render a list is exactly what that would cost.
+ */
+export async function iconChoices(): Promise<IconChoice[]> {
+  const captains = await loadCaptains();
+  const counts = new Map<number, number>();
+  for (const byTeam of Object.values(captains ?? {}))
+    for (const playerId of Object.values(byTeam))
+      counts.set(playerId, (counts.get(playerId) ?? 0) + 1);
+
+  const wanted = new Set<number>(LEGEND_ICONS);
+  for (const [playerId, n] of counts) if (n >= ICON_MIN_CAPTAINCIES) wanted.add(playerId);
+
+  const meta = new Map<number, { name: string; nationality: string | null; seasons: number[] }>();
+  for (const season of everySeason()) {
+    for (const p of (await loadPlayers(season)) ?? []) {
+      if (!wanted.has(p.id)) continue;
+      const found = meta.get(p.id);
+      if (found == null) {
+        meta.set(p.id, { name: p.name, nationality: p.nationality ?? null, seasons: [season] });
+      } else {
+        found.seasons.push(season);
+        found.nationality ??= p.nationality ?? null;
+      }
+    }
+  }
+
+  return [...meta.entries()]
+    .map(([id, m]) => ({ id, ...m, captaincies: counts.get(id) ?? 0 }))
+    // Most-capped first, then by name so the order is total and cannot wander.
+    .sort((a, b) => b.captaincies - a.captaincies || a.name.localeCompare(b.name))
+    .filter((i) => i.seasons.length > 0);
+}
+
+/**
+ * The Captain's Draft pool: his countrymen, UNION everyone who played in one of his seasons.
+ *
+ * ⛔ Bounded, and the measurement is why: unbounded, the average icon's union is 2,619
+ * distinct players (John Terry's is 3,889 — 76% of the dataset), which is ~1.28 MB baked
+ * into a `force-static` page and a "synergy" that includes nearly everybody.
+ *
+ * The bound is applied in three steps, in this order:
+ *  1. **One card per distinct player** — his best-rated season. A man is one option, not ten.
+ *  2. **Reserve** `nationalityReserve` places for the nationality half, best-rated first.
+ *  3. **Fill** the rest of `cap` from everything left, best-rated first.
+ *
+ * ⚠️ Step 2 exists because step 3 alone would erase half the mechanic for a big nation:
+ * England has 1,767 players against an era of ~3,000, so a purely rating-ranked cap comes
+ * out almost entirely era-peers and the coach never sees a countryman.
+ */
+async function captainSynergy(
+  spec: Extract<PoolSpec, { kind: "captainSynergy" }>,
+  career: CareerIndex,
+  captainId: number,
+): Promise<EnrichedCard[]> {
+  const icon = (await iconChoices()).find((i) => i.id === captainId);
+  if (icon == null) return [];
+  const era = new Set(icon.seasons);
+
+  /** playerId -> his best-rated card anywhere, plus which half(s) he qualifies through. */
+  const best = new Map<number, { g: Gathered; nat: boolean }>();
+  for (const season of everySeason()) {
+    const standings = await loadStandings(season);
+    if (standings == null) continue;
+    const players = new Map(((await loadPlayers(season)) ?? []).map((p) => [p.id, p]));
+    for (const row of standings) {
+      for (const g of await cardsFor(row.teamId, row.teamName, season, career)) {
+        const nat =
+          icon.nationality != null && players.get(g.card.playerId)?.nationality === icon.nationality;
+        // ⚠️ The union, evaluated per CARD: a countryman qualifies in any season, an
+        // era-peer only in one of the icon's own.
+        if (!nat && !era.has(season)) continue;
+        const found = best.get(g.card.playerId);
+        if (found == null || g.rating > found.g.rating) best.set(g.card.playerId, { g, nat });
+        else if (nat && !found.nat) found.nat = true;
+      }
+    }
+  }
+  // ⛔ The icon himself is placed by the draft, not drafted — offering him back would let
+  // the coach field him twice, or waste a pick on a man he already has.
+  best.delete(captainId);
+
+  const byRating = (a: { g: Gathered }, b: { g: Gathered }) => b.g.rating - a.g.rating;
+  const countrymen = [...best.values()].filter((v) => v.nat).sort(byRating);
+  const taken = new Set(countrymen.slice(0, spec.nationalityReserve).map((v) => v.g.card.playerId));
+  const rest = [...best.values()]
+    .filter((v) => !taken.has(v.g.card.playerId))
+    .sort(byRating)
+    .slice(0, Math.max(0, spec.cap - taken.size));
+
+  return [...countrymen.slice(0, spec.nationalityReserve), ...rest].map((v) => v.g.card);
+}
+
 export async function buildPool(spec: PoolSpec, only?: number): Promise<EnrichedCard[]> {
   const career = await loadCareerIndex();
   const pool =
-    spec.kind === "topTeams" ? await topTeams(spec, career) : await clubHistory(spec, career, only);
+    spec.kind === "topTeams"
+      ? await topTeams(spec, career)
+      : spec.kind === "captainSynergy"
+        ? // `only` is the ICON's playerId here, the same way it is a club id for Legacy.
+          await captainSynergy(spec, career, only ?? -1)
+        : await clubHistory(spec, career, only);
 
   // Pixel-inspect each photo to tell a transparent cutout from a background shot — the URL
   // alone lies for older players. Best-effort, build time only.
