@@ -317,6 +317,12 @@ The setup screen carries formation and rival difficulty. There is no chooser seg
 `?format=` param — `formats.single` is the only live format, so the tile is direct-entry via
 the `isDirectEntry` rule shipped in #192.
 
+⛔ The route must declare **`export const dynamic = "force-static"` and `export const revalidate = false`**. Both are
+CI-guarded — `tests/unit/game-routes-static.test.ts` asserts the first, `tests/unit/route-revalidate.test.ts`
+rejects any positive `revalidate` — and a page that quietly goes dynamic is what caused the
+2026-07 Vercel Active-CPU pause. This page is an especially bad candidate to get wrong: it
+bakes a 600-card pool, so a request-time render would rebuild that pool per view.
+
 ---
 
 ## 8. Testing
