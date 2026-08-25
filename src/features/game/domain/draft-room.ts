@@ -41,6 +41,26 @@ export interface DealOptions {
    */
   standout?: boolean;
   /**
+   * Guarantee the CHEAPEST eligible card in every hand (TASK-1810 Budget Cap).
+   *
+   * ⛔ Not a nicety — without it the mode is unplayable, and the numbers are not close.
+   * `domain/budget.ts` reserves the cheapest card of each unfilled HAND, so what bounds the
+   * draft is the sum of the hands' minimums, not the pool's. Measured on the real pool: the
+   * pool floor for a 4-3-3 is **€46M**, but the floor across five-card hands is **€137M–265M**
+   * — three to five times higher, and far above the €100M cap. Every card in every hand came
+   * out disabled, correctly, because no legal XI existed.
+   *
+   * ⚠️ This is STATIC, which is exactly why it can live here. An "always deal something
+   * affordable" option could not: `roomDeals` deals every hand up front from one seed, before
+   * a single pick exists, so it cannot know what has been spent. "The cheapest eligible card"
+   * needs no such knowledge, and including it makes the hand floor equal the pool floor.
+   *
+   * ⚠️ Drawn FIRST and with NO rng, like the `standout` fallback — a guaranteed card must not
+   * be crowded out by the random remainder, and spending a random number here would change
+   * every existing room that shares this stream.
+   */
+  cheapest?: boolean;
+  /**
    * Treat every card of the same player as one, so a player can appear in at most one hand.
    *
    * ⚠️ This is what makes "you cannot pick the same player twice" true BY CONSTRUCTION
@@ -82,7 +102,13 @@ export function roomDeals(
   seed: number,
   opts: DealOptions = {},
 ): PoolCard[][] {
-  const { handSize = HAND_SIZE, standout = false, onePerPlayer = false, excludePlayers } = opts;
+  const {
+    handSize = HAND_SIZE,
+    standout = false,
+    cheapest = false,
+    onePerPlayer = false,
+    excludePlayers,
+  } = opts;
   const rng = mulberry32(seed);
   const used = new Set<string | number>();
   const key = (c: PoolCard) => (onePerPlayer ? c.playerId : c.cardId);
@@ -90,8 +116,7 @@ export function roomDeals(
 
   return formation.slots.map((slot) => {
     const bag = pool.filter(
-      (c) =>
-        excludePlayers?.has(c.playerId) !== true && !used.has(key(c)) && canPlay(c, slot.role),
+      (c) => excludePlayers?.has(c.playerId) !== true && !used.has(key(c)) && canPlay(c, slot.role),
     );
     const hand: PoolCard[] = [];
     const take = (i: number) => {
@@ -123,6 +148,22 @@ export function roomDeals(
         for (let i = 1; i < bag.length; i++) if (ovr(bag[i]!) > ovr(bag[best]!)) best = i;
         take(best);
       }
+    }
+
+    /**
+     * The cheapest eligible card, also drawn first and also with NO rng (TASK-1810).
+     *
+     * ⛔ This is what makes a budget draft completable. `domain/budget.ts` reserves the
+     * cheapest card of each unfilled HAND, so guaranteeing the pool's cheapest eligible card
+     * appears here is what makes the hand floor equal the pool floor — €46M rather than the
+     * €137M–265M five random cards per slot produced, against a €100M cap.
+     */
+    if (cheapest && bag.length > 0) {
+      let low = 0;
+      for (let i = 1; i < bag.length; i++) {
+        if ((bag[i]!.costEur ?? Infinity) < (bag[low]!.costEur ?? Infinity)) low = i;
+      }
+      take(low);
     }
 
     while (hand.length < handSize && bag.length > 0) take(Math.floor(rng() * bag.length));

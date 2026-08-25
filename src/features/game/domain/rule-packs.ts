@@ -176,6 +176,14 @@ export interface DraftSpec {
   lockPicks?: boolean;
   /** Guarantee one card at `STANDOUT_OVR`+, or the best available, in every hand. */
   standout?: boolean;
+  /**
+   * Guarantee the cheapest eligible card in every hand (Budget Cap, TASK-1810).
+   *
+   * ⛔ Load-bearing, not a nicety: the budget reserve reads the dealt HANDS, so without this
+   * the floor is the sum of five-card minimums (measured €137M–265M) rather than the pool's
+   * own (€46M), and a €100M cap disables every card in every hand. See `DealOptions.cheapest`.
+   */
+  cheapest?: boolean;
   /** A player may be offered in at most one hand, so no XI can field him twice. */
   onePerPlayer?: boolean;
 }
@@ -363,6 +371,9 @@ export const BUDGET_PACK: RulePack = {
     roam: "free",
     timer: null,
     lockPicks: true,
+    // ⛔ Not `standout`. A guaranteed 80+ fights a budget; a guaranteed CHEAPEST is what makes
+    // the draft completable at all — see `DraftSpec.cheapest` for the measured numbers.
+    cheapest: true,
     onePerPlayer: true,
   },
   constraints: [{ kind: "budgetCap", amountEur: 100_000_000 }],

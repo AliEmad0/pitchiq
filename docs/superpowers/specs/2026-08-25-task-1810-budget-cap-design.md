@@ -238,6 +238,7 @@ export const BUDGET_PACK: RulePack = {
     roam: "free",
     timer: null,
     lockPicks: true,
+    cheapest: true,
     onePerPlayer: true,
   },
   constraints: [{ kind: "budgetCap", amountEur: 100_000_000 }],
@@ -255,10 +256,10 @@ export const BUDGET_PACK: RulePack = {
 the pack could only declare the rule; the budget is the same for every player of this mode, so
 it belongs in the pack.
 
-**`DraftSpec` is UNCHANGED, and this pack sets no `standout`.** A guaranteed 80+ in every hand
-fights a budget rather than complementing it — it would either be unaffordable (a dead card) or
-eat the cap. What a budget hand needs is a card the coach can still buy, and §5.1 shows that
-falls out of the reserve rule without any new deal option, so `roomDeals` is not touched at all.
+**`DraftSpec` gains `cheapest`, and this pack sets no `standout`.** A guaranteed 80+ in every
+hand fights a budget rather than complementing it — it would either be unaffordable (a dead
+card) or eat the cap. What a budget hand needs guaranteed is the **cheapest eligible card**,
+without which the draft cannot be completed at all; see §5.1 for the measured numbers.
 
 ⛔ **Register in `RULE_PACKS` only once `/game/budget` exists.** `routedPacks()` filters on
 `chooser != null` and reads `RULE_PACKS`, never `domain/modes.ts`. This pack has no chooser, so
@@ -302,11 +303,18 @@ the room is created. Two properties follow, neither of which needs enforcing:
 2. **No hand is ever dead.** The cheapest card in the open hand is, by the same invariant,
    always at or below the ceiling — so there is always something to click.
 
-⛔ **This is why the spec no longer has an `affordable` deal option.** The first draft added
-`affordable: true` to `DraftSpec` to make the room deal one buyable card per hand. That cannot
-work: `roomDeals` deals every hand from one seed **before the draft starts**, and affordability
-depends on what has already been spent, which does not exist yet. Deriving the reserve from the
-hands gets the same guarantee with no change to the shipped deal at all. ⚠️ Do not re-add it.
+⛔ **The reserve reads HANDS, so the DEAL must guarantee a cheap card — `cheapest: true`.**
+This was got wrong twice and the second one only surfaced in a browser. An `affordable` option
+cannot work: `roomDeals` deals every hand from one seed **before the draft starts**, so it
+cannot know what has been spent. But dropping the option entirely is also wrong, because the
+floor that binds the draft is then the sum of five random cards' minimums rather than the
+pool's. **Measured on the real pool: the pool floor for a 4-3-3 is €46M, the dealt-hand floor
+is €137M–265M** — every card in every hand came out disabled at a €100M cap, correctly,
+because no legal XI existed. `cheapest: true` restores it to €47–50M.
+
+⚠️ The distinction is what makes it work: "the cheapest eligible card" is **static**, so it can
+be decided at deal time; "a card he can still afford" is **spend-dependent**, so it cannot. Do
+not re-add `affordable`.
 
 ⚠️ **A pool-wide reserve would be both wrong and role-blind.** `slotsLeft × cheapestCard` is the
 obvious form and it under-reserves: the cheapest card overall is no use when the unfilled slot

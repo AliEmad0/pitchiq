@@ -163,12 +163,22 @@ export function PitchDraft({
         : roomDeals(pool, shape, seed, {
             handSize: draft.handSize,
             standout: draft.standout,
+            cheapest: draft.cheapest,
             onePerPlayer: draft.onePerPlayer,
             // ⛔ He is in the pool so every replay path can resolve him; he must not be
             // dealt, or the coach could field the same man twice.
             excludePlayers: captain == null ? undefined : new Set([captain.playerId]),
           }),
-    [pool, shape, seed, draft.handSize, draft.standout, draft.onePerPlayer, captain],
+    [
+      pool,
+      shape,
+      seed,
+      draft.handSize,
+      draft.standout,
+      draft.cheapest,
+      draft.onePerPlayer,
+      captain,
+    ],
   );
 
   /** ⛔ The captain is in here, though he is not in the pool. See the `captain` prop. */
