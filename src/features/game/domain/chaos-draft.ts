@@ -148,12 +148,25 @@ const BENCH_SHAPE: PlayerRole[] = ["GK", "CB", "CM", "CF", "RW"];
  * ⚠️ The bar is `STANDOUT_OVR`, reused rather than reinvented. It is already what the pack
  * guarantees inside the coach's own hands, so the rival is drafted to the standard the
  * coach is promised — one number, one meaning.
+ *
+ * ⭐ `budget` (TASK-1810) drafts under a spending cap, and it exists because `best` cannot be
+ * used for Budget Cap: the unlimited ceiling XI measures mean rating **94.0** against the
+ * coach's **80.8** at €100M — a 13-point gap settled by the draft rules before a ball is
+ * kicked, which is precisely the balance defect the owner reported on 2026-08-19.
  */
-export type DraftPolicy = "random" | "best" | "strong";
+export type DraftPolicy = "random" | "best" | "strong" | "budget";
 
 export interface DraftOptions {
   /** Absent means `random`, i.e. exactly what `/game/chaos` has always drafted. */
   policy?: DraftPolicy;
+  /**
+   * The spending cap for `policy: "budget"`, in indexed euros. Ignored by every other policy.
+   *
+   * ⚠️ It constrains the **XI only**, never the bench — symmetric with the coach, whose draft
+   * room fills eleven slots and leaves his bench to `buildSession`. Charging the rival for a
+   * bench the coach gets free would be the balance defect again, just quieter.
+   */
+  budget?: number;
   /**
    * playerIds that are already spoken for — the coach's own XI.
    *
@@ -196,6 +209,78 @@ function strongFor(
   return sorted[Math.floor(roll * sorted.length)] ?? null;
 }
 
+/** The cheapest `n` unused cards `canPlay` accepts for `role`, cheapest first. */
+function cheapestFor(
+  pool: PoolCard[],
+  role: PlayerRole,
+  used: ReadonlySet<number>,
+  n: number,
+): PoolCard[] {
+  return pool
+    .filter((c) => !used.has(c.playerId) && canPlay(c, role))
+    .sort((a, b) => (a.costEur ?? Infinity) - (b.costEur ?? Infinity))
+    .slice(0, n);
+}
+
+/**
+ * What must be held back to fill the remaining slots, if `exclude` is spent on this one.
+ *
+ * ⛔ `exclude` is the whole point, and leaving it out is a real bug rather than a nicety: a
+ * candidate can BE the cheap card that was reserved as cover for a later slot, so pricing the
+ * reserve without removing him lets the draft buy its own safety net. Measured — seed 99 came
+ * out with **nine players** before this argument existed.
+ *
+ * ⚠️ Greedy over per-slot cheapest LISTS rather than single cards, so the assignment stays
+ * DISTINCT: one cheap utility defender must not be counted as cover for three different slots.
+ * Each list is longer than the number of slots it serves, so the walk can never run dry.
+ */
+function reserveFrom(lists: readonly PoolCard[][], exclude: number): number {
+  const claimed = new Set<number>([exclude]);
+  let total = 0;
+  for (const list of lists) {
+    const card = list.find((c) => !claimed.has(c.playerId));
+    if (card == null) continue;
+    claimed.add(card.playerId);
+    total += card.costEur ?? 0;
+  }
+  return total;
+}
+
+/**
+ * A seeded draw from the affordable standouts, or the best affordable card there is.
+ *
+ * A candidate is affordable when his own cost PLUS the cheapest way to fill every slot after
+ * him still fits inside `remaining` — which is what makes eleven filled slots structural
+ * rather than lucky.
+ *
+ * ⛔ The rng is drawn EXACTLY ONCE per slot whether or not anything is affordable — the same
+ * discipline `strongFor` documents. A branch that skipped the draw when the band was empty
+ * would make the stream depend on how many slots happened to find one, and the bench below
+ * shares that stream.
+ */
+function budgetPick(
+  pool: PoolCard[],
+  role: PlayerRole,
+  used: ReadonlySet<number>,
+  rng: () => number,
+  remaining: number,
+  later: readonly FormationSlot[],
+): PoolCard | null {
+  const from = candidatesFor(pool, role, used);
+  const roll = rng();
+  const lists = later.map((s) => cheapestFor(pool, s.role, used, later.length + 2));
+  const affordable = from.filter(
+    (c) => (c.costEur ?? Infinity) + reserveFrom(lists, c.playerId) <= remaining,
+  );
+  if (affordable.length === 0) return null;
+  const band = affordable.filter((c) => (c.ratings?.overall ?? 0) >= STANDOUT_OVR);
+  const choices = band.length > 0 ? band : affordable;
+  // Sorted before the draw: `pool` order is an input we do not control, and an unsorted draw
+  // would pick differently after an unrelated data refresh.
+  const sorted = [...choices].sort((a, b) => a.cardId.localeCompare(b.cardId));
+  return sorted[Math.floor(roll * sorted.length)] ?? null;
+}
+
 /** The best card for `role` that nobody has taken, or null. Rating desc, then cardId. */
 function bestFor(pool: PoolCard[], role: PlayerRole, used: ReadonlySet<number>): PoolCard | null {
   const ovr = (c: PoolCard) => c.ratings?.overall ?? -1;
@@ -225,7 +310,7 @@ export function chaosDraft(
   name = "Your XI",
   options: DraftOptions = {},
 ): GameTeam {
-  const { policy = "random", exclude } = options;
+  const { policy = "random", exclude, budget } = options;
   const rng = mulberry32(seed);
   const shape = pick(FORMATIONS, rng);
   // ⚠️ Seeded with the exclusions, so they are honoured by the XI and the bench alike.
@@ -241,6 +326,26 @@ export function chaosDraft(
       const card = strongFor(pool, slot.role, used, rng);
       if (card == null) continue;
       used.add(card.playerId);
+      chosen.push(card);
+    }
+  } else if (policy === "budget") {
+    // ⭐ Greedy in SLOT order under a running ceiling. The reserve is what keeps the last
+    // slots fillable: spending everything on a keeper and two strikers would otherwise leave
+    // eight slots with nothing affordable, and the rival would walk out with seven men.
+    let spent = 0;
+    for (let i = 0; i < shape.slots.length; i++) {
+      const remaining = (budget ?? Infinity) - spent;
+      const card = budgetPick(
+        pool,
+        shape.slots[i]!.role,
+        used,
+        rng,
+        remaining,
+        shape.slots.slice(i + 1),
+      );
+      if (card == null) continue;
+      used.add(card.playerId);
+      spent += card.costEur ?? 0;
       chosen.push(card);
     }
   } else if (policy === "best") {
@@ -274,7 +379,9 @@ export function chaosDraft(
   const bench: PoolCard[] = [];
   for (let i = 0; i < BENCH_SIZE; i++) {
     const want = BENCH_SHAPE[i % BENCH_SHAPE.length];
-    if (policy === "strong") {
+    // ⚠️ `budget` benches like `strong`, deliberately: the cap constrains the XI only, so the
+    // rival's bench is drafted to the same standard the coach's unconstrained bench is.
+    if (policy === "strong" || policy === "budget") {
       const card = strongFor(pool, want, used, rng);
       if (card == null) break;
       used.add(card.playerId);
