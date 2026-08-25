@@ -140,8 +140,12 @@ export const GAME_MODES: readonly GameMode[] = [
     emoji: "💰",
     nameKey: "modeBudgetName",
     descriptionKey: "modeBudgetDesc",
-    href: null,
-    formats: planned,
+    // ⚠️ A bespoke route, not the parameterised `/game/[mode]` one — the pack declares no
+    // chooser, so `routedPacks()` deliberately excludes it. See `BUDGET_PACK`.
+    href: "/game/budget",
+    // TASK-1810 ships the single-match format. Season is TASK-1811 — the registry's
+    // per-format status is exactly what lets those ship in separate PRs.
+    formats: { single: "live", season: "planned" },
     accent: "#34d399",
     ticket: "TASK-1810",
   },
