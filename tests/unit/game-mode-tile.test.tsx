@@ -1,13 +1,20 @@
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
-import { GAME_MODES } from "@/features/game/domain/modes";
+import { GAME_MODES, isPlayable } from "@/features/game/domain/modes";
+import en from "@/i18n/messages/en.json";
 import { renderWithIntl } from "./_helpers/intl";
 
 const { ModeTile } = await import("@/features/game/components/ModeTile");
 
 const h2h = GAME_MODES.find((m) => m.id === "h2h")!;
-const captains = GAME_MODES.find((m) => m.id === "captains")!;
+/**
+ * ⛔ DERIVED, never a named mode. This was `id === "captains"` — and when Captain's Draft
+ * shipped, the test asserting "a planned mode is not focusable" was pointed at a mode that
+ * had become a control, so it failed for a reason that had nothing to do with the rule.
+ * A locked example must come from the registry, or every mode that ships breaks it.
+ */
+const locked = GAME_MODES.find((m) => !isPlayable(m))!;
 
 describe("ModeTile", () => {
   it("renders a live mode as a button", () => {
@@ -31,13 +38,15 @@ describe("ModeTile", () => {
   });
 
   it("renders a planned mode as NOT focusable", () => {
-    renderWithIntl(<ModeTile mode={captains} open={false} onOpen={vi.fn()} />);
+    renderWithIntl(<ModeTile mode={locked} open={false} onOpen={vi.fn()} />);
 
     // Visible…
-    expect(screen.getByText(/Captain's Draft/)).toBeInTheDocument();
+    const name = en.game[locked.nameKey as keyof typeof en.game] as string;
+    // An exact string, not a regex — a mode name can contain regex metacharacters.
+    expect(screen.getByText(name)).toBeInTheDocument();
     // …but never a control. Eleven locked tiles would be eleven dead tab stops.
-    expect(screen.queryByRole("button", { name: /Captain's Draft/ })).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: /Captain's Draft/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
+    expect(screen.queryByRole("link")).not.toBeInTheDocument();
   });
 
   it("renders a planned FORMAT as text, not a link", () => {

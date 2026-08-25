@@ -2,6 +2,8 @@
 // waits for the App Router to mount; without it a click dispatched pre-hydration is
 // silently swallowed — React suppresses the default action but no router exists to handle
 // it, so no RSC request is ever issued and no timeout value can rescue it.
+import { GAME_MODES, isPlayable } from "@/features/game/domain/modes";
+import en from "@/i18n/messages/en.json";
 import { expect, test } from "./_helpers/test";
 
 test.describe("the game hub", () => {
@@ -18,10 +20,19 @@ test.describe("the game hub", () => {
 
     await expect(page.getByRole("heading", { name: "Play PitchIQ" })).toBeVisible();
 
-    // Locked modes are visible but are not controls — that is the whole accessibility
-    // decision behind the gate, so it is asserted end to end and not only in the unit test.
-    await expect(page.getByText("Captain's Draft")).toBeVisible();
-    await expect(page.getByRole("button", { name: /Captain's Draft/ })).toHaveCount(0);
+    /**
+     * Locked modes are visible but are not controls — that is the whole accessibility
+     * decision behind the gate, so it is asserted end to end and not only in the unit test.
+     *
+     * ⛔ The example is DERIVED from the registry. It was hardcoded to "Captain's Draft",
+     * and the day that mode shipped this assertion failed for a reason unrelated to the
+     * rule it guards — a locked mode had simply become a button. Every mode that ships
+     * would break it again.
+     */
+    const locked = GAME_MODES.find((m) => !isPlayable(m))!;
+    const lockedName = en.game[locked.nameKey as keyof typeof en.game] as string;
+    await expect(page.getByText(lockedName).first()).toBeVisible();
+    await expect(page.getByRole("button", { name: lockedName })).toHaveCount(0);
 
     // Mode, then format.
     await page.getByRole("button", { name: /Tactical H2H/ }).click();
