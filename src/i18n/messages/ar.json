@@ -997,7 +997,10 @@
     "dailyShareCopied": "تم النسخ",
     "bubbleLabel": "اليومي",
     "bubbleUnplayed": "العب تحدي اليوم",
-    "bubblePlayed": "تحدي اليوم — اعرض نتيجة اليوم"
+    "bubblePlayed": "تحدي اليوم — اعرض نتيجة اليوم",
+    "gateMarquee": "اختر لعبتك",
+    "gateUnlocked": "{n} من {total} أنماط مفتوحة · أدخل عملة",
+    "formatSelectLength": "اختر المدة"
   },
   "commentary": {
     "armbandHandover": "شارة القيادة تنتقل إلى {name}.",

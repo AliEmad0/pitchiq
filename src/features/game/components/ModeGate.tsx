@@ -1,5 +1,5 @@
 "use client";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import {
   COLLECTION_SURFACES,
@@ -10,82 +10,91 @@ import {
   type ModeId,
 } from "@/features/game/domain/modes";
 import { Link } from "@/i18n/navigation";
+import { localizeDigits } from "@/utils/format";
 import { ModeTile } from "./ModeTile";
 
 /**
- * The gate: every mode the game has or will have, and the way into the two that work.
+ * The gate: every mode the game has or will have, and the way into the ones that work.
+ *
+ * ⭐ TASK-1833 — "Arcade cabinet", the owner's pick from the 30-concept ritual TASK-1832
+ * deferred on purpose. A marquee over a grid of lit slots, with the unlock count where a
+ * cabinet prints INSERT COIN.
+ *
+ * ⭐ The ticket's real problem was that **seven of eleven modes are locked**, and the old
+ * gate answered it with opacity — which read as an unfinished game. The answer that
+ * shipped is colour: each mode carries its own accent, a playable one is lit, and an
+ * unbuilt one is the same sign switched off. Grey stops being the page's dominant note
+ * because the page is no longer grey.
+ *
+ * ⚠️ Modes are NOT split into "play now" and "coming soon" sections any more. They sit in
+ * their real groups, in registry order, and status is carried by the tile. Two sections
+ * made the locked list a wall of its own — the thing the ticket asked to fix.
  *
  * ⚠️ Renders entirely from `domain/modes.ts`. Nothing here knows what "Season" is — a
- * mode's status drives everything, so unlocking one later is a data change (TASK-1832 D5).
+ * mode's status drives everything, so unlocking one later stays a data change (TASK-1832
+ * D5). Loads NO data and imports no `adapter/*`, which is what keeps `/game` trivially
+ * static.
  *
- * ⚠️ Loads NO data and imports no `adapter/*`. That is what keeps `/game` trivially
- * static, and it is why the eventual redesign (D10 — the 30-concept ritual was skipped
- * deliberately to get the base shipped) can replace this file wholesale.
- *
- * One `useState` rather than a reducer: there is a single piece of state and no illegal
- * transition to guard against, unlike `draft-state` / `room-state` / `play-machine`.
+ * One `useState` rather than a reducer: a single piece of state and no illegal transition
+ * to guard, unlike `draft-state` / `room-state` / `play-machine`.
  */
 export function ModeGate() {
   const t = useTranslations("game");
+  const locale = useLocale();
   const [open, setOpen] = useState<ModeId | null>(null);
 
-  const playable = GAME_MODES.filter(isPlayable);
+  const unlocked = GAME_MODES.filter(isPlayable).length;
 
   return (
-    <div aria-label={t("gateAria")} className="mx-auto w-full max-w-5xl">
+    <div aria-label={t("gateAria")} className="mg-root mx-auto w-full max-w-5xl">
       <h1 className="text-2xl font-extrabold tracking-tight">{t("hubTitle")}</h1>
       <p className="text-muted-foreground mt-1 mb-6 text-sm">{t("hubSubtitle")}</p>
 
-      <h2 className="text-muted-foreground mb-2 font-mono text-[10px] font-bold tracking-widest uppercase">
-        {t("sectionPlayNow")}
-      </h2>
-      <div className="mb-7 flex flex-wrap items-start gap-3">
-        {playable.map((mode) => (
-          <div key={mode.id} className="min-w-[200px] flex-1">
-            <ModeTile
-              mode={mode}
-              open={open === mode.id}
-              onOpen={(id) => setOpen((prior) => (prior === id ? null : id))}
-            />
-          </div>
-        ))}
-      </div>
+      <div className="mg-cab">
+        <p className="mg-marquee">{t("gateMarquee")}</p>
 
-      <h2 className="text-muted-foreground mb-2 font-mono text-[10px] font-bold tracking-widest uppercase">
-        {t("sectionComingSoon")}
-      </h2>
-      {MODE_GROUPS.map((group) => {
-        const locked = modesInGroup(group.id).filter((m) => !isPlayable(m));
-        if (locked.length === 0) return null;
-        return (
-          <div key={group.id} className="mb-3">
-            <h3 className="text-muted-foreground mb-1.5 text-[10px] font-semibold uppercase opacity-70">
-              {t(group.labelKey)}
-            </h3>
-            <div className="flex flex-wrap gap-1.5">
-              {locked.map((mode) => (
-                <ModeTile key={mode.id} mode={mode} open={false} onOpen={() => {}} />
+        {MODE_GROUPS.map((group) => (
+          <div key={group.id}>
+            <h2 className="mg-grp">{t(group.labelKey)}</h2>
+            <div className="mg-slots">
+              {modesInGroup(group.id).map((mode) => (
+                <ModeTile
+                  key={mode.id}
+                  mode={mode}
+                  open={open === mode.id}
+                  onOpen={(id) => setOpen((prior) => (prior === id ? null : id))}
+                />
               ))}
             </div>
           </div>
-        );
-      })}
+        ))}
 
-      <div className="border-border mt-6 border-t pt-4">
-        <h3 className="text-muted-foreground mb-1.5 text-[10px] font-semibold uppercase opacity-70">
-          {t("groupCollection")}
-        </h3>
-        <div className="flex flex-wrap gap-1.5">
-          {COLLECTION_SURFACES.map((surface) => (
-            <div
-              key={surface.id}
-              className="border-border rounded-full border border-dashed px-3 py-1 text-xs opacity-45"
-            >
-              <span aria-hidden>{surface.emoji}</span> {t(surface.nameKey)}
-              <span className="ms-1 opacity-70">{t("statusPlanned")}</span>
-            </div>
-          ))}
-        </div>
+        {/* Where a cabinet prints INSERT COIN. It states the ratio the ticket was about
+            rather than hiding it — four of eleven is progress, not a shortfall. */}
+        {/* ⚠️ Eastern-Arabic on /ar. The digit rule TASK-1840 settled pins minutes,
+            scorelines, shirt numbers and ratings to Western — this is none of those. It
+            is a COUNT INSIDE A SENTENCE, which the same rule leaves as prose. */}
+        <p className="mg-coin">
+          {t("gateUnlocked", {
+            n: localizeDigits(unlocked, locale),
+            total: localizeDigits(GAME_MODES.length, locale),
+          })}
+        </p>
+      </div>
+
+      <h2 className="text-muted-foreground mt-6 mb-2 font-mono text-[10px] font-bold tracking-widest uppercase">
+        {t("groupCollection")}
+      </h2>
+      <div className="flex flex-wrap gap-1.5">
+        {COLLECTION_SURFACES.map((surface) => (
+          <div
+            key={surface.id}
+            className="border-border rounded-full border border-dashed px-3 py-1 text-xs opacity-45"
+          >
+            <span aria-hidden>{surface.emoji}</span> {t(surface.nameKey)}
+            <span className="ms-1 opacity-70">{t("statusPlanned")}</span>
+          </div>
+        ))}
       </div>
 
       {/*

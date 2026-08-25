@@ -5520,7 +5520,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1830](#task-1830) | Segmented interactive match engine (live decisions, replayable) | ✅ Done    | P1       | L   |
 | [TASK-1831](#task-1831) | The full formation set — 20 shapes in three families            | ✅ Done    | P2       | M   |
 | [TASK-1832](#task-1832) | The game hub — `/game` as the mode-selection gate               | ✅ Done    | P2       | M   |
-| [TASK-1833](#task-1833) | Design the game hub — the 30-concept ritual 1832 deferred       | 📋 Backlog | P3       | M   |
+| [TASK-1833](#task-1833) | Design the game hub — the 30-concept ritual 1832 deferred       | ✅ Done    | P3       | M   |
 | [TASK-1834](#task-1834) | Redesign `/game/draft` — "The Market" (30-concept ritual)       | ✅ Done    | P2       | M   |
 | [TASK-1835](#task-1835) | Redesign `/game/chaos` — "Match Night" (30-concept ritual)      | ✅ Done    | P2       | M   |
 | [TASK-1836](#task-1836) | Redesign `/game/daily` — "Arcade Cabinet" (30-concept ritual)   | ✅ Done    | P2       | M   |
@@ -6375,7 +6375,7 @@ Design: [`docs/superpowers/specs/2026-08-13-task-1832-game-hub-design.md`](../do
 
 ### TASK-1833
 
-**Design the game hub — the 30-concept ritual 1832 deferred** · 📋 Backlog · `P3` · `M` · Type: Design
+**Design the game hub — the 30-concept ritual 1832 deferred** · ✅ Done · `P3` · `M` · Type: Design
 
 **Description** — [TASK-1832](#task-1832) shipped `/game` as a **deliberately plain** mode gate. The owner's standing process for a new surface is 30 concepts → owner picks → implement, and it was **skipped on purpose** (owner, 2026-08-13: _"we will change all of those designs later so we can build the base now"_). This ticket is that redesign, and it exists so the skip reads as a decision rather than an oversight.
 
@@ -6386,6 +6386,31 @@ Design: [`docs/superpowers/specs/2026-08-13-task-1832-game-hub-design.md`](../do
 **⚠️ Constraints the redesign must keep** (they are behavioural, not stylistic): locked modes stay **non-focusable** rather than disabled buttons; the expansion **cannot animate height** (the motion audit allowlists `transform`/`opacity`/`box-shadow`); every label stays an i18n key in both locales; and the route stays `force-static` with no data loading. **Depends on:** TASK-1832.
 
 **Worth folding in while redesigning:** the gate currently advertises nine locked modes and a locked Full Season on every tile. That is honest, but if the roadmap moves slowly it reads as an unfinished game — the design should have an answer for "mostly grey" beyond opacity.
+
+**✅ SHIPPED 2026-08-24 — the full ritual ran: 30 concepts → 20 refinements → 30 animations → a hybrid.**
+
+**The pick: "Arcade cabinet"** (concept 17 of 30) — a marquee over a grid of lit slots, with the unlock count where a cabinet prints INSERT COIN. Two refinement rounds followed, because the owner accepted the frame and rejected three things inside it.
+
+**Round 2 (20 concepts), owner picked #15** — which settled all three of his asks at once:
+- **A logo per mode.** Eleven marks drawn as **8×8 pixel grids**, rendered as neon outlines. ⭐ Grids rather than vector paths on purpose: the gate is a cabinet, and a monoline mark fights it — the grid is the arcade's own drawing language, so the marks belong to the surface instead of sitting on it.
+- **A theme per mode.** Eleven accents, on `GameMode.accent` beside `emoji` — a mode's identity arrives with the mode, and a component-side lookup keyed by `ModeId` would be a second registry that could fall out of step.
+- **Another format step.** The two-box panel became the arcade **cursor select**: a ▶ against what you can actually pick. It states the existing rule more honestly than two boxes did — a format you cannot choose has no cursor, so the difference is visible before you read a word.
+
+**Round 3 (30 animations), owner picked a HYBRID: 03 neon flicker + 07 glow bloom + 21 neighbour dim.** ⭐ They compose because each acts on a **different element** with a **different property**: `opacity` on the panel, `box-shadow` on the tile, `opacity` on the siblings. Two treatments that both animated the tile's `transform` could not have merged — the same lesson TASK-1809's three-way hybrid taught.
+
+**⛔ The bug the hybrid created, which neither concept had alone.** Concept 21 dims `:not(.open)` from opacity 1 — but a locked slot already sits at `.4`, so composing it made every unbuilt mode **flash brighter before dimming**. Fixed with two rules (`mg-dim-on` 1→.42, `mg-dim-off` .4→.22), each dimming from where its state actually is. ⚠️ **Its guard test was vacuous in its first form** — `css.toContain(selector)` stayed green with the rule deleted, because the same selector also appears in the reduced-motion gate lower in the file. Sabotage caught it; it now asserts the RULE (`selector {` + `animation:`) and that the collapsed single-rule form is absent.
+
+**⚠️ The two sections are gone.** "Play now" / "Coming soon" made the locked list a wall of its own — exactly what the ticket asked to fix. Modes now sit in their real groups in registry order and status is carried by the tile, so the seven locked ones are distributed rather than piled up.
+
+**⚠️ Scoped to `.mg-root`, never `:root`** — the same rule `.lg-root` follows, and for the same reason. The surface commits to one dark treatment in both app themes: an arcade cabinet that turns white in light mode is not an arcade cabinet, and the eleven accents are tuned against that ground.
+
+**⚠️ The unlock count localizes.** "4 of 11 modes unlocked" is a **count inside a sentence**, which the digit rule [TASK-1840](#task-1840) settled leaves as prose — the Western pinning covers minutes, scorelines, shirt numbers and ratings, and this is none of those. Verified reading `٤ من ١١` on `/ar`.
+
+**⭐ Every behavioural test passed untouched**, which is what proves the rebuild was presentation-only: `game-mode-gate`, `game-mode-tile`, `game-modes` and the E2E spec all assert BEHAVIOUR (roles, counts, aria) rather than markup, exactly as the ticket predicted when it said the gate "can be rebuilt without touching the registry, the routes, or any test that asserts behaviour".
+
+**DoD** — [x] ritual ran in full, three galleries published, owner picked at each stage · [x] 10 new tests (5 sabotage-verified), 49 green across the gate + motion + i18n + static-route suites · [x] tsc + lint clean · [x] verified live on `/en/game` and `/ar/game`: marquee, 11 slots, 11 marks, **11 distinct accents**, 4 lit / 7 switched off, zero disabled controls, zero focusable locked slots, the cursor select rendering `▶ One Match` as a link and `Full Season` as text, and the hybrid firing as **1 flicker + 1 bloom + 3 dim-on + 7 dim-off** — three treatments, three element sets · [x] no console errors.
+
+⬜ **Not mine, found while verifying:** at a 264px viewport the page scrolls sideways — reproduced on `/ar/seasons`, which has no gate on it, so it is the header below its supported width.
 
 ---
 
