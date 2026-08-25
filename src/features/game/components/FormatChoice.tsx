@@ -7,44 +7,48 @@ const LABEL_KEY = { single: "formatSingle", season: "formatSeason" } as const;
 const HINT_KEY = { single: "formatSingleHint", season: "formatSeasonHint" } as const;
 
 /**
- * The One Match / Full Season pair inside an expanded tile.
+ * The One Match / Full Season step inside an expanded tile.
+ *
+ * ⭐ TASK-1833: the owner rejected the two-box panel and picked the arcade CURSOR SELECT —
+ * a list with a ▶ against what you can actually choose. It suits the surface, and it also
+ * states the rule below more honestly than two boxes did: a format you cannot pick has no
+ * cursor, so the difference between the two is visible before you read a word.
  *
  * ⚠️ A `planned` format renders as TEXT, never a disabled control. Day one that is every
  * mode's `season` — the 38-week engine is TASK-1810/1811 — so a disabled button here would
  * put a dead tab stop under every playable mode on the gate.
  *
- * ⚠️ An `n/a` format is not rendered at all: it is not coming, so a locked box promising it
+ * ⚠️ An `n/a` format is not rendered at all: it is not coming, so a locked row promising it
  * would be a lie rather than a roadmap.
  */
 export function FormatChoice({ mode }: { mode: GameMode }) {
   const t = useTranslations("game");
 
   return (
-    <div className="mt-3 flex gap-2">
+    <div className="mg-fmt">
+      <p className="mg-fmt-h">{t("formatSelectLength")}</p>
       {applicableFormats(mode).map((format) => {
         const label = t(LABEL_KEY[format]);
         const live = mode.formats[format] === "live" && mode.href != null;
 
         if (!live) {
           return (
-            <div
-              key={format}
-              className="border-border flex-1 rounded-md border border-dashed p-2 text-center opacity-45"
-            >
-              <span className="block text-xs font-bold">{label}</span>
-              <span className="block text-[10px]">{`🔒 ${t("statusPlanned")}`}</span>
-            </div>
+            <p key={format} className="mg-fmt-row">
+              {/* No cursor: there is nothing here to move onto. */}
+              <span className="mg-fmt-cur" aria-hidden />
+              <span className="mg-fmt-l">{label}</span>
+              <span className="mg-fmt-x">{t("statusPlanned")}</span>
+            </p>
           );
         }
 
         return (
-          <Link
-            key={format}
-            href={mode.href!}
-            className="border-primary/70 flex-1 rounded-md border p-2 text-center"
-          >
-            <span className="block text-xs font-bold">{label}</span>
-            <span className="text-muted-foreground block text-[10px]">{t(HINT_KEY[format])}</span>
+          <Link key={format} href={mode.href!} className="mg-fmt-row mg-fmt-on">
+            <span className="mg-fmt-cur" aria-hidden>
+              ▶
+            </span>
+            <span className="mg-fmt-l">{label}</span>
+            <span className="mg-fmt-x">{t(HINT_KEY[format])}</span>
           </Link>
         );
       })}

@@ -997,7 +997,10 @@
     "dailyShareCopied": "Copied",
     "bubbleLabel": "Daily",
     "bubbleUnplayed": "Play today's daily challenge",
-    "bubblePlayed": "Daily challenge — see today's result"
+    "bubblePlayed": "Daily challenge — see today's result",
+    "gateMarquee": "Select your game",
+    "gateUnlocked": "{n} of {total} modes unlocked · insert coin",
+    "formatSelectLength": "Select length"
   },
   "commentary": {
     "armbandHandover": "The armband goes to {name}.",

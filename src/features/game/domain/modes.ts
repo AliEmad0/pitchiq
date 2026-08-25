@@ -60,6 +60,18 @@ export interface GameMode {
    */
   href: string | null;
   formats: Record<GameFormat, ModeStatus>;
+  /**
+   * The mode's own colour, as a hex literal (TASK-1833).
+   *
+   * ⚠️ Presentation, and it sits here for the same reason `emoji` does: the gate renders
+   * entirely from this table, so a mode's identity — its mark, its name, its colour — has
+   * to arrive with it. A component-side lookup keyed by `ModeId` would be a second
+   * registry that could silently fall out of step with this one.
+   *
+   * ⛔ NOT an i18n key and not a token name. It is a raw value because the gate paints it
+   * into a CSS custom property per tile; there is no palette slot for "the eleventh mode".
+   */
+  accent: string;
   /** The ticket that makes this mode live. Documentation only. */
   ticket: string;
 }
@@ -97,6 +109,7 @@ export const GAME_MODES: readonly GameMode[] = [
     descriptionKey: "modeH2hDesc",
     href: "/game/draft",
     formats: { single: "live", season: "planned" },
+    accent: "#22d3ee",
     ticket: "TASK-1807",
   },
   {
@@ -107,6 +120,7 @@ export const GAME_MODES: readonly GameMode[] = [
     descriptionKey: "modeChaosDesc",
     href: "/game/chaos",
     formats: { single: "live", season: "planned" },
+    accent: "#ff6b35",
     ticket: "TASK-1806",
   },
   {
@@ -117,6 +131,7 @@ export const GAME_MODES: readonly GameMode[] = [
     descriptionKey: "modeCaptainsDesc",
     href: null,
     formats: planned,
+    accent: "#e0b341",
     ticket: "TASK-1810",
   },
   {
@@ -127,6 +142,7 @@ export const GAME_MODES: readonly GameMode[] = [
     descriptionKey: "modeBudgetDesc",
     href: null,
     formats: planned,
+    accent: "#34d399",
     ticket: "TASK-1810",
   },
   {
@@ -137,6 +153,7 @@ export const GAME_MODES: readonly GameMode[] = [
     descriptionKey: "modeChemistryDesc",
     href: null,
     formats: planned,
+    accent: "#a78bfa",
     ticket: "TASK-1810",
   },
   {
@@ -152,6 +169,7 @@ export const GAME_MODES: readonly GameMode[] = [
     // TASK-1810 ships the single-match format. "Season by season" is TASK-1811 — the
     // registry's per-format status is exactly what lets those ship in separate PRs.
     formats: { single: "live", season: "planned" },
+    accent: "#f6c000",
     ticket: "TASK-1810",
   },
   {
@@ -166,6 +184,7 @@ export const GAME_MODES: readonly GameMode[] = [
     descriptionKey: "modeClassicDesc",
     href: null,
     formats: planned,
+    accent: "#9fb3c8",
     ticket: "TASK-1810",
   },
   {
@@ -178,6 +197,7 @@ export const GAME_MODES: readonly GameMode[] = [
     // A season-long daily is a contradiction, so the format is `n/a` rather than
     // `planned`: the tile links straight into today's challenge instead of expanding.
     formats: { single: "live", season: "n/a" },
+    accent: "#ff2fb0",
     ticket: "TASK-1817",
   },
   {
@@ -188,6 +208,7 @@ export const GAME_MODES: readonly GameMode[] = [
     descriptionKey: "modeWeeklyDesc",
     href: null,
     formats: planned,
+    accent: "#a3e635",
     ticket: "TASK-1828",
   },
   {
@@ -198,6 +219,7 @@ export const GAME_MODES: readonly GameMode[] = [
     descriptionKey: "modeWhatIfDesc",
     href: null,
     formats: planned,
+    accent: "#2dd4bf",
     ticket: "TASK-1816",
   },
   {
@@ -208,6 +230,7 @@ export const GAME_MODES: readonly GameMode[] = [
     descriptionKey: "modeMysteryDesc",
     href: null,
     formats: planned,
+    accent: "#c084fc",
     ticket: "TASK-1818",
   },
 ];

@@ -4390,3 +4390,271 @@
   transform: scale(0.45);
   transform-origin: top left;
 }
+
+/* ----------------------------------------------------------------------------
+   TASK-1833 — the game hub as an ARCADE CABINET (owner's pick, 30-concept ritual).
+
+   ⚠️ Scoped to `.mg-root`, never `:root`, for the same reason `.lg-root` is: names
+   like `--panel` are generic enough that defining them globally would put a second
+   meaning on them across every other feature.
+
+   ⛔ The whole surface commits to one dark treatment in both app themes. An arcade
+   cabinet that turns white in light mode is not an arcade cabinet, and the neon
+   accents each mode carries are tuned against this ground.
+---------------------------------------------------------------------------- */
+.mg-root {
+  --mg-ground: #080c12;
+  --mg-panel: #0d141c;
+  --mg-rule: #1d2a36;
+  --mg-ink: #e8eff5;
+  --mg-dim: #8fa3b4;
+  --mg-faint: #5b6b7a;
+  --mg-neon: #ff2fb0;
+}
+.mg-cab {
+  border: 1px solid rgb(255 47 176 / 0.32);
+  border-radius: 16px;
+  padding: 18px;
+  background:
+    linear-gradient(180deg, rgb(255 47 176 / 0.09), transparent 55%),
+    var(--mg-ground);
+  color: var(--mg-ink);
+}
+.mg-marquee {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 12px;
+  letter-spacing: 0.34em;
+  color: var(--mg-neon);
+  text-align: center;
+  padding: 9px 0 14px;
+  text-transform: uppercase;
+}
+.mg-grp {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  color: var(--mg-faint);
+  text-transform: uppercase;
+  margin: 18px 0 9px;
+}
+.mg-slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 11px;
+}
+.mg-coin {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  color: var(--mg-faint);
+  text-align: center;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--mg-rule);
+  text-transform: uppercase;
+}
+
+/* ---- a slot. `--mg-a` is the mode's own accent, set inline from the registry ---- */
+.mg-slot {
+  display: block;
+  border: 1px solid var(--mg-rule);
+  border-radius: 11px;
+  background: var(--mg-panel);
+  padding: 13px;
+  color: var(--mg-ink);
+}
+.mg-slot-mk {
+  display: block;
+  margin-bottom: 9px;
+  color: var(--mg-a, var(--mg-dim));
+}
+.mg-mark {
+  display: block;
+}
+.mg-slot-n {
+  display: block;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+.mg-slot-d {
+  display: block;
+  color: var(--mg-dim);
+  font-size: 11.5px;
+  margin-top: 4px;
+  line-height: 1.45;
+}
+.mg-slot-x {
+  display: inline-block;
+  margin-top: 9px;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: var(--mg-faint);
+  border: 1px solid var(--mg-rule);
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+/* switched off — the same sign, unlit */
+.mg-slot-off {
+  opacity: 0.4;
+}
+/* lit */
+.mg-slot-on {
+  border-color: color-mix(in srgb, var(--mg-a) 62%, var(--mg-rule));
+  background:
+    linear-gradient(160deg, color-mix(in srgb, var(--mg-a) 8%, transparent), transparent 70%),
+    var(--mg-panel);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--mg-a) 22%, transparent),
+    0 8px 26px color-mix(in srgb, var(--mg-a) 16%, transparent);
+}
+.mg-slot-link,
+.mg-slot-btn {
+  text-decoration: none;
+  color: inherit;
+}
+.mg-slot-btn {
+  display: block;
+  width: 100%;
+  text-align: start;
+}
+.mg-slot-on:hover {
+  border-color: var(--mg-a);
+}
+
+/* ---- the cursor-select format step ---- */
+.mg-fmt {
+  display: grid;
+  gap: 3px;
+  margin-top: 12px;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 11.5px;
+}
+.mg-fmt-h {
+  font-size: 8.5px;
+  letter-spacing: 0.2em;
+  color: var(--mg-faint);
+  text-transform: uppercase;
+}
+.mg-fmt-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 7px;
+  border-radius: 6px;
+  color: var(--mg-faint);
+  text-decoration: none;
+}
+.mg-fmt-on {
+  color: var(--mg-ink);
+  background: color-mix(in srgb, var(--mg-a) 12%, transparent);
+}
+.mg-fmt-cur {
+  color: var(--mg-a);
+  width: 12px;
+  flex: 0 0 12px;
+}
+.mg-fmt-x {
+  margin-inline-start: auto;
+  font-size: 8.5px;
+  letter-spacing: 0.12em;
+}
+
+/* ----------------------------------------------------------------------------
+   The expand-in-place transition — the owner's HYBRID of animation concepts
+   03 + 07 + 21 (2026-08-24).
+
+   ⭐ The three compose because each acts on a DIFFERENT element with a DIFFERENT
+   property: the flicker is `opacity` on the panel, the bloom is `box-shadow` on the
+   tile, the dim is `opacity` on the siblings. Two treatments that both animated the
+   tile's `transform` could not have merged.
+
+   ⛔ Nothing here animates height. The motion audit allowlists transform / opacity /
+   box-shadow, and a layout property fails the build — so the panel's SPACE appears on
+   the first frame and only its CONTENT animates.
+---------------------------------------------------------------------------- */
+/* 03 · neon flicker — the tube struggles, then holds */
+@keyframes mg-flicker {
+  0%,
+  14% {
+    opacity: 0;
+  }
+  18% {
+    opacity: 1;
+  }
+  22% {
+    opacity: 0.15;
+  }
+  30% {
+    opacity: 1;
+  }
+  36% {
+    opacity: 0.4;
+  }
+  44%,
+  100% {
+    opacity: 1;
+  }
+}
+.mg-slot-open .mg-fmt {
+  animation: mg-flicker 0.52s steps(1, end) both;
+}
+/* 07 · glow bloom — the tile's own light swells and settles back */
+@keyframes mg-bloom {
+  0% {
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--mg-a) 22%, transparent),
+      0 0 0 transparent;
+  }
+  45% {
+    box-shadow:
+      0 0 0 2px color-mix(in srgb, var(--mg-a) 60%, transparent),
+      0 0 40px color-mix(in srgb, var(--mg-a) 45%, transparent);
+  }
+  100% {
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--mg-a) 22%, transparent),
+      0 8px 26px color-mix(in srgb, var(--mg-a) 16%, transparent);
+  }
+}
+.mg-slot-open {
+  animation: mg-bloom 0.5s ease-out both;
+}
+/* 21 · neighbour dim — everything else steps back.
+   ⚠️ Two rules, not one. A single `:not(.mg-slot-open)` rule would animate a locked
+   slot from opacity 1, so every unbuilt mode would FLASH BRIGHTER before dimming —
+   they already sit at .4. Each state dims from where it actually is. */
+@keyframes mg-dim-on {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.42;
+  }
+}
+@keyframes mg-dim-off {
+  from {
+    opacity: 0.4;
+  }
+  to {
+    opacity: 0.22;
+  }
+}
+.mg-cab:has(.mg-slot-open) .mg-slot-on:not(.mg-slot-open) {
+  animation: mg-dim-on 0.3s ease-out both;
+}
+.mg-cab:has(.mg-slot-open) .mg-slot-off {
+  animation: mg-dim-off 0.3s ease-out both;
+}
+
+/* ⚠️ ONE gate covering all three halves. A treatment that is three animations on three
+   elements needs every selector, or a reduced-motion visitor still sees part of it move. */
+@media (prefers-reduced-motion: reduce) {
+  .mg-slot-open,
+  .mg-slot-open .mg-fmt,
+  .mg-slots:has(.mg-slot-open) .mg-slot-on:not(.mg-slot-open),
+  .mg-cab:has(.mg-slot-open) .mg-slot-off {
+    animation: none !important;
+  }
+}
