@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { buildPool } from "@/features/game/adapter/pool";
-import { FORMATIONS, type PoolCard } from "@/features/game/domain/chaos-draft";
+import type { PoolCard } from "@/features/game/domain/chaos-draft";
+import { formationByName } from "@/features/game/domain/formation";
 import { BASE_SEASON } from "@/features/game/domain/market-index";
 import type { PoolSpec } from "@/features/game/domain/rule-packs";
 import { buildSession } from "@/features/game/view/match-session";
@@ -8,7 +9,9 @@ import { buildSession } from "@/features/game/view/match-session";
 const CAP = 100_000_000;
 const SPEC: PoolSpec = { kind: "pricedMarket", cap: 600, baseSeason: BASE_SEASON };
 const NAMES = { home: "Your XI", away: "Rivals" };
-const SHAPE = FORMATIONS[0]!;
+// ⚠️ By NAME, never by index — `FORMATIONS`' order is presentation only, and a guard test
+// in `game-formation.test.ts` fails on index access.
+const SHAPE = formationByName("4-4-2 Flat");
 const away = (s: { away: { players: readonly { cardId: string }[] } }) =>
   s.away.players.map((p) => p.cardId);
 const cost = (xi: readonly PoolCard[]) => xi.reduce((a, c) => a + (c.costEur ?? 0), 0);

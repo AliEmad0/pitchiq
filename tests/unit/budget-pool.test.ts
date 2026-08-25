@@ -3,10 +3,18 @@ import { buildPool } from "@/features/game/adapter/pool";
 import { FORMATIONS } from "@/features/game/domain/chaos-draft";
 import { roomDeals } from "@/features/game/domain/draft-room";
 import { canPlay } from "@/features/game/domain/eligibility";
+import { formationByName } from "@/features/game/domain/formation";
 import { BASE_SEASON, TOP50_MEAN_EUR } from "@/features/game/domain/market-index";
 import { BUDGET_PACK, type PoolSpec } from "@/features/game/domain/rule-packs";
 
 const SPEC: PoolSpec = { kind: "pricedMarket", cap: 600, baseSeason: BASE_SEASON };
+/**
+ * ⚠️ Resolved by NAME, never by index. `FORMATIONS`' order is presentation only, and a guard
+ * test in `game-formation.test.ts` fails on index access — inserting a shape would otherwise
+ * silently repoint every assumption made here.
+ */
+const SHAPES = ["4-4-2 Flat", "4-4-2 Diamond", "3-4-2-1"].map(formationByName);
+
 /** The pack's own cap — never a second literal that could drift from it. */
 const CAP = (() => {
   const c = BUDGET_PACK.constraints.find((x) => x.kind === "budgetCap");
@@ -72,7 +80,7 @@ describe("priced market pool", () => {
     const deal = (shape: (typeof FORMATIONS)[number], seed: number, cheapest: boolean) =>
       roomDeals(pool, shape, seed, { handSize: 5, cheapest, onePerPlayer: true });
 
-    for (const shape of [FORMATIONS[0]!, FORMATIONS[5]!, FORMATIONS[12]!]) {
+    for (const shape of SHAPES) {
       for (const seed of [1, 2, 3, 4, 5]) {
         expect(floorOf(deal(shape, seed, true)), `${shape.name} seed ${seed}`).toBeLessThanOrEqual(
           CAP,
@@ -83,7 +91,7 @@ describe("priced market pool", () => {
     // ⛔ THE CONTROL. Without the guarantee the floor is far ABOVE the cap — which is the
     // whole reason `DealOptions.cheapest` exists. If this ever stops failing, the option has
     // become pointless and the test above has stopped proving anything.
-    expect(floorOf(deal(FORMATIONS[0]!, 1, false))).toBeGreaterThan(CAP);
+    expect(floorOf(deal(SHAPES[0]!, 1, false))).toBeGreaterThan(CAP);
   }, 300_000);
 
   it("is a STABLE set — membership is pinned so a silent shift cannot kill share links", async () => {

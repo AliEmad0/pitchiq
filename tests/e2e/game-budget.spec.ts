@@ -5,11 +5,17 @@
 import { expect, test } from "./_helpers/test";
 
 test.describe("Budget Cap Draft", () => {
-  test("the gate links into the mode", async ({ page }) => {
+  test("the gate opens the mode, then its format", async ({ page }) => {
     await page.goto("/game");
-    const tile = page.getByRole("link", { name: /Budget Cap Draft/i });
-    await expect(tile).toBeVisible();
-    await tile.click();
+
+    /**
+     * ⚠️ A TILE, then a FORMAT — not a direct link. `isDirectEntry` only collapses the step
+     * for a mode with exactly ONE applicable format, and Budget Cap has two: `single` is live
+     * and `season` is `planned` (TASK-1811), which still renders as a choice. Only the daily,
+     * whose season format is `n/a`, goes straight in.
+     */
+    await page.getByRole("button", { name: /Budget Cap Draft/ }).click();
+    await page.getByRole("link", { name: /One Match/ }).click();
     await expect(page).toHaveURL(/\/game\/budget$/);
   });
 
