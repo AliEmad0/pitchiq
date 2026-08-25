@@ -1,5 +1,12 @@
 import "server-only";
-import { loadCaptains, loadFixtures, loadPlayers, loadStandings } from "@/data/loaders";
+import {
+  loadCaptains,
+  loadFixtures,
+  loadMarketValues,
+  loadPlayers,
+  loadStandings,
+} from "@/data/loaders";
+import { indexedCost } from "@/features/game/domain/market-index";
 import type { EnrichedCard } from "@/features/game/domain/player-card";
 import type { PoolSpec } from "@/features/game/domain/rule-packs";
 import { EARLIEST_SEASON, currentDataSeason } from "@/utils/season";
@@ -273,11 +280,13 @@ export async function iconChoices(): Promise<IconChoice[]> {
     }
   }
 
-  return [...meta.entries()]
-    .map(([id, m]) => ({ id, ...m, captaincies: counts.get(id) ?? 0 }))
-    // Most-capped first, then by name so the order is total and cannot wander.
-    .sort((a, b) => b.captaincies - a.captaincies || a.name.localeCompare(b.name))
-    .filter((i) => i.seasons.length > 0);
+  return (
+    [...meta.entries()]
+      .map(([id, m]) => ({ id, ...m, captaincies: counts.get(id) ?? 0 }))
+      // Most-capped first, then by name so the order is total and cannot wander.
+      .sort((a, b) => b.captaincies - a.captaincies || a.name.localeCompare(b.name))
+      .filter((i) => i.seasons.length > 0)
+  );
 }
 
 /**
@@ -421,6 +430,52 @@ async function captainSynergy(
   return iconCard == null ? drafted : [iconCard, ...drafted];
 }
 
+/**
+ * The Budget Cap pool: every priced player-season in the indexed window, bounded.
+ *
+ * Three steps, in this order:
+ *  1. **Filter to priced.** A season with no index factor, and a player with no value, are
+ *     both dropped. There are 644 unpriced rows inside 2004–2025; a card with no price
+ *     cannot be bought, and defaulting one to zero would hand the coach a free superstar.
+ *  2. **One card per distinct player** — his best-rated season, exactly as Captain's Draft
+ *     does. Without it the cheapest 85+ XI is literally Vardy 2014, Vardy 2021, Vardy 2020,
+ *     and a pool where one underpriced man occupies eleven slots is not a market.
+ *  3. **Rating-rank and cap.**
+ *
+ * ⚠️ A rating-ranked cap was expected to destroy the price spread and measurably does NOT:
+ * the pool's median price is €39M yet its cheapest legal XI is €37M, because rating and price
+ * correlate at only r ≈ 0.52 — which is the same weak correlation that makes bargains exist
+ * at all. No stratified price reserve is needed here; do not add one on suspicion.
+ *
+ * ⛔ The sort MUST tie-break on `cardId`. Two players on equal ratings at the cap boundary
+ * would otherwise be ordered by the scan's arrival order, so the 600th card could change
+ * between runs — silently evicting a card someone has already drafted and killing his share
+ * link, which is the exact failure `market-index.ts` is frozen to prevent.
+ */
+async function pricedMarket(
+  spec: Extract<PoolSpec, { kind: "pricedMarket" }>,
+  career: CareerIndex,
+): Promise<EnrichedCard[]> {
+  const values = await loadMarketValues();
+  if (values == null) return [];
+
+  /** playerId -> his best-rated PRICED card, with that card's indexed cost. */
+  const best = new Map<number, { g: Gathered; cost: number }>();
+  for (const { g } of await universe(career)) {
+    const raw = values[String(g.card.season)]?.[String(g.card.playerId)]?.valueEur;
+    if (raw == null || raw <= 0) continue;
+    const cost = indexedCost(raw, g.card.season);
+    if (cost == null || cost <= 0) continue;
+    const found = best.get(g.card.playerId);
+    if (found == null || g.rating > found.g.rating) best.set(g.card.playerId, { g, cost });
+  }
+
+  return [...best.values()]
+    .sort((a, b) => b.g.rating - a.g.rating || a.g.card.cardId.localeCompare(b.g.card.cardId))
+    .slice(0, spec.cap)
+    .map((v) => ({ ...v.g.card, costEur: v.cost }));
+}
+
 export async function buildPool(spec: PoolSpec, only?: number): Promise<EnrichedCard[]> {
   const career = await loadCareerIndex();
   const pool =
@@ -429,7 +484,9 @@ export async function buildPool(spec: PoolSpec, only?: number): Promise<Enriched
       : spec.kind === "captainSynergy"
         ? // `only` is the ICON's playerId here, the same way it is a club id for Legacy.
           await captainSynergy(spec, career, only ?? -1)
-        : await clubHistory(spec, career, only);
+        : spec.kind === "pricedMarket"
+          ? await pricedMarket(spec, career)
+          : await clubHistory(spec, career, only);
 
   // Pixel-inspect each photo to tell a transparent cutout from a background shot — the URL
   // alone lies for older players. Best-effort, build time only.

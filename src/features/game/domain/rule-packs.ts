@@ -69,6 +69,30 @@ export type PoolSpec =
        * half the owner's mechanic — would never show up on the page.
        */
       nationalityReserve: number;
+    }
+  | {
+      /**
+       * The Budget Cap shape (TASK-1810): every priced player-season in the indexed window,
+       * one card per distinct player at his best-rated season, rating-ranked and capped.
+       *
+       * ⛔ The cap is 600 because 900 was measured and REJECTED — it leaves the achievable XI
+       * identical at every budget from €60M up, since the extra 300 cards are all rated 64–70
+       * and never enter an optimal team at €100M. They would be dealt, never wanted, and cost
+       * ~150 KB on a `force-static` page.
+       *
+       * ⚠️ A rating-ranked cap was expected to destroy the price spread and measurably does
+       * not: the pool's median price is €39M yet its cheapest legal XI is €37M, because rating
+       * and price correlate at only r ≈ 0.52. **No stratified price reserve is needed** — this
+       * is the one place `captainSynergy`'s `nationalityReserve` lesson does NOT transfer.
+       *
+       * ⚠️ Stopping at 600 also puts the pool's floor at rating 70, so every card in the mode
+       * is a genuine contributor rather than filler the coach will never want.
+       */
+      kind: "pricedMarket";
+      /** Cards on the page after ranking. ~0.5 KB each, so this is a payload decision. */
+      cap: number;
+      /** The money year every price is expressed in. Frozen — see `domain/market-index.ts`. */
+      baseSeason: number;
     };
 
 /**
@@ -78,16 +102,32 @@ export type PoolSpec =
  * real. Captain's Draft is the first, and it arrives WITH its caller — which is what that
  * note was holding the line for.
  */
-export type Constraint = {
-  /**
-   * A player is already in the XI before the coach picks anything (Captain's Draft).
-   *
-   * ⚠️ The player is NOT named here. The pack is static data and the icon is a route
-   * param, so the constraint declares the RULE and the route supplies the man — the same
-   * split as `clubHistory` + the `only` argument.
-   */
-  kind: "captainFirst";
-};
+export type Constraint =
+  | {
+      /**
+       * A player is already in the XI before the coach picks anything (Captain's Draft).
+       *
+       * ⚠️ The player is NOT named here. The pack is static data and the icon is a route
+       * param, so the constraint declares the RULE and the route supplies the man — the same
+       * split as `clubHistory` + the `only` argument.
+       */
+      kind: "captainFirst";
+    }
+  | {
+      /**
+       * Every pick costs, and the XI must come in under `amountEur` (Budget Cap, TASK-1810).
+       *
+       * ⚠️ Unlike `captainFirst`, this constraint DOES carry its value. The captain is a route
+       * param, so that pack could only declare the rule; the budget is identical for every
+       * player of this mode, so it belongs here in the pack.
+       *
+       * ⛔ A DRAFT-time rule ONLY. `replayWith` must never re-validate it — re-checking a
+       * constraint on resolution is how a legal match becomes unresumable after a data change,
+       * and it would present as a corrupt save rather than as a rule.
+       */
+      kind: "budgetCap";
+      amountEur: number;
+    };
 
 /** Single-match modes all share one objective. It earns its keep in TASK-1811's seasons. */
 export type Objective = "win";
