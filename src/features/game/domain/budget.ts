@@ -28,6 +28,15 @@ import type { PoolCard } from "./chaos-draft";
  *
  * ⚠️ Nothing here is stored. `RoomState` keeps only `picks`, and the whole view is recomputed
  * on every read — the same rule the daily challenge's streaks follow.
+ *
+ * ⛔ THE GUARANTEE HAS ONE PRECONDITION: the budget must be at least the cost of the cheapest
+ * legal XI, i.e. the sum of every hand's cheapest card. Below that the ceiling is negative
+ * from the first pick and EVERY card is disabled — correctly, because no legal XI exists.
+ * Budget Cap clears it with room to spare (€37M floor against a €100M cap), and the pool's
+ * 50+ eligible cards per slot are what keep the floor low. ⚠️ A THIN pool breaks it: with
+ * `onePerPlayer`, a role a shape uses twice takes five cards for the first hand and leaves the
+ * leftovers for the second, and `roomDeals` deals short rather than padding — so a one-card
+ * hand holding an expensive card puts its whole price into the reserve.
  */
 export interface BudgetView {
   /** Total cost of the picks made so far. */
@@ -95,4 +104,22 @@ export function budgetView(
 export function canAfford(card: PoolCard, view: BudgetView): boolean {
   const cost = costOf(card);
   return cost != null && cost <= view.ceiling;
+}
+
+/** How far over the ceiling this card is, or 0 when it is affordable. */
+export function shortfall(card: PoolCard, view: BudgetView): number {
+  const cost = costOf(card);
+  if (cost == null) return 0;
+  return Math.max(0, cost - view.ceiling);
+}
+
+/**
+ * A cost as millions, for display: `22_400_000` → `"22"`, `3_500_000` → `"3.5"`.
+ *
+ * ⚠️ Digits only — no currency sign and no locale. The caller decides both, because the card
+ * face is deliberately English-only in every locale while the meter beside it is localised.
+ */
+export function millionsLabel(eur: number): string {
+  const m = eur / 1_000_000;
+  return m >= 10 ? String(Math.round(m)) : m.toFixed(1).replace(/\.0$/, "");
 }

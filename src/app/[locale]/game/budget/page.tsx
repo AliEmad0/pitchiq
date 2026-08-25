@@ -16,6 +16,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return { title: t("budgetTitle"), description: t("budgetSubtitle") };
 }
 
+/**
+ * The pack's cap, read off its own constraint rather than restated here.
+ *
+ * ⚠️ A second literal would be a second source of truth: the number the meter shows and the
+ * number the coach may spend have to be the same one, or the screen lies about the rule.
+ */
+function budgetOf(): number {
+  const cap = BUDGET_PACK.constraints.find((c) => c.kind === "budgetCap");
+  return cap?.kind === "budgetCap" ? cap.amountEur : 0;
+}
+
 export default async function BudgetDraftPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
@@ -36,6 +47,7 @@ export default async function BudgetDraftPage({ params }: Props) {
         draft={BUDGET_PACK.draft}
         screens={BUDGET_PACK.screens}
         opponent={BUDGET_PACK.opponent}
+        budget={budgetOf()}
         captaincies={captaincies}
         referees={referees}
       />

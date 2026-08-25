@@ -74,11 +74,21 @@ export function GamePlay({
   captain,
   captaincies,
   referees,
+  budget,
 }: {
   pool: PoolCard[];
   initialPhase?: PlayPhase;
   /** The pack's draft rules. Absent means the shipped free-build hub. */
   draft?: DraftSpec;
+  /**
+   * The pack's spending cap, in indexed euros (TASK-1810 Budget Cap). Absent = no budget.
+   *
+   * ⚠️ A DRAFT-time rule, which is why it goes to `PitchDraft` and nowhere else. Nothing on
+   * the replay path may re-validate it: re-checking a constraint on resolution is how a legal
+   * match becomes unresumable after a data change, and it would present as a corrupt save
+   * rather than as a rule. The rival's own cap travels with `opponent`, not with this.
+   */
+  budget?: number;
   /**
    * How the XI is assembled (TASK-1838). Absent = the coach builds it himself.
    *
@@ -503,6 +513,7 @@ export function GamePlay({
             rivals={rivals}
             clubId={clubId}
             captain={captain}
+            budget={budget}
           />
         ) : (
           <DraftHub pool={pool} onConfirm={confirmSquad} />

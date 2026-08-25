@@ -17,6 +17,7 @@ import {
   pickBack,
   pickFront,
 } from "@/features/game/domain/card-design";
+import { millionsLabel } from "@/features/game/domain/budget";
 import { displayName } from "@/features/game/domain/display-name";
 import { type CardDim, type EnrichedCard, dimsFor } from "@/features/game/domain/player-card";
 import { playerPhotoCandidates } from "@/features/players/player-photo";
@@ -402,11 +403,40 @@ export function PlayerCard({ card, reduced, interactive = true }: Props) {
       : reactive;
   const front = FRONTS[pickFront(card, photo.kind)]({ card, d, name, photo });
 
+  /**
+   * The card's price, on a `pricedMarket` pool only (TASK-1810 Budget Cap).
+   *
+   * ⚠️ The INDEXED cost, not the historical market value (owner, 2026-08-25): one number, so
+   * the budget arithmetic on screen is never ambiguous. The card already carries its SEASON,
+   * so a 2014 card still reads as a 2014 card — what is hidden is the euro figure.
+   *
+   * ⚠️ English digits, deliberately — the whole card face is English-only in every locale for
+   * the reason recorded above (`d`), and localising only the price would make one number on
+   * the face disagree with the rest. The budget METER, which is not part of the card, is
+   * localised.
+   *
+   * ⚠️ An overlay rather than a field inside each `FRONTS` variant: there are several fronts
+   * and a price is not part of the card's identity, so threading it through all of them would
+   * spread one optional value across every layout.
+   */
+  const cost =
+    card.costEur == null ? null : (
+      <span
+        data-testid="card-cost"
+        className="pointer-events-none absolute bottom-1 left-1 rounded bg-black/70 px-1.5 py-0.5 font-mono text-[10px] leading-none font-bold text-emerald-300"
+      >
+        €{millionsLabel(card.costEur)}M
+      </span>
+    );
+
   // Face only: no button, no flip, nothing to click. The caller owns the interaction.
   if (!interactive) {
     return (
       <div dir="ltr" className="block" style={{ width: 176, aspectRatio: "11 / 16" }}>
-        <div className="relative h-full w-full">{front}</div>
+        <div className="relative h-full w-full">
+          {front}
+          {cost}
+        </div>
       </div>
     );
   }
@@ -428,7 +458,10 @@ export function PlayerCard({ card, reduced, interactive = true }: Props) {
           transition: reduced ? "none" : "transform 500ms cubic-bezier(.4,0,.2,1)",
         }}
       >
-        <div className="absolute inset-0 [backface-visibility:hidden]">{front}</div>
+        <div className="absolute inset-0 [backface-visibility:hidden]">
+          {front}
+          {cost}
+        </div>
         <div
           className="absolute inset-0 [backface-visibility:hidden]"
           style={{ transform: "rotateY(180deg)" }}
