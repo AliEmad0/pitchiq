@@ -336,6 +336,40 @@ export const CAPTAINS_PACK: RulePack = {
 };
 
 /**
+ * Budget Cap Draft.
+ *
+ * The promise is "€100M, the whole priced archive, find the bargains" — and the rules keep it
+ * literally: every card carries a real Premier League market value expressed in 2025 money,
+ * and the coach's XI must come in under the cap.
+ *
+ * ⚠️ NO CHOOSER, and that is a design fact rather than an omission. The pool is one cross-era
+ * set, so there is nothing to choose and nothing to put in a route segment — which is why this
+ * pack is served by a bespoke `/game/budget` page exactly as Chaos is, and why `routedPacks()`
+ * must never return it.
+ *
+ * ⚠️ No `standout`. A guaranteed 80+ in every hand fights a budget rather than complementing
+ * it — the card would either be unaffordable (dead) or eat the cap. What a budget hand needs
+ * is a card the coach can still BUY, and `domain/budget.ts` gets that from the reserve rule
+ * without any change to `roomDeals`.
+ */
+export const BUDGET_PACK: RulePack = {
+  id: "budget",
+  /** Measured bounds — see the `pricedMarket` doc for why 900 was rejected. */
+  pool: { kind: "pricedMarket", cap: 600, baseSeason: 2025 },
+  screens: "legacy",
+  opponent: "budget",
+  draft: {
+    handSize: 5,
+    roam: "free",
+    timer: null,
+    lockPicks: true,
+    onePerPlayer: true,
+  },
+  constraints: [{ kind: "budgetCap", amountEur: 100_000_000 }],
+  objective: "win",
+};
+
+/**
  * Every pack the ROUTES serve. Chaos is included so the seam has two real callers, not one.
  *
  * ⛔ A pack lands here ONLY once its routes exist. `routedPacks()` filters on
@@ -345,7 +379,12 @@ export const CAPTAINS_PACK: RulePack = {
  * out `captains × 51 clubs`, handed each CLUB id to `captainSynergy` as a captain id, and
  * the empty pool killed the prerender on `shape.slots`.
  */
-export const RULE_PACKS: readonly RulePack[] = [CHAOS_PACK, LEGACY_PACK, CAPTAINS_PACK];
+export const RULE_PACKS: readonly RulePack[] = [
+  CHAOS_PACK,
+  LEGACY_PACK,
+  CAPTAINS_PACK,
+  BUDGET_PACK,
+];
 
 /**
  * Resolve a mode id that came from a URL segment.

@@ -42,6 +42,7 @@ ROUTES=(
   "/game/chaos"
   "/game/draft"
   "/game/daily"
+  "/game/budget"
   "/game/legacy"
   "/game/legacy/40"
   # The rival squad the draft screen fetches as soon as it mounts (TASK-1810
