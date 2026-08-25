@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { iconChoices, buildPool } from "@/features/game/adapter/pool";
-import { packFor } from "@/features/game/domain/rule-packs";
+import { CAPTAINS_PACK, RULE_PACKS } from "@/features/game/domain/rule-packs";
 
 /**
  * TASK-1810 PR 2 — Captain's Draft.
@@ -62,9 +62,21 @@ describe("the icon roster", () => {
 });
 
 describe("the synergy pool", () => {
-  const pack = packFor("captains")!;
+  const pack = CAPTAINS_PACK;
 
-  it("is registered as a routed pack with the captain-first rule", () => {
+  /**
+   * ⛔ NOT in `RULE_PACKS` yet, and that is load-bearing. `routedPacks()` filters on
+   * `chooser != null` and reads that list — never `domain/modes.ts` — so registering this
+   * pack before its routes exist fans `[mode]/[club]` out to `captains × 51 clubs`, hands
+   * each CLUB id to `captainSynergy` as a captain id, and kills the prerender on an empty
+   * pool. It broke the Vercel build exactly once; this keeps it broken-proof.
+   */
+  it("⛔ is NOT routed yet — its routes do not exist", () => {
+    expect(RULE_PACKS).not.toContain(CAPTAINS_PACK);
+    expect(RULE_PACKS.some((p) => p.id === "captains")).toBe(false);
+  });
+
+  it("declares the captain-first rule and Legacy's screens", () => {
     expect(pack).toBeTruthy();
     expect(pack.chooser).toEqual({ kind: "captain" });
     expect(pack.constraints).toContainEqual({ kind: "captainFirst" });
