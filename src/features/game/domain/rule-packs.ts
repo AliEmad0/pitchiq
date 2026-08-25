@@ -40,24 +40,68 @@ export type PoolSpec =
       kind: "clubHistory";
       /** `"all"` = every club that ever played in the PL, resolved from the standings. */
       teams: number[] | "all";
+    }
+  | {
+      /**
+       * The Captain's Draft shape (owner, 2026-08-25): **nationality synergy OR era
+       * synergy** around a chosen icon — his countrymen from any season, UNION everyone
+       * who actually played in one of his own seasons.
+       *
+       * ⛔ THE UNION MUST BE BOUNDED, and that is not a tuning preference — measured
+       * before building: the average icon's union is **2,619 distinct players / 10,839
+       * player-seasons ≈ 1.28 MB** even at one card each, against Legacy's ~900-card
+       * ceiling. John Terry's is **3,889 players — 76% of the entire dataset**, so
+       * unbounded, "build around him" would mean "draft from nearly everyone" and the
+       * synergy would evaporate at exactly the captains it should mean most.
+       *
+       * ⚠️ So: one card per DISTINCT player (his best season), ranked by rating, capped.
+       * The FILTER is untouched — only the breadth is.
+       */
+      kind: "captainSynergy";
+      /** Cards on the page after ranking. ~0.5 KB each, so this is a payload decision. */
+      cap: number;
+      /**
+       * Cards reserved for the nationality half before the cap is filled from the rest.
+       *
+       * ⛔ Without it the synergy is invisible for a big footballing nation: England has
+       * **1,767** players and a long-serving English captain's era has ~3,000, so a purely
+       * rating-ranked cap would be almost entirely era-peers and the nationality half —
+       * half the owner's mechanic — would never show up on the page.
+       */
+      nationalityReserve: number;
     };
 
 /**
- * ⛔ Deliberately `never`, so `constraints` can only ever be `[]` today.
+ * A rule the draft enforces beyond its pool.
  *
- * No mode in this PR needs a constraint — Legacy's entire rule is a pool filter. Typing
- * this as `never` means the machinery cannot be quietly half-built: the first real
- * constraint (Budget Cap's spend cap, Captain's Draft's slot-1 rule) has to change this
- * type deliberately, with a caller in hand.
+ * ⭐ This type was `never` on purpose, with a note naming the two modes that would make it
+ * real. Captain's Draft is the first, and it arrives WITH its caller — which is what that
+ * note was holding the line for.
  */
-export type Constraint = never;
+export type Constraint = {
+  /**
+   * A player is already in the XI before the coach picks anything (Captain's Draft).
+   *
+   * ⚠️ The player is NOT named here. The pack is static data and the icon is a route
+   * param, so the constraint declares the RULE and the route supplies the man — the same
+   * split as `clubHistory` + the `only` argument.
+   */
+  kind: "captainFirst";
+};
 
 /** Single-match modes all share one objective. It earns its keep in TASK-1811's seasons. */
 export type Objective = "win";
 
 /** A choice the pack needs before drafting. Labels come from DATA, never from source. */
 export interface ChooserSpec {
-  kind: "club";
+  /**
+   * `club` — Legacy Club picks a club, and its history is the pool.
+   * `captain` — Captain's Draft picks an ICON, and his nationality + era is the pool.
+   *
+   * ⚠️ Both put their choice in the URL for the same reason: the pool is baked into a
+   * `force-static` page, so one page per choice is what keeps each payload affordable.
+   */
+  kind: "club" | "captain";
 }
 
 /**
@@ -217,7 +261,54 @@ const LEGACY_PACK: RulePack = {
   objective: "win",
 };
 
-/** Every pack. Chaos is included so the seam has two real callers, not one. */
+/**
+ * Captain's Draft.
+ *
+ * The shipped promise is "Pick an icon first, then build around them", and the rules keep
+ * it literally: the icon is placed in the XI before the coach picks anything, and the pool
+ * he then drafts from is the icon's own countrymen and contemporaries.
+ *
+ * ⚠️ The icon roster is DATA, resolved by the adapter — men who really captained a
+ * Premier League side for three seasons or more, plus a curated legend list. See
+ * `adapter/pool.ts#iconChoices`.
+ *
+ * ⚠️ `screens: "legacy"` and `opponent: "best"` mirror Legacy for the same reasons: the
+ * match screens are designed and shared, and a pack whose hands guarantee a standout
+ * cannot face an opponent drawn uniformly from the same pool.
+ */
+export const CAPTAINS_PACK: RulePack = {
+  id: "captains",
+  /** Measured bounds — see the `captainSynergy` doc for why they are not preferences. */
+  pool: { kind: "captainSynergy", cap: 600, nationalityReserve: 200 },
+  chooser: { kind: "captain" },
+  screens: "legacy",
+  opponent: "best",
+  draft: {
+    handSize: 5,
+    roam: "free",
+    timer: null,
+    lockPicks: true,
+    standout: true,
+    onePerPlayer: true,
+  },
+  constraints: [{ kind: "captainFirst" }],
+  objective: "win",
+};
+
+/**
+ * Every pack the ROUTES serve. Chaos is included so the seam has two real callers, not one.
+ *
+ * ⛔ `CAPTAINS_PACK` is deliberately ABSENT until its routes exist, and this is not
+ * bookkeeping — registering it broke the Vercel build immediately. `routedPacks()` filters
+ * on `chooser != null` and reads THIS list, never `domain/modes.ts`, so a pack with a
+ * chooser is routed the moment it lands here regardless of whether its mode is live. The
+ * `[mode]/[club]` route then fans out `captains × 51 clubs` and hands each CLUB id to
+ * `captainSynergy` as a captain id — no icon matches, the pool comes back empty,
+ * `canField` filters away every formation, and the prerender dies on `shapes[0]!`.
+ *
+ * ⚠️ So "the mode is not in `modes.ts` yet" is NOT what keeps a pack off the routes. This
+ * list is.
+ */
 export const RULE_PACKS: readonly RulePack[] = [CHAOS_PACK, LEGACY_PACK];
 
 /**
