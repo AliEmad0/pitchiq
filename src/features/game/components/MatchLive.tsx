@@ -72,6 +72,13 @@ interface Props {
   /** playerId → real captaincies, narrowed to this club at build time. */
   captaincies: Record<number, number>;
   /**
+   * The man who wears the armband whatever the counts say (Captain's Draft, TASK-1810).
+   *
+   * ⚠️ HOME only. The icon is the coach's, so the opponent's sheet still ranks on real
+   * captaincies — passing it to both would put his armband on a side he is not playing for.
+   */
+  forcedCaptainId?: number;
+  /**
    * Real Premier League referees, from the committed fixtures.
    *
    * ⚠️ The NAME is cosmetic and picked from the match seed; the engine's `RefereeStyle` is
@@ -131,6 +138,7 @@ export function MatchLive({
   holdAt,
   pending,
   captaincies,
+  forcedCaptainId,
   referees,
   crests,
   onAnswer,
@@ -365,8 +373,9 @@ export function MatchLive({
       rankCaptains(
         model.home.players.map((p) => ({ playerId: p.playerId, rating: p.rating ?? 0 })),
         counts,
+        forcedCaptainId,
       ),
-    [model.home.players, counts],
+    [model.home.players, counts, forcedCaptainId],
   );
   const offPitch = useMemo(
     () => new Set(homeLineup.roster.filter((r) => !r.onPitch).map((r) => r.player.playerId)),

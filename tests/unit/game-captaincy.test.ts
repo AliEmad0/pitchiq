@@ -115,3 +115,49 @@ describe("armbandAt", () => {
     expect(armbandAt({ captain: null, vice: null }, new Set())).toBeNull();
   });
 });
+
+/**
+ * TASK-1810 — the mode's icon leads his own XI (owner, 2026-08-25).
+ *
+ * Captain's Draft is built ON its icon: the mode is named for him and he is placed before
+ * a card is drafted. Ranking him like anyone else meant he only wore the armband if he
+ * would have won it on real captaincy counts anyway.
+ */
+describe("a forced captain", () => {
+  const squad = [
+    { playerId: 1, rating: 95 },
+    { playerId: 2, rating: 90 },
+    { playerId: 3, rating: 60 },
+  ];
+
+  it("wears it over a better-rated man and over a real captain", () => {
+    // Player 1 is the best card AND player 2 has a real captaincy — the icon still leads.
+    const ranked = rankCaptains(squad, new Map([[2, 5]]), 3);
+    expect(ranked.captain).toBe(3);
+    expect(armbandAt(ranked, new Set())).toBe(3);
+  });
+
+  /**
+   * ⚠️ He is moved to the FRONT of the order, not given a fake count — inventing
+   * captaincies would corrupt the honest data the rest of the rule reads. So the men
+   * behind him keep their real ranking, and the handover still works.
+   */
+  it("⚠️ leaves the order behind him intact, so the armband still passes on", () => {
+    const ranked = rankCaptains(squad, new Map([[2, 5]]), 3);
+    expect(ranked.order).toEqual([3, 2, 1]);
+    // Substitute the icon and it goes to the real captain, not to the best card.
+    expect(armbandAt(ranked, new Set([3]))).toBe(2);
+  });
+
+  it("⚠️ THE CONTROL — no forced captain means the shipped ranking, untouched", () => {
+    const ranked = rankCaptains(squad, new Map([[2, 5]]));
+    expect(ranked.captain).toBe(2);
+    expect(ranked.order).toEqual([2, 1, 3]);
+  });
+
+  it("⚠️ ignores a forced player who is not in this XI", () => {
+    // The away sheet must never inherit the coach's icon.
+    const ranked = rankCaptains(squad, new Map(), 999);
+    expect(ranked.captain).toBe(1);
+  });
+});

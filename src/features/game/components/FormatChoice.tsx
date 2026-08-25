@@ -4,7 +4,6 @@ import { applicableFormats, type GameMode } from "@/features/game/domain/modes";
 import { Link } from "@/i18n/navigation";
 
 const LABEL_KEY = { single: "formatSingle", season: "formatSeason" } as const;
-const HINT_KEY = { single: "formatSingleHint", season: "formatSeasonHint" } as const;
 
 /**
  * The One Match / Full Season step inside an expanded tile.
@@ -47,8 +46,10 @@ export function FormatChoice({ mode }: { mode: GameMode }) {
             <span className="mg-fmt-cur" aria-hidden>
               ▶
             </span>
+            {/* ⚠️ No hint here (owner, 2026-08-25). "About three minutes" beside the label
+                squeezed "One Match" onto two lines in a tile this narrow, and the duration
+                is not the choice being made — the length is already in the label. */}
             <span className="mg-fmt-l">{label}</span>
-            <span className="mg-fmt-x">{t(HINT_KEY[format])}</span>
           </Link>
         );
       })}

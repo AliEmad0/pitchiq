@@ -297,6 +297,39 @@ export async function iconChoices(): Promise<IconChoice[]> {
  * out almost entirely era-peers and the coach never sees a countryman.
  */
 /**
+ * Each icon's own best card, for the chooser (owner, 2026-08-25).
+ *
+ * ⭐ The sheet shows a captain's REAL card rather than a flag — the same currency the rest
+ * of the game is played in, and the thing the coach is actually choosing.
+ *
+ * ⚠️ Affordable because it is ONE card per icon: 46 cards is ~23 KB, against the ~1.28 MB a
+ * whole synergy pool would be. It reuses the memoised `universe()`, so the sheet costs
+ * nothing the icon pages were not already paying.
+ */
+export async function iconCards(): Promise<EnrichedCard[]> {
+  const career = await loadCareerIndex();
+  const wanted = new Map((await iconChoices()).map((i) => [i.id, i]));
+  const best = new Map<number, Gathered>();
+  for (const { g } of await universe(career)) {
+    if (!wanted.has(g.card.playerId)) continue;
+    const found = best.get(g.card.playerId);
+    if (found == null || g.rating > found.rating) best.set(g.card.playerId, g);
+  }
+  // ⚠️ Ordered like `iconChoices` — the sheet's order is a decision made there.
+  const out: EnrichedCard[] = [];
+  for (const id of wanted.keys()) {
+    const g = best.get(id);
+    if (g != null) out.push(g.card);
+  }
+  const resolved = await resolvePhotos(out.map((c) => c.photo));
+  resolved.forEach((r, i) => {
+    out[i]!.photoKind = r.kind;
+    out[i]!.photoUrl = r.url;
+  });
+  return out;
+}
+
+/**
  * Every rated card in the dataset, with its player's nationality — built ONCE.
  *
  * ⛔ Memoised, and it is a build-time necessity rather than a nicety. Each icon's pool

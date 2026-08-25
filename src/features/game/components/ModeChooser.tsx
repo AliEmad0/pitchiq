@@ -1,6 +1,8 @@
 import Image from "next/image";
 import { getLocale, getTranslations } from "next-intl/server";
+import type { EnrichedCard } from "@/features/game/domain/player-card";
 import { Link } from "@/i18n/navigation";
+import { CaptainDeal } from "./CaptainDeal";
 import { clubLogo } from "@/utils/club-logo";
 import { localizeDigits } from "@/utils/format";
 import { currentDataSeason } from "@/utils/season";
@@ -11,8 +13,13 @@ export interface ModeChoice {
   seasons: number;
   first: number;
   last: number;
-  /** Captain's Draft only — the icon's flag stands where a club's crest does. */
-  nationalityCode?: string | null;
+  /**
+   * Captain's Draft only — the icon's REAL card (owner, 2026-08-25).
+   *
+   * ⚠️ One card per icon, ~23 KB across the sheet. A flag stood here first; the card is the
+   * currency the rest of the game is played in, and it is the thing being chosen.
+   */
+  card?: EnrichedCard;
 }
 
 /**
@@ -69,6 +76,13 @@ export async function ModeChooser({
         {t(kind === "captain" ? "captainsPick" : "legacyPick")}
       </p>
 
+      {/* ⭐ A captain pack DEALS (owner, 2026-08-25) rather than laying out its whole
+          roster: five face-down icons turned over, so the choice is luck like every other
+          deal in the game. The sticker sheet stays for clubs, where picking your own club
+          is the point and a random five would be absurd. */}
+      {kind === "captain" ? (
+        <CaptainDeal cards={choices.map((c) => c.card!).filter(Boolean)} />
+      ) : (
       <ul className="sticker-sheet bg-muted/40 border-border grid grid-cols-2 gap-3 rounded-lg border p-4 sm:grid-cols-3 lg:grid-cols-5">
         {choices.map((c, i) => (
           <li
@@ -86,21 +100,18 @@ export async function ModeChooser({
                   `unoptimized` matches PlayerCard: these are already small local PNGs.
                   For an icon the FLAG stands in its place: a player has no crest, and his
                   nationality is half of what the mode drafts around. */}
-              {kind === "captain" ? (
-                <span
-                  className={`fi fi-${c.nationalityCode ?? "xx"} h-11 w-11 rounded-sm`}
-                  aria-hidden="true"
-                />
-              ) : (
-                <Image
-                  src={clubLogo(c.id, season)}
-                  alt=""
-                  width={44}
-                  height={44}
-                  unoptimized
-                  className="h-11 w-11 object-contain"
-                />
-              )}
+              {/* The crest leads — it is what a supporter recognises before the name.
+                  `unoptimized` matches PlayerCard: these are already small local PNGs.
+                  ⚠️ Clubs only. A captain pack never reaches here — it deals five cards
+                  above instead of laying out a sheet. */}
+              <Image
+                src={clubLogo(c.id, season)}
+                alt=""
+                width={44}
+                height={44}
+                unoptimized
+                className="h-11 w-11 object-contain"
+              />
               {/* The club's name comes from the DATA — a literal here would ship English
                   into the Arabic UI and would trip the hardcoded-string guard. */}
               <span className="text-xs font-bold leading-tight">{c.name}</span>
@@ -117,6 +128,7 @@ export async function ModeChooser({
           </li>
         ))}
       </ul>
+      )}
     </div>
   );
 }

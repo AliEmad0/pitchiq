@@ -1003,7 +1003,11 @@
     "formatSelectLength": "Select length",
     "captainsTitle": "Captain's Draft",
     "captainsPick": "Pick an icon. You draft his countrymen and the players he faced.",
-    "captainsWears": "Your captain"
+    "captainsWears": "Your captain",
+    "pitchMoveCaptain": "Move {name} to {role}",
+    "modeBackCaptain": "Choose a different captain",
+    "captainsDealing": "Dealing your icons…",
+    "captainsPickOne": "Five icons. Pick the one you will build around."
   },
   "commentary": {
     "armbandHandover": "The armband goes to {name}.",

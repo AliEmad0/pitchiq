@@ -177,6 +177,25 @@ export function PitchDraft({ pool, draft, onConfirm, backHref, rivals, clubId, c
     dispatch({ type: "setFormation", formation: f, locked: lockedFor(f) });
   };
 
+  /**
+   * Move the captain to another slot he can play (owner, 2026-08-25).
+   *
+   * ⚠️ Only before the shape is locked, and only to a slot `canPlay` accepts — his main
+   * role or one of his `altRoles`. The mode is built on him, so where he stands is the
+   * coach's first tactical decision rather than whichever eligible slot came first in
+   * slot order.
+   *
+   * ⚠️ No new state: `state.locked` already records his slot, so this is the same
+   * `setFormation` the shape picker dispatches, with a different index.
+   */
+  const moveCaptain = (index: number) => {
+    if (locked || captain == null) return;
+    dispatch({ type: "setFormation", formation: shape, locked: { index, cardId: captain.cardId } });
+  };
+  /** Slots the captain may stand in — his role and his alternates. */
+  const canHoldCaptain = (role: Formation["slots"][number]["role"]) =>
+    captain != null && canPlay(captain, role);
+
   const rows = Math.max(...shape.slots.map((s) => s.row));
   const veilCards: PoolCard[] =
     veil == null
@@ -214,23 +233,29 @@ export function PitchDraft({ pool, draft, onConfirm, backHref, rivals, clubId, c
               insetInlineStart: `${(s.row / (rows + 1)) * 100}%`,
               top: `${(s.col / (inRow + 1)) * 100}%`,
             };
-            const label = card
-              ? t("pitchViewPick", {
-                  role: s.role,
-                  name: card.name,
-                  ovr: card.ratings?.overall ?? 0,
-                })
-              : t("pitchFillSlot", { role: s.role });
+            // Before the shape is locked, a slot the captain can play is a MOVE target.
+            const movable = !locked && canHoldCaptain(s.role) && state.locked !== i;
+            const label = movable
+              ? t("pitchMoveCaptain", { role: s.role, name: captain!.name })
+              : card
+                ? t("pitchViewPick", {
+                    role: s.role,
+                    name: card.name,
+                    ovr: card.ratings?.overall ?? 0,
+                  })
+                : t("pitchFillSlot", { role: s.role });
 
             return (
               <button
                 key={`${s.row}-${s.col}`}
                 type="button"
                 style={style}
-                disabled={!locked}
+                disabled={!locked && !movable}
                 aria-label={label}
-                onClick={() => setVeil({ slot: i, mode: card ? "review" : "round" })}
-                className={`pd-spot${card ? " pd-filled" : ""}${
+                onClick={() =>
+                  movable ? moveCaptain(i) : setVeil({ slot: i, mode: card ? "review" : "round" })
+                }
+                className={`pd-spot${movable ? " pd-movable" : ""}${card ? " pd-filled" : ""}${
                   card && (card.ratings?.overall ?? 0) < 80 ? " pd-silver" : ""
                 }`}
               >
@@ -346,7 +371,9 @@ export function PitchDraft({ pool, draft, onConfirm, backHref, rivals, clubId, c
                     href={backHref}
                     className="border-border rounded-md border px-4 py-2 text-sm font-semibold"
                   >
-                    {t("modeBack")}
+                    {/* ⚠️ The label names what you would go BACK to choose, and this
+                        route serves more than clubs now (owner, 2026-08-25). */}
+                    {t(captain != null ? "modeBackCaptain" : "modeBack")}
                   </Link>
                 ) : null}
                 <button type="button" onClick={() => setSeed(randomSeed())} className="pd-lock">
