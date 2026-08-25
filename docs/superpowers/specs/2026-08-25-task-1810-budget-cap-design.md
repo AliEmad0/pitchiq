@@ -123,10 +123,17 @@ drafted last week could fall out of the pool, and `replayWith` returns null on t
 it cannot find — so **a share link would die silently and present as "the link is broken"**,
 which is exactly the defect Captain's Draft hit from the other direction.
 
-Extending the window when 2026 data arrives is therefore a deliberate, reviewed change, and
-**BASE stays 2025** so existing prices never move. A test regenerates both artefacts from
-`data/` and asserts the committed copies still match, so the freeze is verified rather than
-trusted.
+⭐ **Freezing the FACTOR TABLE is enough to freeze the window, so only it is committed.** The
+pool is built from the seasons that have a factor, so when the pipeline adds 2026 that season
+simply has none and is not drafted — membership does not move, and no 600-entry id list has to
+be committed and reviewed. `top50Mean(2025)` is likewise unaffected, because 2025's own rows
+are already present. **BASE stays 2025** so existing prices never move.
+
+Membership can still shift from a _correction_ to an existing season, or from a change to
+`rate()`. That is what the **golden membership test** is for: it pins the pool's card-id list,
+so any such shift fails loudly at exactly the moment it happens rather than quietly killing
+share links. The factor table gets the same treatment — regenerate from `data/`, assert the
+committed copy matches.
 
 ⚠️ **The budget is a DRAFT-time rule, never a replay-time one.** `replayWith` must not
 re-validate the cap. It resolves a saved XI, and re-checking a constraint on resolution is how
@@ -198,12 +205,22 @@ RB 29    LB 20    LM 8    RM 6    SS 4
 ```
 
 A 4-4-2 wants two full-backs and two wide midfielders, and the pool holds **6 RMs and 8 LMs**.
-Before building, verify that `domain/eligibility.ts#canPlay` already lets a winger or a
-full-back cover those slots — the shipped draft has `altRoles` and adjacent-role eligibility,
-so this is very likely already handled. If it is not, the fix is eligibility or the formation
-set, **never** a special case in the pool builder. This must be checked rather than assumed:
-a formation that cannot be filled would surface as an unfillable slot late in a draft, which is
-the worst possible moment to discover it.
+
+✅ **CHECKED, and it is a non-issue — but only because of `altRoles`.** `canPlay` is strict
+(`role === slot || altRoles.includes(slot)`) with no adjacent-role leniency, so this had to be
+measured rather than assumed. Counting **eligible** cards rather than primary roles, every one
+of the 13 distinct slots across all 20 formations is well supplied, and each has a cheap option:
+
+```
+CAM 129 (2.9M)  CB 136 (2.3M)  CDM 96 (3.0M)  CF 183 (2.9M)  CM 125 (4.3M)
+GK   50 (1.5M)  LB   64 (2.3M)  LM  51 (4.3M)  LW 153 (8.9M)  RB  61 (3.0M)
+RM   50 (4.5M)  RW 148 (2.9M)  SS  75 (4.6M)
+```
+
+**No formation has a slot with fewer than 11 eligible cards**, so no eligibility or formation
+work is needed. ⚠️ The primary-role counts above are kept because they are the trap: read
+alone they say the mode cannot field a 4-4-2, and they are wrong by 6–8×. Any future audit of
+pool coverage must count `canPlay`, not `role`.
 
 ---
 
@@ -221,7 +238,6 @@ export const BUDGET_PACK: RulePack = {
     roam: "free",
     timer: null,
     lockPicks: true,
-    affordable: true,
     onePerPlayer: true,
   },
   constraints: [{ kind: "budgetCap", amountEur: 100_000_000 }],
@@ -239,10 +255,10 @@ export const BUDGET_PACK: RulePack = {
 the pack could only declare the rule; the budget is the same for every player of this mode, so
 it belongs in the pack.
 
-**`DraftSpec` gains `affordable`, and this pack sets no `standout`.** A guaranteed 80+ in every
-hand fights a budget rather than complementing it — it would either be unaffordable (a dead
-card) or eat the cap. What a budget hand needs guaranteed is a card the coach **can still
-buy**; see §5.1.
+**`DraftSpec` is UNCHANGED, and this pack sets no `standout`.** A guaranteed 80+ in every hand
+fights a budget rather than complementing it — it would either be unaffordable (a dead card) or
+eat the cap. What a budget hand needs is a card the coach can still buy, and §5.1 shows that
+falls out of the reserve rule without any new deal option, so `roomDeals` is not touched at all.
 
 ⛔ **Register in `RULE_PACKS` only once `/game/budget` exists.** `routedPacks()` filters on
 `chooser != null` and reads `RULE_PACKS`, never `domain/modes.ts`. This pack has no chooser, so
@@ -270,24 +286,37 @@ The hazard is spending €95M on two stars and being unable to fill nine slots. 
 the current pick is therefore not the remaining budget but:
 
 ```
-reserve = Σ, over every OTHER unfilled slot s, of cheapestEligible(s)
-ceiling = remaining − reserve
+reserve = Σ, over every OTHER unfilled slot, of the CHEAPEST CARD IN THAT SLOT'S HAND
+ceiling = budget − spent − reserve
 ```
 
-`cheapestEligible(s)` is the cheapest pool card that `canPlay` accepts for slot `s`, and the
-cards chosen across slots must be **distinct**, since `onePerPlayer` means one man cannot fill
-two. A greedy distinct assignment is correct enough here: over-reserving only makes the ceiling
-slightly conservative, whereas under-reserving dead-ends the draft. Completion is then
-**structurally guaranteed** rather than checked after the fact.
+⭐ **The reserve is computed over the DEALT HANDS, not over the pool** — and that one choice
+makes the whole rule fall out for free. `roomDeals` deals all eleven hands up front, in slot
+order, against one shared used-set (`onePerPlayer` already guarantees the hands are disjoint),
+so "the cheapest card in each unfilled hand" is a fixed, distinct, role-correct set the moment
+the room is created. Two properties follow, neither of which needs enforcing:
 
-`affordable: true` makes the room deal at least one card at or below the ceiling in every hand,
-so no hand is ever entirely dead. Both rules are pure functions over (pool, spent, slots) and
-belong in `domain/`, testable with no room and no React.
+1. **Completion is structural.** Picking a card at cost `c ≤ ceiling` leaves
+   `remaining ≥ Σ(cheapest of the other unfilled hands)`, so the invariant is preserved
+   inductively and the last slot is always affordable.
+2. **No hand is ever dead.** The cheapest card in the open hand is, by the same invariant,
+   always at or below the ceiling — so there is always something to click.
 
-⚠️ **The reserve must be per-slot and role-aware, not `slotsLeft × cheapestCard`.** The cheapest
-card overall is no use if the unfilled slot is a goalkeeper and that card is a winger. With no
-GK above €100M and only 6 RMs in the pool (§3.1), a role-blind reserve would be wrong in both
-directions and would hide behind plausible-looking numbers rather than failing loudly.
+⛔ **This is why the spec no longer has an `affordable` deal option.** The first draft added
+`affordable: true` to `DraftSpec` to make the room deal one buyable card per hand. That cannot
+work: `roomDeals` deals every hand from one seed **before the draft starts**, and affordability
+depends on what has already been spent, which does not exist yet. Deriving the reserve from the
+hands gets the same guarantee with no change to the shipped deal at all. ⚠️ Do not re-add it.
+
+⚠️ **A pool-wide reserve would be both wrong and role-blind.** `slotsLeft × cheapestCard` is the
+obvious form and it under-reserves: the cheapest card overall is no use when the unfilled slot
+is a goalkeeper and that card is a winger. Reading the hands sidesteps this entirely, since a
+hand only ever holds cards `canPlay` accepted for its own slot.
+
+Both functions are pure over `(hands, picks, budget)` and belong in `domain/`, testable with no
+room and no React. ⚠️ Budget state is **derived, never stored** — `RoomState` keeps only
+`picks`, and spend is recomputed from picks + hands on every read, the same way daily streaks
+are derived rather than persisted.
 
 ---
 
@@ -334,9 +363,14 @@ bakes a 600-card pool, so a request-time render would rebuild that pool per view
 - **No draft can dead-end.** Property test over many seeds: drive a full XI under several
   spending strategies — greedy-expensive first, greedy-cheap first, random — and assert eleven
   slots always fill inside the cap.
-- **`cheapestEligible` is role-aware.** Construct a state where the only unfilled slot is GK and
-  the cheapest card overall is an outfielder; assert the ceiling uses the keeper.
-- **Every formation is fillable** from the cap-600 pool given `canPlay` (§3.1).
+- **The reserve reads the HANDS, not the pool.** Construct a room whose GK hand is expensive
+  while a cheap outfielder sits in another hand; assert the reserve counts the keeper's hand.
+  ⚠️ A pool-wide implementation passes a naive test and under-reserves here, so this fixture
+  must make the two answers differ — otherwise it is vacuous.
+- **The open hand always has something clickable.** For every seed and every spending strategy,
+  assert at least one card in the open hand is at or below the ceiling (§5.1 property 2).
+- **Every formation is fillable** from the cap-600 pool given `canPlay` — already measured
+  green (§3.1), so this is a regression pin rather than a discovery.
 - **The opponent is budget-matched**, not best-available: assert its XI cost is within the cap.
 - **Every pool card has a price.** The 644 holes must be filtered, not defaulted to zero — a
   free card would break the whole mode and a zero is easy to introduce silently.
