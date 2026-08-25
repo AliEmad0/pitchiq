@@ -1003,7 +1003,11 @@
     "formatSelectLength": "اختر المدة",
     "captainsTitle": "اختيار القائد",
     "captainsPick": "اختر نجمًا. ستختار من بني وطنه ومن لاعبي زمنه.",
-    "captainsWears": "قائدك"
+    "captainsWears": "قائدك",
+    "pitchMoveCaptain": "انقل {name} إلى {role}",
+    "modeBackCaptain": "اختر قائدًا آخر",
+    "captainsDealing": "جارٍ توزيع النجوم…",
+    "captainsPickOne": "خمسة نجوم. اختر من ستبني حوله."
   },
   "commentary": {
     "armbandHandover": "شارة القيادة تنتقل إلى {name}.",

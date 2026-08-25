@@ -624,6 +624,8 @@ export function GamePlay({
             holdAt={pending?.minute ?? (result == null ? 0 : undefined)}
             pending={pending}
             captaincies={captaincies ?? {}}
+            // The mode's icon leads his own XI. See `rankCaptains`'s `forced`.
+            forcedCaptainId={captain?.playerId}
             referees={referees ?? []}
             crests={crests}
             onAnswer={driver.answer}

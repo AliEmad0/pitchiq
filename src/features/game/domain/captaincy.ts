@@ -46,6 +46,18 @@ export interface CaptainCandidate {
 export function rankCaptains(
   squad: readonly CaptainCandidate[],
   counts: ReadonlyMap<number, number>,
+  /**
+   * A player who wears it no matter what (owner, 2026-08-25).
+   *
+   * ⭐ Captain's Draft is built ON its icon — the mode is named for him and he is placed in
+   * the XI before a card is drafted — so ranking him on real captaincy counts like anyone
+   * else meant he only led if he would have won it anyway. He now leads by the mode's rule.
+   *
+   * ⚠️ He is moved to the FRONT of the order, not given a fake count. Inventing captaincies
+   * would corrupt the honest data the rest of the rule reads, and the handover still works
+   * from here: substitute him and the armband passes down the same ranking as ever.
+   */
+  forced?: number | null,
 ): Captaincy {
   const ranked = [...squad].sort((a, b) => {
     const ca = counts.get(a.playerId) ?? 0;
@@ -56,11 +68,12 @@ export function rankCaptains(
     if (a.rating !== b.rating) return b.rating - a.rating;
     return a.playerId - b.playerId;
   });
-  return {
-    captain: ranked[0]?.playerId ?? null,
-    vice: ranked[1]?.playerId ?? null,
-    order: ranked.map((r) => r.playerId),
-  };
+  const order = ranked.map((r) => r.playerId);
+  if (forced != null && order.includes(forced)) {
+    order.splice(order.indexOf(forced), 1);
+    order.unshift(forced);
+  }
+  return { captain: order[0] ?? null, vice: order[1] ?? null, order };
 }
 
 /**
