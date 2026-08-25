@@ -442,6 +442,15 @@ export interface MatchupOptions {
   /** What the opponent is CALLED. Absent = `names.away`. */
   rivalName?: string;
   /**
+   * The rival's spending cap for `opponent: "budget"` (TASK-1810).
+   *
+   * ⛔ Part of the match's IDENTITY, exactly like `opponent` itself. Every path that rebuilds
+   * the match must pass it: without it the rival's ceiling is Infinity, the policy degenerates
+   * into best-available, and the replay drafts a different eleven — which surfaces as a
+   * fingerprint mismatch reading like a corrupt save rather than like a missing argument.
+   */
+  budget?: number;
+  /**
    * The coach's drafted playerIds — withheld from BOTH auto-drafts. See `DraftOptions`.
    *
    * ⚠️ Still right when the rival is a different club: a `playerId` is stable across clubs,
@@ -457,11 +466,15 @@ export function chaosMatchup(
   names: { home: string; away: string } = { home: "Your XI", away: "Rivals" },
   options: MatchupOptions = {},
 ): ChaosMatchup {
-  const { opponent, exclude, rivalPool, rivalName } = options;
+  const { opponent, exclude, rivalPool, rivalName, budget } = options;
   const home = chaosDraft(pool, seed, names.home, { exclude });
   const away = chaosDraft(rivalPool ?? pool, seed ^ 0x9e3779b9, rivalName ?? names.away, {
     policy: opponent,
     exclude,
+    // ⛔ Without this the rival's ceiling is Infinity and `policy: "budget"` degenerates into
+    // `best` — the exact 94.0-against-80.8 mismatch the policy exists to prevent, and it would
+    // look completely normal on screen.
+    budget,
   });
   const sr = mulberry32(seed ^ 0x51ed270b);
   return {
