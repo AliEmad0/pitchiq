@@ -1007,7 +1007,14 @@
     "pitchMoveCaptain": "انقل {name} إلى {role}",
     "modeBackCaptain": "اختر قائدًا آخر",
     "captainsDealing": "جارٍ توزيع النجوم…",
-    "captainsPickOne": "خمسة نجوم. اختر من ستبني حوله."
+    "captainsPickOne": "خمسة نجوم. اختر من ستبني حوله.",
+    "budgetTitle": "درافت سقف الميزانية",
+    "budgetSubtitle": "١٠٠ مليون. كل الحقب معروضة. ابحث عن الصفقات.",
+    "budgetSpent": "المنفق",
+    "budgetRemaining": "المتبقي",
+    "budgetCeiling": "الحد لهذا الاختيار",
+    "budgetShortfall": "تجاوز بـ {amount}",
+    "budgetWindow": "الأسعار تغطي ٢٠٠٤-٢٠٢٥، بقيمة اليوم"
   },
   "commentary": {
     "armbandHandover": "شارة القيادة تنتقل إلى {name}.",

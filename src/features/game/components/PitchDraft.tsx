@@ -1,6 +1,13 @@
 "use client";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useReducer, useState } from "react";
+import {
+  budgetView,
+  canAfford,
+  millionsLabel,
+  shortfall,
+  type BudgetView,
+} from "@/features/game/domain/budget";
 import { pickBack } from "@/features/game/domain/card-design";
 import type { PlayerSeasonId } from "@/features/game/domain/card-id";
 import { FORMATIONS, type PoolCard } from "@/features/game/domain/chaos-draft";
@@ -17,6 +24,7 @@ import {
 } from "@/features/game/view/room-state";
 import { useRival, type ChosenRival, type Difficulty } from "@/features/game/view/rival-choice";
 import { randomSeed } from "@/features/game/view/seed";
+import { localizeDigits } from "@/utils/format";
 import { Link } from "@/i18n/navigation";
 import { prefersReducedMotion } from "@/utils/motion";
 import { ClubCrest } from "./ClubCrest";
@@ -67,6 +75,11 @@ interface Props {
   captain?: PoolCard;
   /** The club whose page this is, preselected so doing nothing plays the shipped match. */
   clubId?: number;
+  /**
+   * The pack's spending cap, in indexed euros (Budget Cap, TASK-1810). Absent = no budget,
+   * and this screen renders exactly as Legacy and Captain's Draft have always rendered it.
+   */
+  budget?: number;
 }
 
 /**
@@ -82,8 +95,18 @@ interface Props {
  * two mechanics differ in every interaction, so sharing one component would mean a prop for
  * each difference and a shipped surface at risk on every change.
  */
-export function PitchDraft({ pool, draft, onConfirm, backHref, rivals, clubId, captain }: Props) {
+export function PitchDraft({
+  pool,
+  draft,
+  onConfirm,
+  backHref,
+  rivals,
+  clubId,
+  captain,
+  budget,
+}: Props) {
   const t = useTranslations("game");
+  const locale = useLocale();
   const reduced = prefersReducedMotion();
 
   /** Who he has chosen to face, and how hard they play. */
@@ -140,12 +163,22 @@ export function PitchDraft({ pool, draft, onConfirm, backHref, rivals, clubId, c
         : roomDeals(pool, shape, seed, {
             handSize: draft.handSize,
             standout: draft.standout,
+            cheapest: draft.cheapest,
             onePerPlayer: draft.onePerPlayer,
             // ⛔ He is in the pool so every replay path can resolve him; he must not be
             // dealt, or the coach could field the same man twice.
             excludePlayers: captain == null ? undefined : new Set([captain.playerId]),
           }),
-    [pool, shape, seed, draft.handSize, draft.standout, draft.onePerPlayer, captain],
+    [
+      pool,
+      shape,
+      seed,
+      draft.handSize,
+      draft.standout,
+      draft.cheapest,
+      draft.onePerPlayer,
+      captain,
+    ],
   );
 
   /** ⛔ The captain is in here, though he is not in the pool. See the `captain` prop. */
@@ -154,6 +187,44 @@ export function PitchDraft({ pool, draft, onConfirm, backHref, rivals, clubId, c
     [pool, captain],
   );
   const filled = state.picks.filter((p) => p != null).length;
+
+  /**
+   * The running budget — DERIVED on every render, never stored.
+   *
+   * ⚠️ `RoomState` holds only `picks`; spend, reserve and ceiling are recomputed from the
+   * picks and the dealt hands, the same way the daily challenge derives streaks rather than
+   * persisting them. See `domain/budget.ts` for why the reserve reads the HANDS, not the pool.
+   *
+   * ⚠️ The OPEN slot is the one on the veil while a round is up, because that is the pick the
+   * ceiling is about. Off the veil it is the reducer's own open slot.
+   */
+  const openSlot = veil?.mode === "round" ? veil.slot : state.open;
+  const view = useMemo(
+    () => (budget == null ? null : budgetView(hands, state.picks, budget, openSlot)),
+    [budget, hands, state.picks, openSlot],
+  );
+  const money = useCallback((eur: number) => localizeDigits(millionsLabel(eur), locale), [locale]);
+
+  /** The spend line. Rendered on the pitch AND on the veil, which covers it. */
+  const meter = (v: BudgetView) => (
+    <div
+      data-testid="budget-meter"
+      className="mx-auto flex w-full max-w-3xl flex-wrap items-baseline justify-center gap-x-5 gap-y-1 rounded border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 font-mono text-xs font-bold"
+    >
+      <span>
+        {t("budgetSpent")} €{money(v.spent)}M
+      </span>
+      <span>
+        {t("budgetRemaining")} €{money(v.remaining)}M
+      </span>
+      <span className="text-emerald-300">
+        {t("budgetCeiling")} €{money(Math.max(0, v.ceiling))}M
+      </span>
+      <span className="w-full text-center font-sans text-[10px] font-normal opacity-70">
+        {t("budgetWindow")}
+      </span>
+    </div>
+  );
 
   // Hand the finished XI up once, in slot order.
   useEffect(() => {
@@ -410,11 +481,31 @@ export function PitchDraft({ pool, draft, onConfirm, backHref, rivals, clubId, c
               {veil.mode === "round" ? t("pitchRoundHint") : t("pitchPickFinal")}
             </p>
 
+            {view != null && veil.mode === "round" ? (
+              <div className="mb-5">{meter(view)}</div>
+            ) : null}
+
             <div className="pd-hand" key={`${veil.slot}-${veil.mode}`}>
               {veilCards.map((c, k) => (
                 <div
                   key={c.cardId}
-                  className="pd-card"
+                  data-testid="pd-candidate"
+                  /**
+                   * ⛔ Dealt but DISABLED, never filtered out (owner, 2026-08-25). Seeing the
+                   * €200M card you are priced out of is the mode working; removing it from the
+                   * hand would make the budget invisible and spending big consequence-free.
+                   *
+                   * ⚠️ The reserve rule guarantees the cheapest card in this hand is always
+                   * affordable, so a hand can never be entirely dead — see `domain/budget.ts`.
+                   */
+                  data-unaffordable={
+                    view != null && veil.mode === "round" && !canAfford(c, view) ? "" : undefined
+                  }
+                  className={`pd-card${
+                    view != null && veil.mode === "round" && !canAfford(c, view)
+                      ? " opacity-45 grayscale"
+                      : ""
+                  }`}
                   style={{ ["--pd-i" as string]: reduced ? 0 : k }}
                 >
                   {/* TASK-1837 — the card's OWN back, seeded per card exactly as a tap
@@ -431,13 +522,22 @@ export function PitchDraft({ pool, draft, onConfirm, backHref, rivals, clubId, c
                     <button
                       type="button"
                       className="pd-pick"
-                      aria-label={t("pitchChooseCard", {
-                        name: c.name,
-                        // A card's own role is nullable in the data; the SLOT's never is,
-                        // and it is the role being filled that the label is about.
-                        role: c.role ?? shape.slots[veil.slot]!.role,
-                        ovr: c.ratings?.overall ?? 0,
-                      })}
+                      disabled={view != null && !canAfford(c, view)}
+                      aria-label={
+                        view != null && !canAfford(c, view)
+                          ? `${t("pitchChooseCard", {
+                              name: c.name,
+                              role: c.role ?? shape.slots[veil.slot]!.role,
+                              ovr: c.ratings?.overall ?? 0,
+                            })} — ${t("budgetShortfall", { amount: `€${money(shortfall(c, view))}M` })}`
+                          : t("pitchChooseCard", {
+                              name: c.name,
+                              // A card's own role is nullable in the data; the SLOT's never is,
+                              // and it is the role being filled that the label is about.
+                              role: c.role ?? shape.slots[veil.slot]!.role,
+                              ovr: c.ratings?.overall ?? 0,
+                            })
+                      }
                       onClick={() => {
                         dispatch({ type: "pick", index: veil.slot, cardId: c.cardId });
                         setVeil(null);
@@ -466,6 +566,11 @@ export function PitchDraft({ pool, draft, onConfirm, backHref, rivals, clubId, c
           {t("pitchProgress", { filled, total: shape.slots.length })}
         </p>
       ) : null}
+
+      {/* ⚠️ Also on the pitch, not only on the veil: the veil COVERS the pitch, so a meter
+          that lived there alone would vanish the moment the coach closed a round and would
+          never be visible while he looked at the XI he has built so far. */}
+      {locked && view != null ? <div className="mt-3">{meter(view)}</div> : null}
     </div>
   );
 }

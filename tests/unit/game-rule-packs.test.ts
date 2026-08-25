@@ -2,7 +2,14 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { GAME_MODES } from "@/features/game/domain/modes";
-import { CHAOS_PACK, LEGACY_CLUBS, RULE_PACKS, packFor } from "@/features/game/domain/rule-packs";
+import {
+  BUDGET_PACK,
+  CHAOS_PACK,
+  LEGACY_CLUBS,
+  RULE_PACKS,
+  packFor,
+  routedPacks,
+} from "@/features/game/domain/rule-packs";
 
 describe("rule packs", () => {
   it("every pack id is a real mode id", () => {
@@ -78,5 +85,37 @@ describe("screens (TASK-1810)", () => {
     // The control for TASK-1810: Chaos must reach MatchupPreview/MatchView exactly as it
     // always has. `screens` being optional is the whole reason the redesign is contained.
     expect(CHAOS_PACK.screens).toBeUndefined();
+  });
+});
+
+describe("budget pack (TASK-1810)", () => {
+  it("is a priced cross-era pool under a cap", () => {
+    expect(BUDGET_PACK.pool).toEqual({ kind: "pricedMarket", cap: 600, baseSeason: 2025 });
+    expect(BUDGET_PACK.constraints).toEqual([{ kind: "budgetCap", amountEur: 100_000_000 }]);
+    expect(BUDGET_PACK.screens).toBe("legacy");
+  });
+
+  it("⛔ faces a BUDGET-matched rival, never the best available", () => {
+    // Measured: the unlimited ceiling XI is mean 94.0 against the coach's 80.8 at €100M — a
+    // 13-point gap settled by the draft rules before a ball is kicked.
+    expect(BUDGET_PACK.opponent).toBe("budget");
+  });
+
+  it("⚠️ guarantees no standout — a forced 80+ fights a budget", () => {
+    expect(BUDGET_PACK.draft?.standout).toBeUndefined();
+    expect(BUDGET_PACK.draft?.onePerPlayer).toBe(true);
+    expect(BUDGET_PACK.draft?.lockPicks).toBe(true);
+  });
+
+  it("⛔ has NO chooser, so the parameterised route must never serve it", () => {
+    // The pool is one cross-era set, so there is nothing to choose. A chooser here would fan
+    // out `[mode]/[club]` and break the Vercel build, exactly as Captain's Draft did.
+    expect(BUDGET_PACK.chooser).toBeUndefined();
+    expect(routedPacks().map((p) => p.id)).not.toContain("budget");
+  });
+
+  it("is registered and resolvable by id", () => {
+    expect(RULE_PACKS.map((p) => p.id)).toContain("budget");
+    expect(packFor("budget")).toBe(BUDGET_PACK);
   });
 });

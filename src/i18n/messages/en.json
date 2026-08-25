@@ -1007,7 +1007,14 @@
     "pitchMoveCaptain": "Move {name} to {role}",
     "modeBackCaptain": "Choose a different captain",
     "captainsDealing": "Dealing your icons…",
-    "captainsPickOne": "Five icons. Pick the one you will build around."
+    "captainsPickOne": "Five icons. Pick the one you will build around.",
+    "budgetTitle": "Budget Cap Draft",
+    "budgetSubtitle": "100M. Every era on sale. Find the bargains.",
+    "budgetSpent": "Spent",
+    "budgetRemaining": "Remaining",
+    "budgetCeiling": "Max this pick",
+    "budgetShortfall": "Over by {amount}",
+    "budgetWindow": "Prices cover 2004-2025, in today money"
   },
   "commentary": {
     "armbandHandover": "The armband goes to {name}.",

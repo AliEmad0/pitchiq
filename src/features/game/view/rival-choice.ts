@@ -16,7 +16,13 @@ import { fromRivalCard, type RivalPool } from "@/features/game/domain/rival-pool
 export type Difficulty = "balanced" | "best";
 
 /** `Difficulty` as the draft policy it means. */
-export function policyOf(d: Difficulty): DraftPolicy {
+/**
+ * ⚠️ The return type is NARROWER than `DraftPolicy` on purpose (TASK-1810). This value rides
+ * in `SavedMatch` and in the share code, whose unions are `"random" | "best" | "strong"` — so
+ * widening it to the full policy set would let `"budget"` reach a codec that cannot encode it,
+ * which is the failure class that crashed every Legacy full-time screen once already.
+ */
+export function policyOf(d: Difficulty): Extract<DraftPolicy, "best" | "strong"> {
   return d === "best" ? "best" : "strong";
 }
 

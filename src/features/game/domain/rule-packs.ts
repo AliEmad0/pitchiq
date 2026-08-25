@@ -69,6 +69,30 @@ export type PoolSpec =
        * half the owner's mechanic — would never show up on the page.
        */
       nationalityReserve: number;
+    }
+  | {
+      /**
+       * The Budget Cap shape (TASK-1810): every priced player-season in the indexed window,
+       * one card per distinct player at his best-rated season, rating-ranked and capped.
+       *
+       * ⛔ The cap is 600 because 900 was measured and REJECTED — it leaves the achievable XI
+       * identical at every budget from €60M up, since the extra 300 cards are all rated 64–70
+       * and never enter an optimal team at €100M. They would be dealt, never wanted, and cost
+       * ~150 KB on a `force-static` page.
+       *
+       * ⚠️ A rating-ranked cap was expected to destroy the price spread and measurably does
+       * not: the pool's median price is €39M yet its cheapest legal XI is €37M, because rating
+       * and price correlate at only r ≈ 0.52. **No stratified price reserve is needed** — this
+       * is the one place `captainSynergy`'s `nationalityReserve` lesson does NOT transfer.
+       *
+       * ⚠️ Stopping at 600 also puts the pool's floor at rating 70, so every card in the mode
+       * is a genuine contributor rather than filler the coach will never want.
+       */
+      kind: "pricedMarket";
+      /** Cards on the page after ranking. ~0.5 KB each, so this is a payload decision. */
+      cap: number;
+      /** The money year every price is expressed in. Frozen — see `domain/market-index.ts`. */
+      baseSeason: number;
     };
 
 /**
@@ -78,16 +102,32 @@ export type PoolSpec =
  * real. Captain's Draft is the first, and it arrives WITH its caller — which is what that
  * note was holding the line for.
  */
-export type Constraint = {
-  /**
-   * A player is already in the XI before the coach picks anything (Captain's Draft).
-   *
-   * ⚠️ The player is NOT named here. The pack is static data and the icon is a route
-   * param, so the constraint declares the RULE and the route supplies the man — the same
-   * split as `clubHistory` + the `only` argument.
-   */
-  kind: "captainFirst";
-};
+export type Constraint =
+  | {
+      /**
+       * A player is already in the XI before the coach picks anything (Captain's Draft).
+       *
+       * ⚠️ The player is NOT named here. The pack is static data and the icon is a route
+       * param, so the constraint declares the RULE and the route supplies the man — the same
+       * split as `clubHistory` + the `only` argument.
+       */
+      kind: "captainFirst";
+    }
+  | {
+      /**
+       * Every pick costs, and the XI must come in under `amountEur` (Budget Cap, TASK-1810).
+       *
+       * ⚠️ Unlike `captainFirst`, this constraint DOES carry its value. The captain is a route
+       * param, so that pack could only declare the rule; the budget is identical for every
+       * player of this mode, so it belongs here in the pack.
+       *
+       * ⛔ A DRAFT-time rule ONLY. `replayWith` must never re-validate it — re-checking a
+       * constraint on resolution is how a legal match becomes unresumable after a data change,
+       * and it would present as a corrupt save rather than as a rule.
+       */
+      kind: "budgetCap";
+      amountEur: number;
+    };
 
 /** Single-match modes all share one objective. It earns its keep in TASK-1811's seasons. */
 export type Objective = "win";
@@ -136,6 +176,14 @@ export interface DraftSpec {
   lockPicks?: boolean;
   /** Guarantee one card at `STANDOUT_OVR`+, or the best available, in every hand. */
   standout?: boolean;
+  /**
+   * Guarantee the cheapest eligible card in every hand (Budget Cap, TASK-1810).
+   *
+   * ⛔ Load-bearing, not a nicety: the budget reserve reads the dealt HANDS, so without this
+   * the floor is the sum of five-card minimums (measured €137M–265M) rather than the pool's
+   * own (€46M), and a €100M cap disables every card in every hand. See `DealOptions.cheapest`.
+   */
+  cheapest?: boolean;
   /** A player may be offered in at most one hand, so no XI can field him twice. */
   onePerPlayer?: boolean;
 }
@@ -296,6 +344,43 @@ export const CAPTAINS_PACK: RulePack = {
 };
 
 /**
+ * Budget Cap Draft.
+ *
+ * The promise is "€100M, the whole priced archive, find the bargains" — and the rules keep it
+ * literally: every card carries a real Premier League market value expressed in 2025 money,
+ * and the coach's XI must come in under the cap.
+ *
+ * ⚠️ NO CHOOSER, and that is a design fact rather than an omission. The pool is one cross-era
+ * set, so there is nothing to choose and nothing to put in a route segment — which is why this
+ * pack is served by a bespoke `/game/budget` page exactly as Chaos is, and why `routedPacks()`
+ * must never return it.
+ *
+ * ⚠️ No `standout`. A guaranteed 80+ in every hand fights a budget rather than complementing
+ * it — the card would either be unaffordable (dead) or eat the cap. What a budget hand needs
+ * is a card the coach can still BUY, and `domain/budget.ts` gets that from the reserve rule
+ * without any change to `roomDeals`.
+ */
+export const BUDGET_PACK: RulePack = {
+  id: "budget",
+  /** Measured bounds — see the `pricedMarket` doc for why 900 was rejected. */
+  pool: { kind: "pricedMarket", cap: 600, baseSeason: 2025 },
+  screens: "legacy",
+  opponent: "budget",
+  draft: {
+    handSize: 5,
+    roam: "free",
+    timer: null,
+    lockPicks: true,
+    // ⛔ Not `standout`. A guaranteed 80+ fights a budget; a guaranteed CHEAPEST is what makes
+    // the draft completable at all — see `DraftSpec.cheapest` for the measured numbers.
+    cheapest: true,
+    onePerPlayer: true,
+  },
+  constraints: [{ kind: "budgetCap", amountEur: 100_000_000 }],
+  objective: "win",
+};
+
+/**
  * Every pack the ROUTES serve. Chaos is included so the seam has two real callers, not one.
  *
  * ⛔ A pack lands here ONLY once its routes exist. `routedPacks()` filters on
@@ -305,7 +390,12 @@ export const CAPTAINS_PACK: RulePack = {
  * out `captains × 51 clubs`, handed each CLUB id to `captainSynergy` as a captain id, and
  * the empty pool killed the prerender on `shape.slots`.
  */
-export const RULE_PACKS: readonly RulePack[] = [CHAOS_PACK, LEGACY_PACK, CAPTAINS_PACK];
+export const RULE_PACKS: readonly RulePack[] = [
+  CHAOS_PACK,
+  LEGACY_PACK,
+  CAPTAINS_PACK,
+  BUDGET_PACK,
+];
 
 /**
  * Resolve a mode id that came from a URL segment.

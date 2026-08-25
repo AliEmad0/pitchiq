@@ -26,6 +26,14 @@ export interface RivalSetup {
   pool?: PoolCard[];
   /** The rival's club name, shown on the scoreboard and the team sheet. */
   name?: string;
+  /**
+   * The rival's spending cap, for `policy: "budget"` (TASK-1810 Budget Cap).
+   *
+   * ⛔ Identity, like every other field here. Omitting it does not disable the budget — it
+   * makes the rival's ceiling Infinity, so `"budget"` silently becomes best-available and the
+   * coach's €100M XI (mean 80.8) faces the unlimited ceiling XI (mean 94.0).
+   */
+  budget?: number;
 }
 
 export interface MatchSession {
@@ -72,6 +80,7 @@ export function buildSession(
       opponent: rival.policy,
       rivalPool: rival.pool,
       rivalName: rival.name,
+      budget: rival.budget,
       exclude: rival.policy == null ? undefined : new Set(players.map((p) => p.playerId)),
     },
   );

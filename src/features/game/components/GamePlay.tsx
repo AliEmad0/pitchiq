@@ -74,11 +74,30 @@ export function GamePlay({
   captain,
   captaincies,
   referees,
+  budget,
 }: {
   pool: PoolCard[];
   initialPhase?: PlayPhase;
   /** The pack's draft rules. Absent means the shipped free-build hub. */
   draft?: DraftSpec;
+  /**
+   * The pack's spending cap, in indexed euros (TASK-1810 Budget Cap). Absent = no budget.
+   *
+   * It reaches TWO places, for two different reasons:
+   *  - `PitchDraft`, where it gates what the coach may buy;
+   *  - every `RivalSetup`, where it caps the opponent's own draft.
+   *
+   * ⛔ The rival half is not optional. `policy: "budget"` with no cap has an Infinity ceiling,
+   * so it silently degenerates into best-available and the coach's €100M XI (mean 80.8) faces
+   * the unlimited ceiling XI (mean 94.0) — the 2026-08-19 balance defect, looking entirely
+   * normal on screen. Every path that rebuilds the match must pass it or the replay drafts a
+   * different eleven and reads as a corrupt save.
+   *
+   * ⚠️ It is still a DRAFT-time rule for the COACH: nothing on the replay path may re-validate
+   * his XI against it. Re-checking a constraint on resolution is how a legal match becomes
+   * unresumable after a data change.
+   */
+  budget?: number;
   /**
    * How the XI is assembled (TASK-1838). Absent = the coach builds it himself.
    *
@@ -200,16 +219,24 @@ export function GamePlay({
     difficulty: Difficulty;
   } | null>(null);
 
-  /** The rival as the session builder wants it. */
+  /**
+   * The rival as the session builder wants it.
+   *
+   * ⛔ `budget` rides with `policy` on BOTH arms and on every fallback below. It is only ever
+   * read by `policy: "budget"`, but omitting it there does not turn the budget off — it makes
+   * the rival's ceiling Infinity, so the policy silently becomes best-available and a replay
+   * built without it drafts a different eleven than the live match did.
+   */
   const rivalSetup = (
     chosen: { setup: ChosenRival | null; difficulty: Difficulty } | null,
   ): RivalSetup =>
     chosen?.setup == null
-      ? { policy: opponent }
+      ? { policy: opponent, budget }
       : {
           policy: policyOf(chosen.difficulty),
           pool: chosen.setup.cards,
           name: chosen.setup.name,
+          budget,
         };
 
   /** The rival as a share code carries it. */
@@ -347,7 +374,7 @@ export function GamePlay({
         pool,
         decoded,
         { home: t("yourXi"), away: t("rivals") },
-        picked == null ? { policy: opponent } : rivalSetup(picked),
+        picked == null ? { policy: opponent, budget } : rivalSetup(picked),
       );
       if (!live) return;
       if (replayed == null) {
@@ -404,7 +431,7 @@ export function GamePlay({
         pool,
         record,
         { home: t("yourXi"), away: t("rivals") },
-        picked == null ? { policy: opponent } : rivalSetup(picked),
+        picked == null ? { policy: opponent, budget } : rivalSetup(picked),
       );
       if (!live) return;
       if (restored == null) {
@@ -503,6 +530,7 @@ export function GamePlay({
             rivals={rivals}
             clubId={clubId}
             captain={captain}
+            budget={budget}
           />
         ) : (
           <DraftHub pool={pool} onConfirm={confirmSquad} />
