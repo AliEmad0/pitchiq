@@ -5529,6 +5529,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1839](#task-1839) | Draft Room candidates become real player cards (+ back flip)    | ✅ Done    | P2       | M   |
 | [TASK-1840](#task-1840) | One numeral convention across the match flow (`/ar` digits)     | ✅ Done    | P2       | S   |
 | [TASK-1841](#task-1841) | A mode with one applicable format goes straight in (`n/a`)      | ✅ Done    | P2       | S   |
+| [TASK-1842](#task-1842) | Nationality Draft — build a side from one country, widening    | 📋 Todo    | P3       | M   |
 
 _Enhancement roadmap 1813-1819 added 2026-08-03 from the owner's feature proposal (Option A — 100% client-side/static). See the locked-architecture notes above for the modifier-stack + determinism + no-backend decisions that govern them._
 
@@ -5737,6 +5738,21 @@ The TASK-1806 plan had flagged this pass as owed — it shipped the pitch view v
 **Remaining six modes as rule packs** · 📋 Backlog · `P3` · `XL` · Type: Feature
 
 **Description** — Legacy Club (draft a chosen club's historical stars season-by-season), Classic Season (a real season vs 19 real opponents), Captain's Draft (iconic captain first, curated build-around), Budget Cap Draft ($100M dynamically-priced cards), Chemistry Draft (nation/club/season link bonuses — note: the single stored nationality undercounts links; see M56 follow-up), Survival Mode (start near relegation, hit point targets). Each is a `{ buildPool, constraints, objective }` rule pack over the shared draft machine + engine. **Depends on:** TASK-1806.
+
+**Progress — PR 3 of 5: Legacy Club AND Captain's Draft are LIVE.** The gate reads **5 of 11 unlocked**.
+
+**✅ Captain's Draft shipped 2026-08-25** ([#194](https://github.com/AliEmad0/pitchiq/pull/194) foundation, [#195](https://github.com/AliEmad0/pitchiq/pull/195) live, plus the owner's six refinements). Pick an icon; draft his countrymen and the players he faced; he is in the XI before a card is dealt and he wears the armband.
+
+- **The roster is REAL data** — 164 men captained a PL side across the 20 covered seasons, 39 for three or more; a curated `LEGEND_ICONS` list is merged on top (Henry, Ronaldo, Salah, Agüero, Bergkamp, Drogba, Cantona) for **46** in total. ⛔ **All four ids in the first draft resolved to nobody**, so each would have silently dropped a legend rather than failing — a hardcoded id list is only safe with a test that it still resolves.
+- **The pool is `nationality ∪ era`, BOUNDED.** Measured first: the average icon's union is **2,619 distinct players / 10,839 player-seasons ≈ 1.28 MB**, and John Terry's is **3,889 — 76% of the dataset**, which is not a synergy at all. One card per distinct player at his best season, ranked, `cap: 600`, with `nationalityReserve: 200` — ⛔ without the reserve England's 1,767 players lose to a ~3,000-strong era and half the mechanic never reaches the page.
+- ⛔ **The icon is IN the pool.** The first design excluded him, reasoning he is placed rather than drafted — but `replayWith` resolves a saved XI against the pool and returns null on the first card it cannot find, so an icon left out makes his own match **unresumable and his share link dead**, presenting as "the link is broken". He is kept out of the DEALS instead, by `roomDeals`'s new `excludePlayers`. ⚠️ And it excludes a **PLAYER**, not a card: a man is one card per season, so dropping one `cardId` would let his 2019 card be dealt while his 2020 card wore the armband.
+- ⛔ **`routedPacks()` reads `RULE_PACKS`, never `domain/modes.ts`.** Registering the pack before `[mode]/[club]` understood a captain chooser **broke the Vercel build**: the route fanned out `captains × 51 clubs`, handed each CLUB id to `captainSynergy` as a captain id, and the empty pool killed the prerender on `shape.slots`. A pack is routed the moment it is registered, whatever its mode status says.
+- ⛔ **Memoised the whole-dataset scan.** `loadRatedSquad` recomputes ratings on every call (the data FILES are cached; the ratings were not): 46 icon pages × ~680 squad computations is **~31,000, about 18× Legacy's entire build**. One shared `universe()` — test time fell 269s → 103s.
+- **`Constraint` is no longer `never`.** Its own comment named this mode as the caller that would make it real, and that is what arrived: `{ kind: "captainFirst" }`.
+
+**Owner refinements, 2026-08-25** — ⭐ **the icon always wears the armband** (`rankCaptains` takes a `forced` player and moves him to the FRONT of the order, never a fake count, so the men behind him keep their real ranking and the handover still works; HOME only, or the coach's icon would captain the opposition). ⭐ **The chooser DEALS five face-down icons** rather than laying out all 46 — the choice is luck, and ⛔ the entropy arrives after hydration because a `force-static` server deal would bake one hand into the CDN copy forever. They are real cards on the app's own backs, layered footprint → scaler → flipper. **The captain can be moved** to any slot `canPlay` accepts before the shape is locked. The format step lost "About three minutes" (it wrapped "One Match" onto two lines) and the back link reads "Choose a different captain".
+
+⚠️ **Two tests hardcoded Captain's Draft as their "locked mode" example** (`game-mode-tile`, the `game-hub` E2E) and both failed the day it shipped, for a reason unrelated to the rule they guard. Derive it: `GAME_MODES.find(m => !isPlayable(m))`. ⚠️ And after flipping a mode live, **re-run everything that asserts on mode status** — I ran those suites before the flip, not after.
 
 **Progress — PR 1 of 5: the seam + Legacy Club (single format) is LIVE.**
 
@@ -6566,6 +6582,27 @@ So the coach watched the live feed print `0–1` and met `٠–١` for the same 
 **⚠️ Provenance** — this arrived as **uncommitted working-tree changes with no ticket, no branch and no stash**, last written 2026-08-24 01:27–01:43 and carrying an owner quote in its tests. Three of my sessions staged around it believing a peer session was mid-edit. The owner confirmed no other session was working in this repo, so it was verified and shipped rather than left to rot or be buried by [TASK-1833](#task-1833), which redesigns these very files. Its one flaw was fixed on the way in: a comment crediting it to TASK-1836, which is the daily-hub redesign and has nothing to do with the mode gate.
 
 **DoD** — [x] 18 mode tests green (2 new), tsc + lint clean · [x] verified live on `/en/game` and `/ar/game`: the daily is a direct link (`/game/daily`, `/ar/game/daily`) with no expander and no "Full Season" anywhere, the other three playable modes still expand, zero disabled controls in either locale.
+
+---
+
+### TASK-1842
+
+**Nationality Draft — build a side from one country, widening** · 📋 Todo · `P3` · `M` · Type: Feature
+
+**Description** — Owner's mode idea, 2026-08-25: *"select the nationality and build team from this nationality — for example select Egypt, show me the available players for every position. If they are more than 5 just give me 5, and if less than 5 just show the available cards. If no players for this position give me African players in this position, and the same if I choose France — if no players in any position give me from Europe."*
+
+So the hand for a position is drawn from a **widening ring**: the chosen nation first, then its continent, then (implicitly) the world. The scarcity is the mode — Egypt fills a goalkeeper and a winger easily and may have nobody at centre-back, and watching the ring widen is the drama.
+
+**Shape it as a rule pack.** It is a `chooser` + a `PoolSpec`, exactly like Captain's Draft: `chooser: { kind: "nation" }` and a `nationRings` pool. The routes are already chooser-aware ([TASK-1810](#task-1810)), so the segment carries the nation and the pack supplies the rest.
+
+**What it needs that does not exist yet**
+- ⚠️ **A nation → continent map.** `players-*.json` carries `nationality` + `nationalityCode` (coverage measured at **5,109 / 5,115**) but NO continent. That mapping has to come from somewhere and be committed — an ISO-code → region table is the obvious route, and it must not rot when a new nation appears in the data.
+- ⚠️ **The widening has to happen PER POSITION, not per hand**, or one thin position drags the whole draft outward. Egypt should still deal Egyptians at the positions where it has them.
+- ⚠️ **The ring a card came from must be VISIBLE.** If a card silently arrives from "Africa" while the coach thinks he is drafting Egyptians, the mode's premise is broken without him knowing. A badge on the card, or a line on the hand.
+- ⛔ **Bound the pool before building it**, the way TASK-1810 had to. "Every player from a continent" is the same class of unbounded recipe that measured at ~1.28 MB for Captain's Draft, and a `force-static` route bakes the whole pool into the page. Measure the widest nation first — England is **1,767** players on its own.
+- ⚠️ **A `standout` guarantee may not be satisfiable.** The shipped draft rooms promise one 80+ card per hand; a thin nation at a thin position may have none, and the pack must degrade honestly rather than widen just to keep the promise.
+
+**Depends on:** TASK-1810 (the pack seam, the chooser-aware routes, the `excludePlayers` deal option). **Not started.**
 
 ---
 
