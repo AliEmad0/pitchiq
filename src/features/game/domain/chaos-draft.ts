@@ -11,8 +11,15 @@ import { type GameTeam, makeGameTeam } from "./team";
 // TASK-1806 — Chaos Draft. A fully-randomised squad, drafted from a build-time
 // card pool, seeded so a draft replays from its seed. Pure + client-safe.
 
-/** A poolable card = a rated player-season plus its club (for the card face). */
-export type PoolCard = GamePlayer & { club: string; teamId?: number };
+/**
+ * A poolable card = a rated player-season plus its club (for the card face).
+ *
+ * ⚠️ `costEur` is present only on a `pricedMarket` pool (TASK-1810 Budget Cap), and it is the
+ * INDEXED cost in base-season money — not the historical market value the archive stores.
+ * Optional because no other pool has a concept of price; absent means "not for sale in this
+ * mode", which `domain/budget.ts` treats as unaffordable rather than free.
+ */
+export type PoolCard = GamePlayer & { club: string; teamId?: number; costEur?: number };
 
 const slot = (row: number, col: number, role: PlayerRole): FormationSlot => ({ row, col, role });
 const formation = (name: string, slots: FormationSlot[]): Formation => ({ name, season: 0, slots });
