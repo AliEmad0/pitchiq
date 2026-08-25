@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { iconChoices, buildPool } from "@/features/game/adapter/pool";
-import { CAPTAINS_PACK, RULE_PACKS } from "@/features/game/domain/rule-packs";
+import { CAPTAINS_PACK, RULE_PACKS, routedPacks } from "@/features/game/domain/rule-packs";
 
 /**
  * TASK-1810 PR 2 — Captain's Draft.
@@ -65,15 +65,17 @@ describe("the synergy pool", () => {
   const pack = CAPTAINS_PACK;
 
   /**
-   * ⛔ NOT in `RULE_PACKS` yet, and that is load-bearing. `routedPacks()` filters on
-   * `chooser != null` and reads that list — never `domain/modes.ts` — so registering this
-   * pack before its routes exist fans `[mode]/[club]` out to `captains × 51 clubs`, hands
-   * each CLUB id to `captainSynergy` as a captain id, and kills the prerender on an empty
-   * pool. It broke the Vercel build exactly once; this keeps it broken-proof.
+   * ⛔ Registered ONLY because its routes now understand a captain chooser.
+   *
+   * `routedPacks()` filters on `chooser != null` and reads `RULE_PACKS` — never
+   * `domain/modes.ts` — so a pack is routed the moment it lands there. Registering this
+   * one first fanned `[mode]/[club]` out to `captains × 51 clubs`, handed each CLUB id to
+   * `captainSynergy` as a captain id, and killed the prerender on an empty pool. It broke
+   * the Vercel build exactly once.
    */
-  it("⛔ is NOT routed yet — its routes do not exist", () => {
-    expect(RULE_PACKS).not.toContain(CAPTAINS_PACK);
-    expect(RULE_PACKS.some((p) => p.id === "captains")).toBe(false);
+  it("is routed, now that the routes resolve a captain", () => {
+    expect(RULE_PACKS).toContain(CAPTAINS_PACK);
+    expect(routedPacks().some((p) => p.id === "captains")).toBe(true);
   });
 
   it("declares the captain-first rule and Legacy's screens", () => {
@@ -97,11 +99,18 @@ describe("the synergy pool", () => {
       .filter((i) => i.nationality === "England")
       .sort((a, b) => b.seasons.length - a.seasons.length)[0]!;
     const pool = await buildPool(pack.pool, widest.id);
+    /**
+     * ⚠️ `cap` bounds the DRAFTABLE pool, and the icon sits outside it — he is in the pool
+     * so replay can resolve him, but he is never dealt, so he cannot cost a draft place.
+     * The first version of this assertion missed the distinction and read 601 against 600.
+     */
+    const draftable = pool.filter((c) => c.playerId !== widest.id);
     expect(
-      pool.length,
+      draftable.length,
       `${widest.name} overflowed the cap`,
     ).toBeLessThanOrEqual((pack.pool as { cap: number }).cap);
-    expect(pool.length).toBeGreaterThan(100);
+    expect(pool.length).toBe(draftable.length + 1);
+    expect(draftable.length).toBeGreaterThan(100);
   }, 120_000);
 
   /** ⚠️ One card per man. A player offered in ten seasons is ten picks of the same human. */
@@ -129,11 +138,22 @@ describe("the synergy pool", () => {
     expect(pool.length).toBeGreaterThan((pack.pool as { nationalityReserve: number }).nationalityReserve);
   }, 120_000);
 
-  /** ⛔ The icon is PLACED, not drafted — offering him back would field him twice. */
-  it("⛔ never offers the icon himself", async () => {
+  /**
+   * ⛔ THE ICON IS IN THE POOL, and the first version of this test asserted the opposite.
+   *
+   * He is placed, never dealt — but "not dealt" and "not in the pool" are different
+   * questions, and conflating them breaks resume and sharing. `replayWith` rebuilds a
+   * saved XI by resolving every `cardId` against the pool and returns null on the first
+   * one it cannot find, so an icon left out would make his own match unresumable and his
+   * share link dead — presenting as "the link is broken" rather than as a missing card.
+   * `roomDeals`'s `excludePlayers` is what keeps him out of the hands.
+   */
+  it("⛔ INCLUDES the icon, so every replay path can resolve his card", async () => {
     const icons = await iconChoices();
     const icon = icons[0]!;
     const pool = await buildPool(pack.pool, icon.id);
-    expect(pool.some((c) => c.playerId === icon.id)).toBe(false);
+    expect(pool.some((c) => c.playerId === icon.id)).toBe(true);
+    // Exactly once — he is one card, not one per season he played.
+    expect(pool.filter((c) => c.playerId === icon.id)).toHaveLength(1);
   }, 120_000);
 });

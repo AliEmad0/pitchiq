@@ -1,14 +1,20 @@
 "use client";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useReducer, useState } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useState } from "react";
 import { pickBack } from "@/features/game/domain/card-design";
 import type { PlayerSeasonId } from "@/features/game/domain/card-id";
 import { FORMATIONS, type PoolCard } from "@/features/game/domain/chaos-draft";
 import { canField, roomDeals } from "@/features/game/domain/draft-room";
+import { canPlay } from "@/features/game/domain/eligibility";
 import type { Formation } from "@/features/game/domain/formation";
 import type { EnrichedCard } from "@/features/game/domain/player-card";
 import type { DraftSpec } from "@/features/game/domain/rule-packs";
-import { createRoomState, isRoomComplete, roomReducer } from "@/features/game/view/room-state";
+import {
+  createRoomState,
+  isRoomComplete,
+  roomReducer,
+  type LockedPick,
+} from "@/features/game/view/room-state";
 import { useRival, type ChosenRival, type Difficulty } from "@/features/game/view/rival-choice";
 import { randomSeed } from "@/features/game/view/seed";
 import { Link } from "@/i18n/navigation";
@@ -49,6 +55,16 @@ interface Props {
    * `view/rival-choice.ts` for why a prop would put ~1.2 MB on the page.
    */
   rivals?: readonly ClubChoice[];
+  /**
+   * The icon placed in the XI before a card is drafted (Captain's Draft, TASK-1810).
+   *
+   * ⛔ He is NOT in `pool` — the pool is what the coach may draft, and offering the icon
+   * back would let him field the same man twice. That makes this prop load-bearing in a
+   * second, quieter way: `byId` is built from the pool, and the confirm effect bails when
+   * a pick fails to resolve, so a captain missing from that map would block the finished
+   * XI forever with no visible cause.
+   */
+  captain?: PoolCard;
   /** The club whose page this is, preselected so doing nothing plays the shipped match. */
   clubId?: number;
 }
@@ -66,7 +82,7 @@ interface Props {
  * two mechanics differ in every interaction, so sharing one component would mean a prop for
  * each difference and a shipped surface at risk on every change.
  */
-export function PitchDraft({ pool, draft, onConfirm, backHref, rivals, clubId }: Props) {
+export function PitchDraft({ pool, draft, onConfirm, backHref, rivals, clubId, captain }: Props) {
   const t = useTranslations("game");
   const reduced = prefersReducedMotion();
 
@@ -82,9 +98,25 @@ export function PitchDraft({ pool, draft, onConfirm, backHref, rivals, clubId }:
    * clubs cannot fill every formation — Barnsley strands three slots of a 2-3-5 Pyramid.
    * A shape that cannot be completed would deadlock the draft with no way out.
    */
-  const shapes = useMemo(
-    () => (draft.onePerPlayer === true ? FORMATIONS.filter((f) => canField(pool, f)) : FORMATIONS),
-    [pool, draft.onePerPlayer],
+  const shapes = useMemo(() => {
+    const fieldable =
+      draft.onePerPlayer === true ? FORMATIONS.filter((f) => canField(pool, f)) : FORMATIONS;
+    // ⚠️ A shape with nowhere to put the captain would be undraftable: he cannot be
+    // dropped (the mode is built on him) and he cannot be placed. 4-6-0 Strikerless has no
+    // centre-forward slot, so a striker icon must not be offered it.
+    return captain == null
+      ? fieldable
+      : fieldable.filter((f) => f.slots.some((sl) => canPlay(captain, sl.role)));
+  }, [pool, draft.onePerPlayer, captain]);
+
+  /** Where the captain stands in a given shape — his first eligible slot, in slot order. */
+  const lockedFor = useCallback(
+    (f: Formation): LockedPick | null => {
+      if (captain == null) return null;
+      const index = f.slots.findIndex((sl) => canPlay(captain, sl.role));
+      return index < 0 ? null : { index, cardId: captain.cardId };
+    },
+    [captain],
   );
 
   const [shape, setShape] = useState<Formation>(
@@ -92,7 +124,11 @@ export function PitchDraft({ pool, draft, onConfirm, backHref, rivals, clubId }:
   );
   /** Drawn when the shape is locked, never during render — the route is `force-static`. */
   const [seed, setSeed] = useState<number | null>(null);
-  const [state, dispatch] = useReducer(roomReducer, shape, createRoomState);
+  // ⚠️ Lazy init with BOTH arguments — `useReducer(reducer, shape, createRoomState)` can
+  // only ever pass one, so the captain would never be placed on the first render.
+  const [state, dispatch] = useReducer(roomReducer, undefined, () =>
+    createRoomState(shape, lockedFor(shape)),
+  );
   /** Which veil is up. `null` is the bare pitch. */
   const [veil, setVeil] = useState<{ slot: number; mode: "round" | "review" } | null>(null);
 
@@ -105,11 +141,18 @@ export function PitchDraft({ pool, draft, onConfirm, backHref, rivals, clubId }:
             handSize: draft.handSize,
             standout: draft.standout,
             onePerPlayer: draft.onePerPlayer,
+            // ⛔ He is in the pool so every replay path can resolve him; he must not be
+            // dealt, or the coach could field the same man twice.
+            excludePlayers: captain == null ? undefined : new Set([captain.playerId]),
           }),
-    [pool, shape, seed, draft.handSize, draft.standout, draft.onePerPlayer],
+    [pool, shape, seed, draft.handSize, draft.standout, draft.onePerPlayer, captain],
   );
 
-  const byId = useMemo(() => new Map(pool.map((c) => [c.cardId, c])), [pool]);
+  /** ⛔ The captain is in here, though he is not in the pool. See the `captain` prop. */
+  const byId = useMemo(
+    () => new Map([...pool, ...(captain != null ? [captain] : [])].map((c) => [c.cardId, c])),
+    [pool, captain],
+  );
   const filled = state.picks.filter((p) => p != null).length;
 
   // Hand the finished XI up once, in slot order.
@@ -130,7 +173,8 @@ export function PitchDraft({ pool, draft, onConfirm, backHref, rivals, clubId }:
   const previewShape = (f: Formation) => {
     if (locked) return;
     setShape(f);
-    dispatch({ type: "setFormation", formation: f });
+    // The captain's slot is re-derived for the new shape — an index belongs to a formation.
+    dispatch({ type: "setFormation", formation: f, locked: lockedFor(f) });
   };
 
   const rows = Math.max(...shape.slots.map((s) => s.row));

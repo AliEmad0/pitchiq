@@ -298,18 +298,14 @@ export const CAPTAINS_PACK: RulePack = {
 /**
  * Every pack the ROUTES serve. Chaos is included so the seam has two real callers, not one.
  *
- * ⛔ `CAPTAINS_PACK` is deliberately ABSENT until its routes exist, and this is not
- * bookkeeping — registering it broke the Vercel build immediately. `routedPacks()` filters
- * on `chooser != null` and reads THIS list, never `domain/modes.ts`, so a pack with a
- * chooser is routed the moment it lands here regardless of whether its mode is live. The
- * `[mode]/[club]` route then fans out `captains × 51 clubs` and hands each CLUB id to
- * `captainSynergy` as a captain id — no icon matches, the pool comes back empty,
- * `canField` filters away every formation, and the prerender dies on `shapes[0]!`.
- *
- * ⚠️ So "the mode is not in `modes.ts` yet" is NOT what keeps a pack off the routes. This
- * list is.
+ * ⛔ A pack lands here ONLY once its routes exist. `routedPacks()` filters on
+ * `chooser != null` and reads THIS list, never `domain/modes.ts`, so registering a pack
+ * routes it immediately whatever its mode status says. Registering Captain's Draft before
+ * `[mode]/[club]` understood a captain chooser broke the Vercel build: the route fanned
+ * out `captains × 51 clubs`, handed each CLUB id to `captainSynergy` as a captain id, and
+ * the empty pool killed the prerender on `shape.slots`.
  */
-export const RULE_PACKS: readonly RulePack[] = [CHAOS_PACK, LEGACY_PACK];
+export const RULE_PACKS: readonly RulePack[] = [CHAOS_PACK, LEGACY_PACK, CAPTAINS_PACK];
 
 /**
  * Resolve a mode id that came from a URL segment.

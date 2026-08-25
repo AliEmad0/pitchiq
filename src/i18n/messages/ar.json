@@ -1000,7 +1000,10 @@
     "bubblePlayed": "تحدي اليوم — اعرض نتيجة اليوم",
     "gateMarquee": "اختر لعبتك",
     "gateUnlocked": "{n} من {total} أنماط مفتوحة · أدخل عملة",
-    "formatSelectLength": "اختر المدة"
+    "formatSelectLength": "اختر المدة",
+    "captainsTitle": "اختيار القائد",
+    "captainsPick": "اختر نجمًا. ستختار من بني وطنه ومن لاعبي زمنه.",
+    "captainsWears": "قائدك"
   },
   "commentary": {
     "armbandHandover": "شارة القيادة تنتقل إلى {name}.",
