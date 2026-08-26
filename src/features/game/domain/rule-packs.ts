@@ -175,6 +175,26 @@ export interface DraftSpec {
   timer?: number | null;
   /** A filled slot cannot be reopened — the pick is final. */
   lockPicks?: boolean;
+  /**
+   * The coach also drafts a BENCH, and pays for it (Budget Cap, TASK-1810).
+   *
+   * ⚠️ The roles come from `BENCH_SHAPE`, whose first slot is a goalkeeper — so "one of them
+   * must be a keeper" is true by construction rather than by a rule enforced somewhere else.
+   *
+   * ⛔ When a pack drafts a bench under a `budgetCap`, the RIVAL must pay for its bench too.
+   * The cap otherwise buys the coach sixteen players and the rival eleven, which is the
+   * 2026-08-19 balance defect wearing a different hat — and nothing on screen would show it.
+   */
+  bench?: boolean;
+  /**
+   * The XI is handed up only when the coach SAYS so (owner, 2026-08-26).
+   *
+   * ⚠️ Absent means the shipped behaviour: the room hands off the moment the last slot fills.
+   * That is right for a pack whose picks are final, and wrong for a budget, where the whole
+   * activity is trying combinations until the money works. A pack that sets this must also
+   * leave `lockPicks` off, or there is nothing to reconsider.
+   */
+  confirm?: boolean;
   /** Guarantee one card at `STANDOUT_OVR`+, or the best available, in every hand. */
   standout?: boolean;
   /**
@@ -371,16 +391,27 @@ export const BUDGET_PACK: RulePack = {
   draft: {
     handSize: 5,
     roam: "free",
+    // ⭐ Picks are NOT final here (owner, 2026-08-26). The activity is trying combinations
+    // until the money works, so a locked pick would end the game on the first mistake.
+    lockPicks: false,
     timer: null,
-    lockPicks: true,
-    // ⛔ Not `standout`. A guaranteed 80+ fights a budget; a guaranteed CHEAPEST is what makes
-    // the draft completable at all — see `DraftSpec.cheapest` for the measured numbers.
+    // ⛔ Not `standout`. A guaranteed 80+ fights a budget; a guaranteed CHEAPEST is what
+    // keeps the floor low — see `DraftSpec.cheapest` for the measured numbers.
     cheapest: true,
+    bench: true,
+    confirm: true,
     onePerPlayer: true,
   },
-  // £100.0m, in tenths. ⛔ Measured against the price curve, not chosen for the round number:
-  // at `PRICE_CURVE` 2.0 this binds in every dealt room while leaving ~£19m to spend up.
-  constraints: [{ kind: "budgetCap", amount: 1000 }],
+  /**
+   * £120.0m, in tenths — and it buys SIXTEEN players, not eleven (owner, 2026-08-26).
+   *
+   * ⛔ Measured over 60 dealt rooms, not chosen for the round number. A sixteen-man squad
+   * costs £64m at the floor, £114m at median picks and £211m taking the dearest card every
+   * round — so £120m binds in **100%** of rooms, is never infeasible, and leaves about **£6m**
+   * against a median squad. That is deliberately tighter than the £19m the XI-only £100m gave;
+   * £130m would reproduce the old feel if this proves too punishing.
+   */
+  constraints: [{ kind: "budgetCap", amount: 1200 }],
   objective: "win",
 };
 

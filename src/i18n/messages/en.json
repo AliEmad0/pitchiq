@@ -914,8 +914,8 @@
     "pitchShapeFinal": "This choice is final — the whole draft is built around it.",
     "pitchLockIn": "Lock in {name}",
     "pitchChooseRole": "Choose your {role}",
-    "pitchRoundHint": "Five cards from the club's whole history. One is rated 80 or better. This pick is final.",
-    "pitchNoTimer": "No timer — take as long as you like. There is no way back once you choose.",
+    "pitchRoundHint": "Five cards from the whole pool. You can change your mind until you confirm.",
+    "pitchNoTimer": "No timer. Swap anyone out until the squad and the money both work.",
     "pitchYourPick": "{role} — your pick",
     "pitchPickFinal": "Chosen and final.",
     "pitchClose": "Close",
@@ -1009,10 +1009,14 @@
     "captainsDealing": "Dealing your icons…",
     "captainsPickOne": "Five icons. Pick the one you will build around.",
     "budgetTitle": "Budget Cap Draft",
-    "budgetSubtitle": "£100m. Every era on sale. Find the bargains.",
+    "budgetSubtitle": "£120m for sixteen. Every era on sale. Find the bargains.",
     "budgetRemaining": "Remaining",
     "budgetShortfall": "Over by {amount}",
-    "budgetSpendableNow": "{amount} spendable right now"
+    "budgetSpendableNow": "{amount} spendable right now",
+    "budgetHeldBack": "{amount} held back for the other {count, plural, one {position} other {# positions}}",
+    "pitchBench": "Bench",
+    "pitchConfirmSquad": "Confirm squad",
+    "pitchConfirmPending": "{count, plural, one {1 still to fill} other {# still to fill}}"
   },
   "commentary": {
     "armbandHandover": "The armband goes to {name}.",

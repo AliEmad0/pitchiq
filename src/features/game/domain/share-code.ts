@@ -91,6 +91,16 @@ export type ShareableMatch = {
 };
 
 const SQUAD_SIZE = 11;
+/**
+ * The XI plus a drafted bench (TASK-1810 Budget Cap).
+ *
+ * ⚠️ The card block is `_`-delimited, so the WIRE format was always variable-length — only
+ * these two checks pinned it to eleven. The range stays BOUNDED rather than becoming "any
+ * length": a code is untrusted input, and an unbounded list is a way to make a receiver do
+ * arbitrary work. Eleven still decodes exactly as it always did, so every code already in
+ * the wild is unaffected.
+ */
+const MAX_SQUAD_SIZE = 16;
 /** Slugs are lowercase, digits and dashes. "4-3-2-1-christmas-tree" is 22 characters. */
 const SLUG_RE = /^[a-z0-9-]{2,32}$/;
 
@@ -108,8 +118,10 @@ const unb36 = (s: string): number | null => {
  * build this from their own live match, not from anything external.
  */
 export function encodeMatch(match: ShareableMatch): string {
-  if (match.cardIds.length !== SQUAD_SIZE) {
-    throw new Error(`share-code: expected ${SQUAD_SIZE} cards, got ${match.cardIds.length}`);
+  if (match.cardIds.length < SQUAD_SIZE || match.cardIds.length > MAX_SQUAD_SIZE) {
+    throw new Error(
+      `share-code: expected ${SQUAD_SIZE}-${MAX_SQUAD_SIZE} cards, got ${match.cardIds.length}`,
+    );
   }
   if (!SLUG_RE.test(match.formationSlug)) {
     throw new Error(`share-code: invalid formation slug ${match.formationSlug}`);
@@ -167,7 +179,7 @@ export function decodeMatch(code: string | null | undefined): ShareableMatch | n
   }
 
   const chunks = cardsRaw.split("_");
-  if (chunks.length !== SQUAD_SIZE) return null;
+  if (chunks.length < SQUAD_SIZE || chunks.length > MAX_SQUAD_SIZE) return null;
 
   const cardIds: PlayerSeasonId[] = [];
   for (const chunk of chunks) {

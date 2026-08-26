@@ -126,7 +126,7 @@ const pick = <T>(list: T[], rng: () => number): T => list[Math.floor(rng() * lis
 const BENCH_SIZE = 5;
 
 /** Roles a bench should cover, in order — a spare keeper first, then the spine. */
-const BENCH_SHAPE: PlayerRole[] = ["GK", "CB", "CM", "CF", "RW"];
+export const BENCH_SHAPE: PlayerRole[] = ["GK", "CB", "CM", "CF", "RW"];
 
 /**
  * How a slot chooses among the cards eligible for it.
@@ -161,11 +161,13 @@ export interface DraftOptions {
   /** Absent means `random`, i.e. exactly what `/game/chaos` has always drafted. */
   policy?: DraftPolicy;
   /**
-   * The spending cap for `policy: "budget"`, in indexed euros. Ignored by every other policy.
+   * The spending cap for `policy: "budget"`, in tenths of a million. Ignored by every other
+   * policy.
    *
-   * ⚠️ It constrains the **XI only**, never the bench — symmetric with the coach, whose draft
-   * room fills eleven slots and leaves his bench to `buildSession`. Charging the rival for a
-   * bench the coach gets free would be the balance defect again, just quieter.
+   * ⛔ It covers the XI **and the bench**, because the coach pays for his (TASK-1810,
+   * owner 2026-08-26). Capping only the rival's eleven would buy him sixteen players for the
+   * same money the coach spends on eleven — the 2026-08-19 balance defect wearing a different
+   * hat, and nothing on screen would show it. Whichever side pays, both must.
    */
   budget?: number;
   /**
@@ -265,11 +267,11 @@ function budgetPick(
   used: ReadonlySet<number>,
   rng: () => number,
   remaining: number,
-  later: readonly FormationSlot[],
+  later: readonly PlayerRole[],
 ): PoolCard | null {
   const from = candidatesFor(pool, role, used);
   const roll = rng();
-  const lists = later.map((s) => cheapestFor(pool, s.role, used, later.length + 2));
+  const lists = later.map((r) => cheapestFor(pool, r, used, later.length + 2));
   const affordable = from.filter(
     (c) => (c.price ?? Infinity) + reserveFrom(lists, c.playerId) <= remaining,
   );
@@ -322,6 +324,8 @@ export function chaosDraft(
   // `/game/chaos` has ever produced — the route prerenders from this.
   const byCardId = new Map(pool.map((c) => [c.cardId, c]));
   const chosen: PoolCard[] = [];
+  /** Shared by the XI and the bench loops — `budget` covers the whole squad, not the eleven. */
+  let spent = 0;
   if (policy === "strong") {
     for (const slot of shape.slots) {
       const card = strongFor(pool, slot.role, used, rng);
@@ -333,17 +337,15 @@ export function chaosDraft(
     // ⭐ Greedy in SLOT order under a running ceiling. The reserve is what keeps the last
     // slots fillable: spending everything on a keeper and two strikers would otherwise leave
     // eight slots with nothing affordable, and the rival would walk out with seven men.
-    let spent = 0;
     for (let i = 0; i < shape.slots.length; i++) {
       const remaining = (budget ?? Infinity) - spent;
-      const card = budgetPick(
-        pool,
-        shape.slots[i]!.role,
-        used,
-        rng,
-        remaining,
-        shape.slots.slice(i + 1),
-      );
+      // ⛔ The reserve covers the BENCH as well as the remaining slots. Without it the rival
+      // spends the whole cap on eleven and has nothing left for the five it also has to buy.
+      const later = [
+        ...shape.slots.slice(i + 1).map((s) => s.role),
+        ...BENCH_SHAPE.slice(0, BENCH_SIZE),
+      ];
+      const card = budgetPick(pool, shape.slots[i]!.role, used, rng, remaining, later);
       if (card == null) continue;
       used.add(card.playerId);
       spent += card.price ?? 0;
@@ -380,9 +382,18 @@ export function chaosDraft(
   const bench: PoolCard[] = [];
   for (let i = 0; i < BENCH_SIZE; i++) {
     const want = BENCH_SHAPE[i % BENCH_SHAPE.length];
-    // ⚠️ `budget` benches like `strong`, deliberately: the cap constrains the XI only, so the
-    // rival's bench is drafted to the same standard the coach's unconstrained bench is.
-    if (policy === "strong" || policy === "budget") {
+    if (policy === "budget") {
+      // ⛔ The bench is PAID FOR, because the coach pays for his. Its reserve is the bench
+      // roles still to come, so the rival cannot spend out and finish with three substitutes.
+      const later = BENCH_SHAPE.slice(i + 1, BENCH_SIZE);
+      const card = budgetPick(pool, want, used, rng, (budget ?? Infinity) - spent, later);
+      if (card == null) break;
+      used.add(card.playerId);
+      spent += card.price ?? 0;
+      bench.push(card);
+      continue;
+    }
+    if (policy === "strong") {
       const card = strongFor(pool, want, used, rng);
       if (card == null) break;
       used.add(card.playerId);
