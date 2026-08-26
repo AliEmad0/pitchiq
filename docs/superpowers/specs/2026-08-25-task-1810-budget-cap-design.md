@@ -1,6 +1,9 @@
 # TASK-1810 — Budget Cap Draft: design
 
-**Status:** design AGREED with the owner, 2026-08-25. **Not yet built** — this is PR 4 of 5.
+**Status:** ✅ **SHIPPED** — PR 4 of 5. Built in [#197](https://github.com/AliEmad0/pitchiq/pull/197),
+rescaled to FPL-style prices in [#198](https://github.com/AliEmad0/pitchiq/pull/198), and given a
+sixteen-man squad, reconsiderable picks and a legible meter in
+[#199](https://github.com/AliEmad0/pitchiq/pull/199). The gate reads **6 of 11 unlocked**.
 
 Build an XI from a fixed transfer budget, shopping across the whole priced archive at once.
 Every card carries a real Premier League market value, adjusted so that money from 2004 and
@@ -184,7 +187,7 @@ best possible XI**. Deepening the pool was tried and rejected — 1,800 cards (r
 moved it only to 95.2% at triple the payload. The curve is the lever, and 2.0 restores the
 squeeze while keeping the round £100.0m cap.
 
-⚠️ It also changed what `DealOptions.cheapest` is FOR — see §5.1.
+⚠️ It also changed what `DealOptions.cheapest` is FOR — see §5.4.
 
 ### 2.3 What the card shows
 
@@ -245,7 +248,7 @@ Draft reason: without dedupe the cheapest 85+ XI is literally _Vardy 2014, Vardy
 
 ⚠️ **No goalkeeper anywhere costs more than €100M**, and only five sit in €60–100M. The GK slot
 is inherently cheap. This is realistic and needs no correction, but any test asserting "an
-expensive card exists for every role" would be false, and the reserve rule in §5.1 must not
+expensive card exists for every role" would be false, and the reserve rule in §5.4 must not
 assume otherwise.
 
 ⛔ **Role coverage is thin at the edges.** Cap-600 role counts:
@@ -288,11 +291,13 @@ export const BUDGET_PACK: RulePack = {
     handSize: 5,
     roam: "free",
     timer: null,
-    lockPicks: true,
+    lockPicks: false, // picks are reconsiderable — see §5.1
     cheapest: true,
+    bench: true, // the coach drafts and PAYS FOR five substitutes — see §5.2
+    confirm: true,
     onePerPlayer: true,
   },
-  constraints: [{ kind: "budgetCap", amountEur: 100_000_000 }],
+  constraints: [{ kind: "budgetCap", amount: 1200 }], // £120.0m, in tenths
   objective: "win",
 };
 ```
@@ -300,7 +305,7 @@ export const BUDGET_PACK: RulePack = {
 **`Constraint` gains its second member**, after `captainFirst`:
 
 ```ts
-| { kind: "budgetCap"; amountEur: number }
+| { kind: "budgetCap"; amount: number }   // tenths of a million, matching PoolCard.price
 ```
 
 ⚠️ Unlike `captainFirst`, this one **does** carry its value. The captain is a route param, so
@@ -310,7 +315,7 @@ it belongs in the pack.
 **`DraftSpec` gains `cheapest`, and this pack sets no `standout`.** A guaranteed 80+ in every
 hand fights a budget rather than complementing it — it would either be unaffordable (a dead
 card) or eat the cap. What a budget hand needs guaranteed is the **cheapest eligible card**,
-without which the draft cannot be completed at all; see §5.1 for the measured numbers.
+without which the draft cannot be completed at all; see §5.4 for the measured numbers.
 
 ⛔ **Register in `RULE_PACKS` only once `/game/budget` exists.** `routedPacks()` filters on
 `chooser != null` and reads `RULE_PACKS`, never `domain/modes.ts`. This pack has no chooser, so
@@ -325,18 +330,72 @@ Draft did, but it can still resolve `packFor("budget")` for a URL that renders n
 `screens: "legacy"` — the matchday programme at `?phase=preview` and the split feed at
 `?phase=live`, unchanged.
 
-**The budget meter** — concept 10 **"Countdown"** (owner's pick, 2026-08-26). The WALLET counts
-down as the hero number, a bar shows the ceiling as a share of the whole budget, and a caption
-states what is spendable right now. ⚠️ The first version gave equal weight to spent / remaining
-/ ceiling, which left the number that actually gates the cards the hardest of the three to
-find. It renders on the pitch AND on the veil, because the veil covers the pitch.
+**The budget meter** — concept 10 **"Countdown"** (owner's pick, 2026-08-26), **above the
+pitch**. The WALLET counts down as the hero number, a bar tracks **spend**, and two lines below
+state what is spendable now and why that is less than the balance.
+
+⚠️ Two corrections, both from the owner seeing it:
+
+- The first version gave equal weight to spent / remaining / ceiling, leaving the number that
+  actually gates the cards the hardest of the three to find.
+- ⛔ **The bar then showed the CEILING as a share of the budget** — so it began near 60% and was
+  read on sight as _"half my money is already gone"_ before a single pick. The arithmetic was
+  right the whole time; the encoding lied. **A meter that has to be explained is wrong.** It
+  tracks spend now (empty at the start), and a second line says _why_ the spendable figure sits
+  below the balance: "£40.0m held back for the other 10 positions".
+
+⚠️ It sits **above** the pitch because under it the one figure every decision depends on fell
+below the fold on a laptop. It renders there AND on the veil, because the veil covers the pitch.
+
+### 5.1 Picks are reconsiderable, and the coach confirms
+
+⭐ Owner, 2026-08-26. `lockPicks: false` + a new `DraftSpec.confirm`. Re-opening a filled slot
+re-offers its five, and a swap **replaces** rather than adds — verified in the browser at
+£4.0m → £14.3m leaving £105.7m, not £101.7m. The room no longer hands off on the last pick,
+which is the exact moment the coach wants to start swapping.
+
+⚠️ Both are pack fields. Legacy and Captain's Draft keep final picks and auto-handoff, because
+there the pick IS the mechanic; here the activity is trying combinations until the money works.
+
+### 5.2 A drafted, PAID-FOR bench
+
+⭐ £120.0m buys **sixteen** — the XI plus five substitutes the coach drafts himself. _"One of
+them must be a keeper"_ is true by construction: `BENCH_SHAPE` opens with a GK, so no rule has
+to enforce it anywhere.
+
+⛔ **A paid bench must be the bench that PLAYS, and must survive resume and share.**
+`buildSession` splits the squad at `formation.slots.length` and is the **only** place that knows
+where the XI ends — so storage, the share code and both replay paths keep carrying one ordered
+list of card ids and needed no concept of a bench at all. An empty tail means "XI only", which
+is what leaves every other mode untouched.
+
+⚠️ The share codec's card block was always `_`-delimited, so the wire format was already
+variable-length; only two checks pinned it to eleven. They now allow a **bounded** 11–16 —
+bounded because a share code is untrusted input, and eleven still decodes exactly as before.
+
+⛔ **The rival pays for its bench too.** Capping only its XI would buy the coach sixteen players
+and the rival eleven for the same money — the 2026-08-19 balance defect in a new hat, and
+invisible on screen.
+
+⚠️ **£120m is deliberately tight.** Measured over 60 dealt rooms, a sixteen-man squad costs
+**£64m** at the floor, **£114m** at median picks and **£211m** taking the dearest card every
+round. So the cap binds in 100% of rooms and is never infeasible, but leaves only **+£6m**
+against a median squad — against the +£19m the XI-only £100m gave. **£130m restores that feel.**
+
+### 5.3 The crash a browser found
+
+⛔ Opening the first **bench** slot threw `Cannot read properties of undefined (reading 'role')`
+and took down the whole draft screen: the veil read `shape.slots[veil.slot].role`, and a bench
+index is past the end of an eleven-slot formation. `tsc` was clean and 126 unit tests passed,
+because nothing in them opened index 11. Every role lookup goes through one helper that falls
+through to the bench list. **An index past the end of a formation is a crash, not a fallback.**
 
 **Dealt but disabled** (owner, 2026-08-25). Every hand is drawn from the pool as normal;
 cards the coach cannot afford are rendered greyed with the shortfall shown, and are not
 selectable. Seeing Haaland at €200M and being priced out of him is the mode working, not a
 frustration to design away.
 
-### 5.1 The reserve rule — why a draft cannot dead-end
+### 5.4 The reserve rule — why a draft cannot dead-end
 
 The hazard is spending €95M on two stars and being unable to fill nine slots. The ceiling on
 the current pick is therefore not the remaining budget but:
@@ -438,7 +497,7 @@ bakes a 600-card pool, so a request-time render would rebuild that pool per view
   ⚠️ A pool-wide implementation passes a naive test and under-reserves here, so this fixture
   must make the two answers differ — otherwise it is vacuous.
 - **The open hand always has something clickable.** For every seed and every spending strategy,
-  assert at least one card in the open hand is at or below the ceiling (§5.1 property 2).
+  assert at least one card in the open hand is at or below the ceiling (§5.4 property 2).
 - **Every formation is fillable** from the cap-600 pool given `canPlay` — already measured
   green (§3.1), so this is a regression pin rather than a discovery.
 - **The opponent is budget-matched**, not best-available: assert its XI cost is within the cap.
