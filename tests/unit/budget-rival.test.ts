@@ -4,10 +4,10 @@ import { chaosDraft, type PoolCard } from "@/features/game/domain/chaos-draft";
 import { BASE_SEASON } from "@/features/game/domain/market-index";
 import type { PoolSpec } from "@/features/game/domain/rule-packs";
 
-const CAP = 100_000_000;
+const CAP = 1000; // £100.0m in tenths
 const SPEC: PoolSpec = { kind: "pricedMarket", cap: 600, baseSeason: BASE_SEASON };
 const ids = (xi: readonly { cardId: string }[] | undefined) => (xi ?? []).map((c) => c.cardId);
-const cost = (xi: readonly PoolCard[]) => xi.reduce((a, c) => a + (c.costEur ?? 0), 0);
+const cost = (xi: readonly PoolCard[]) => xi.reduce((a, c) => a + (c.price ?? 0), 0);
 
 // Real committed data and real prices — a synthetic pool cannot show whether the policy
 // stays inside a cap that only bites against genuine market values.
@@ -51,8 +51,8 @@ describe("budget rival", () => {
     // ⭐ The control. Without it "inside the cap" would stay green for a policy that simply
     // always drafted the eleven cheapest cards and ignored the budget entirely.
     const pool = (await buildPool(SPEC)) as unknown as PoolCard[];
-    const poor = chaosDraft(pool, 8, "Rival", { policy: "budget", budget: 50_000_000 });
-    const rich = chaosDraft(pool, 8, "Rival", { policy: "budget", budget: 400_000_000 });
+    const poor = chaosDraft(pool, 8, "Rival", { policy: "budget", budget: 500 });
+    const rich = chaosDraft(pool, 8, "Rival", { policy: "budget", budget: 4000 });
     expect(cost(rich.players as PoolCard[])).toBeGreaterThan(cost(poor.players as PoolCard[]));
   }, 300_000);
 });

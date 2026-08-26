@@ -140,10 +140,61 @@ re-validate the cap. It resolves a saved XI, and re-checking a constraint on res
 a legal match becomes unresumable after a data change. This matches `onePerPlayer`, which is
 likewise enforced while drafting and never on replay.
 
-### 2.2 What the card shows
+### 2.2 The GAME price — an FPL-style band (owner, 2026-08-26)
 
-**The indexed cost only** (owner, 2026-08-25) — one number, so the budget arithmetic on screen
-is never ambiguous.
+⛔ **The indexed value is the ORDERING, not the price on screen.** Shipped raw it produced a
+**£104M card against a £100M budget** — absurd on its face and unreadable at a glance. FPL
+solves the identical problem the identical way: its prices are a compressed game currency,
+not a market.
+
+```
+price = FLOOR + (CEILING − FLOOR) × percentileInPool ^ CURVE
+FLOOR 4.0m · CEILING 19.5m · CURVE 2.0        // domain/price-band.ts
+```
+
+⭐ **Why this is safe:** a bargain is a **rank disagreement between rating and price**, and the
+mapping is strictly monotonic in the indexed value — so every disagreement survives untouched.
+Vardy 2015 is 91-rated at **£8.5m** while Rodri 2020 is 91-rated at **£15.1m**, exactly as the
+real market said. Compression changes the numbers, never the order.
+
+⛔ **By PERCENTILE, not a linear or log rescale.** Market values are heavily skewed, so a
+linear rescale crushes ~90% of the pool into £4.0–7.4m. Percentile spreads them evenly and
+`CURVE` then decides where the mass sits.
+
+⚠️ **Prices are integer TENTHS of a million** (`164` = £16.4m). The reserve rule sums ten of
+them on every render and compares against the cap, so float drift would show as a card that is
+affordable on one render and not the next.
+
+⚠️ **£, not €.** The app shows REAL market values in € elsewhere; a different mark keeps a
+derived game price from being mistaken for one.
+
+**CURVE was measured, not chosen** — it sets the whole balance, because it decides what an XI
+costs against the cap. Across 60 dealt rooms at £100.0m:
+
+| curve   | median-pick XI | priciest-pick XI | slack vs a median XI |
+| ------- | -------------- | ---------------- | -------------------- |
+| 1.5     | £96m           | £161m            | +£4m                 |
+| **2.0** | **£81m**       | **£150m**        | **+£19m**            |
+| 2.5     | £71m           | £140m            | +£29m                |
+| 3.0     | £65m           | £132m            | +£35m                |
+
+⛔ **Compression nearly destroyed the balance, and only measuring caught it.** Squeezing a 40×
+price range into 4.9× makes quality almost free: at the first attempt £100m bought **97% of the
+best possible XI**. Deepening the pool was tried and rejected — 1,800 cards (rating floor 53)
+moved it only to 95.2% at triple the payload. The curve is the lever, and 2.0 restores the
+squeeze while keeping the round £100.0m cap.
+
+⚠️ It also changed what `DealOptions.cheapest` is FOR — see §5.1.
+
+### 2.3 What the card shows
+
+**The game price only** (owner, 2026-08-25) — one number, so the budget arithmetic on screen is
+never ambiguous.
+
+⭐ **Concept 15 "Dark slab"** (owner's pick, 2026-08-26): a solid black plate at **top centre**,
+15px. Top centre is where the photo's head sits, so the opacity is doing real work — bare type
+and translucent plates were legible over one player and lost over another, which is why the
+concept gallery rendered every option against four real cards rather than one.
 
 ⚠️ Recorded trade-off: the real historical figure is then not visible anywhere, and it is real
 archive data. The owner accepted this for card clarity. It is softened by the card already
@@ -274,7 +325,11 @@ Draft did, but it can still resolve `packFor("budget")` for a URL that renders n
 `screens: "legacy"` — the matchday programme at `?phase=preview` and the split feed at
 `?phase=live`, unchanged.
 
-**The budget meter** sits in the Draft Room: spent, remaining, and slots left.
+**The budget meter** — concept 10 **"Countdown"** (owner's pick, 2026-08-26). The WALLET counts
+down as the hero number, a bar shows the ceiling as a share of the whole budget, and a caption
+states what is spendable right now. ⚠️ The first version gave equal weight to spent / remaining
+/ ceiling, which left the number that actually gates the cards the hardest of the three to
+find. It renders on the pitch AND on the veil, because the veil covers the pitch.
 
 **Dealt but disabled** (owner, 2026-08-25). Every hand is drawn from the pool as normal;
 cards the coach cannot afford are rendered greyed with the shortfall shown, and are not
@@ -303,18 +358,25 @@ the room is created. Two properties follow, neither of which needs enforcing:
 2. **No hand is ever dead.** The cheapest card in the open hand is, by the same invariant,
    always at or below the ceiling — so there is always something to click.
 
-⛔ **The reserve reads HANDS, so the DEAL must guarantee a cheap card — `cheapest: true`.**
-This was got wrong twice and the second one only surfaced in a browser. An `affordable` option
-cannot work: `roomDeals` deals every hand from one seed **before the draft starts**, so it
-cannot know what has been spent. But dropping the option entirely is also wrong, because the
-floor that binds the draft is then the sum of five random cards' minimums rather than the
-pool's. **Measured on the real pool: the pool floor for a 4-3-3 is €46M, the dealt-hand floor
-is €137M–265M** — every card in every hand came out disabled at a €100M cap, correctly,
-because no legal XI existed. `cheapest: true` restores it to €47–50M.
+⛔ **The reserve reads HANDS, so the DEAL guarantees a cheap card — `cheapest: true`.** This was
+got wrong twice and the second only surfaced in a browser. An `affordable` option cannot work:
+`roomDeals` deals every hand from one seed **before the draft starts**, so it cannot know what
+has been spent. But dropping the option entirely was also wrong, because the floor that binds
+the draft is then the sum of five random cards' minimums rather than the pool's. On the euro
+scale that was fatal: **pool floor €46M against a dealt-hand floor of €137M–265M**, so every
+card in every hand came out disabled at a €100M cap — correctly, because no legal XI existed.
 
 ⚠️ The distinction is what makes it work: "the cheapest eligible card" is **static**, so it can
 be decided at deal time; "a card he can still afford" is **spend-dependent**, so it cannot. Do
 not re-add `affordable`.
+
+⭐ **§2.2's rescale changed what the option is FOR, and the test says so.** With FPL-band
+prices the worst naive floor across all 20 shapes × 12 seeds is **£65.0m against a £100.0m
+cap** — feasible everywhere. So `cheapest` is no longer load-bearing for COMPLETION; it is
+load-bearing for HEADROOM: it drops the floor to **£44.3m**, about £21m more to spend up with,
+and guarantees every hand holds an economising option instead of leaving some slots with no
+cheap card at all. `budget-pool.test.ts` was rewritten to assert that, rather than continuing
+to claim a feasibility failure that no longer happens.
 
 ⚠️ **A pool-wide reserve would be both wrong and role-blind.** `slotsLeft × cheapestCard` is the
 obvious form and it under-reserves: the cheapest card overall is no use when the unfilled slot

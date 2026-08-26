@@ -42,7 +42,7 @@ const ROLES: PlayerRole[] = [
  * all-cheap pool disables nothing and an all-expensive one disables everything, and either
  * would stay green against an implementation that ignored the budget completely.
  */
-const SPREAD = [1_000_000, 4_000_000, 12_000_000, 40_000_000, 90_000_000, 2_000_000];
+const SPREAD = [10, 40, 120, 400, 900, 20];
 
 /**
  * TWELVE per role, not six.
@@ -50,9 +50,9 @@ const SPREAD = [1_000_000, 4_000_000, 12_000_000, 40_000_000, 90_000_000, 2_000_
  * ⛔ Six is not enough and the reason is worth keeping: `onePerPlayer` means a role used
  * twice by a shape — two CBs in a 4-4-2 — gives the first hand five of the six and leaves the
  * second with ONE. `roomDeals` deals short rather than padding, so if that leftover is the
- * €90M card, the reserve for that slot is €90M and the ceiling everywhere else collapses to
+ * £90.0m card, the reserve for that slot is £90.0m and the ceiling everywhere else collapses to
  * nothing. Every candidate came out disabled. The real pool has 50+ eligible cards per slot
- * and a €37M cheapest legal XI against a €100M cap, so it has no such cliff — but a fixture
+ * and a £37M cheapest legal XI against a £100M cap, so it has no such cliff — but a fixture
  * that manufactures one tests a situation the mode never reaches.
  */
 const PER_ROLE = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
@@ -78,7 +78,7 @@ const pool: PoolCard[] = ROLES.flatMap((role, r) =>
     },
     club: "Liverpool",
     teamId: 40,
-    costEur: SPREAD[i % SPREAD.length]!,
+    price: SPREAD[i % SPREAD.length]!,
   })),
 );
 
@@ -107,7 +107,7 @@ describe("budget draft", () => {
 
   it("shows the meter on the pitch once a shape is locked", async () => {
     const user = userEvent.setup();
-    render(<GamePlay pool={pool} draft={BUDGET} budget={60_000_000} />);
+    render(<GamePlay pool={pool} draft={BUDGET} budget={600} />);
     await lock(user);
     expect(screen.getByTestId("budget-meter")).toBeInTheDocument();
   });
@@ -120,15 +120,16 @@ describe("budget draft", () => {
      * ceiling off the meter and checking each card against it holds for any deal.
      */
     const user = userEvent.setup();
-    render(<GamePlay pool={pool} draft={BUDGET} budget={60_000_000} />);
+    render(<GamePlay pool={pool} draft={BUDGET} budget={600} />);
     await lock(user);
     await user.click(spots()[0]!);
 
     const veil = screen.getByRole("dialog", { name: /Choose your/ });
     // ⚠️ Scoped to the VEIL. The meter renders on the pitch too, because the veil covers the
     // pitch and a meter that lived only on the veil would vanish between rounds.
+    // The Countdown meter states the ceiling as "£9.0m spendable right now".
     const ceiling = Number(
-      /Max this pick €(\d+)M/.exec(within(veil).getByTestId("budget-meter").textContent ?? "")?.[1],
+      /£([\d.]+)m spendable/.exec(within(veil).getByTestId("budget-meter").textContent ?? "")?.[1],
     );
     expect(Number.isFinite(ceiling)).toBe(true);
 
@@ -144,7 +145,7 @@ describe("budget draft", () => {
       );
       const pick = within(card).getByRole("button", { name: /^Choose / });
       const blocked = pick.hasAttribute("disabled");
-      expect(blocked, `${cost}M against a ${ceiling}M ceiling`).toBe(cost > ceiling);
+      expect(blocked, `£${cost}m against a £${ceiling}m ceiling`).toBe(cost > ceiling);
       // ⚠️ A disabled card must say HOW SHORT it is; "unavailable" alone teaches nothing.
       if (blocked) expect(pick.getAttribute("aria-label")).toMatch(/Over by/);
       else enabled += 1;
@@ -158,12 +159,12 @@ describe("budget draft", () => {
   it("prints the indexed cost on the card face", () => {
     // Owner, 2026-08-25: the indexed cost ONLY. The card still carries its season, so a 2014
     // card reads as a 2014 card — what is hidden is the historical euro figure.
-    renderWithIntl(<PlayerCard card={{ ...pool[0]!, costEur: 22_000_000 } as never} />);
-    expect(screen.getByTestId("card-cost")).toHaveTextContent("22");
+    renderWithIntl(<PlayerCard card={{ ...pool[0]!, price: 164 } as never} />);
+    expect(screen.getByTestId("card-cost")).toHaveTextContent("16.4");
   });
 
   it("prints no cost at all for a card that has no price", () => {
-    const unpriced = { ...pool[0]!, costEur: undefined };
+    const unpriced = { ...pool[0]!, price: undefined };
     renderWithIntl(<PlayerCard card={unpriced as never} />);
     expect(screen.queryByTestId("card-cost")).toBeNull();
   });

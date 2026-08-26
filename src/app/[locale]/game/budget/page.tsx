@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
  */
 function budgetOf(): number {
   const cap = BUDGET_PACK.constraints.find((c) => c.kind === "budgetCap");
-  return cap?.kind === "budgetCap" ? cap.amountEur : 0;
+  return cap?.kind === "budgetCap" ? cap.amount : 0;
 }
 
 export default async function BudgetDraftPage({ params }: Props) {

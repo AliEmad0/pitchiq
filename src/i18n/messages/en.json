@@ -1009,12 +1009,10 @@
     "captainsDealing": "Dealing your icons…",
     "captainsPickOne": "Five icons. Pick the one you will build around.",
     "budgetTitle": "Budget Cap Draft",
-    "budgetSubtitle": "100M. Every era on sale. Find the bargains.",
-    "budgetSpent": "Spent",
+    "budgetSubtitle": "£100m. Every era on sale. Find the bargains.",
     "budgetRemaining": "Remaining",
-    "budgetCeiling": "Max this pick",
     "budgetShortfall": "Over by {amount}",
-    "budgetWindow": "Prices cover 2004-2025, in today money"
+    "budgetSpendableNow": "{amount} spendable right now"
   },
   "commentary": {
     "armbandHandover": "The armband goes to {name}.",

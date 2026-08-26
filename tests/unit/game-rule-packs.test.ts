@@ -91,7 +91,7 @@ describe("screens (TASK-1810)", () => {
 describe("budget pack (TASK-1810)", () => {
   it("is a priced cross-era pool under a cap", () => {
     expect(BUDGET_PACK.pool).toEqual({ kind: "pricedMarket", cap: 600, baseSeason: 2025 });
-    expect(BUDGET_PACK.constraints).toEqual([{ kind: "budgetCap", amountEur: 100_000_000 }]);
+    expect(BUDGET_PACK.constraints).toEqual([{ kind: "budgetCap", amount: 1000 }]);
     expect(BUDGET_PACK.screens).toBe("legacy");
   });
 

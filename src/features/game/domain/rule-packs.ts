@@ -75,15 +75,15 @@ export type PoolSpec =
        * The Budget Cap shape (TASK-1810): every priced player-season in the indexed window,
        * one card per distinct player at his best-rated season, rating-ranked and capped.
        *
-       * ⛔ The cap is 600 because 900 was measured and REJECTED — it leaves the achievable XI
-       * identical at every budget from €60M up, since the extra 300 cards are all rated 64–70
-       * and never enter an optimal team at €100M. They would be dealt, never wanted, and cost
-       * ~150 KB on a `force-static` page.
+       * ⛔ The cap is 600 because deeper pools were measured and REJECTED. At 900 the
+       * achievable XI is identical at every budget worth playing, since the extra cards are
+       * rated 64–70 and never enter an optimal team; going to 1,800 (rating floor 53) moved
+       * the best XI at the cap by barely two points while tripling the payload.
        *
        * ⚠️ A rating-ranked cap was expected to destroy the price spread and measurably does
-       * not: the pool's median price is €39M yet its cheapest legal XI is €37M, because rating
-       * and price correlate at only r ≈ 0.52. **No stratified price reserve is needed** — this
-       * is the one place `captainSynergy`'s `nationalityReserve` lesson does NOT transfer.
+       * not — rating and price correlate at only r ≈ 0.52, which is the same weak correlation
+       * that makes bargains exist. **No stratified price reserve is needed** — this is the one
+       * place `captainSynergy`'s `nationalityReserve` lesson does NOT transfer.
        *
        * ⚠️ Stopping at 600 also puts the pool's floor at rating 70, so every card in the mode
        * is a genuine contributor rather than filler the coach will never want.
@@ -115,7 +115,7 @@ export type Constraint =
     }
   | {
       /**
-       * Every pick costs, and the XI must come in under `amountEur` (Budget Cap, TASK-1810).
+       * Every pick costs, and the XI must come in under `amount` (Budget Cap, TASK-1810).
        *
        * ⚠️ Unlike `captainFirst`, this constraint DOES carry its value. The captain is a route
        * param, so that pack could only declare the rule; the budget is identical for every
@@ -126,7 +126,8 @@ export type Constraint =
        * and it would present as a corrupt save rather than as a rule.
        */
       kind: "budgetCap";
-      amountEur: number;
+      /** Tenths of a million, matching `PoolCard.price`. `1000` = £100.0m. */
+      amount: number;
     };
 
 /** Single-match modes all share one objective. It earns its keep in TASK-1811's seasons. */
@@ -179,9 +180,10 @@ export interface DraftSpec {
   /**
    * Guarantee the cheapest eligible card in every hand (Budget Cap, TASK-1810).
    *
-   * ⛔ Load-bearing, not a nicety: the budget reserve reads the dealt HANDS, so without this
-   * the floor is the sum of five-card minimums (measured €137M–265M) rather than the pool's
-   * own (€46M), and a €100M cap disables every card in every hand. See `DealOptions.cheapest`.
+   * ⚠️ The budget reserve reads the dealt HANDS, so this sets the floor an XI can cost. It
+   * drops the worst case from £65.0m to £44.3m against a £100.0m cap — about £21m more to
+   * spend up with, and every hand keeps an economising option. See `DealOptions.cheapest` for
+   * why it was originally a feasibility fix and what changed.
    */
   cheapest?: boolean;
   /** A player may be offered in at most one hand, so no XI can field him twice. */
@@ -376,7 +378,9 @@ export const BUDGET_PACK: RulePack = {
     cheapest: true,
     onePerPlayer: true,
   },
-  constraints: [{ kind: "budgetCap", amountEur: 100_000_000 }],
+  // £100.0m, in tenths. ⛔ Measured against the price curve, not chosen for the round number:
+  // at `PRICE_CURVE` 2.0 this binds in every dealt room while leaving ~£19m to spend up.
+  constraints: [{ kind: "budgetCap", amount: 1000 }],
   objective: "win",
 };
 
