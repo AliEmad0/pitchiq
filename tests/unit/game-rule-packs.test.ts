@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { BENCH_SHAPE } from "@/features/game/domain/chaos-draft";
 import { GAME_MODES } from "@/features/game/domain/modes";
 import {
   BUDGET_PACK,
@@ -91,7 +92,9 @@ describe("screens (TASK-1810)", () => {
 describe("budget pack (TASK-1810)", () => {
   it("is a priced cross-era pool under a cap", () => {
     expect(BUDGET_PACK.pool).toEqual({ kind: "pricedMarket", cap: 600, baseSeason: 2025 });
-    expect(BUDGET_PACK.constraints).toEqual([{ kind: "budgetCap", amount: 1000 }]);
+    // £120.0m in tenths — and it buys SIXTEEN players, not eleven. Measured over 60 rooms:
+    // a squad costs £64m at the floor and £211m taking the dearest card every round.
+    expect(BUDGET_PACK.constraints).toEqual([{ kind: "budgetCap", amount: 1200 }]);
     expect(BUDGET_PACK.screens).toBe("legacy");
   });
 
@@ -103,8 +106,22 @@ describe("budget pack (TASK-1810)", () => {
 
   it("⚠️ guarantees no standout — a forced 80+ fights a budget", () => {
     expect(BUDGET_PACK.draft?.standout).toBeUndefined();
+    expect(BUDGET_PACK.draft?.cheapest).toBe(true);
     expect(BUDGET_PACK.draft?.onePerPlayer).toBe(true);
-    expect(BUDGET_PACK.draft?.lockPicks).toBe(true);
+  });
+
+  it("⭐ picks are NOT final, and the coach confirms when he is ready", () => {
+    // ⛔ The two go together (owner, 2026-08-26). The activity is trying combinations until
+    // the money works, so a locked pick ends the mode on the first mistake — and auto-handing
+    // off on the last pick would end it at the exact moment he wants to start swapping.
+    expect(BUDGET_PACK.draft?.lockPicks).toBe(false);
+    expect(BUDGET_PACK.draft?.confirm).toBe(true);
+  });
+
+  it("⭐ the coach drafts a BENCH, and its first slot is a keeper", () => {
+    // "One of them must be a GK" is true by construction: `BENCH_SHAPE` opens with one.
+    expect(BUDGET_PACK.draft?.bench).toBe(true);
+    expect(BENCH_SHAPE[0]).toBe("GK");
   });
 
   it("⛔ has NO chooser, so the parameterised route must never serve it", () => {

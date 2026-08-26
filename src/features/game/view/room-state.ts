@@ -1,3 +1,4 @@
+import type { PlayerRole } from "@/data/schemas";
 import type { PlayerSeasonId } from "@/features/game/domain/card-id";
 import type { Formation } from "@/features/game/domain/formation";
 
@@ -9,7 +10,19 @@ export interface LockedPick {
 
 export interface RoomState {
   formation: Formation;
-  /** One entry per slot, in slot order. */
+  /**
+   * The BENCH roles this room also drafts, after the formation's slots (TASK-1810).
+   *
+   * ⚠️ Empty for every mode that drafts an XI only. It is kept on the state rather than
+   * derived, because `picks` is indexed by slot and the reader needs to know where the
+   * eleven end and the bench begins.
+   *
+   * ⛔ NOT part of the `Formation`. `formationKey` is `${name}/${slots.length}` and every
+   * shape ships eleven slots, so widening a formation to sixteen would collide two different
+   * shapes onto one key and restore saved matches into the wrong one.
+   */
+  bench: readonly PlayerRole[];
+  /** One entry per slot then per bench role, in that order. */
   picks: (PlayerSeasonId | null)[];
   /** The slot currently being drafted, or null once every slot is filled. */
   open: number | null;
@@ -32,15 +45,25 @@ export type RoomAction =
    */
   | { type: "setFormation"; formation: Formation; locked?: LockedPick | null };
 
-export function createRoomState(formation: Formation, locked?: LockedPick | null): RoomState {
-  const picks: (PlayerSeasonId | null)[] = formation.slots.map(() => null);
+export function createRoomState(
+  formation: Formation,
+  locked?: LockedPick | null,
+  bench: readonly PlayerRole[] = [],
+): RoomState {
+  const picks: (PlayerSeasonId | null)[] = [...formation.slots, ...bench].map(() => null);
   if (locked != null && locked.index >= 0 && locked.index < picks.length) {
     picks[locked.index] = locked.cardId;
     // ⚠️ Opens on the next EMPTY slot, never on the locked one — the coach must not be
     // parked on a decision that has already been made for him.
-    return { formation, picks, open: nextUnfilled(picks, locked.index), locked: locked.index };
+    return {
+      formation,
+      bench,
+      picks,
+      open: nextUnfilled(picks, locked.index),
+      locked: locked.index,
+    };
   }
-  return { formation, picks, open: 0, locked: null };
+  return { formation, bench, picks, open: 0, locked: null };
 }
 
 export const isRoomComplete = (s: RoomState): boolean => s.picks.every((p) => p != null);
@@ -83,6 +106,8 @@ export function roomReducer(state: RoomState, action: RoomAction): RoomState {
       // A different shape means different slots and different hands; keeping picks would
       // strand players in roles they were never drafted for. The locked pick survives
       // because it is not a pick the coach made — it is a rule of the mode.
-      return createRoomState(action.formation, action.locked);
+      // ⚠️ The bench carries over: it belongs to the MODE, not to the shape, so changing
+      // formation must not silently drop the five bench slots the coach still has to fill.
+      return createRoomState(action.formation, action.locked, state.bench);
   }
 }

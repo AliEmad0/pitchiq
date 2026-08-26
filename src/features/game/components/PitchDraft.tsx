@@ -5,7 +5,7 @@ import { budgetView, canAfford, shortfall, type BudgetView } from "@/features/ga
 import { priceLabel } from "@/features/game/domain/price-band";
 import { pickBack } from "@/features/game/domain/card-design";
 import type { PlayerSeasonId } from "@/features/game/domain/card-id";
-import { FORMATIONS, type PoolCard } from "@/features/game/domain/chaos-draft";
+import { BENCH_SHAPE, FORMATIONS, type PoolCard } from "@/features/game/domain/chaos-draft";
 import { canField, roomDeals } from "@/features/game/domain/draft-room";
 import { canPlay } from "@/features/game/domain/eligibility";
 import type { Formation } from "@/features/game/domain/formation";
@@ -142,8 +142,10 @@ export function PitchDraft({
   const [seed, setSeed] = useState<number | null>(null);
   // ⚠️ Lazy init with BOTH arguments — `useReducer(reducer, shape, createRoomState)` can
   // only ever pass one, so the captain would never be placed on the first render.
+  /** The bench roles this pack drafts, or none. `BENCH_SHAPE` opens with a keeper. */
+  const benchRoles = useMemo(() => (draft.bench === true ? BENCH_SHAPE : []), [draft.bench]);
   const [state, dispatch] = useReducer(roomReducer, undefined, () =>
-    createRoomState(shape, lockedFor(shape)),
+    createRoomState(shape, lockedFor(shape), benchRoles),
   );
   /** Which veil is up. `null` is the bare pitch. */
   const [veil, setVeil] = useState<{ slot: number; mode: "round" | "review" } | null>(null);
@@ -157,6 +159,7 @@ export function PitchDraft({
             handSize: draft.handSize,
             standout: draft.standout,
             cheapest: draft.cheapest,
+            bench: benchRoles,
             onePerPlayer: draft.onePerPlayer,
             // ⛔ He is in the pool so every replay path can resolve him; he must not be
             // dealt, or the coach could field the same man twice.
@@ -170,6 +173,7 @@ export function PitchDraft({
       draft.standout,
       draft.cheapest,
       draft.onePerPlayer,
+      benchRoles,
       captain,
     ],
   );
@@ -192,6 +196,18 @@ export function PitchDraft({
    * ceiling is about. Off the veil it is the reducer's own open slot.
    */
   const openSlot = veil?.mode === "round" ? veil.slot : state.open;
+
+  /**
+   * The role a room index is drafting — the formation's slots first, then the bench.
+   *
+   * ⛔ NEVER `shape.slots[i].role` on its own. A bench index is past the end of an eleven-slot
+   * formation, so that returns `undefined` and `.role` throws — which crashed the whole draft
+   * screen the moment the first bench slot was opened. The browser found it; nothing else did.
+   */
+  const roleAt = useCallback(
+    (i: number) => shape.slots[i]?.role ?? benchRoles[i - shape.slots.length] ?? "CM",
+    [shape, benchRoles],
+  );
   const view = useMemo(
     () => (budget == null ? null : budgetView(hands, state.picks, budget, openSlot)),
     [budget, hands, state.picks, openSlot],
@@ -219,11 +235,12 @@ export function PitchDraft({
    */
   const meter = (v: BudgetView) => {
     const total = v.spent + v.remaining;
-    const head = total > 0 ? Math.max(0, Math.min(100, (Math.max(0, v.ceiling) / total) * 100)) : 0;
+    const spentPct = total > 0 ? Math.max(0, Math.min(100, (v.spent / total) * 100)) : 0;
+    const left = state.picks.filter((p) => p == null).length;
     return (
       <div
         data-testid="budget-meter"
-        className="mx-auto w-full max-w-sm rounded-lg border border-emerald-500/30 bg-emerald-500/5 px-4 py-3"
+        className="mx-auto w-full max-w-md rounded-lg border border-emerald-500/30 bg-emerald-500/5 px-4 py-3"
       >
         <div className="flex items-baseline justify-center gap-2">
           <span className="font-mono text-4xl leading-none font-extrabold tracking-tight">
@@ -233,30 +250,63 @@ export function PitchDraft({
             {t("budgetRemaining")}
           </span>
         </div>
+        {/* ⛔ The bar tracks SPEND, so it starts EMPTY. It showed the ceiling as a share of the
+            budget, which begins near 60% and was read — correctly — as "half my money is
+            already gone" before a single pick. A meter that has to be explained is wrong. */}
         <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-[#12222c]">
-          <div className="h-full rounded-full bg-emerald-400" style={{ width: `${head}%` }} />
+          <div
+            data-testid="budget-spent-bar"
+            className="h-full rounded-full bg-emerald-400 transition-[width] duration-300"
+            style={{ width: `${spentPct}%` }}
+          />
         </div>
         <p className="mt-2 text-center font-mono text-[11px] opacity-70">
           {t("budgetSpendableNow", { amount: `£${money(Math.max(0, v.ceiling))}m` })}
         </p>
+        {/* ⚠️ Says WHY the spendable figure is below the balance. Without it the two numbers
+            look like a contradiction, which is exactly how the first version read. */}
+        {left > 1 ? (
+          <p className="mt-0.5 text-center text-[10px] opacity-55">
+            {t("budgetHeldBack", { amount: `£${money(v.reserve)}m`, count: left - 1 })}
+          </p>
+        ) : null}
       </div>
     );
   };
 
-  // Hand the finished XI up once, in slot order.
-  useEffect(() => {
-    if (!locked || !isRoomComplete(state)) return;
+  /** The drafted squad, in slot order then bench order, or null while it is incomplete. */
+  const squad = useMemo(() => {
+    if (!locked || !isRoomComplete(state)) return null;
     const players = state.picks
       .map((id) => (id != null ? byId.get(id) : undefined))
       .filter((c): c is PoolCard => c != null);
-    if (players.length !== state.picks.length) return;
+    return players.length === state.picks.length ? players : null;
+  }, [locked, state, byId]);
+
+  const handOff = useCallback(() => {
+    if (squad == null) return;
     // ⚠️ `null` when the fetch never landed — the match is played against the coach's own
     // pool rather than blocked. See `RivalState`.
-    onConfirm(players, shape, {
+    onConfirm(squad, shape, {
       setup: rival.status === "ready" ? rival.rival : null,
       difficulty,
     });
-  }, [locked, state, byId, onConfirm, shape, rival, difficulty]);
+  }, [squad, onConfirm, shape, rival, difficulty]);
+
+  /**
+   * Hand the finished squad up as soon as it is complete — UNLESS the pack asks to confirm.
+   *
+   * ⭐ Budget Cap sets `confirm` (owner, 2026-08-26): the whole activity is trying
+   * combinations until the money works, so handing off on the sixteenth pick would end the
+   * draft at the exact moment the coach wants to start swapping.
+   *
+   * ⚠️ Every other pack keeps the shipped auto-handoff, which is why this is a pack field and
+   * not a change to the behaviour itself.
+   */
+  useEffect(() => {
+    if (draft.confirm === true || squad == null) return;
+    handOff();
+  }, [draft.confirm, squad, handOff]);
 
   const previewShape = (f: Formation) => {
     if (locked) return;
@@ -296,6 +346,11 @@ export function PitchDraft({
 
   return (
     <div className={`pd-root${locked ? "" : " pd-shaping"}`}>
+      {/* ⭐ ABOVE the pitch (owner, 2026-08-26) — it is the first thing to read, and under the
+          pitch it sat below the fold on a laptop while every decision on screen depended on
+          it. ⚠️ Rendered here AND on the veil, because the veil covers the pitch entirely. */}
+      {locked && view != null ? <div className="mb-4">{meter(view)}</div> : null}
+
       <div className="pd-pitch-wrap">
         {/* ⛔ `dir="ltr"`, deliberately, and the ONE place in the app that opts out of RTL
             (owner's call, 2026-08-19). A football pitch is not text: its markings are drawn
@@ -341,7 +396,15 @@ export function PitchDraft({
                 disabled={!locked && !movable}
                 aria-label={label}
                 onClick={() =>
-                  movable ? moveCaptain(i) : setVeil({ slot: i, mode: card ? "review" : "round" })
+                  movable
+                    ? moveCaptain(i)
+                    : setVeil({
+                        slot: i,
+                        // ⭐ A filled slot re-opens its HAND when picks are not final, so the
+                        // coach can swap a man out to afford someone else. With `lockPicks`
+                        // it stays a read-only look at the card he already chose.
+                        mode: card && draft.lockPicks === true ? "review" : "round",
+                      })
                 }
                 className={`pd-spot${movable ? " pd-movable" : ""}${card ? " pd-filled" : ""}${
                   card && (card.ratings?.overall ?? 0) < 80 ? " pd-silver" : ""
@@ -480,8 +543,8 @@ export function PitchDraft({
           aria-modal="true"
           aria-label={
             veil.mode === "round"
-              ? t("pitchChooseRole", { role: shape.slots[veil.slot]!.role })
-              : t("pitchYourPick", { role: shape.slots[veil.slot]!.role })
+              ? t("pitchChooseRole", { role: roleAt(veil.slot) })
+              : t("pitchYourPick", { role: roleAt(veil.slot) })
           }
           // ⛔ A ROUND cannot be dismissed by clicking away; a review can.
           onClick={(e) => {
@@ -491,8 +554,8 @@ export function PitchDraft({
           <div className="pd-veil-inner">
             <h2 className="text-xl font-extrabold tracking-tight sm:text-2xl">
               {veil.mode === "round"
-                ? t("pitchChooseRole", { role: shape.slots[veil.slot]!.role })
-                : t("pitchYourPick", { role: shape.slots[veil.slot]!.role })}
+                ? t("pitchChooseRole", { role: roleAt(veil.slot) })
+                : t("pitchYourPick", { role: roleAt(veil.slot) })}
             </h2>
             <p className="text-muted-foreground mb-6 mt-1 text-sm">
               {veil.mode === "round" ? t("pitchRoundHint") : t("pitchPickFinal")}
@@ -544,14 +607,14 @@ export function PitchDraft({
                         view != null && !canAfford(c, view)
                           ? `${t("pitchChooseCard", {
                               name: c.name,
-                              role: c.role ?? shape.slots[veil.slot]!.role,
+                              role: c.role ?? roleAt(veil.slot),
                               ovr: c.ratings?.overall ?? 0,
                             })} — ${t("budgetShortfall", { amount: `£${money(shortfall(c, view))}m` })}`
                           : t("pitchChooseCard", {
                               name: c.name,
                               // A card's own role is nullable in the data; the SLOT's never is,
                               // and it is the role being filled that the label is about.
-                              role: c.role ?? shape.slots[veil.slot]!.role,
+                              role: c.role ?? roleAt(veil.slot),
                               ovr: c.ratings?.overall ?? 0,
                             })
                       }
@@ -578,16 +641,78 @@ export function PitchDraft({
         </div>
       ) : null}
 
+      {/* The bench, as its own strip — five more slots the coach drafts and pays for. */}
+      {locked && benchRoles.length > 0 ? (
+        <div className="mt-5">
+          <p className="text-muted-foreground mb-2 text-center font-mono text-[11px] tracking-wider uppercase">
+            {t("pitchBench")}
+          </p>
+          <div className="flex flex-wrap justify-center gap-2">
+            {benchRoles.map((role, i) => {
+              const index = shape.slots.length + i;
+              const id = state.picks[index];
+              const card = id != null ? byId.get(id) : undefined;
+              return (
+                <button
+                  key={`${role}-${i}`}
+                  type="button"
+                  aria-label={
+                    card
+                      ? t("pitchViewPick", {
+                          role,
+                          name: card.name,
+                          ovr: card.ratings?.overall ?? 0,
+                        })
+                      : t("pitchFillSlot", { role })
+                  }
+                  onClick={() =>
+                    setVeil({
+                      slot: index,
+                      mode: card && draft.lockPicks === true ? "review" : "round",
+                    })
+                  }
+                  className={`min-w-[92px] rounded-md border px-3 py-2 text-center font-mono text-[11px] ${
+                    card
+                      ? "border-amber-400/60 bg-amber-400/10"
+                      : "border-dashed border-white/25 opacity-70"
+                  }`}
+                >
+                  <span className="block text-[9px] tracking-wider opacity-70">{role}</span>
+                  <span className="block font-bold">
+                    {card ? (card.ratings?.overall ?? 0) : "—"}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
+
       {locked ? (
         <p className="text-muted-foreground mt-5 text-center font-mono text-xs">
-          {t("pitchProgress", { filled, total: shape.slots.length })}
+          {/* ⚠️ Counts the WHOLE squad, not the XI — with a bench, "9 of 11" beside five empty
+              bench slots would be telling the coach he is nearly done when he is not. */}
+          {t("pitchProgress", { filled, total: state.picks.length })}
         </p>
       ) : null}
 
-      {/* ⚠️ Also on the pitch, not only on the veil: the veil COVERS the pitch, so a meter
-          that lived there alone would vanish the moment the coach closed a round and would
-          never be visible while he looked at the XI he has built so far. */}
-      {locked && view != null ? <div className="mt-3">{meter(view)}</div> : null}
+      {/* ⭐ The coach says when he is done (owner, 2026-08-26). Disabled until the squad is
+          complete, so the button states the remaining work rather than hiding it. */}
+      {locked && draft.confirm === true ? (
+        <div className="mt-4 flex justify-center">
+          <button
+            type="button"
+            data-testid="confirm-squad"
+            disabled={squad == null}
+            onClick={handOff}
+            className="rounded-lg bg-emerald-400 px-8 py-3 text-sm font-extrabold text-[#06231a] disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {squad == null
+              ? t("pitchConfirmPending", { count: state.picks.length - filled })
+              : t("pitchConfirmSquad")}
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 }

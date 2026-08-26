@@ -24,6 +24,40 @@ const cost = (xi: readonly PoolCard[]) => xi.reduce((a, c) => a + (c.price ?? 0)
  * faces the unlimited one — a match that looks completely normal on screen.
  */
 describe("budget session", () => {
+  it("⭐ the DRAFTED bench is the one that plays, and the XI keeps its eleven", async () => {
+    /**
+     * ⛔ The coach PAYS for his bench (owner, 2026-08-26), so it has to be the bench that
+     * actually appears — paying for five men who never play is a lie the screen tells.
+     *
+     * ⚠️ `buildSession` is the ONLY place the squad is split, at `formation.slots.length`.
+     * That is what makes the drafted bench survive storage, the share code and both replays
+     * without any of them learning about benches: they all carry one ordered list.
+     */
+    const pool = (await buildPool(SPEC)) as unknown as PoolCard[];
+    const xi = pool.slice(0, 11);
+    const bench = pool.slice(11, 16);
+    const s = buildSession(pool, [...xi, ...bench], SHAPE, 4242, NAMES, {
+      policy: "budget",
+      budget: CAP,
+    });
+    expect(s.home.players.map((p) => p.cardId)).toEqual(xi.map((c) => c.cardId));
+    expect((s.home.bench ?? []).map((p) => p.cardId)).toEqual(bench.map((c) => c.cardId));
+  }, 300_000);
+
+  it("⛔ THE CONTROL — an XI-only squad still gets the AUTO-drafted bench", async () => {
+    // Every other mode hands up eleven and must be completely untouched by the split.
+    const pool = (await buildPool(SPEC)) as unknown as PoolCard[];
+    const xi = pool.slice(0, 11);
+    const s = buildSession(pool, xi, SHAPE, 4242, NAMES, { policy: "budget", budget: CAP });
+    expect(s.home.players).toHaveLength(11);
+    expect((s.home.bench ?? []).length).toBeGreaterThan(0);
+    // ...and it is NOT simply the next cards off the pool, which is what a split of an
+    // eleven-card list would wrongly produce.
+    expect((s.home.bench ?? []).map((p) => p.cardId)).not.toEqual(
+      pool.slice(11, 16).map((c) => c.cardId),
+    );
+  }, 300_000);
+
   it("caps the rival it drafts", async () => {
     const pool = (await buildPool(SPEC)) as unknown as PoolCard[];
     const xi = pool.slice(0, 11);

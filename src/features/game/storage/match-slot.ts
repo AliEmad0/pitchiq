@@ -12,7 +12,12 @@ import { idbDel, idbGet, idbPut } from "./idb";
  * its own untested branch.
  */
 export interface SavedMatch {
-  /** 11 cards, ordered — the index IS the formation slot. */
+  /**
+   * The SQUAD, ordered: the XI first (index = formation slot), then any drafted bench.
+   *
+   * ⚠️ Eleven for every mode that drafts an XI only. Budget Cap appends its five bench picks
+   * (TASK-1810), and `buildSession` is the one place that splits them apart again.
+   */
   cardIds: PlayerSeasonId[];
   /**
    * ⚠️ The KEY, never an index into `FORMATIONS`. An index is positional, so reordering

@@ -914,8 +914,8 @@
     "pitchShapeFinal": "هذا الاختيار نهائي — الاختيار كله مبني عليه.",
     "pitchLockIn": "ثبّت {name}",
     "pitchChooseRole": "اختر {role}",
-    "pitchRoundHint": "خمس بطاقات من تاريخ النادي كله، إحداها بتقييم ٨٠ أو أعلى. هذا الاختيار نهائي.",
-    "pitchNoTimer": "بلا مؤقت — خذ وقتك. لا رجوع بعد الاختيار.",
+    "pitchRoundHint": "خمس بطاقات من كل المجموعة. يمكنك تغيير اختيارك حتى التأكيد.",
+    "pitchNoTimer": "لا مؤقّت. غيّر أي لاعب حتى تضبط التشكيلة والميزانية معًا.",
     "pitchYourPick": "{role} — اختيارك",
     "pitchPickFinal": "تم الاختيار نهائياً.",
     "pitchClose": "إغلاق",
@@ -1009,10 +1009,14 @@
     "captainsDealing": "جارٍ توزيع النجوم…",
     "captainsPickOne": "خمسة نجوم. اختر من ستبني حوله.",
     "budgetTitle": "درافت سقف الميزانية",
-    "budgetSubtitle": "١٠٠ مليون جنيه. كل الحقب معروضة. ابحث عن الصفقات.",
+    "budgetSubtitle": "١٢٠ مليون جنيه لستة عشر لاعبًا. كل الحقب معروضة. ابحث عن الصفقات.",
     "budgetRemaining": "المتبقي",
     "budgetShortfall": "تجاوز بـ {amount}",
-    "budgetSpendableNow": "{amount} متاح للإنفاق الآن"
+    "budgetSpendableNow": "{amount} متاح للإنفاق الآن",
+    "budgetHeldBack": "{amount} محجوزة {count, plural, one {للمركز الآخر} two {للمركزين الآخرين} few {للـ# مراكز الأخرى} other {للـ# مركزًا الأخرى}}",
+    "pitchBench": "دكة البدلاء",
+    "pitchConfirmSquad": "تأكيد التشكيلة",
+    "pitchConfirmPending": "{count, plural, one {بقي مركز واحد} two {بقي مركزان} few {بقي # مراكز} other {بقي # مركزًا}}"
   },
   "commentary": {
     "armbandHandover": "شارة القيادة تنتقل إلى {name}.",

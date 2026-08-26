@@ -1,3 +1,4 @@
+import type { PlayerRole } from "@/data/schemas";
 import type { PoolCard } from "./chaos-draft";
 import { canPlay } from "./eligibility";
 import type { Formation } from "./formation";
@@ -66,6 +67,19 @@ export interface DealOptions {
    */
   cheapest?: boolean;
   /**
+   * Extra hands dealt AFTER the formation's slots — the bench (TASK-1810 Budget Cap).
+   *
+   * ⚠️ Appended, never interleaved, and that is what keeps every existing room byte-identical:
+   * the rng is consumed in slot order first, so the eleven starting hands are drawn exactly as
+   * they always were and the bench simply continues the stream. Absent = no bench hands, which
+   * is every caller that predates this.
+   *
+   * ⚠️ The roles are the CALLER's, not a constant here, because "which bench" is a mode's rule.
+   * `BENCH_SHAPE` opens with a goalkeeper, which is what makes "one of them must be a keeper"
+   * true by construction rather than by a check somewhere else.
+   */
+  bench?: readonly PlayerRole[];
+  /**
    * Treat every card of the same player as one, so a player can appear in at most one hand.
    *
    * ⚠️ This is what makes "you cannot pick the same player twice" true BY CONSTRUCTION
@@ -112,6 +126,7 @@ export function roomDeals(
     standout = false,
     cheapest = false,
     onePerPlayer = false,
+    bench,
     excludePlayers,
   } = opts;
   const rng = mulberry32(seed);
@@ -119,9 +134,13 @@ export function roomDeals(
   const key = (c: PoolCard) => (onePerPlayer ? c.playerId : c.cardId);
   const ovr = (c: PoolCard) => c.ratings?.overall ?? 0;
 
-  return formation.slots.map((slot) => {
+  // ⚠️ Slots FIRST, bench after — see `DealOptions.bench`. The order is what keeps every
+  // existing room's draw sequence untouched.
+  const roles = [...formation.slots.map((s) => s.role), ...(bench ?? [])];
+
+  return roles.map((role) => {
     const bag = pool.filter(
-      (c) => excludePlayers?.has(c.playerId) !== true && !used.has(key(c)) && canPlay(c, slot.role),
+      (c) => excludePlayers?.has(c.playerId) !== true && !used.has(key(c)) && canPlay(c, role),
     );
     const hand: PoolCard[] = [];
     const take = (i: number) => {

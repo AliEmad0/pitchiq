@@ -84,7 +84,26 @@ export function buildSession(
       exclude: rival.policy == null ? undefined : new Set(players.map((p) => p.playerId)),
     },
   );
-  const home = makeGameTeam(-1, names.home, 0, formation, players, matchup.home.bench);
+  /**
+   * `players` is the whole SQUAD, XI first then any drafted bench (TASK-1810 Budget Cap).
+   *
+   * ⭐ The split happens HERE and nowhere else, which is what makes the drafted bench survive
+   * every path for free: storage, the share code and both replays all carry one ordered list
+   * of card ids, and only this function needs to know where the eleven end.
+   *
+   * ⚠️ An empty tail means the mode drafts an XI only, and the bench stays the auto-drafted
+   * one — so `/game/draft`, `/game/chaos`, Legacy and the daily are untouched.
+   */
+  const xi = players.slice(0, formation.slots.length);
+  const drafted = players.slice(formation.slots.length);
+  const home = makeGameTeam(
+    -1,
+    names.home,
+    0,
+    formation,
+    xi,
+    drafted.length > 0 ? drafted : matchup.home.bench,
+  );
   const away = matchup.opponent.kind === "squad" ? matchup.opponent.team : matchup.home;
 
   const stream = createStream(

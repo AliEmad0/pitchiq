@@ -151,8 +151,37 @@ describe("a code is untrusted input", () => {
     expect(decodeMatch(withCards(code, cards))).toBeNull();
   });
 
-  it("refuses to encode a squad that is not 11 cards", () => {
-    expect(() => encodeMatch(match({ cardIds: squad().slice(0, 10) }))).toThrow(/11 cards/);
+  it("refuses to encode a squad outside 11–16 cards", () => {
+    /**
+     * ⚠️ The bound WIDENED, it did not disappear (TASK-1810). Budget Cap drafts an XI plus a
+     * five-man bench and carries all sixteen in one ordered list, so the codec accepts 11–16
+     * — and still nothing else. An unbounded list would let a tampered code make a receiver
+     * do arbitrary work.
+     */
+    expect(() => encodeMatch(match({ cardIds: squad().slice(0, 10) }))).toThrow(/cards/);
+    const seventeen = [...squad(), ...squad()].slice(0, 17);
+    expect(() => encodeMatch(match({ cardIds: seventeen }))).toThrow(/cards/);
+  });
+
+  it("⭐ round-trips a SIXTEEN-card squad — the XI plus a drafted bench", () => {
+    // ⛔ And eleven must still decode exactly as it always did: every share code already in
+    // the wild is eleven cards, and widening the range must not disturb one of them.
+    const sixteen = [...squad(), ...squad().slice(0, 5)];
+    const decoded = decodeMatch(encodeMatch(match({ cardIds: sixteen })));
+    expect(decoded?.cardIds).toEqual(sixteen);
+    expect(decodeMatch(encodeMatch(match({ cardIds: squad() })))?.cardIds).toEqual(squad());
+  });
+
+  it("⛔ refuses a DECODED squad outside the range, not only an encoded one", () => {
+    // A tampered code arrives as text; the decoder is the half that faces a stranger.
+    const code = encodeMatch(match({}));
+    const ten = squad()
+      .slice(0, 10)
+      .map((id) => {
+        const [p, s] = id.split("@");
+        return `${Number(p).toString(36)}-${Number(s).toString(36)}`;
+      });
+    expect(decodeMatch(withCards(code, ten))).toBeNull();
   });
 
   it("refuses to encode a formation slug that would not survive a URL", () => {
