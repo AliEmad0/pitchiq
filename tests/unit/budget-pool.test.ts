@@ -18,7 +18,7 @@ const SHAPES = ["4-4-2 Flat", "4-4-2 Diamond", "3-4-2-1"].map(formationByName);
 /** The pack's own cap — never a second literal that could drift from it. */
 const CAP = (() => {
   const c = BUDGET_PACK.constraints.find((x) => x.kind === "budgetCap");
-  return c?.kind === "budgetCap" ? c.amountEur : 0;
+  return c?.kind === "budgetCap" ? c.amount : 0;
 })();
 
 // Real committed data, real prices. ⛔ No synthetic pool: the recurring failure in this
@@ -40,7 +40,7 @@ describe("priced market pool", () => {
     const pool = await buildPool(SPEC);
     // ⛔ The 644 unpriced player-seasons inside the window must be FILTERED, never defaulted
     // to zero. A zero is easy to introduce silently and hands the coach a free superstar.
-    expect(pool.every((c) => typeof c.costEur === "number" && c.costEur > 0)).toBe(true);
+    expect(pool.every((c) => typeof c.price === "number" && c.price > 0)).toBe(true);
   }, 300_000);
 
   it("draws only from the indexed window", async () => {
@@ -64,34 +64,47 @@ describe("priced market pool", () => {
     }
   }, 300_000);
 
-  it("⛔ a DEALT room is completable inside the cap — and is not, without `cheapest`", async () => {
+  it("⛔ a DEALT room is completable, and `cheapest` buys real headroom", async () => {
     /**
-     * The defect a browser check found and every unit test had missed.
+     * ⚠️ What binds the draft is the sum of the HANDS' minimums, not the pool's — the reserve
+     * in `domain/budget.ts` reads the dealt hands. On the original euro scale that made
+     * `DealOptions.cheapest` a FEASIBILITY fix: five random cards per slot put the floor at
+     * €137M–265M against a €100M cap, so every card in every hand was disabled and the mode
+     * could not be played at all. A browser found it; every unit fixture had missed it,
+     * because a hand-crafted pool has a cheap card in every hand by construction.
      *
-     * `domain/budget.ts` reserves the cheapest card of each unfilled HAND, so what bounds the
-     * draft is the sum of the hands' minimums — not the pool's. Five random cards per slot put
-     * that floor at €137M–265M against a €100M cap, so EVERY card in EVERY hand was disabled
-     * and the mode could not be played at all. The unit fixtures missed it because they had a
-     * cheap card in every hand by construction; the real pool does not.
+     * ⭐ Compressing prices into the FPL band changed WHY the option earns its place. Measured
+     * across all 20 shapes × 12 seeds, the worst naive floor is now **£65.0m** against a
+     * £100.0m cap — feasible everywhere. So `cheapest` is no longer load-bearing for
+     * COMPLETION; it is load-bearing for HEADROOM. It drops the floor to £44.3m, about £21m
+     * more to spend up with, and guarantees every hand holds an economising option instead of
+     * leaving some slots with no cheap card at all.
      */
     const pool = await buildPool(SPEC);
-    const floorOf = (hands: { costEur?: number }[][]) =>
-      hands.reduce((sum, h) => sum + Math.min(...h.map((c) => c.costEur ?? Infinity)), 0);
+    const floorOf = (hands: { price?: number }[][]) =>
+      hands.reduce((sum, h) => sum + Math.min(...h.map((c) => c.price ?? Infinity)), 0);
     const deal = (shape: (typeof FORMATIONS)[number], seed: number, cheapest: boolean) =>
       roomDeals(pool, shape, seed, { handSize: 5, cheapest, onePerPlayer: true });
 
+    let worstNaive = 0;
     for (const shape of SHAPES) {
       for (const seed of [1, 2, 3, 4, 5]) {
-        expect(floorOf(deal(shape, seed, true)), `${shape.name} seed ${seed}`).toBeLessThanOrEqual(
-          CAP,
-        );
+        const guaranteed = floorOf(deal(shape, seed, true));
+        const naive = floorOf(deal(shape, seed, false));
+        const where = `${shape.name} seed ${seed}`;
+        // Completable — the property a player feels, and it must hold either way.
+        expect(guaranteed, where).toBeLessThanOrEqual(CAP);
+        expect(naive, where).toBeLessThanOrEqual(CAP);
+        // ⛔ THE CONTROL, restated to what is now true: the guarantee must measurably LOWER
+        // the floor. If it ever stops doing that, the option has become pointless.
+        expect(guaranteed, where).toBeLessThan(naive);
+        worstNaive = Math.max(worstNaive, naive);
       }
     }
 
-    // ⛔ THE CONTROL. Without the guarantee the floor is far ABOVE the cap — which is the
-    // whole reason `DealOptions.cheapest` exists. If this ever stops failing, the option has
-    // become pointless and the test above has stopped proving anything.
-    expect(floorOf(deal(SHAPES[0]!, 1, false))).toBeGreaterThan(CAP);
+    // Pins the headroom the option actually buys, so a future curve change that erodes it
+    // surfaces here rather than as a mode that quietly stopped having decisions in it.
+    expect(worstNaive).toBeGreaterThan(CAP * 0.4);
   }, 300_000);
 
   it("is a STABLE set — membership is pinned so a silent shift cannot kill share links", async () => {

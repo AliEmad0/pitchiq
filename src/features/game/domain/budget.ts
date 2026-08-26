@@ -55,7 +55,7 @@ export interface BudgetView {
  * ⚠️ The pool builder filters unpriced cards out, so this should be unreachable — but a silent
  * zero here would hand the coach a free superstar, which is the whole mode gone.
  */
-const costOf = (card: PoolCard): number | null => card.costEur ?? null;
+const costOf = (card: PoolCard): number | null => card.price ?? null;
 
 const cheapestIn = (hand: readonly PoolCard[]): number => {
   let min = Infinity;
@@ -69,7 +69,7 @@ const cheapestIn = (hand: readonly PoolCard[]): number => {
 /**
  * @param hands  One hand per slot, in slot order — exactly `roomDeals`' return value.
  * @param picks  One entry per slot, in slot order — `RoomState.picks`.
- * @param budget The pack's `budgetCap` amount, in indexed euros.
+ * @param budget The pack's `budgetCap` amount, in tenths of a million (`1000` = £100.0m).
  * @param open   The slot being drafted, excluded from the reserve. Null once the room is full.
  */
 export function budgetView(
@@ -113,13 +113,5 @@ export function shortfall(card: PoolCard, view: BudgetView): number {
   return Math.max(0, cost - view.ceiling);
 }
 
-/**
- * A cost as millions, for display: `22_400_000` → `"22"`, `3_500_000` → `"3.5"`.
- *
- * ⚠️ Digits only — no currency sign and no locale. The caller decides both, because the card
- * face is deliberately English-only in every locale while the meter beside it is localised.
- */
-export function millionsLabel(eur: number): string {
-  const m = eur / 1_000_000;
-  return m >= 10 ? String(Math.round(m)) : m.toFixed(1).replace(/\.0$/, "");
-}
+// ⚠️ Display formatting lives in `domain/price-band.ts#priceLabel` — one place decides how a
+// game price reads, so the card badge and the meter beside it can never disagree.

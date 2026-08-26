@@ -17,8 +17,8 @@ import {
   pickBack,
   pickFront,
 } from "@/features/game/domain/card-design";
-import { millionsLabel } from "@/features/game/domain/budget";
 import { displayName } from "@/features/game/domain/display-name";
+import { priceLabel } from "@/features/game/domain/price-band";
 import { type CardDim, type EnrichedCard, dimsFor } from "@/features/game/domain/player-card";
 import { playerPhotoCandidates } from "@/features/players/player-photo";
 import { clubLogo } from "@/utils/club-logo";
@@ -406,26 +406,33 @@ export function PlayerCard({ card, reduced, interactive = true }: Props) {
   /**
    * The card's price, on a `pricedMarket` pool only (TASK-1810 Budget Cap).
    *
-   * ⚠️ The INDEXED cost, not the historical market value (owner, 2026-08-25): one number, so
-   * the budget arithmetic on screen is never ambiguous. The card already carries its SEASON,
-   * so a 2014 card still reads as a 2014 card — what is hidden is the euro figure.
+   * ⭐ Concept 15 "Dark slab" (owner's pick, 2026-08-26): a solid black plate at TOP CENTRE.
+   * Top centre is where the photo's head sits, so the opaque slab is doing real work — a
+   * translucent or bare-type treatment was legible over one player and lost over another.
    *
-   * ⚠️ English digits, deliberately — the whole card face is English-only in every locale for
-   * the reason recorded above (`d`), and localising only the price would make one number on
-   * the face disagree with the rest. The budget METER, which is not part of the card, is
-   * localised.
+   * ⚠️ ONE number, and it is a GAME price, not a market value: real values are era-indexed and
+   * then compressed into an FPL-style £4.0–19.5m band (`domain/price-band.ts`). The owner's
+   * report was a £104M card against a £100M budget — unreadable and absurd. The card still
+   * carries its SEASON, so a 2014 card reads as a 2014 card.
+   *
+   * ⚠️ £, not €, deliberately: the app shows REAL market values in € elsewhere, so a different
+   * mark keeps a derived game price from being mistaken for one.
+   *
+   * ⚠️ Western digits in every locale — the whole card face is English-only for the reason
+   * recorded above (`d`), and the meter beside it follows the same rule so the two can never
+   * disagree about how a number reads.
    *
    * ⚠️ An overlay rather than a field inside each `FRONTS` variant: there are several fronts
    * and a price is not part of the card's identity, so threading it through all of them would
    * spread one optional value across every layout.
    */
   const cost =
-    card.costEur == null ? null : (
+    card.price == null ? null : (
       <span
         data-testid="card-cost"
-        className="pointer-events-none absolute bottom-1 left-1 rounded bg-black/70 px-1.5 py-0.5 font-mono text-[10px] leading-none font-bold text-emerald-300"
+        className="pointer-events-none absolute top-0 left-1/2 z-10 -translate-x-1/2 rounded-b-lg bg-[#040d12] px-4 py-1.5 font-mono text-[15px] leading-none font-extrabold text-emerald-300"
       >
-        €{millionsLabel(card.costEur)}M
+        £{priceLabel(card.price)}m
       </span>
     );
 

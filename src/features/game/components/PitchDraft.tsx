@@ -1,13 +1,8 @@
 "use client";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useReducer, useState } from "react";
-import {
-  budgetView,
-  canAfford,
-  millionsLabel,
-  shortfall,
-  type BudgetView,
-} from "@/features/game/domain/budget";
+import { budgetView, canAfford, shortfall, type BudgetView } from "@/features/game/domain/budget";
+import { priceLabel } from "@/features/game/domain/price-band";
 import { pickBack } from "@/features/game/domain/card-design";
 import type { PlayerSeasonId } from "@/features/game/domain/card-id";
 import { FORMATIONS, type PoolCard } from "@/features/game/domain/chaos-draft";
@@ -24,7 +19,6 @@ import {
 } from "@/features/game/view/room-state";
 import { useRival, type ChosenRival, type Difficulty } from "@/features/game/view/rival-choice";
 import { randomSeed } from "@/features/game/view/seed";
-import { localizeDigits } from "@/utils/format";
 import { Link } from "@/i18n/navigation";
 import { prefersReducedMotion } from "@/utils/motion";
 import { ClubCrest } from "./ClubCrest";
@@ -106,7 +100,6 @@ export function PitchDraft({
   budget,
 }: Props) {
   const t = useTranslations("game");
-  const locale = useLocale();
   const reduced = prefersReducedMotion();
 
   /** Who he has chosen to face, and how hard they play. */
@@ -203,28 +196,52 @@ export function PitchDraft({
     () => (budget == null ? null : budgetView(hands, state.picks, budget, openSlot)),
     [budget, hands, state.picks, openSlot],
   );
-  const money = useCallback((eur: number) => localizeDigits(millionsLabel(eur), locale), [locale]);
+  /**
+   * ⚠️ Western digits, like the card badge beside it. The card face is English-only in every
+   * locale, so localising the meter alone would put two numeral systems side by side for one
+   * currency — the exact inconsistency TASK-1840 was opened to remove.
+   */
+  const money = useCallback((tenths: number) => priceLabel(tenths), []);
 
-  /** The spend line. Rendered on the pitch AND on the veil, which covers it. */
-  const meter = (v: BudgetView) => (
-    <div
-      data-testid="budget-meter"
-      className="mx-auto flex w-full max-w-3xl flex-wrap items-baseline justify-center gap-x-5 gap-y-1 rounded border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 font-mono text-xs font-bold"
-    >
-      <span>
-        {t("budgetSpent")} €{money(v.spent)}M
-      </span>
-      <span>
-        {t("budgetRemaining")} €{money(v.remaining)}M
-      </span>
-      <span className="text-emerald-300">
-        {t("budgetCeiling")} €{money(Math.max(0, v.ceiling))}M
-      </span>
-      <span className="w-full text-center font-sans text-[10px] font-normal opacity-70">
-        {t("budgetWindow")}
-      </span>
-    </div>
-  );
+  /**
+   * The spend line — concept 10 "Countdown" (owner's pick, 2026-08-26).
+   *
+   * ⭐ The WALLET counts down and spend is secondary, because "what have I got left" is the
+   * question a coach actually asks mid-draft. The first version gave equal weight to spent /
+   * remaining / ceiling, which left the number that actually gates the cards the hardest of
+   * the three to find.
+   *
+   * ⚠️ The bar shows the CEILING as a share of the whole budget, not spend as a share — it is
+   * the headroom that closes as the draft tightens, and watching it close is the feedback.
+   *
+   * ⚠️ Rendered on the pitch AND on the veil, which covers the pitch. A meter that lived only
+   * on the veil would vanish between rounds, exactly when the coach reviews the XI so far.
+   */
+  const meter = (v: BudgetView) => {
+    const total = v.spent + v.remaining;
+    const head = total > 0 ? Math.max(0, Math.min(100, (Math.max(0, v.ceiling) / total) * 100)) : 0;
+    return (
+      <div
+        data-testid="budget-meter"
+        className="mx-auto w-full max-w-sm rounded-lg border border-emerald-500/30 bg-emerald-500/5 px-4 py-3"
+      >
+        <div className="flex items-baseline justify-center gap-2">
+          <span className="font-mono text-4xl leading-none font-extrabold tracking-tight">
+            £{money(v.remaining)}m
+          </span>
+          <span className="text-[10px] font-bold tracking-[0.09em] uppercase opacity-70">
+            {t("budgetRemaining")}
+          </span>
+        </div>
+        <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-[#12222c]">
+          <div className="h-full rounded-full bg-emerald-400" style={{ width: `${head}%` }} />
+        </div>
+        <p className="mt-2 text-center font-mono text-[11px] opacity-70">
+          {t("budgetSpendableNow", { amount: `£${money(Math.max(0, v.ceiling))}m` })}
+        </p>
+      </div>
+    );
+  };
 
   // Hand the finished XI up once, in slot order.
   useEffect(() => {
@@ -529,7 +546,7 @@ export function PitchDraft({
                               name: c.name,
                               role: c.role ?? shape.slots[veil.slot]!.role,
                               ovr: c.ratings?.overall ?? 0,
-                            })} — ${t("budgetShortfall", { amount: `€${money(shortfall(c, view))}M` })}`
+                            })} — ${t("budgetShortfall", { amount: `£${money(shortfall(c, view))}m` })}`
                           : t("pitchChooseCard", {
                               name: c.name,
                               // A card's own role is nullable in the data; the SLOT's never is,

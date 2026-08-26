@@ -43,12 +43,17 @@ export interface DealOptions {
   /**
    * Guarantee the CHEAPEST eligible card in every hand (TASK-1810 Budget Cap).
    *
-   * ⛔ Not a nicety — without it the mode is unplayable, and the numbers are not close.
-   * `domain/budget.ts` reserves the cheapest card of each unfilled HAND, so what bounds the
-   * draft is the sum of the hands' minimums, not the pool's. Measured on the real pool: the
-   * pool floor for a 4-3-3 is **€46M**, but the floor across five-card hands is **€137M–265M**
-   * — three to five times higher, and far above the €100M cap. Every card in every hand came
-   * out disabled, correctly, because no legal XI existed.
+   * ⚠️ `domain/budget.ts` reserves the cheapest card of each unfilled HAND, so what bounds the
+   * draft is the sum of the hands' minimums, not the pool's. On the original euro scale that
+   * made this option a FEASIBILITY fix: five random cards per slot put the floor at €137M–265M
+   * against a €100M cap, so every card in every hand came out disabled and the mode could not
+   * be played at all. A browser found that; every unit fixture had missed it.
+   *
+   * ⭐ Compressing prices into the FPL band changed what it is FOR. The worst naive floor is
+   * now **£65.0m** against a £100.0m cap — feasible everywhere — so this buys HEADROOM rather
+   * than completion: it drops the floor to £44.3m, roughly £21m more to spend up with, and
+   * guarantees every hand holds an economising option instead of leaving some slots with no
+   * cheap card at all. `budget-pool.test.ts` pins both halves.
    *
    * ⚠️ This is STATIC, which is exactly why it can live here. An "always deal something
    * affordable" option could not: `roomDeals` deals every hand up front from one seed, before
@@ -161,7 +166,7 @@ export function roomDeals(
     if (cheapest && bag.length > 0) {
       let low = 0;
       for (let i = 1; i < bag.length; i++) {
-        if ((bag[i]!.costEur ?? Infinity) < (bag[low]!.costEur ?? Infinity)) low = i;
+        if ((bag[i]!.price ?? Infinity) < (bag[low]!.price ?? Infinity)) low = i;
       }
       take(low);
     }

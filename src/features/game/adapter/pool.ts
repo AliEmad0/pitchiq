@@ -7,6 +7,7 @@ import {
   loadStandings,
 } from "@/data/loaders";
 import { indexedCost } from "@/features/game/domain/market-index";
+import { bandPrice } from "@/features/game/domain/price-band";
 import type { EnrichedCard } from "@/features/game/domain/player-card";
 import type { PoolSpec } from "@/features/game/domain/rule-packs";
 import { EARLIEST_SEASON, currentDataSeason } from "@/utils/season";
@@ -470,10 +471,26 @@ async function pricedMarket(
     if (found == null || g.rating > found.g.rating) best.set(g.card.playerId, { g, cost });
   }
 
-  return [...best.values()]
+  const ranked = [...best.values()]
     .sort((a, b) => b.g.rating - a.g.rating || a.g.card.cardId.localeCompare(b.g.card.cardId))
-    .slice(0, spec.cap)
-    .map((v) => ({ ...v.g.card, costEur: v.cost }));
+    .slice(0, spec.cap);
+
+  /**
+   * Real value → GAME price, by percentile within this pool.
+   *
+   * ⛔ The percentile is taken over DISTINCT values, so a run of identically-valued cards does
+   * not drag the whole band. Ties then price identically, which is correct — two cards the
+   * market valued the same should cost the same.
+   *
+   * ⚠️ Computed here rather than in `domain/` because it needs the whole pool at once, which
+   * only the builder has. The MAPPING itself is pure and lives in `domain/price-band.ts`.
+   */
+  const distinct = [...new Set(ranked.map((v) => v.cost))].sort((a, b) => a - b);
+  const rank = new Map(
+    distinct.map((v, i) => [v, distinct.length === 1 ? 1 : i / (distinct.length - 1)]),
+  );
+
+  return ranked.map((v) => ({ ...v.g.card, price: bandPrice(rank.get(v.cost) ?? 0) }));
 }
 
 export async function buildPool(spec: PoolSpec, only?: number): Promise<EnrichedCard[]> {

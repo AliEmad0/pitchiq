@@ -1009,12 +1009,10 @@
     "captainsDealing": "جارٍ توزيع النجوم…",
     "captainsPickOne": "خمسة نجوم. اختر من ستبني حوله.",
     "budgetTitle": "درافت سقف الميزانية",
-    "budgetSubtitle": "١٠٠ مليون. كل الحقب معروضة. ابحث عن الصفقات.",
-    "budgetSpent": "المنفق",
+    "budgetSubtitle": "١٠٠ مليون جنيه. كل الحقب معروضة. ابحث عن الصفقات.",
     "budgetRemaining": "المتبقي",
-    "budgetCeiling": "الحد لهذا الاختيار",
     "budgetShortfall": "تجاوز بـ {amount}",
-    "budgetWindow": "الأسعار تغطي ٢٠٠٤-٢٠٢٥، بقيمة اليوم"
+    "budgetSpendableNow": "{amount} متاح للإنفاق الآن"
   },
   "commentary": {
     "armbandHandover": "شارة القيادة تنتقل إلى {name}.",

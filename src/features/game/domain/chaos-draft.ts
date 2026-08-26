@@ -14,12 +14,13 @@ import { type GameTeam, makeGameTeam } from "./team";
 /**
  * A poolable card = a rated player-season plus its club (for the card face).
  *
- * ⚠️ `costEur` is present only on a `pricedMarket` pool (TASK-1810 Budget Cap), and it is the
- * INDEXED cost in base-season money — not the historical market value the archive stores.
+ * ⚠️ `price` is present only on a `pricedMarket` pool (TASK-1810 Budget Cap). It is the GAME
+ * price in **tenths of a million** (`164` = £16.4m), not a market value: real values are
+ * indexed for era and then compressed into an FPL-style band — see `domain/price-band.ts`.
  * Optional because no other pool has a concept of price; absent means "not for sale in this
  * mode", which `domain/budget.ts` treats as unaffordable rather than free.
  */
-export type PoolCard = GamePlayer & { club: string; teamId?: number; costEur?: number };
+export type PoolCard = GamePlayer & { club: string; teamId?: number; price?: number };
 
 const slot = (row: number, col: number, role: PlayerRole): FormationSlot => ({ row, col, role });
 const formation = (name: string, slots: FormationSlot[]): Formation => ({ name, season: 0, slots });
@@ -218,7 +219,7 @@ function cheapestFor(
 ): PoolCard[] {
   return pool
     .filter((c) => !used.has(c.playerId) && canPlay(c, role))
-    .sort((a, b) => (a.costEur ?? Infinity) - (b.costEur ?? Infinity))
+    .sort((a, b) => (a.price ?? Infinity) - (b.price ?? Infinity))
     .slice(0, n);
 }
 
@@ -241,7 +242,7 @@ function reserveFrom(lists: readonly PoolCard[][], exclude: number): number {
     const card = list.find((c) => !claimed.has(c.playerId));
     if (card == null) continue;
     claimed.add(card.playerId);
-    total += card.costEur ?? 0;
+    total += card.price ?? 0;
   }
   return total;
 }
@@ -270,7 +271,7 @@ function budgetPick(
   const roll = rng();
   const lists = later.map((s) => cheapestFor(pool, s.role, used, later.length + 2));
   const affordable = from.filter(
-    (c) => (c.costEur ?? Infinity) + reserveFrom(lists, c.playerId) <= remaining,
+    (c) => (c.price ?? Infinity) + reserveFrom(lists, c.playerId) <= remaining,
   );
   if (affordable.length === 0) return null;
   const band = affordable.filter((c) => (c.ratings?.overall ?? 0) >= STANDOUT_OVR);
@@ -345,7 +346,7 @@ export function chaosDraft(
       );
       if (card == null) continue;
       used.add(card.playerId);
-      spent += card.costEur ?? 0;
+      spent += card.price ?? 0;
       chosen.push(card);
     }
   } else if (policy === "best") {

@@ -6,7 +6,7 @@ import { BASE_SEASON } from "@/features/game/domain/market-index";
 import type { PoolSpec } from "@/features/game/domain/rule-packs";
 import { buildSession } from "@/features/game/view/match-session";
 
-const CAP = 100_000_000;
+const CAP = 1000; // £100.0m in tenths
 const SPEC: PoolSpec = { kind: "pricedMarket", cap: 600, baseSeason: BASE_SEASON };
 const NAMES = { home: "Your XI", away: "Rivals" };
 // ⚠️ By NAME, never by index — `FORMATIONS`' order is presentation only, and a guard test
@@ -14,7 +14,7 @@ const NAMES = { home: "Your XI", away: "Rivals" };
 const SHAPE = formationByName("4-4-2 Flat");
 const away = (s: { away: { players: readonly { cardId: string }[] } }) =>
   s.away.players.map((p) => p.cardId);
-const cost = (xi: readonly PoolCard[]) => xi.reduce((a, c) => a + (c.costEur ?? 0), 0);
+const cost = (xi: readonly PoolCard[]) => xi.reduce((a, c) => a + (c.price ?? 0), 0);
 
 /**
  * The budget reaches the RIVAL, not only the coach's draft.
