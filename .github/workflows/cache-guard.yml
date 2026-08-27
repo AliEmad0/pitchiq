@@ -141,8 +141,9 @@ jobs:
           # tell you that. A broken matcher does not error — it silently goes back
           # to paying a render per probe.
           #
-          # An EMPTY body is the fingerprint: middleware returns a bare status, the
-          # branded not-found page is ~100 KB.
+          # A TINY body is the fingerprint: our middleware returns a bare status (0B),
+          # Vercel's platform firewall a ~59B deny — the branded not-found page is ~100 KB,
+          # and only that last one means a function ran.
           scanner() {
             local label="$1" path="$2" status len
 
@@ -152,12 +153,22 @@ jobs:
             echo "── $label ($path)"
             echo "   status=$status  body=${len}B"
 
-            if [ "$status" != "404" ]; then
-              echo "   ::error::expected HTTP 404, got $status"
+            # ⚠️ The assertion is "a scanner probe never buys a render", and BODY SIZE is the
+            # honest fingerprint — not which layer said no. Two answers are both correct:
+            #   404 + empty  — our middleware short-circuit
+            #   403 + tiny   — Vercel's platform firewall, which sits UPSTREAM of the app and
+            #                  denies some scanner shapes on its own (measured 2026-08-27:
+            #                  /wp-login.php drew a 59B platform 403 while /.env fell through
+            #                  to our middleware — and which shapes it covers can change
+            #                  without notice, so the probe must accept either layer).
+            # The failure mode is a LARGE body on any status: that means a React render ran.
+            if [ "$status" != "404" ] && [ "$status" != "403" ]; then
+              echo "   ::error::expected HTTP 404 (middleware) or 403 (platform firewall), got $status"
               fail=1
-            elif [ "$len" -gt 0 ]; then
-              echo "   ::error::a scanner probe rendered a ${len}B page — the middleware matcher"
-              echo "   ::error::is no longer catching it, and every probe is costing Active CPU."
+            elif [ "$len" -gt 1000 ]; then
+              echo "   ::error::a scanner probe drew a ${len}B response — a page RENDERED, so the"
+              echo "   ::error::middleware matcher is no longer catching it and every probe is"
+              echo "   ::error::costing Active CPU. Check src/middleware.ts config + probe-path.ts."
               fail=1
             fi
           }
