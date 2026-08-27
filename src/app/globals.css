@@ -2841,9 +2841,185 @@
   box-shadow: 0 0 0 3px #35e0ff;
 }
 
-/* ⚠️ ALL FOUR animated selectors, not just the container. The deal is two legs per
-   card plus two positional transitions, so gating one leaves the rest running for a
-   reduced-motion visitor while still screenshotting correctly. */
+/* ---- the man you already own, dealt back to you in your own hand ----
+   ⭐ TASK-1810 (owner report, 2026-08-26). A swap veil that does not say which of the five
+   is already yours is five strangers, and the one you came to replace is invisible. */
+.pd-card-current .pd-front,
+.pd-card-current .pd-back {
+  box-shadow:
+    0 0 0 3px #f2d98a,
+    0 10px 34px rgb(242 217 138 / 28%);
+}
+.pd-current-mark {
+  /* ⛔ `pointer-events: none`. It is painted above `.pd-pick`, and a label that swallowed the
+     tap would make the one card the coach most wants to press the one card he cannot — the
+     same trap the pitch markings' `::after` set (see `.pd-pitch::after`). */
+  pointer-events: none;
+  position: absolute;
+  z-index: 7;
+  top: -11px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  border-radius: 999px;
+  padding: 3px 11px;
+  background: linear-gradient(160deg, #f2d98a, #b7892a);
+  color: #241a05;
+  font-family: var(--font-mono), monospace;
+  font-size: 9.5px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow: 0 3px 10px rgb(0 0 0 / 45%);
+}
+/* Tapping him DROPS him, so the hover is rose — never the cyan that means "pick this one". */
+.pd-pick-drop:hover {
+  box-shadow: 0 0 0 3px #ff5d7e;
+}
+
+/* ---- the way out of a round the coach opened himself ---- */
+.pd-back-btn {
+  border: 1px solid rgb(255 255 255 / 35%);
+  background: rgb(255 255 255 / 8%);
+  border-radius: 8px;
+  padding: 9px 20px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.pd-back-btn:hover {
+  border-color: #35e0ff;
+  color: #35e0ff;
+}
+
+/* ---- the bench shelf ----
+   ⭐ Framed, counted, and speaking the pitch's vocabulary (owner report, 2026-08-26). Five
+   bare 92px boxes under a full-bleed pitch did not register as part of the squad at all. */
+.pd-bench {
+  margin-top: 20px;
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 14px;
+  padding: 13px 16px 15px;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 6%), rgb(255 255 255 / 0%) 40%), rgb(9 20 16 / 55%);
+}
+.pd-bench-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.pd-bench-title {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #cfe3d7;
+}
+.pd-bench-rule {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, rgb(255 255 255 / 22%), rgb(255 255 255 / 0%));
+}
+.pd-bench-count {
+  font-family: var(--font-mono), monospace;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  border-radius: 999px;
+  border: 1px solid rgb(255 255 255 / 18%);
+  padding: 3px 10px;
+  color: #cfe3d7;
+}
+.pd-bench-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+.pd-bench-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 122px;
+  padding: 11px 8px 10px;
+  border-radius: 12px;
+  border: 2px dashed rgb(255 255 255 / 26%);
+  background: rgb(8 20 15 / 45%);
+  transition:
+    transform 180ms var(--ease-pop),
+    border-color 180ms;
+}
+.pd-bench-slot:hover {
+  transform: translateY(-2px);
+  border-color: #35e0ff;
+}
+.pd-bench-filled {
+  border-style: solid;
+  border-color: rgb(242 217 138 / 45%);
+  background: rgb(242 217 138 / 8%);
+}
+.pd-bench-role {
+  font-family: var(--font-mono), monospace;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.72;
+}
+/* ⚠️ The PITCH's disc, deliberately. The bench is the same squad, so it reuses that one
+   piece of vocabulary rather than inventing a second way to show a rating. */
+.pd-bench-disc {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono), monospace;
+  font-size: 15px;
+  font-weight: 800;
+  color: #cfe3d7;
+  background: rgb(8 20 15 / 62%);
+  border: 2px dashed rgb(255 255 255 / 38%);
+}
+.pd-bench-filled .pd-bench-disc {
+  border-style: solid;
+  border-color: rgb(0 0 0 / 35%);
+  background: linear-gradient(160deg, #f2d98a, #b7892a);
+  color: #241a05;
+  font-weight: 900;
+}
+.pd-bench-silver .pd-bench-disc {
+  background: linear-gradient(160deg, #dfe3ea, #9aa3b1);
+  color: #1d2027;
+}
+.pd-bench-name {
+  /* Two lines then ellipsis — one long name must not push its neighbours out of line. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  font-size: 11.5px;
+  font-weight: 750;
+  line-height: 1.22;
+  color: #f2f7f4;
+}
+.pd-bench-cost {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  font-weight: 800;
+  color: #f2d98a;
+}
+.pd-bench-cost-empty {
+  color: #cfe3d7;
+  opacity: 0.4;
+}
+
+/* ⚠️ EVERY animated selector, not just the container. The deal is two legs per card,
+   two positional transitions and the bench tile's lift, so gating one leaves the rest
+   running for a reduced-motion visitor while still screenshotting correctly. */
 @media (prefers-reduced-motion: reduce) {
   .pd-back {
     animation: none;
@@ -2854,8 +3030,12 @@
     visibility: visible;
   }
   .pd-spot,
-  .pd-disc {
+  .pd-disc,
+  .pd-bench-slot {
     transition: none;
+  }
+  .pd-bench-slot:hover {
+    transform: none;
   }
 }
 
@@ -4509,9 +4689,7 @@
   border: 1px solid rgb(255 47 176 / 0.32);
   border-radius: 16px;
   padding: 18px;
-  background:
-    linear-gradient(180deg, rgb(255 47 176 / 0.09), transparent 55%),
-    var(--mg-ground);
+  background: linear-gradient(180deg, rgb(255 47 176 / 0.09), transparent 55%), var(--mg-ground);
   color: var(--mg-ink);
 }
 .mg-marquee {

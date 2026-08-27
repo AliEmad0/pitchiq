@@ -1015,8 +1015,17 @@
     "budgetSpendableNow": "{amount} spendable right now",
     "budgetHeldBack": "{amount} held back for the other {count, plural, one {position} other {# positions}}",
     "pitchBench": "Bench",
+    "pitchBenchCount": "{filled} of {total}",
+    "pitchBenchAdd": "Add {role}",
     "pitchConfirmSquad": "Confirm squad",
-    "pitchConfirmPending": "{count, plural, one {1 still to fill} other {# still to fill}}"
+    "pitchConfirmPending": "{count, plural, one {1 still to fill} other {# still to fill}}",
+    "pitchChangeRole": "Change your {role}",
+    "pitchSwapHint": "Tap any card to swap {name} out — or tap {name} himself to drop him.",
+    "pitchSwapRefund": "Dropping him puts {amount} back in the budget.",
+    "pitchCurrentPick": "In your squad",
+    "pitchDropCard": "Remove {name} from your squad",
+    "pitchKeepPick": "Keep {name}",
+    "pitchBackToSquad": "Back to the squad"
   },
   "commentary": {
     "armbandHandover": "The armband goes to {name}.",

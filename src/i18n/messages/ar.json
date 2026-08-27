@@ -1015,8 +1015,17 @@
     "budgetSpendableNow": "{amount} متاح للإنفاق الآن",
     "budgetHeldBack": "{amount} محجوزة {count, plural, one {للمركز الآخر} two {للمركزين الآخرين} few {للـ# مراكز الأخرى} other {للـ# مركزًا الأخرى}}",
     "pitchBench": "دكة البدلاء",
+    "pitchBenchCount": "{filled} من {total}",
+    "pitchBenchAdd": "أضف {role}",
     "pitchConfirmSquad": "تأكيد التشكيلة",
-    "pitchConfirmPending": "{count, plural, one {بقي مركز واحد} two {بقي مركزان} few {بقي # مراكز} other {بقي # مركزًا}}"
+    "pitchConfirmPending": "{count, plural, one {بقي مركز واحد} two {بقي مركزان} few {بقي # مراكز} other {بقي # مركزًا}}",
+    "pitchChangeRole": "غيّر {role}",
+    "pitchSwapHint": "اضغط أي بطاقة لتستبدل {name} — أو اضغط بطاقة {name} نفسه لاستبعاده.",
+    "pitchSwapRefund": "استبعاده يعيد {amount} إلى الميزانية.",
+    "pitchCurrentPick": "في تشكيلتك",
+    "pitchDropCard": "استبعد {name} من التشكيلة",
+    "pitchKeepPick": "أبقِ {name}",
+    "pitchBackToSquad": "عد إلى التشكيلة"
   },
   "commentary": {
     "armbandHandover": "شارة القيادة تنتقل إلى {name}.",

@@ -16,6 +16,24 @@ import type { PoolCard } from "./chaos-draft";
  *   2. The cheapest card in the OPEN hand is, by the same invariant, always at or below the
  *      ceiling — so no hand is ever entirely dead.
  *
+ * ⭐ RE-DRAFTING A FILLED SLOT extends both properties rather than breaking them, and it took
+ * an owner report to find that it had never been implemented (2026-08-26). When `open` names a
+ * slot that already holds someone, that man's fee comes back off `spent` — he is being
+ * replaced, so what he cost is money on the table for his replacement. Two things follow:
+ *
+ *   3. The invariant survives. Picking at cost ≤ `ceiling` leaves `remaining` ≥ the other
+ *      hands' minimums by exactly the induction above, because the other slots are untouched.
+ *   4. HIS OWN CARD is always affordable, so the hand is never dead. The state before the
+ *      re-open was valid — `budget − spent(all) − reserve(other unfilled) ≥ 0` — and expanding
+ *      `spent(all)` gives `cost(occupant) ≤ ceiling` directly. He was dealt from THIS hand,
+ *      so the coach can always put the veil back the way he found it.
+ *
+ * ⛔ Without the refund, a full squad is a DEAD END: the ceiling is whatever change is left
+ * over (£1.2m against a £120m cap in the shipped report), every card in the hand is dearer
+ * than that, and `PitchDraft` had put up a round that could not be dismissed. There was no way
+ * out of the page at all. A budget rule that makes a screen unusable is not a difficulty
+ * setting — it is the mode's central guarantee failing in the one place nothing checked.
+ *
  * ⛔ A pool-wide reserve (`slotsLeft × cheapestCard`) is the obvious form and it UNDER-reserves:
  * the cheapest card in the pool is no use when the unfilled slot is a goalkeeper and that card
  * is a winger. Reading the hands sidesteps role-awareness entirely, because a hand only ever
@@ -70,7 +88,8 @@ const cheapestIn = (hand: readonly PoolCard[]): number => {
  * @param hands  One hand per slot, in slot order — exactly `roomDeals`' return value.
  * @param picks  One entry per slot, in slot order — `RoomState.picks`.
  * @param budget The pack's `budgetCap` amount, in tenths of a million (`1000` = £100.0m).
- * @param open   The slot being drafted, excluded from the reserve. Null once the room is full.
+ * @param open   The slot being drafted. It contributes NOTHING to either figure — see the
+ *               re-draft note above. Null once the room is full and no slot is on the veil.
  */
 export function budgetView(
   hands: readonly (readonly PoolCard[])[],
@@ -86,13 +105,18 @@ export function budgetView(
   let spent = 0;
   let reserve = 0;
   for (let i = 0; i < picks.length; i++) {
+    // ⛔ THE OPEN SLOT CONTRIBUTES NOTHING — not its hand's minimum to the reserve, and not
+    // its occupant's fee to the spend. Both halves are the same idea, and only the first of
+    // them was ever implemented: the `picked != null` branch used to `continue` before this
+    // line was reached, so a slot re-opened to swap someone out kept charging the coach for
+    // the man he was replacing. See the re-draft note in this file's header.
+    if (i === open) continue;
     const picked = picks[i];
     if (picked != null) {
       const card = byId.get(picked);
       if (card != null) spent += costOf(card) ?? 0;
       continue;
     }
-    if (i === open) continue;
     reserve += cheapestIn(hands[i] ?? []);
   }
 

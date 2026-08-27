@@ -184,6 +184,11 @@ export function PitchDraft({
     [pool, captain],
   );
   const filled = state.picks.filter((p) => p != null).length;
+  /** How much of the BENCH is done — its own count, because it is its own strip. */
+  const benchFilled = benchRoles.reduce(
+    (n, _role, i) => n + (state.picks[shape.slots.length + i] != null ? 1 : 0),
+    0,
+  );
 
   /**
    * The running budget — DERIVED on every render, never stored.
@@ -196,6 +201,39 @@ export function PitchDraft({
    * ceiling is about. Off the veil it is the reducer's own open slot.
    */
   const openSlot = veil?.mode === "round" ? veil.slot : state.open;
+
+  /**
+   * The man already standing in the slot the veil is over, if there is one.
+   *
+   * ⭐ A round opened on a FILLED slot is a different interaction from a round opened on an
+   * empty one, and treating them as the same thing is what dead-ended the mode. The coach
+   * chose to reconsider, so he must be able to walk away; and the card he already owns is a
+   * CONTROL on that veil — tapping it drops the man rather than buying him twice.
+   */
+  const openPick = veil != null ? (state.picks[veil.slot] ?? null) : null;
+
+  /**
+   * ⛔ Whether a round can be walked away from — derived from the PACK, never from a mode id.
+   *
+   * Legacy Club and Captain's Draft lock their picks: there the round IS the commitment
+   * ("five cards turn over on a veil that CANNOT be dismissed"), and that rule is theirs to
+   * keep. Budget Cap does not lock them — nothing is final until the coach confirms the
+   * squad — so a round he can neither answer nor leave is the mode contradicting its own
+   * premise. It shipped that way, and with a full squad and £1.2m of change it left no way
+   * out of the page at all.
+   */
+  const canLeaveRound = draft.lockPicks !== true;
+  const dismissable = veil != null && (veil.mode === "review" || canLeaveRound);
+
+  // The third way out, matching `BenchDialog`: backdrop, button, Escape.
+  useEffect(() => {
+    if (!dismissable) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setVeil(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [dismissable]);
 
   /**
    * The role a room index is drafting — the formation's slots first, then the bench.
@@ -335,6 +373,24 @@ export function PitchDraft({
     captain != null && canPlay(captain, role);
 
   const rows = Math.max(...shape.slots.map((s) => s.row));
+
+  /** The card the coach is holding in the open slot — the one his taps can now DROP. */
+  const currentCard = openPick != null ? byId.get(openPick) : undefined;
+
+  /**
+   * What the veil is: a fresh round, a SWAP on a slot he has already filled, or a read-only
+   * look at a final pick. ⚠️ "Choose your CF" over a slot that already holds a centre-forward
+   * is half of why the screen read as stuck — it never acknowledged the man standing there.
+   */
+  const veilTitle =
+    veil == null
+      ? ""
+      : veil.mode === "review"
+        ? t("pitchYourPick", { role: roleAt(veil.slot) })
+        : currentCard != null
+          ? t("pitchChangeRole", { role: roleAt(veil.slot) })
+          : t("pitchChooseRole", { role: roleAt(veil.slot) });
+
   const veilCards: PoolCard[] =
     veil == null
       ? []
@@ -539,99 +595,145 @@ export function PitchDraft({
       {veil != null ? (
         <div
           className="pd-veil"
+          data-testid="pd-veil"
           role="dialog"
           aria-modal="true"
-          aria-label={
-            veil.mode === "round"
-              ? t("pitchChooseRole", { role: roleAt(veil.slot) })
-              : t("pitchYourPick", { role: roleAt(veil.slot) })
-          }
-          // ⛔ A ROUND cannot be dismissed by clicking away; a review can.
+          aria-label={veilTitle}
+          // ⛔ A round a pack LOCKS cannot be dismissed by clicking away; a review always can,
+          // and so can a round in a pack whose picks are not final.
           onClick={(e) => {
-            if (veil.mode === "review" && e.target === e.currentTarget) setVeil(null);
+            if (dismissable && e.target === e.currentTarget) setVeil(null);
           }}
         >
           <div className="pd-veil-inner">
-            <h2 className="text-xl font-extrabold tracking-tight sm:text-2xl">
-              {veil.mode === "round"
-                ? t("pitchChooseRole", { role: roleAt(veil.slot) })
-                : t("pitchYourPick", { role: roleAt(veil.slot) })}
-            </h2>
-            <p className="text-muted-foreground mb-6 mt-1 text-sm">
-              {veil.mode === "round" ? t("pitchRoundHint") : t("pitchPickFinal")}
-            </p>
+            <h2 className="text-xl font-extrabold tracking-tight sm:text-2xl">{veilTitle}</h2>
+            <div className="mb-6 mt-1 space-y-1">
+              <p className="text-muted-foreground text-sm">
+                {veil.mode !== "round"
+                  ? t("pitchPickFinal")
+                  : currentCard != null
+                    ? t("pitchSwapHint", { name: currentCard.name })
+                    : t("pitchRoundHint")}
+              </p>
+              {/* ⚠️ The refund named in MONEY, because that is the decision. "Drop him" says
+                  nothing; "drop him and £14.1m comes back" is the whole reason to tap. */}
+              {veil.mode === "round" && currentCard?.price != null && view != null ? (
+                <p className="text-sm font-semibold text-emerald-300">
+                  {t("pitchSwapRefund", { amount: `£${money(currentCard.price)}m` })}
+                </p>
+              ) : null}
+            </div>
 
             {view != null && veil.mode === "round" ? (
               <div className="mb-5">{meter(view)}</div>
             ) : null}
 
             <div className="pd-hand" key={`${veil.slot}-${veil.mode}`}>
-              {veilCards.map((c, k) => (
-                <div
-                  key={c.cardId}
-                  data-testid="pd-candidate"
-                  /**
-                   * ⛔ Dealt but DISABLED, never filtered out (owner, 2026-08-25). Seeing the
-                   * €200M card you are priced out of is the mode working; removing it from the
-                   * hand would make the budget invisible and spending big consequence-free.
-                   *
-                   * ⚠️ The reserve rule guarantees the cheapest card in this hand is always
-                   * affordable, so a hand can never be entirely dead — see `domain/budget.ts`.
-                   */
-                  data-unaffordable={
-                    view != null && veil.mode === "round" && !canAfford(c, view) ? "" : undefined
-                  }
-                  className={`pd-card${
-                    view != null && veil.mode === "round" && !canAfford(c, view)
-                      ? " opacity-45 grayscale"
-                      : ""
-                  }`}
-                  style={{ ["--pd-i" as string]: reduced ? 0 : k }}
-                >
-                  {/* TASK-1837 — the card's OWN back, seeded per card exactly as a tap
-                      flip picks it, so a face-down card is never a generic grey panel. */}
-                  <span className="pd-back" aria-hidden="true">
-                    <CardBack card={c as EnrichedCard} back={pickBack(c as EnrichedCard)} />
-                  </span>
-                  <span className="pd-front">
-                    <PlayerCard card={c as EnrichedCard} reduced={reduced} interactive={false} />
-                  </span>
-                  {veil.mode === "round" ? (
-                    // The ONLY control on a card, and it sits outside the turning faces:
-                    // a rotated, backface-hidden surface does not hit-test reliably.
-                    <button
-                      type="button"
-                      className="pd-pick"
-                      disabled={view != null && !canAfford(c, view)}
-                      aria-label={
-                        view != null && !canAfford(c, view)
-                          ? `${t("pitchChooseCard", {
-                              name: c.name,
-                              role: c.role ?? roleAt(veil.slot),
-                              ovr: c.ratings?.overall ?? 0,
-                            })} — ${t("budgetShortfall", { amount: `£${money(shortfall(c, view))}m` })}`
-                          : t("pitchChooseCard", {
-                              name: c.name,
-                              // A card's own role is nullable in the data; the SLOT's never is,
-                              // and it is the role being filled that the label is about.
-                              role: c.role ?? roleAt(veil.slot),
-                              ovr: c.ratings?.overall ?? 0,
-                            })
-                      }
-                      onClick={() => {
-                        dispatch({ type: "pick", index: veil.slot, cardId: c.cardId });
-                        setVeil(null);
-                      }}
-                    />
-                  ) : null}
-                </div>
-              ))}
+              {veilCards.map((c, k) => {
+                /**
+                 * The man the coach is already holding in this slot, dealt back to him in his
+                 * own hand. ⭐ Tapping him DROPS him (owner, 2026-08-26) — under a budget the
+                 * move is often "I cannot afford anyone here yet, take him off and go spend
+                 * the money at the back", and a hand that can only ever replace forces the
+                 * coach to buy someone he does not want in order to sell.
+                 */
+                const isCurrent = veil.mode === "round" && c.cardId === openPick;
+                /**
+                 * ⛔ Dealt but DISABLED, never filtered out (owner, 2026-08-25). Seeing the
+                 * £200m card you are priced out of is the mode working; removing it from the
+                 * hand would make the budget invisible and spending big consequence-free.
+                 *
+                 * ⚠️ The reserve rule guarantees the cheapest card in this hand is always
+                 * affordable, so a hand can never be entirely dead — see `domain/budget.ts`.
+                 *
+                 * ⚠️ The incumbent is never blocked: his fee is refunded the moment his slot
+                 * re-opens, and in any case DROPPING him costs nothing to begin with.
+                 */
+                const blocked = !isCurrent && view != null && !canAfford(c, view);
+                const grey = veil.mode === "round" && blocked;
+                const choose = t("pitchChooseCard", {
+                  name: c.name,
+                  // A card's own role is nullable in the data; the SLOT's never is, and it is
+                  // the role being filled that the label is about.
+                  role: c.role ?? roleAt(veil.slot),
+                  ovr: c.ratings?.overall ?? 0,
+                });
+                return (
+                  <div
+                    key={c.cardId}
+                    data-testid="pd-candidate"
+                    data-unaffordable={grey ? "" : undefined}
+                    className={`pd-card${isCurrent ? " pd-card-current" : ""}${
+                      grey ? " opacity-45 grayscale" : ""
+                    }`}
+                    style={{ ["--pd-i" as string]: reduced ? 0 : k }}
+                  >
+                    {/* TASK-1837 — the card's OWN back, seeded per card exactly as a tap
+                        flip picks it, so a face-down card is never a generic grey panel. */}
+                    <span className="pd-back" aria-hidden="true">
+                      <CardBack card={c as EnrichedCard} back={pickBack(c as EnrichedCard)} />
+                    </span>
+                    <span className="pd-front">
+                      <PlayerCard card={c as EnrichedCard} reduced={reduced} interactive={false} />
+                    </span>
+                    {/* ⚠️ Says which of the five he already owns. Without it the swap veil is
+                        five strangers and the one he is trying to replace is invisible. */}
+                    {isCurrent ? (
+                      <span data-testid="pd-current-mark" className="pd-current-mark">
+                        {t("pitchCurrentPick")}
+                      </span>
+                    ) : null}
+                    {veil.mode === "round" ? (
+                      // The ONLY control on a card, and it sits outside the turning faces:
+                      // a rotated, backface-hidden surface does not hit-test reliably.
+                      <button
+                        type="button"
+                        data-testid={isCurrent ? "pd-drop" : undefined}
+                        className={`pd-pick${isCurrent ? " pd-pick-drop" : ""}`}
+                        disabled={blocked}
+                        aria-label={
+                          isCurrent
+                            ? t("pitchDropCard", { name: c.name })
+                            : blocked && view != null
+                              ? `${choose} — ${t("budgetShortfall", {
+                                  amount: `£${money(shortfall(c, view))}m`,
+                                })}`
+                              : choose
+                        }
+                        onClick={() => {
+                          dispatch(
+                            isCurrent
+                              ? { type: "clear", index: veil.slot }
+                              : { type: "pick", index: veil.slot, cardId: c.cardId },
+                          );
+                          setVeil(null);
+                        }}
+                      />
+                    ) : null}
+                  </div>
+                );
+              })}
             </div>
 
             {veil.mode === "round" ? (
-              <p className="text-muted-foreground mt-6 font-mono text-[11px]">
-                {t("pitchNoTimer")}
-              </p>
+              <div className="mt-6 flex flex-col items-center gap-3">
+                {/* ⭐ THE WAY OUT (owner report, 2026-08-26). Present only where the pack does
+                    not lock its picks: a pack that does owes the coach a decision and gets no
+                    button, which is Legacy Club's rule and stays Legacy Club's rule. */}
+                {canLeaveRound ? (
+                  <button
+                    type="button"
+                    data-testid="veil-back"
+                    onClick={() => setVeil(null)}
+                    className="pd-back-btn"
+                  >
+                    {currentCard != null
+                      ? t("pitchKeepPick", { name: currentCard.name })
+                      : t("pitchBackToSquad")}
+                  </button>
+                ) : null}
+                <p className="text-muted-foreground font-mono text-[11px]">{t("pitchNoTimer")}</p>
+              </div>
             ) : (
               <button type="button" onClick={() => setVeil(null)} className="pd-close">
                 {t("pitchClose")}
@@ -641,13 +743,25 @@ export function PitchDraft({
         </div>
       ) : null}
 
-      {/* The bench, as its own strip — five more slots the coach drafts and pays for. */}
+      {/**
+       * ⭐ THE BENCH AS A SHELF, not five loose boxes (owner report, 2026-08-26).
+       *
+       * It shipped as five 92px tiles reading "GK 74" — no name, no fee, no frame, sitting
+       * under a full-bleed pitch — and the owner did not see it at a glance. It holds five
+       * of the sixteen men and a real share of the money, so it gets a frame that separates
+       * it from the pitch, a count that says how much work is left in it, and the SAME gold
+       * disc the pitch spots use, so the two halves read as one squad rather than two lists.
+       */}
       {locked && benchRoles.length > 0 ? (
-        <div className="mt-5">
-          <p className="text-muted-foreground mb-2 text-center font-mono text-[11px] tracking-wider uppercase">
-            {t("pitchBench")}
-          </p>
-          <div className="flex flex-wrap justify-center gap-2">
+        <section className="pd-bench" data-testid="pd-bench" aria-label={t("pitchBench")}>
+          <header className="pd-bench-head">
+            <span className="pd-bench-title">{t("pitchBench")}</span>
+            <span className="pd-bench-rule" aria-hidden="true" />
+            <span className="pd-bench-count" data-testid="pd-bench-count">
+              {t("pitchBenchCount", { filled: benchFilled, total: benchRoles.length })}
+            </span>
+          </header>
+          <div className="pd-bench-row">
             {benchRoles.map((role, i) => {
               const index = shape.slots.length + i;
               const id = state.picks[index];
@@ -656,6 +770,7 @@ export function PitchDraft({
                 <button
                   key={`${role}-${i}`}
                   type="button"
+                  data-testid="pd-bench-slot"
                   aria-label={
                     card
                       ? t("pitchViewPick", {
@@ -671,21 +786,31 @@ export function PitchDraft({
                       mode: card && draft.lockPicks === true ? "review" : "round",
                     })
                   }
-                  className={`min-w-[92px] rounded-md border px-3 py-2 text-center font-mono text-[11px] ${
-                    card
-                      ? "border-amber-400/60 bg-amber-400/10"
-                      : "border-dashed border-white/25 opacity-70"
+                  className={`pd-bench-slot${card ? " pd-bench-filled" : ""}${
+                    card && (card.ratings?.overall ?? 0) < 80 ? " pd-bench-silver" : ""
                   }`}
                 >
-                  <span className="block text-[9px] tracking-wider opacity-70">{role}</span>
-                  <span className="block font-bold">
-                    {card ? (card.ratings?.overall ?? 0) : "—"}
+                  <span className="pd-bench-role">{role}</span>
+                  <span className="pd-bench-disc">{card ? (card.ratings?.overall ?? 0) : "+"}</span>
+                  {/* ⚠️ An empty slot names the JOB, not a dash. "—" reads as "nothing here";
+                      "Add GK" reads as a thing the coach still has to do. */}
+                  <span className="pd-bench-name">
+                    {card ? card.name : t("pitchBenchAdd", { role })}
                   </span>
+                  {card?.price != null ? (
+                    <span data-testid="pd-bench-cost" className="pd-bench-cost">
+                      £{money(card.price)}m
+                    </span>
+                  ) : (
+                    <span className="pd-bench-cost pd-bench-cost-empty" aria-hidden="true">
+                      —
+                    </span>
+                  )}
                 </button>
               );
             })}
           </div>
-        </div>
+        </section>
       ) : null}
 
       {locked ? (

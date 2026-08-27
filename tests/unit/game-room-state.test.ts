@@ -53,6 +53,31 @@ describe("roomReducer", () => {
     expect(s.formation.name).toBe("3-5-2");
   });
 
+  it("⭐ clearing a pick empties the slot and leaves it open", () => {
+    // TASK-1810 — dropping a man is how the coach frees money in Budget Cap. The slot he
+    // just emptied is by definition the one he is now drafting, so `open` follows him there
+    // rather than running `nextUnfilled` off to some other gap.
+    let s = roomReducer(start(), { type: "pick", index: 3, cardId: "1@2020" });
+    s = roomReducer(s, { type: "clear", index: 3 });
+    expect(s.picks[3]).toBeNull();
+    expect(s.open).toBe(3);
+  });
+
+  it("⛔ the LOCKED pick cannot be cleared — the mode is built on him", () => {
+    // Captain's Draft places its icon before the draft starts. He is not a pick the coach
+    // made, so he is not a pick the coach may drop.
+    const s = createRoomState(shape, { index: 0, cardId: "99@2020" });
+    expect(roomReducer(s, { type: "clear", index: 0 })).toBe(s);
+    expect(s.picks[0]).toBe("99@2020");
+  });
+
+  it("⚠️ clearing an empty or out-of-range slot is ignored, not applied", () => {
+    const s = start();
+    expect(roomReducer(s, { type: "clear", index: 5 })).toBe(s);
+    expect(roomReducer(s, { type: "clear", index: 99 })).toBe(s);
+    expect(roomReducer(s, { type: "clear", index: -1 })).toBe(s);
+  });
+
   it("advancing wraps to an earlier gap rather than stopping at the end", () => {
     // The coach may fill slot 10 first; finishing slot 9 must then find slot 0, not close
     // the room while eight slots are still empty.
