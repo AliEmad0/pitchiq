@@ -78,4 +78,54 @@ test.describe("Budget Cap Draft", () => {
     // The meter is DERIVED from the picks, so it must move the moment one is made.
     await expect.poll(async () => (await spent()) !== before, { timeout: 5000 }).toBe(true);
   });
+
+  test("a filled position re-opens with the fee back on the table, and a way out", async ({
+    page,
+  }) => {
+    /**
+     * ⛔ THE DEAD END this closes (owner report, 2026-08-26). With the squad full and a little
+     * change left, tapping a filled position dealt a hand in which every card was priced out —
+     * the man being replaced was still counted as spent — and a round carries no close
+     * control. There was no way out of the page at all.
+     *
+     * ⚠️ Asserted on ONE pick, not a full sixteen. The arithmetic is the same either way (the
+     * ceiling must come back to exactly what it was), and clicking sixteen positions through a
+     * real browser buys a minute of runtime and no extra coverage.
+     */
+    await page.goto("/game/budget");
+    await page.getByRole("button", { name: /^Lock in / }).click();
+
+    const ceiling = async () => {
+      const text = (await page.getByTestId("budget-meter").first().textContent()) ?? "";
+      return /£([\d.]+)m spendable/.exec(text)?.[1];
+    };
+
+    await page
+      .getByRole("button", { name: /empty\. Choose a player/ })
+      .first()
+      .click();
+    const before = await ceiling();
+    await page
+      .getByTestId("pd-veil")
+      .getByRole("button", { name: /^Choose / })
+      .and(page.locator(":enabled"))
+      .first()
+      .click();
+
+    // The same position, now filled.
+    await page
+      .getByRole("button", { name: /View card/ })
+      .first()
+      .click();
+    const veil = page.getByTestId("pd-veil");
+    await expect(veil.getByRole("heading")).toHaveText(/^Change your/);
+    await expect(veil.getByTestId("pd-current-mark")).toBeVisible();
+    // Dropping him costs nothing, so his own card is never priced out of his own slot.
+    await expect(veil.getByTestId("pd-drop")).toBeEnabled();
+    await expect.poll(ceiling).toBe(before);
+
+    // ⭐ And it can be LEFT. Before the fix there was no control here of any kind.
+    await veil.getByTestId("veil-back").click();
+    await expect(veil).toHaveCount(0);
+  });
 });

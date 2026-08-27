@@ -40,6 +40,17 @@ export type RoomAction =
   | { type: "open"; index: number }
   | { type: "pick"; index: number; cardId: PlayerSeasonId }
   /**
+   * Drop the man in a slot and leave it empty (TASK-1810, owner report 2026-08-26).
+   *
+   * ⭐ Not the same as re-picking. Under a budget the coach's move is often "I cannot afford
+   * anyone here yet — take him off and go spend the money at the back", and a reducer that
+   * can only ever REPLACE forces him to buy someone he does not want in order to sell.
+   *
+   * ⛔ Refuses the LOCKED slot. Captain's Draft is built on its icon; he is not a pick the
+   * coach made, so he is not a pick the coach may drop.
+   */
+  | { type: "clear"; index: number }
+  /**
    * ⚠️ Carries its own `locked`. Slot INDICES belong to a shape, so the captain's slot in
    * a 4-4-2 is not his slot in a 3-5-2 — the caller re-derives it and hands it over.
    */
@@ -101,6 +112,16 @@ export function roomReducer(state: RoomState, action: RoomAction): RoomState {
       const picks = [...state.picks];
       picks[action.index] = action.cardId;
       return { ...state, picks, open: nextUnfilled(picks, action.index) };
+    }
+    case "clear": {
+      if (action.index < 0 || action.index >= state.picks.length) return state;
+      if (state.locked === action.index) return state;
+      if (state.picks[action.index] == null) return state;
+      const picks = [...state.picks];
+      picks[action.index] = null;
+      // ⚠️ `open` follows him, rather than running `nextUnfilled` off to some other gap. The
+      // slot he has just emptied IS the one he is drafting — that is why he emptied it.
+      return { ...state, picks, open: action.index };
     }
     case "setFormation":
       // A different shape means different slots and different hands; keeping picks would

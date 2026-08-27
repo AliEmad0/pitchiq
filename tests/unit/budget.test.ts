@@ -67,6 +67,63 @@ describe("budget", () => {
     expect(canAfford(noPrice, view)).toBe(false);
   });
 
+  it("⛔ REFUNDS the man in the slot being re-drafted, or a full squad DEAD-ENDS", () => {
+    /**
+     * The shipped bug, at the arithmetic (owner report, 2026-08-26).
+     *
+     * A full squad has £1.0m of change. The coach taps a filled slot to swap someone out —
+     * and the man he is replacing is STILL counted as spent, so the ceiling is the change
+     * alone. Every card in that slot's own hand is dearer than that, all five come out
+     * disabled, and `PitchDraft` has put up a round that cannot be dismissed. Stuck for good.
+     *
+     * ⚠️ `open` means "the slot being drafted". Its CURRENT contents must not constrain the
+     * pick being made — not its hand's minimum (that half always worked) and not its
+     * occupant's fee (this half never did).
+     */
+    const picks = [makeCardId(1, 2020), makeCardId(3, 2020), makeCardId(5, 2020)];
+    const budget = 1110;
+
+    const full = budgetView(HANDS, picks, budget, null);
+    expect(full.spent).toBe(1100);
+    expect(full.remaining).toBe(10);
+    // The dead end: nothing in slot 0's hand is buyable out of £1.0m of change.
+    expect(HANDS[0]!.some((c) => canAfford(c, full))).toBe(false);
+
+    // Slot 0 re-opens. Its £50.0m occupant goes back on the table; the other two do not.
+    const swap = budgetView(HANDS, picks, budget, 0);
+    expect(swap.spent).toBe(600);
+    expect(swap.reserve).toBe(0);
+    expect(swap.ceiling).toBe(510);
+    expect(HANDS[0]!.every((c) => canAfford(c, swap))).toBe(true);
+  });
+
+  it("⭐ the man already in a slot is always affordable when that slot re-opens", () => {
+    /**
+     * Property 2 of the reserve rule, extended to the re-draft — and the reason a hand can
+     * never be dead however tight the money got. He came out of THIS hand and his own fee is
+     * refunded, so `cost ≤ ceiling` holds for him by the same induction that makes the first
+     * pass safe. The coach can therefore always put the veil back the way he found it.
+     */
+    const hands = [
+      [card(1, 600), card(2, 40)],
+      [card(3, 600), card(4, 60)],
+    ];
+    // Spent to the last tenth: £60.0m at slot 0 and £6.0m at slot 1 against a £66.0m cap.
+    const picks = [makeCardId(1, 2020), makeCardId(4, 2020)];
+    const view = budgetView(hands, picks, 660, 0);
+    expect(view.remaining).toBe(600); // only slot 1's £6.0m is still committed
+    expect(canAfford(hands[0]![0]!, view)).toBe(true);
+  });
+
+  it("⚠️ an open slot that is EMPTY still reserves nothing and spends nothing", () => {
+    // The regression guard for the refund: the first-pass behaviour is unchanged, so Legacy
+    // and Captain's Draft — which never re-open a filled slot — see the identical numbers.
+    const view = budgetView(HANDS, [null, makeCardId(3, 2020), null], 1000, 0);
+    expect(view.spent).toBe(400);
+    expect(view.reserve).toBe(70);
+    expect(view.ceiling).toBe(530);
+  });
+
   it("keeps reserving once the room is full and nothing is open", () => {
     const view = budgetView(
       HANDS,

@@ -6,7 +6,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { PlayerRole } from "@/data/schemas";
 import { makeCardId } from "@/features/game/domain/card-id";
 import type { PoolCard } from "@/features/game/domain/chaos-draft";
-import type { DraftSpec } from "@/features/game/domain/rule-packs";
+import { BUDGET_PACK, type DraftSpec } from "@/features/game/domain/rule-packs";
 import { renderWithIntl } from "./_helpers/intl";
 
 vi.mock("@/utils/motion", () => ({ prefersReducedMotion: () => true }));
@@ -87,9 +87,42 @@ const BUDGET: DraftSpec = {
   handSize: 5,
   roam: "free",
   timer: null,
-  lockPicks: true,
+  /**
+   * ⛔ READ OFF THE SHIPPED PACK, never restated — this literal is why the mode shipped with
+   * a dead end (owner report, 2026-08-26).
+   *
+   * It said `true` here while `BUDGET_PACK` ships `false`, and `lockPicks` is the ONE field
+   * that decides what a filled slot does when it is tapped: `true` re-opens it read-only,
+   * `false` re-opens its HAND so the coach can swap. So every test in this file exercised
+   * the read-only path of a mode that does not have one, and the swap path — the path that
+   * dead-ended a full squad — had no coverage at all. A fixture that contradicts the pack it
+   * stands for proves nothing about the pack.
+   */
+  lockPicks: BUDGET_PACK.draft?.lockPicks,
   onePerPlayer: true,
 };
+
+/**
+ * ⚠️ `bench` and `confirm` are deliberately NOT taken from the pack here. Both are real
+ * fields of it, but a bench adds five more hands off the same 12-per-role pool, and under
+ * `onePerPlayer` a role the shape already uses twice would then deal its third hand short —
+ * manufacturing the reserve cliff the `PER_ROLE` note above exists to avoid. The bench gets
+ * its own deeper pool below.
+ */
+const WITH_BENCH: DraftSpec = { ...BUDGET, bench: true, confirm: true };
+
+/** Deep enough that a role used by the shape AND the bench still deals full hands. */
+const benchPool: PoolCard[] = ROLES.flatMap((role, r) =>
+  Array.from({ length: 30 }, (_, i) => ({
+    ...pool[0]!,
+    cardId: makeCardId(9000 + r * 100 + i, 2020 - (i % 6)),
+    playerId: 9000 + r * 100 + i,
+    season: 2020 - (i % 6),
+    name: `${role}Sub${i}`,
+    role,
+    price: SPREAD[i % SPREAD.length]!,
+  })),
+);
 
 const render = (ui: ReactElement) => renderWithIntl(<NuqsTestingAdapter>{ui}</NuqsTestingAdapter>);
 const spots = () => screen.getAllByRole("button", { name: /empty\. Choose a player|View card/ });
@@ -154,6 +187,164 @@ describe("budget draft", () => {
     // cheapest card in the open hand is always at or below the ceiling, so a hand is never
     // entirely dead however the deal falls.
     expect(enabled).toBeGreaterThan(0);
+  });
+
+  // ---- re-opening a filled slot (owner report, 2026-08-26) ----
+
+  /**
+   * ⚠️ By TESTID, not by accessible name. A round over a slot that already holds someone is
+   * titled "Change your CF", not "Choose your CF" — the heading is part of what makes the
+   * swap legible, so a name-matched query would break on the fix it is meant to prove.
+   */
+  const veil = () => screen.getByTestId("pd-veil");
+
+  /** The ceiling the meter states, read out of the veil that is currently up. */
+  const ceilingOf = () =>
+    Number(
+      /£([\d.]+)m spendable/.exec(
+        within(veil()).getByTestId("budget-meter").textContent ?? "",
+      )?.[1],
+    );
+
+  /** Buy the first card the ceiling allows. The reserve rule guarantees there is one. */
+  const buyFirst = async (user: ReturnType<typeof userEvent.setup>) => {
+    const pick = within(veil())
+      .getAllByTestId("pd-candidate")
+      // ⚠️ `query`, not `get` — on a re-opened slot one of the five is the man already in it,
+      // and his control REMOVES him rather than choosing him.
+      .map((c) => within(c).queryByRole("button", { name: /^Choose / }))
+      .find((b) => b != null && !b.hasAttribute("disabled"));
+    expect(pick, "the open hand is never entirely dead").toBeTruthy();
+    await user.click(pick!);
+  };
+
+  it("⛔ a re-opened slot puts its occupant's fee BACK on the table", async () => {
+    /**
+     * THE DEAD END, at the surface. A filled slot re-opens its hand so the coach can swap —
+     * but his fee stayed counted as spent, so the ceiling was the loose change alone. With a
+     * full squad and £1.2m left, every card in the hand was priced out and the round has no
+     * way out: the page was stuck until a reload threw the whole draft away.
+     *
+     * ⚠️ Asserts the ceiling RETURNS TO WHAT IT WAS, which holds for any deal. The seed is
+     * drawn once at lock-in, so the reserve either side of the pick is the same number, and
+     * the only thing that could move the ceiling is the pick itself — which is exactly what
+     * re-opening the slot is supposed to undo.
+     */
+    const user = userEvent.setup();
+    render(<GamePlay pool={pool} draft={BUDGET} budget={600} />);
+    await lock(user);
+
+    await user.click(spots()[0]!);
+    const before = ceilingOf();
+    await buyFirst(user);
+
+    await user.click(spots()[0]!); // the same slot, now filled
+    expect(ceilingOf()).toBe(before);
+    // ⚠️ And the heading acknowledges him, rather than asking again for a slot he fills.
+    expect(within(veil()).getByRole("heading")).toHaveTextContent(/^Change your/);
+  });
+
+  it("⭐ the man in the slot is marked in his own hand, and tapping him drops him", async () => {
+    // Owner's words: "when I click on his card a second time, it deselects the player". The
+    // freed money is the point — dropping him is how the coach affords someone else.
+    const user = userEvent.setup();
+    render(<GamePlay pool={pool} draft={BUDGET} budget={600} />);
+    await lock(user);
+
+    await user.click(spots()[0]!);
+    await buyFirst(user);
+    await user.click(spots()[0]!);
+
+    // He is MARKED, so the coach can tell which of the five he is already holding.
+    expect(within(veil()).getByTestId("pd-current-mark")).toBeInTheDocument();
+    // ⚠️ Never disabled. Dropping a man costs nothing, so affordability has no say in it.
+    const drop = within(veil()).getByTestId("pd-drop");
+    expect(drop).toHaveAccessibleName(/^Remove /);
+    expect(drop).not.toBeDisabled();
+    await user.click(drop);
+
+    expect(screen.queryByTestId("pd-veil")).toBeNull();
+    expect(spots()[0]!).toHaveAccessibleName(/empty\. Choose a player/);
+  });
+
+  it("⛔ a round the coach opened himself can be BACKED OUT of, pick untouched", async () => {
+    const user = userEvent.setup();
+    render(<GamePlay pool={pool} draft={BUDGET} budget={600} />);
+    await lock(user);
+
+    await user.click(spots()[0]!);
+    await buyFirst(user);
+    const name = spots()[0]!.getAttribute("aria-label");
+
+    await user.click(spots()[0]!);
+    // The label names the man he keeps, so backing out is not a leap of faith.
+    const back = within(veil()).getByTestId("veil-back");
+    expect(back).toHaveTextContent(/^Keep /);
+    await user.click(back);
+    expect(screen.queryByTestId("pd-veil")).toBeNull();
+    expect(spots()[0]!.getAttribute("aria-label")).toBe(name);
+  });
+
+  it("⛔ Escape backs out of a reconsiderable round too", async () => {
+    const user = userEvent.setup();
+    render(<GamePlay pool={pool} draft={BUDGET} budget={600} />);
+    await lock(user);
+    await user.click(spots()[0]!);
+    await user.keyboard("{Escape}");
+    expect(screen.queryByTestId("pd-veil")).toBeNull();
+  });
+
+  it("⛔ THE CONTROL — a pack that LOCKS picks keeps its round non-dismissable", async () => {
+    /**
+     * Legacy Club and Captain's Draft are the shipped surfaces this must not touch. Their
+     * round IS the commitment ("the tap that picks one is final"), so it has no way out and
+     * a filled slot re-opens read-only. The escape hatch is derived from `lockPicks`, not
+     * from a mode check — modes are rule packs, not code paths.
+     */
+    const user = userEvent.setup();
+    render(<GamePlay pool={pool} draft={{ ...BUDGET, lockPicks: true }} budget={600} />);
+    await lock(user);
+
+    await user.click(spots()[0]!);
+    expect(within(veil()).queryByTestId("veil-back")).toBeNull();
+    await user.keyboard("{Escape}");
+    expect(screen.queryByTestId("pd-veil")).not.toBeNull();
+
+    await buyFirst(user);
+    await user.click(spots()[0]!);
+    // Read-only: his card and a Close, no hand to choose from and nothing to drop.
+    const review = screen.getByRole("dialog", { name: /your pick/ });
+    expect(within(review).getAllByTestId("pd-candidate")).toHaveLength(1);
+    expect(within(review).queryByTestId("pd-drop")).toBeNull();
+    expect(within(review).queryByTestId("pd-current-mark")).toBeNull();
+  });
+
+  // ---- the bench, made legible (owner report, 2026-08-26) ----
+
+  it("⭐ a bench slot names the man and his fee, not a bare rating", async () => {
+    /**
+     * Five 92px boxes reading "GK 74" were, in the owner's words, hard to see at a glance —
+     * they carried neither who the man was nor what he cost, which are the two things a
+     * squad list is for when the money is the game.
+     */
+    const user = userEvent.setup();
+    render(<GamePlay pool={benchPool} draft={WITH_BENCH} budget={2000} />);
+    await lock(user);
+
+    const bench = screen.getByTestId("pd-bench");
+    const slots = within(bench).getAllByTestId("pd-bench-slot");
+    expect(slots).toHaveLength(5);
+    // Empty slots say what they are FOR, so they read as work still to do.
+    expect(slots[0]!).toHaveAccessibleName(/empty\. Choose a player/);
+    expect(within(bench).getByTestId("pd-bench-count")).toHaveTextContent("0 of 5");
+
+    await user.click(slots[0]!);
+    await buyFirst(user);
+
+    const filled = within(screen.getByTestId("pd-bench")).getAllByTestId("pd-bench-slot")[0]!;
+    expect(filled.textContent).toMatch(/Sub\d/); // his NAME
+    expect(within(filled).getByTestId("pd-bench-cost")).toHaveTextContent(/£[\d.]+m/);
+    expect(screen.getByTestId("pd-bench-count")).toHaveTextContent("1 of 5");
   });
 
   it("prints the indexed cost on the card face", () => {

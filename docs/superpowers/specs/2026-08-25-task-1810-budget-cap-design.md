@@ -357,6 +357,45 @@ which is the exact moment the coach wants to start swapping.
 ⚠️ Both are pack fields. Legacy and Captain's Draft keep final picks and auto-handoff, because
 there the pick IS the mechanic; here the activity is trying combinations until the money works.
 
+#### 5.1.1 Re-opening was only HALF built, and the missing half locked the page
+
+⛔ Owner report, 2026-08-26 — shipped in #199 and fixed here. "Reconsiderable" was implemented
+as _re-offer the hand_ and nothing else, and the two things it left out compounded into a dead
+end with no way out of the page at all:
+
+1. **The money never came back.** `budgetView` counted every filled slot into `spent`, the open
+   one included, so the ceiling on a swap was the loose change rather than
+   `change + what the man you are replacing cost`. With the squad full and £1.2m left, every
+   card in the re-opened hand was priced out.
+2. **A round cannot be dismissed.** That is Legacy Club's rule and a good one — there the round
+   IS the commitment. But Budget Cap re-used the same round for a **voluntary** re-open, and a
+   veil the coach chose to open, cannot answer, and cannot leave is a locked page.
+
+⭐ The fix is one idea stated once: **the open slot contributes nothing to either figure** —
+not its hand's minimum to the reserve (which always worked) and not its occupant's fee to the
+spend (which never did). See §5.4, property 4, for why that also makes the hand provably alive.
+
+The interaction that follows from it:
+
+- **Tapping the man you already own DROPS him** — slot empties, fee returns, veil closes. Under
+  a budget the move is usually _"I cannot afford anyone here yet; take him off and go spend it
+  at the back"_, and a hand that can only ever REPLACE forces the coach to buy someone he does
+  not want in order to sell. `roomReducer` gains a `clear` action; it refuses the LOCKED slot,
+  because Captain's Draft's icon is not a pick the coach made.
+- **His card is marked** _"In your squad"_ and ringed. Five unlabelled strangers, one of whom is
+  secretly yours, is most of why the screen read as stuck.
+- **Three ways out**: a "Keep {name}" button, the backdrop, and Escape — all gated on
+  `lockPicks !== true`, so Legacy and Captain's Draft keep their non-dismissable round exactly.
+- **The heading says "Change your CF"**, not "Choose your CF", over a slot that is already
+  filled.
+
+⛔ **The fixture said the opposite of the pack, so none of this was under test.**
+`budget-draft.test.tsx` declared `lockPicks: true` while `BUDGET_PACK` ships `false` — and
+`lockPicks` is the single field that decides what tapping a filled slot does. Every test in the
+file therefore exercised the read-only path of a mode that does not have one. The fixture now
+reads the value **off the pack**. This is the third instance of the same rule: **a fixture that
+cannot occur — or that contradicts the thing it stands for — proves nothing.**
+
 ### 5.2 A drafted, PAID-FOR bench
 
 ⭐ £120.0m buys **sixteen** — the XI plus five substitutes the coach drafts himself. _"One of
@@ -380,7 +419,18 @@ invisible on screen.
 ⚠️ **£120m is deliberately tight.** Measured over 60 dealt rooms, a sixteen-man squad costs
 **£64m** at the floor, **£114m** at median picks and **£211m** taking the dearest card every
 round. So the cap binds in 100% of rooms and is never infeasible, but leaves only **+£6m**
-against a median squad — against the +£19m the XI-only £100m gave. **£130m restores that feel.**
+against a median squad — against the +£19m the XI-only £100m gave. ✅ **The owner played it and
+kept £120m** (2026-08-26); the £130m alternative is closed, not pending.
+
+⭐ **The bench is a SHELF, not five loose boxes** (owner report, 2026-08-26). It shipped as five
+92px tiles reading "GK 74" under a full-bleed pitch, carrying neither who the man was nor what
+he cost — the two things a squad list is for when the money is the game — and the owner did not
+see it at a glance. It now has a frame that separates it from the pitch, a "Bench · 3 of 5"
+count that states the work left in it, and per tile the role, the **same gold/silver disc the
+pitch spots use**, the player's NAME and his FEE. An empty tile is dashed and reads "+ Add GK",
+naming the job rather than showing a dash. ⚠️ Reusing the pitch's disc is the point: the bench
+holds five of the sixteen and a real share of the money, so it should read as the same squad
+rather than as a second, lesser list.
 
 ### 5.3 The crash a browser found
 
@@ -416,6 +466,20 @@ the room is created. Two properties follow, neither of which needs enforcing:
    inductively and the last slot is always affordable.
 2. **No hand is ever dead.** The cheapest card in the open hand is, by the same invariant,
    always at or below the ceiling — so there is always something to click.
+
+⚠️ **Both properties were stated for an EMPTY open slot only, and that gap is what §5.1.1
+fixed.** Once a filled slot can be re-opened, `open` may name a slot that already holds someone,
+and the rule extends only if his fee is refunded. With the refund:
+
+3. **The invariant survives a re-draft.** The other slots are untouched, so picking at
+   `c ≤ ceiling` preserves it by exactly the induction above.
+4. **His own card is always affordable.** The state before the re-open was valid —
+   `budget − spent(all) − reserve(other unfilled) ≥ 0` — and expanding `spent(all)` gives
+   `cost(occupant) ≤ ceiling` directly. He was dealt from THIS hand, so the coach can always
+   put the veil back the way he found it, and property 2 holds for re-opened slots too.
+
+⛔ Without the refund property 2 is simply **false** for a re-opened slot, and the mode's
+central guarantee fails in the one place nothing checked.
 
 ⛔ **The reserve reads HANDS, so the DEAL guarantees a cheap card — `cheapest: true`.** This was
 got wrong twice and the second only surfaced in a browser. An `affordable` option cannot work:
