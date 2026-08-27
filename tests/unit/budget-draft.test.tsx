@@ -1,4 +1,4 @@
-import { screen, within } from "@testing-library/react";
+import { cleanup, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NuqsTestingAdapter } from "nuqs/adapters/testing";
 import type { ReactElement } from "react";
@@ -6,7 +6,12 @@ import { describe, expect, it, vi } from "vitest";
 import type { PlayerRole } from "@/data/schemas";
 import { makeCardId } from "@/features/game/domain/card-id";
 import type { PoolCard } from "@/features/game/domain/chaos-draft";
-import { BUDGET_PACK, type DraftSpec } from "@/features/game/domain/rule-packs";
+import {
+  BUDGET_PACK,
+  CAPTAINS_PACK,
+  packFor,
+  type DraftSpec,
+} from "@/features/game/domain/rule-packs";
 import { renderWithIntl } from "./_helpers/intl";
 
 vi.mock("@/utils/motion", () => ({ prefersReducedMotion: () => true }));
@@ -345,6 +350,83 @@ describe("budget draft", () => {
     expect(filled.textContent).toMatch(/Sub\d/); // his NAME
     expect(within(filled).getByTestId("pd-bench-cost")).toHaveTextContent(/£[\d.]+m/);
     expect(screen.getByTestId("pd-bench-count")).toHaveTextContent("1 of 5");
+  });
+
+  // ---- the round's copy must state the rules the PACK actually has ----
+
+  /**
+   * ⛔ TASK-1836's rule, and #199 broke it in both directions at once.
+   *
+   * `pitchRoundHint` and `pitchNoTimer` were REWRITTEN IN PLACE for Budget Cap — "you can
+   * change your mind until you confirm" and "swap anyone out until the squad and the money
+   * both work" — while `PitchDraft` renders them on every pack's round. Legacy Club and
+   * Captain's Draft ship `lockPicks: true` and no `confirm`, so both lines promised rules
+   * those modes do not have, on a screen with no confirm button and no money at all. The
+   * strings they replaced had been correct for Legacy for months.
+   */
+  const roundCopy = async (draft: DraftSpec) => {
+    const user = userEvent.setup();
+    render(<GamePlay pool={pool} draft={draft} budget={600} />);
+    await lock(user);
+    await user.click(spots()[0]!);
+    return veil().textContent ?? "";
+  };
+
+  it("⛔ a pack that LOCKS its picks says FINAL, and promises no confirm it has no button for", async () => {
+    const text = await roundCopy({ ...BUDGET, lockPicks: true });
+    expect(text).toMatch(/This pick is final/);
+    expect(text).toMatch(/no way back once you choose/);
+    // The two lies, both of them Budget Cap's rules and neither of them this pack's.
+    expect(text).not.toMatch(/change your mind until you confirm/);
+    expect(text).not.toMatch(/Swap anyone out/);
+  });
+
+  it("⛔ a pack whose picks are RECONSIDERABLE keeps the swap copy", async () => {
+    const text = await roundCopy(BUDGET);
+    expect(text).toMatch(/change your mind until you confirm/);
+    expect(text).toMatch(/Swap anyone out/);
+    expect(text).not.toMatch(/This pick is final/);
+    expect(text).not.toMatch(/no way back once you choose/);
+  });
+
+  it("⭐ the 80+ promise is keyed on `standout`, NOT on finality", async () => {
+    /**
+     * ⚠️ THE TRAP this test exists for. All three shipped packs have `lockPicks === standout`
+     * (Legacy and Captain's are true/true, Budget is false/absent), so a hint that carried the
+     * 80+ sentence along with the finality sentence would be ACCIDENTALLY correct today — and
+     * would become a lie the moment a pack ships `lockPicks: true` with no standout, which is
+     * a legal spec. Each sentence is keyed on the field that makes it true.
+     */
+    expect(await roundCopy({ ...BUDGET, lockPicks: true, standout: true })).toMatch(
+      /rated 80 or better/,
+    );
+  });
+
+  it("⛔ THE CONTROL — a locked pack with NO standout claims no rating floor", async () => {
+    const text = await roundCopy({ ...BUDGET, lockPicks: true });
+    expect(text).toMatch(/This pick is final/); // it IS the locked copy
+    expect(text).not.toMatch(/rated 80/); // …but it promises nothing about ratings
+  });
+
+  it("⛔ every SHIPPED pack's round copy matches its own spec", async () => {
+    /**
+     * Driven off the real `RulePack`s rather than a hand-written spec, so flipping `lockPicks`
+     * on a shipped mode moves this assertion with it instead of leaving stale copy behind —
+     * which is exactly what #199 did.
+     */
+    for (const [id, spec] of [
+      ["legacy", packFor("legacy")?.draft],
+      ["captains", CAPTAINS_PACK.draft],
+      ["budget", BUDGET_PACK.draft],
+    ] as const) {
+      expect(spec, `${id} has a draft spec`).toBeDefined();
+      cleanup();
+      const text = await roundCopy(spec!);
+      const final = spec!.lockPicks === true;
+      expect(text, `${id} finality`).toMatch(final ? /This pick is final/ : /until you confirm/);
+      if (spec!.standout === true) expect(text, `${id} standout`).toMatch(/rated 80 or better/);
+      else expect(text, `${id} standout`).not.toMatch(/rated 80/);
+    }
   });
 
   it("prints the indexed cost on the card face", () => {
