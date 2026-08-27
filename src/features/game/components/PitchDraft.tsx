@@ -222,8 +222,35 @@ export function PitchDraft({
    * premise. It shipped that way, and with a full squad and £1.2m of change it left no way
    * out of the page at all.
    */
-  const canLeaveRound = draft.lockPicks !== true;
+  const picksAreFinal = draft.lockPicks === true;
+  const canLeaveRound = !picksAreFinal;
   const dismissable = veil != null && (veil.mode === "review" || canLeaveRound);
+
+  /**
+   * ⛔ EVERY SENTENCE ON A ROUND IS KEYED ON THE PACK FIELD THAT MAKES IT TRUE.
+   *
+   * TASK-1836's rule — "copy that outruns the rules is a lie the player can check" — and #199
+   * broke it by REWRITING the two shared strings for Budget Cap **in place** rather than
+   * adding pack-specific ones. Legacy Club and Captain's Draft were left telling the coach he
+   * could "change his mind until you confirm" and "swap anyone out until the squad and the
+   * money both work", on a screen that has no confirm button, no swap, and no money at all.
+   * The strings they overwrote had been correct for Legacy for months.
+   *
+   * ⚠️ The 80+ promise is keyed on `standout`, NOT on `lockPicks`. All three shipped packs
+   * have those two flags equal — Legacy and Captain's true/true, Budget false/absent — so
+   * folding the sentence into the finality string would be ACCIDENTALLY correct today, and a
+   * lie the day a pack ships `lockPicks: true` with no standout, which is a legal spec.
+   *
+   * ⚠️ "Five" is still a literal against `draft.handSize`, which is 5 in every shipped pack.
+   * Left alone deliberately: parameterising it costs an ICU plural in a locale with six plural
+   * forms, to guard a pack that does not exist. Revisit if one ever deals a different hand.
+   */
+  const roundHint = [
+    picksAreFinal ? t("pitchRoundFinalHint") : t("pitchRoundHint"),
+    draft.standout === true ? t("pitchRoundStandout") : null,
+  ]
+    .filter((s): s is string => s != null)
+    .join(" ");
 
   // The third way out, matching `BenchDialog`: backdrop, button, Escape.
   useEffect(() => {
@@ -613,7 +640,7 @@ export function PitchDraft({
                   ? t("pitchPickFinal")
                   : currentCard != null
                     ? t("pitchSwapHint", { name: currentCard.name })
-                    : t("pitchRoundHint")}
+                    : roundHint}
               </p>
               {/* ⚠️ The refund named in MONEY, because that is the decision. "Drop him" says
                   nothing; "drop him and £14.1m comes back" is the whole reason to tap. */}
@@ -732,7 +759,12 @@ export function PitchDraft({
                       : t("pitchBackToSquad")}
                   </button>
                 ) : null}
-                <p className="text-muted-foreground font-mono text-[11px]">{t("pitchNoTimer")}</p>
+                {/* ⚠️ Same rule as `roundHint`: "swap anyone out until the squad and the money
+                    both work" is Budget Cap's promise, and a pack that locks its picks has
+                    neither a swap nor a budget to make it true. */}
+                <p className="text-muted-foreground font-mono text-[11px]">
+                  {t(picksAreFinal ? "pitchNoTimerFinal" : "pitchNoTimer")}
+                </p>
               </div>
             ) : (
               <button type="button" onClick={() => setVeil(null)} className="pd-close">
