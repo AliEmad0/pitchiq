@@ -130,6 +130,60 @@ jobs:
             fi
           }
 
+          # A 404 cannot be prerendered, so every unknown URL used to run a Node
+          # function to produce one — measured on production 2026-08-27 against
+          # /wp-login.php, /.env, /wp-admin and /.git/config, all MISS on every
+          # request. `src/middleware.ts` now answers scanner shapes at the edge.
+          #
+          # ⛔ This is the only place that can test it. `probe-path.test.ts` covers
+          # the PREDICATE, but whether those paths ever REACH middleware is decided
+          # by the matcher regexes in `config`, and nothing but a running server can
+          # tell you that. A broken matcher does not error — it silently goes back
+          # to paying a render per probe.
+          #
+          # An EMPTY body is the fingerprint: middleware returns a bare status, the
+          # branded not-found page is ~100 KB.
+          scanner() {
+            local label="$1" path="$2" status len
+
+            status=$(curl -sS -o /tmp/b404 -w '%{http_code}' --max-time 30 "$SITE$path" || echo 000)
+            len=$(wc -c < /tmp/b404 | tr -d ' ')
+
+            echo "── $label ($path)"
+            echo "   status=$status  body=${len}B"
+
+            if [ "$status" != "404" ]; then
+              echo "   ::error::expected HTTP 404, got $status"
+              fail=1
+            elif [ "$len" -gt 0 ]; then
+              echo "   ::error::a scanner probe rendered a ${len}B page — the middleware matcher"
+              echo "   ::error::is no longer catching it, and every probe is costing Active CPU."
+              fail=1
+            fi
+          }
+
+          # The other half: a MISTYPED real URL must still get the branded page.
+          # If this one comes back empty, the denylist has grown teeth it should
+          # not have and ordinary visitors are getting a bare edge 404.
+          branded404() {
+            local label="$1" path="$2" status len
+
+            status=$(curl -sS -o /tmp/b404 -w '%{http_code}' --max-time 30 "$SITE$path" || echo 000)
+            len=$(wc -c < /tmp/b404 | tr -d ' ')
+
+            echo "── $label ($path)"
+            echo "   status=$status  body=${len}B"
+
+            if [ "$status" != "404" ]; then
+              echo "   ::error::expected HTTP 404, got $status"
+              fail=1
+            elif [ "$len" -lt 1000 ]; then
+              echo "   ::error::a mistyped URL got a ${len}B bare 404 instead of the branded page."
+              echo "   ::error::Check the denylist in src/utils/probe-path.ts."
+              fail=1
+            fi
+          }
+
           # ENFORCED — these must stay CDN-served. A prerendered entity page
           # (the highest-traffic route), its Arabic twin, a route that
           # bypasses middleware entirely (the control — if that one fails, the
@@ -163,6 +217,14 @@ jobs:
           check "legacy club menu"             "/game/legacy"
           check "legacy club draft"            "/game/legacy/40"
           check "legacy club draft — Arabic"   "/ar/game/legacy/40"
+
+          # Scanner traffic answered at the edge instead of by a Node render.
+          scanner    "scanner — wordpress login"  "/wp-login.php"
+          scanner    "scanner — dotfile"          "/.env"
+          scanner    "scanner — dot-directory"    "/.git/config"
+          scanner    "scanner — no extension"     "/wp-admin"
+          # …and the visitor-facing half, which must NOT be short-circuited.
+          branded404 "a mistyped page"            "/playerz"
 
           echo
           if [ "$fail" -ne 0 ]; then

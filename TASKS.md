@@ -8300,6 +8300,15 @@ managers    0        prerendered   (reads searchParams)
 
 **Done when:** both routes emit prerendered pages per locale, `/teams/42` and a manager profile return `x-vercel-cache: HIT` + `public` on production, the season switcher still works on both (including a `?season=` deep link, in `ar` as well as `en`), and the full E2E suite is green.
 
+**Follow-up, 2026-08-27 — scanner 404s answered at the edge** (owner-reported rising Fluid CPU; shipped from this arc because it is the same hosting-cost class).
+
+- ⭐ **A 404 cannot be prerendered, so every unknown URL ran a Node function.** Measured on production: `/wp-login.php` and `/xmlrpc.php` matched `/[locale]`, `/wp-admin` and `/.git/config` matched `/[locale]/[...rest]`, and every one answered `x-vercel-cache: MISS` on **every** request. A public site is probed for these around the clock, so the function half of the usage chart was paying a React render per scanner probe, forever.
+- **`src/middleware.ts` short-circuits them** with a bare-status 404 via `src/utils/probe-path.ts` — middleware already runs on every page request (the edge 60% of the chart is next-intl's `as-needed` prefixing, by construction), so the marginal cost is a regex.
+- ⛔ **A DENYLIST of unambiguous junk, not an allowlist of real segments** — an allowlist hands a bare edge 404 to a human who mistypes `/playerz` and silently 404s any new section nobody added to it. `.well-known` is explicitly excluded (ACME renewal, `apple-app-site-association`).
+- ⛔ **The matcher lists junk EXTENSIONS positively, never a negative lookahead over the real ones** — metadata conventions are open-ended (`robots.txt`, `sitemap.xml`, `icon.svg`, `manifest.webmanifest`, …), so a lookahead would eventually swallow one with nothing to notice; a positive list can only fail safe.
+- ⚠️ **A unit test cannot prove the matcher routes those paths to middleware** — `probe-path.test.ts` pins the predicate (with a drift guard read off the real route tree), and `cache-guard.yml` gains `scanner` + `branded404` probes against production, where an **empty body** is the fingerprint of the edge answer vs the ~100 KB branded page.
+- **The verdict on the owner's chart, for the record:** no defect. The middleware/function split was 60/40 against 63/37 measured on 2026-08-22 — both halves scaled together, which is the signature of more traffic (the Aug 19–27 shipping-and-verification burst), not of a route going dynamic. Every enforced route still probes HIT/PRERENDER.
+
 ### TASK-M72
 
 **Fix app-wide soft 404s — the not-found page returns HTTP 200** · ✅ Done · `P2` · `S` · Type: SEO + Bug
