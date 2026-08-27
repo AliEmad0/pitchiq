@@ -20,7 +20,19 @@ import { type GameTeam, makeGameTeam } from "./team";
  * Optional because no other pool has a concept of price; absent means "not for sale in this
  * mode", which `domain/budget.ts` treats as unaffordable rather than free.
  */
-export type PoolCard = GamePlayer & { club: string; teamId?: number; price?: number };
+/**
+ * ⚠️ `nationalityCode` (TASK-1842) is the flag-icons key the enriched card already carries
+ * via `CardBio` — the domain type acknowledges it so the Nationality Draft's deal can read a
+ * card's ring without an adapter in the loop, exactly as `price` was acknowledged for Budget
+ * Cap. Optional because a hand-built fixture has no nationality; `ringOf` treats absent as
+ * "world", never as a countryman.
+ */
+export type PoolCard = GamePlayer & {
+  club: string;
+  teamId?: number;
+  price?: number;
+  nationalityCode?: string | null;
+};
 
 const slot = (row: number, col: number, role: PlayerRole): FormationSlot => ({ row, col, role });
 const formation = (name: string, slots: FormationSlot[]): Formation => ({ name, season: 0, slots });

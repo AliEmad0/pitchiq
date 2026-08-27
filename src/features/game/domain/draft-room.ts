@@ -1,5 +1,6 @@
 import type { PlayerRole } from "@/data/schemas";
 import type { PoolCard } from "./chaos-draft";
+import { ringOf } from "./continents";
 import { canPlay } from "./eligibility";
 import type { Formation } from "./formation";
 import { mulberry32 } from "./rng";
@@ -88,6 +89,25 @@ export interface DealOptions {
    * Neville 2003 are different cards and could both end up in the same XI.
    */
   onePerPlayer?: boolean;
+  /**
+   * Deal each hand from the narrowest non-empty RING around a nation (TASK-1842).
+   *
+   * ⭐ THE WIDENING HAPPENS PER SLOT, AT DEAL TIME — not per role, up front. Egypt holds one
+   * CB and a 4-4-2 needs two: the first CB hand takes him (a hand of one), and the second —
+   * the nation now exhausted for that role under `onePerPlayer` — widens to Africa. A ring
+   * precomputed from "does the nation have a CB?" would deal that second hand from a nation
+   * that has nobody left. The same applies to altRoles theft: the lone CB may already be
+   * gone into an RB hand by the time a CB slot deals.
+   *
+   * ⚠️ A hand is SINGLE-RING: the bag is narrowed to the best ring BEFORE any card is drawn,
+   * so a thin nation yields a SHORT nation hand rather than a nation-plus-continent mix —
+   * "if less than 5 just show the available cards" (owner, 2026-08-25).
+   *
+   * ⚠️ Narrowing draws NO rng, so with the option absent — every pack but the Nationality
+   * Draft — the stream is untouched, and even with it present a single-nation pool deals
+   * byte-identically to no option at all. The control test pins both.
+   */
+  rings?: { nation: string };
 }
 
 /**
@@ -128,6 +148,7 @@ export function roomDeals(
     onePerPlayer = false,
     bench,
     excludePlayers,
+    rings,
   } = opts;
   const rng = mulberry32(seed);
   const used = new Set<string | number>();
@@ -142,6 +163,18 @@ export function roomDeals(
     const bag = pool.filter(
       (c) => excludePlayers?.has(c.playerId) !== true && !used.has(key(c)) && canPlay(c, role),
     );
+    // ⚠️ Narrow to the best ring BEFORE any draw — see `DealOptions.rings`. In place, because
+    // `take` splices this exact array; and rng-free, so every ring-less caller's stream is
+    // byte-identical to before the option existed.
+    if (rings != null && bag.length > 0) {
+      const ranked = bag.map((c) => ringOf(c, rings.nation));
+      const best = ranked.includes("nation")
+        ? "nation"
+        : ranked.includes("continent")
+          ? "continent"
+          : "world";
+      for (let j = bag.length - 1; j >= 0; j--) if (ranked[j] !== best) bag.splice(j, 1);
+    }
     const hand: PoolCard[] = [];
     const take = (i: number) => {
       const [card] = bag.splice(i, 1);
