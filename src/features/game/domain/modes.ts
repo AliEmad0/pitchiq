@@ -17,6 +17,7 @@ export type ModeId =
   | "chaos"
   | "captains"
   | "budget"
+  | "nation"
   | "chemistry"
   | "legacy"
   | "classic"
@@ -159,6 +160,21 @@ export const GAME_MODES: readonly GameMode[] = [
     formats: planned,
     accent: "#a78bfa",
     ticket: "TASK-1810",
+  },
+  {
+    // TASK-1842 — the twelfth mode (owner's idea, 2026-08-25): pick a country, build its
+    // side, and watch each thin position's hand widen nation → continent → world.
+    id: "nation",
+    group: "draftPacks",
+    emoji: "🌍",
+    nameKey: "modeNationName",
+    descriptionKey: "modeNationDesc",
+    // Served by the parameterised `/game/[mode]` route — the segment resolves because
+    // NATION_PACK backs the id, exactly as Legacy's and Captain's do.
+    href: "/game/nation",
+    formats: { single: "live", season: "planned" },
+    accent: "#60a5fa",
+    ticket: "TASK-1842",
   },
   {
     id: "legacy",

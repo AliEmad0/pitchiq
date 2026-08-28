@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { PlayerRole } from "@/data/schemas";
 import { makeCardId } from "@/features/game/domain/card-id";
 import type { PoolCard } from "@/features/game/domain/chaos-draft";
-import { HAND_SIZE, STANDOUT_OVR, roomDeals } from "@/features/game/domain/draft-room";
+import { HAND_SIZE, STANDOUT_OVR, redealHands, roomDeals } from "@/features/game/domain/draft-room";
 import { canPlay } from "@/features/game/domain/eligibility";
 import { formationByName } from "@/features/game/domain/formation";
 
@@ -129,7 +129,10 @@ describe("roomDeals", () => {
     );
     const hands = roomDeals([...pool, ...strong], shape, 42, { handSize: 5, standout: true });
     hands.forEach((hand, i) => {
-      expect(hand.some((c) => (c.ratings?.overall ?? 0) >= STANDOUT_OVR), `slot ${i}`).toBe(true);
+      expect(
+        hand.some((c) => (c.ratings?.overall ?? 0) >= STANDOUT_OVR),
+        `slot ${i}`,
+      ).toBe(true);
     });
   });
 
@@ -162,7 +165,10 @@ describe("roomDeals", () => {
     }));
     const positions = new Set<number>();
     for (const seed of [1, 2, 3, 4, 5, 6, 7, 8]) {
-      for (const hand of roomDeals([...pool, ...strong], shape, seed, { handSize: 5, standout: true })) {
+      for (const hand of roomDeals([...pool, ...strong], shape, seed, {
+        handSize: 5,
+        standout: true,
+      })) {
         const at = hand.findIndex((c) => (c.ratings?.overall ?? 0) >= 90);
         if (at >= 0) positions.add(at);
       }
@@ -198,7 +204,9 @@ describe("roomDeals", () => {
         season,
       })),
     );
-    const ids = roomDeals(multiSeason, shape, 42, { handSize: 5 }).flat().map((c) => c.playerId);
+    const ids = roomDeals(multiSeason, shape, 42, { handSize: 5 })
+      .flat()
+      .map((c) => c.playerId);
     expect(new Set(ids).size).toBeLessThan(ids.length);
   });
 
@@ -218,5 +226,203 @@ describe("roomDeals", () => {
     forwards.forEach((h, i) => {
       for (const c of h) expect(canPlay(c, "CF"), `${c.name} in forward hand ${i}`).toBe(true);
     });
+  });
+
+  // ---- the widening ring (TASK-1842) ----
+
+  /**
+   * A pool with nationality: Egyptians thin on the ground, Senegalese (same continent)
+   * behind them, Frenchmen (another continent) behind those.
+   *
+   * ⚠️ Counts are the fixture's whole point. Egypt holds ONE CB against a shape that needs
+   * TWO — the case the ticket's "per POSITION, not per hand" phrase is really about: the
+   * nation "has" a CB, and the second CB hand must still widen, because `onePerPlayer` let
+   * the first hand consume him.
+   */
+  const nations = (spec: Array<[PlayerRole, string, number]>): PoolCard[] =>
+    spec.flatMap(([role, code, n], s) =>
+      Array.from({ length: n }, (_, i) => ({
+        cardId: makeCardId(9000 + s * 100 + i, 2020),
+        playerId: 9000 + s * 100 + i,
+        season: 2020,
+        name: `${code}-${role}-${i}`,
+        role,
+        altRoles: [] as PlayerRole[],
+        foot: null,
+        height: null,
+        provenance: null,
+        ratings: {
+          attack: 50,
+          creation: 50,
+          defense: 50,
+          physical: 50,
+          discipline: 50,
+          overall: 60,
+        },
+        club: "Club",
+        nationalityCode: code,
+      })),
+    );
+
+  /** Enough of everything for every OTHER slot, so only the roles under test are thin. */
+  const OFFSETS: Record<string, number> = { eg: 20000, sn: 40000, fr: 60000 };
+  const filler = (code: string): PoolCard[] =>
+    ROLES.flatMap((role, r) =>
+      Array.from({ length: 6 }, (_, i) => ({
+        cardId: makeCardId(OFFSETS[code]! + r * 100 + i, 2020),
+        playerId: OFFSETS[code]! + r * 100 + i,
+        season: 2020,
+        name: `${code}-fill-${role}-${i}`,
+        role,
+        altRoles: [] as PlayerRole[],
+        foot: null,
+        height: null,
+        provenance: null,
+        ratings: {
+          attack: 50,
+          creation: 50,
+          defense: 50,
+          physical: 50,
+          discipline: 50,
+          overall: 55,
+        },
+        club: "Club",
+        nationalityCode: code,
+      })),
+    );
+
+  const rings = { nation: "eg" };
+
+  it("⭐ deals from the NATION ring alone while the nation has anyone for the slot", () => {
+    // Every slot has 6+ Egyptians (the filler), so with rings on, no hand may hold a
+    // Senegalese or French card even though both are eligible everywhere.
+    const hands = roomDeals(filler("eg").concat(filler("sn"), filler("fr")), shape, 42, {
+      onePerPlayer: true,
+      rings,
+    });
+    for (const h of hands) for (const c of h) expect(c.nationalityCode).toBe("eg");
+  });
+
+  it("⛔ THE SECOND CB HAND widens — the nation had a CB, and onePerPlayer already spent him", () => {
+    // Egypt: 1 dedicated CB + 6 CB fillers... no — the filler covers CB too, so restrict:
+    // build a pool where Egypt's CB depth is exactly ONE and the shape needs TWO.
+    const pool = [
+      ...nations([["CB", "eg", 1]]),
+      ...filler("eg").filter((c) => c.role !== "CB"),
+      ...filler("sn"),
+      ...filler("fr"),
+    ];
+    const hands = roomDeals(pool, shape, 42, { onePerPlayer: true, rings });
+    const cbHands = shape.slots
+      .map((s, i) => (s.role === "CB" ? hands[i]! : null))
+      .filter((h): h is PoolCard[] => h != null);
+    expect(cbHands).toHaveLength(2);
+    // The first CB hand is the lone Egyptian, alone — a short hand, never padded.
+    expect(cbHands[0]!.map((c) => c.nationalityCode)).toEqual(["eg"]);
+    // The second is CONTINENT — all Senegalese, and full.
+    expect(cbHands[1]!.length).toBeGreaterThan(0);
+    for (const c of cbHands[1]!) expect(c.nationalityCode).toBe("sn");
+  });
+
+  it("⭐ widens to WORLD when the continent has nobody either, and hands stay single-ring", () => {
+    const pool = [
+      ...nations([["CB", "eg", 1]]),
+      ...filler("eg").filter((c) => c.role !== "CB"),
+      ...filler("sn").filter((c) => c.role !== "CB"),
+      ...filler("fr"),
+    ];
+    const hands = roomDeals(pool, shape, 42, { onePerPlayer: true, rings });
+    const cbHands = shape.slots
+      .map((s, i) => (s.role === "CB" ? hands[i]! : null))
+      .filter((h): h is PoolCard[] => h != null);
+    expect(cbHands[0]!.map((c) => c.nationalityCode)).toEqual(["eg"]);
+    for (const c of cbHands[1]!) expect(c.nationalityCode).toBe("fr");
+    // Single-ring everywhere: no hand mixes codes from different rings.
+    for (const h of hands) {
+      const rs = new Set(
+        h.map((c) => (c.nationalityCode === "eg" ? 0 : c.nationalityCode === "sn" ? 1 : 2)),
+      );
+      expect(rs.size, h.map((c) => c.name).join(",")).toBeLessThanOrEqual(1);
+    }
+  });
+
+  // ---- redeal: an unpicked card returns to later rounds (TASK-1842, owner report) ----
+
+  /**
+   * The owner's report, verbatim: Egypt has 3 CM-eligible players; picking one in the first
+   * CM round made the other two vanish from the second CM round, which widened to Africa
+   * with two countrymen still unpicked. Precomputed disjoint hands are the cause: hand A
+   * CONSUMED all three at deal time. `redealHands` computes each slot's hand independently
+   * from (pool, shape, seed, picks) — only a PICKED player is gone.
+   */
+  const redealPool = [
+    ...nations([["CM", "eg", 3]]),
+    ...filler("eg").filter((c) => c.role !== "CM"),
+    ...filler("sn"),
+  ];
+  const noPicks = () => Array<null>(shape.slots.length).fill(null);
+  const cmSlots = shape.slots.flatMap((s, i) => (s.role === "CM" ? [i] : []));
+
+  it("⭐ BOTH CM rounds offer all three countrymen while none is picked", () => {
+    const hands = redealHands(redealPool, shape, 42, noPicks(), { onePerPlayer: true, rings });
+    expect(cmSlots).toHaveLength(2);
+    for (const i of cmSlots) {
+      expect(hands[i]!.map((c) => c.nationalityCode).sort()).toEqual(["eg", "eg", "eg"]);
+    }
+  });
+
+  it("⭐ picking ONE leaves the other TWO in the second round — the owner's exact ask", () => {
+    const first = redealHands(redealPool, shape, 42, noPicks(), { onePerPlayer: true, rings });
+    const pickedCard = first[cmSlots[0]!]![0]!;
+    const picks: (typeof pickedCard.cardId | null)[] = noPicks();
+    picks[cmSlots[0]!] = pickedCard.cardId;
+
+    const after = redealHands(redealPool, shape, 42, picks, { onePerPlayer: true, rings });
+    const second = after[cmSlots[1]!]!;
+    // Still the NATION ring — two Egyptians remain, so no widening.
+    expect(second.map((c) => c.nationalityCode)).toEqual(["eg", "eg"]);
+    // And the picked man is in NO hand anywhere.
+    for (const h of after) for (const c of h) expect(c.playerId).not.toBe(pickedCard.playerId);
+  });
+
+  it("⭐ the ring widens only when the picks have TRULY exhausted the nation", () => {
+    const first = redealHands(redealPool, shape, 42, noPicks(), { onePerPlayer: true, rings });
+    const picks: (string | null)[] = noPicks();
+    picks[cmSlots[0]!] = first[cmSlots[0]!]![0]!.cardId;
+    const mid = redealHands(redealPool, shape, 42, picks as never, { onePerPlayer: true, rings });
+    picks[cmSlots[1]!] = mid[cmSlots[1]!]![0]!.cardId;
+    // Two of the three are now picked. Reconsidering slot 0 (its own pick released) must
+    // still deal the NATION ring: the freed man plus the never-picked third — never Africa.
+    const again = redealHands(
+      redealPool,
+      shape,
+      42,
+      picks.map((p, i) => (i === cmSlots[0] ? null : p)) as never,
+      { onePerPlayer: true, rings },
+    );
+    const hand = again[cmSlots[0]!]!;
+    expect(hand.length).toBe(2);
+    expect(hand.every((c) => c.nationalityCode === "eg")).toBe(true);
+  });
+
+  it("⚠️ a slot whose bag the pick never touched deals IDENTICALLY", () => {
+    // Stability: the GK hand must not reshuffle because a CM was picked.
+    const before = redealHands(redealPool, shape, 42, noPicks(), { onePerPlayer: true, rings });
+    const picks: (string | null)[] = noPicks();
+    picks[cmSlots[0]!] = before[cmSlots[0]!]![0]!.cardId;
+    const after = redealHands(redealPool, shape, 42, picks as never, { onePerPlayer: true, rings });
+    const gk = shape.slots.findIndex((s) => s.role === "GK");
+    expect(after[gk]!.map((c) => c.cardId)).toEqual(before[gk]!.map((c) => c.cardId));
+  });
+
+  it("⛔ THE CONTROL — the rings option absent leaves the deal byte-identical", () => {
+    // The option must not shift any other pack's PRNG stream: same pool, same seed, no
+    // rings — the deal equals itself computed before this option existed, which is what
+    // "every option DEFAULTS OFF" means. Asserted as with-vs-without equality on a pool
+    // where rings CHANGE nothing (single nation), plus inequality where they must.
+    const single = filler("eg");
+    expect(key(roomDeals(single, shape, 42, { onePerPlayer: true, rings }))).toBe(
+      key(roomDeals(single, shape, 42, { onePerPlayer: true })),
+    );
   });
 });

@@ -6,10 +6,13 @@ import {
   loadPlayers,
   loadStandings,
 } from "@/data/loaders";
+import { PlayerRoleSchema, type PlayerRole } from "@/data/schemas";
+import { ringOf } from "@/features/game/domain/continents";
+import { canPlay } from "@/features/game/domain/eligibility";
 import { indexedCost } from "@/features/game/domain/market-index";
 import { bandPrice } from "@/features/game/domain/price-band";
 import type { EnrichedCard } from "@/features/game/domain/player-card";
-import type { PoolSpec } from "@/features/game/domain/rule-packs";
+import { NATION_PACK, type PoolSpec } from "@/features/game/domain/rule-packs";
 import { EARLIEST_SEASON, currentDataSeason } from "@/utils/season";
 import { cardBio, loadCareerIndex } from "./card-enrich";
 import { resolvePhotos } from "./photo-kind";
@@ -493,17 +496,121 @@ async function pricedMarket(
   return ranked.map((v) => ({ ...v.g.card, price: bandPrice(rank.get(v.cost) ?? 0) }));
 }
 
-export async function buildPool(spec: PoolSpec, only?: number): Promise<EnrichedCard[]> {
+/**
+ * The nations the Nationality Draft offers (TASK-1842) — code + distinct-player count.
+ *
+ * ⚠️ Reads `players-*.json` metadata only, never the card universe — the `clubChoices`
+ * rule: this backs a menu. Display names are derived from the code at render time
+ * (`countryNameFromCode`, per locale), so the menu carries no strings to go stale.
+ */
+export async function nationChoices(): Promise<Array<{ code: string; players: number }>> {
+  const spec = NATION_PACK.pool;
+  const minPlayers = spec.kind === "nationRings" ? spec.minPlayers : 0;
+
+  const byNation = new Map<string, Set<number>>();
+  for (const season of everySeason()) {
+    for (const p of (await loadPlayers(season)) ?? []) {
+      if (!p.nationalityCode) continue;
+      (
+        byNation.get(p.nationalityCode) ??
+        byNation.set(p.nationalityCode, new Set()).get(p.nationalityCode)!
+      ).add(p.id);
+    }
+  }
+
+  return (
+    [...byNation.entries()]
+      .map(([code, ids]) => ({ code, players: ids.size }))
+      .filter((n) => n.players >= minPlayers)
+      // Count desc, then code — a total order, so the menu cannot wander between builds.
+      .sort((a, b) => b.players - a.players || a.code.localeCompare(b.code))
+  );
+}
+
+/**
+ * The Nationality Draft pool: the nation's players, with per-role fallback rings
+ * (TASK-1842). See the spec (2026-08-27) — every number is measured there.
+ *
+ * Three passes, in this order, all over one card per distinct player (his best-rated
+ * season, the Captain's/Budget rule):
+ *  1. **Nation ring**: per role, the nation's eligible players best-rated first, capped at
+ *     `perRoleCap`. Only 9 of 57 nations ever reach the cap — for the rest this is "the
+ *     available players", the owner's words, verbatim.
+ *  2. **Continent fill**: per role still under `roleFloor` eligible cards, the continent's
+ *     best until the floor (or the continent runs out — Asia holds two goalkeepers total).
+ *  3. **World fill**: per role still under the floor, the world's best. Unreachable on
+ *     today's data and kept anyway: it is the guarantee a hand can never be empty, and one
+ *     data refresh away from being needed.
+ *
+ * ⚠️ The fills COUNT the running union, not their own ring: a continent CB added for CB
+ * also covers RB via his altRoles, so later roles fill less. Deterministic because the
+ * ranking is total (rating, then cardId — the pricedMarket eviction lesson).
+ */
+/** The closed role vocabulary, off the schema — never restated. */
+const ALL_ROLES: readonly PlayerRole[] = PlayerRoleSchema.options;
+
+async function nationRingsPool(
+  spec: Extract<PoolSpec, { kind: "nationRings" }>,
+  career: CareerIndex,
+  nation: string,
+): Promise<EnrichedCard[]> {
+  /** playerId -> his best-rated card anywhere. */
+  const best = new Map<number, Gathered>();
+  for (const { g } of await universe(career)) {
+    const found = best.get(g.card.playerId);
+    if (found == null || g.rating > found.rating) best.set(g.card.playerId, g);
+  }
+  const ranked = [...best.values()].sort(
+    (a, b) => b.rating - a.rating || a.card.cardId.localeCompare(b.card.cardId),
+  );
+
+  const ring = (g: Gathered) => ringOf(g.card, nation);
+  const chosen = new Map<number, Gathered>();
+  const eligibleCount = (role: PlayerRole) => {
+    let n = 0;
+    for (const g of chosen.values()) if (canPlay(g.card, role)) n++;
+    return n;
+  };
+
+  for (const role of ALL_ROLES) {
+    let kept = 0;
+    for (const g of ranked) {
+      if (kept >= spec.perRoleCap) break;
+      if (ring(g) !== "nation" || !canPlay(g.card, role)) continue;
+      chosen.set(g.card.playerId, g);
+      kept++;
+    }
+  }
+  for (const wanted of ["continent", "world"] as const) {
+    for (const role of ALL_ROLES) {
+      if (eligibleCount(role) >= spec.roleFloor) continue;
+      for (const g of ranked) {
+        if (chosen.has(g.card.playerId) || ring(g) !== wanted || !canPlay(g.card, role)) continue;
+        chosen.set(g.card.playerId, g);
+        if (eligibleCount(role) >= spec.roleFloor) break;
+      }
+    }
+  }
+
+  return [...chosen.values()]
+    .sort((a, b) => b.rating - a.rating || a.card.cardId.localeCompare(b.card.cardId))
+    .map((g) => g.card);
+}
+
+export async function buildPool(spec: PoolSpec, only?: number | string): Promise<EnrichedCard[]> {
   const career = await loadCareerIndex();
   const pool =
     spec.kind === "topTeams"
       ? await topTeams(spec, career)
       : spec.kind === "captainSynergy"
         ? // `only` is the ICON's playerId here, the same way it is a club id for Legacy.
-          await captainSynergy(spec, career, only ?? -1)
+          await captainSynergy(spec, career, typeof only === "number" ? only : -1)
         : spec.kind === "pricedMarket"
           ? await pricedMarket(spec, career)
-          : await clubHistory(spec, career, only);
+          : spec.kind === "nationRings"
+            ? // …and the NATION's flag-icons code here (TASK-1842).
+              await nationRingsPool(spec, career, typeof only === "string" ? only : "")
+            : await clubHistory(spec, career, typeof only === "number" ? only : undefined);
 
   // Pixel-inspect each photo to tell a transparent cutout from a background shot — the URL
   // alone lies for older players. Best-effort, build time only.

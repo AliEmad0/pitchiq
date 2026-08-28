@@ -27,7 +27,8 @@ export function policyOf(d: Difficulty): Extract<DraftPolicy, "best" | "strong">
 }
 
 export interface ChosenRival {
-  teamId: number;
+  /** A club's numeric id, or a NATION's flag-icons code (TASK-1842). */
+  teamId: number | string;
   name: string;
   cards: PoolCard[];
 }
@@ -44,10 +45,13 @@ export type RivalState =
    */
   | { status: "unavailable" };
 
-export const rivalUrl = (teamId: number) => `/api/game/rivals/${teamId}`;
+export const rivalUrl = (teamId: number | string) => `/api/game/rivals/${teamId}`;
 
 /** Fetch one club's squad. Returns null for any failure — the caller degrades. */
-export async function loadRival(teamId: number, signal?: AbortSignal): Promise<ChosenRival | null> {
+export async function loadRival(
+  teamId: number | string,
+  signal?: AbortSignal,
+): Promise<ChosenRival | null> {
   try {
     const res = await fetch(rivalUrl(teamId), { signal });
     if (!res.ok) return null;
@@ -67,10 +71,10 @@ export async function loadRival(teamId: number, signal?: AbortSignal): Promise<C
  * ends up facing is whichever server response happened to land last, not the club he
  * picked.
  */
-export function useRival(teamId: number | null): RivalState {
+export function useRival(teamId: number | string | null): RivalState {
   const [state, setState] = useState<RivalState>({ status: "loading" });
 
-  const load = useCallback((id: number, signal: AbortSignal) => {
+  const load = useCallback((id: number | string, signal: AbortSignal) => {
     setState({ status: "loading" });
     void loadRival(id, signal).then((rival) => {
       if (signal.aborted) return;

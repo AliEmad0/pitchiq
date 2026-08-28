@@ -1,12 +1,13 @@
 "use client";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useReducer, useState } from "react";
 import { budgetView, canAfford, shortfall, type BudgetView } from "@/features/game/domain/budget";
 import { priceLabel } from "@/features/game/domain/price-band";
 import { pickBack } from "@/features/game/domain/card-design";
 import type { PlayerSeasonId } from "@/features/game/domain/card-id";
 import { BENCH_SHAPE, FORMATIONS, type PoolCard } from "@/features/game/domain/chaos-draft";
-import { canField, roomDeals } from "@/features/game/domain/draft-room";
+import { continentOf, ringOf, type Ring } from "@/features/game/domain/continents";
+import { canField, redealHands, roomDeals } from "@/features/game/domain/draft-room";
 import { canPlay } from "@/features/game/domain/eligibility";
 import type { Formation } from "@/features/game/domain/formation";
 import type { EnrichedCard } from "@/features/game/domain/player-card";
@@ -20,7 +21,9 @@ import {
 import { useRival, type ChosenRival, type Difficulty } from "@/features/game/view/rival-choice";
 import { randomSeed } from "@/features/game/view/seed";
 import { Link } from "@/i18n/navigation";
+import { countryNameFromCode } from "@/utils/country";
 import { prefersReducedMotion } from "@/utils/motion";
+import { Flag } from "@/features/players/components/Flag";
 import { ClubCrest } from "./ClubCrest";
 import { CardBack, PlayerCard } from "./PlayerCard";
 
@@ -36,7 +39,9 @@ const FAMILIES = [
 
 /** One entry in the rival menu — the id and the name, nothing else. */
 export interface ClubChoice {
-  id: number;
+  /** A club's numeric id, or a NATION's flag-icons code (TASK-1842) - the rival route
+   *  serves both from one namespace, and codes are non-numeric so they cannot collide. */
+  id: number | string;
   name: string;
 }
 
@@ -74,6 +79,13 @@ interface Props {
    * and this screen renders exactly as Legacy and Captain's Draft have always rendered it.
    */
   budget?: number;
+  /**
+   * The chosen nation's flag-icons code (TASK-1842). Present only for the Nationality
+   * Draft: it turns on the widening-ring deal, the ring line under a widened round's
+   * heading, and the ring chip on non-countryman cards. Absent = every ring surface is
+   * inert and the deal is byte-identical to before the mode existed.
+   */
+  nation?: string;
 }
 
 /**
@@ -98,12 +110,16 @@ export function PitchDraft({
   clubId,
   captain,
   budget,
+  nation,
 }: Props) {
   const t = useTranslations("game");
+  const locale = useLocale();
   const reduced = prefersReducedMotion();
 
   /** Who he has chosen to face, and how hard they play. */
-  const [rivalId, setRivalId] = useState<number | null>(clubId ?? null);
+  // A nation draft opens on ITSELF - Egypt v Egypt is the natural exhibition, exactly as
+  // a club page opens on its own club (TASK-1842).
+  const [rivalId, setRivalId] = useState<number | string | null>(clubId ?? nation ?? null);
   const [difficulty, setDifficulty] = useState<Difficulty>("balanced");
   const rival = useRival(rivals != null && rivals.length > 0 ? rivalId : null);
 
@@ -155,16 +171,32 @@ export function PitchDraft({
     () =>
       seed == null
         ? []
-        : roomDeals(pool, shape, seed, {
-            handSize: draft.handSize,
-            standout: draft.standout,
-            cheapest: draft.cheapest,
-            bench: benchRoles,
-            onePerPlayer: draft.onePerPlayer,
-            // ⛔ He is in the pool so every replay path can resolve him; he must not be
-            // dealt, or the coach could field the same man twice.
-            excludePlayers: captain == null ? undefined : new Set([captain.playerId]),
-          }),
+        : draft.redeal === true
+          ? /**
+             * TASK-1842 - hands recomputed from the CURRENT picks, so an unpicked candidate
+             * returns to later rounds (Egypt's three CMs must all stay drawable until each
+             * is actually taken). Recomputes on every pick; the per-slot streams keep every
+             * untouched hand byte-stable. See `redealHands` for the visit-order trade.
+             */
+            redealHands(pool, shape, seed, state.picks, {
+              handSize: draft.handSize,
+              onePerPlayer: draft.onePerPlayer,
+              bench: benchRoles,
+              excludePlayers: captain == null ? undefined : new Set([captain.playerId]),
+              rings: nation == null ? undefined : { nation },
+            })
+          : roomDeals(pool, shape, seed, {
+              handSize: draft.handSize,
+              standout: draft.standout,
+              cheapest: draft.cheapest,
+              bench: benchRoles,
+              onePerPlayer: draft.onePerPlayer,
+              // ⛔ He is in the pool so every replay path can resolve him; he must not be
+              // dealt, or the coach could field the same man twice.
+              excludePlayers: captain == null ? undefined : new Set([captain.playerId]),
+              // TASK-1842 — each hand narrows to the widest ring it needs, nation first.
+              rings: nation == null ? undefined : { nation },
+            }),
     [
       pool,
       shape,
@@ -175,6 +207,12 @@ export function PitchDraft({
       draft.onePerPlayer,
       benchRoles,
       captain,
+      nation,
+      draft.redeal,
+      // Read by the redeal path only - a conditional dep list is not a thing React has,
+      // and for every other pack a pick re-runs a memo whose roomDeals inputs are
+      // unchanged, recomputing the identical hands.
+      state.picks,
     ],
   );
 
@@ -427,6 +465,36 @@ export function PitchDraft({
             (c): c is PoolCard => c != null,
           );
 
+  /**
+   * Which ring this round's hand was dealt from (TASK-1842) — null off the Nationality
+   * Draft, and null for a countryman hand, so every other pack renders exactly as before.
+   *
+   * ⚠️ Read off the FIRST card, which is sound because the deal narrows a hand to a single
+   * ring before drawing — a property `game-draft-room.test.ts` pins. The ring must be
+   * VISIBLE: a card silently arriving from "Africa" while the coach thinks he is drafting
+   * Egyptians breaks the mode's premise without him knowing (the ticket's own words).
+   */
+  const handRing: Ring | null =
+    nation != null && veil?.mode === "round" && veilCards.length > 0
+      ? ringOf(veilCards[0]!, nation)
+      : null;
+  const nationName = nation != null ? countryNameFromCode(nation, locale) : null;
+  const continentKey = (() => {
+    const c = nation != null ? continentOf(nation) : null;
+    return c == null
+      ? null
+      : (
+          {
+            eu: "continentEu",
+            af: "continentAf",
+            as: "continentAs",
+            na: "continentNa",
+            sa: "continentSa",
+            oc: "continentOc",
+          } as const
+        )[c];
+  })();
+
   return (
     <div className={`pd-root${locked ? "" : " pd-shaping"}`}>
       {/* ⭐ ABOVE the pitch (owner, 2026-08-26) — it is the first thing to read, and under the
@@ -544,15 +612,29 @@ export function PitchDraft({
                       carry an image, and a club is far quicker to recognise by its badge
                       than by reading a name out of a list of fifty-one. */}
                   <span className="pd-select-wrap">
-                    <ClubCrest teamId={rivalId} size={26} />
+                    {typeof rivalId === "string" ? (
+                      <Flag code={rivalId} name={null} className="text-[26px] leading-none" />
+                    ) : (
+                      <ClubCrest teamId={rivalId} size={26} />
+                    )}
                     <select
                       className="pd-select"
                       value={rivalId ?? ""}
-                      onChange={(e) => setRivalId(Number(e.target.value))}
+                      // Resolve the CHOICE, never Number() the value: a nation's id is its
+                      // flag-icons code, and Number("eg") is NaN - which would fetch nothing
+                      // and read as "their squad could not be loaded".
+                      onChange={(e) => {
+                        const picked = rivals.find((c) => String(c.id) === e.target.value);
+                        setRivalId(picked?.id ?? null);
+                      }}
                     >
                       {rivals.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.id === clubId ? t("rivalOwnClub", { name: c.name }) : c.name}
+                        <option key={c.id} value={String(c.id)}>
+                          {c.id === clubId || (nation != null && c.id === nation)
+                            ? t(nation != null ? "rivalOwnNation" : "rivalOwnClub", {
+                                name: c.name,
+                              })
+                            : c.name}
                         </option>
                       ))}
                     </select>
@@ -586,7 +668,7 @@ export function PitchDraft({
                   {rival.status === "loading"
                     ? t("rivalLoading")
                     : rival.status === "unavailable"
-                      ? t("rivalUnavailable")
+                      ? t(nation != null ? "rivalUnavailableNation" : "rivalUnavailable")
                       : t("rivalReady", {
                           name: rival.rival.name,
                           n: rival.rival.cards.length,
@@ -607,7 +689,13 @@ export function PitchDraft({
                   >
                     {/* ⚠️ The label names what you would go BACK to choose, and this
                         route serves more than clubs now (owner, 2026-08-25). */}
-                    {t(captain != null ? "modeBackCaptain" : "modeBack")}
+                    {t(
+                      nation != null
+                        ? "modeBackNation"
+                        : captain != null
+                          ? "modeBackCaptain"
+                          : "modeBack",
+                    )}
                   </Link>
                 ) : null}
                 <button type="button" onClick={() => setSeed(randomSeed())} className="pd-lock">
@@ -647,6 +735,17 @@ export function PitchDraft({
               {veil.mode === "round" && currentCard?.price != null && view != null ? (
                 <p className="text-sm font-semibold text-emerald-300">
                   {t("pitchSwapRefund", { amount: `£${money(currentCard.price)}m` })}
+                </p>
+              ) : null}
+              {/* ⭐ THE RING LINE (TASK-1842). Stated whenever the hand is not the nation's
+                  own — the widening is the mode's drama, and it must never be silent. */}
+              {handRing === "continent" && nationName != null && continentKey != null ? (
+                <p data-testid="pd-ring-line" className="text-sm font-semibold text-sky-300">
+                  {t("pitchRingContinent", { nation: nationName, continent: t(continentKey) })}
+                </p>
+              ) : handRing === "world" && nationName != null ? (
+                <p data-testid="pd-ring-line" className="text-sm font-semibold text-sky-300">
+                  {t("pitchRingWorld", { nation: nationName })}
                 </p>
               ) : null}
             </div>
@@ -708,6 +807,16 @@ export function PitchDraft({
                     {isCurrent ? (
                       <span data-testid="pd-current-mark" className="pd-current-mark">
                         {t("pitchCurrentPick")}
+                      </span>
+                    ) : null}
+                    {/* The ring chip (TASK-1842) — only on the SURPRISING case: a card that
+                        is not a countryman. Same non-interactive layering as the mark above,
+                        or the one card the coach most wants to read would eat its own tap. */}
+                    {handRing != null && handRing !== "nation" ? (
+                      <span data-testid="pd-ring-chip" className="pd-ring-chip">
+                        {handRing === "continent" && continentKey != null
+                          ? t(continentKey)
+                          : t("ringWorld")}
                       </span>
                     ) : null}
                     {veil.mode === "round" ? (

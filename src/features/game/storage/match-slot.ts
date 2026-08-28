@@ -45,7 +45,9 @@ export interface SavedMatch {
    * ⚠️ Optional so a record written before this shipped still loads. It replays against the
    * coach's own pool, which is what it was actually played against.
    */
-  rival?: { teamId: number; policy: "random" | "best" | "strong" };
+  /** A club's numeric id, or a NATION's flag-icons code (TASK-1842). IndexedDB stores
+   *  either untouched; every reader resolves it through the same rivals route. */
+  rival?: { teamId: number | string; policy: "random" | "best" | "strong" };
 }
 
 const KEY = "current";
