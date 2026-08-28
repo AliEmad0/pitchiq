@@ -75,6 +75,7 @@ export function GamePlay({
   captaincies,
   referees,
   budget,
+  nation,
 }: {
   pool: PoolCard[];
   initialPhase?: PlayPhase;
@@ -98,6 +99,14 @@ export function GamePlay({
    * unresumable after a data change.
    */
   budget?: number;
+  /**
+   * The chosen nation's flag-icons code (TASK-1842 Nationality Draft). Absent = no rings,
+   * and every other pack's deal is byte-identical to before the mode existed.
+   *
+   * ⚠️ A ROUTE value, not a pack field — the pack declares `nationRings` and the segment
+   * supplies the country, the same split as `clubHistory` + `clubId`.
+   */
+  nation?: string;
   /**
    * How the XI is assembled (TASK-1838). Absent = the coach builds it himself.
    *
@@ -211,7 +220,11 @@ export function GamePlay({
    * fallback when the squad fetch fails. `ClubCrest` renders nothing for a null id, so the
    * scoreboard degrades to the bare name it showed before.
    */
-  const crests = { home: clubId ?? null, away: rival?.setup?.teamId ?? null };
+  // ⚠️ A NATION rival's id is a flag-icons code (TASK-1842), and a nation has no crest —
+  // narrowing to numbers here keeps every crest consumer exactly as it was: the scoreboard
+  // degrades to the bare name, which is what a null id always meant.
+  const awayId = rival?.setup?.teamId;
+  const crests = { home: clubId ?? null, away: typeof awayId === "number" ? awayId : null };
 
   /** The rival belonging to the RESTORE OFFER, held until he accepts it. */
   const [offerRival, setOfferRival] = useState<{
@@ -531,6 +544,7 @@ export function GamePlay({
             clubId={clubId}
             captain={captain}
             budget={budget}
+            nation={nation}
           />
         ) : (
           <DraftHub pool={pool} onConfirm={confirmSquad} />

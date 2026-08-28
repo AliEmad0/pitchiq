@@ -172,6 +172,41 @@ Club" lesson).
 line and chips), France (all-nation), and `/ar` (Arabic nation names, Arabic ring line,
 counted by codepoints).
 
+## 6.1 Owner playtest round (2026-08-27) — three reports, all shipped with the mode
+
+**1. An unpicked countryman must RETURN to later rounds.** Egypt holds three CM-eligible
+players and a 4-4-2 has two CM slots; with `roomDeals`' precomputed disjoint hands the first
+CM round consumed all three, and the second widened to Africa while two countrymen sat
+unpicked — which read as cards simply vanishing. `DraftSpec.redeal` (nation pack only):
+every hand is recomputed from `(pool, shape, seed, picks)` by `redealHands`, each slot on
+its own seed-derived stream, so only a player actually PICKED is gone and two same-role
+slots offer the same candidates until one is taken. ⚠️ This deliberately trades away the
+visit-order property — what a slot offers now depends on what was picked, which is the
+point — so `redeal` must never back a surface that shares rooms by seed (the H2H board).
+It also skips `standout`/`cheapest` by design: re-dealing a guarantee after every pick
+would re-litigate it, and this pack promises neither.
+
+**2. WHO YOU FACE lists NATIONS, not clubs.** The Arsenal dropdown was the Legacy route's
+club menu leaking through the shared page. The rival route (`/api/game/rivals/[club]`) now
+serves both namespaces — clubs by numeric id, nations by flag-icons code, non-colliding
+because codes are non-numeric — and the nation page passes nations (localized names, flag
+instead of crest, preselected on the nation itself: Egypt v Egypt is the natural
+exhibition). The share codec carries a nation rival as `~<code><policy>`; ⛔ the `~` marker
+is load-bearing, because a bare code like `eg` IS a valid base-36 number and would silently
+decode as some club's id. Old clients reject a marked code whole (refused, never misread),
+so `v2` needs no bump.
+
+**3. "What is this card without any data" — Peter Schmeichel '92, four dashed stats.** Two
+halves. His PRESENCE in Egypt's pool is the world fill working as specified (Africa holds
+five goalkeepers against a floor of 20) — but he was reaching the OWNER'S SCREEN as the
+rival's keeper, because the rival XI was drafted best-first over the whole rings pool.
+`selectNationRivalCandidates` fixes that: the rival squad is selected RING-AWARE per role —
+countrymen, then continent, then world — so an "Egypt" rival fields Africa's best keeper,
+and a world fill surfaces only where the continent itself has nobody. The dashed sub-stats
+themselves (REF/KIC/POS/CMD blank on a 1992-93 card) are the card face being honest about
+pre-2008 data and predate this mode — every Legacy 1992 keeper renders the same; a
+sparse-era GK stat layout is its own ticket, not this one.
+
 ## 7. Out of scope
 
 - Season format (TASK-1811), chemistry links (that is the Chemistry pack), any rival drawn

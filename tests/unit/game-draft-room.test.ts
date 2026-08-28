@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { PlayerRole } from "@/data/schemas";
 import { makeCardId } from "@/features/game/domain/card-id";
 import type { PoolCard } from "@/features/game/domain/chaos-draft";
-import { HAND_SIZE, STANDOUT_OVR, roomDeals } from "@/features/game/domain/draft-room";
+import { HAND_SIZE, STANDOUT_OVR, redealHands, roomDeals } from "@/features/game/domain/draft-room";
 import { canPlay } from "@/features/game/domain/eligibility";
 import { formationByName } from "@/features/game/domain/formation";
 
@@ -344,6 +344,75 @@ describe("roomDeals", () => {
       );
       expect(rs.size, h.map((c) => c.name).join(",")).toBeLessThanOrEqual(1);
     }
+  });
+
+  // ---- redeal: an unpicked card returns to later rounds (TASK-1842, owner report) ----
+
+  /**
+   * The owner's report, verbatim: Egypt has 3 CM-eligible players; picking one in the first
+   * CM round made the other two vanish from the second CM round, which widened to Africa
+   * with two countrymen still unpicked. Precomputed disjoint hands are the cause: hand A
+   * CONSUMED all three at deal time. `redealHands` computes each slot's hand independently
+   * from (pool, shape, seed, picks) — only a PICKED player is gone.
+   */
+  const redealPool = [
+    ...nations([["CM", "eg", 3]]),
+    ...filler("eg").filter((c) => c.role !== "CM"),
+    ...filler("sn"),
+  ];
+  const noPicks = () => Array<null>(shape.slots.length).fill(null);
+  const cmSlots = shape.slots.flatMap((s, i) => (s.role === "CM" ? [i] : []));
+
+  it("⭐ BOTH CM rounds offer all three countrymen while none is picked", () => {
+    const hands = redealHands(redealPool, shape, 42, noPicks(), { onePerPlayer: true, rings });
+    expect(cmSlots).toHaveLength(2);
+    for (const i of cmSlots) {
+      expect(hands[i]!.map((c) => c.nationalityCode).sort()).toEqual(["eg", "eg", "eg"]);
+    }
+  });
+
+  it("⭐ picking ONE leaves the other TWO in the second round — the owner's exact ask", () => {
+    const first = redealHands(redealPool, shape, 42, noPicks(), { onePerPlayer: true, rings });
+    const pickedCard = first[cmSlots[0]!]![0]!;
+    const picks: (typeof pickedCard.cardId | null)[] = noPicks();
+    picks[cmSlots[0]!] = pickedCard.cardId;
+
+    const after = redealHands(redealPool, shape, 42, picks, { onePerPlayer: true, rings });
+    const second = after[cmSlots[1]!]!;
+    // Still the NATION ring — two Egyptians remain, so no widening.
+    expect(second.map((c) => c.nationalityCode)).toEqual(["eg", "eg"]);
+    // And the picked man is in NO hand anywhere.
+    for (const h of after) for (const c of h) expect(c.playerId).not.toBe(pickedCard.playerId);
+  });
+
+  it("⭐ the ring widens only when the picks have TRULY exhausted the nation", () => {
+    const first = redealHands(redealPool, shape, 42, noPicks(), { onePerPlayer: true, rings });
+    const picks: (string | null)[] = noPicks();
+    picks[cmSlots[0]!] = first[cmSlots[0]!]![0]!.cardId;
+    const mid = redealHands(redealPool, shape, 42, picks as never, { onePerPlayer: true, rings });
+    picks[cmSlots[1]!] = mid[cmSlots[1]!]![0]!.cardId;
+    // Two of the three are now picked. Reconsidering slot 0 (its own pick released) must
+    // still deal the NATION ring: the freed man plus the never-picked third — never Africa.
+    const again = redealHands(
+      redealPool,
+      shape,
+      42,
+      picks.map((p, i) => (i === cmSlots[0] ? null : p)) as never,
+      { onePerPlayer: true, rings },
+    );
+    const hand = again[cmSlots[0]!]!;
+    expect(hand.length).toBe(2);
+    expect(hand.every((c) => c.nationalityCode === "eg")).toBe(true);
+  });
+
+  it("⚠️ a slot whose bag the pick never touched deals IDENTICALLY", () => {
+    // Stability: the GK hand must not reshuffle because a CM was picked.
+    const before = redealHands(redealPool, shape, 42, noPicks(), { onePerPlayer: true, rings });
+    const picks: (string | null)[] = noPicks();
+    picks[cmSlots[0]!] = before[cmSlots[0]!]![0]!.cardId;
+    const after = redealHands(redealPool, shape, 42, picks as never, { onePerPlayer: true, rings });
+    const gk = shape.slots.findIndex((s) => s.role === "GK");
+    expect(after[gk]!.map((c) => c.cardId)).toEqual(before[gk]!.map((c) => c.cardId));
   });
 
   it("⛔ THE CONTROL — the rings option absent leaves the deal byte-identical", () => {

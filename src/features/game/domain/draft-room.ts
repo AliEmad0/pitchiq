@@ -238,6 +238,78 @@ export function roomDeals(
 }
 
 /**
+ * Hands recomputed from the CURRENT picks — an unpicked card returns to later rounds
+ * (TASK-1842, owner report 2026-08-27).
+ *
+ * ⭐ THE REPORT, verbatim: Egypt holds three CM-eligible players; picking one in the first
+ * CM round made the other two vanish from the second, which widened to Africa with two
+ * countrymen still unpicked. `roomDeals`' precomputed disjoint hands are the cause — hand A
+ * consumed all three the moment the room was created. Here every slot's hand is computed
+ * INDEPENDENTLY from `(pool, formation, seed, picks)`: only a player someone actually
+ * PICKED is gone, so two same-role slots offer the same candidates until one is taken.
+ *
+ * ⚠️ This deliberately trades away `roomDeals`' visit-order property — what a slot offers
+ * here DOES depend on what has been picked, which is the point — so it must never back a
+ * surface that shares rooms by seed (`/game/draft`'s H2H board). It is still fully
+ * deterministic from `(pool, formation, seed, picks)`: each slot draws from its own
+ * seed-derived stream, so an untouched slot's hand is byte-stable across unrelated picks.
+ *
+ * ⚠️ No `standout`/`cheapest` here, deliberately: those are GUARANTEES, and re-dealing a
+ * guarantee after every pick would re-litigate it (the standout you skipped returns forever).
+ * The one pack that redeal serves promises neither. A duplicate PICK is still impossible:
+ * picking removes the man from every future hand, and only one round is open at a time.
+ */
+export function redealHands(
+  pool: readonly PoolCard[],
+  formation: Formation,
+  seed: number,
+  picks: readonly (string | null)[],
+  opts: Pick<DealOptions, "handSize" | "onePerPlayer" | "bench" | "excludePlayers" | "rings"> = {},
+): PoolCard[][] {
+  const { handSize = HAND_SIZE, onePerPlayer = false, bench, excludePlayers, rings } = opts;
+  const byCardId = new Map(pool.map((c) => [c.cardId as string, c]));
+  const taken = new Set<string | number>();
+  for (const p of picks) {
+    const card = p != null ? byCardId.get(p) : undefined;
+    if (card != null) taken.add(onePerPlayer ? card.playerId : card.cardId);
+  }
+
+  const roles = [...formation.slots.map((s) => s.role), ...(bench ?? [])];
+  return roles.map((role, i) => {
+    // ⚠️ A PER-SLOT stream, derived from the room seed — a shared stream would reshuffle
+    // every hand whenever any earlier slot's bag changed size.
+    const rng = mulberry32((seed ^ ((i + 1) * 0x9e3779b9)) >>> 0);
+    const bag = pool.filter(
+      (c) =>
+        excludePlayers?.has(c.playerId) !== true &&
+        !taken.has(onePerPlayer ? c.playerId : c.cardId) &&
+        canPlay(c, role),
+    );
+    // Same narrowing as `roomDeals` — the best non-empty ring, before any draw.
+    if (rings != null && bag.length > 0) {
+      const ranked = bag.map((c) => ringOf(c, rings.nation));
+      const best = ranked.includes("nation")
+        ? "nation"
+        : ranked.includes("continent")
+          ? "continent"
+          : "world";
+      for (let j = bag.length - 1; j >= 0; j--) if (ranked[j] !== best) bag.splice(j, 1);
+    }
+    const hand: PoolCard[] = [];
+    while (hand.length < handSize && bag.length > 0) {
+      const [card] = bag.splice(Math.floor(rng() * bag.length), 1);
+      hand.push(card!);
+      if (onePerPlayer) {
+        for (let j = bag.length - 1; j >= 0; j--) {
+          if (bag[j]!.playerId === card!.playerId) bag.splice(j, 1);
+        }
+      }
+    }
+    return hand;
+  });
+}
+
+/**
  * The shapes this pool can actually field, one player per slot.
  *
  * ⚠️ Needed only because `onePerPlayer` collapses a club's cards to its distinct players

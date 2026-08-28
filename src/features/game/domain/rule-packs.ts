@@ -93,6 +93,41 @@ export type PoolSpec =
       cap: number;
       /** The money year every price is expressed in. Frozen — see `domain/market-index.ts`. */
       baseSeason: number;
+    }
+  | {
+      /**
+       * One nation's players, with per-role fallbacks from its continent and the world
+       * (Nationality Draft, TASK-1842). The route's segment supplies the nation code — the
+       * same split as `clubHistory` + `only`.
+       *
+       * ⭐ The scarcity IS the mode, so the recipe is honest about it: the nation ring is
+       * "the available players" verbatim for 48 of the 57 routed nations (measured
+       * 2026-08-27 — only nine ever reach `perRoleCap`), and the fallback rings exist so a
+       * hand can never be empty, not to hide the thinness. The deal widens per SLOT at deal
+       * time — see `DealOptions.rings` for why per-role precomputation would be wrong.
+       */
+      kind: "nationRings";
+      /**
+       * Nation cards kept per role, best-rated first. ⛔ England is why this exists: 1,767
+       * players, 471 of them CM-eligible — uncapped, its pool is ~900 KB baked into a
+       * `force-static` page. 30 clears the worst same-role demand (3 slots × handSize 5)
+       * with margin, and 48 of 57 nations never reach it.
+       */
+      perRoleCap: number;
+      /**
+       * The eligible-card floor every role is filled up to — continent first, then the
+       * world. ⚠️ Sized against the worst shape (3 CBs or 3 CMs = 15 same-role cards per
+       * draft) plus altRoles theft, and VERIFIED by the no-empty-hand control in
+       * `nation-pool.test.ts` rather than trusted: the number here is that test's input,
+       * not its proof.
+       */
+      roleFloor: number;
+      /**
+       * Nations offered at all. ⚠️ Egypt — the owner's own example — has 14, so this must
+       * stay ≤ 14. Below 11 a nation cannot even nominally field an XI of countrymen, and
+       * its draft is a continent draft wearing a flag.
+       */
+      minPlayers: number;
     };
 
 /**
@@ -138,11 +173,12 @@ export interface ChooserSpec {
   /**
    * `club` — Legacy Club picks a club, and its history is the pool.
    * `captain` — Captain's Draft picks an ICON, and his nationality + era is the pool.
+   * `nation` — the Nationality Draft picks a COUNTRY, and its widening rings are the pool.
    *
-   * ⚠️ Both put their choice in the URL for the same reason: the pool is baked into a
+   * ⚠️ All three put their choice in the URL for the same reason: the pool is baked into a
    * `force-static` page, so one page per choice is what keeps each payload affordable.
    */
-  kind: "club" | "captain";
+  kind: "club" | "captain" | "nation";
 }
 
 /**
@@ -175,6 +211,16 @@ export interface DraftSpec {
   timer?: number | null;
   /** A filled slot cannot be reopened — the pick is final. */
   lockPicks?: boolean;
+  /**
+   * Recompute every hand from the CURRENT picks, so an unpicked candidate returns to later
+   * rounds (TASK-1842, owner report 2026-08-27). Egypt holds three CM-eligible players; with
+   * precomputed hands the first CM round consumed all three and the second widened to Africa
+   * while two countrymen sat unpicked. See `redealHands` for the trade this makes.
+   *
+   * ⚠️ Only meaningful with `lockPicks: true` today: reconsiderable picks + redeal would need
+   * the reserve arithmetic Budget Cap runs, and no pack asks for both.
+   */
+  redeal?: boolean;
   /**
    * The coach also drafts a BENCH, and pays for it (Budget Cap, TASK-1810).
    *
@@ -416,6 +462,41 @@ export const BUDGET_PACK: RulePack = {
 };
 
 /**
+ * Nationality Draft (TASK-1842).
+ *
+ * The promise is the owner's brief, kept literally: "select Egypt, show me the available
+ * players for every position … if no players for this position give me African players."
+ * A hand is drawn from the narrowest ring that still has anyone — the nation, then its
+ * continent, then the world — and the widening is VISIBLE (the ring line and chips on
+ * `PitchDraft`'s round).
+ *
+ * ⚠️ No `standout`, deliberately: a thin nation at a thin position may hold no 80+ card,
+ * and the pack degrades honestly — short hands, no promise — rather than widening a ring
+ * just to keep one. The per-pack round copy (#202) keys the "rated 80 or better" sentence
+ * on this exact field, so the veil claims nothing this pack cannot deliver.
+ *
+ * ⚠️ `lockPicks: true` — a hand of one is a forced pick, which is the scarcity being FELT.
+ */
+export const NATION_PACK: RulePack = {
+  id: "nation",
+  /** Measured bounds — see the spec (2026-08-27) for every number's derivation. */
+  pool: { kind: "nationRings", perRoleCap: 30, roleFloor: 20, minPlayers: 11 },
+  chooser: { kind: "nation" },
+  screens: "legacy",
+  opponent: "best",
+  draft: {
+    handSize: 5,
+    roam: "free",
+    timer: null,
+    lockPicks: true,
+    onePerPlayer: true,
+    redeal: true,
+  },
+  constraints: [],
+  objective: "win",
+};
+
+/**
  * Every pack the ROUTES serve. Chaos is included so the seam has two real callers, not one.
  *
  * ⛔ A pack lands here ONLY once its routes exist. `routedPacks()` filters on
@@ -430,6 +511,7 @@ export const RULE_PACKS: readonly RulePack[] = [
   LEGACY_PACK,
   CAPTAINS_PACK,
   BUDGET_PACK,
+  NATION_PACK,
 ];
 
 /**

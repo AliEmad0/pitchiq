@@ -5529,7 +5529,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1839](#task-1839) | Draft Room candidates become real player cards (+ back flip)    | ✅ Done    | P2       | M   |
 | [TASK-1840](#task-1840) | One numeral convention across the match flow (`/ar` digits)     | ✅ Done    | P2       | S   |
 | [TASK-1841](#task-1841) | A mode with one applicable format goes straight in (`n/a`)      | ✅ Done    | P2       | S   |
-| [TASK-1842](#task-1842) | Nationality Draft — build a side from one country, widening     | 📋 Todo    | P3       | M   |
+| [TASK-1842](#task-1842) | Nationality Draft — build a side from one country, widening     | ✅ Done    | P3       | M   |
 
 _Enhancement roadmap 1813-1819 added 2026-08-03 from the owner's feature proposal (Option A — 100% client-side/static). See the locked-architecture notes above for the modifier-stack + determinism + no-backend decisions that govern them._
 
@@ -6638,7 +6638,7 @@ So the coach watched the live feed print `0–1` and met `٠–١` for the same 
 
 ### TASK-1842
 
-**Nationality Draft — build a side from one country, widening** · 📋 Todo · `P3` · `M` · Type: Feature
+**Nationality Draft — build a side from one country, widening** · ✅ Done (2026-08-27) · `P3` · `M` · Type: Feature
 
 **Description** — Owner's mode idea, 2026-08-25: _"select the nationality and build team from this nationality — for example select Egypt, show me the available players for every position. If they are more than 5 just give me 5, and if less than 5 just show the available cards. If no players for this position give me African players in this position, and the same if I choose France — if no players in any position give me from Europe."_
 
@@ -6654,7 +6654,42 @@ So the hand for a position is drawn from a **widening ring**: the chosen nation 
 - ⛔ **Bound the pool before building it**, the way TASK-1810 had to. "Every player from a continent" is the same class of unbounded recipe that measured at ~1.28 MB for Captain's Draft, and a `force-static` route bakes the whole pool into the page. Measure the widest nation first — England is **1,767** players on its own.
 - ⚠️ **A `standout` guarantee may not be satisfiable.** The shipped draft rooms promise one 80+ card per hand; a thin nation at a thin position may have none, and the pack must degrade honestly rather than widen just to keep the promise.
 
-**Depends on:** TASK-1810 (the pack seam, the chooser-aware routes, the `excludePlayers` deal option). **Not started.**
+**Depends on:** TASK-1810 (the pack seam, the chooser-aware routes, the `excludePlayers` deal option).
+
+**✅ SHIPPED 2026-08-27 — the twelfth mode, 7 of 12 unlocked.** `/game/nation`: 57 nations
+(≥ 11 distinct players) on a continent-grouped chooser, one prerendered draft page per nation,
+the pack exactly as specced (`nationRings` pool: per-role cap 30, floor 20; no standout —
+degrades honestly; `lockPicks` + `redeal`). Spec + measurements:
+[`docs/superpowers/specs/2026-08-27-task-1842-nationality-draft-design.md`](docs/superpowers/specs/2026-08-27-task-1842-nationality-draft-design.md).
+
+- ⭐ **The premise measured true before building**: Egypt (14 players) is EMPTY at GK/LB/LM and
+  thin at seven more roles; France (257) and Brazil (136) fill everything five-deep. Asia holds
+  **2 goalkeepers total** across the archive, so even ring 2 can be thin and the world ring is
+  one data refresh from being needed — it exists, and is unreachable on today's data.
+- ⛔ **The widening happens PER SLOT, AT DEAL TIME** — never per role up front. Egypt's one CB
+  fills the first CB hand; the second, with the nation exhausted under `onePerPlayer`, widens
+  to Africa. A per-role precomputation deals the second hand from a nation with nobody left.
+- ⭐ **The ring is VISIBLE**: a widened round carries a line ("No one left from Egypt for this
+  position — dealing from Africa.") and a sky chip on every card; a countryman round carries
+  nothing. Keyed on the `nation` prop, so every other pack renders byte-identically.
+- **Owner playtest, same day — three reports, all shipped with the mode** (spec §6.1):
+  - ⭐ **`DraftSpec.redeal`** — an unpicked countryman RETURNS to later same-role rounds.
+    Precomputed disjoint hands consumed Egypt's three CMs in the first CM round; hands are now
+    recomputed per slot from `(pool, shape, seed, picks)`. ⚠️ Trades the visit-order property
+    away deliberately, so `redeal` must never back a seed-shared surface (the H2H board).
+  - ⭐ **WHO YOU FACE lists NATIONS** — the rival route serves clubs (numeric id) and nations
+    (flag-icons code) from one namespace; the codec carries a nation rival as `~<code><policy>`
+    (⛔ the marker is load-bearing: "eg" IS a valid base-36 number, so unmarked it would decode
+    as a club id and replay against the wrong opponent).
+  - ⭐ **The rival squad is selected RING-AWARE** (`selectNationRivalCandidates`) — an "Egypt"
+    rival fields Africa's best keeper, never the pool's world-fill Schmeichel. His dashed
+    1992-93 sub-stats are a pre-existing card-face question, not this mode's.
+- ⚠️ **A shared string and a shared route both leak** (the #202 lesson, twice more): the club
+  rival picker and the "own club's legends" copy both reached the nation page through the
+  shared `[mode]/[club]` route until keyed on the pack/prop.
+- **Verified**: 141 tests across 13 suites + real-browser Egypt/France/`/ar` (ring line at 38
+  Arabic codepoints, zero Latin leak); local dev-server OOM blocked the final rival-picker
+  browser pass — covered by the e2e spec in CI and verified on production post-merge.
 
 ---
 

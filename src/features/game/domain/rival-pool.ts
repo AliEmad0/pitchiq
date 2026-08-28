@@ -1,6 +1,7 @@
 import type { PlayerRole } from "@/data/schemas";
 import type { PoolCard } from "./chaos-draft";
 import { STANDOUT_OVR } from "./draft-room";
+import { ringOf } from "./continents";
 import { canPlay } from "./eligibility";
 
 /**
@@ -71,9 +72,11 @@ export type RivalCard = Pick<
   nationalityCode: string | null;
 };
 
-/** What one club's rival file holds. */
+/** What one rival file holds — a club's, keyed by team id, or a NATION's, keyed by its
+ * flag-icons code (TASK-1842). One field because the two are the same wire shape; the
+ * consumer tells them apart by type, exactly as the share code does. */
 export interface RivalPool {
-  teamId: number;
+  teamId: number | string;
   name: string;
   cards: RivalCard[];
 }
@@ -134,6 +137,46 @@ export function selectRivalCandidates(pool: readonly PoolCard[]): PoolCard[] {
       if (chosen.has(card.playerId) || !canPlay(card, role)) continue;
       chosen.set(card.playerId, card);
       want--;
+    }
+  }
+
+  return [...chosen.values()].sort((a, b) => ovr(b) - ovr(a) || a.cardId.localeCompare(b.cardId));
+}
+
+/**
+ * Choose the players a NATION rival draws from (TASK-1842, owner report 2026-08-27).
+ *
+ * ⛔ RING-AWARE, per role — never rating alone. The nation's rings pool bakes world fills
+ * (Africa holds five goalkeepers, so Egypt's pool tops GK up with the world's best), and a
+ * rating-only selection would hand an "Egypt" rival Peter Schmeichel in goal — which is the
+ * exact card the owner held up and asked "what is this". Per role, countrymen come first,
+ * then the continent, then the world, each best-rated, until `RIVAL_MIN_PER_ROLE` — so a
+ * client-side `best` draft over this squad fields the strongest side the NATION's own
+ * widening rule allows, without the draft policy learning about rings at all.
+ *
+ * ⭐ Plus every nation-ring standout, the same fairness bar the club selection uses: a deep
+ * nation's rival is its real best XI, and a thin nation's is its countrymen backed by its
+ * continent — the mirror of what the coach himself is drafting under.
+ */
+export function selectNationRivalCandidates(pool: readonly PoolCard[], nation: string): PoolCard[] {
+  const ranked = bestSeasonPerPlayer(pool);
+  const ring = (c: PoolCard) => ringOf(c, nation);
+  const chosen = new Map<number, PoolCard>();
+  for (const card of ranked) {
+    if (ring(card) === "nation" && ovr(card) >= STANDOUT_OVR) chosen.set(card.playerId, card);
+  }
+
+  for (const role of ROLES) {
+    for (const wanted of ["nation", "continent", "world"] as const) {
+      const have = [...chosen.values()].filter((c) => canPlay(c, role)).length;
+      if (have >= RIVAL_MIN_PER_ROLE) break;
+      let want = RIVAL_MIN_PER_ROLE - have;
+      for (const card of ranked) {
+        if (want === 0) break;
+        if (chosen.has(card.playerId) || ring(card) !== wanted || !canPlay(card, role)) continue;
+        chosen.set(card.playerId, card);
+        want--;
+      }
     }
   }
 

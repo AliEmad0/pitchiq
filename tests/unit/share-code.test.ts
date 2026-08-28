@@ -261,6 +261,34 @@ describe("the rival a code carries", () => {
     expect(none).not.toBe(chosen);
   });
 
+  it("round-trips a NATION rival by its flag-icons code (TASK-1842)", () => {
+    for (const teamId of ["eg", "gb-eng", "fr"]) {
+      for (const policy of ["random", "best", "strong"] as const) {
+        const code = encodeMatch(match({ rival: { teamId, policy } }));
+        expect(decodeMatch(code)?.rival).toEqual({ teamId, policy });
+      }
+    }
+  });
+
+  it("a bare nation code without the marker stays a CLUB id - the namespaces never blur", () => {
+    // "eg" is a valid base-36 number, so an unmarked code would silently decode as some
+    // club's id and replay against the wrong opponent. The marker is load-bearing.
+    const parts = encodeMatch(match({ rival: { teamId: 40, policy: "best" } })).split(".");
+    parts[6] = "egb"; // looks like nation "eg" + policy, carries no marker
+    expect(decodeMatch(parts.join("."))?.rival).toEqual({
+      teamId: parseInt("eg", 36),
+      policy: "best",
+    });
+  });
+
+  it("refuses a marked nation segment whose code is not code-shaped", () => {
+    for (const bad of ["~b", "~EGb", "~e-gb", "~toolongcodeb", "~gb-b"]) {
+      const parts = encodeMatch(match({ rival: { teamId: "eg", policy: "best" } })).split(".");
+      parts[6] = bad;
+      expect(decodeMatch(parts.join(".")), bad).toBeNull();
+    }
+  });
+
   it("refuses a tampered policy character rather than defaulting it", () => {
     const parts = encodeMatch(match({ rival: { teamId: 40, policy: "strong" } })).split(".");
     parts[6] = `${parts[6]!.slice(0, -1)}x`;

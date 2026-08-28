@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { buildPool, clubChoices, iconCards, iconChoices } from "@/features/game/adapter/pool";
+import {
+  buildPool,
+  clubChoices,
+  iconCards,
+  iconChoices,
+  nationChoices,
+} from "@/features/game/adapter/pool";
 import { GamePlay } from "@/features/game/components/GamePlay";
 import { ModeChooser } from "@/features/game/components/ModeChooser";
 import { packFor, routedPacks } from "@/features/game/domain/rule-packs";
@@ -43,10 +49,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const t = await getTranslations("game");
   // ⚠️ Per PACK, not hardcoded. This route serves every routed pack, and it titled all of
   // them "Legacy Club" until a second one arrived.
-  const captain = pack.chooser?.kind === "captain";
+  const kind = pack.chooser?.kind;
   return {
-    title: t(captain ? "captainsTitle" : "legacyTitle"),
-    description: t(captain ? "captainsPick" : "legacyPick"),
+    title: t(
+      kind === "captain" ? "captainsTitle" : kind === "nation" ? "nationTitle" : "legacyTitle",
+    ),
+    description: t(
+      kind === "captain" ? "captainsPick" : kind === "nation" ? "nationPick" : "legacyPick",
+    ),
   };
 }
 
@@ -69,21 +79,25 @@ export default async function ModePage({ params }: Props) {
         <ModeChooser
           mode={pack.id}
           kind={pack.chooser.kind}
+          // A nation pack's menu is codes + counts; names derive from the code per locale.
+          nations={pack.chooser.kind === "nation" ? await nationChoices() : undefined}
           choices={
-            pack.chooser.kind === "captain"
-              ? await (async () => {
-                  const [icons, cards] = await Promise.all([iconChoices(), iconCards()]);
-                  const byId = new Map(cards.map((c) => [c.playerId, c]));
-                  return icons.map((i) => ({
-                    id: i.id,
-                    name: i.name,
-                    seasons: i.seasons.length,
-                    first: i.seasons[0]!,
-                    last: i.seasons[i.seasons.length - 1]!,
-                    card: byId.get(i.id),
-                  }));
-                })()
-              : await clubChoices()
+            pack.chooser.kind === "nation"
+              ? undefined
+              : pack.chooser.kind === "captain"
+                ? await (async () => {
+                    const [icons, cards] = await Promise.all([iconChoices(), iconCards()]);
+                    const byId = new Map(cards.map((c) => [c.playerId, c]));
+                    return icons.map((i) => ({
+                      id: i.id,
+                      name: i.name,
+                      seasons: i.seasons.length,
+                      first: i.seasons[0]!,
+                      last: i.seasons[i.seasons.length - 1]!,
+                      card: byId.get(i.id),
+                    }));
+                  })()
+                : await clubChoices()
           }
         />
       ) : (

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { buildRivalPool } from "@/features/game/adapter/rivals";
-import { clubChoices } from "@/features/game/adapter/pool";
+import { clubChoices, nationChoices } from "@/features/game/adapter/pool";
 
 /**
  * TASK-1810 follow-up — one club's squad, as a PRERENDERED static file.
@@ -24,12 +24,15 @@ export const dynamicParams = false;
 export const revalidate = false; // see docs/adr or CLAUDE.md — deploys are the only data change
 
 export async function generateStaticParams(): Promise<Array<{ club: string }>> {
-  return (await clubChoices()).map((c) => ({ club: String(c.id) }));
+  // Clubs by numeric id, nations by flag-icons code (TASK-1842) — one closed set, one file
+  // each at build time. The codes are non-numeric, so the two namespaces cannot collide.
+  const [clubs, nations] = await Promise.all([clubChoices(), nationChoices()]);
+  return [...clubs.map((c) => ({ club: String(c.id) })), ...nations.map((n) => ({ club: n.code }))];
 }
 
 export async function GET(_request: Request, ctx: { params: Promise<{ club: string }> }) {
   const { club } = await ctx.params;
-  const pool = await buildRivalPool(Number(club));
+  const pool = await buildRivalPool(/^\d+$/.test(club) ? Number(club) : club);
   // Unreachable while `dynamicParams` is false — kept because the handler's contract should
   // not depend on a directive elsewhere in the file staying put.
   if (pool == null) return NextResponse.json({ error: "unknown_club" }, { status: 404 });

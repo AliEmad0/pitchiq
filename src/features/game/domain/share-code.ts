@@ -61,11 +61,24 @@ const POLICY_OF: Record<string, RivalRef["policy"]> = { r: "random", b: "best", 
 /** No club was chosen: the opponent comes out of the coach's own pool, as it always did. */
 const NO_RIVAL = "-";
 
-/** Which club the coach chose to face, and how it drafted. */
+/** Which club — or nation (TASK-1842) — the coach chose to face, and how it drafted. */
 export type RivalRef = {
-  teamId: number;
+  /** A club's numeric id, or a nation's flag-icons code. */
+  teamId: number | string;
   policy: "random" | "best" | "strong";
 };
+
+/**
+ * A nation rival's wire form is `~<code><policy>` (TASK-1842), e.g. `~gb-engb`.
+ *
+ * ⚠️ The `~` marker is what keeps the namespaces apart: a bare code like "eg" is a VALID
+ * base-36 number, so without the marker a nation code would decode as some club's id and
+ * replay against the wrong opponent — silently. An old client that has never heard of `~`
+ * rejects the whole code (unb36 returns null), which is the graceful failure: refused,
+ * never misread. `v2` needs no bump — every code already in the wild is untouched.
+ */
+const NATION_RIVAL = "~";
+const NATION_CODE_RE = /^[a-z]{2}(?:-[a-z]{2,3})?$/;
 
 /** Everything needed to reproduce a match, as it travels in a URL. */
 export type ShareableMatch = {
@@ -141,7 +154,9 @@ export function encodeMatch(match: ShareableMatch): string {
     b36(match.fingerprint >>> 0),
     match.rival == null
       ? NO_RIVAL
-      : `${b36(match.rival.teamId)}${POLICY_TOKEN[match.rival.policy]}`,
+      : typeof match.rival.teamId === "string"
+        ? `${NATION_RIVAL}${match.rival.teamId}${POLICY_TOKEN[match.rival.policy]}`
+        : `${b36(match.rival.teamId)}${POLICY_TOKEN[match.rival.policy]}`,
   ].join(".");
 }
 
@@ -171,11 +186,20 @@ export function decodeMatch(code: string | null | undefined): ShareableMatch | n
   let rival: RivalRef | null = null;
   if (rivalRaw !== NO_RIVAL) {
     const policy = POLICY_OF[rivalRaw.slice(-1)];
-    const teamId = unb36(rivalRaw.slice(0, -1));
-    // A team id is a positive integer from a closed set the receiving page validates; an
-    // unknown policy character is a tampered code and gets no benefit of the doubt.
-    if (policy === undefined || teamId === null || teamId <= 0) return null;
-    rival = { teamId, policy };
+    if (policy === undefined) return null;
+    if (rivalRaw.startsWith(NATION_RIVAL)) {
+      // A nation rival (TASK-1842). The code's SHAPE is validated here; whether the nation
+      // exists is the receiving page's question, like a club id's membership always was.
+      const code = rivalRaw.slice(1, -1);
+      if (!NATION_CODE_RE.test(code)) return null;
+      rival = { teamId: code, policy };
+    } else {
+      const teamId = unb36(rivalRaw.slice(0, -1));
+      // A team id is a positive integer from a closed set the receiving page validates; an
+      // unknown policy character is a tampered code and gets no benefit of the doubt.
+      if (teamId === null || teamId <= 0) return null;
+      rival = { teamId, policy };
+    }
   }
 
   const chunks = cardsRaw.split("_");

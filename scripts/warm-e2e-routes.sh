@@ -45,6 +45,9 @@ ROUTES=(
   "/game/budget"
   "/game/legacy"
   "/game/legacy/40"
+  "/game/nation"
+  "/game/nation/eg"
+  "/game/nation/fr"
   # The rival squad the draft screen fetches as soon as it mounts (TASK-1810
   # follow-up). Cold, it is a full club-history build.
   "/api/game/rivals/40"
