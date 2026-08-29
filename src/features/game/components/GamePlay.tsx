@@ -591,6 +591,7 @@ export function GamePlay({
         home={match.home}
         away={match.away}
         crests={crests}
+        chemistry={chemistry}
         referee={referee}
         weather={weather}
         onKickOff={onKickOff}

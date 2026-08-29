@@ -1036,6 +1036,7 @@
     "chemistryTitle": "اختيار الانسجام",
     "chemistrySubtitle": "أبناء بلد واحد، وأساطير نادٍ واحد، وزملاء قدامى. من يقف بجوار من هو ما يحسم المباراة.",
     "chemScore": "الانسجام",
+    "progChemistry": "الانسجام",
     "chemTeammates": "{count, plural, one {ثنائي زميل واحد} two {ثنائيان زميلان} few {# ثنائيات زملاء} other {# ثنائيًا زميلًا}}",
     "chemClubLegends": "{count, plural, one {رابط نادٍ واحد} two {رابطا نادٍ} few {# روابط نادٍ} other {# رابط نادٍ}}",
     "chemCountrymen": "{count, plural, one {رابط جنسية واحد} two {رابطا جنسية} few {# روابط جنسية} other {# رابط جنسية}}",

@@ -84,6 +84,33 @@ const render = (ui: ReactElement) => renderWithIntl(<NuqsTestingAdapter>{ui}</Nu
 const lock = async (user: ReturnType<typeof userEvent.setup>) =>
   user.click(screen.getByRole("button", { name: /^Lock in / }));
 
+/** Fill the first `n` pitch slots, taking the first pickable card in each round. */
+async function draftFirst(user: ReturnType<typeof userEvent.setup>, n: number) {
+  for (let filled = 0; filled < n; filled++) {
+    const spot = screen
+      .queryAllByRole("button", { name: /empty\. Choose a player/ })
+      .find((b) => b.classList.contains("pd-spot"));
+    if (spot == null) return;
+    await user.click(spot);
+    const veil = screen.getByTestId("pd-veil");
+    const pick = within(veil)
+      .getAllByTestId("pd-candidate")
+      .map((c) => within(c).queryByRole("button", { name: /^Choose / }))
+      .find((b) => b != null && !b.hasAttribute("disabled"));
+    if (pick == null) return;
+    await user.click(pick);
+  }
+}
+
+/** Open the next empty slot and return its round veil. */
+async function openNext(user: ReturnType<typeof userEvent.setup>) {
+  const spot = screen
+    .queryAllByRole("button", { name: /empty\. Choose a player/ })
+    .find((b) => b.classList.contains("pd-spot"))!;
+  await user.click(spot);
+  return screen.getByTestId("pd-veil");
+}
+
 /** Fill every pitch slot by taking the first pickable card in each round. */
 async function draftAll(user: ReturnType<typeof userEvent.setup>) {
   for (let guard = 0; guard < 14; guard++) {
@@ -174,6 +201,58 @@ describe("chemistry draft", () => {
     expect(screen.queryByTestId("chem-links")).toBeNull();
     expect(screen.queryAllByTestId("chem-link")).toHaveLength(0);
     expect(screen.queryByTestId("chem-meter")).toBeNull();
+  });
+
+  it("⭐ every candidate shows what it would ADD — the trade-off, made visible", async () => {
+    /**
+     * Without this the mode reduces to "pick the highest number": the coach cannot see that
+     * the 84 countryman is worth more to his side than the 91 stranger, which is the whole
+     * decision the measurements say this mode is built on (chemistry costs ~6.8 rating
+     * points per player, so it has to visibly buy something).
+     */
+    const user = userEvent.setup();
+    render(<GamePlay pool={mates} draft={DRAFT} chemistry />);
+    await lock(user);
+    // Six placed, so the next slot certainly has filled neighbours to link to.
+    await draftFirst(user, 6);
+    const veil = await openNext(user);
+
+    const deltas = within(veil).getAllByTestId("chem-delta");
+    expect(deltas.length).toBeGreaterThan(0);
+    // Every card here is a teammate of everyone, so every card adds something.
+    for (const d of deltas) expect(Number(d.getAttribute("data-delta"))).toBeGreaterThan(0);
+  });
+
+  it("⛔ a card that links NOTHING offers zero — the other half of the signal", async () => {
+    const user = userEvent.setup();
+    render(<GamePlay pool={strangers} draft={DRAFT} chemistry />);
+    await lock(user);
+    await draftFirst(user, 6);
+    const veil = await openNext(user);
+    for (const d of within(veil).getAllByTestId("chem-delta")) {
+      expect(Number(d.getAttribute("data-delta"))).toBe(0);
+    }
+  });
+
+  it("⚠️ the FIRST pick offers no delta — there is nobody to link to yet", async () => {
+    // An honest zero rather than a misleading promise: chemistry is about neighbours, and on
+    // an empty pitch a card has none.
+    const user = userEvent.setup();
+    render(<GamePlay pool={mates} draft={DRAFT} chemistry />);
+    await lock(user);
+    const veil = await openNext(user);
+    for (const d of within(veil).getAllByTestId("chem-delta")) {
+      expect(Number(d.getAttribute("data-delta"))).toBe(0);
+    }
+  });
+
+  it("⛔ THE CONTROL — no chemistry prop, no deltas on any card", async () => {
+    const user = userEvent.setup();
+    render(<GamePlay pool={mates} draft={DRAFT} />);
+    await lock(user);
+    await draftFirst(user, 6);
+    const veil = await openNext(user);
+    expect(within(veil).queryAllByTestId("chem-delta")).toHaveLength(0);
   });
 
   it("⚠️ each connector NAMES its link, so colour is not the only channel", async () => {

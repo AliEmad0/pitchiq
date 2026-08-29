@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { makeCardId } from "@/features/game/domain/card-id";
 import type { PoolCard } from "@/features/game/domain/chaos-draft";
-import { chemistry, chemistryBreakdown, linkTier } from "@/features/game/domain/chemistry";
+import {
+  CHEM_ANCHOR,
+  chemistry,
+  chemistryBreakdown,
+  linkTier,
+} from "@/features/game/domain/chemistry";
 import { formationByName } from "@/features/game/domain/formation";
 import { adjacentPairs } from "@/features/game/domain/pitch-adjacency";
 
@@ -101,14 +106,21 @@ describe("chemistry score", () => {
   it("⚠️ an EMPTY slot scores 0 but still counts in the denominator", () => {
     // So the number climbs as the XI fills rather than jumping about — chemistry is a
     // progress bar, not a verdict on a part-built side.
-    const mates = fill(() => card({ teamId: 7, club: "Arsenal", season: 2004 }));
-    const partial: (PoolCard | null)[] = [...mates];
+    /**
+     * ⚠️ Asserted on COUNTRYMEN, not teammates, and that matters: a full teammate sheet is
+     * far above `CHEM_ANCHOR`, so it clamps at 100 with or without an empty slot and the
+     * climb is invisible. A progress assertion has to be made below the clamp — which is
+     * also where every real draft lives.
+     */
+    const linked = fill((i) => card({ nationalityCode: "fr", teamId: i, club: `C${i}` }));
+    const full = chemistry(linked, shape);
+    expect(full).toBeLessThan(100); // below the clamp, so the comparison is meaningful
+    const partial: (PoolCard | null)[] = [...linked];
     partial[0] = null;
     const half = chemistry(partial, shape);
     expect(half).toBeGreaterThan(0);
-    expect(half).toBeLessThan(100);
     // Filling that slot can only raise it.
-    expect(chemistry(mates, shape)).toBeGreaterThan(half);
+    expect(full).toBeGreaterThan(half);
   });
 
   it("⚠️ is ORDER-INDEPENDENT — the same placement always scores the same", () => {
@@ -120,12 +132,31 @@ describe("chemistry score", () => {
     expect(a).toBe(b);
   });
 
-  it("grades: all-countrymen scores a THIRD of all-teammates", () => {
-    // Strengths are 1/2/3 of a max 3, so a full sheet of nation links is exactly 33.
+  it("grades the tiers in ORDER — countrymen < club legends < teammates", () => {
+    /**
+     * ⚠️ An ORDERING, not a fixed fraction. The raw strengths are 1/2/3, but the displayed
+     * score is calibrated against `CHEM_ANCHOR` (a measured constant), so pinning "a third"
+     * would re-break every time the anchor is refit against fresh data. The ordering is the
+     * invariant that actually matters and it survives a refit.
+     */
     const nation = fill((i) => card({ nationalityCode: "fr", teamId: i, club: `C${i}` }));
-    expect(chemistry(nation, shape)).toBe(33);
     const legends = fill(() => card({ teamId: 7, club: "Arsenal", season: 1990 + seq }));
-    expect(chemistry(legends, shape)).toBe(67);
+    const mates = fill(() => card({ teamId: 7, club: "Arsenal", season: 2004 }));
+    expect(chemistry(nation, shape)).toBeGreaterThan(0);
+    expect(chemistry(legends, shape)).toBeGreaterThan(chemistry(nation, shape));
+    expect(chemistry(mates, shape)).toBeGreaterThanOrEqual(chemistry(legends, shape));
+  });
+
+  it("⚠️ the anchor makes an EXCELLENT draft reach 100, not the unreachable ideal", () => {
+    // Measured: a steering coach scores ~30 raw of a theoretical 100, so scoring against the
+    // all-teammates ideal would tell him he failed. `CHEM_ANCHOR` is what fixes that, and it
+    // is pinned because changing it changes every score ever shown or shared.
+    expect(CHEM_ANCHOR).toBe(40);
+    // Raw 40 (a strong real draft) must display as a full 100…
+    const mates = fill(() => card({ teamId: 7, club: "Arsenal", season: 2004 }));
+    expect(chemistry(mates, shape)).toBe(100);
+    // …and the score is CLAMPED, never past 100.
+    expect(chemistry(mates, shape)).toBeLessThanOrEqual(100);
   });
 
   it("⛔ only ADJACENT pairs count — a link across the pitch is worth nothing", () => {

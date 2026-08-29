@@ -467,6 +467,26 @@ export function PitchDraft({
   const chemCounts = placedXi == null ? null : chemistryBreakdown(placedXi, shape);
 
   /**
+   * What a candidate would ADD to the open slot, in chemistry points.
+   *
+   * The trade-off made visible, and the reason the mode is a decision rather than "pick the
+   * highest number": chasing chemistry costs ~6.8 rating points per player, so the coach has
+   * to be able to see what he is buying. The 84 countryman beside the 91 stranger.
+   *
+   * Scored against the CURRENT placement and this slot only, so it is honest about the pick
+   * being made rather than estimating a finished side. Zero on the first pick of an empty
+   * pitch, because a card with no placed neighbours genuinely links to nothing.
+   */
+  const chemDelta = (slot: number, candidate: PoolCard): number => {
+    if (placedXi == null || slot >= placedXi.length) return 0;
+    const withCard = [...placedXi];
+    withCard[slot] = candidate;
+    const without = [...placedXi];
+    without[slot] = undefined;
+    return chemistry(withCard, shape) - chemistry(without, shape);
+  };
+
+  /**
    * One connector per adjacent pair, carrying its tier.
    *
    * ⚠️ The graph is drawn WHOLE — an unlinked pair renders at rest rather than vanishing —
@@ -953,6 +973,21 @@ export function PitchDraft({
                     {/* The ring chip (TASK-1842) — only on the SURPRISING case: a card that
                         is not a countryman. Same non-interactive layering as the mark above,
                         or the one card the coach most wants to read would eat its own tap. */}
+                    {/* ⭐ What this card would ADD. Rendered on every candidate including
+                        the zeroes: "this one buys you nothing" is exactly as useful as
+                        "+7", and showing it only on the good ones would turn the absence
+                        of a badge into a second thing to interpret. */}
+                    {placedXi != null && veil.mode === "round" ? (
+                      <span
+                        data-testid="chem-delta"
+                        data-delta={chemDelta(veil.slot, c)}
+                        className={`chem-delta${chemDelta(veil.slot, c) > 0 ? " chem-delta-up" : ""}`}
+                      >
+                        {chemDelta(veil.slot, c) > 0
+                          ? t("chemDelta", { points: chemDelta(veil.slot, c) })
+                          : t("chemDeltaNone")}
+                      </span>
+                    ) : null}
                     {handRing != null && handRing !== "nation" ? (
                       <span data-testid="pd-ring-chip" className="pd-ring-chip">
                         {handRing === "continent" && continentKey != null

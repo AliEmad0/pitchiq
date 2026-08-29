@@ -2944,6 +2944,36 @@
   }
 }
 
+/* ---- the chemistry delta on a candidate (TASK-1810 PR 5) ----
+   Bottom of the card, opposite the ring chip and the "in your squad" mark, so a Nationality
+   card and a Chemistry card never collide. Non-interactive for the same reason everything
+   else painted over `.pd-pick` is. */
+.chem-delta {
+  pointer-events: none;
+  position: absolute;
+  z-index: 7;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  border-radius: 999px;
+  padding: 3px 10px;
+  background: rgb(12 24 32 / 92%);
+  color: #9fb3c8;
+  font-family: var(--font-mono), monospace;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 1px solid rgb(255 255 255 / 14%);
+}
+/* A card that actually buys something reads in the meter's own colour. */
+.chem-delta-up {
+  background: linear-gradient(160deg, #7dd3fc, #0284c7);
+  color: #06202e;
+  border-color: transparent;
+}
+
 /* ---- the ring chip (TASK-1842) ----
    Marks a card dealt from OUTSIDE the chosen nation — the surprising case only. Same
    non-interactive layering as .pd-current-mark: painted above .pd-pick, so it must never

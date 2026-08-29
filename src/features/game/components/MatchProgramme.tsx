@@ -1,6 +1,7 @@
 "use client";
 import { useTranslations } from "next-intl";
 import type { RefereeStyle, Weather } from "@/features/game/domain/match-types";
+import { teamChemistry } from "@/features/game/domain/chemistry";
 import { decadeSpan, squadAverage, starOf, taleOfTheTape } from "@/features/game/domain/matchup";
 import type { EnrichedCard } from "@/features/game/domain/player-card";
 import type { GameTeam } from "@/features/game/domain/team";
@@ -22,6 +23,11 @@ interface Props {
   weather: Weather | null;
   /** The two clubs' ids, for their crests. See `MatchLive`'s prop of the same name. */
   crests?: { home: number | null; away: number | null };
+  /**
+   * Score BOTH sides on chemistry and add it to the tale of the tape (Chemistry Draft,
+   * owner request 2026-08-28). Absent = the tape is exactly the four bars it always was.
+   */
+  chemistry?: boolean;
   onKickOff: () => void;
   onBack: () => void;
 }
@@ -67,7 +73,16 @@ const WEATHER_IMPACT_KEY: Record<Weather, string> = {
  * ⚠️ Reached only by a pack that declares `screens: "legacy"`. Chaos and the shipped draft
  * still render `MatchupPreview`.
  */
-export function MatchProgramme({ home, away, referee, weather, crests, onKickOff, onBack }: Props) {
+export function MatchProgramme({
+  home,
+  away,
+  referee,
+  weather,
+  crests,
+  chemistry,
+  onKickOff,
+  onBack,
+}: Props) {
   const t = useTranslations("game");
   const reduced = prefersReducedMotion();
 
@@ -80,6 +95,13 @@ export function MatchProgramme({ home, away, referee, weather, crests, onKickOff
     { key: "progAttack", h: tape.home.attack, a: tape.away.attack },
     { key: "progMidfield", h: tape.home.midfield, a: tape.away.midfield },
     { key: "progDefence", h: tape.home.defence, a: tape.away.defence },
+    // ⭐ Chemistry belongs HERE rather than in a panel of its own: the tape is the surface
+    // built for comparing the two sides, and the coach's whole reason to have drafted for
+    // links is to see his number against theirs before kick-off. Both sides are scored by
+    // the same `teamChemistry`, or the comparison would be dishonest.
+    ...(chemistry === true
+      ? [{ key: "progChemistry", h: teamChemistry(home), a: teamChemistry(away) }]
+      : []),
   ];
 
   return (
