@@ -255,12 +255,13 @@ export function GamePlay({
     chosen: { setup: ChosenRival | null; difficulty: Difficulty } | null,
   ): RivalSetup =>
     chosen?.setup == null
-      ? { policy: opponent, budget }
+      ? { policy: opponent, budget, chemistry }
       : {
           policy: policyOf(chosen.difficulty),
           pool: chosen.setup.cards,
           name: chosen.setup.name,
           budget,
+          chemistry,
         };
 
   /** The rival as a share code carries it. */
@@ -398,7 +399,7 @@ export function GamePlay({
         pool,
         decoded,
         { home: t("yourXi"), away: t("rivals") },
-        picked == null ? { policy: opponent, budget } : rivalSetup(picked),
+        picked == null ? { policy: opponent, budget, chemistry } : rivalSetup(picked),
       );
       if (!live) return;
       if (replayed == null) {
@@ -455,7 +456,7 @@ export function GamePlay({
         pool,
         record,
         { home: t("yourXi"), away: t("rivals") },
-        picked == null ? { policy: opponent, budget } : rivalSetup(picked),
+        picked == null ? { policy: opponent, budget, chemistry } : rivalSetup(picked),
       );
       if (!live) return;
       if (restored == null) {
