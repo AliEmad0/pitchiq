@@ -128,6 +128,27 @@ export type PoolSpec =
        * its draft is a continent draft wearing a flag.
        */
       minPlayers: number;
+    }
+  | {
+      /**
+       * The Chemistry Draft shape (TASK-1810 PR 5): the archive's best players across ALL
+       * 34 seasons, one card per distinct man at his best-rated season, rating-ranked and
+       * capped.
+       *
+       * WIDE BY MEASUREMENT, not by preference (spec 0.2). A cross-era pool gives the coach
+       * x4.33 depth against x2.81 for a narrow elite one - in a dense pool everything links
+       * anyway, so his choices stop mattering. Breadth IS the mechanic here.
+       *
+       * NOT `pricedMarket`, and that is the load-bearing part: its 2004-2025 value window
+       * excludes the nineties, which throws away Manchester United '99 and the Arsenal
+       * Invincibles - the most recognisable teammate links in the archive and precisely the
+       * pairs this mode exists to reward. NOT `topTeams` either: built from each season's
+       * top three clubs it is full of real teammates by construction, so the coach starts at
+       * chemistry 40 instead of 13 and the draft has nowhere to climb.
+       */
+      kind: "crossEra";
+      /** Cards on the page after ranking. ~0.5 KB each, so this is a payload decision. */
+      cap: number;
     };
 
 /**
@@ -163,6 +184,19 @@ export type Constraint =
       kind: "budgetCap";
       /** Tenths of a million, matching `PoolCard.price`. `1000` = £100.0m. */
       amount: number;
+    }
+  | {
+      /**
+       * The XI is scored on how well it LINKS, and a well-linked side plays better
+       * (Chemistry Draft, TASK-1810 PR 5).
+       *
+       * Carries no value: unlike `budgetCap` there is nothing to parameterise - the tiers
+       * and the adjacency band are frozen measured constants in `domain/chemistry.ts` and
+       * `domain/pitch-adjacency.ts`, because changing either changes every score ever shared.
+       * This constraint declares that the rule APPLIES, which is what routes the score to the
+       * draft surface and the engine modifier.
+       */
+      kind: "chemistry";
     };
 
 /** Single-match modes all share one objective. It earns its keep in TASK-1811's seasons. */
@@ -497,6 +531,49 @@ export const NATION_PACK: RulePack = {
 };
 
 /**
+ * Chemistry Draft (TASK-1810 PR 5) - the last of the five rule-pack modes.
+ *
+ * The promise: draft an XI where WHO STANDS NEXT TO WHOM matters. Countrymen, club legends
+ * and real teammates link between adjacent slots, and a well-linked side genuinely plays
+ * better than the sum of its cards.
+ *
+ * Measured before it was built (spec 0.3): chasing chemistry costs ~6.8 rating points per
+ * player. That trade-off IS the game - the linked countryman or the better stranger - and it
+ * is the exchange rate `chemistryModifier` has to pay back at chemistry 100. Below it the
+ * mode is a trap; far above it every coach drafts identically.
+ *
+ * No `standout`. A guaranteed 80+ per hand fights link-hunting exactly as it fights a budget:
+ * the strong card is rarely the linked one, so the guarantee would quietly pull every coach
+ * back toward the rating-greedy XI the mode is trying to give him a reason to leave.
+ *
+ * NO CHOOSER, so `routedPacks()` must keep excluding it. The pool is one cross-era set with
+ * nothing to choose, which is why this ships a bespoke `/game/chemistry` page as Chaos and
+ * Budget Cap do - registering a chooser-less pack into the chooser-aware route is what broke
+ * the Vercel build once.
+ */
+export const CHEMISTRY_PACK: RulePack = {
+  id: "chemistry",
+  /** Measured bounds - see the spec for why wide beats narrow here. */
+  pool: { kind: "crossEra", cap: 600 },
+  screens: "legacy",
+  opponent: "best",
+  draft: {
+    handSize: 5,
+    roam: "free",
+    timer: null,
+    // Budget Cap's rule: the activity is trying combinations until the links work, so ending
+    // the draft on the last pick would stop the game at the moment it gets interesting.
+    // Inherits #201's "reconsiderable has two halves" - re-opening a filled slot must offer
+    // a way out, which is verified for this pack rather than assumed.
+    lockPicks: false,
+    confirm: true,
+    onePerPlayer: true,
+  },
+  constraints: [{ kind: "chemistry" }],
+  objective: "win",
+};
+
+/**
  * Every pack the ROUTES serve. Chaos is included so the seam has two real callers, not one.
  *
  * ⛔ A pack lands here ONLY once its routes exist. `routedPacks()` filters on
@@ -512,6 +589,7 @@ export const RULE_PACKS: readonly RulePack[] = [
   CAPTAINS_PACK,
   BUDGET_PACK,
   NATION_PACK,
+  CHEMISTRY_PACK,
 ];
 
 /**

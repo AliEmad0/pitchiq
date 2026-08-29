@@ -102,7 +102,7 @@ describe("chemistry score", () => {
     // So the number climbs as the XI fills rather than jumping about — chemistry is a
     // progress bar, not a verdict on a part-built side.
     const mates = fill(() => card({ teamId: 7, club: "Arsenal", season: 2004 }));
-    const partial = [...mates];
+    const partial: (PoolCard | null)[] = [...mates];
     partial[0] = null;
     const half = chemistry(partial, shape);
     expect(half).toBeGreaterThan(0);

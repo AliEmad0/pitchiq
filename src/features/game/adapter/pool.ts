@@ -597,6 +597,35 @@ async function nationRingsPool(
     .map((g) => g.card);
 }
 
+/**
+ * The Chemistry Draft pool: the archive's best players across ALL 34 seasons, one card per
+ * distinct man at his best-rated season (TASK-1810 PR 5).
+ *
+ * Deliberately the SIMPLEST of the recipes, and that is the finding rather than laziness:
+ * chemistry needs BREADTH, because a dense elite pool links by itself and the coach's
+ * choices stop mattering (x4.33 depth wide against x2.81 narrow, spec 0.2). There is no
+ * reserve to stratify and no window to respect - just every era, ranked.
+ *
+ * The tie-break on `cardId` is load-bearing, the same way it is for `pricedMarket`: two
+ * players level on rating at the cap boundary would otherwise be ordered by the scan's
+ * arrival order, so the 600th card could change between builds and silently evict a card
+ * someone had already drafted - killing his share link.
+ */
+async function crossEra(
+  spec: Extract<PoolSpec, { kind: "crossEra" }>,
+  career: CareerIndex,
+): Promise<EnrichedCard[]> {
+  const best = new Map<number, Gathered>();
+  for (const { g } of await universe(career)) {
+    const found = best.get(g.card.playerId);
+    if (found == null || g.rating > found.rating) best.set(g.card.playerId, g);
+  }
+  return [...best.values()]
+    .sort((a, b) => b.rating - a.rating || a.card.cardId.localeCompare(b.card.cardId))
+    .slice(0, spec.cap)
+    .map((g) => g.card);
+}
+
 export async function buildPool(spec: PoolSpec, only?: number | string): Promise<EnrichedCard[]> {
   const career = await loadCareerIndex();
   const pool =
@@ -610,7 +639,9 @@ export async function buildPool(spec: PoolSpec, only?: number | string): Promise
           : spec.kind === "nationRings"
             ? // …and the NATION's flag-icons code here (TASK-1842).
               await nationRingsPool(spec, career, typeof only === "string" ? only : "")
-            : await clubHistory(spec, career, typeof only === "number" ? only : undefined);
+            : spec.kind === "crossEra"
+              ? await crossEra(spec, career)
+              : await clubHistory(spec, career, typeof only === "number" ? only : undefined);
 
   // Pixel-inspect each photo to tell a transparent cutout from a background shot — the URL
   // alone lies for older players. Best-effort, build time only.
