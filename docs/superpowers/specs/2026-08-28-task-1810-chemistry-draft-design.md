@@ -68,10 +68,12 @@ Real ratings, real pools, 60 dealt rooms each:
 — about a tenth of a card's quality. That is the trade-off that makes this a decision rather
 than a solved puzzle: the linked countryman or the better stranger.
 
-⛔ **It is therefore also the EXCHANGE RATE.** The engine effect at 100 chemistry must be worth
-≈ 7 rating points per player. Below that, chemistry is a trap that punishes anyone who plays
-the mode as intended; far above it, chemistry dominates and every coach drafts identically.
-See §5 — this is calibrated by measurement, never by taste.
+⛔ **THIS COST IS REAL, BUT THE "EXCHANGE RATE" INFERENCE DRAWN FROM IT WAS WRONG — see §5.**
+The original reasoning was that the engine must repay ≈ 7 rating points per player at full
+chemistry. Measuring the actual match outcomes disproved it: the engine's edge is a bounded
+ratio and barely notices a 6-point rating gap, so the effect needed is far smaller. The
+_direction_ stands (chemistry must repay its cost, or the mode is a trap); the magnitude was
+invented rather than measured, and §5 carries the measurement that replaced it.
 
 ### 0.4 Adjacency density
 
@@ -142,11 +144,28 @@ rather than jumping around — chemistry is a progress bar, not a verdict.
 no memo, no clock. It recomputes on every placement, which is what lets the draft surface it
 live and what makes it trivially testable.
 
-⚠️ **The display curve is calibrated, not assumed.** §0.2's greedy coach reaches ~19 raw of a
-theoretical 69 on a 23-pair shape, so a naive normalisation would tell a coach who played well
-that he scored 27 — which reads as failure. Task 9 measures the achievable distribution and
-anchors 100 at a high percentile of it, exactly as `price-band.ts` was fitted rather than
-guessed. The formula above is the _shape_; the anchor is a measured constant.
+⚠️ **The display curve is calibrated, not assumed — and the calibration is now MEASURED.**
+Over 200 dealt rooms across five shapes on the real pool:
+
+| raw score      | mean | p50 | p75 | p90 | max |
+| -------------- | ---- | --- | --- | --- | --- |
+| random pick    | 9.3  | 9   | 12  | 16  | 25  |
+| steering coach | 29.8 | 29  | 35  | 39  | 53  |
+| best-of-hands  | 36.7 | 36  | 41  | 46  | 61  |
+
+The all-teammates ideal is unreachable from five random candidates a slot, so scoring against
+it would tell a coach who played well that he got 30 — which reads as failure and makes the
+meter useless. **`CHEM_ANCHOR = 40`** puts a steering coach near 75, a random one near 23, and
+leaves 100 reachable for an exceptional draft.
+
+⭐ Confirmed independently: a human-style draft steering by the on-card deltas scored **72** in
+a real browser, landing where the anchor — fitted against a greedy _algorithm_ — predicted.
+
+⚠️ Two consequences the tests had to absorb. The tier grading is asserted as an **ordering**
+(nation < club < teammates) rather than a fixed fraction, because a fraction re-breaks on every
+refit. And "filling a slot raises the score" is asserted on countryman links: a full teammate
+sheet clamps at 100 with or without an empty slot, so above the clamp the climb is invisible
+and the assertion would prove nothing.
 
 ---
 
@@ -227,6 +246,13 @@ decoration must never take a hit. Same rule, third time.
 other animation in the file. The colour distinction must survive the gate — it is the
 information, and only the _pulse_ is decoration.
 
+⛔ **MEASUREMENT TRAP, found here and worth carrying:** on a browser pane that is not
+displayed, `getComputedStyle` reports a **transitioned** property at its start value forever —
+the page composites no frames, so the transition sits at `currentTime: 0` in state "running".
+A club link read as grey while its `stroke-width` (not transitioned) was already correct,
+which looks exactly like a cascade bug and is not one. Verify a transitioned property with the
+transition disabled, or read `element.getAnimations()`.
+
 ⚠️ **Colour is never the only channel.** Each connector carries a `<title>` naming the link
 ("Teammates — Manchester United, 1998-99"), and the chemistry meter states the counts in text,
 so the three states are distinguishable without colour vision.
@@ -268,11 +294,32 @@ by fingerprint, the mismatch surfaces as "your saved match is corrupt" rather th
 missing field it is. The chemistry score is derived from the XI, which the code already
 carries — so nothing new goes in the share code, and no codec version bump is needed.
 
-⛔ **Calibrated against §0.3's exchange rate: ≈ 7 rating points per player at 100 chemistry**,
-scaling from 0 at chemistry 0. Verified by a measurement harness over hundreds of seeded
-matches — the same discipline the rating model and the price band were held to. A chemistry
-XI and a rating XI should win roughly equally often; if either dominates, the constant is
-wrong and the harness says so before it ships.
+⛔ **THE ORIGINAL PREMISE HERE WAS WRONG, AND MEASURING IS WHAT CAUGHT IT.** This section used
+to say the effect must be worth ≈ 7 rating points per player, reasoned from §0.3's cost. It
+does not need to be, because `goalChance` derives its edge as `attack / (attack + oppDefense)`
+— a **bounded ratio**, deliberately insensitive to power — so a 5.7-point average rating gap is
+worth well under one win-rate point. Measured over **~3,000 seeded matches per constant**,
+a chemistry XI (chemistry 73.4, rating 82.6) against a rating XI (chemistry 32.9, rating 88.3),
+played both ways round so home advantage cannot flatter either:
+
+| effect   | chem XI   | rating XI | draw  |                                   |
+| -------- | --------- | --------- | ----- | --------------------------------- |
+| 0        | 36.6%     | 37.4%     | 26.1% | chemistry buys nothing — the trap |
+| **0.08** | **37.8%** | 36.8%     | 25.4% | **chosen**                        |
+| 0.2      | 38.7%     | 35.6%     | 25.7% |                                   |
+| 0.4      | 40.9%     | 34.3%     | 24.8% | chemistry starts to dominate      |
+
+`CHEM_EFFECT = 0.08` turns chemistry's rating deficit into a ~1-point win-rate advantage:
+rewarded for playing the mode as intended, never decisive.
+
+⚠️ **A 240-match sweep looked "saturated" above 0.1.** It was not — 1–3 point differences are
+inside the noise at that sample size. Any re-fit needs thousands of matches, not hundreds; the
+obvious quick re-run gives a confidently wrong answer.
+
+⚠️ **Only a FLAG travels.** The scores are derived inside `buildSession` from the two XIs it
+already holds, so nothing new enters IndexedDB or the share code and the codec needs no version
+bump. The flag rides in `RivalSetup` beside `budget` and `policy` — the seam whose own doc
+already states that every field there must reach every rebuild path.
 
 ⚠️ **The engine never learns what chemistry IS.** It receives weights. No bespoke branch —
 the modifier-stack rule locked in TASK-1803.

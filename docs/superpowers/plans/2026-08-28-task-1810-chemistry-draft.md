@@ -1,5 +1,21 @@
 # Chemistry Draft — implementation plan
 
+> **STATUS 2026-08-28 — Tasks 1–10 are DONE and committed** on
+> `feat/task-1810-chemistry-draft` (7 commits, unpushed). 115 tests green across the
+> chemistry battery and every suite sharing its paths; `tsc` and lint clean.
+>
+> **Remaining: Task 11 (e2e + warm routes) and Task 12 (docs + ship).**
+>
+> ⛔ Two things the build changed about this plan, both because measuring disproved a premise:
+>
+> - **Task 9's exchange rate was wrong** — the effect needed is SMALL, not ~7 rating points.
+>   Spec §5 now carries the ~3,000-match sweep and `CHEM_EFFECT = 0.08`.
+> - **`CHEM_ANCHOR = 40`** was measured (spec §1.1), and the tier-ratio test became an
+>   ORDERING assertion because a fixed fraction re-breaks on every refit.
+>
+> ⚠️ Task 12 must still verify Budget Cap's swap rule holds here (`lockPicks: false`) and
+> re-run the mode-status suites AFTER any registry change.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: `superpowers:executing-plans`. Spec:
 > [`2026-08-28-task-1810-chemistry-draft-design.md`](../specs/2026-08-28-task-1810-chemistry-draft-design.md)
 > — read §0 first; every constant below traces to a measurement there.
