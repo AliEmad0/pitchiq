@@ -76,6 +76,7 @@ export function GamePlay({
   referees,
   budget,
   nation,
+  chemistry,
 }: {
   pool: PoolCard[];
   initialPhase?: PlayPhase;
@@ -107,6 +108,16 @@ export function GamePlay({
    * supplies the country, the same split as `clubHistory` + `clubId`.
    */
   nation?: string;
+  /**
+   * Score this XI on how well it LINKS, and show the links on the pitch (Chemistry Draft,
+   * TASK-1810 PR 5). Absent = every chemistry surface is inert and the draft renders exactly
+   * as it did before the mode existed.
+   *
+   * A boolean because the rule carries no value: the tiers and the adjacency band are frozen
+   * measured constants, so the pack's constraint only says the rule APPLIES. The route reads
+   * it off `constraints`, the same way the budget page reads its cap.
+   */
+  chemistry?: boolean;
   /**
    * How the XI is assembled (TASK-1838). Absent = the coach builds it himself.
    *
@@ -545,6 +556,7 @@ export function GamePlay({
             captain={captain}
             budget={budget}
             nation={nation}
+            chemistry={chemistry}
           />
         ) : (
           <DraftHub pool={pool} onConfirm={confirmSquad} />

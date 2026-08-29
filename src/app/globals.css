@@ -2877,6 +2877,73 @@
   box-shadow: 0 0 0 3px #ff5d7e;
 }
 
+/* ---- chemistry connectors (TASK-1810 PR 5) ----
+   ⚠️ Styled off `data-tier` rather than a modifier class, so the attribute the TESTS assert
+   and the thing a coach actually sees come from one source and cannot disagree.
+
+   ⛔ MEASUREMENT TRAP, and it cost real time here: on a browser pane that is not displayed,
+   `getComputedStyle` reports a TRANSITIONED property at its start value forever, because a
+   hidden page composites no frames and the transition sits at `currentTime: 0` in state
+   "running". A club link therefore read as grey while its `stroke-width` — not transitioned —
+   was already correct, which looks exactly like a cascade bug and is not one. Verify a
+   transitioned property with the transition disabled, or read `element.getAnimations()`.
+   ⛔ The layer spans the WHOLE pitch, so `pointer-events: none` is not a nicety here — the
+   pitch's own ::after centre circle once made a single CM unselectable, and this would do it
+   to all eleven at once. Set in the component too, and proven by a test that clicks a spot. */
+.chem-links {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  /* Under the spots, over the pitch markings. */
+  z-index: 1;
+}
+.chem-link {
+  /* ⚠️ Non-scaling, because the SVG is stretched with preserveAspectRatio="none" — without
+     this a diagonal connector renders thicker than a vertical one on a wide pitch. */
+  vector-effect: non-scaling-stroke;
+  transition:
+    stroke 220ms,
+    stroke-opacity 220ms;
+}
+/* Grey at rest: an unlinked pair is DRAWN rather than absent, so a missing link is visible
+   information — it tells the coach where there is still something to do. */
+.chem-link[data-tier="none"] {
+  stroke: #9fb3c8;
+  stroke-opacity: 0.22;
+  stroke-width: 1.5;
+}
+/* Amber — the common good outcome (countrymen or club legends). */
+.chem-link[data-tier="nation"] {
+  stroke: #f6c000;
+  stroke-opacity: 0.55;
+  stroke-width: 2;
+}
+.chem-link[data-tier="club"] {
+  stroke: #f6c000;
+  stroke-opacity: 0.9;
+  stroke-width: 2.5;
+}
+/* ⭐ Green and glowing — TEAMMATES. Measured at 1.1% of random pairs, with 54% of random XIs
+   containing none at all, so this really is an event and earns the loudest treatment. */
+.chem-link[data-tier="teammates"] {
+  stroke: #34d399;
+  stroke-opacity: 1;
+  stroke-width: 3;
+  filter: drop-shadow(0 0 3px rgb(52 211 153 / 70%));
+  animation: chem-pulse 2.4s ease-in-out infinite;
+}
+@keyframes chem-pulse {
+  0%,
+  100% {
+    stroke-opacity: 1;
+  }
+  50% {
+    stroke-opacity: 0.65;
+  }
+}
+
 /* ---- the ring chip (TASK-1842) ----
    Marks a card dealt from OUTSIDE the chosen nation — the surprising case only. Same
    non-interactive layering as .pd-current-mark: painted above .pd-pick, so it must never
@@ -3055,8 +3122,14 @@
   }
   .pd-spot,
   .pd-disc,
-  .pd-bench-slot {
+  .pd-bench-slot,
+  .chem-link {
     transition: none;
+  }
+  /* ⚠️ Only the PULSE is decoration — the colour is the information, so it survives the
+     gate. Killing the animation must never flatten a teammate link into a grey one. */
+  .chem-link[data-tier="teammates"] {
+    animation: none;
   }
   .pd-bench-slot:hover {
     transform: none;
