@@ -1,10 +1,12 @@
 import { expect, test } from "./_helpers/test";
+import { ARABIC_ENABLED, ARABIC_PARKED } from "./_helpers/locales";
 
 // TASK-1601 — i18n infrastructure. Proves the locale switcher toggles en ⇄ ar
 // with the correct `dir`/`lang` + URL, and that English stays un-prefixed
 // (localePrefix "as-needed").
 test.describe("i18n locale switching", () => {
   test("toggles en ⇄ ar with dir/lang + URL and localizes the nav", async ({ page }) => {
+    test.skip(!ARABIC_ENABLED, ARABIC_PARKED);
     await page.goto("/");
     await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
@@ -49,6 +51,7 @@ test.describe("i18n locale-aware date formatting", () => {
   });
 
   test("Arabic fixtures render Arabic month names with dir=rtl", async ({ page }) => {
+    test.skip(!ARABIC_ENABLED, ARABIC_PARKED);
     await page.goto("/ar/fixtures");
     await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
     await expect(page.getByText(ARABIC_MONTHS).first()).toBeVisible();

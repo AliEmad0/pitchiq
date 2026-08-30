@@ -4,6 +4,7 @@ import { useLocale } from "next-intl";
 import { useSearchParams } from "next/navigation";
 
 import { usePathname, useRouter } from "@/i18n/navigation";
+import { routing } from "@/i18n/routing";
 import { isRtl } from "@/utils/format";
 
 // A two-state toggle (en ⇄ ar). Preserves the current path + ?season= when
@@ -18,6 +19,13 @@ export function LocaleSwitcher() {
   // `useLocale()` is "ar-u-nu-arab" on Arabic (Eastern-Arabic numeral formatting,
   // see src/i18n/request.ts) — use isRtl, not `=== "ar"`.
   const next = isRtl(locale) ? "en" : "ar";
+
+  // ⛔ Nothing to switch TO while Arabic is parked (TASK-1843). This component names its two
+  // locales literally rather than reading `routing.locales`, so without this gate it kept
+  // offering "ع" — a button that navigates to `/ar`, which next.config.ts now 301s straight
+  // back to English. A control that visibly does nothing is worse than no control.
+  // Restoring `"ar"` to `routing.locales` brings the toggle back with no edit here.
+  if (routing.locales.length < 2) return null;
 
   function switchTo() {
     const query = Object.fromEntries(searchParams.entries());

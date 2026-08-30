@@ -54,6 +54,16 @@ const nextConfig: NextConfig = {
     ]);
 
     return [
+      // ⭐ FIRST, so it wins over every `/ar/*` rule below (TASK-1843). Arabic is parked -
+      // `routing.locales` is `["en"]` - so `/ar/*` no longer resolves to a segment. Without
+      // these two, an indexed Arabic URL would fall through to `[locale]/[...rest]` and buy a
+      // Node render to produce a 404: exactly the cost this ticket exists to remove. A
+      // redirect is answered at the edge, for free.
+      //
+      // ⚠️ These must be REMOVED if `"ar"` ever goes back into `routing.locales`, or Arabic
+      // will 301 itself to English forever. See src/i18n/routing.ts.
+      { source: "/ar", destination: "/", permanent: true },
+      { source: "/ar/:path*", destination: "/:path*", permanent: true },
       // The current season is `/`; its path form must not be a second URL.
       {
         source: `/seasons/:year(${CURRENT_SEASON_FOR_REDIRECT})`,
