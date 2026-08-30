@@ -1,4 +1,5 @@
 import { test, expect } from "./_helpers/test";
+import { ARABIC_ENABLED, ARABIC_PARKED, LOCALE_PATHS } from "./_helpers/locales";
 
 /**
  * TASK-M79 / TASK-M80 — the sticky header used to scroll the whole document
@@ -96,7 +97,9 @@ async function waitForSeasonChip(page: import("@playwright/test").Page) {
   );
 }
 
-for (const path of ["/", "/ar"] as const) {
+// ⭐ Derived, not a literal pair (TASK-1843): with Arabic parked this runs the English
+// widths only, and re-arms the Arabic pass the moment the locale goes back into routing.
+for (const path of LOCALE_PATHS) {
   test(`the header fits at every width without scrolling the page sideways (${path})`, async ({
     page,
   }) => {
@@ -134,6 +137,7 @@ const LOCALE_TOGGLE = /التبديل إلى العربية/;
 test("the language toggle exists exactly once on a phone — in the drawer, not the header", async ({
   page,
 }) => {
+  test.skip(!ARABIC_ENABLED, ARABIC_PARKED);
   await page.setViewportSize({ width: 375, height: 900 });
   await page.goto("/");
   await waitForSeasonChip(page);
@@ -147,6 +151,7 @@ test("the language toggle exists exactly once on a phone — in the drawer, not 
 test("the language toggle stays in the header on desktop and out of the drawer", async ({
   page,
 }) => {
+  test.skip(!ARABIC_ENABLED, ARABIC_PARKED);
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/");
   await waitForSeasonChip(page);

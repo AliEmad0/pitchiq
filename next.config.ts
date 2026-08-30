@@ -17,6 +17,34 @@ const withNextIntl = createNextIntlPlugin();
 export const CURRENT_SEASON_FOR_REDIRECT = 2025;
 
 const nextConfig: NextConfig = {
+  /**
+   * ⛔ THE BUILD'S BINDING CONSTRAINT IS MEMORY, NOT TIME (TASK-1843, measured 2026-08-30).
+   *
+   * Read the failure precisely before changing anything here. The 19,125-page build logged
+   *
+   *     ✓ Generating static pages (19125/19125)
+   *     ✗ Next.js build worker exited with code: null and signal: SIGKILL
+   *
+   * — every page rendered, and the worker was killed **91 seconds after generation finished**.
+   * `SIGKILL` with no "JavaScript heap out of memory" is the container's OOM killer, not V8 and
+   * not the 45-minute limit: the phase that dies is the one AFTER generation (finalize, build
+   * traces, assembling a prerender manifest with 19k entries).
+   *
+   * ⚠️ So raising `--max-old-space-size` is the WRONG move - it lets one worker claim more of
+   * the RAM the container is already out of. The lever is fewer workers held at once, which
+   * trades build TIME (we have spare: 19,125 pages generated well inside the limit) for peak
+   * MEMORY (we do not).
+   *
+   * ⚠️ And the page count is the other lever. If this is still not enough, cut pages - see
+   * tests/unit/entity-routes-bounded.test.ts for the one way you may NOT cut them.
+   */
+  experimental: {
+    // Cap the parallel build workers. Hobby build containers are small, and the default scales
+    // with the CPU count rather than with available memory.
+    cpus: 2,
+    // Size the worker pool from free memory instead of core count.
+    memoryBasedWorkersCount: true,
+  },
   images: {
     remotePatterns: [{ protocol: "https", hostname: "**" }],
   },
@@ -54,6 +82,16 @@ const nextConfig: NextConfig = {
     ]);
 
     return [
+      // ⭐ FIRST, so it wins over every `/ar/*` rule below (TASK-1843). Arabic is parked -
+      // `routing.locales` is `["en"]` - so `/ar/*` no longer resolves to a segment. Without
+      // these two, an indexed Arabic URL would fall through to `[locale]/[...rest]` and buy a
+      // Node render to produce a 404: exactly the cost this ticket exists to remove. A
+      // redirect is answered at the edge, for free.
+      //
+      // ⚠️ These must be REMOVED if `"ar"` ever goes back into `routing.locales`, or Arabic
+      // will 301 itself to English forever. See src/i18n/routing.ts.
+      { source: "/ar", destination: "/", permanent: true },
+      { source: "/ar/:path*", destination: "/:path*", permanent: true },
       // The current season is `/`; its path form must not be a second URL.
       {
         source: `/seasons/:year(${CURRENT_SEASON_FOR_REDIRECT})`,

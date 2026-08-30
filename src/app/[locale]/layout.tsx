@@ -131,6 +131,17 @@ export const metadata: Metadata = {
   },
 };
 
+/**
+ * Locales written right-to-left. Kept as DATA and deliberately independent of
+ * `routing.locales` (TASK-1843): Arabic is parked out of the routing array for the build
+ * budget, but the RTL knowledge and every logical-property rule in `globals.css` stay, so
+ * restoring the locale is one edit in `src/i18n/routing.ts` rather than a hunt.
+ */
+const RTL_LOCALES = ["ar"] as const;
+
+// ⛔ EVERY LOCALE HERE MULTIPLIES THE WHOLE SITE. This returns `routing.locales`, so it is the
+// multiplier behind the 38,121-page build that failed Vercel's 45-minute limit on 2026-08-30.
+// Guarded by tests/unit/i18n-routing.test.ts.
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
@@ -146,7 +157,11 @@ export default async function LocaleLayout({
   // the whole route to render dynamically.
   setRequestLocale(locale);
   const messages = await getMessages();
-  const dir = locale === "ar" ? "rtl" : "ltr";
+  // ⚠️ Compared as a plain string list, NOT `locale === "ar"` (TASK-1843). With Arabic parked,
+  // `routing.locales` narrows to the literal `"en"`, and a `=== "ar"` check is then a
+  // no-overlap TYPE ERROR that fails the build. Keeping the RTL knowledge here as data means
+  // putting `"ar"` back in `routing.locales` is the only edit restoring it needs.
+  const dir = (RTL_LOCALES as readonly string[]).includes(locale) ? "rtl" : "ltr";
 
   return (
     // `suppressHydrationWarning` silences the class-mismatch React would

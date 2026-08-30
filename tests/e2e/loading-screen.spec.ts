@@ -1,4 +1,5 @@
 import { expect, test, waitForAppRouter } from "./_helpers/test";
+import { ARABIC_ENABLED, ARABIC_PARKED } from "./_helpers/locales";
 
 // TASK-1702 — neon wordmark-draw boot loader. Shows once per browser session
 // (each Playwright test gets a fresh context → fresh session), locks scrolling
@@ -43,6 +44,7 @@ test.describe("boot loader", () => {
   });
 
   test("draws the Nastaliq lockup on /ar (owner pick — matches the header)", async ({ page }) => {
+    test.skip(!ARABIC_ENABLED, ARABIC_PARKED);
     await page.goto("/ar", { waitUntil: "commit" });
     const loader = page.locator(LOADER);
     await expect(loader).toBeVisible();

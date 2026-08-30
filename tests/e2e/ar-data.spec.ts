@@ -1,4 +1,9 @@
 import { expect, test } from "./_helpers/test";
+import { ARABIC_ENABLED, ARABIC_PARKED } from "./_helpers/locales";
+
+// Every case in this file asserts Arabic OUTPUT, so the suite is gated as a whole rather
+// than deleted - it is the record of what "Arabic works" means. See _helpers/locales.ts.
+test.skip(!ARABIC_ENABLED, ARABIC_PARKED);
 
 // TASK-1606 (Plan A) — Arabic entity-name data on /ar.
 // Positions + the seeded Manchester United club name are the deterministic,

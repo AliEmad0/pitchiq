@@ -1,4 +1,5 @@
 import { expect, test } from "./_helpers/test";
+import { ARABIC_ENABLED, ARABIC_PARKED } from "./_helpers/locales";
 
 // TASK-M71a — the season path model: /seasons directory, /seasons/<year>
 // pages, and the edge redirects that keep the current season single-URL.
@@ -58,6 +59,7 @@ test("an unknown season returns 404 with the not-found page", async ({ page }) =
 });
 
 test("/ar renders a season page RTL with Arabic content", async ({ page }) => {
+  test.skip(!ARABIC_ENABLED, ARABIC_PARKED);
   await page.goto("/ar/seasons/2003");
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
   await expect(page.locator("html")).toHaveAttribute("lang", "ar");
@@ -88,6 +90,7 @@ test("a historical section index renders and the current season's redirects", as
 });
 
 test("/ar renders a season-section page RTL", async ({ page }) => {
+  test.skip(!ARABIC_ENABLED, ARABIC_PARKED);
   await page.goto("/ar/seasons/2003/managers");
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
   await expect(page.locator("html")).toHaveAttribute("lang", "ar");

@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
 import { playerOgImagePath } from "@/app/api/og/player-card";
-import { findPlayerSeasons, loadClubLogos, loadPlayers } from "@/data/loaders";
+import { findPlayerSeasons, getAvailableSeasons, loadClubLogos, loadPlayers } from "@/data/loaders";
 import { getEntityNames } from "@/features/i18n/entity-names";
 import { getPlayerProfile } from "@/features/players/api";
 import { PlayerCareerRecord } from "@/features/players/components/PlayerCareerRecord";
@@ -22,9 +22,12 @@ type Props = {
   params: Promise<{ locale: string; id: string }>;
 };
 
-// Players from older seasons (post-TASK-701) or non-existent ids render on
-// demand and fall through to `notFound()` rather than 404'ing at routing.
-export const dynamicParams = true;
+// ⛔ HOSTING COST — FALSE, and load-bearing (TASK-1843, measured 2026-08-30). See
+// `generateStaticParams` below: every player in every season is prerendered now, so an id
+// outside that set is not a player at all and 404s at ROUTING — from the CDN, with no function
+// invocation and no ISR write. Flipping this back to `true` re-opens the hole that let one
+// scraper burn 145,000 of the 200,000 monthly ISR write units in two days.
+export const dynamicParams = false;
 
 // The page no longer reads `?season=` (that forced dynamic rendering of every
 // view — the Vercel Active-CPU regression). It renders the current season
@@ -42,13 +45,24 @@ export const dynamicParams = true;
 export const dynamic = "force-static";
 export const revalidate = false; // see docs/adr or CLAUDE.md — deploys are the only data change
 
-// `pnpm build` pre-renders every current-season PL player as an SSG route.
-// ~570 players today — bounded enough that SSG pays off; older seasons fall
-// through to dynamic rendering under `dynamicParams = true`.
+// ⭐ EVERY player of EVERY season, not just the current one (TASK-1843, measured 2026-08-30).
+//
+// This used to prerender `currentDataSeason()` alone — ~537 of 5,362 players — and leave the
+// other 4,825 to on-demand ISR. That was affordable only while nothing linked to them, and
+// TASK-M71b ended that: `/seasons/<year>/players` renders a <PlayersTable> whose every row
+// links to `/players/<id>` for that season. So ~4,825 ids per locale became reachable but
+// unbuilt, and each first request paid a Node render AND an ISR cache write. A scraper walked
+// that surface on 29-30 Aug and wrote 145,000 of the 200,000 monthly write units in two days.
+//
+// A prerendered page costs nothing to serve, and build-time prerendering is NOT metered as an
+// ISR write (measured: 1-28 Aug carried dozens of deploys at a near-zero write count). The
+// only budget this spends is build time — see the guard test for the ceiling.
 export async function generateStaticParams(): Promise<Array<{ id: string }>> {
-  const players = await loadPlayers(currentDataSeason());
-  if (!players) return [];
-  return players.map((p) => ({ id: String(p.id) }));
+  const ids = new Set<string>();
+  for (const season of await getAvailableSeasons()) {
+    for (const p of (await loadPlayers(season)) ?? []) ids.add(String(p.id));
+  }
+  return [...ids].map((id) => ({ id }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

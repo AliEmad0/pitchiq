@@ -1,4 +1,5 @@
 import { test, expect } from "./_helpers/test";
+import { ARABIC_ENABLED, ARABIC_PARKED } from "./_helpers/locales";
 
 // TASK-311 — index → detail navigation, offline against MSW.
 // The Playwright web-server is started with TEST_MSW=1, which makes
@@ -101,6 +102,7 @@ test.describe("Teams index → detail navigation", () => {
   // catalog into every page). The entity page has exactly one combobox (the
   // global header switcher hides on detail routes).
   test("a ?season= deep link renders that season client-side (ar too)", async ({ page }) => {
+    test.skip(!ARABIC_ENABLED, ARABIC_PARKED);
     await page.goto("/ar/teams/42?season=2003");
     // The mount effect swaps to 2003 (fetching the ar season-view); the season
     // control reflects it in Eastern-Arabic digits.

@@ -26,9 +26,12 @@ type Props = { params: Promise<{ locale: string; id: string }> };
 // docs/hosting-cost.md.
 export const dynamic = "force-static";
 export const revalidate = false; // see docs/adr or CLAUDE.md — deploys are the only data change
-// New managers in future data refreshes render on demand; unknown ids still
-// notFound() below.
-export const dynamicParams = true;
+// ⛔ FALSE (TASK-1843). `generateStaticParams` below and the /managers index both enumerate
+// `loadManagers()`, so the built set and the linked set are the same set BY CONSTRUCTION — an
+// id outside it is linked from nowhere and 404s at routing, costing no function and no ISR
+// write. A manager arriving in a future data refresh is prerendered by the deploy that brings
+// him, which is the only moment the data can change anyway (see `revalidate = false` above).
+export const dynamicParams = false;
 
 // Pre-render every committed manager's profile (SSG).
 export async function generateStaticParams() {

@@ -1,4 +1,5 @@
 import { expect, test } from "./_helpers/test";
+import { ARABIC_ENABLED, ARABIC_PARKED } from "./_helpers/locales";
 
 // TASK-M72 — unknown URLs must be REAL 404s. Every one of these returned
 // HTTP 200 before the fix: any `loading.tsx` boundary above a segment lets
@@ -36,6 +37,7 @@ test("an unknown fixture id returns 404", async ({ page }) => {
 });
 
 test("/ar renders the 404 localized and RTL", async ({ page }) => {
+  test.skip(!ARABIC_ENABLED, ARABIC_PARKED);
   const res = await page.goto("/ar/this-does-not-exist");
   expect(res?.status()).toBe(404);
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
