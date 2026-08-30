@@ -43,7 +43,12 @@ test.describe("Player profile page", () => {
     // TASK-M72: a real 404 status, not just the boundary UI.
     const res = await page.goto("/players/9999999");
     expect(res?.status()).toBe(404);
-    await expect(page.getByText(/player not found/i)).toBeVisible();
+    // ⛔ "Page not found", NOT "Player not found" (TASK-1843). With `dynamicParams = false`
+    // an unknown id 404s at ROUTING, so the entity-scoped `not-found.tsx` never renders and
+    // the global boundary answers instead - from the CDN, with no function invocation. That
+    // is the whole point: the per-entity copy cost a Node render for every junk URL a crawler
+    // invented. Status and the branded shell are unchanged; only the copy is less specific.
+    await expect(page.getByText(/page not found/i)).toBeVisible();
   });
 
   // TASK-803 — old-season (< 2017-18) empty state. Salah is a real player with a

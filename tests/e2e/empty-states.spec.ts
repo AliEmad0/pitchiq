@@ -34,7 +34,13 @@ test.describe("Per-season empty states", () => {
   });
 
   test("a genuinely unknown player id still 404s", async ({ page }) => {
-    await page.goto("/players/9999999");
-    await expect(page.getByText(/player not found/i)).toBeVisible();
+    const res = await page.goto("/players/9999999");
+    expect(res?.status()).toBe(404);
+    // ⛔ "Page not found", NOT "Player not found" (TASK-1843). With `dynamicParams = false`
+    // an unknown id 404s at ROUTING, so the entity-scoped `not-found.tsx` never renders and
+    // the global boundary answers instead - from the CDN, with no function invocation. That
+    // is the whole point: the per-entity copy cost a Node render for every junk URL a crawler
+    // invented. Status and the branded shell are unchanged; only the copy is less specific.
+    await expect(page.getByText(/page not found/i)).toBeVisible();
   });
 });
