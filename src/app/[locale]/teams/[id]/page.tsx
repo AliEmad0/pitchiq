@@ -31,9 +31,11 @@ type Props = { params: Promise<{ locale: string; id: string }> };
 // docs/hosting-cost.md.
 export const dynamic = "force-static";
 export const revalidate = false; // see docs/adr or CLAUDE.md — deploys are the only data change
-// Ids outside the prerendered set (e.g. a future data refresh adds a club)
-// render on demand; the page still notFound()s ids in no committed season.
-export const dynamicParams = true;
+// ⛔ FALSE (TASK-1843). The params below are already the union across all 34 seasons, so a club
+// outside them appears in no committed season and is linked from nowhere — it 404s at routing
+// with no function and no ISR write. A club added by a future data refresh is prerendered by
+// the deploy that brings it, which is the only moment the data can change (`revalidate = false`).
+export const dynamicParams = false;
 
 // Every club that ever appeared in a committed season gets a prerendered page
 // (the union across all 34 seasons — historical clubs included), not just the

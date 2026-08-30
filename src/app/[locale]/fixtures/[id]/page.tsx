@@ -3,7 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
 import { fixtureOgImagePath } from "@/app/api/og/fixture-card";
-import { loadFixtures } from "@/data/loaders";
+import { getAvailableSeasons, loadFixtures } from "@/data/loaders";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EventsUnavailable } from "@/features/leagues/components/EventsUnavailable";
 import { EventTimeline } from "@/features/leagues/components/EventTimeline";
@@ -18,25 +18,34 @@ import { canonicalPath } from "@/utils/canonical";
 
 type Props = { params: Promise<{ locale: string; id: string }> };
 
-// The CURRENT season is pre-rendered at build time; the ~26,000 historical
-// fixture paths stay on-demand ISR (pre-rendering all 34 seasons would blow the
-// Hobby build limit for pages nobody links to).
+// ⛔ FALSE, and load-bearing (TASK-1843, measured 2026-08-30).
 //
-// The current season is what the dashboard rails, /fixtures and the sitemap
-// actually link to, so pre-building it means the hot set is served from the CDN
-// with zero function invocations from the very first request after a deploy —
-// it no longer has to be paid for once per path per deploy.
-export const dynamicParams = true;
+// The comment that stood here said the historical fixture paths were "pages nobody links to".
+// That was true when it was written and TASK-M71b (PR #74) silently made it FALSE:
+// `/seasons/<year>/fixtures` renders a <FixtureBrowser> for all 34 seasons, and every row of
+// it links to `/fixtures/<id>`. So ~12,786 historical fixtures per locale became reachable
+// while still unbuilt, and with `dynamicParams = true` each first request bought a Node render
+// AND an ISR cache write. A scraper walked the archive season by season on 29-30 Aug — the
+// firewall's own denial log caught it on /fixtures/1992-08-25-LEE-TOT through
+// /fixtures/2021-04-18-MUN-BUR — and wrote 145,000 of the 200,000 monthly units in two days.
+export const dynamicParams = false;
 // ⚠️ HOSTING COST — `force-static` is load-bearing; see docs/hosting-cost.md.
 // `revalidate` alone lets the render fall back to dynamic (`private, no-store`
 // + x-vercel-cache MISS), which made every page view cost a function.
 export const dynamic = "force-static";
 export const revalidate = false; // see docs/adr or CLAUDE.md — deploys are the only data change
 
+// ⭐ Every fixture of every season — the whole archive, ~13,166 of them. This is the single
+// biggest block of pages in the build (~26,000 across both locales), so it is also the first
+// thing to trim if the build ever approaches the Hobby ceiling. Trim it by SEASON RANGE, never
+// by flipping `dynamicParams` back on: an unbuilt path that something links to is exactly the
+// shape that caused the incident this replaced.
 export async function generateStaticParams(): Promise<Array<{ id: string }>> {
-  const fixtures = await loadFixtures(currentDataSeason());
-  if (!fixtures) return [];
-  return fixtures.map((f) => ({ id: f.id }));
+  const ids: Array<{ id: string }> = [];
+  for (const season of await getAvailableSeasons()) {
+    for (const f of (await loadFixtures(season)) ?? []) ids.push({ id: f.id });
+  }
+  return ids;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
