@@ -91,14 +91,51 @@ finding is the dispersion shortfall in §0.2** — measure the thing the engine 
 edge = A^p / (A^p + D^p)
 ```
 
-Three properties make this safe to drop into a shipped engine:
+⛔ **AND THE TWO SIDES ARE NORMALISED against each other**, which is not a detail — it is half the
+design, and measurement forced it after the first sweep:
 
-1. ⭐ **Equal sides give exactly 0.5 at every `p`.** This is what keeps `calibrateK` — and the
-   season-authentic goals-per-match calibration built on top of it — valid without a second fit.
-2. **The value stays in (0, 1)** for any positive inputs and any `p`, so no clamping is needed and
-   no probability can escape its range.
-3. ⛔ **`p = 1` is exactly the shipped formula.** The change is a strict generalisation behind one
-   constant, not a rewrite, so the refactor can be landed and proven inert before any value moves.
+```text
+share = myRawEdge / (myRawEdge + theirRawEdge)
+```
+
+### 1.1 Why normalisation is load-bearing
+
+The first version of this section claimed "equal sides give exactly 0.5 at every `p`, which keeps
+`calibrateK` valid". **That was false, and the sweep caught it.** A raw edge compares one side's
+**attack** against the other's **defence**, and those are different numbers even for two identical
+teams — so `A^p / (A^p + D^p)` is not 0.5 for a team playing itself unless its attack happens to
+equal its defence.
+
+Measured across real leagues, the offset is large and **flips sign by season**:
+
+| Season | mean attack | mean defence | edge sum, p = 1 | edge sum, p = 8 | edge sum, p = 12 |
+| ------ | ----------- | ------------ | --------------- | --------------- | ---------------- |
+| 2000   | 57.8        | 49.2         | 1.08            | 1.57            | **1.75**         |
+| 2012   | 53.8        | 57.1         | 0.97            | 0.77            | **0.65**         |
+| 2021   | 54.0        | 56.5         | 0.98            | 0.82            | 0.73             |
+
+Total goals scale directly with that sum, so an un-normalised exponent would have made 2000 score
+~75% too many goals and 2012 ~35% too few. Measured end to end, goals per match fell from **2.64
+at p = 1 to 2.05 at p = 16**, and the draw rate climbed through the harness ceiling (0.287 → 0.379
+against a gate of < 0.35). Choosing a smaller `p` only shrinks that distortion; it does not remove
+it.
+
+⭐ **Normalising separates the two questions the engine must answer independently:** _how many_
+chances a match produces (the season's goal rate, set by `k`) and _who gets them_ (the strength
+split, set by `POWER_EXPONENT`). After it, goals per match are flat across the whole sweep —
+2.76, 2.85, 2.84, 2.78, 2.83, 2.75, 2.86 — and the draw rate **falls** as `p` rises, which is what
+a more decisive engine should do.
+
+### 1.2 The properties that actually hold
+
+1. ⭐ **The two sides' shares always sum to exactly 1**, at every `p`. This is what keeps
+   `calibrateK` — and the season-authentic goals-per-match calibration on top of it — valid.
+2. ⭐ **Two identical teams split exactly 0.5 / 0.5**, whatever their attack/defence offset.
+3. **Every share stays in [0, 1]** — inclusive, deliberately: at absurd exponents the raw edge
+   saturates to exactly 1 in floating point, which is harmless but makes a strict `< 1` assertion
+   a falsehood.
+4. ⛔ **`p = 1` reproduces the shipped raw-edge formula**, so the exponent seam could be landed and
+   proven inert before any value moved.
 
 The exponent is a **global engine constant**, not a per-pack or per-mode field. A mode that wanted
 its own physics would be a second engine, which the modifier-stack rule exists to prevent.
@@ -135,24 +172,53 @@ replay suites will need re-baselining. Structural assertions must not.
 
 ---
 
-## 3. The fitted exponent
+## 3. The fitted exponent — `POWER_EXPONENT = 6`
 
-_Filled by Task 3 — the sweep over 10 real seasons × 4 seeds, with the §2 gates reported alongside
-the table fit._
+Fitted over **9 real seasons × 4 seeds**, real squads, season-authentic goal rates, each simulated
+league scored against the table that actually happened. All figures are with normalisation (§1.1)
+in place.
 
-Provisional from the opening six-season sweep (3 seeds), for orientation only:
+| p              | ρ(sim, real) | Champion | Gap      | Points SD | Champ win rate | Draws | Goals |
+| -------------- | ------------ | -------- | -------- | --------- | -------------- | ----- | ----- |
+| **1** ⟵ was    | 0.386        | 68.5     | 31.9     | 8.4       | 52.5%          | 0.263 | 2.76  |
+| 4              | 0.653        | 77.0     | 50.6     | 13.4      | 60.2%          | 0.240 | 2.89  |
+| 5              | 0.650        | 78.4     | 52.7     | 14.0      | 62.0%          | 0.230 | 2.82  |
+| **6** ⟵ chosen | 0.722        | 84.4     | **61.3** | **16.3**  | **68.6%**      | 0.223 | 2.87  |
+| 7              | 0.698        | 85.1     | 64.2     | 16.9      | 68.2%          | 0.214 | 2.85  |
+| 8              | 0.724        | 85.7     | 64.6     | 17.3      | 69.2%          | 0.217 | 2.85  |
+| 9              | 0.739        | 87.9     | 67.4     | 18.3      | 70.8%          | 0.218 | 2.84  |
+| _real_         | —            | _87.6_   | _62.0_   | _16.2_    | _69.9%_        | —     | —     |
 
-| p             | ρ(sim, real) | Champion | Gap      | Points SD |
-| ------------- | ------------ | -------- | -------- | --------- |
-| **1** (today) | 0.348        | 68.2     | 32.7     | 8.7       |
-| 6             | 0.702        | 76.0     | 48.7     | 13.8      |
-| 10            | 0.710        | 82.4     | 57.3     | 15.7      |
-| **12**        | **0.753**    | 81.5     | 58.0     | **16.0**  |
-| 16            | 0.742        | 84.9     | **62.9** | 16.6      |
-| _real_        | —            | _87.6_   | _62.0_   | _16.2_    |
+⭐ **`p = 6` is chosen because it fits the SHAPE of the table, not one row of it.** It lands points
+SD at 16.3 against a real 16.2 and the top-to-bottom gap at 61.3 against 62.0 — the two measures
+that describe the whole distribution — and champion win rate at 68.6% against 69.9%. Its champion
+total is 3.2 points light (84.4 v 87.6), which sits well inside the real spread's own variation
+(champions have ranged 75–100).
 
-⚠️ Champion win rate was short at every `p` tested (62–65% against a real 69.9%). Task 3 must say
-why before the value is settled.
+⚠️ **`p = 9` fits champion points almost exactly (87.9) and is the wrong choice**: it overshoots
+both dispersion measures (gap 67.4, SD 18.3). Fitting a single row at the cost of the distribution
+is how a calibration ends up flattering one number and lying about the rest.
+
+⚠️ **The optimum MOVED once normalisation landed** — the un-normalised sweep pointed at p ≈ 12,
+because suppressed scoring was damping the dispersion that the exponent was adding. A fit is only
+as good as the model underneath it; re-fit after any change to the model, not just after a data
+refresh.
+
+### 3.1 What it does to a match
+
+Every gate in §2 passes, and the distribution moves **toward** real football rather than away:
+
+| Harness metric    | p = 1 (was) | **p = 6** | Real football | Gate    |
+| ----------------- | ----------- | --------- | ------------- | ------- |
+| Draw rate         | 27.3%       | **24.7%** | ~22–25%       | 15–35%  |
+| First scorer wins | 69.2%       | **65.7%** | ~68–70%       | 55–78%  |
+| Comebacks         | —           | 13.8%     | —             | > 7%    |
+| Goals per match   | —           | 2.79      | —             | 2.0–3.4 |
+| Events per match  | —           | 42.8      | —             | > 15    |
+
+⭐ **Blowouts stay rare**: 7.2% of matches finish with a margin of 4+, and the widest margin over
+~13,000 simulated fixtures was 8. The failure this change risked — a strong side winning 6–0 every
+week — did not materialise.
 
 ---
 

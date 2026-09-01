@@ -458,7 +458,17 @@ export function* runMatch(
       const mine = applyModifiers(baseWeights(state[side].power), { state, side }, modifiers);
       const theirs = applyModifiers(baseWeights(state[opp].power), { state, side: opp }, modifiers);
 
-      if (rng() < chanceRate(mine.attack, theirs.defense, m, k)) {
+      // ⚠️ BOTH sides go in (TASK-1844). `chanceRate` normalises them against each other, so the
+      // pair always sums to one match's worth of chances — the strength gap decides the split,
+      // never the total. Passing one side's numbers alone let the exponent move the goal rate.
+      const matchup = {
+        attack: mine.attack,
+        defense: mine.defense,
+        oppAttack: theirs.attack,
+        oppDefense: theirs.defense,
+      };
+
+      if (rng() < chanceRate(matchup, m, k)) {
         const shooter = pickScorer(squads[side], rng);
         const outcome = resolveChance(rng());
         if (outcome === "goal") {

@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { GamePlayer } from "@/features/game/domain/player";
 import {
+  CONVERSION,
   POWER_EXPONENT,
   calibrateK,
+  chanceRate,
+  edgeShare,
   goalChance,
   minuteWeight,
   pickBooked,
@@ -66,6 +69,67 @@ describe("the power exponent (TASK-1844)", () => {
 
   it("defaults to POWER_EXPONENT when none is passed", () => {
     expect(goalChance(92, 70, 45, 1)).toBeCloseTo(goalChance(92, 70, 45, 1, POWER_EXPONENT), 12);
+  });
+});
+
+describe("edgeShare normalisation (TASK-1844)", () => {
+  /** The same fixture seen from each side. */
+  const pair = (aAtt: number, aDef: number, bAtt: number, bDef: number) => [
+    { attack: aAtt, defense: aDef, oppAttack: bAtt, oppDefense: bDef },
+    { attack: bAtt, defense: bDef, oppAttack: aAtt, oppDefense: aDef },
+  ];
+
+  it("⛔ THE TWO SIDES ALWAYS SUM TO 1 — this is what keeps the goal rate fixed", () => {
+    // Real leagues have attack and defence on DIFFERENT scales, and the offset flips sign by
+    // season (measured: 57.8 v 49.2 in 2000, 53.8 v 57.1 in 2012). Every case below is one the
+    // un-normalised edge got wrong.
+    const cases: Array<[number, number, number, number]> = [
+      [57.8, 49.2, 57.8, 49.2], // identical teams, attack > defence (2000-ish)
+      [53.8, 57.1, 53.8, 57.1], // identical teams, defence > attack (2012-ish)
+      [92, 88, 70, 62], // a real mismatch
+      [50, 50, 50, 50], // the degenerate symmetric case
+    ];
+    for (const c of cases) {
+      for (const p of [1, 8, 12, 16, 20]) {
+        const [a, b] = pair(...c);
+        expect(edgeShare(a!, p) + edgeShare(b!, p)).toBeCloseTo(1, 12);
+      }
+    }
+  });
+
+  it("⛔ two IDENTICAL teams split exactly evenly, whatever the attack/defence offset", () => {
+    // The property my spec originally claimed for the RAW edge, which was false — a team's
+    // attack and its defence are different numbers, so only the normalised share holds it.
+    for (const [att, def] of [
+      [57.8, 49.2],
+      [53.8, 57.1],
+      [80, 40],
+    ]) {
+      for (const p of [1, 12, 20]) {
+        const [a] = pair(att!, def!, att!, def!);
+        expect(edgeShare(a!, p)).toBeCloseTo(0.5, 12);
+      }
+    }
+  });
+
+  it("the stronger side takes the bigger share, and a bigger exponent widens it", () => {
+    const [strong] = pair(92, 88, 70, 62);
+    expect(edgeShare(strong!, 1)).toBeGreaterThan(0.5);
+    expect(edgeShare(strong!, 12)).toBeGreaterThan(edgeShare(strong!, 1));
+  });
+
+  it("⚠️ the goal RATE is independent of the exponent — the harness band cannot drift", () => {
+    // Expected goals for a side = target x share, so both sides together always come to the
+    // season target no matter how steep the split is.
+    const k = calibrateK(2.7);
+    for (const p of [1, 8, 20]) {
+      const [a, b] = pair(57.8, 49.2, 70, 62);
+      let total = 0;
+      for (let m = 1; m <= 90; m++) {
+        total += chanceRate(a!, m, k, p) * CONVERSION + chanceRate(b!, m, k, p) * CONVERSION;
+      }
+      expect(total).toBeCloseTo(2.7, 6);
+    }
   });
 });
 

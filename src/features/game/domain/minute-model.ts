@@ -35,13 +35,40 @@ export function calibrateK(targetGoalsPerMatch: number): number {
  * ⭐ Equal sides give exactly 0.5 at EVERY exponent, which is what keeps `calibrateK` — and the
  * season-authentic goals-per-match calibration built on it — valid without a second fit.
  */
-export const POWER_EXPONENT = 1;
+export let POWER_EXPONENT = 6;
 
 /**
- * Per-minute goal probability for a side: attack-vs-defense edge × hazard × k.
+ * ⛔ CALIBRATION ONLY (TASK-1844) — DELETED before this branch ships.
  *
- * ⚠️ `exponent` is a seam for the CALIBRATION sweep, which needs to vary it without mutating a
- * module global. Production always takes the default.
+ * The fitting sweep drives the REAL engine, and `simulate` reads the constant through
+ * `chanceRate`'s default argument, so the only way to vary it without a second engine is to
+ * move the binding. A mutable global in a deterministic engine is exactly what the replay
+ * culture forbids, which is why Task 8 removes this and greps to prove it is gone.
+ */
+export function __setPowerExponent(p: number): void {
+  POWER_EXPONENT = p;
+}
+
+/**
+ * One side's RAW strength edge — its attack measured against the other's defence.
+ *
+ * ⚠️ NOT used directly to drive the match; see `edgeShare`. Two IDENTICAL teams do not score
+ * 0.5 here, because a team's attack and its defence are different numbers.
+ */
+export function rawEdge(
+  attack: number,
+  oppDefense: number,
+  exponent: number = POWER_EXPONENT,
+): number {
+  const a = Math.pow(Math.max(attack, 1), exponent);
+  const d = Math.pow(Math.max(oppDefense, 1), exponent);
+  return a / (a + d || 1);
+}
+
+/**
+ * Per-minute goal probability for one side in isolation: raw edge × hazard × k.
+ *
+ * ⚠️ `exponent` is a seam for the CALIBRATION sweep. Production always takes the default.
  */
 export function goalChance(
   attack: number,
@@ -50,10 +77,39 @@ export function goalChance(
   k: number,
   exponent: number = POWER_EXPONENT,
 ): number {
-  const a = Math.pow(Math.max(attack, 1), exponent);
-  const d = Math.pow(Math.max(oppDefense, 1), exponent);
-  const edge = a / (a + d || 1);
-  return k * edge * minuteWeight(minute);
+  return k * rawEdge(attack, oppDefense, exponent) * minuteWeight(minute);
+}
+
+/** Both sides of a fixture, from the perspective of the side being resolved. */
+export interface Matchup {
+  attack: number;
+  defense: number;
+  oppAttack: number;
+  oppDefense: number;
+}
+
+/**
+ * A side's SHARE of the match's chances. The two sides always sum to exactly 1.
+ *
+ * ⛔ THE NORMALISATION IS LOAD-BEARING (TASK-1844), and measuring is what forced it. `calibrateK`
+ * sets `k` so that a match yields the season-authentic goal total, which holds only if the two
+ * sides' edges sum to 1. They do not: a raw edge compares ATTACK against DEFENCE, and those sit
+ * on different scales — measured across real leagues, mean attack 57.8 v defence 49.2 in 2000
+ * but 53.8 v 57.1 in 2012, i.e. the offset flips sign by season. At `POWER_EXPONENT = 1` that
+ * distortion is small (edge sums 1.08 and 0.97), but the exponent AMPLIFIES it: at p = 12 the
+ * same two seasons sum to 1.75 and 0.65, so one would score 75% too many goals and the other
+ * 35% too few.
+ *
+ * ⭐ Normalising decouples the two questions the engine must answer separately: **how many**
+ * chances a match produces (the season's goal rate, set by `k`) and **who gets them** (the
+ * strength split, set by `POWER_EXPONENT`). Changing the exponent can now never move the goal
+ * rate — which is what the shipped `game-match-harness.test.ts` band exists to protect.
+ */
+export function edgeShare(m: Matchup, exponent: number = POWER_EXPONENT): number {
+  const mine = rawEdge(m.attack, m.oppDefense, exponent);
+  const theirs = rawEdge(m.oppAttack, m.defense, exponent);
+  const total = mine + theirs;
+  return total > 0 ? mine / total : 0.5;
 }
 
 /**
@@ -75,13 +131,12 @@ export const CONVERSION = 0.11;
  * The engine gains ~9x the events without moving a single result.
  */
 export function chanceRate(
-  attack: number,
-  oppDefense: number,
+  m: Matchup,
   minute: number,
   k: number,
   exponent: number = POWER_EXPONENT,
 ): number {
-  return goalChance(attack, oppDefense, minute, k, exponent) / CONVERSION;
+  return (k * edgeShare(m, exponent) * minuteWeight(minute)) / CONVERSION;
 }
 
 /**
