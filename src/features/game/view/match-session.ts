@@ -1,5 +1,7 @@
 import { chaosMatchup, type DraftPolicy, type PoolCard } from "@/features/game/domain/chaos-draft";
 import type { Formation } from "@/features/game/domain/formation";
+import { chemistry, type Linkable } from "@/features/game/domain/chemistry";
+import { chemistryModifier } from "@/features/game/domain/chemistry-modifier";
 import { opponentSetup } from "@/features/game/domain/opponent";
 import { runMatch } from "@/features/game/domain/simulate";
 import { type GameTeam, makeGameTeam } from "@/features/game/domain/team";
@@ -34,6 +36,20 @@ export interface RivalSetup {
    * coach's €100M XI (mean 80.8) faces the unlimited ceiling XI (mean 94.0).
    */
   budget?: number;
+  /**
+   * Score both XIs on chemistry and let it weigh on the match (TASK-1810 PR 5).
+   *
+   * ⛔ IDENTITY, like every other field here, so it must reach EVERY path that rebuilds the
+   * match — live, resume and share alike. A replay without it plays a different game and,
+   * because replay verifies by fingerprint, surfaces as "your saved match is corrupt" rather
+   * than as the missing flag it is. That defect has shipped twice already (the `opponent`
+   * policy, then Budget Cap's `budget`), which is why this rides the same seam they do.
+   *
+   * ⚠️ Only a FLAG travels. The scores themselves are derived from the two XIs, which every
+   * path already carries — so nothing new goes into IndexedDB or the share code, and the
+   * codec needs no version bump.
+   */
+  chemistry?: boolean;
 }
 
 export interface MatchSession {
@@ -106,6 +122,22 @@ export function buildSession(
   );
   const away = matchup.opponent.kind === "squad" ? matchup.opponent.team : matchup.home;
 
+  /**
+   * ⭐ Chemistry is DERIVED here rather than passed in, which is what keeps it off the wire.
+   * Both XIs are already in hand, so the score cannot drift between the live match and a
+   * replay — there is no second copy to disagree. Fitted at `CHEM_EFFECT` by win rate; see
+   * `domain/chemistry-modifier.ts`.
+   */
+  const chemistryMods =
+    rival.chemistry === true
+      ? [
+          chemistryModifier({
+            home: chemistry(xi as readonly Linkable[], formation),
+            away: chemistry(away.players as readonly Linkable[], away.formation),
+          }),
+        ]
+      : [];
+
   const stream = createStream(
     runMatch(
       opponentSetup({
@@ -115,6 +147,7 @@ export function buildSession(
         season: 0,
         seed,
         targetGoalsPerMatch: DEFAULT_RATE,
+        modifiers: chemistryMods,
       }),
     ),
     "home",

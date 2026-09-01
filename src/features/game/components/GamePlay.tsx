@@ -76,6 +76,7 @@ export function GamePlay({
   referees,
   budget,
   nation,
+  chemistry,
 }: {
   pool: PoolCard[];
   initialPhase?: PlayPhase;
@@ -107,6 +108,16 @@ export function GamePlay({
    * supplies the country, the same split as `clubHistory` + `clubId`.
    */
   nation?: string;
+  /**
+   * Score this XI on how well it LINKS, and show the links on the pitch (Chemistry Draft,
+   * TASK-1810 PR 5). Absent = every chemistry surface is inert and the draft renders exactly
+   * as it did before the mode existed.
+   *
+   * A boolean because the rule carries no value: the tiers and the adjacency band are frozen
+   * measured constants, so the pack's constraint only says the rule APPLIES. The route reads
+   * it off `constraints`, the same way the budget page reads its cap.
+   */
+  chemistry?: boolean;
   /**
    * How the XI is assembled (TASK-1838). Absent = the coach builds it himself.
    *
@@ -244,12 +255,13 @@ export function GamePlay({
     chosen: { setup: ChosenRival | null; difficulty: Difficulty } | null,
   ): RivalSetup =>
     chosen?.setup == null
-      ? { policy: opponent, budget }
+      ? { policy: opponent, budget, chemistry }
       : {
           policy: policyOf(chosen.difficulty),
           pool: chosen.setup.cards,
           name: chosen.setup.name,
           budget,
+          chemistry,
         };
 
   /** The rival as a share code carries it. */
@@ -387,7 +399,7 @@ export function GamePlay({
         pool,
         decoded,
         { home: t("yourXi"), away: t("rivals") },
-        picked == null ? { policy: opponent, budget } : rivalSetup(picked),
+        picked == null ? { policy: opponent, budget, chemistry } : rivalSetup(picked),
       );
       if (!live) return;
       if (replayed == null) {
@@ -444,7 +456,7 @@ export function GamePlay({
         pool,
         record,
         { home: t("yourXi"), away: t("rivals") },
-        picked == null ? { policy: opponent, budget } : rivalSetup(picked),
+        picked == null ? { policy: opponent, budget, chemistry } : rivalSetup(picked),
       );
       if (!live) return;
       if (restored == null) {
@@ -545,6 +557,7 @@ export function GamePlay({
             captain={captain}
             budget={budget}
             nation={nation}
+            chemistry={chemistry}
           />
         ) : (
           <DraftHub pool={pool} onConfirm={confirmSquad} />
@@ -579,6 +592,7 @@ export function GamePlay({
         home={match.home}
         away={match.away}
         crests={crests}
+        chemistry={chemistry}
         referee={referee}
         weather={weather}
         onKickOff={onKickOff}

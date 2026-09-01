@@ -6,11 +6,13 @@ import { priceLabel } from "@/features/game/domain/price-band";
 import { pickBack } from "@/features/game/domain/card-design";
 import type { PlayerSeasonId } from "@/features/game/domain/card-id";
 import { BENCH_SHAPE, FORMATIONS, type PoolCard } from "@/features/game/domain/chaos-draft";
+import { chemistry, chemistryBreakdown, linkTier } from "@/features/game/domain/chemistry";
 import { continentOf, ringOf, type Ring } from "@/features/game/domain/continents";
 import { canField, redealHands, roomDeals } from "@/features/game/domain/draft-room";
 import { canPlay } from "@/features/game/domain/eligibility";
 import type { Formation } from "@/features/game/domain/formation";
 import type { EnrichedCard } from "@/features/game/domain/player-card";
+import { adjacentPairs } from "@/features/game/domain/pitch-adjacency";
 import type { DraftSpec } from "@/features/game/domain/rule-packs";
 import {
   createRoomState,
@@ -29,6 +31,9 @@ import { CardBack, PlayerCard } from "./PlayerCard";
 
 /** The shape the picker opens on, resolved by NAME — the array's order is presentation. */
 const DEFAULT_FORMATION = "4-4-2 Flat";
+
+/** "2004-05" — how every card face already writes a season. */
+const seasonLabel = (season: number) => `${season}-${String((season + 1) % 100).padStart(2, "0")}`;
 
 /** Grouping for the shape chips only. Nothing resolves a formation through these. */
 const FAMILIES = [
@@ -86,6 +91,11 @@ interface Props {
    * inert and the deal is byte-identical to before the mode existed.
    */
   nation?: string;
+  /**
+   * Score this XI on its LINKS and draw them on the pitch (Chemistry Draft, TASK-1810 PR 5).
+   * Absent = no connectors, no meter, no deltas — every other pack renders untouched.
+   */
+  chemistry?: boolean;
 }
 
 /**
@@ -111,6 +121,7 @@ export function PitchDraft({
   captain,
   budget,
   nation,
+  chemistry: chemistryOn,
 }: Props) {
   const t = useTranslations("game");
   const locale = useLocale();
@@ -439,6 +450,73 @@ export function PitchDraft({
 
   const rows = Math.max(...shape.slots.map((s) => s.row));
 
+  /**
+   * The chemistry view (TASK-1810 PR 5) — the placed XI, its score, and every link.
+   *
+   * Derived on every render from the picks, exactly as the budget meter is: `RoomState` holds
+   * only `picks`, and a score kept in state would be one more thing that can disagree with
+   * the board. `chemistry()` is pure and cheap over ~20 pairs.
+   */
+  const placedXi =
+    chemistryOn === true
+      ? state.picks
+          .slice(0, shape.slots.length)
+          .map((id) => (id != null ? byId.get(id) : undefined))
+      : null;
+  const chemScore = placedXi == null ? 0 : chemistry(placedXi, shape);
+  const chemCounts = placedXi == null ? null : chemistryBreakdown(placedXi, shape);
+
+  /**
+   * What a candidate would ADD to the open slot, in chemistry points.
+   *
+   * The trade-off made visible, and the reason the mode is a decision rather than "pick the
+   * highest number": chasing chemistry costs ~6.8 rating points per player, so the coach has
+   * to be able to see what he is buying. The 84 countryman beside the 91 stranger.
+   *
+   * Scored against the CURRENT placement and this slot only, so it is honest about the pick
+   * being made rather than estimating a finished side. Zero on the first pick of an empty
+   * pitch, because a card with no placed neighbours genuinely links to nothing.
+   */
+  const chemDelta = (slot: number, candidate: PoolCard): number => {
+    if (placedXi == null || slot >= placedXi.length) return 0;
+    const withCard = [...placedXi];
+    withCard[slot] = candidate;
+    const without = [...placedXi];
+    without[slot] = undefined;
+    return chemistry(withCard, shape) - chemistry(without, shape);
+  };
+
+  /**
+   * One connector per adjacent pair, carrying its tier.
+   *
+   * ⚠️ The graph is drawn WHOLE — an unlinked pair renders at rest rather than vanishing —
+   * so the coach can see where a link is missing, which is the half of the information that
+   * tells him what to do next.
+   */
+  const chemLinks =
+    placedXi == null
+      ? []
+      : adjacentPairs(shape).map(([i, j]) => {
+          const a = placedXi[i];
+          const b = placedXi[j];
+          const tier = a != null && b != null ? linkTier(a, b) : "none";
+          const title =
+            tier === "teammates" && a != null
+              ? t("chemLinkTeammates", { club: a.club, season: seasonLabel(a.season) })
+              : tier === "club" && a != null
+                ? t("chemLinkClub", { club: a.club })
+                : tier === "nation" && a != null
+                  ? // ⚠️ The COUNTRY's name, resolved from the code per locale — an English
+                    // name on /ar is the M89 class of bug. Falls back to the raw code only
+                    // when Intl cannot resolve it.
+                    t("chemLinkNation", {
+                      nation:
+                        countryNameFromCode(a.nationalityCode, locale) ?? a.nationalityCode ?? "",
+                    })
+                  : null;
+          return { i, j, tier, title };
+        });
+
   /** The card the coach is holding in the open slot — the one his taps can now DROP. */
   const currentCard = openPick != null ? byId.get(openPick) : undefined;
 
@@ -502,6 +580,46 @@ export function PitchDraft({
           it. ⚠️ Rendered here AND on the veil, because the veil covers the pitch entirely. */}
       {locked && view != null ? <div className="mb-4">{meter(view)}</div> : null}
 
+      {/* ⭐ The chemistry meter, in the idiom Budget Cap's "Countdown" established: the score
+          as the hero number, a bar, and the tiers spelled out in WORDS beneath — which is
+          what makes the number explicable rather than a verdict, and what keeps the three
+          link states legible without colour vision. */}
+      {locked && chemCounts != null ? (
+        <div
+          data-testid="chem-meter"
+          className="border-border bg-muted/30 mx-auto mb-4 w-full max-w-md rounded-lg border px-4 py-3"
+        >
+          <div className="flex items-baseline justify-center gap-2">
+            <span className="font-mono text-4xl leading-none font-extrabold tracking-tight">
+              {chemScore}
+            </span>
+            <span className="text-[10px] font-bold tracking-[0.09em] uppercase opacity-70">
+              {t("chemScore")}
+            </span>
+          </div>
+          <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-[#12222c]">
+            <div
+              data-testid="chem-bar"
+              className="h-full rounded-full bg-sky-400 transition-[width] duration-300"
+              style={{ width: `${chemScore}%` }}
+            />
+          </div>
+          <p className="mt-2 text-center font-mono text-[11px] opacity-75">
+            {chemCounts.teammates + chemCounts.club + chemCounts.nation === 0
+              ? t("chemNoLinksYet")
+              : [
+                  chemCounts.teammates > 0
+                    ? t("chemTeammates", { count: chemCounts.teammates })
+                    : null,
+                  chemCounts.club > 0 ? t("chemClubLegends", { count: chemCounts.club }) : null,
+                  chemCounts.nation > 0 ? t("chemCountrymen", { count: chemCounts.nation }) : null,
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
+          </p>
+        </div>
+      ) : null}
+
       <div className="pd-pitch-wrap">
         {/* ⛔ `dir="ltr"`, deliberately, and the ONE place in the app that opts out of RTL
             (owner's call, 2026-08-19). A football pitch is not text: its markings are drawn
@@ -513,6 +631,49 @@ export function PitchDraft({
             Pinning the pitch to one direction makes both locales render the identical
             layout; the labels on it are player names, which do not localize either. */}
         <div className="pd-pitch" dir="ltr">
+          {/* ⛔ FIRST child and `pointer-events: none`: it spans the whole pitch, so if it
+              ever took a hit it would make every position unselectable at once. The pitch's
+              own `::after` centre circle did exactly that to a single CM; this is that trap
+              at full size, and the test proves the spots still click rather than trusting
+              the style. */}
+          {placedXi != null ? (
+            <svg
+              className="chem-links"
+              data-testid="chem-links"
+              viewBox="0 0 100 100"
+              preserveAspectRatio="none"
+              aria-hidden="true"
+              style={{ pointerEvents: "none" }}
+            >
+              {chemLinks.map(({ i, j, tier, title }) => {
+                const a = shape.slots[i]!;
+                const b = shape.slots[j]!;
+                const at = {
+                  x: (a.row / (rows + 1)) * 100,
+                  y: (a.col / (shape.slots.filter((s) => s.row === a.row).length + 1)) * 100,
+                };
+                const bt = {
+                  x: (b.row / (rows + 1)) * 100,
+                  y: (b.col / (shape.slots.filter((s) => s.row === b.row).length + 1)) * 100,
+                };
+                return (
+                  <line
+                    key={`${i}-${j}`}
+                    data-testid="chem-link"
+                    data-tier={tier}
+                    className="chem-link"
+                    x1={at.x}
+                    y1={at.y}
+                    x2={bt.x}
+                    y2={bt.y}
+                  >
+                    {/* ⚠️ Colour is never the only channel — the link NAMES itself. */}
+                    {title != null ? <title>{title}</title> : null}
+                  </line>
+                );
+              })}
+            </svg>
+          ) : null}
           <span className="pd-box pd-box-left" />
           <span className="pd-box pd-box-left pd-box-six" />
           <span className="pd-box pd-box-right" />
@@ -812,6 +973,21 @@ export function PitchDraft({
                     {/* The ring chip (TASK-1842) — only on the SURPRISING case: a card that
                         is not a countryman. Same non-interactive layering as the mark above,
                         or the one card the coach most wants to read would eat its own tap. */}
+                    {/* ⭐ What this card would ADD. Rendered on every candidate including
+                        the zeroes: "this one buys you nothing" is exactly as useful as
+                        "+7", and showing it only on the good ones would turn the absence
+                        of a badge into a second thing to interpret. */}
+                    {placedXi != null && veil.mode === "round" ? (
+                      <span
+                        data-testid="chem-delta"
+                        data-delta={chemDelta(veil.slot, c)}
+                        className={`chem-delta${chemDelta(veil.slot, c) > 0 ? " chem-delta-up" : ""}`}
+                      >
+                        {chemDelta(veil.slot, c) > 0
+                          ? t("chemDelta", { points: chemDelta(veil.slot, c) })
+                          : t("chemDeltaNone")}
+                      </span>
+                    ) : null}
                     {handRing != null && handRing !== "nation" ? (
                       <span data-testid="pd-ring-chip" className="pd-ring-chip">
                         {handRing === "continent" && continentKey != null

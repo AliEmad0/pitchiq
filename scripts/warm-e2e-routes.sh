@@ -48,6 +48,8 @@ ROUTES=(
   "/game/nation"
   "/game/nation/eg"
   "/game/nation/fr"
+  # Cold, this one builds the 600-card cross-era pool AND its captaincy counts.
+  "/game/chemistry"
   # The rival squad the draft screen fetches as soon as it mounts (TASK-1810
   # follow-up). Cold, it is a full club-history build.
   "/api/game/rivals/40"

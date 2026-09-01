@@ -156,8 +156,9 @@ export const GAME_MODES: readonly GameMode[] = [
     emoji: "🔗",
     nameKey: "modeChemistryName",
     descriptionKey: "modeChemistryDesc",
-    href: null,
-    formats: planned,
+    href: "/game/chemistry",
+    // TASK-1810 PR 5 ships the single-match format; the 38-week engine is TASK-1811.
+    formats: { single: "live", season: "planned" },
     accent: "#a78bfa",
     ticket: "TASK-1810",
   },
