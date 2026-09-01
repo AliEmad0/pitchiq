@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { GamePlayer } from "@/features/game/domain/player";
 import {
+  POWER_EXPONENT,
   calibrateK,
   goalChance,
   minuteWeight,
@@ -8,6 +9,65 @@ import {
   pickScorer,
   weightedIndex,
 } from "@/features/game/domain/minute-model";
+
+describe("the power exponent (TASK-1844)", () => {
+  it("⛔ EQUAL SIDES are exactly even at any exponent — what keeps calibrateK valid", () => {
+    for (const p of [1, 2, 8, 12, 30]) {
+      expect(goalChance(80, 80, 45, 1, p) / minuteWeight(45)).toBeCloseTo(0.5, 12);
+    }
+  });
+
+  it("is MONOTONE — a bigger exponent rewards the stronger side more", () => {
+    const at = (p: number) => goalChance(92, 70, 45, 1, p) / minuteWeight(45);
+    expect(at(1)).toBeGreaterThan(0.5);
+    expect(at(4)).toBeGreaterThan(at(1));
+    expect(at(12)).toBeGreaterThan(at(4));
+  });
+
+  it("stays BOUNDED in [0,1] even at absurd inputs", () => {
+    // ⚠️ INCLUSIVE, deliberately. At p = 40 against a defence of 1, 100^40/(100^40 + 1)
+    // saturates to exactly 1 in floating point. That is harmless — the edge is a multiplier on
+    // an already-small per-minute rate, so it cannot produce a probability above k — but the
+    // bound is [0,1], not (0,1), and a strict assertion here would be asserting a falsehood.
+    for (const [a, d, p] of [
+      [100, 1, 40],
+      [1, 100, 40],
+      [50, 50, 30],
+    ] as Array<[number, number, number]>) {
+      const edge = goalChance(a, d, 45, 1, p) / minuteWeight(45);
+      expect(edge).toBeGreaterThanOrEqual(0);
+      expect(edge).toBeLessThanOrEqual(1);
+      expect(Number.isFinite(edge)).toBe(true);
+    }
+  });
+
+  it("⛔ across the REAL rating range, the weaker side is never shut out", () => {
+    // The gameplay guard that matters: at any exponent we would actually ship, over the widest
+    // squad gap the archive holds (92.7 v 69.8), BOTH sides must still create chances. An edge
+    // that rounds to 0 for the underdog is a match nobody can come back in — and comebacks are
+    // pinned at > 7% by `game-match-harness.test.ts`.
+    for (const p of [1, 8, 12, 16, 20]) {
+      const underdog = goalChance(70, 93, 45, 1, p) / minuteWeight(45);
+      expect(underdog).toBeGreaterThan(0.001);
+    }
+  });
+
+  it("⚠️ p = 1 reproduces the shipped ratio EXACTLY — the refactor is inert", () => {
+    const cases: Array<[number, number]> = [
+      [92, 70],
+      [50, 50],
+      [70, 92],
+      [88, 61],
+    ];
+    for (const [a, d] of cases) {
+      expect(goalChance(a, d, 45, 1, 1) / minuteWeight(45)).toBeCloseTo(a / (a + d), 12);
+    }
+  });
+
+  it("defaults to POWER_EXPONENT when none is passed", () => {
+    expect(goalChance(92, 70, 45, 1)).toBeCloseTo(goalChance(92, 70, 45, 1, POWER_EXPONENT), 12);
+  });
+});
 
 describe("minuteWeight", () => {
   it("raises hazard in the stoppage windows", () => {

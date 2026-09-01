@@ -23,9 +23,36 @@ export function calibrateK(targetGoalsPerMatch: number): number {
   return targetGoalsPerMatch / sumMinuteWeights();
 }
 
-/** Per-minute goal probability for a side: attack-vs-defense edge × hazard × k. */
-export function goalChance(attack: number, oppDefense: number, minute: number, k: number): number {
-  const edge = attack / (attack + oppDefense || 1);
+/**
+ * How sharply a rating advantage converts into chances (TASK-1844).
+ *
+ * ⛔ `p = 1` is the ORIGINAL formula, `attack / (attack + oppDefense)`. Measured over six real
+ * seasons played by their real squads, it makes the archive's WIDEST squad gap (92.7 v 69.8)
+ * worth ~0.05 points per game, so a 38-week league table came out at half the real dispersion
+ * — points SD 8.7 against a real 16.2 — and finishing order was mostly noise. A single match
+ * hides this; a season cannot. See the spec for the fit against 34 real seasons.
+ *
+ * ⭐ Equal sides give exactly 0.5 at EVERY exponent, which is what keeps `calibrateK` — and the
+ * season-authentic goals-per-match calibration built on it — valid without a second fit.
+ */
+export const POWER_EXPONENT = 1;
+
+/**
+ * Per-minute goal probability for a side: attack-vs-defense edge × hazard × k.
+ *
+ * ⚠️ `exponent` is a seam for the CALIBRATION sweep, which needs to vary it without mutating a
+ * module global. Production always takes the default.
+ */
+export function goalChance(
+  attack: number,
+  oppDefense: number,
+  minute: number,
+  k: number,
+  exponent: number = POWER_EXPONENT,
+): number {
+  const a = Math.pow(Math.max(attack, 1), exponent);
+  const d = Math.pow(Math.max(oppDefense, 1), exponent);
+  const edge = a / (a + d || 1);
   return k * edge * minuteWeight(minute);
 }
 
@@ -47,8 +74,14 @@ export const CONVERSION = 0.11;
  * arrives 1/CONVERSION times as often as a goal used to, and converts at CONVERSION.
  * The engine gains ~9x the events without moving a single result.
  */
-export function chanceRate(attack: number, oppDefense: number, minute: number, k: number): number {
-  return goalChance(attack, oppDefense, minute, k) / CONVERSION;
+export function chanceRate(
+  attack: number,
+  oppDefense: number,
+  minute: number,
+  k: number,
+  exponent: number = POWER_EXPONENT,
+): number {
+  return goalChance(attack, oppDefense, minute, k, exponent) / CONVERSION;
 }
 
 /**
