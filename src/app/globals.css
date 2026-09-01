@@ -2934,13 +2934,24 @@
   filter: drop-shadow(0 0 3px rgb(52 211 153 / 70%));
   animation: chem-pulse 2.4s ease-in-out infinite;
 }
+/* ⛔ Pulses ELEMENT `opacity`, never `stroke-opacity`, for two independent reasons — the
+   second one is a real defect and only CI's motion audit (TASK-1706) surfaced it.
+   1. `stroke-opacity` is not on the audit's keyframe allowlist. It is a paint property like
+      the allowlisted `fill`, so it is not the layout hazard the message guesses at — but
+      `opacity` composites instead of repainting, so it is the better answer anyway.
+   2. ⛔ `.chem-link` TRANSITIONS `stroke-opacity` (220ms). A running animation always beats a
+      transition on the same property, so pulsing `stroke-opacity` meant a pair turning
+      teammates had its 220ms fade-in silently overridden and snapped straight into the pulse.
+      Animating a different property lets both do their job.
+   Fading the element also carries the drop-shadow with it, so the whole link breathes rather
+   than the stroke sliding under a fixed glow. */
 @keyframes chem-pulse {
   0%,
   100% {
-    stroke-opacity: 1;
+    opacity: 1;
   }
   50% {
-    stroke-opacity: 0.65;
+    opacity: 0.65;
   }
 }
 
