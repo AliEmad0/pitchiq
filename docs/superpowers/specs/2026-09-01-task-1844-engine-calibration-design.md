@@ -84,8 +84,11 @@ finding is the dispersion shortfall in §0.2** — measure the thing the engine 
 
 ## 1. The model
 
-```ts
-edge = A ^ (p / (A ^ (p + D) ^ p));
+<!-- ⚠️ NOT a `ts` fence: prettier parses one and rewrites `A^p` as a bitwise XOR, which silently
+     turns this formula into something mathematically different. Keep it as plain text. -->
+
+```text
+edge = A^p / (A^p + D^p)
 ```
 
 Three properties make this safe to drop into a shipped engine:
