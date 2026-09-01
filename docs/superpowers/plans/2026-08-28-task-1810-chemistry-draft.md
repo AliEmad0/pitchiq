@@ -1,10 +1,21 @@
 # Chemistry Draft — implementation plan
 
-> **STATUS 2026-08-28 — Tasks 1–10 are DONE and committed** on
-> `feat/task-1810-chemistry-draft` (7 commits, unpushed). 115 tests green across the
-> chemistry battery and every suite sharing its paths; `tsc` and lint clean.
+> **STATUS 2026-09-01 — Tasks 1–11 are DONE and committed** on
+> `feat/task-1810-chemistry-draft` (9 commits, unpushed). 115 tests green across the
+> chemistry battery and every suite sharing its paths, plus 3 e2e specs; `tsc` and lint clean.
 >
-> **Remaining: Task 11 (e2e + warm routes) and Task 12 (docs + ship).**
+> **Remaining: Task 12 (docs + ship).**
+>
+> ⛔ Task 11 changed one of its own bullets, again because measuring disproved it. "Picking a
+> linked card raises the meter" is a VACUOUS assertion on this pool: over 600 rooms with
+> realistic uint32 seeds, a coach taking the first card in every hand still ends non-zero in
+> **596** of them, so that test passes with the delta badges rendering all zeroes. The spec
+> asserts the badge's promise as an EQUALITY instead — the meter pays exactly the advertised
+> delta — and that version is sabotage-verified.
+>
+> ⚠️ Local e2e runs need the route warmed AND a first browser load: `curl` compiles only the
+> server render, so the first Playwright navigation still pays ~12s of client-bundle compile
+> (~120s if the route is cold). Run `--workers=1` first on this box; parallel is fine once warm.
 >
 > ⛔ Two things the build changed about this plan, both because measuring disproved a premise:
 >
@@ -185,14 +196,24 @@ numbers recorded in the spec).
       change and no version bump**; assert that too.
 - [ ] **Steps 2–5.**
 
-### Task 11: e2e + warm routes
+### Task 11: e2e + warm routes — ✅ DONE (`e10544f`)
 
 **Files:** create `tests/e2e/game-chemistry.spec.ts`; modify `scripts/warm-e2e-routes.sh`
 
-- [ ] Gate → tile → format → `/game/chemistry`; lock a shape; connectors render; picking a
-      linked card raises the meter. Helper `test` import, never `@playwright/test`.
-- [ ] Add `/game/chemistry` to the warm script (CI compiles on demand — the standing rule).
-- [ ] **Commit.**
+- [x] Gate → tile → format → `/game/chemistry`; lock a shape; connectors render. Helper
+      `test` import, never `@playwright/test`.
+- [x] ⛔ **"Picking a linked card raises the meter" was replaced** — see the STATUS note: blind
+      picking already ends non-zero in 596 of 600 rooms, so it asserts nothing about steering.
+      The spec asserts the advertised delta EQUALS what the meter pays, on a positive delta.
+      Safe to require one: a hand offering it appeared by the 7th slot in 600 of 600 rooms.
+- [x] Add `/game/chemistry` to the warm script (CI compiles on demand — the standing rule).
+- [x] **Commit.**
+
+⚠️ **Left for Task 12 to weigh, not fixed here:** in a full local warm run `/game/chemistry`
+hit the script's `--max-time 120` cap and returned `000`, i.e. it was never warmed. So did
+`/game/budget` (143s), which already ships green in CI — so this is a PRE-EXISTING property of
+the warm script on a slow box, not something this branch introduced, and the shared cap was
+left alone deliberately.
 
 ### Task 12: verify, document, ship
 
