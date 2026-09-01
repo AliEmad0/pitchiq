@@ -5530,6 +5530,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1840](#task-1840) | One numeral convention across the match flow (`/ar` digits)     | ✅ Done    | P2       | S   |
 | [TASK-1841](#task-1841) | A mode with one applicable format goes straight in (`n/a`)      | ✅ Done    | P2       | S   |
 | [TASK-1842](#task-1842) | Nationality Draft — build a side from one country, widening     | ✅ Done    | P3       | M   |
+| [TASK-1844](#task-1844) | Calibrate the engine's sensitivity to squad quality             | 📋 Todo    | P2       | M   |
 
 _Enhancement roadmap 1813-1819 added 2026-08-03 from the owner's feature proposal (Option A — 100% client-side/static). See the locked-architecture notes above for the modifier-stack + determinism + no-backend decisions that govern them._
 
@@ -5908,7 +5909,38 @@ next to whom_ matters. Design + measurements:
 
 **Season-mode engine** · 📋 Backlog · `P3` · `L` · Type: Feature
 
-**Description** — Multi-match progression for the season-shaped modes. Signature feature: **"ghost of the real season"** — Classic Season shows your run against the real historical result of each fixture ("the real Arsenal won here 2-0; you drew"), chasing the actual final table. Survival tracks point targets from a mid-season relegation start; Legacy drafts season-by-season. Era-authentic rules (e.g. 3 subs pre-2020 vs 5). **Depends on:** TASK-1810.
+**Description** — Multi-match progression for the season-shaped modes. Signature feature: **"ghost of the real season"** — Classic Season shows your run against the real historical result of each fixture ("the real Arsenal won here 2-0; you drew"), chasing the actual final table. Survival tracks point targets from a mid-season relegation start; Legacy drafts season-by-season. Era-authentic rules (e.g. 3 subs pre-2020 vs 5). **Depends on:** TASK-1810, **[TASK-1844](#task-1844)**.
+
+**⛔ BLOCKED on [TASK-1844](#task-1844) — the engine cannot carry a season yet (2026-09-01).**
+Designing this measured the match engine against six real seasons played by their real squads:
+it is **under-dispersed by about half** (points SD 8.7 against a real 16.2; top-to-bottom 32.7
+against 62.0), because `goalChance` derives its edge from a bounded ratio that barely responds
+to a rating gap. Over 90 minutes that reads as drama; over 38 weeks it means the table is mostly
+noise and the coach's squad does not decide his position. Full numbers and the one-line fix are
+in TASK-1844.
+
+**Scope, agreed with the owner 2026-09-01 — this ticket is CUT INTO PIECES.** It bundled ~6
+independently-shippable things. The first PR is the **season spine only**:
+
+- **Host:** Legacy Club — draft your club's XI once, then a 38-week season against 19 other
+  clubs, reusing the already-prerendered `/api/game/rivals/[club]` routes.
+- **Shape:** 38 weeks with **auto-sim as the default** and playing a fixture the opt-in, so the
+  real-season fiction survives without a two-hour commitment. ⭐ Measured: a full 38-match season
+  simulates in **~23 ms**, and an entire 20-team league (380 matches) in **~230 ms** — so the
+  other 19 clubs' fixtures are simulated **honestly through the same engine**, never faked, and
+  no progress UI is needed.
+- **Continuity:** draft once and live with the squad. That is the smallest rule that makes a run
+  a season rather than 38 unrelated matches, and it rules Chaos out as the host.
+- **Run state:** season seed + squad + an append-only list of results, stored **without events**
+  (3.0 KB of a 3.1 KB result is events). ⚠️ The reason to store rather than re-derive is NOT
+  speed — at 23 ms re-deriving is free — it is that a stored result is **immutable against engine
+  drift**, so next month's tuning cannot silently rewrite a finished season.
+- **Seam:** a pure `domain/season.ts` plus an optional `season?: SeasonSpec` pack field beside
+  `screens` / `setup` / `opponent`. Absent means no season, so the other seven modes stay
+  byte-identical. Each week's match seed derives from `(seasonSeed, week)`.
+
+**Later PRs, each on the same spine:** the ghost of the real season (Classic), Survival's point
+targets and relegation start, era-authentic substitution rules, and squad rotation/injuries.
 
 ### TASK-1812
 
@@ -6775,6 +6807,88 @@ degrades honestly; `lockPicks` + `redeal`). Spec + measurements:
 - **Verified**: 141 tests across 13 suites + real-browser Egypt/France/`/ar` (ring line at 38
   Arabic codepoints, zero Latin leak); local dev-server OOM blocked the final rival-picker
   browser pass — covered by the e2e spec in CI and verified on production post-merge.
+
+### TASK-1844
+
+**Calibrate the engine's sensitivity to squad quality** · 📋 Todo · `P2` · `M` · Type: Fix
+
+**Description** — The match engine is **systematically under-dispersed**: a better squad barely
+outperforms a worse one, so a league table built from it is roughly half as spread out as a real
+one. Found while designing [TASK-1811](#task-1811) (2026-09-01), which is **blocked on this** —
+a 38-week season is the surface that exposes it, and shipping the season engine on today's
+calibration would ship a mode where the coach's squad does not decide his position.
+
+**⛔ The measurement.** Six real Premier League seasons (1995, 2000, 2005, 2010, 2015, 2019) were
+simulated with their **real squads** (`assembleGameTeam`) and scored against the tables that
+actually happened. Targets come from all 34 committed seasons.
+
+|                          | Simulated (today) | Real     |
+| ------------------------ | ----------------- | -------- |
+| Points SD                | **8.7**           | **16.2** |
+| Top-to-bottom gap        | **32.7**          | **62.0** |
+| Champion points          | 68.2              | 87.6     |
+| Champion win rate        | 51.0%             | 69.9%    |
+| ρ(sim table, real table) | 0.348             | —        |
+
+**The control**, over 600 matches per fixture using real all-time club XIs, with a side playing
+_itself_ as the home-advantage baseline:
+
+| Fixture                                           | Home win | Draw  | Away win |
+| ------------------------------------------------- | -------- | ----- | -------- |
+| Strongest v weakest (92.7 v 69.8 — a 22.9-pt gap) | 40.8%    | 22.8% | 36.3%    |
+| Mid v mid (83.0 v 82.4)                           | 38.5%    | 25.0% | 36.5%    |
+| Strongest v **itself** (home advantage only)      | 38.2%    | 22.7% | 39.2%    |
+
+⭐ **The widest squad gap in the whole archive is worth ~0.05–0.08 points per game.** Manchester
+United's all-time XI against West Bromwich Albion's is very nearly a coin flip.
+
+**Root cause** — one line in `domain/minute-model.ts`:
+`const edge = attack / (attack + oppDefense || 1)`. Both sides live in the same 0–100 rating
+space, so the ratio barely moves: 92 attack against 70 defence gives `0.568` versus `0.500` for
+equals. This is a **deliberate** property — the Chemistry spec (TASK-1810 PR 5) recorded it as
+"a bounded ratio, deliberately insensitive to power" — but nobody had measured what it does
+across a whole season.
+
+**The fix** — generalise the edge with an exponent, `edge = Aᵖ / (Aᵖ + Dᵖ)`. Equal sides still
+give exactly 0.5, the value stays bounded in (0,1), and **`p = 1` is precisely today's formula**,
+so it is a strict generalisation with one knob rather than a rewrite. Swept against the real
+tables (6 seasons × 3 seeds):
+
+| p             | ρ(sim, real) | Champion | Gap      | Points SD |
+| ------------- | ------------ | -------- | -------- | --------- |
+| **1** (today) | 0.348        | 68.2     | 32.7     | 8.7       |
+| 6             | 0.702        | 76.0     | 48.7     | 13.8      |
+| 10            | 0.710        | 82.4     | 57.3     | 15.7      |
+| **12**        | **0.753**    | 81.5     | 58.0     | **16.0**  |
+| 16            | 0.742        | 84.9     | **62.9** | 16.6      |
+| _real_        | —            | _87.6_   | _62.0_   | _16.2_    |
+
+**p ≈ 12 reproduces a real table** — matching the points spread (16.0 v 16.2) and more than
+doubling agreement with real finishing order. p = 16 nails the gap instead. ⚠️ The shipped value
+must be **fitted properly**, not taken from this six-season sweep; champion win rate is still
+short at every p tested (62–65% v 69.9%), which is worth understanding before settling.
+
+**⛔ Blast radius — this is why it is its own ticket.**
+
+- **All eight live modes rebalance.** Drafting well starts to matter everywhere. That is the
+  point, but every shipped mode's feel changes and each needs a real-browser sanity pass.
+- **`CHEM_EFFECT = 0.08` must be RE-FITTED.** Chemistry was calibrated on the finding that
+  "the engine needs a SMALL effect" — which was true _because rating points were nearly free_.
+  Once a rating point buys something, chemistry's measured 6.8-point cost becomes a real price
+  and the constant no longer balances. Re-run the ~3,000-match harness from that spec.
+- **Goals-per-match must be re-verified.** Equal sides are untouched (edge stays 0.5), but
+  mismatched fixtures shift, so `game-match-harness.test.ts` and the season-authentic goal
+  calibration are the first things to re-run.
+- ⚠️ **A steeper edge could make one-sided matches boring.** The single match is the shipped
+  product; a 6–0 every week is its own failure. Cap or soften if the sweep shows it.
+
+**⚠️ A measurement error worth keeping.** The first pass used **mean overall rating** as the
+squad-strength proxy and reported ρ ≈ 0.11 — near-zero. The engine aggregates _role-weighted_
+attack and defence, so that proxy was wrong; against real squads the true figure is ρ ≈ 0.35.
+Both point the same way, but the honest, proxy-independent finding is the **dispersion
+shortfall**, not "quality does not matter". Measure the thing the engine actually reads.
+
+**Depends on:** nothing. **Blocks:** [TASK-1811](#task-1811).
 
 ---
 
