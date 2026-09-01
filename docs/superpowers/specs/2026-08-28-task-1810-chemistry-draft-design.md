@@ -36,6 +36,19 @@ tier, where it means something specific.
 ⭐ **True teammates are the prize, not the baseline.** 54% of random XIs contain none. That
 rarity is what makes them worth the loudest visual treatment and the largest weight.
 
+⭐ **Measured again after shipping, on what a coach actually experiences** (200 rooms, greedy
+draft over the 23 ADJACENT pairs of 4-4-2 Flat — not the 55 pairs of a random XI above):
+
+| In a steered draft              | Share of drafts                 |
+| ------------------------------- | ------------------------------- |
+| at least one **club** link      | 98.5%                           |
+| at least one **teammates** link | **31.5%** (mean 0.38 per draft) |
+
+So the top tier is rare but genuinely reachable — steering roughly triples the 1.1% pair rate
+into a one-in-three chance of seeing green. ⚠️ Two consecutive drafts without a teammates link
+is the ORDINARY case (≈47%), not evidence the tier is broken; verify the tier by attribute, not
+by drafting until one appears.
+
 ### 0.2 Can a coach STEER it? (the depth measurement)
 
 Given five candidates per slot, comparing a coach who picks at random with one who picks for
@@ -246,12 +259,21 @@ decoration must never take a hit. Same rule, third time.
 other animation in the file. The colour distinction must survive the gate — it is the
 information, and only the _pulse_ is decoration.
 
-⛔ **MEASUREMENT TRAP, found here and worth carrying:** on a browser pane that is not
-displayed, `getComputedStyle` reports a **transitioned** property at its start value forever —
-the page composites no frames, so the transition sits at `currentTime: 0` in state "running".
-A club link read as grey while its `stroke-width` (not transitioned) was already correct,
-which looks exactly like a cascade bug and is not one. Verify a transitioned property with the
-transition disabled, or read `element.getAnimations()`.
+⛔ **MEASUREMENT TRAP, found here and worth carrying:** in an automated browser pane,
+`getComputedStyle` reports a **transitioned** property at its start value forever — the page
+composites no frames, so the transition sits at `currentTime: 0` in state "running". A club
+link read as grey while its `stroke-width` (not transitioned) was already correct, which looks
+exactly like a cascade bug and is not one. Verify a transitioned property with the transition
+disabled, or read `element.getAnimations()`.
+
+⚠️ **Re-measured 2026-09-01, and the first reading of this trap was too narrow — it is NOT
+only a hidden pane.** With `document.visibilityState === "visible"` and the pane on screen,
+**all four tiers still reported `stroke: rgb(159, 179, 200)`** (the `none` grey) minutes after
+placement, while `stroke-width` and `filter` were per-tier correct and `getAnimations()` showed
+two `CSSTransition`s still "running". Injecting `.chem-link { transition: none !important }`
+immediately gave the true values (nation/club `#f6c000` at 0.55/0.9, teammates `#34d399` at 1.0
+with the glow). **Never read a transitioned property in an automated pane without disabling the
+transition first**, however visible the pane claims to be.
 
 ⚠️ **Colour is never the only channel.** Each connector carries a `<title>` naming the link
 ("Teammates — Manchester United, 1998-99"), and the chemistry meter states the counts in text,

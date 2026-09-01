@@ -1,10 +1,8 @@
 # Chemistry Draft — implementation plan
 
-> **STATUS 2026-09-01 — Tasks 1–11 are DONE and committed** on
-> `feat/task-1810-chemistry-draft` (9 commits, unpushed). 115 tests green across the
-> chemistry battery and every suite sharing its paths, plus 3 e2e specs; `tsc` and lint clean.
->
-> **Remaining: Task 12 (docs + ship).**
+> **STATUS 2026-09-01 — ✅ ALL 12 TASKS DONE.** 222 tests green across the chemistry battery
+> and every suite sharing its paths, plus 3 e2e specs; `tsc` and lint clean; verified end to
+> end in a real browser including `/ar` and the swap rule. TASK-1810 is closed by this pack.
 >
 > ⛔ Task 11 changed one of its own bullets, again because measuring disproved it. "Picking a
 > linked card raises the meter" is a VACUOUS assertion on this pool: over 600 rooms with
@@ -215,18 +213,35 @@ hit the script's `--max-time 120` cap and returned `000`, i.e. it was never warm
 the warm script on a slow box, not something this branch introduced, and the shared cap was
 left alone deliberately.
 
-### Task 12: verify, document, ship
+### Task 12: verify, document, ship — ✅ DONE
 
-- [ ] Full targeted battery + `tsc` + `CI=true pnpm lint`. (Full local vitest is unreliable on
-      this box — CI is the authority.)
-- [ ] **Real browser**: draft an XI, watch a green connector appear on a teammate pick, confirm
-      the meter and deltas move, play the match through to full time; `/ar` for the meter and
-      connector titles (count Arabic codepoints — grep proves nothing, the catalog is
-      serialised into every page).
-- [ ] ⛔ **Verify Budget Cap's swap rule holds here** (`lockPicks: false`): re-open a filled
-      slot, confirm there is a way out and the pick can be dropped. Inherited, not assumed.
-- [ ] Docs **with** the ship: TASKS.md (TASK-1810 → Done, both board tables; TASK-1824 noted as
-      partially absorbed), CLAUDE.md game-section rule for the exclusive-tier + adjacency
-      design, spec + this plan.
+- [x] **Battery: 222 tests green** across 28 files (chemistry ×6, adjacency, the pack/mode
+      registry, every pool suite, and the 14 suites sharing `PitchDraft`/`GamePlay`/
+      `match-session`); `tsc` and `CI=true` lint clean.
+- [x] **Real browser, all of it.** A steered draft climbed **0 → 83** with every pick paying
+      its advertised delta EXACTLY (0→7→14→22→29→43→58→76→83). A genuine teammates link
+      ("Blackburn Rovers, 1993-94") rendered green. The programme carried chemistry as its
+      fifth bar (**yours 83 v theirs 27** against overall 80 v 94) and that side **drew 2–2**
+      with the best XI in the archive — the modifier is real without being dominant.
+      `/ar` verified by counting Arabic codepoints: meter 47, empty-state 47, delta badges 13,
+      connector titles 22 (club) and 16 (nation), `lang=ar` + `dir=rtl`, no locale poisoning.
+- [x] ⛔ **Budget Cap's swap rule holds** — re-opening a filled slot offers a drop AND a way
+      out ("Keep Tim Flowers"), and chemistry recomputes: 83 → drop → **76** → re-pick → 83.
+- [x] Docs: TASKS.md (TASK-1810 → ✅ Done + the PR 5 record; TASK-1824 annotated as partially
+      absorbed, with what is NOT absorbed listed), the CLAUDE.md game-section rules, spec, this
+      plan.
 - [ ] Branch → PR → CI green **by job name** → squash-merge → production-verify via
       `/api/health` commit and a real draft.
+
+⭐ **Two things measured during Task 12 that the spec did not predict:**
+
+- **The teammates tier is rare but genuinely reachable — 31.5% of greedy drafts** (mean 0.38
+  links each). Worth knowing before assuming a green connector is broken: two full drafts in a
+  row without one is the ordinary case, not a bug.
+- ⛔ **The frozen-transition trap bites the tier colours specifically.** Reading
+  `getComputedStyle(link).stroke` in the browser pane returns the **`none` grey for every
+  tier**, because `stroke`/`stroke-opacity` are transitioned and the pane freezes transitions
+  at `currentTime: 0` — while `stroke-width` and `filter`, which are NOT transitioned, read
+  correctly and make it look like a partial cascade bug. Inject
+  `.chem-link { transition: none !important }` before reading, or the amber and green
+  connectors both report grey.

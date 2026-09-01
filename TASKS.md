@@ -5497,7 +5497,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1807](#task-1807) | Draft hub + live match loop (A ✅ B1 ✅ B2 ✅ C ✅)             | ✅ Done    | P2       | L   |
 | [TASK-1808](#task-1808) | Live tactical pitch UI + speed controls (1x/2x/skip)            | ✅ Done    | P3       | L   |
 | [TASK-1809](#task-1809) | Key-event animations — gallery pass ran, hybrid 05+14+15 chosen | ✅ Done    | P3       | S   |
-| [TASK-1810](#task-1810) | Remaining six modes as rule packs                               | 📋 Backlog | P3       | XL  |
+| [TASK-1810](#task-1810) | Remaining six modes as rule packs                               | ✅ Done    | P3       | XL  |
 | [TASK-1811](#task-1811) | Season-mode engine (ghost-of-real-season, Survival, Legacy)     | 📋 Backlog | P3       | L   |
 | [TASK-1812](#task-1812) | Persistence, records, shareable seeded matches                  | 📋 Backlog | P3       | M   |
 | [TASK-1813](#task-1813) | Hall of Fame & retro achievements (IndexedDB, provenance-aware) | 📋 Backlog | P3       | M   |
@@ -5735,11 +5735,72 @@ The TASK-1806 plan had flagged this pass as owed — it shipped the pitch view v
 
 ### TASK-1810
 
-**Remaining six modes as rule packs** · 📋 Backlog · `P3` · `XL` · Type: Feature
+**Remaining six modes as rule packs** · ✅ Done (2026-09-01) · `P3` · `XL` · Type: Feature
 
 **Description** — Legacy Club (draft a chosen club's historical stars season-by-season), Classic Season (a real season vs 19 real opponents), Captain's Draft (iconic captain first, curated build-around), Budget Cap Draft ($100M dynamically-priced cards), Chemistry Draft (nation/club/season link bonuses — note: the single stored nationality undercounts links; see M56 follow-up), Survival Mode (start near relegation, hit point targets). Each is a `{ buildPool, constraints, objective }` rule pack over the shared draft machine + engine. **Depends on:** TASK-1806.
 
-**Progress — PR 4 of 5: Legacy Club, Captain's Draft AND Budget Cap are LIVE.** The gate reads **6 of 11 unlocked**.
+**✅ CLOSED 2026-09-01 by PR 5 of 5 — the Chemistry Draft.** The gate reads **8 of 12 modes
+unlocked**. All five packs this ticket owns are live: Chaos (re-expressed as a recipe), Legacy
+Club, Captain's Draft, Budget Cap and Chemistry. ⚠️ The two names in the title that never
+shipped here were both reassigned years-of-the-ticket ago and are recorded above: **Survival**
+left the mode grid entirely (TASK-1832 D7 → an objective on the Season format), and **Classic**
+is data-complete but only interesting in its season form, so it belongs to
+[TASK-1811](#task-1811). Nothing this ticket owns is outstanding.
+
+**✅ Chemistry Draft shipped 2026-09-01 — `/game/chemistry`.** Draft an XI where _who stands
+next to whom_ matters. Design + measurements:
+[`docs/superpowers/specs/2026-08-28-task-1810-chemistry-draft-design.md`](docs/superpowers/specs/2026-08-28-task-1810-chemistry-draft-design.md).
+
+- **Three EXCLUSIVE link tiers** — countrymen (1) / club legends (2) / teammates (3) — scored
+  over an adjacency graph, not over all pairs. Exclusive rather than additive both because a
+  pair is one thing and because the tiers map 1:1 onto the connector colours the pitch draws,
+  so the score and the picture cannot drift apart.
+- **Adjacency is `ADJACENCY_BAND = 0.26`**, measured: 14–25 pairs per shape (23 for 4-4-2
+  Flat), the keeper linked to his centre-backs and nobody else, and it costs **no depth**
+  (×3.23 steered-vs-random against ×3.24 for all-pairs) — so making placement matter is free.
+- ⛔ **Era overlap is DISQUALIFIED as a link** — 64% of pairs in a dense pool, i.e. a near-
+  constant, which is exactly the flat-constant collapse [TASK-1824](#task-1824) warned about.
+  True teammates are **1.1%** of pairs, which is why they are the prize and not the baseline.
+- **The pool is wide and cross-era** (600 cards, all 34 seasons, one per player at his best
+  season). A wide pool gives MORE depth (×4.33) than a narrow elite one (×2.81) — in a dense
+  pool everything links anyway — and neither existing pool could be reused: `topTeams` starts
+  at chemistry 40 with nowhere to climb, `pricedMarket` is 2004+ and loses the 1990s sides.
+- ⛔ **Two premises I invented and measurement DISPROVED.**
+  - **The engine does NOT need to repay ~7 rating points.** `goalChance` derives its edge as
+    `attack / (attack + oppDefense)` — a bounded ratio, deliberately insensitive to power — so
+    a 5.7-point gap is worth well under a win-rate point. Over **~3,000 matches per constant**:
+    effect 0 → chem 36.6% / rating 37.4%; **0.08 → 37.8% / 36.8% (chosen)**; 0.4 → 40.9% /
+    34.3% (dominant). ⚠️ A 240-match sweep looked "saturated" and that was pure NOISE — a re-fit
+    needs thousands of matches, and the obvious quick re-run gives a confidently wrong answer.
+  - **Scoring against the theoretical maximum tells a good coach he failed.** A steering coach
+    reaches only ~30 raw of 100, so `CHEM_ANCHOR = 40` puts him at ~75. Confirmed
+    independently: a human-style browser draft scored **72**, where the anchor — fitted against
+    a greedy algorithm — predicted.
+- ⛔ **A third premise, in the PLAN's own e2e task, was vacuous.** "Picking a linked card raises
+  the meter" proves nothing on this pool: over 600 rooms with realistic uint32 seeds, a coach
+  taking the FIRST card in every hand still ends non-zero in **596** of them, so that test
+  passes with the delta badges rendering all zeroes. The spec asserts the badge's promise as an
+  **equality** instead — the meter pays exactly the advertised delta — sabotage-verified.
+- **Chemistry reaches the match through the existing `MatchSetup.modifiers` seam** — nothing
+  new in the engine. ⭐ Only a FLAG travels for replay: chemistry is derived inside
+  `buildSession` from the two XIs every path already carries, so nothing enters IndexedDB or
+  the share code and **the codec needs no version bump** — the defect class that shipped twice
+  (the `opponent` policy, Budget Cap's `budget`) is closed by construction here.
+- ⚠️ **Links are keyed on `teamId`, never the club NAME** — a card's `club` is that season's
+  name and clubs get renamed, which would break exactly the long-history clubs the mode
+  celebrates. A missing nationality is never a match (the `ringOf` absent-is-not-equal rule).
+- **Verified end to end in a real browser**: a steered draft climbed 0 → 83 with every pick
+  paying its advertised delta exactly; a genuine teammates link ("Blackburn Rovers, 1993-94")
+  rendered green (`#34d399`, glow + pulse) while club/nation render amber at different weights;
+  the programme showed chemistry as its fifth bar (**yours 83 v theirs 27** against overall 80
+  v 94) and that side drew 2–2 with the best XI in the archive. `/ar` confirmed by counting
+  Arabic codepoints in the meter (47), the delta badges and both connector titles.
+- ⛔ **Budget Cap's swap rule holds here** (`lockPicks: false`), verified rather than assumed:
+  re-opening a filled slot offers a drop AND a way out, and chemistry recomputes — 83 → drop →
+  76 → re-pick → 83.
+- ⚠️ **The teammates tier is rare but reachable** — it appears in **31.5%** of greedy drafts
+  (mean 0.38 links per draft), which is the intended shape: the green connector is the reward,
+  not the furniture.
 
 **✅ Budget Cap Draft shipped 2026-08-26.** €100M, the whole priced archive at once, and every card a real Premier League market value expressed in 2025 money. Design + measurements: [`docs/superpowers/specs/2026-08-25-task-1810-budget-cap-design.md`](docs/superpowers/specs/2026-08-25-task-1810-budget-cap-design.md).
 
@@ -5839,7 +5900,9 @@ The TASK-1806 plan had flagged this pass as owed — it shipped the pitch view v
 - ⛔ **The specification is [`docs/superpowers/specs/2026-08-18-task-1810-match-screens-design.md`](docs/superpowers/specs/2026-08-18-task-1810-match-screens-design.md)** plus the linked playable prototypes. It carries the one-theme token set, the pitch mini-map rules, the captain rule (most real captaincies; vice inherits on a red card or substitution), and the substitution redesign — **a bench button and a popup, because nothing may sit on screen uninvited**.
 - ⚠️ Two things the owner has **settled**: the same player may turn out for both teams, and uneven squad ratings are fine. Do not re-raise them.
 - ⛔ Still unsolved: the pitch **mini-map player animation** — two attempts were rejected (ambient possession, then an event-driven replay); it needs its own pass and must not be built from the prototype, so `LivePitch` ships static. ⏸ The **30-concept animation galleries are PARKED** by the owner for the draft/preview/live. ✅ Spec §5.3 (what the match does while a decision goes unanswered) is **CLOSED** — see the ruling recorded with the match-screen bullets above.
-- ⛔ **Stays `📋 Backlog` until PR 5** — one of five modes ships here, the same discipline TASK-1812 used.
+- ⛔ ~~**Stays `📋 Backlog` until PR 5**~~ — one of five modes shipped here, the same discipline
+  TASK-1812 used. **PR 5 (the Chemistry Draft) landed 2026-09-01 and the ticket is now ✅ Done**;
+  see the CLOSED note at the top of this section.
 
 ### TASK-1811
 
@@ -6302,6 +6365,28 @@ Built: `domain/draft-room.ts` (`roomDeals`), `view/room-state.ts` (the reducer),
 **Description** — A 0-100 squad cohesion score derived from links between adjacent formation slots: shared **club**, shared **season/era**, shared **nationality**, and role compatibility. Surfaced on the draft hub as link strength between slots, and fed to the engine as a **`Modifier`** over the per-minute weights — never as a bespoke engine branch (the modifier-stack rule locked in TASK-1803). Chemistry must be a pure function of the placed XI so it recomputes on every placement with no state of its own.
 
 **Design constraint** — our pool spans 1992-2026, so a same-club link is rare and a same-era link is common; the weighting has to be tuned against the actual pool or chemistry becomes a flat constant. Validate against a real draft distribution before shipping, the way the rating harness gates the rating model. **Depends on:** TASK-1807.
+
+**⚠️ PARTIALLY ABSORBED by the Chemistry Draft ([TASK-1810](#task-1810) PR 5, shipped
+2026-09-01).** Stays `📋 Backlog` because what shipped is narrower than this ticket asks for.
+
+- ✅ **Absorbed, and built exactly as specified here**: a 0–100 score over links between
+  **adjacent formation slots**, pure in the placed XI so it recomputes on every placement with
+  no state of its own; surfaced on the draft surface as link strength between slots (the SVG
+  connectors); and fed to the engine as a **`Modifier`** over the per-minute weights, never as
+  a bespoke engine branch. `domain/pitch-adjacency.ts`, `domain/chemistry.ts`,
+  `domain/chemistry-modifier.ts`.
+- ⭐ **This ticket's design constraint was the load-bearing one, and measuring it changed the
+  model.** Same-era overlap is **64% of pairs** on the real pool — a near-constant — so it is
+  **disqualified as a link** rather than weighted down; "shared season" survives only inside
+  the _teammates_ tier (same club AND same season), which is 1.1% of pairs. Chemistry would
+  have been the flat constant this ticket predicted had era been scored on its own.
+- ⬜ **NOT absorbed — what is still open here:**
+  - **Role compatibility as a link** is unbuilt. The shipped tiers are countrymen / club
+    legends / teammates only.
+  - **It is one pack's rule, not an app-wide one.** Chemistry applies only where a pack
+    declares `{ kind: "chemistry" }`; every other mode renders and plays byte-identically, and
+    the inertness control test pins that. Making cohesion a general property of every draft is
+    the part of this ticket that remains.
 
 ### TASK-1825
 
