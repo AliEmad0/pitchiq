@@ -23,10 +23,89 @@ export function calibrateK(targetGoalsPerMatch: number): number {
   return targetGoalsPerMatch / sumMinuteWeights();
 }
 
-/** Per-minute goal probability for a side: attack-vs-defense edge × hazard × k. */
-export function goalChance(attack: number, oppDefense: number, minute: number, k: number): number {
-  const edge = attack / (attack + oppDefense || 1);
-  return k * edge * minuteWeight(minute);
+/**
+ * How sharply a rating advantage converts into chances (TASK-1844).
+ *
+ * ⛔ `p = 1` is the ORIGINAL formula, `attack / (attack + oppDefense)`. Measured over real
+ * seasons played by their real squads, it makes the archive's WIDEST squad gap (92.7 v 69.8)
+ * worth ~0.05 points per game, so a 38-week league table came out at half the real dispersion
+ * — points SD 8.7 against a real 16.2 — and finishing order was mostly noise. A single match
+ * hides this; a season cannot.
+ *
+ * ⭐ FITTED at 6 over 9 real seasons × 4 seeds, against the tables that actually happened:
+ * points SD 16.3 (real 16.2), top-to-bottom 61.3 (real 62.0), champion win rate 68.6% (69.9%).
+ * It fits the SHAPE of a table rather than any one row — `p = 9` matches champion points almost
+ * exactly and is wrong, because it overshoots both dispersion measures.
+ *
+ * ⚠️ It is only meaningful alongside `edgeShare`'s normalisation. Without that, the exponent
+ * also moves the goal RATE, and the optimum reads as ~12 for the wrong reason.
+ *
+ * ⛔ Anything fitted against match OUTCOMES moves when this does — `CHEM_EFFECT` was re-fitted
+ * from 0.08 to 0.03 in the same change. See the spec.
+ */
+export const POWER_EXPONENT = 6;
+
+/**
+ * One side's RAW strength edge — its attack measured against the other's defence.
+ *
+ * ⚠️ NOT used directly to drive the match; see `edgeShare`. Two IDENTICAL teams do not score
+ * 0.5 here, because a team's attack and its defence are different numbers.
+ */
+export function rawEdge(
+  attack: number,
+  oppDefense: number,
+  exponent: number = POWER_EXPONENT,
+): number {
+  const a = Math.pow(Math.max(attack, 1), exponent);
+  const d = Math.pow(Math.max(oppDefense, 1), exponent);
+  return a / (a + d || 1);
+}
+
+/**
+ * Per-minute goal probability for one side in isolation: raw edge × hazard × k.
+ *
+ * ⚠️ `exponent` is a seam for the CALIBRATION sweep. Production always takes the default.
+ */
+export function goalChance(
+  attack: number,
+  oppDefense: number,
+  minute: number,
+  k: number,
+  exponent: number = POWER_EXPONENT,
+): number {
+  return k * rawEdge(attack, oppDefense, exponent) * minuteWeight(minute);
+}
+
+/** Both sides of a fixture, from the perspective of the side being resolved. */
+export interface Matchup {
+  attack: number;
+  defense: number;
+  oppAttack: number;
+  oppDefense: number;
+}
+
+/**
+ * A side's SHARE of the match's chances. The two sides always sum to exactly 1.
+ *
+ * ⛔ THE NORMALISATION IS LOAD-BEARING (TASK-1844), and measuring is what forced it. `calibrateK`
+ * sets `k` so that a match yields the season-authentic goal total, which holds only if the two
+ * sides' edges sum to 1. They do not: a raw edge compares ATTACK against DEFENCE, and those sit
+ * on different scales — measured across real leagues, mean attack 57.8 v defence 49.2 in 2000
+ * but 53.8 v 57.1 in 2012, i.e. the offset flips sign by season. At `POWER_EXPONENT = 1` that
+ * distortion is small (edge sums 1.08 and 0.97), but the exponent AMPLIFIES it: at p = 12 the
+ * same two seasons sum to 1.75 and 0.65, so one would score 75% too many goals and the other
+ * 35% too few.
+ *
+ * ⭐ Normalising decouples the two questions the engine must answer separately: **how many**
+ * chances a match produces (the season's goal rate, set by `k`) and **who gets them** (the
+ * strength split, set by `POWER_EXPONENT`). Changing the exponent can now never move the goal
+ * rate — which is what the shipped `game-match-harness.test.ts` band exists to protect.
+ */
+export function edgeShare(m: Matchup, exponent: number = POWER_EXPONENT): number {
+  const mine = rawEdge(m.attack, m.oppDefense, exponent);
+  const theirs = rawEdge(m.oppAttack, m.defense, exponent);
+  const total = mine + theirs;
+  return total > 0 ? mine / total : 0.5;
 }
 
 /**
@@ -47,8 +126,13 @@ export const CONVERSION = 0.11;
  * arrives 1/CONVERSION times as often as a goal used to, and converts at CONVERSION.
  * The engine gains ~9x the events without moving a single result.
  */
-export function chanceRate(attack: number, oppDefense: number, minute: number, k: number): number {
-  return goalChance(attack, oppDefense, minute, k) / CONVERSION;
+export function chanceRate(
+  m: Matchup,
+  minute: number,
+  k: number,
+  exponent: number = POWER_EXPONENT,
+): number {
+  return (k * edgeShare(m, exponent) * minuteWeight(minute)) / CONVERSION;
 }
 
 /**

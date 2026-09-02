@@ -185,18 +185,41 @@ describe("forced prompts", () => {
   });
 
   it("declining a dismissal leaves the side a man short rather than forcing a change", () => {
-    // A red card is not a substitution: nobody replaces the dismissed player.
+    /**
+     * A red card is not a substitution: nobody replaces the DISMISSED PLAYER.
+     *
+     * ⚠️ This used to assert that no substitution shared a minute and side with the red card,
+     * and it broke the moment the engine's calibration changed (TASK-1844) — not because the
+     * rule broke, but because a coincidence appeared. A side reduced to ten men may perfectly
+     * well make an unrelated tactical or injury change in the same minute; forbidding that was
+     * never the rule. The real property is about the PLAYER, so assert on the player, and sweep
+     * every seed instead of stopping at the first that happens to hold.
+     */
+    let sawDismissal = 0;
+    let sawSubAfterRed = 0;
     for (let s = 0; s < 150; s++) {
       const { result } = record(setup(s));
       const reds = result.events.filter((e) => e.kind === "card" && e.card === "red");
-      if (reds.length === 0) continue;
-      const subsAfter = result.events.filter(
-        (e) => e.kind === "substitution" && e.minute === reds[0].minute && e.side === reds[0].side,
-      );
-      expect(subsAfter.length).toBe(0);
-      return;
+      const subs = result.events.filter((e) => e.kind === "substitution");
+      for (const red of reds) {
+        sawDismissal++;
+        // ⛔ SIDE-QUALIFIED. Both teams can draft from the same pool, so a bare player-id
+        // comparison matches his namesake in the opposite XI — which is why the engine's own
+        // state is keyed `"side:playerId"` and never by id alone.
+        // ⚠️ And only AFTER the dismissal. A player who came ON as a substitute and was sent
+        // off later is perfectly legal — flagging his own earlier arrival was the second way
+        // this assertion was wrong.
+        const after = subs.filter((sub) => sub.side === red.side && sub.minute >= red.minute);
+        sawSubAfterRed += after.length;
+        // He is never withdrawn (he is already off) and never comes back on.
+        expect(after.some((sub) => sub.playerId === red.playerId)).toBe(false);
+        expect(after.some((sub) => sub.subOnPlayerId === red.playerId)).toBe(false);
+      }
     }
-    throw new Error("no dismissal in the swept seeds — the assertion never ran");
+    expect(sawDismissal).toBeGreaterThan(0);
+    // ⛔ NOT VACUOUS. If a reduced side never substituted again, the two assertions above would
+    // be scanning an empty list and would pass however the engine behaved.
+    expect(sawSubAfterRed).toBeGreaterThan(0);
   });
 
   it("forced prompts do not change the match when answered by default", () => {

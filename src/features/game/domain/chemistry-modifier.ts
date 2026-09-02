@@ -11,33 +11,62 @@ import type { Modifier } from "./match-types";
  *  - **too large** and it dominates — quality stops mattering and every coach drafts the same
  *    way, which loses the trade-off from the other side.
  *
- * ⛔ THE DESIGN PREMISE WAS WRONG, and measuring is what caught it. The spec reasoned that the
- * effect must be worth "~7 rating points per player" to repay what chemistry costs. It does
- * not: `goalChance` derives its edge as `attack / (attack + oppDefense)`, a BOUNDED RATIO that
- * is deliberately insensitive to power, so a 5.7-point average rating gap is worth well under
- * one win-rate point. Measured over ~3,000 seeded matches per constant, chem XI (chemistry
- * 73.4, rating 82.6) against rating XI (chemistry 32.9, rating 88.3):
+ * ⛔ RE-FITTED 2026-09-01 for TASK-1844. The engine's response to a rating gap is now a fitted
+ * constant (`POWER_EXPONENT`), and this constant is fitted AGAINST the engine — so it had to
+ * move with it. Measured over **12,000** seeded matches per constant, each pairing played BOTH
+ * WAYS (see below), chem XI against rating XI:
  *
  * ```
- *   effect 0     chem 36.6%   rating 37.4%   draw 26.1%   <- chemistry buys nothing: the trap
- *   effect 0.08  chem 37.8%   rating 36.8%   draw 25.4%   <- chosen
- *   effect 0.2   chem 38.7%   rating 35.6%   draw 25.7%
- *   effect 0.4   chem 40.9%   rating 34.3%   draw 24.8%   <- chemistry starts to dominate
+ *   effect 0     chem 37.8%   rating 37.5%   +0.3   <- chemistry buys nothing: the trap
+ *   effect 0.02  chem 37.9%   rating 37.2%   +0.7   <- inside the noise floor
+ *   effect 0.03  chem 38.6%   rating 36.7%   +1.9   <- CHOSEN
+ *   effect 0.04  chem 39.6%   rating 36.2%   +3.4
+ *   effect 0.06  chem 40.4%   rating 34.2%   +6.2   <- chemistry starts to dominate
  * ```
  *
- * ⚠️ So the needed effect is SMALL, and an earlier sweep at 240 matches looked "saturated"
- * above 0.1 purely because 1–3 point differences are inside the noise at that sample size.
- * Any re-fit needs thousands of matches, not hundreds.
+ * 0.03 is the SMALLEST constant whose reward is clearly distinguishable from zero (the standard
+ * error on the difference is ~0.6 points at this sample size), which is what "rewarded for
+ * playing the mode as intended, never decisive" means in numbers.
+ *
+ * ⛔ TWO MEASUREMENT ERRORS THE RE-FIT CAUGHT, both worth carrying:
+ *
+ * 1. **The first harness played the chemistry XI at HOME in all 3,000 matches.** A one-sided
+ *    fixture cannot separate the mode's effect from home advantage. Playing each pairing both
+ *    ways moved the effect-0 result from +4.9 to +0.3.
+ * 2. ⭐ **"Chemistry costs ~6.8 rating points per player" is measured in the WRONG UNITS.** That
+ *    is a mean-OVERALL figure, and the engine reads role-weighted attack and defence. Measured
+ *    there, the chem XI is only 1.9 behind on attack and 1.5 AHEAD on defence — so steering for
+ *    links is very nearly free in the terms that decide matches, and the old reasoning about
+ *    "repaying a 6-point cost" was answering a question the engine never asked.
+ *
+ * ⚠️ Any future re-fit needs THOUSANDS of matches. An early sweep at 240 looked "saturated", and
+ * even at 3,000 the effect-0 result was off by two points of win rate.
+ *
+ * <details><summary>The superseded 2026-08-28 fit, kept for the trail</summary>
+ *
+ * Fitted when `goalChance` derived its edge as `attack / (attack + oppDefense)` — a bounded
+ * ratio deliberately insensitive to power — which made a rating point worth almost nothing and
+ * so let a much larger constant look balanced:
+ *
+ * ```
+ *   effect 0     chem 36.6%   rating 37.4%
+ *   effect 0.08  chem 37.8%   rating 36.8%   <- chosen then
+ *   effect 0.4   chem 40.9%   rating 34.3%
+ * ```
+ *
+ * </details>
  */
 
 /**
  * How much of a side's attack and defence full chemistry is worth.
  *
- * ⛔ MEASURED (2026-08-28) — 0.08 turns chemistry's ~6-point rating deficit into a ~1-point
- * win-rate advantage: rewarded for playing the mode as intended, never decisive. Changing it
- * changes the outcome of every match ever played or shared in this mode.
+ * ⛔ MEASURED (re-fitted 2026-09-01, TASK-1844) — 0.03 gives a steering coach a **+1.9 point**
+ * win-rate edge: rewarded for playing the mode as intended, never decisive. Changing it changes
+ * the outcome of every match ever played or shared in this mode.
+ *
+ * ⚠️ This constant is fitted AGAINST the engine, so it moves whenever `POWER_EXPONENT` does.
  */
-export const CHEM_EFFECT = 0.08;
+export const CHEM_EFFECT = 0.03;
 
 /**
  * A weight contributor scaled by each side's own chemistry.

@@ -90,9 +90,12 @@ const xi = shape.slots.map(
 );
 const names = { home: "Home", away: "Away" };
 
+/** Seeds swept where the assertion is "chemistry changes the match" — see that test for why. */
+const SEEDS = [4242, 7, 99, 1234, 55555, 8080, 31337, 2024, 606, 12, 777, 90210];
+
 /** Play a whole match out of a session and fingerprint it, exactly as resume/share do. */
-function play(rival: RivalSetup): { fingerprint: number; goals: number } {
-  const session = buildSession(pool, xi, shape, 4242, names, rival);
+function play(rival: RivalSetup, seed = 4242): { fingerprint: number; goals: number } {
+  const session = buildSession(pool, xi, shape, seed, names, rival);
   let step = session.stream.advance();
   let guard = 0;
   while (step.kind !== "done" && guard++ < 500) {
@@ -117,13 +120,24 @@ describe("chemistry survives every rebuild path", () => {
 
   it("⛔ a replay that FORGOT the flag produces a DIFFERENT match", () => {
     /**
-     * The whole point. If these two agreed, the flag would be decorative and this suite
-     * would be proving nothing — but it would also mean chemistry never reached the engine
-     * at all. They must differ, and every path must therefore pass it.
+     * The whole point. If these agreed everywhere, the flag would be decorative and this suite
+     * would be proving nothing — but it would also mean chemistry never reached the engine at
+     * all. They must differ, and every path must therefore pass it.
+     *
+     * ⛔ SWEPT OVER SEEDS, not asserted on one. `CHEM_EFFECT` is deliberately small (0.03 —
+     * "rewarded, never decisive"), so in any SINGLE match it may not tip a dice roll and the
+     * two fingerprints agree by coincidence. Pinning one seed made this test fail the moment
+     * TASK-1844 re-fitted the constant, which is a false negative, not a defect: a fixture that
+     * cannot show the effect proves nothing about it.
      */
-    const withChem = play({ policy: "best", chemistry: true });
-    const without = play({ policy: "best" });
-    expect(without.fingerprint).not.toBe(withChem.fingerprint);
+    const differing = SEEDS.filter(
+      (s) =>
+        play({ policy: "best", chemistry: true }, s).fingerprint !==
+        play({ policy: "best" }, s).fingerprint,
+    );
+    // MEASURED at 5 of 12 differing (2026-09-01, CHEM_EFFECT 0.03). The floor is 3 so there is
+    // real margin: if this ever drops to 1, the next constant nudge would make it vacuous.
+    expect(differing.length).toBeGreaterThanOrEqual(3);
   });
 
   it("⛔ THE INERTNESS CONTROL — a pack without the flag is byte-identical to before", () => {
@@ -136,9 +150,13 @@ describe("chemistry survives every rebuild path", () => {
 
   it("⚠️ the flag rides WITH the other identity fields, not instead of them", () => {
     // Budget and chemistry are independent rules; setting one must not disturb the other.
-    const budgetOnly = play({ policy: "best", budget: 1200 });
-    const both = play({ policy: "best", budget: 1200, chemistry: true });
-    expect(both.fingerprint).not.toBe(budgetOnly.fingerprint);
+    // Swept for the same reason as above — a small constant need not move every single match.
+    const differing = SEEDS.filter(
+      (s) =>
+        play({ policy: "best", budget: 1200, chemistry: true }, s).fingerprint !==
+        play({ policy: "best", budget: 1200 }, s).fingerprint,
+    );
+    expect(differing.length).toBeGreaterThanOrEqual(3);
   });
 
   it("⚠️ a match still finishes and scores — the modifier must not break the engine", () => {
