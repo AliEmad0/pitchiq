@@ -222,12 +222,50 @@ week — did not materialise.
 
 ---
 
-## 4. Re-fitting `CHEM_EFFECT`
+## 4. Re-fitting `CHEM_EFFECT` — 0.08 → **0.03**
 
-_Filled by Task 5._
+Fitted over **12,000 seeded matches per constant**, each pairing played **both ways**:
 
-⛔ **Not optional.** `CHEM_EFFECT = 0.08` was fitted by outcome against the **old** engine. Its own
-measurement table shows why it cannot survive this change:
+| effect   | chem XI   | rating XI | edge     |                                  |
+| -------- | --------- | --------- | -------- | -------------------------------- |
+| 0        | 37.8%     | 37.5%     | +0.3     | chemistry buys nothing: the trap |
+| 0.02     | 37.9%     | 37.2%     | +0.7     | inside the noise floor           |
+| **0.03** | **38.6%** | **36.7%** | **+1.9** | **chosen**                       |
+| 0.04     | 39.6%     | 36.2%     | +3.4     |                                  |
+| 0.06     | 40.4%     | 34.2%     | +6.2     | chemistry starts to dominate     |
+
+0.03 is the **smallest constant whose reward is clearly distinguishable from zero** — the standard
+error on the difference is ~0.6 points at this sample size — which is what "rewarded for playing
+the mode as intended, never decisive" means in numbers.
+
+### 4.1 ⛔ Two measurement errors the re-fit caught
+
+1. **The first harness played the chemistry XI at HOME in all 3,000 matches.** A one-sided fixture
+   cannot separate the mode's effect from home advantage. Playing each pairing both ways moved the
+   effect-0 result from **+4.9 to +0.3** — i.e. the entire apparent advantage was the fixture.
+2. ⭐ **"Chemistry costs ~6.8 rating points per player" is measured in the WRONG UNITS**, and it is
+   §0.5's error repeated inside chemistry's own harness. That is a mean-OVERALL figure; the engine
+   reads role-weighted attack and defence:
+
+   | XI        | mean overall | attack   | defence  |
+   | --------- | ------------ | -------- | -------- |
+   | chem XI   | 82.8         | 80.9     | **70.1** |
+   | rating XI | **88.6**     | **82.8** | 68.6     |
+
+   Steering for links is **very nearly free** in the terms that decide matches — 1.9 behind on
+   attack, 1.5 **ahead** on defence. The old reasoning about "repaying a 6-point cost" was
+   answering a question the engine never asked.
+
+⚠️ **A knock-on in the replay suite, and it is a FALSE NEGATIVE not a defect.** Two tests asserted
+that chemistry on/off produce different fingerprints **on one seed**. At a constant this small the
+effect need not tip a dice roll in any single match, so they broke the moment the constant moved.
+They now sweep 12 seeds and require at least 3 to differ (measured: 5). A fixture that cannot show
+the effect proves nothing about it — the same trap this spec recorded once already.
+
+### 4.2 The superseded fit, kept for the trail
+
+`CHEM_EFFECT = 0.08` was fitted by outcome against the **old** engine. Its own measurement table
+shows why it could not survive this change:
 
 ```
 effect 0     chem 36.6%   rating 37.4%   <- with NO bonus, a side ~6.8 rating points per

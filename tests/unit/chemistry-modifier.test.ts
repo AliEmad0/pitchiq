@@ -21,7 +21,7 @@ const ctx = (side: Side, homePower = power, awayPower = power): MinuteContext =>
 describe("chemistryModifier", () => {
   it("⚠️ the constant is MEASURED and pinned — a nudge must be deliberate", () => {
     // Changing it changes the outcome of every match ever played or shared in this mode.
-    expect(CHEM_EFFECT).toBe(0.08);
+    expect(CHEM_EFFECT).toBe(0.03);
   });
 
   it("chemistry 0 is a NO-OP — the mode must cost nothing when nobody has links", () => {
