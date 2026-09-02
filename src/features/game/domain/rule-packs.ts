@@ -350,8 +350,30 @@ export interface RulePack {
    * `HAND_SIZE`.
    */
   draft?: DraftSpec;
+  /**
+   * The league this mode plays over a SEASON. Absent means the mode has no season format —
+   * which is every pack but Legacy today, so they all render and play byte-identically.
+   *
+   * ⚠️ Opponent-agnostic (TASK-1832 D5): the pack says how many clubs and where they come
+   * from, and `domain/season.ts` never learns what a club is.
+   */
+  season?: SeasonSpec;
   constraints: Constraint[];
   objective: Objective;
+}
+
+/**
+ * A mode's season league (TASK-1811).
+ *
+ * ⭐ 20 clubs is the real 38-week shape: 19 opponents home and away. Measured, so it can be
+ * relied on: a full 20-club league season is ~230 ms to simulate honestly through the real
+ * engine, so the other clubs' fixtures are never faked.
+ */
+export interface SeasonSpec {
+  /** Including the coach's own club. */
+  clubs: number;
+  /** Where the other clubs come from. `"clubs"` = the prerendered `/api/game/rivals` routes. */
+  league: "clubs";
 }
 
 /**
@@ -407,6 +429,9 @@ const LEGACY_PACK: RulePack = {
     standout: true,
     onePerPlayer: true,
   },
+  // TASK-1811 PR 1 — the season SPINE only. The domain can build and play a 38-week league;
+  // the hub that would render it is deliberately absent until the owner's 30-concept ritual.
+  season: { clubs: 20, league: "clubs" },
   constraints: [],
   objective: "win",
 };

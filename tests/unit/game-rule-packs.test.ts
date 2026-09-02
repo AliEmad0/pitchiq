@@ -3,6 +3,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { BENCH_SHAPE } from "@/features/game/domain/chaos-draft";
 import { GAME_MODES } from "@/features/game/domain/modes";
+import { seasonFixtures } from "@/features/game/domain/season";
 import {
   BUDGET_PACK,
   CHAOS_PACK,
@@ -134,5 +135,18 @@ describe("budget pack (TASK-1810)", () => {
   it("is registered and resolvable by id", () => {
     expect(RULE_PACKS.map((p) => p.id)).toContain("budget");
     expect(packFor("budget")).toBe(BUDGET_PACK);
+  });
+});
+
+describe("the season spec (TASK-1811)", () => {
+  it("⛔ ONLY Legacy declares a season — every other pack must stay byte-identical", () => {
+    expect(RULE_PACKS.filter((p) => p.season != null).map((p) => p.id)).toEqual(["legacy"]);
+  });
+
+  it("Legacy's league is 20 clubs, which is exactly 38 weeks", () => {
+    const spec = packFor("legacy")!.season!;
+    expect(spec.clubs).toBe(20);
+    expect(spec.league).toBe("clubs");
+    expect(seasonFixtures(spec.clubs)).toHaveLength(38);
   });
 });
