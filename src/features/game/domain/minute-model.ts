@@ -26,28 +26,24 @@ export function calibrateK(targetGoalsPerMatch: number): number {
 /**
  * How sharply a rating advantage converts into chances (TASK-1844).
  *
- * ⛔ `p = 1` is the ORIGINAL formula, `attack / (attack + oppDefense)`. Measured over six real
+ * ⛔ `p = 1` is the ORIGINAL formula, `attack / (attack + oppDefense)`. Measured over real
  * seasons played by their real squads, it makes the archive's WIDEST squad gap (92.7 v 69.8)
  * worth ~0.05 points per game, so a 38-week league table came out at half the real dispersion
  * — points SD 8.7 against a real 16.2 — and finishing order was mostly noise. A single match
- * hides this; a season cannot. See the spec for the fit against 34 real seasons.
+ * hides this; a season cannot.
  *
- * ⭐ Equal sides give exactly 0.5 at EVERY exponent, which is what keeps `calibrateK` — and the
- * season-authentic goals-per-match calibration built on it — valid without a second fit.
- */
-export let POWER_EXPONENT = 6;
-
-/**
- * ⛔ CALIBRATION ONLY (TASK-1844) — DELETED before this branch ships.
+ * ⭐ FITTED at 6 over 9 real seasons × 4 seeds, against the tables that actually happened:
+ * points SD 16.3 (real 16.2), top-to-bottom 61.3 (real 62.0), champion win rate 68.6% (69.9%).
+ * It fits the SHAPE of a table rather than any one row — `p = 9` matches champion points almost
+ * exactly and is wrong, because it overshoots both dispersion measures.
  *
- * The fitting sweep drives the REAL engine, and `simulate` reads the constant through
- * `chanceRate`'s default argument, so the only way to vary it without a second engine is to
- * move the binding. A mutable global in a deterministic engine is exactly what the replay
- * culture forbids, which is why Task 8 removes this and greps to prove it is gone.
+ * ⚠️ It is only meaningful alongside `edgeShare`'s normalisation. Without that, the exponent
+ * also moves the goal RATE, and the optimum reads as ~12 for the wrong reason.
+ *
+ * ⛔ Anything fitted against match OUTCOMES moves when this does — `CHEM_EFFECT` was re-fitted
+ * from 0.08 to 0.03 in the same change. See the spec.
  */
-export function __setPowerExponent(p: number): void {
-  POWER_EXPONENT = p;
-}
+export const POWER_EXPONENT = 6;
 
 /**
  * One side's RAW strength edge — its attack measured against the other's defence.

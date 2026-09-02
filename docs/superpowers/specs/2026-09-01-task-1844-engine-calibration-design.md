@@ -220,6 +220,31 @@ Every gate in §2 passes, and the distribution moves **toward** real football ra
 ~13,000 simulated fixtures was 8. The failure this change risked — a strong side winning 6–0 every
 week — did not materialise.
 
+### 3.2 The real-browser pass
+
+Five full matches played to full time, chosen to cover the distinct **opponent policies**, since
+those decide how lopsided a fixture can be — not the draft rules:
+
+| Mode                         | Policy              | Tale of the tape     | Result  |
+| ---------------------------- | ------------------- | -------------------- | ------- |
+| Legacy Club — naive draft    | `best`              | worst hand v best XI | **2–6** |
+| Legacy Club — sensible draft | `best`              | 86 v 85              | **1–2** |
+| Chemistry Draft              | `best` + modifier   | 82 v 94, chem 65 v 4 | **0–0** |
+| Budget Cap                   | `budget` (capped)   | 84 v 84              | **0–1** |
+| Tactical H2H (`/game/draft`) | shipped random draw | 82 v 83              | **1–3** |
+
+⭐ **Every EVEN fixture stayed close**, and the single blowout came from deliberately taking the
+first card in every hand against the best XI in the club's history — which is the discrimination
+the ticket exists to create, not a defect. Under the old calibration that fixture was near a coin
+flip.
+
+⭐ **Chemistry still pays.** A side **12 overall points behind** (82 v 94) held the best XI to
+0–0 on the strength of 65 chemistry against 4 — the re-fitted `CHEM_EFFECT` and the new exponent
+composing exactly as intended.
+
+⚠️ Budget Cap's dead-end guard (#201) still holds under the new engine: with £4.4m left the final
+round still offered an affordable card.
+
 ---
 
 ## 4. Re-fitting `CHEM_EFFECT` — 0.08 → **0.03**

@@ -5530,7 +5530,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1840](#task-1840) | One numeral convention across the match flow (`/ar` digits)     | ✅ Done    | P2       | S   |
 | [TASK-1841](#task-1841) | A mode with one applicable format goes straight in (`n/a`)      | ✅ Done    | P2       | S   |
 | [TASK-1842](#task-1842) | Nationality Draft — build a side from one country, widening     | ✅ Done    | P3       | M   |
-| [TASK-1844](#task-1844) | Calibrate the engine's sensitivity to squad quality             | 📋 Todo    | P2       | M   |
+| [TASK-1844](#task-1844) | Calibrate the engine's sensitivity to squad quality             | ✅ Done    | P2       | M   |
 
 _Enhancement roadmap 1813-1819 added 2026-08-03 from the owner's feature proposal (Option A — 100% client-side/static). See the locked-architecture notes above for the modifier-stack + determinism + no-backend decisions that govern them._
 
@@ -5911,13 +5911,11 @@ next to whom_ matters. Design + measurements:
 
 **Description** — Multi-match progression for the season-shaped modes. Signature feature: **"ghost of the real season"** — Classic Season shows your run against the real historical result of each fixture ("the real Arsenal won here 2-0; you drew"), chasing the actual final table. Survival tracks point targets from a mid-season relegation start; Legacy drafts season-by-season. Era-authentic rules (e.g. 3 subs pre-2020 vs 5). **Depends on:** TASK-1810, **[TASK-1844](#task-1844)**.
 
-**⛔ BLOCKED on [TASK-1844](#task-1844) — the engine cannot carry a season yet (2026-09-01).**
-Designing this measured the match engine against six real seasons played by their real squads:
-it is **under-dispersed by about half** (points SD 8.7 against a real 16.2; top-to-bottom 32.7
-against 62.0), because `goalChance` derives its edge from a bounded ratio that barely responds
-to a rating gap. Over 90 minutes that reads as drama; over 38 weeks it means the table is mostly
-noise and the coach's squad does not decide his position. Full numbers and the one-line fix are
-in TASK-1844.
+**✅ UNBLOCKED 2026-09-01 — [TASK-1844](#task-1844) shipped.** Designing this measured the match
+engine over a full league season for the first time and found it **under-dispersed by about half**
+(points SD 8.7 against a real 16.2), which would have made a 38-week table mostly noise. That is
+fixed: a simulated league now lands SD 16.3 against 16.2 and top-to-bottom 61.3 against 62.0, so
+the season spine below can be built on an engine whose tables mean something.
 
 **Scope, agreed with the owner 2026-09-01 — this ticket is CUT INTO PIECES.** It bundled ~6
 independently-shippable things. The first PR is the **season spine only**:
@@ -6810,7 +6808,48 @@ degrades honestly; `lockPicks` + `redeal`). Spec + measurements:
 
 ### TASK-1844
 
-**Calibrate the engine's sensitivity to squad quality** · 📋 Todo · `P2` · `M` · Type: Fix
+**Calibrate the engine's sensitivity to squad quality** · ✅ Done (2026-09-01) · `P2` · `M` · Type: Fix
+
+**✅ SHIPPED 2026-09-01 — `POWER_EXPONENT = 6`, and `CHEM_EFFECT` re-fitted 0.08 → 0.03.** Spec:
+[`docs/superpowers/specs/2026-09-01-task-1844-engine-calibration-design.md`](docs/superpowers/specs/2026-09-01-task-1844-engine-calibration-design.md).
+A simulated league now reproduces a real one: **points SD 16.3 against a real 16.2**, top-to-bottom
+**61.3 against 62.0**, champion win rate **68.6% against 69.9%**. [TASK-1811](#task-1811) is
+UNBLOCKED.
+
+- ⛔ **The fix is bigger than the exponent, and measurement is what found the missing half.** The
+  design claimed "equal sides give exactly 0.5 at every `p`, which keeps `calibrateK` valid".
+  **False.** A raw edge compares one side's ATTACK against the other's DEFENCE, and those differ
+  even for a team playing itself — measured mean attack 57.8 v defence 49.2 in 2000, but 53.8 v
+  57.1 in 2012, so **the offset flips sign by season**. The exponent amplified it: at p = 12 those
+  seasons' edge sums are 1.75 and 0.65, i.e. one scores 75% too many goals and the other 35% too
+  few. End to end, goals/match slid 2.64 → 2.05 and draws breached the harness ceiling.
+- ⭐ **So the two sides are NORMALISED** (`edgeShare`), which separates the two questions the engine
+  must answer independently: _how many_ chances a match yields (the season goal rate, set by `k`)
+  and _who gets them_ (the split, set by the exponent). Goals per match are now flat across the
+  whole sweep (2.75–2.86) and draws FALL as `p` rises, as a more decisive engine should.
+- ⚠️ **The optimum MOVED once the model was right** — the un-normalised sweep said p ≈ 12. A fit is
+  only as good as the model beneath it; re-fit after a model change, not just a data refresh.
+- ⭐ **The match got BETTER, not worse**: draws 27.3% → **24.7%** and first-scorer-wins 69.2% →
+  **65.7%**, both closer to real football. Blowouts (4+ margin) 7.2%, widest margin 8 over ~13,000
+  fixtures.
+- **`CHEM_EFFECT` 0.08 → 0.03**, fitted over 12,000 matches per constant with each pairing played
+  BOTH WAYS. ⛔ Two errors that fit caught: the original harness played the chemistry XI at **home
+  in all 3,000 matches** (balancing it moved the effect-0 result from +4.9 to +0.3), and
+  **"chemistry costs ~6.8 rating points" is measured in the wrong units** — that is mean OVERALL,
+  while the engine reads role-weighted attack and defence, where the chem XI is 1.9 behind on
+  attack and 1.5 **ahead** on defence. Steering for links is very nearly free in the terms that
+  decide matches.
+- **Verified in a real browser**, five full matches across the distinct opponent policies: Legacy
+  86 v 85 → 1–2, Chemistry 82 v 94 (chem 65 v 4) → **0–0**, Budget 84 v 84 → 0–1, H2H 82 v 83 →
+  1–3. The only blowout (2–6) came from deliberately drafting the first card in every hand against
+  the best XI — the discrimination this ticket exists to create. ⭐ A side 12 rating points behind
+  held the best XI to 0–0 on chemistry alone, so the two changes compose.
+- ⚠️ **Two tests were FALSE NEGATIVES, not defects**, and both were strengthened rather than
+  re-baselined: a replay pair asserting chemistry on/off differ **on one seed** (a small constant
+  need not tip a dice roll in any single match — now swept over 12 seeds, 5 differ), and a
+  dismissal test asserting no substitution shares a minute with a red card (a coincidence, not a
+  rule — now asserts the dismissed PLAYER is never withdrawn or returned, side- and
+  minute-qualified, with a counter proving it is not scanning an empty list).
 
 **Description** — The match engine is **systematically under-dispersed**: a better squad barely
 outperforms a worse one, so a league table built from it is roughly half as spread out as a real
