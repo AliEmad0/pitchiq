@@ -1,5 +1,5 @@
 const DB_NAME = "pitchiq-game";
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 
 /**
  * Every object store in the database.
@@ -12,8 +12,11 @@ const DB_VERSION = 2;
  * TASK-1817 added `daily` exactly that way, taking the database to v2.
  * `game-daily-slot.test.ts` holds the test that proves an existing `match` record survived
  * the upgrade — the claim above was an assertion until then.
+ *
+ * TASK-1811 added `season` the same way, taking it to v3, and `season-slot.test.ts` proves the
+ * survival claim again rather than inheriting it.
  */
-const STORES = ["match", "daily"] as const;
+const STORES = ["match", "daily", "season"] as const;
 export type StoreName = (typeof STORES)[number];
 
 /**

@@ -5940,6 +5940,29 @@ independently-shippable things. The first PR is the **season spine only**:
 **Later PRs, each on the same spine:** the ghost of the real season (Classic), Survival's point
 targets and relegation start, era-authentic substitution rules, and squad rotation/injuries.
 
+**Progress — PR 1 of N: the DOMAIN SPINE is built (2026-09-01).** Plan:
+[`docs/superpowers/plans/2026-09-01-task-1811-season-spine.md`](docs/superpowers/plans/2026-09-01-task-1811-season-spine.md).
+⚠️ The ticket stays `📋 Backlog`: the mode is not playable yet, because it has **no UI on purpose**.
+
+- **Shipped:** `domain/season.ts` (pure — a 38-week double round robin by the circle method, the
+  derived table, hashed per-fixture seeds, append-only run transitions), `season?: SeasonSpec` on
+  `RulePack` declared **only by Legacy**, and `storage/season-slot.ts` taking IndexedDB to v3.
+- ⛔ **NO SEASON HUB, deliberately.** The table, the fixture list and the matchweek control are a
+  **new game surface**, and every game surface goes through the owner's 30-concept ritual built
+  PLAYABLE against the real rules (CLAUDE.md; TASK-1834/1835/1836). That ritual is the next step
+  and it needs the owner — the spine was built first because it is required either way.
+- ⭐ **The integration test is the one that matters**: a real 20-club league over real 2015 squads
+  through the real engine. **380 fixtures in 293 ms**, asserting points and goals conservation and
+  that the table still DISPERSES — points SD **14.1** against a threshold of 9. That assertion is
+  the alarm bell for [TASK-1844](#task-1844): before that calibration a simulated league came out
+  at SD ~8.4 and a season was a lottery. ⛔ If it ever fails, fix the engine — do not relax it.
+- ⚠️ **The run stores seed + squad + results WITHOUT events**, and the reason is not speed: a
+  38-match season re-derives in ~23 ms. A stored result is **immutable against engine drift**, and
+  TASK-1844 made that concrete the same day — a re-derived season would have silently rewritten
+  every finished table under the coach who played it.
+- **Inertness proven**: only Legacy declares a season, pinned by a test, and the suites for every
+  other pack pass untouched.
+
 ### TASK-1812
 
 **Persistence, records, shareable seeded matches** · 📋 Backlog · `P3` · `M` · Type: Feature
