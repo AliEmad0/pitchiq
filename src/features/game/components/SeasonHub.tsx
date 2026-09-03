@@ -11,7 +11,9 @@ import {
   type SeasonRun,
 } from "@/features/game/domain/season";
 import { simulate } from "@/features/game/domain/simulate";
-import { buildLeagueTeams } from "@/features/game/view/season-league";
+import { formationByName } from "@/features/game/domain/formation";
+import { makeGameTeam } from "@/features/game/domain/team";
+import { buildSeasonTeams } from "@/features/game/view/season-league";
 import { clubLogo } from "@/utils/club-logo";
 import { prefersReducedMotion } from "@/utils/motion";
 
@@ -64,8 +66,20 @@ export function SeasonHub({
    * every render would re-run 20 drafts per simmed week for no gain.
    */
   const teams = useMemo(
-    () => buildLeagueTeams(leagueIds, pools, seed, (id) => clubNames[id] ?? String(id)),
-    [leagueIds, pools, seed, clubNames],
+    () =>
+      buildSeasonTeams({
+        leagueIds,
+        pools,
+        seed,
+        coachId,
+        // ⛔ HIS eleven, in the shape he locked — see `buildSeasonTeams` for why this is not
+        // left to the league builder.
+        coachTeam: makeGameTeam(coachId, coachName, season, formationByName(formationKey), [
+          ...squad,
+        ]),
+        nameOf: (id) => clubNames[id] ?? String(id),
+      }),
+    [leagueIds, pools, seed, clubNames, coachId, coachName, season, formationKey, squad],
   );
   const coachIndex = Math.max(0, leagueIds.indexOf(coachId));
   const clubs = teams.length;

@@ -68,3 +68,29 @@ export function buildLeagueTeams(
   }
   return out;
 }
+
+/**
+ * The league, with the COACH'S OWN SIDE substituted in at his index.
+ *
+ * ⛔ This exists because `buildLeagueTeams` runs `chaosDraft`, which picks a formation of its
+ * own. That is right for an opponent and WRONG for the coach: a season is "draft once and live
+ * with it", so re-drafting his side would field an eleven he never picked, in a shape he never
+ * locked, and the whole table would be about a different team.
+ *
+ * ⚠️ Returns the league unchanged when his id is not in it — a caller that forgot to include
+ * him gets a league without him rather than one silently corrupted at index 0.
+ */
+export function buildSeasonTeams(args: {
+  leagueIds: readonly number[];
+  pools: Readonly<Record<number, PoolCard[]>>;
+  seed: number;
+  coachId: number;
+  coachTeam: GameTeam;
+  nameOf?: (id: number) => string;
+}): GameTeam[] {
+  const { leagueIds, pools, seed, coachId, coachTeam, nameOf } = args;
+  const built = buildLeagueTeams(leagueIds, pools, seed, nameOf);
+  const at = leagueIds.indexOf(coachId);
+  if (at >= 0 && at < built.length) built[at] = coachTeam;
+  return built;
+}
