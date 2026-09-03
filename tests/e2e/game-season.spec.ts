@@ -43,17 +43,28 @@ test.describe("Full Season (TASK-1811)", () => {
       .click();
     await expect(page).toHaveURL(new RegExp(`/game/legacy/${CLUB}$`));
   });
+});
+
+/**
+ * ⛔ NO RETRIES, and its own timeout — this one test's budget is a JOB-LEVEL decision.
+ *
+ * Before a hub can exist the season fetches NINETEEN rival squads, and each
+ * `/api/game/rivals/[club]` is a full club-history build measured at ~4.9s of CPU cold
+ * (CLAUDE.md). In production they are prerendered CDN files and the league arrives in
+ * seconds; the E2E job runs `next dev`, so they are rendered on demand. Warming cannot help —
+ * Turbopack compiles per ROUTE and it is the per-param RENDER that costs, for nineteen clubs
+ * a random seed picks fresh each run.
+ *
+ * ⚠️ At the suite default of 2 retries a 4-minute test can spend 12 minutes, which on its own
+ * exceeds the job's whole budget: that is what cancelled the E2E job at 15m18s, and no
+ * per-test timeout could have fixed it. One attempt, capped, is the shape that fits — so a
+ * genuine failure here is reported once rather than paid for three times.
+ */
+test.describe("Full Season — the league itself", () => {
+  test.describe.configure({ retries: 0 });
 
   test("⭐ drafting an XI reaches the hub, and a matchweek moves the table", async ({ page }) => {
-    /**
-     * ⚠️ This test owns its own budget. Before a hub can exist the season fetches NINETEEN
-     * rival squads, and each `/api/game/rivals/[club]` is a full club-history build measured
-     * at ~4.9s of CPU cold (CLAUDE.md). In production those are prerendered CDN files, but
-     * the E2E job runs `next dev`, so they are rendered on demand — minutes, not seconds.
-     * Warming cannot help: Turbopack compiles per ROUTE, and it is the per-param RENDER that
-     * costs, for nineteen clubs a random seed picks fresh each run.
-     */
-    test.setTimeout(300_000);
+    test.setTimeout(240_000);
     await page.goto(`/game/legacy/${CLUB}?format=season`);
 
     await page.getByRole("button", { name: /^Lock in / }).click();
@@ -88,7 +99,7 @@ test.describe("Full Season (TASK-1811)", () => {
 
     // Then the league itself, which is the part that takes minutes on a dev server.
     const hub = page.getByTestId("season-hub");
-    await expect(hub).toBeVisible({ timeout: 240_000 });
+    await expect(hub).toBeVisible({ timeout: 180_000 });
 
     const week = page.getByTestId("season-week");
     await expect(week).toContainText(/Matchweek 0 of \d+/);

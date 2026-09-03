@@ -18,7 +18,14 @@ jobs:
   e2e:
     name: Playwright (chromium · MSW)
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    # ⚠️ Raised from 15 for TASK-1811. A season fetches nineteen rival squads before its hub
+    # exists, and under `next dev` each is rendered on demand (~4.9s of CPU cold) rather than
+    # served as the prerendered CDN file production ships — so the suite gained a single test
+    # that legitimately costs minutes. At 15 the job was CANCELLED mid-run at 15m18s, which
+    # reads as infrastructure flake rather than as the budget decision it actually is.
+    # ⛔ The test carries `retries: 0` for the same reason; raising this without that would
+    # only buy room for the same attempt to be paid for three times.
+    timeout-minutes: 25
 
     steps:
       - name: Checkout
