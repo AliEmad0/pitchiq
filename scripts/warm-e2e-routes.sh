@@ -45,6 +45,9 @@ ROUTES=(
   "/game/budget"
   "/game/legacy"
   "/game/legacy/40"
+  # The season shares both routes above and compiles with them, but the league it builds
+  # fetches a rival squad per club — warm one so the first fixture fetch is not cold.
+  "/game/legacy/40?format=season"
   "/game/nation"
   "/game/nation/eg"
   "/game/nation/fr"

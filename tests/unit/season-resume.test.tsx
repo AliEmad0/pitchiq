@@ -282,7 +282,10 @@ describe("⭐ a saved season survives the reload — the point of the whole task
     expect(hub).toBeInTheDocument();
     // The draft never appeared: a season is drafted once, and this one already was.
     expect(screen.queryByRole("button", { name: /^Lock in / })).toBeNull();
-    expect(screen.getByTestId("season-week")).toHaveTextContent(/1.*6/);
+    // ⚠️ WAITED for, not asserted on the spot. The hub MOUNTS before it has adopted the run —
+    // its own read of the slot is one await further on — so the week is briefly 0 even on a
+    // correct resume. Asserting immediately passed four runs in five and failed the fifth.
+    await waitFor(() => expect(screen.getByTestId("season-week")).toHaveTextContent(/1.*6/));
   }, 30_000);
 
   it("⛔ THE CONTROL — an empty slot still shows the draft, not a hub", async () => {
