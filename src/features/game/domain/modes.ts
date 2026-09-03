@@ -187,9 +187,10 @@ export const GAME_MODES: readonly GameMode[] = [
     // segment only resolves because a rule pack backs the id, which `game-modes.test.ts`
     // asserts separately from "the route file exists".
     href: "/game/legacy",
-    // TASK-1810 ships the single-match format. "Season by season" is TASK-1811 — the
-    // registry's per-format status is exactly what lets those ship in separate PRs.
-    formats: { single: "live", season: "planned" },
+    // TASK-1810 shipped the single match; TASK-1811 PR 2 ships the season. Both start from the
+    // same prerendered route and branch on the client — see `formatHref`. The registry's
+    // per-format status is exactly what let them ship in separate PRs.
+    formats: { single: "live", season: "live" },
     accent: "#f6c000",
     ticket: "TASK-1810",
   },
@@ -299,6 +300,22 @@ export const applicableFormats = (mode: GameMode): GameFormat[] =>
  */
 export const isDirectEntry = (mode: GameMode): boolean =>
   isPlayable(mode) && applicableFormats(mode).length === 1;
+
+/**
+ * Where a FORMAT lands (TASK-1811).
+ *
+ * ⚠️ D11 deferred a `?format=` param "because nothing would read it". The season engine is the
+ * thing that reads it: a season and a single match start from the SAME prerendered page and
+ * branch on the client, which keeps every `/game/*` route `force-static` and adds no build
+ * cost — a second route per club would have meant 51 more prerendered pages.
+ *
+ * ⚠️ Returns `null` for a mode with no route at all, exactly as `href` does, so a caller
+ * cannot accidentally link to `"null?format=season"`.
+ */
+export function formatHref(mode: GameMode, format: GameFormat): string | null {
+  if (mode.href == null) return null;
+  return format === "season" ? `${mode.href}?format=season` : mode.href;
+}
 
 export const modesInGroup = (group: ModeGroupId): GameMode[] =>
   GAME_MODES.filter((m) => m.group === group);
