@@ -1,26 +1,49 @@
 # Season hub — implementation plan (TASK-1811 PR 2)
 
-> **STATUS 2026-09-03 — Tasks 1–6 are DONE and committed** on `feat/task-1811-season-hub`
-> (8 commits, **unpushed, no PR**). Working tree clean, branched off `main` @ `4e1ab76`.
-> The 12-file season battery is 94 green, the 19 suites touching `GamePlay`/the game UI/the
-> i18n catalogs are 163 green; `tsc` and `CI=true` lint clean.
+> **STATUS 2026-09-03 — ALL SEVEN TASKS DONE.** Shipped as
+> [#210](https://github.com/AliEmad0/pitchiq/pull/210), off `main` @ `4e1ab76`.
 >
-> ⚠️ The FULL local suite cannot finish in WSL — it aborts in happy-dom's window teardown on
-> an unresolved outbound fetch (`uv__stream_destroy` assertion), with **zero** failed tests in
-> 1221 lines of output. Known condition; CI is the authority.
->
-> **Remaining: Task 7 (e2e, browser pass, docs, ship).**
->
-> ⚠️ **Task 6 is three files, not the one this plan listed.** The restore had to move up to
+> ⚠️ **Task 6 was three files, not the one this plan listed.** The restore had to move up to
 > `GamePlay`: the season's seed is fresh entropy from `confirmSquad` and the league is drawn
 > from it, so a hub-only resume re-drafts into a different set of clubs and the stored results
 > — which name clubs by INDEX — render as an ordinary table of matches that never happened.
 >
-> ⚠️ **Known gap, for Task 7 or PR 3:** if a rivals fetch fails on the resume visit but not on
-> the first, `SeasonStart` trims the league to a different size, the hub refuses the run as
-> foreign, and the coach restarts at week 0 — after which the first sim overwrites the saved
+> ⭐ **Task 7 earned its keep — it found two defects nothing else could.**
+>
+> 1. **The club sheet dropped `?format=season`** — found by WRITING the e2e. `ModeChooser` is a
+>    server component on a `force-static` page, so it can read neither `searchParams` nor
+>    `useSearchParams`; its links were bare `/game/{mode}/{id}`. The gate's format link and
+>    `GamePlay`'s reader were each correct alone, and **Full Season silently became One Match**.
+>    `ChoiceLink` carries it now, MATCHING the one literal it understands rather than echoing
+>    user input into an href.
+> 2. **The matchweek animation played once per PAGE LOAD** — found in a REAL BROWSER. `sh-play`
+>    went on at the first advance and never came off, and a CSS animation runs when its class
+>    ARRIVES, so the glow, the side slide, the header nudge and the sweep fired once while every
+>    later week moved only the FLIP. ⚠️ It looked right precisely BECAUSE the FLIP is imperative
+>    — something always moved. Watch the CLASS across three advances, never the motion.
+>
+> ⛔ **The second half of why that hid: no season suite ran with motion ON.**
+> `season-hub.test.tsx` mocks `prefersReducedMotion` true, because happy-dom ships no Web
+> Animations API and `row.animate` throws otherwise. `season-hub-motion.test.tsx` stubs
+> `Element.animate` and is the only place the treatment is exercised at all.
+>
+> ⚠️ **Known gap, deliberately left for PR 3:** if a rivals fetch fails on the resume visit but
+> not on the first, `SeasonStart` trims the league to a different size, the hub refuses the run
+> as foreign, and the coach restarts at week 0 — after which the first sim overwrites the saved
 > run. He does see the existing "N clubs could not be reached" notice, but nothing says his
 > season was reset. The identity guard is right; the recovery is what is missing.
+>
+> **Verified in a real browser on the Vercel preview** — the in-app browser cannot reach it, as
+> previews sit behind Vercel SSO. A full 38-week season came out at champion 75 pts / bottom 25,
+> **points SD 15.5** against the real league's 16.2, 1070 goals over 380 matches (2.82 a match),
+> goals exactly conserved, every club on 38 played, all three sim buttons disabled at the end.
+> A reload resumed at week 38 with the same table and the same XI and no draft; Abandon took two
+> clicks, cleared the slot, and stayed cleared across a reload.
+>
+> ⚠️ Neither the full local suite nor the dev server can run in this WSL VM — vitest aborts in
+> happy-dom's window teardown (`uv__stream_destroy`, **zero** failed tests in 1221 lines) and
+> `next dev` sat 16 minutes compiling `/[locale]` at 7% CPU. **CI is the authority**, and it
+> caught two file-position-fragile cabinet assertions this branch was the first to run against.
 >
 > ⛔ **Two bugs Task 5 caught, both invisible on screen — do not undo either:**
 >
@@ -284,7 +307,7 @@ belongs; the component itself takes the `Formation`.
 
 ---
 
-### Task 7: verify, document, ship ⬅️ **RESUME HERE**
+### Task 7: verify, document, ship ✅ DONE
 
 - [ ] **Step 1 — the battery, plus the global guards**:
 
