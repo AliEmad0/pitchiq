@@ -1,11 +1,26 @@
 # Season hub — implementation plan (TASK-1811 PR 2)
 
-> **STATUS 2026-09-01 — Tasks 1–5 are DONE and committed** on `feat/task-1811-season-hub`
-> (6 commits, **unpushed, no PR**). Working tree clean, branched off `main` @ `4e1ab76`.
-> 58 tests green across the season suites and the other packs' inertness controls;
-> `tsc` and `CI=true` lint clean.
+> **STATUS 2026-09-03 — Tasks 1–6 are DONE and committed** on `feat/task-1811-season-hub`
+> (8 commits, **unpushed, no PR**). Working tree clean, branched off `main` @ `4e1ab76`.
+> The 12-file season battery is 94 green, the 19 suites touching `GamePlay`/the game UI/the
+> i18n catalogs are 163 green; `tsc` and `CI=true` lint clean.
 >
-> **Remaining: Task 6 (persistence) and Task 7 (e2e, browser pass, docs, ship).**
+> ⚠️ The FULL local suite cannot finish in WSL — it aborts in happy-dom's window teardown on
+> an unresolved outbound fetch (`uv__stream_destroy` assertion), with **zero** failed tests in
+> 1221 lines of output. Known condition; CI is the authority.
+>
+> **Remaining: Task 7 (e2e, browser pass, docs, ship).**
+>
+> ⚠️ **Task 6 is three files, not the one this plan listed.** The restore had to move up to
+> `GamePlay`: the season's seed is fresh entropy from `confirmSquad` and the league is drawn
+> from it, so a hub-only resume re-drafts into a different set of clubs and the stored results
+> — which name clubs by INDEX — render as an ordinary table of matches that never happened.
+>
+> ⚠️ **Known gap, for Task 7 or PR 3:** if a rivals fetch fails on the resume visit but not on
+> the first, `SeasonStart` trims the league to a different size, the hub refuses the run as
+> foreign, and the coach restarts at week 0 — after which the first sim overwrites the saved
+> run. He does see the existing "N clubs could not be reached" notice, but nothing says his
+> season was reset. The identity guard is right; the recovery is what is missing.
 >
 > ⛔ **Two bugs Task 5 caught, both invisible on screen — do not undo either:**
 >
@@ -252,7 +267,7 @@ it("hands the confirmed squad to the hub when the season format is asked for", a
 
 ---
 
-### Task 6: persistence — a run survives a reload ⬅️ **RESUME HERE**
+### Task 6: persistence — a run survives a reload ✅ DONE (`b6b7035`)
 
 ⚠️ `storage/season-slot.ts` and its `SavedRun` type already exist and are tested (PR 1) —
 this task only has to **wire them in**. `SavedRun.formationKey` is where `formationKey(formation)`
@@ -269,7 +284,7 @@ belongs; the component itself takes the `Formation`.
 
 ---
 
-### Task 7: verify, document, ship
+### Task 7: verify, document, ship ⬅️ **RESUME HERE**
 
 - [ ] **Step 1 — the battery, plus the global guards**:
 
