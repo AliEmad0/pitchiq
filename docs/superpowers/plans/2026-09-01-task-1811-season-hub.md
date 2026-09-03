@@ -1,5 +1,28 @@
 # Season hub — implementation plan (TASK-1811 PR 2)
 
+> **STATUS 2026-09-01 — Tasks 1–5 are DONE and committed** on `feat/task-1811-season-hub`
+> (6 commits, **unpushed, no PR**). Working tree clean, branched off `main` @ `4e1ab76`.
+> 58 tests green across the season suites and the other packs' inertness controls;
+> `tsc` and `CI=true` lint clean.
+>
+> **Remaining: Task 6 (persistence) and Task 7 (e2e, browser pass, docs, ship).**
+>
+> ⛔ **Two bugs Task 5 caught, both invisible on screen — do not undo either:**
+>
+> - `formationKey()` returns the name **plus the slot count** (`"4-4-2 Flat/11"`), and
+>   `formationByName` wants the bare name. Feeding one to the other threw inside the hub. The
+>   `Formation` is now passed **whole** through `GamePlay → SeasonStart → SeasonHub`; the key is
+>   for persistence only, which is what Task 6 needs it for.
+> - `buildLeagueTeams` runs `chaosDraft`, which picks a formation of its own — right for an
+>   opponent, **wrong for the coach**. `buildSeasonTeams` substitutes his real XI at his index.
+>   Without it the hub would have LOOKED correct (the squad panel renders the prop) while
+>   simulating a team he never picked.
+>
+> ⚠️ **The inertness tests in `season-entry.test.tsx` are vacuous on their own** — they all
+> assert something is _absent_. The positive control (draft an XI, reach the hub) is what proves
+> the seam fires, and it needs a pool **six deep per role**: with `onePerPlayer` a thinner pool
+> stalls the draft with slots still empty.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans (or
 > superpowers:subagent-driven-development) to implement this plan task-by-task.
 
@@ -229,7 +252,11 @@ it("hands the confirmed squad to the hub when the season format is asked for", a
 
 ---
 
-### Task 6: persistence — a run survives a reload
+### Task 6: persistence — a run survives a reload ⬅️ **RESUME HERE**
+
+⚠️ `storage/season-slot.ts` and its `SavedRun` type already exist and are tested (PR 1) —
+this task only has to **wire them in**. `SavedRun.formationKey` is where `formationKey(formation)`
+belongs; the component itself takes the `Formation`.
 
 **Files:** modify `src/features/game/components/SeasonHub.tsx`; create
 `tests/unit/season-resume.test.tsx`
