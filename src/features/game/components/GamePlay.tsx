@@ -2,6 +2,8 @@
 import { useLocale, useTranslations } from "next-intl";
 import { usePathname } from "@/i18n/navigation";
 import { parseAsString, parseAsStringLiteral, useQueryState } from "nuqs";
+import type { SeasonSpec } from "@/features/game/domain/rule-packs";
+import { SeasonStart } from "./SeasonStart";
 import { useEffect, useMemo, useReducer, useState } from "react";
 import type { PlayerSeasonId } from "@/features/game/domain/card-id";
 import type { DraftPolicy, PoolCard } from "@/features/game/domain/chaos-draft";
@@ -77,6 +79,8 @@ export function GamePlay({
   budget,
   nation,
   chemistry,
+  season,
+  clubs,
 }: {
   pool: PoolCard[];
   initialPhase?: PlayPhase;
@@ -118,6 +122,16 @@ export function GamePlay({
    * it off `constraints`, the same way the budget page reads its cap.
    */
   chemistry?: boolean;
+  /**
+   * The pack's season league (TASK-1811). Absent = the mode has no season, which is every pack
+   * but Legacy — so they are untouched, and the inertness control asserts it.
+   *
+   * ⚠️ Declaring it does NOT start a season. The coach must also have asked for one via
+   * `?format=season`; the two together are what swap the match flow for the hub.
+   */
+  season?: SeasonSpec;
+  /** Every club the mode offers, so a season can draw a league from them. */
+  clubs?: ReadonlyArray<{ id: number; name: string }>;
   /**
    * How the XI is assembled (TASK-1838). Absent = the coach builds it himself.
    *
@@ -296,6 +310,26 @@ export function GamePlay({
   }, [state.phase, setPhaseParam]);
 
   /**
+   * Did the coach ask for a SEASON (TASK-1811)?
+   *
+   * ⚠️ Read here rather than on the server so the page stays `force-static`: the season and the
+   * single match share one prerendered route and are told apart on the client. D11 deferred a
+   * `?format=` param "because nothing would read it" — this is the thing that reads it.
+   *
+   * ⛔ It only means anything when the PACK declares a season. A `?format=season` typed onto a
+   * mode without one is ignored, so the param can never conjure a league out of a pack that has
+   * no idea what a league is.
+   */
+  const [formatParam] = useQueryState("format", parseAsString);
+  const seasonRequested = season != null && formatParam === "season";
+  /** The squad he drafted for a season — set once, then the hub owns the run. */
+  const [seasonSquad, setSeasonSquad] = useState<{
+    players: PoolCard[];
+    formation: Formation;
+    seed: number;
+  } | null>(null);
+
+  /**
    * A shared match, read from the URL (TASK-1812).
    *
    * ⚠️ READ ONCE, on mount. Unlike `phase` this one is read, but it only chooses WHICH
@@ -328,6 +362,20 @@ export function GamePlay({
     presetSeed?: number,
   ) => {
     const seed = presetSeed ?? randomSeed();
+
+    /**
+     * ⛔ A SEASON STOPS HERE — the driver is never started.
+     *
+     * Everything below builds and runs ONE match. A season's first fixture is not that match:
+     * the run owns the schedule, and starting a match here would kick off week 1 behind the
+     * hub, burning the seed the season needs and leaving a live match nobody asked for in the
+     * resume slot.
+     */
+    if (seasonRequested && season != null) {
+      setSeasonSquad({ players, formation, seed });
+      return;
+    }
+
     const picked = chosen ?? null;
     setRival(picked);
     driver.start(
@@ -540,6 +588,27 @@ export function GamePlay({
   // Where the match was left. Passed to `scoreAt` so a goal still under VAR review shows
   // as it stood at that moment rather than as the verdict later made it.
   const restoredMinute = offer?.events[offer.events.length - 1]?.minute ?? 0;
+
+  /**
+   * ⛔ The season takes over BEFORE the match phases, and only once a squad exists.
+   *
+   * It sits above the setup branch rather than inside it because a season has no `match` — the
+   * guard below treats a null match as "still in setup", which would send the coach back to the
+   * draft he has already completed.
+   */
+  if (seasonRequested && season != null && seasonSquad != null && clubId != null) {
+    return (
+      <SeasonStart
+        spec={season}
+        coachId={clubId}
+        coachName={clubs?.find((c) => c.id === clubId)?.name ?? String(clubId)}
+        seed={seasonSquad.seed}
+        squad={seasonSquad.players}
+        formation={seasonSquad.formation}
+        clubs={clubs ?? []}
+      />
+    );
+  }
 
   if (state.phase === "setup" || match == null) {
     return (

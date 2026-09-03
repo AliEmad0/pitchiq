@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import type { PlayerRole } from "@/data/schemas";
 import { describe, expect, it, vi } from "vitest";
 import type { PoolCard } from "@/features/game/domain/chaos-draft";
+import { formationByName } from "@/features/game/domain/formation";
 import { renderWithIntl } from "./_helpers/intl";
 
 vi.mock("@/utils/motion", () => ({ prefersReducedMotion: () => true }));
@@ -67,7 +68,7 @@ const props = () => ({
   clubNames: Object.fromEntries(IDS.map((id) => [id, `Club ${id}`])),
   leagueIds: IDS,
   squad: poolFor(1).slice(0, 11),
-  formationKey: "4-4-2 Flat",
+  formation: formationByName("4-4-2 Flat"),
 });
 
 const render = () => renderWithIntl(<SeasonHub {...props()} />);

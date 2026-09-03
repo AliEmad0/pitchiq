@@ -153,6 +153,14 @@ export default async function ModeClubPage({ params }: Props) {
         nation={nation}
         captaincies={captaincies}
         referees={referees}
+        // TASK-1811 — a season needs the pack's league and the clubs it can be drawn from.
+        // ⚠️ Passed to EVERY pack; an absent `season` is what keeps the other modes untouched,
+        // and `?format=season` on a mode without one is ignored.
+        // ⭐ `rivals` is ALREADY the {id, name} list of every club, fetched just above for the
+        // rival picker — so a league costs this page nothing extra. A nation pack's ids are
+        // flag-icons codes, which is not a club league, so it gets nothing.
+        season={pack.season}
+        clubs={isCaptain || isNation ? undefined : (rivals as Array<{ id: number; name: string }>)}
         backHref={`/game/${pack.id}`}
       />
     </main>

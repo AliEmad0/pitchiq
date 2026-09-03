@@ -11,7 +11,7 @@ import {
   type SeasonRun,
 } from "@/features/game/domain/season";
 import { simulate } from "@/features/game/domain/simulate";
-import { formationByName } from "@/features/game/domain/formation";
+import type { Formation } from "@/features/game/domain/formation";
 import { makeGameTeam } from "@/features/game/domain/team";
 import { buildSeasonTeams } from "@/features/game/view/season-league";
 import { clubLogo } from "@/utils/club-logo";
@@ -28,7 +28,8 @@ export interface SeasonHubProps {
   leagueIds: readonly number[];
   /** The XI he drafted once and lives with. */
   squad: readonly PoolCard[];
-  formationKey: string;
+  /** The shape he locked. Passed whole, not as a key — see the note in the component. */
+  formation: Formation;
   season?: number;
 }
 
@@ -55,7 +56,7 @@ export function SeasonHub({
   clubNames,
   leagueIds,
   squad,
-  formationKey,
+  formation,
   season = 2025,
 }: SeasonHubProps) {
   const t = useTranslations("game");
@@ -74,12 +75,10 @@ export function SeasonHub({
         coachId,
         // ⛔ HIS eleven, in the shape he locked — see `buildSeasonTeams` for why this is not
         // left to the league builder.
-        coachTeam: makeGameTeam(coachId, coachName, season, formationByName(formationKey), [
-          ...squad,
-        ]),
+        coachTeam: makeGameTeam(coachId, coachName, season, formation, [...squad]),
         nameOf: (id) => clubNames[id] ?? String(id),
       }),
-    [leagueIds, pools, seed, clubNames, coachId, coachName, season, formationKey, squad],
+    [leagueIds, pools, seed, clubNames, coachId, coachName, season, formation, squad],
   );
   const coachIndex = Math.max(0, leagueIds.indexOf(coachId));
   const clubs = teams.length;
@@ -336,7 +335,7 @@ export function SeasonHub({
             fixed for all 38 weeks, so it is a standing fact about the run rather than a
             setting. It is also the field a resumed run is rebuilt from. */}
         <div className="sh-ttl sh-gap">
-          {t("seasonSquad")} · {formationKey}
+          {t("seasonSquad")} · {formation.name}
         </div>
         <div className="sh-sq" data-testid="season-squad">
           {squad.map((p) => (

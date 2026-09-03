@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { PoolCard } from "@/features/game/domain/chaos-draft";
+import type { Formation } from "@/features/game/domain/formation";
 import type { SeasonSpec } from "@/features/game/domain/rule-packs";
 import { loadRival } from "@/features/game/view/rival-choice";
 import { pickOpponents } from "@/features/game/view/season-league";
@@ -13,7 +14,7 @@ export interface SeasonStartProps {
   coachName: string;
   seed: number;
   squad: readonly PoolCard[];
-  formationKey: string;
+  formation: Formation;
   /** Every club the mode offers, so the league can be drawn from them. */
   clubs: ReadonlyArray<{ id: number; name: string }>;
   season?: number;
@@ -33,7 +34,7 @@ export function SeasonStart({
   coachName,
   seed,
   squad,
-  formationKey,
+  formation,
   clubs,
   season = 2025,
 }: SeasonStartProps) {
@@ -113,7 +114,7 @@ export function SeasonStart({
         clubNames={clubNames}
         leagueIds={leagueIds}
         squad={squad}
-        formationKey={formationKey}
+        formation={formation}
         season={season}
       />
     </>

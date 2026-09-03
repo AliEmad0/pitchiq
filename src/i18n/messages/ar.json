@@ -1064,6 +1064,8 @@
     "seasonComplete": "انتهى الموسم",
     "seasonForm": "النتائج الأخيرة",
     "seasonSquad": "تشكيلتك",
+    "seasonBuilding": "جارٍ تجهيز الدوري…",
+    "seasonShorter": "{count, plural, one {تعذّر الوصول إلى ناد واحد، فأصبح الدوري أصغر.} other {تعذّر الوصول إلى # أندية، فأصبح الدوري أصغر.}}",
     "nationTitle": "اختيار الجنسية",
     "nationPick": "اختر بلدًا. حيث تقلّ الخيارات، تتّسع اليد إلى قارته.",
     "nationPlayers": "{count} لاعبًا",
