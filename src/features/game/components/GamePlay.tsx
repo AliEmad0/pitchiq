@@ -6,7 +6,7 @@ import type { SeasonSpec } from "@/features/game/domain/rule-packs";
 import { SeasonStart } from "./SeasonStart";
 import { useEffect, useMemo, useReducer, useState } from "react";
 import type { PlayerSeasonId } from "@/features/game/domain/card-id";
-import type { DraftPolicy, PoolCard } from "@/features/game/domain/chaos-draft";
+import { FORMATIONS, type DraftPolicy, type PoolCard } from "@/features/game/domain/chaos-draft";
 import type { RivalRef } from "@/features/game/domain/share-code";
 import {
   loadRival,
@@ -27,6 +27,7 @@ import { summaryFrom } from "@/features/game/domain/summary-card";
 import type { RefereeStyle, Weather } from "@/features/game/domain/match-types";
 import type { DraftSpec, ScreensSpec, SetupSpec } from "@/features/game/domain/rule-packs";
 import { clearMatch, loadMatch, saveMatch } from "@/features/game/storage/match-slot";
+import { loadRun } from "@/features/game/storage/season-slot";
 import { buildMatchViewModel } from "@/features/game/view/match-view-model";
 import { replayMatch, type RestoredMatch } from "@/features/game/view/match-replay";
 import { createPlayState, playReducer, type PlayPhase } from "@/features/game/view/play-machine";
@@ -330,6 +331,47 @@ export function GamePlay({
   } | null>(null);
 
   /**
+   * A season already in progress, restored BEFORE the draft (TASK-1811).
+   *
+   * ⛔ It has to happen here, not in the hub. The season's seed is fresh entropy from
+   * `confirmSquad`, and the league is drawn from that seed — so re-drafting on a reload would
+   * build a different set of clubs, and the stored results (which name clubs by INDEX) would
+   * render as a normal-looking table of matches that never happened. Restoring the seed with
+   * the squad is what keeps the run's identity intact across a reload.
+   *
+   * ⚠️ No resume dialog, unlike a match: a season is "draft once and live with it", so it is
+   * simply picked up where it was left. "Abandon season" in the hub is the way out, and it is
+   * what clears the slot.
+   */
+  useEffect(() => {
+    if (!seasonRequested) return;
+    let live = true;
+    void (async () => {
+      const saved = await loadRun();
+      if (!live || saved == null) return;
+      const byId = new Map(pool.map((c) => [c.cardId, c]));
+      const players: PoolCard[] = [];
+      for (const id of saved.cardIds) {
+        const card = byId.get(id);
+        // ⚠️ NOT cleared. The slot is global and a season is per-club, so a run this pool
+        // cannot rebuild is almost always another club's live season rather than a corrupt
+        // record — discarding it here would destroy it just for visiting a second club.
+        if (card == null) return;
+        players.push(card);
+      }
+      const formation = FORMATIONS.find((f) => formationKey(f) === saved.formationKey);
+      if (formation == null || formation.slots.length !== players.length) return;
+      setSeasonSquad({ players, formation, seed: saved.seed });
+    })();
+    return () => {
+      live = false;
+    };
+    // Mount only: `pool` is a build-time constant, and re-running this after the coach has
+    // abandoned a season would drag him straight back into it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /**
    * A shared match, read from the URL (TASK-1812).
    *
    * ⚠️ READ ONCE, on mount. Unlike `phase` this one is read, but it only chooses WHICH
@@ -606,6 +648,7 @@ export function GamePlay({
         squad={seasonSquad.players}
         formation={seasonSquad.formation}
         clubs={clubs ?? []}
+        onAbandon={() => setSeasonSquad(null)}
       />
     );
   }

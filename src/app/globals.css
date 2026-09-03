@@ -5347,6 +5347,28 @@
   color: #8ef0cb !important;
 }
 
+/* Leaving the season. Deliberately the quietest control in the block until it is armed —
+   it sits a few pixels from "Sim week" and it destroys a run. */
+.sh-ab {
+  margin-top: 10px;
+  padding: 5px 10px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: none;
+  color: #6f8b98;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.sh-ab:hover {
+  color: #b7cdd8;
+}
+.sh-arm {
+  border-color: #6b2b2b;
+  background: #2c1113;
+  color: #f0a5a5;
+}
+
 /* ---- the composed matchweek animation: 13 + 5 + 9 + 18 + 26 ---- */
 @keyframes sh-glow {
   0% {

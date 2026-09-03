@@ -18,6 +18,8 @@ export interface SeasonStartProps {
   /** Every club the mode offers, so the league can be drawn from them. */
   clubs: ReadonlyArray<{ id: number; name: string }>;
   season?: number;
+  /** Passed straight through to the hub — see `SeasonHubProps.onAbandon`. */
+  onAbandon?: () => void;
 }
 
 /**
@@ -37,6 +39,7 @@ export function SeasonStart({
   formation,
   clubs,
   season = 2025,
+  onAbandon,
 }: SeasonStartProps) {
   const t = useTranslations("game");
   const [pools, setPools] = useState<Record<number, PoolCard[]> | null>(null);
@@ -116,6 +119,7 @@ export function SeasonStart({
         squad={squad}
         formation={formation}
         season={season}
+        onAbandon={onAbandon}
       />
     </>
   );

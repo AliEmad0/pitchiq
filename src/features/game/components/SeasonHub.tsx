@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { PoolCard } from "@/features/game/domain/chaos-draft";
 import {
@@ -11,8 +11,9 @@ import {
   type SeasonRun,
 } from "@/features/game/domain/season";
 import { simulate } from "@/features/game/domain/simulate";
-import type { Formation } from "@/features/game/domain/formation";
+import { type Formation, formationKey } from "@/features/game/domain/formation";
 import { makeGameTeam } from "@/features/game/domain/team";
+import { clearRun, loadRun, saveRun } from "@/features/game/storage/season-slot";
 import { buildSeasonTeams } from "@/features/game/view/season-league";
 import { clubLogo } from "@/utils/club-logo";
 import { prefersReducedMotion } from "@/utils/motion";
@@ -31,6 +32,12 @@ export interface SeasonHubProps {
   /** The shape he locked. Passed whole, not as a key — see the note in the component. */
   formation: Formation;
   season?: number;
+  /**
+   * Leave the season for good. The hub clears the slot itself; this is the caller's half —
+   * for `GamePlay` that means dropping back to the draft, since a resumed run is what would
+   * otherwise take him straight back here on the next mount.
+   */
+  onAbandon?: () => void;
 }
 
 const GOALS_PER_MATCH = 2.7;
@@ -58,6 +65,7 @@ export function SeasonHub({
   squad,
   formation,
   season = 2025,
+  onAbandon,
 }: SeasonHubProps) {
   const t = useTranslations("game");
   const reduced = prefersReducedMotion();
@@ -93,10 +101,87 @@ export function SeasonHub({
     coach: coachIndex,
     results: [],
   }));
+  /**
+   * Has the slot been read yet? Until it has, nothing may be written.
+   *
+   * ⛔ Without this an empty run would race the load and overwrite a real season with week 0
+   * — and the coach would only find out on the reload after the one that worked.
+   */
+  const [loaded, setLoaded] = useState(false);
+  /** "Abandon" is armed by the first click and fires on the second. */
+  const [arming, setArming] = useState(false);
   /** The table order before the last advance, so the FLIP knows how far each row travelled. */
   const wasRef = useRef<Record<number, number>>({});
   const [animate, setAnimate] = useState(false);
   const bodyRef = useRef<HTMLTableSectionElement>(null);
+
+  /**
+   * Adopt the stored run, if it is THIS run (TASK-1811).
+   *
+   * ⛔ The identity check is not defensive tidiness. A `SeasonResult` names clubs by INDEX
+   * into this league, and the league is drawn from the seed — so a run saved under another
+   * seed, or one whose league came back a different size after a flaky rivals fetch, points
+   * its results at clubs this table never drew. It would render as a perfectly ordinary
+   * league table and be entirely fictional.
+   *
+   * ⚠️ Reading happens after mount, never during render: the page is `force-static` and the
+   * prerender has no IndexedDB.
+   */
+  useEffect(() => {
+    let live = true;
+    void (async () => {
+      const saved = await loadRun();
+      if (!live) return;
+      if (
+        saved != null &&
+        saved.seed === seed &&
+        saved.clubs === clubs &&
+        saved.coach === coachIndex
+      ) {
+        setRun({
+          seed: saved.seed,
+          clubs: saved.clubs,
+          coach: saved.coach,
+          results: saved.results,
+        });
+      }
+      setLoaded(true);
+    })();
+    return () => {
+      live = false;
+    };
+    // Mount only. The league's identity is fixed for the life of the hub, and re-reading the
+    // slot mid-season could only ever undo weeks the coach has just played.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /**
+   * Persist after every advance — around 38 writes across a whole season.
+   *
+   * ⚠️ Gated on there being results: an empty run is the state a fresh hub is BORN in, so
+   * saving it would turn every visit to the setup screen into a wipe.
+   */
+  useEffect(() => {
+    if (!loaded || run.results.length === 0) return;
+    void saveRun({
+      ...run,
+      cardIds: squad.map((p) => p.cardId),
+      // ⛔ `formationKey`, not `formation.name`. The record is resolved back through
+      // `formationKey(f) === record.formationKey`, so a bare name never matches and the
+      // season silently refuses to resume.
+      formationKey: formationKey(formation),
+    });
+  }, [loaded, run, squad, formation]);
+
+  const abandon = useCallback(() => {
+    if (!arming) {
+      setArming(true);
+      return;
+    }
+    void clearRun();
+    setArming(false);
+    onAbandon?.();
+  }, [arming, onAbandon]);
 
   /**
    * Animation 9 — first / last / invert / play, on `transform` only.
@@ -237,6 +322,16 @@ export function SeasonHub({
           </button>
         </div>
         <div className="sh-wk sh-hint">{t("seasonAutoHint")}</div>
+        {/* ⚠️ Two clicks. It sits beside "Sim week", and one stray click must not destroy a
+            season that took thirty-eight of them to build. */}
+        <button
+          type="button"
+          className={`sh-ab${arming ? " sh-arm" : ""}`}
+          data-testid="season-abandon"
+          onClick={abandon}
+        >
+          {arming ? t("seasonAbandonSure") : t("seasonAbandon")}
+        </button>
       </div>
 
       {/* ── the league ────────────────────────────────────────────────────────────── */}

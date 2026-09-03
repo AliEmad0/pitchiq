@@ -1066,6 +1066,8 @@
     "seasonSquad": "تشكيلتك",
     "seasonBuilding": "جارٍ تجهيز الدوري…",
     "seasonShorter": "{count, plural, one {تعذّر الوصول إلى ناد واحد، فأصبح الدوري أصغر.} other {تعذّر الوصول إلى # أندية، فأصبح الدوري أصغر.}}",
+    "seasonAbandon": "التخلي عن الموسم",
+    "seasonAbandonSure": "أتتخلى عنه؟ لا رجعة في ذلك",
     "nationTitle": "اختيار الجنسية",
     "nationPick": "اختر بلدًا. حيث تقلّ الخيارات، تتّسع اليد إلى قارته.",
     "nationPlayers": "{count} لاعبًا",

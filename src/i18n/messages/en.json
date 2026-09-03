@@ -1066,6 +1066,8 @@
     "seasonSquad": "Your squad",
     "seasonBuilding": "Building the league…",
     "seasonShorter": "{count, plural, one {One club could not be reached, so the league is one shorter.} other {# clubs could not be reached, so the league is smaller.}}",
+    "seasonAbandon": "Abandon season",
+    "seasonAbandonSure": "Abandon it? This cannot be undone",
     "nationTitle": "Nationality Draft",
     "nationPick": "Pick a country. Where it runs thin, the hand widens to its continent.",
     "nationPlayers": "{count} players",
