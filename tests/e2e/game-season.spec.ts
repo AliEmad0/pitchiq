@@ -45,7 +45,15 @@ test.describe("Full Season (TASK-1811)", () => {
   });
 
   test("⭐ drafting an XI reaches the hub, and a matchweek moves the table", async ({ page }) => {
-    test.slow(); // A season builds 20 XIs and then simulates ten matches through the real engine.
+    /**
+     * ⚠️ This test owns its own budget. Before a hub can exist the season fetches NINETEEN
+     * rival squads, and each `/api/game/rivals/[club]` is a full club-history build measured
+     * at ~4.9s of CPU cold (CLAUDE.md). In production those are prerendered CDN files, but
+     * the E2E job runs `next dev`, so they are rendered on demand — minutes, not seconds.
+     * Warming cannot help: Turbopack compiles per ROUTE, and it is the per-param RENDER that
+     * costs, for nineteen clubs a random seed picks fresh each run.
+     */
+    test.setTimeout(300_000);
     await page.goto(`/game/legacy/${CLUB}?format=season`);
 
     await page.getByRole("button", { name: /^Lock in / }).click();
@@ -66,23 +74,43 @@ test.describe("Full Season (TASK-1811)", () => {
       await slot.click();
     }
 
-    // ⭐ The season took over instead of a match: no kick-off, a league instead.
-    const hub = page.getByTestId("season-hub");
-    await expect(hub).toBeVisible({ timeout: 60_000 });
+    /**
+     * ⭐ STAGED, so a failure says WHICH half broke rather than only "no hub".
+     *
+     * First: the season took over instead of a match. `SeasonStart` shows "Building the
+     * league…" while it fetches, so the union covers both orders — on a warm server the hub
+     * can win the race, and asserting on the loading state alone would be its own flake.
+     */
+    await expect(
+      page.locator("[data-testid=season-loading], [data-testid=season-hub]"),
+    ).toBeVisible({ timeout: 60_000 });
     await expect(page.getByRole("button", { name: /Kick off/i })).toHaveCount(0);
 
+    // Then the league itself, which is the part that takes minutes on a dev server.
+    const hub = page.getByTestId("season-hub");
+    await expect(hub).toBeVisible({ timeout: 240_000 });
+
     const week = page.getByTestId("season-week");
-    await expect(week).toContainText(/0[\s\S]*38/);
-    await expect(page.getByTestId("season-row")).toHaveCount(20);
+    await expect(week).toContainText(/Matchweek 0 of \d+/);
+
+    /**
+     * ⚠️ The size is asserted as a SHAPE, not as 20. A club whose squad could not be fetched
+     * is left out rather than faked, and the league is then trimmed to an EVEN count — so a
+     * flaky fetch legitimately shortens it. Pinning 20 would fail on the documented
+     * degradation instead of on a defect.
+     */
+    const before = await page.getByTestId("season-row").count();
+    expect(before).toBeGreaterThanOrEqual(10);
+    expect(before % 2).toBe(0);
 
     await page.getByRole("button", { name: /Sim week/i }).click();
 
-    await expect(week).toContainText(/1[\s\S]*38/);
-    // Ten fixtures a week, so a full round leaves every club on one game played.
+    await expect(week).toContainText(/Matchweek 1 of \d+/);
+    // A whole matchweek, so every club in the league has played exactly once.
     const played = await page
       .getByTestId("season-row")
       .evaluateAll((rows) => rows.map((r) => Number((r as HTMLElement).dataset.played)));
-    expect(played).toHaveLength(20);
+    expect(played).toHaveLength(before);
     expect(played.every((p) => p === 1)).toBe(true);
   });
 });
