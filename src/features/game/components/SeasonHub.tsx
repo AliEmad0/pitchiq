@@ -114,6 +114,7 @@ export function SeasonHub({
   const wasRef = useRef<Record<number, number>>({});
   const [animate, setAnimate] = useState(false);
   const bodyRef = useRef<HTMLTableSectionElement>(null);
+  const rootRef = useRef<HTMLElement>(null);
 
   /**
    * Adopt the stored run, if it is THIS run (TASK-1811).
@@ -194,6 +195,25 @@ export function SeasonHub({
    */
   useLayoutEffect(() => {
     if (!animate || reduced) return;
+
+    /**
+     * ⛔ RESTART the composed animation — adding its class is not enough.
+     *
+     * A CSS animation runs when its class ARRIVES. `sh-play` went on at the first advance and
+     * never came off, so four of the owner's five treatments — the glow (5), the side slide
+     * (13), the header nudge (18) and the sweep (26) — played once per PAGE LOAD, and every
+     * later matchweek moved only the FLIP. ⚠️ That is exactly why it looked fine: the FLIP is
+     * imperative, so something always moved. Found in a real browser by watching the class
+     * across three advances; no DOM assertion about a single advance can see it.
+     */
+    const root = rootRef.current;
+    if (root != null) {
+      root.classList.remove("sh-play");
+      // Forcing layout is what commits the removal, so re-adding counts as a fresh arrival.
+      void root.offsetWidth;
+      root.classList.add("sh-play");
+    }
+
     const rows = bodyRef.current?.querySelectorAll<HTMLTableRowElement>("tr");
     if (rows == null || rows.length === 0) return;
     const h = rows[0]!.getBoundingClientRect().height || 24;
@@ -274,7 +294,9 @@ export function SeasonHub({
   const done = isComplete(run);
 
   return (
-    <section className={`sh${animate ? " sh-play" : ""}`} data-testid="season-hub">
+    // ⚠️ `sh-play` is added by the effect above, never here. A className React owns cannot be
+    // taken off and put back within one commit, which is what restarting an animation needs.
+    <section ref={rootRef} className="sh" data-testid="season-hub">
       {/* ── header: BOTH crests (the owner's 12 + 6 hybrid) ───────────────────────── */}
       <div className="sh-hd sh-blk">
         {/* eslint-disable-next-line @next/next/no-img-element */}
