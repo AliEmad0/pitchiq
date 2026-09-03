@@ -5073,3 +5073,356 @@
     animation: none !important;
   }
 }
+
+/* ==========================================================================
+   TASK-1811 — the season hub (`sh-`).
+
+   ⭐ The surface is the OWNER'S, chosen across three gallery rounds:
+     round 1 → concept 29 "Cockpit"  (header + controls across the top,
+                                      table and side beneath, teal)
+     round 2 → the header carries BOTH a watermark crest AND an inline one,
+               with 21px crests in the table and one on the next fixture
+     round 3 → the matchweek animation is 13 + 5 + 9 + 18 + 26 composed
+
+   ⛔ Those five compose ONLY because each animates a different property on a
+   different element. The single element carrying two is the coach's own row —
+   `transform` (the FLIP) and `box-shadow` (the glow). Give either of them the
+   other's property and the FLIP silently stops travelling.
+
+   ⛔ transform / opacity / box-shadow ONLY — `motion-audit.test.ts` rejects the
+   rest, which is why the progress bar is `scaleX` and never `width`.
+   ========================================================================== */
+.sh {
+  --sh-panel2: #04121a;
+  --sh-panel: #071e2b;
+  --sh-line: #0d3648;
+  --sh-accent: #25e0d0;
+  --sh-dim: #8fa8b6;
+  --sh-faint: #5d7d8c;
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 14px;
+  background: var(--sh-panel2);
+  color: #e8eff6;
+  grid-template-areas: "hd ctl" "tbl side";
+  grid-template-columns: 1.5fr 1fr;
+  align-content: start;
+}
+.sh-hd {
+  grid-area: hd;
+}
+.sh-ctl {
+  grid-area: ctl;
+}
+.sh-tbl {
+  grid-area: tbl;
+}
+.sh-side {
+  grid-area: side;
+}
+
+@media (max-width: 860px) {
+  /* One column on a phone. The frame's order still reads header → controls →
+     table → your side, which is the priority the owner picked it for. */
+  .sh {
+    grid-template-areas: "hd" "ctl" "tbl" "side";
+    grid-template-columns: 1fr;
+  }
+}
+
+.sh-blk {
+  position: relative;
+  overflow: hidden;
+  padding: 14px 16px;
+  border: 1px solid var(--sh-line);
+  border-radius: 18px;
+  background: var(--sh-panel);
+}
+.sh-ttl {
+  margin-bottom: 8px;
+  color: var(--sh-faint);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.sh-gap {
+  margin-top: 12px;
+}
+.sh-club {
+  font-size: 23px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+.sh-wk {
+  color: var(--sh-dim);
+  font-size: 12.5px;
+}
+.sh-hint {
+  margin-top: 8px;
+}
+
+/* ⛔ The watermark is ABSOLUTE inside the header, so everything sharing that block needs a
+   stacking context above it. Without `z-index` on the row and the text, the inline crest
+   renders UNDERNEATH its own faded copy — the bug the hybrid created that neither half had. */
+.sh-watermark {
+  position: absolute;
+  right: -16px;
+  top: 50%;
+  z-index: 0;
+  width: 132px;
+  height: 132px;
+  object-fit: contain;
+  opacity: 0.13;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+.sh-hrow {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.sh-hdtext {
+  position: relative;
+  z-index: 1;
+}
+.sh-crest {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+
+.sh-prog {
+  margin-top: 8px;
+  height: 7px;
+  border-radius: 4px;
+  background: #0a2430;
+  overflow: hidden;
+}
+.sh-prog i {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: var(--sh-accent);
+  transform-origin: left center;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sh table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.sh th,
+.sh td {
+  padding: 4px 6px;
+  text-align: right;
+  font-size: 12.5px;
+  border-bottom: 1px solid #ffffff0d;
+}
+.sh th:nth-child(2),
+.sh td:nth-child(2) {
+  text-align: left;
+  width: 99%;
+}
+.sh th {
+  color: var(--sh-faint);
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+.sh tbody tr {
+  will-change: transform;
+}
+.sh-me td {
+  color: #f6c000;
+  font-weight: 800;
+}
+.sh-cn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.sh-tb {
+  width: 21px;
+  height: 21px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+
+.sh-bigfx {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.sh-fcrest {
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+.sh-op {
+  font-size: 19px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+.sh-ha {
+  color: var(--sh-faint);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.sh-form {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.sh-form i {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  background: #0d2c39;
+  color: var(--sh-dim);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 900;
+}
+.sh-W {
+  background: #12352a !important;
+  color: #8ef0cb !important;
+}
+.sh-D {
+  background: #2c2a16 !important;
+  color: #ffdf94 !important;
+}
+.sh-L {
+  background: #33191b !important;
+  color: #ffb3b3 !important;
+}
+.sh-sq {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.sh-sq span {
+  padding: 2px 6px;
+  border-radius: 5px;
+  background: #0d2c39;
+  color: var(--sh-dim);
+  font-size: 10.5px;
+}
+.sh-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.sh-btns button {
+  padding: 7px 12px;
+  border: 1px solid var(--sh-line);
+  border-radius: 9px;
+  background: #0d2c39;
+  color: #cfe3ec;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.sh-btns button:hover:not(:disabled) {
+  border-color: var(--sh-accent);
+}
+.sh-btns button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.sh-go {
+  background: #12352a !important;
+  border-color: #1d5240 !important;
+  color: #8ef0cb !important;
+}
+
+/* ---- the composed matchweek animation: 13 + 5 + 9 + 18 + 26 ---- */
+@keyframes sh-glow {
+  0% {
+    box-shadow: inset 0 0 0 0 #f6c00000;
+  }
+  35% {
+    box-shadow: inset 0 0 26px 0 #f6c00066;
+  }
+  100% {
+    box-shadow: inset 0 0 0 0 #f6c00000;
+  }
+}
+@keyframes sh-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes sh-nudge {
+  0% {
+    transform: translateX(0);
+  }
+  30% {
+    transform: translateX(5px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+@keyframes sh-sweep {
+  from {
+    opacity: 0.5;
+    transform: translateY(-100%);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+}
+
+.sh-play .sh-me {
+  animation: sh-glow 0.9s ease both;
+} /* 5  */
+.sh-play .sh-side {
+  animation: sh-in-right 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+} /* 13 */
+.sh-play .sh-hd {
+  animation: sh-nudge 0.5s ease both;
+} /* 18 */
+.sh-play .sh-tbl::after {
+  /* 26 */
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(#25e0d000, #25e0d033, #25e0d000);
+  animation: sh-sweep 0.7s ease both;
+  /* ⛔ Load-bearing. A full-bleed ::after over the table is exactly the decoration that
+     swallowed clicks on the draft pitch; without this the league eats every tap. */
+  pointer-events: none;
+}
+/* 9 — the FLIP is driven from the component with the Web Animations API, transform only. */
+
+@media (prefers-reduced-motion: reduce) {
+  /* ⚠️ The whole treatment is decoration: the table is still correct without any of it, so
+     all five go. The season is legible either way. */
+  .sh-play .sh-me,
+  .sh-play .sh-side,
+  .sh-play .sh-hd,
+  .sh-play .sh-tbl::after {
+    animation: none;
+  }
+  .sh-prog i {
+    transition: none;
+  }
+}
