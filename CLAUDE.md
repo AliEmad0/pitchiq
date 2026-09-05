@@ -247,3 +247,14 @@ that a substitution is legal. `benchLabel` must also require nonempty `legalOff`
 possible action. Keep the engine roll and default answers unchanged. The previous bench
 positive-control fixture had empty legal arrays, hiding this bug; it now uses real players.
 The regression was reproduced red in both bench state and the live screen before the fix.
+
+### TASK-1811: Classic historical foundation (PR 4)
+
+`adapter/classic-season.ts` validates complete fixture archives against standings and maps
+stable numeric club IDs to indices. `domain/classic-season.ts` orders real fixture dates and
+compares the coach's completed prefix by fixture ID, preserving home/away orientation.
+Never force these dates into Legacy's equal-sized matchweeks: postponements create unequal
+games played. 1992–1994 have 22 clubs and 42 matches per club. Ghost earned points at the
+same fixtures and published final points/rank are distinct targets; preserve any points
+adjustment without inventing its historical timing. Classic remains locked pending its
+squad/route/UI/storage integration. See the Classic plan in `docs/superpowers/plans/`.
