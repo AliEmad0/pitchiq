@@ -1,3 +1,4 @@
+import { premierLeagueSubstitutions } from "../domain/substitution-rules";
 import type { ClassicData } from "../domain/classic-data";
 import type { SavedClassic } from "../storage/classic-slot";
 import { classicLineup } from "../domain/classic-lineup";
@@ -82,6 +83,7 @@ export function nextClassicFixture(
     id: f.id,
     coachSide: f.home === run.coach ? "home" : "away",
     setup: {
+      substitutions: premierLeagueSubstitutions(data.season, f.date),
       home: teams[f.home],
       away: teams[f.away],
       seed: classicFixtureSeed(run.seed, f.id),

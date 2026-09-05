@@ -12,7 +12,8 @@ interface Props {
   /** Who the engine would take off. Surfaced as a flag, never pre-selected. */
   suggestedOff?: number;
   captainId: number | null;
-  onConfirm: (off: number, on: number) => void;
+  maxChanges?: number;
+  onConfirm: (off: number, on: number, changes?: { off: number; on: number }[]) => void;
   onClose: () => void;
   /**
    * The keeper has gone and there is nobody left to bring on — one of these players has
@@ -37,6 +38,7 @@ interface Props {
 export function BenchDialog({
   legalOff,
   legalOn,
+  maxChanges = 1,
   suggestedOff,
   captainId,
   onConfirm,
@@ -47,6 +49,8 @@ export function BenchDialog({
   const reduced = prefersReducedMotion();
   const [off, setOff] = useState<number | null>(null);
   const [on, setOn] = useState<number | null>(null);
+
+  const [queued, setQueued] = useState<{ off: number; on: number }[]>([]);
 
   // The third way out.
   useEffect(() => {
@@ -118,12 +122,54 @@ export function BenchDialog({
         ) : (
           <>
             <h3 className="lg-h2">{t("benchComingOff")}</h3>
-            {pickList(legalOff, off, setOff, "off")}
+            {pickList(
+              legalOff.filter((p) => !queued.some((c) => c.off === p.playerId)),
+              off,
+              setOff,
+              "off",
+            )}
             <h3 className="lg-h2">{t("benchGoingOn")}</h3>
-            {pickList(legalOn, on, setOn, "on")}
+            {pickList(
+              legalOn.filter((p) => !queued.some((c) => c.on === p.playerId)),
+              on,
+              setOn,
+              "on",
+            )}
           </>
         )}
 
+        {emergency == null && maxChanges > 1 && (
+          <div className="lg-bench-go">
+            <p>{t("benchBatchCount", { count: queued.length, max: maxChanges })}</p>
+            <button
+              type="button"
+              className="lg-ghost"
+              disabled={off == null || on == null || queued.length >= maxChanges - 1}
+              onClick={() => {
+                if (off != null && on != null) {
+                  setQueued((prior) => [...prior, { off, on }]);
+                  setOff(null);
+                  setOn(null);
+                }
+              }}
+            >
+              {t("benchAddChange")}
+            </button>
+            {queued.length > 0 && (
+              <button
+                type="button"
+                className="lg-ghost"
+                onClick={() => {
+                  setQueued([]);
+                  setOff(null);
+                  setOn(null);
+                }}
+              >
+                {t("benchResetBatch")}
+              </button>
+            )}
+          </div>
+        )}
         <div className="lg-bench-go">
           <button type="button" onClick={onClose} className="lg-ghost">
             {t("benchNotNow")}
@@ -132,13 +178,17 @@ export function BenchDialog({
             type="button"
             // ⛔ Dead until the choice is complete: one player for the gloves, or BOTH
             // ends of a substitution.
-            disabled={emergency != null ? off == null : off == null || on == null}
+            disabled={
+              emergency != null ? off == null : queued.length === 0 && (off == null || on == null)
+            }
             onClick={() => {
               if (emergency != null) {
                 if (off != null) emergency.onChoose(off);
                 return;
               }
-              if (off != null && on != null) onConfirm(off, on);
+              const changes = [...queued, ...(off != null && on != null ? [{ off, on }] : [])];
+              if (changes.length > 1) onConfirm(changes[0].off, changes[0].on, changes.slice(1));
+              else if (changes.length === 1) onConfirm(changes[0].off, changes[0].on);
             }}
             className="lg-confirm"
           >

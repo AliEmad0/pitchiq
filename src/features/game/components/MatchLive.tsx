@@ -737,6 +737,7 @@ export function MatchLive({
           legalOff={offer?.legalOff ?? []}
           legalOn={offer?.legalOn ?? []}
           suggestedOff={offer?.suggestedOff}
+          maxChanges={offer?.maxChanges}
           captainId={armband}
           emergency={
             emergency == null
@@ -757,7 +758,7 @@ export function MatchLive({
                 }
           }
           onClose={() => setBenchOpen(false)}
-          onConfirm={(off, on) => {
+          onConfirm={(off, on, changes) => {
             setBenchOpen(false);
             if (pending != null) {
               const move: DecisionAnswer = {
@@ -766,6 +767,7 @@ export function MatchLive({
                 side: pending.side,
                 off,
                 on,
+                ...(changes?.length ? { changes } : {}),
               };
               onAnswer(move);
               onCoachMove?.(move);

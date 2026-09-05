@@ -1,3 +1,4 @@
+import { substitutionAllowed } from "./substitution-rules";
 import {
   ALTERCATION_PER_MATCH,
   DOGSO_PER_MATCH,
@@ -350,6 +351,15 @@ export function* runMatch(
     home: [...(setup.home.bench ?? [])],
     away: [...(setup.away.bench ?? [])],
   };
+  const rules = setup.substitutions ?? { maxSubs: MAX_SUBS };
+  const usage = {
+    home: { used: 0, keeperChanges: 0, windows: new Set<number>() },
+    away: { used: 0, keeperChanges: 0, windows: new Set<number>() },
+  };
+  const isKeeperChange = (side: Side, off: GamePlayer, on: GamePlayer) =>
+    on.role === "GK" && (off.role === "GK" || !squads[side].some((p) => p.role === "GK"));
+  const canChange = (side: Side, minute: number, off: GamePlayer, on: GamePlayer) =>
+    substitutionAllowed(rules, usage[side], minute, isKeeperChange(side, off, on));
   const subRate = SUBS_PER_SIDE / (SUB_WINDOW_END - SUB_WINDOW_START + 1);
   const injuryRate = INJURY_PER_SIDE / FULL_TIME;
   const keeperRate = KEEPER_SWEEP_PER_SIDE / FULL_TIME;
@@ -363,9 +373,11 @@ export function* runMatch(
     onOverride?: GamePlayer,
   ): boolean => {
     const st = state[side];
-    if (st.subsUsed >= MAX_SUBS) return false;
+    if (st.subsUsed >= rules.maxSubs) return false;
     const availableIds = new Set(
-      benches[side].filter((b) => !st.broughtOn.has(b.playerId)).map((b) => b.playerId),
+      benches[side]
+        .filter((b) => !st.broughtOn.has(b.playerId) && canChange(side, minute, off, b))
+        .map((b) => b.playerId),
     );
     // A coach's explicit choice still has to be legal — he cannot bring on a player who
     // is already on, or one who has been on and come off. An illegal pick falls back to
@@ -375,6 +387,10 @@ export function* runMatch(
         ? onOverride
         : pickPlayerOn(benches[side], availableIds, off.role ?? null);
     if (on == null) return false;
+    const keeperChange = isKeeperChange(side, off, on);
+    usage[side].used += 1;
+    if (keeperChange) usage[side].keeperChanges += 1;
+    if (minute !== 45) usage[side].windows.add(minute);
     squads[side] = squads[side].filter((p) => p.playerId !== off.playerId);
     squads[side].push(on);
     st.broughtOn.add(on.playerId);
@@ -403,14 +419,26 @@ export function* runMatch(
    * handles a departing keeper — `role === "GK"` returns the bench's first entry, which is
    * always the spare keeper.
    */
+  const availableBench = (side: Side) =>
+    benches[side].filter((b) => !state[side].broughtOn.has(b.playerId));
   const legalOffFor = (side: Side): GamePlayer[] =>
-    state[side].subsUsed >= MAX_SUBS ? [] : [...squads[side]];
-
-  /** Who this side may bring on. Mirrors the availability rule inside `substitute`. */
-  const legalOnFor = (side: Side): GamePlayer[] =>
-    state[side].subsUsed >= MAX_SUBS
-      ? []
-      : benches[side].filter((b) => !state[side].broughtOn.has(b.playerId));
+    setup.substitutions == null
+      ? state[side].subsUsed >= MAX_SUBS
+        ? []
+        : [...squads[side]]
+      : squads[side].filter((off) =>
+          availableBench(side).some((on) => canChange(side, state.minute, off, on)),
+        );
+  const legalOnFor = (side: Side, forcedOff?: GamePlayer): GamePlayer[] =>
+    setup.substitutions == null
+      ? state[side].subsUsed >= MAX_SUBS
+        ? []
+        : availableBench(side)
+      : availableBench(side).filter((on) =>
+          (forcedOff ? [forcedOff] : squads[side]).some((off) =>
+            canChange(side, state.minute, off, on),
+          ),
+        );
 
   /** Has a stoppage-kind event already landed this minute? */
   const stoppageThisMinute = (m: number): boolean =>
@@ -611,11 +639,14 @@ export function* runMatch(
       }
 
       // ---- squad dynamics ---------------------------------------------------
-      if (m >= SUB_WINDOW_START && m <= SUB_WINDOW_END) {
+      if (
+        (m >= SUB_WINDOW_START && m <= SUB_WINDOW_END) ||
+        (setup.substitutions != null && m === 45)
+      ) {
         // ⚠️ The roll fires here exactly as it always did. A coach-driven match ignores
         // its result, but `defaultAnswer` reads it — gating or moving it would shift
         // every subsequent roll and break every determinism snapshot in the suite.
-        const engineSuggests = rng() < subRate;
+        const engineSuggests = m === 45 ? false : rng() < subRate;
         const bookedIds = new Set(
           squads[side]
             .filter((pl) => (state.booked.get(`${side}:${pl.playerId}`) ?? 0) > 0)
@@ -629,11 +660,23 @@ export function* runMatch(
           bookedIds,
           diff === 0 ? "level" : diff < 0 ? "trailing" : "leading",
         );
+        const remaining = rules.maxSubs - state[side].subsUsed;
+        const windowsLeft =
+          rules.maxWindows == null
+            ? remaining
+            : Math.max(1, rules.maxWindows - usage[side].windows.size);
+        const batchSize = Math.ceil(remaining / windowsLeft);
+        const suggestedChanges = legalOffFor(side)
+          .filter((p) => p.role !== "GK" && p.playerId !== choice?.player.playerId)
+          .slice(0, Math.max(0, batchSize - 1))
+          .map((p) => ({ off: p.playerId }));
         const answer = yield {
           kind: "sub-offer",
+          ...(rules.maxWindows != null ? { maxChanges: remaining, suggestedChanges } : {}),
+          ...(m === 45 ? { halftime: true } : {}),
           minute: m,
           side,
-          stoppage: stoppageThisMinute(m),
+          stoppage: m === 45 || stoppageThisMinute(m),
           engineSuggests,
           suggestedOff: choice?.player.playerId,
           suggestedReason: choice?.reason,
@@ -646,6 +689,19 @@ export function* runMatch(
           const on =
             answer.on != null ? benches[side].find((pl) => pl.playerId === answer.on) : undefined;
           if (off != null) substitute(side, m, off, answer.reason ?? "tactical", on);
+          if (setup.substitutions != null && rules.maxWindows != null && off != null) {
+            const usedOff = new Set([off.playerId]);
+            for (const change of (answer.changes ?? []).slice(0, rules.maxSubs - 1)) {
+              if (usedOff.has(change.off)) continue;
+              usedOff.add(change.off);
+              const extraOff = squads[side].find(
+                (p) => p.playerId === change.off && !state[side].broughtOn.has(p.playerId),
+              );
+              const extraOn =
+                change.on == null ? undefined : benches[side].find((p) => p.playerId === change.on);
+              if (extraOff) substitute(side, m, extraOff, "tactical", extraOn);
+            }
+          }
         }
       }
 
@@ -672,7 +728,7 @@ export function* runMatch(
               minute: m,
               side,
               off: hurt.playerId,
-              legalOn: legalOnFor(side),
+              legalOn: legalOnFor(side, hurt),
               events: [...state.events],
             };
             const replacement =

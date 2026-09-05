@@ -1,3 +1,4 @@
+import type { SubstitutionRules } from "./substitution-rules";
 import type { GameTeam } from "./team";
 
 export type Side = "home" | "away";
@@ -263,6 +264,8 @@ export interface MinuteContext {
 export type Modifier = (ctx: MinuteContext) => Partial<MinuteWeights>;
 
 export interface MatchSetup {
+  /** Explicit competition policy; omitted preserves existing cross-era match behavior. */
+  substitutions?: SubstitutionRules;
   home: GameTeam;
   away: GameTeam;
   seed: number;

@@ -69,6 +69,7 @@ it("restores an away fixture with the coach's saved XI and bench", () => {
   };
   const fixture = nextClassicFixture(data, saved)!;
   expect(fixture.coachSide).toBe("away");
+  expect(fixture.setup.substitutions).toEqual({ maxSubs: 3 });
   expect(fixture.setup.away.teamId).toBe(42);
   expect(fixture.setup.away.players.map((p) => p.cardId)).toEqual(initial.cardIds);
   expect(fixture.setup.away.bench).toEqual(first.teams[data.clubIds.indexOf(42)].bench);
