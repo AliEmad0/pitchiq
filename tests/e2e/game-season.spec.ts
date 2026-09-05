@@ -146,17 +146,24 @@ test.describe("Full Season — the league itself", () => {
     await expect(page.getByRole("button", { name: /Copy link/i })).toHaveCount(0);
     await page.getByRole("button", { name: "Return to season" }).click();
     await expect(week).toContainText(/Matchweek 2 of/);
-    const finishedRows = await page
-      .getByTestId("season-row")
-      .evaluateAll((rows) => rows.map((r) => ({ ...(r as HTMLElement).dataset })));
+    // Persisted standings only: data-was is the previous position used by the FLIP animation.
+    const finishedRows = await page.getByTestId("season-row").evaluateAll((rows) =>
+      rows.map((r) => {
+        const { club, played, points, gf, ga } = (r as HTMLElement).dataset;
+        return { club, played, points, gf, ga };
+      }),
+    );
     expect(finishedRows).toHaveLength(before);
     expect(finishedRows.every((row) => row.played === "2")).toBe(true);
     await page.reload();
     await expect(week).toContainText(/Matchweek 2 of/, { timeout: 180_000 });
     expect(
-      await page
-        .getByTestId("season-row")
-        .evaluateAll((rows) => rows.map((r) => ({ ...(r as HTMLElement).dataset }))),
+      await page.getByTestId("season-row").evaluateAll((rows) =>
+        rows.map((r) => {
+          const { club, played, points, gf, ga } = (r as HTMLElement).dataset;
+          return { club, played, points, gf, ga };
+        }),
+      ),
     ).toEqual(finishedRows);
   });
 });
