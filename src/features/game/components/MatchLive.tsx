@@ -621,7 +621,7 @@ export function MatchLive({
             homeSlots={slotStatus(homeLineup)}
             awaySlots={slotStatus(awayLineup)}
             animate={!reduced}
-            label={t("livePitchAria")}
+            label={t(coachSide === "home" ? "livePitchAria" : "livePitchAwayAria")}
           />
           {overlay ? <EventOverlay event={overlay} /> : null}
         </div>

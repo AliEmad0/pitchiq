@@ -6017,6 +6017,9 @@ targets and relegation start, era-authentic substitution rules, and squad rotati
   progress. Legacy full leagues migrate; shortened legacy saves are blocked because their
   original club order was never stored. Draft/advance wait for the slot read.
 - An unfinished fixture restarts from kickoff after refresh; completed weeks remain saved.
+- Browser testing exposed empty benches opening repeated 20-second substitution windows.
+  The view now requires legal outgoing and incoming players before advertising a change;
+  the engine and seeded outputs stay unchanged. Red/green tests cover the original stall.
 - Implementation and validation contracts:
   [PR 3 plan](docs/superpowers/plans/2026-09-05-task-1811-play-season-fixtures.md).
 

@@ -35,3 +35,11 @@ matchweek: the played score for the coach and seeded simulations for the other f
 - Browser coverage extends the existing expensive league test: simulate week one, cancel
   a preview, play away in week two, return, and reload the same table.
 - Local type-check and lint pass. Full CI and browser results are recorded on the PR.
+
+## Browser-discovered regression
+
+The engine's substitution recommendation roll still fires when no replacement is legal.
+The old bench label looked only at that roll, so an empty season bench repeatedly opened
+20-second windows with no usable action. The view now checks both legal player lists;
+the engine, random draws and default answers are unchanged. State and live-screen tests
+failed before the fix, while full real-screen home/away fixture tests cover completion.

@@ -3,6 +3,9 @@ import type { SubOfferDecision } from "@/features/game/domain/match-decisions";
 import { encodeTokens } from "@/features/game/domain/decision-tokens";
 import { answerFor, benchLabel, declineOf, subOfferOf } from "@/features/game/view/bench-state";
 
+import { matchSetup } from "./_helpers/match-setup";
+
+const team = matchSetup(7).home;
 const offer = (minute: number, suggests: boolean): SubOfferDecision => ({
   kind: "sub-offer",
   minute,
@@ -10,10 +13,10 @@ const offer = (minute: number, suggests: boolean): SubOfferDecision => ({
   events: [],
   stoppage: false,
   engineSuggests: suggests,
-  suggestedOff: 3,
+  suggestedOff: team.players[3]!.playerId,
   suggestedReason: "tactical",
-  legalOff: [],
-  legalOn: [],
+  legalOff: team.players,
+  legalOn: team.bench!,
 });
 
 describe("answerFor", () => {
@@ -21,7 +24,7 @@ describe("answerFor", () => {
     // The owner's ruling: ignore the amber button for 20s and the change is made for you.
     const a = answerFor(offer(60, true), "auto");
     expect(a.kind).toBe("sub-offer");
-    expect((a as { off?: number }).off).toBe(3);
+    expect((a as { off?: number }).off).toBe(team.players[3]!.playerId);
   });
 
   it("⛔ manual mode NEVER substitutes for you", () => {
@@ -81,7 +84,7 @@ describe("⛔ the answer must be ENCODABLE into a share code", () => {
      */
     const a = answerFor(offer(60, true), "auto");
     expect(a).not.toHaveProperty("reason");
-    expect((a as { off?: number }).off).toBe(3); // the change itself is untouched
+    expect((a as { off?: number }).off).toBe(team.players[3]!.playerId); // the change itself is untouched
   });
 
   it("every mode produces a stream encodeTokens accepts", () => {
@@ -110,4 +113,10 @@ describe("subOfferOf", () => {
       subOfferOf({ kind: "response", minute: 5, side: "home", events: [], concededBy: "away" }),
     ).toBeNull();
   });
+});
+
+it("an engine roll cannot advertise a substitution with no legal replacement or outgoing player", () => {
+  expect(benchLabel({ ...offer(77, true), legalOn: [] })).toBe("idle");
+  expect(benchLabel({ ...offer(77, true), legalOff: [] })).toBe("idle");
+  expect(benchLabel(offer(77, true))).toBe("available");
 });

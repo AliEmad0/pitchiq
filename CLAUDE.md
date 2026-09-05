@@ -240,3 +240,10 @@ Legacy full leagues can restore from their seed; shortened legacy saves cannot p
 old club identities and are blocked. Wait for the slot read before showing draft/advance
 controls. The standard single-match slot is untouched by season play. The programme warns
 that refreshing an unfinished fixture restarts it from kickoff; completed weeks stay saved.
+
+**Empty-bench regression:** `engineSuggests` is the engine's ungated random roll, not proof
+that a substitution is legal. `benchLabel` must also require nonempty `legalOff` and
+`legalOn`; otherwise a season's empty bench produces repeated 20-second waits with no
+possible action. Keep the engine roll and default answers unchanged. The previous bench
+positive-control fixture had empty legal arrays, hiding this bug; it now uses real players.
+The regression was reproduced red in both bench state and the live screen before the fix.

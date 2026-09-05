@@ -1085,7 +1085,8 @@
     "seasonReturn": "Return to season",
     "seasonRestartHint": "Leaving or refreshing restarts this fixture from kick-off. Completed matchweeks stay saved.",
     "seasonResumeBlocked": "Your saved league could not be restored. Your progress has been kept. Retry loading the league or abandon this season to start again.",
-    "seasonRetry": "Retry loading league"
+    "seasonRetry": "Retry loading league",
+    "livePitchAwayAria": "Both teams on the pitch, yours attacking left"
   },
   "commentary": {
     "armbandHandover": "The armband goes to {name}.",
