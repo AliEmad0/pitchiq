@@ -23,10 +23,12 @@ describe("encodeTokens", () => {
     expect(encodeTokens([{ kind: "response", minute: 30, side: "home", choice: "overload" }])).toBe(
       "o",
     );
-    expect(encodeTokens([{ kind: "response", minute: 30, side: "home", choice: "stabilize" }])).toBe(
-      "z",
+    expect(
+      encodeTokens([{ kind: "response", minute: 30, side: "home", choice: "stabilize" }]),
+    ).toBe("z");
+    expect(encodeTokens([{ kind: "response", minute: 30, side: "home", choice: "hold" }])).toBe(
+      "h",
     );
-    expect(encodeTokens([{ kind: "response", minute: 30, side: "home", choice: "hold" }])).toBe("h");
     expect(encodeTokens([{ kind: "sub-offer", minute: 60, side: "home", off: 36 }])).toBe("s10");
     expect(encodeTokens([{ kind: "sub-offer", minute: 60, side: "home", off: 1, on: 2 }])).toBe(
       "s1-2",
@@ -160,4 +162,12 @@ describe("readTokens", () => {
       reason: "exhausted",
     });
   });
+});
+
+it("refuses grouped substitutions instead of exporting only the first change", () => {
+  expect(() =>
+    encodeTokens([
+      { kind: "sub-offer", minute: 60, side: "home", off: 1, on: 2, changes: [{ off: 3, on: 4 }] },
+    ]),
+  ).toThrow(/grouped/);
 });

@@ -2,7 +2,13 @@ import { expect, it } from "vitest";
 import { advanceClassic, classicFixtureSeed } from "@/features/game/view/classic-run";
 import { historicalSchedule } from "@/features/game/domain/classic-season";
 import { seasonFixtures } from "@/features/game/domain/season";
-import { seasonSetup } from "./_helpers/season";
+import { seasonSetup as legacySeasonSetup } from "./_helpers/season";
+
+// Classic has one historical year; Legacy's helper intentionally creates all-era teams.
+const seasonSetup = () => {
+  const setup = legacySeasonSetup();
+  return { ...setup, teams: setup.teams.map((t) => ({ ...t, season: 2003 })) };
+};
 
 const fixtures = seasonFixtures(4)
   .flat()

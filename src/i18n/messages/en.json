@@ -1086,7 +1086,13 @@
     "seasonRestartHint": "Leaving or refreshing restarts this fixture from kick-off. Completed matchweeks stay saved.",
     "seasonResumeBlocked": "Your saved league could not be restored. Your progress has been kept. Retry loading the league or abandon this season to start again.",
     "seasonRetry": "Retry loading league",
-    "livePitchAwayAria": "Both teams on the pitch, yours attacking left"
+    "livePitchAwayAria": "Both teams on the pitch, yours attacking left",
+    "benchBatchCount": "{count} changes queued · up to {max} at this stoppage",
+    "benchAddChange": "Add another change",
+    "benchResetBatch": "Clear queued changes",
+    "seasonSubLimit": "Match rules: up to {count} substitutions per team.",
+    "seasonSubKeeperExtra": "The third change is reserved for a goalkeeper replacement.",
+    "seasonSubWindows": "Use up to {count} stoppages; half-time changes do not count as a stoppage."
   },
   "commentary": {
     "armbandHandover": "The armband goes to {name}.",

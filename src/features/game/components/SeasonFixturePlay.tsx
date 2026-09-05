@@ -47,6 +47,16 @@ export function SeasonFixturePlay({
     return (
       <>
         <p role="status">{t("seasonRestartHint")}</p>
+        {fixture.setup.substitutions && (
+          <p className="mx-auto max-w-5xl px-4 py-2">
+            {t("seasonSubLimit", { count: fixture.setup.substitutions.maxSubs })}{" "}
+            {fixture.setup.substitutions.keeperOnlyExtra
+              ? t("seasonSubKeeperExtra")
+              : fixture.setup.substitutions.maxWindows != null
+                ? t("seasonSubWindows", { count: fixture.setup.substitutions.maxWindows })
+                : null}
+          </p>
+        )}
         <MatchProgramme
           coachSide={fixture.coachSide}
           home={home}

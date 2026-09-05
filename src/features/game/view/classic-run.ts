@@ -1,3 +1,4 @@
+import { premierLeagueSubstitutions } from "../domain/substitution-rules";
 import type { HistoricalSchedule, PlayedHistoricalFixture } from "../domain/classic-season";
 import { fixtureSeed } from "../domain/season";
 import { simulate } from "../domain/simulate";
@@ -78,8 +79,13 @@ export function advanceClassic(
     const score =
       played && i === next
         ? { home: played.homeGoals, away: played.awayGoals }
-        : simulate({ home: teams[f.home], away: teams[f.away], seed, targetGoalsPerMatch: rate })
-            .score;
+        : simulate({
+            home: teams[f.home],
+            away: teams[f.away],
+            seed,
+            targetGoalsPerMatch: rate,
+            substitutions: premierLeagueSubstitutions(teams[f.home].season, f.date),
+          }).score;
     results.push({ fixtureId: f.id, seed, homeGoals: score.home, awayGoals: score.away });
   }
   return { ...run, results };

@@ -64,7 +64,14 @@ export function answerFor(d: MatchDecision, mode: SubMode): DecisionAnswer {
   // ⚠️ The substitution itself is untouched — only the label is dropped, and the engine
   // falls back to "tactical", which is what a coach-made change is anyway.
   if (auto.kind === "sub-offer" && auto.reason != null) {
-    return { kind: "sub-offer", minute: auto.minute, side: auto.side, off: auto.off, on: auto.on };
+    return {
+      kind: "sub-offer",
+      minute: auto.minute,
+      side: auto.side,
+      off: auto.off,
+      on: auto.on,
+      ...(auto.changes?.length ? { changes: auto.changes } : {}),
+    };
   }
   return auto;
 }
@@ -78,7 +85,7 @@ export function answerFor(d: MatchDecision, mode: SubMode): DecisionAnswer {
 export function benchLabel(pending: SubOfferDecision | null): "idle" | "available" {
   // The engine rolls even with an empty bench or exhausted subs. Advertising that roll
   // as a choice stalls the live view for 20 seconds with nothing the coach can do.
-  return pending?.engineSuggests === true &&
+  return (pending?.engineSuggests === true || pending?.halftime === true) &&
     pending.legalOff.length > 0 &&
     pending.legalOn.length > 0
     ? "available"

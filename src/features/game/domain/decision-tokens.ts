@@ -54,6 +54,9 @@ export function encodeTokens(answers: readonly DecisionAnswer[]): string {
   };
 
   for (const a of answers) {
+    if (a.kind === "sub-offer" && a.changes?.length) {
+      throw new Error("decision-tokens: grouped substitutions require a different share format");
+    }
     if ((a.kind === "sub-offer" || a.kind === "dismissal") && a.off == null && a.on != null) {
       throw new Error("decision-tokens: an answer with `on` and no `off` is not encodable");
     }

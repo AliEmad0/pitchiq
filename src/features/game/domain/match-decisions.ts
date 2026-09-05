@@ -65,6 +65,10 @@ interface DecisionBase {
  * ignores the answer. Removing or gating it would shift every subsequent roll.
  */
 export interface SubOfferDecision extends DecisionBase {
+  /** Classic permits a batch at one stoppage, answered once through the driver. */
+  maxChanges?: number;
+  halftime?: boolean;
+  suggestedChanges?: { off: number; on?: number }[];
   kind: "sub-offer";
   /** Did a stoppage-kind event already land this minute? */
   stoppage: boolean;
@@ -124,6 +128,7 @@ interface AnswerBase {
 
 /** `off` absent = no change. `on` absent = let the engine pick the replacement. */
 export interface SubAnswer extends AnswerBase {
+  changes?: { off: number; on?: number }[];
   kind: "sub-offer";
   off?: number;
   on?: number;
@@ -167,6 +172,7 @@ export function defaultAnswer(d: MatchDecision): DecisionAnswer {
         minute: d.minute,
         side: d.side,
         off: d.engineSuggests ? d.suggestedOff : undefined,
+        ...(d.engineSuggests && d.suggestedChanges?.length ? { changes: d.suggestedChanges } : {}),
         on: undefined,
         reason: d.engineSuggests ? d.suggestedReason : undefined,
       };

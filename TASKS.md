@@ -5909,6 +5909,11 @@ next to whom_ matters. Design + measurements:
 
 **Season-mode engine** · 🟡 In Progress · `P3` · `L` · Type: Feature
 
+**Current status (2026-09-06):** PRs #210–#212 shipped the playable Legacy season,
+fixture play/recovery and Classic Season Orbit. Historical substitution limits are the
+current follow-up. Squad rotation/injuries and Survival remain open. Earlier “Classic
+pending” / “Backlog” notes below describe previous implementation stages.
+
 **Description** — Multi-match progression for the season-shaped modes. Signature feature: **"ghost of the real season"** — Classic Season shows your run against the real historical result of each fixture ("the real Arsenal won here 2-0; you drew"), chasing the actual final table. Survival tracks point targets from a mid-season relegation start; Legacy drafts season-by-season. Era-authentic rules (e.g. 3 subs pre-2020 vs 5). **Depends on:** TASK-1810, **[TASK-1844](#task-1844)**.
 
 **✅ UNBLOCKED 2026-09-01 — [TASK-1844](#task-1844) shipped.** Designing this measured the match
@@ -6023,7 +6028,7 @@ targets and relegation start, era-authentic substitution rules, and squad rotati
 - Implementation and validation contracts:
   [PR 3 plan](docs/superpowers/plans/2026-09-05-task-1811-play-season-fixtures.md).
 
-**PR 4 — Classic Season Orbit (2026-09-06, draft PR #212):**
+**PR 4 — Classic Season Orbit (merged 2026-09-06, PR #212):**
 
 - Audited all 34 committed fixture/standings archives: complete home-away leagues;
   22 clubs/42 games per club in 1992–1994, 20 clubs/38 games thereafter.
@@ -6034,8 +6039,18 @@ targets and relegation start, era-authentic substitution rules, and squad rotati
 - Owner selected 02 / Season orbit from the revised 30 distinct concepts. Classic Season
   now integrates the chooser, legal XI, chronological sim/play, historical comparison,
   table and isolated save/recovery at `/game/classic`. All 686 club-seasons are audited.
-  Single-match Classic, era substitution rules and Survival remain pending.
+  Single-match Classic and Survival remain pending; era rules are the next slice.
 - [Classic plan and audit](docs/superpowers/plans/2026-09-05-task-1811-classic-season.md).
+
+**PR 5 — historical substitution limits (implementation, 2026-09-06):**
+
+- Fixture-date policies cover the early two-player limit, goalkeeper-only extra change,
+  three-player seasons, the temporary 2019/20 restart and permanent five-player rules.
+- Five-player fixtures support three stoppages plus half-time, with grouped bench changes.
+- Other modes retain their existing policy; finished results are never resimulated.
+- [Scope, sources and tests](docs/superpowers/plans/2026-09-06-task-1811-era-substitutions.md).
+- Remaining: rotation/injuries across fixtures and Survival; named-bench history and
+  concussion protocols are outside this ordinary-substitution slice.
 
 ### TASK-1812
 

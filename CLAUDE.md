@@ -256,11 +256,21 @@ compares the coach's completed prefix by fixture ID, preserving home/away orient
 Never force these dates into Legacy's equal-sized matchweeks: postponements create unequal
 games played. 1992–1994 have 22 clubs and 42 matches per club. Ghost earned points at the
 same fixtures and published final points/rank are distinct targets; preserve any points
-adjustment without inventing its historical timing. Classic remains locked pending its
-squad/route/UI/storage integration. See the Classic plan in `docs/superpowers/plans/`.
+adjustment without inventing its historical timing. Classic Season Orbit shipped in PR #212
+at `/game/classic`, with isolated save/recovery. See the Classic plan in `docs/superpowers/plans/`.
 
 Classic squad coverage is measured across 686 club-seasons: only offer formations that
 `classicLineup` can fill legally. `loadClassicSquads` shares a rating context per season;
 use `playerInSquad`, not just a row's final club. The calendar driver `advanceClassic`
 finishes the rival-only tail on the coach's final fixture and keys seeds by fixture ID.
 Never discard the tail or remap a saved result to another fixture by array position.
+
+### TASK-1811: historical substitutions (PR 5)
+
+Classic's optional `MatchSetup.substitutions` comes from season plus actual fixture date,
+not a global pre/post-2020 flag: 2019/20 changed at the restart and 2020/21 reverted.
+Unspecified policy preserves other modes. One shared gate checks player budgets and
+stoppages on all replacement paths, including forced injuries and keeper recovery.
+Grouped changes travel in one answer; never repeat the same kind/minute/side decision
+and undermine the driver duplicate guard. Saved results stay immutable.
+See `docs/superpowers/plans/2026-09-06-task-1811-era-substitutions.md` for scope and sources.
