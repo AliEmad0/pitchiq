@@ -93,3 +93,14 @@ export function nextClassicFixture(
     },
   };
 }
+
+/** Rotate only future fixtures. Validate the entire XI before replacing the saved selection. */
+export function rotateClassic(
+  data: ClassicData,
+  saved: SavedClassic,
+  cardIds: readonly string[],
+): SavedClassic {
+  if (!nextClassicFixture(data, saved)) throw new Error("Classic season is complete");
+  classicTeams(data, saved.clubId, saved.formation, cardIds);
+  return { ...saved, cardIds: [...cardIds] };
+}

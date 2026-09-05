@@ -4,10 +4,11 @@ import { loadClassicData } from "@/features/game/adapter/classic-data";
 import type { ClassicData } from "@/features/game/domain/classic-data";
 import {
   classicTeams,
+  rotateClassic,
   restoreClassic,
   nextClassicFixture,
 } from "@/features/game/view/classic-session";
-import { advanceClassic } from "@/features/game/view/classic-run";
+import { advanceClassic, classicFixtureSeed } from "@/features/game/view/classic-run";
 import {
   clearClassic,
   saveClassic,
@@ -82,4 +83,52 @@ it("surfaces malformed storage instead of treating it as an empty slot", async (
   await idbPut("season", "classic-current", { ...initial, results: [{ homeGoals: -1 }] });
   await expect(loadClassicSave()).rejects.toThrow();
   expect(await idbGet("season", "classic-current")).not.toBeNull();
+});
+
+it("persists rotation into the next away fixture without rewriting completed scores", async () => {
+  const first = restoreClassic(data, initial);
+  const saved = {
+    ...initial,
+    results: [...advanceClassic(data.schedule, first.teams, first.run).results],
+  };
+  const before = structuredClone(saved);
+  const own = first.teams[first.run.coach];
+  const { canPlay } = await import("@/features/game/domain/eligibility");
+  const replacement = own.bench!.find((p) => canPlay(p, own.formation.slots[1].role));
+  expect(replacement).toBeDefined();
+  const cards = [...saved.cardIds];
+  cards[1] = replacement!.cardId;
+  const rotated = rotateClassic(data, saved, cards);
+  expect(saved).toEqual(before);
+  await saveClassic(rotated);
+  const loaded = (await loadClassicSave())!;
+  expect(loaded.results).toEqual(before.results);
+  expect(loaded.seed).toBe(before.seed);
+  const fixture = nextClassicFixture(data, loaded)!;
+  expect(fixture.coachSide).toBe("away");
+  expect(fixture.setup.away.players.map((p) => p.cardId)).toEqual(cards);
+  expect(fixture.setup.away.bench!.some((p) => p.cardId === replacement!.cardId)).toBe(false);
+  const current = restoreClassic(data, loaded);
+  const advanced = advanceClassic(data.schedule, current.teams, current.run);
+  expect(advanced.results.slice(0, before.results.length)).toEqual(before.results);
+});
+it("refuses illegal rotation and cannot edit a completed season", () => {
+  for (const cardIds of [
+    initial.cardIds.slice(1),
+    Array(11).fill(initial.cardIds[0]),
+    ["foreign", ...initial.cardIds.slice(1)],
+    [initial.cardIds[1], initial.cardIds[0], ...initial.cardIds.slice(2)],
+  ]) {
+    expect(() => rotateClassic(data, initial, cardIds)).toThrow("XI");
+  }
+  const complete = {
+    ...initial,
+    results: data.schedule.fixtures.map((f) => ({
+      fixtureId: f.id,
+      seed: classicFixtureSeed(initial.seed, f.id),
+      homeGoals: 0,
+      awayGoals: 0,
+    })),
+  };
+  expect(() => rotateClassic(data, complete, initial.cardIds)).toThrow("complete");
 });

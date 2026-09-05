@@ -246,12 +246,12 @@ export function ClassicOrbit({
       </div>
       <details className={styles.squad} open={!started}>
         <summary>{t("squad")}</summary>
-        <p>{t("squadHint")}</p>
+        {!ghost.complete && <p>{t(started ? "rotationHint" : "squadHint")}</p>}
         <div className={styles.players}>
           {coach.players.map((player, i) => (
             <label key={i}>
               <span>{coach.formation.slots[i].role}</span>
-              {started ? (
+              {started && ghost.complete ? (
                 <b>{player.name}</b>
               ) : (
                 <select

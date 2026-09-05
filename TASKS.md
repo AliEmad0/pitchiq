@@ -6042,7 +6042,7 @@ targets and relegation start, era-authentic substitution rules, and squad rotati
   Single-match Classic and Survival remain pending; era rules are the next slice.
 - [Classic plan and audit](docs/superpowers/plans/2026-09-05-task-1811-classic-season.md).
 
-**PR 5 — historical substitution limits (implementation, 2026-09-06):**
+**PR 5 — historical substitution limits (merged 2026-09-06, PR #213):**
 
 - Fixture-date policies cover the early two-player limit, goalkeeper-only extra change,
   three-player seasons, the temporary 2019/20 restart and permanent five-player rules.
@@ -6051,6 +6051,20 @@ targets and relegation start, era-authentic substitution rules, and squad rotati
 - [Scope, sources and tests](docs/superpowers/plans/2026-09-06-task-1811-era-substitutions.md).
 - Remaining: rotation/injuries across fixtures and Survival; named-bench history and
   concussion protocols are outside this ordinary-substitution slice.
+
+**Next slice — Classic XI rotation (implementation, 2026-09-06):**
+
+- The existing Season Orbit XI controls now allow legal changes between fixtures.
+  Each selection is saved immediately; both sim and play restore that XI and rebuild
+  the bench. Completed results and fixture seeds stay unchanged.
+- Existing version-1 saves require no migration. Completed seasons cannot be edited.
+  Save failure blocks further rotation and fixture progression until retry succeeds.
+- Verified: 13 focused unit/component tests, type-check, lint and a browser scenario
+  covering sim, rotation, reload, preview cancellation and mobile overflow.
+- This is the rotation foundation, not completed injury carryover. Next: persist compact
+  injury availability from sim/live results, define recovery and the insufficient-eligible-XI
+  case, then extend rotation/availability to Legacy. Survival remains pending.
+- [Scope and follow-up](docs/superpowers/plans/2026-09-06-task-1811-classic-rotation.md).
 
 ### TASK-1812
 

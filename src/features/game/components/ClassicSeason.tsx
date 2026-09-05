@@ -2,7 +2,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { ClassicData } from "../domain/classic-data";
-import { classicTeams, nextClassicFixture, restoreClassic } from "../view/classic-session";
+import {
+  classicTeams,
+  nextClassicFixture,
+  restoreClassic,
+  rotateClassic,
+} from "../view/classic-session";
 import { advanceClassic } from "../view/classic-run";
 import { randomSeed } from "../view/seed";
 import {
@@ -229,7 +234,14 @@ export function ClassicSeason({ seasons }: { seasons: number[] }) {
               setCards(undefined);
               setShape(value);
             }}
-            onCards={setCards}
+            onCards={(values) => {
+              if (!saved) {
+                setCards(values);
+                return;
+              }
+              if (!data || error || lock.current) return;
+              void transact(() => persist(rotateClassic(data, saved, values)));
+            }}
             onStart={start}
             onSim={step}
             onAbandon={remove}

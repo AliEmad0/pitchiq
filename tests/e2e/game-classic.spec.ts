@@ -85,3 +85,36 @@ test("Classic modern half-time supports two changes in one submission", async ({
   await page.getByRole("button", { name: "Return to season" }).click();
   await expect(page.getByText("1 of 38 fixtures", { exact: false })).toBeVisible();
 });
+
+test("Classic rotation saves after a fixture and survives reload", async ({ page }) => {
+  await page.goto("/game/classic");
+  await page.getByRole("button", { name: "Start season", exact: true }).click({ timeout: 60_000 });
+  await page.getByRole("button", { name: "Sim fixture", exact: true }).click();
+  await expect(page.getByText("1 of 38 fixtures", { exact: false })).toBeVisible();
+  const before = await page.getByRole("table").innerText();
+  await page.locator("summary").filter({ hasText: "Your XI" }).click();
+  const slot = page.getByRole("combobox", { name: /^Position 2 / });
+  const original = await slot.inputValue();
+  const replacement = await slot
+    .locator("option")
+    .evaluateAll(
+      (options, value) =>
+        options.map((o) => (o as HTMLOptionElement).value).find((v) => v !== value),
+      original,
+    );
+  expect(replacement).toBeTruthy();
+  await slot.selectOption(replacement!);
+  await expect(page.getByRole("button", { name: "Play fixture", exact: true })).toBeEnabled();
+  await page.reload();
+  await expect(page.getByText("1 of 38 fixtures", { exact: false })).toBeVisible();
+  await page.locator("summary").filter({ hasText: "Your XI" }).click();
+  await expect(slot).toHaveValue(replacement!);
+  expect(await page.getByRole("table").innerText()).toBe(before);
+  await page.getByRole("button", { name: "Play fixture", exact: true }).click();
+  await page.getByRole("button", { name: "Return to season" }).click();
+  await page.locator("summary").filter({ hasText: "Your XI" }).click();
+  await expect(slot).toHaveValue(replacement!);
+  expect(await page.getByRole("table").innerText()).toBe(before);
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
