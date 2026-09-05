@@ -26,6 +26,7 @@ const GAME_ROUTES = join(process.cwd(), "src", "app", "[locale]", "game");
  * Fluid Active-CPU shape in miniature.
  */
 const GAME_API_ROUTES = [
+  join(process.cwd(), "src", "app", "api", "game", "classic", "[season]", "route.ts"),
   join(process.cwd(), "src", "app", "api", "game", "rivals", "[club]", "route.ts"),
 ];
 
@@ -50,7 +51,7 @@ describe("game routes stay CDN-served", () => {
     // ⚠️ The two dynamic files stand for N prerendered pages between them (one per pack,
     // one per pack × club), so this counts FILES, not pages — do not "fix" it downward
     // when the club list grows.
-    expect(files.length).toBeGreaterThanOrEqual(7);
+    expect(files.length).toBeGreaterThanOrEqual(8);
   });
 
   it.each(files.map((f) => [f.slice(f.indexOf("src")), f]))(

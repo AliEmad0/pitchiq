@@ -212,8 +212,7 @@ Production is hosted on **Vercel** with the GitHub integration: every push to `m
 ### Season game development (TASK-1811)
 
 Legacy season fixture play and return-to-table results shipped in PR #211. The next slice
-adds Classic's historical schedule and ghost comparison foundation, validated across all
-34 committed seasons. Classic is not playable yet; its season-specific squads, chooser,
-and persistence remain in integration; legal squads and calendar progression now back a
-30-concept playable local gallery. See the
+adds playable Classic Season at `/game/classic`, using the owner-selected Season Orbit
+screen, season-specific squads, real historical fixtures, sim/play, historical comparison
+and isolated save/resume. All 34 archives and 686 club-seasons are validated. See the
 [Classic implementation plan](docs/superpowers/plans/2026-09-05-task-1811-classic-season.md).

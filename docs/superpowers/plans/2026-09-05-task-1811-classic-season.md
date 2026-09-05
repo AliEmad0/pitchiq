@@ -1,6 +1,6 @@
 # TASK-1811 — Classic historical season foundation
 
-Status: first implementation slice; Classic is not playable yet.
+Status: Season Orbit selected by the owner; production Classic Season integrated in PR #212.
 
 ## Scope
 
@@ -118,3 +118,28 @@ already-tested squad and calendar primitives.
 
 Continuation validation: 127 tests passed across ten Classic/season suites; type-check
 and lint passed. CI must run again on the continuation commit before merge.
+
+## Season Orbit integration (2026-09-06)
+
+The owner rejected the first gallery because theme variants reused layouts. The revised
+30 structurally distinct concepts replaced it; the owner selected **02 / Season orbit**.
+The production `/game/classic` screen now uses that ring, next-fixture console, historical
+chase, final target and league table, with season/club/formation and legal XI selection.
+
+- Classic Season is live in the registry; its single-match format remains planned.
+- Static `/api/game/classic/[season]` serves one archive and enriched season squads.
+  Enrichment roughly doubles the earlier bare-card measurement (about 384–438 KB for
+  squads before compression); no all-season payload is sent to the client.
+- Simulate or play the next historical fixture through the shared match screens. Away
+  orientation and selected XI/bench survive the round trip. Completed scores are stored
+  without rerunning them after reload. Final progression completes the rival-only tail.
+- `season/classic-current` is isolated from Legacy and single-match slots. Version,
+  archive fingerprint, seed, exact XI and calendar prefix define recovery. Corrupt data
+  surfaces a retry/explicit abandonment choice; failed saves block further progression.
+- English is the only active routing locale (TASK-1843). Arabic catalog entries remain
+  synchronized, but `/ar/*` redirects intentionally; this feature does not re-enable it.
+- Type-check, lint and 139 focused tests passed. Browser play/return/table/reload and
+  mobile width checks passed; the early 42-fixture season has its own browser check.
+- Era-specific substitutions, rotation/injuries and Survival remain follow-up work.
+
+Earlier sections record the foundation and gallery history, not remaining integration work.

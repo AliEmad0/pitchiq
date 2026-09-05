@@ -5,6 +5,7 @@ import { classicLineup } from "../domain/classic-lineup";
 import { makeRatingContext } from "../domain/ratings";
 import { rate } from "../domain/rate";
 import { toGamePlayer } from "./player";
+import { cardBio, loadCareerIndex } from "./card-enrich";
 
 /** One cohort and one rating context per season, shared across every club and shape.
  * Missing legal XIs are reported explicitly for the chooser, never cross-era filled.
@@ -12,6 +13,7 @@ import { toGamePlayer } from "./player";
 export async function loadClassicSquads(season: number) {
   const [players, standings] = await Promise.all([loadPlayers(season), loadStandings(season)]);
   if (!players || !standings?.length) return null;
+  const career = await loadCareerIndex();
   const context = makeRatingContext(season, players, standings);
   const rated = new Map(
     players.map((p) => [p.id, { ...toGamePlayer(p, season), ...rate(p, context) }]),
@@ -24,6 +26,7 @@ export async function loadClassicSquads(season: number) {
         .filter((p) => playerInSquad(p, club.teamId))
         .map((p) => ({
           ...rated.get(p.id)!,
+          ...cardBio(p, p.id, season, career),
           club: club.teamName,
           teamId: club.teamId,
         }));

@@ -6023,7 +6023,7 @@ targets and relegation start, era-authentic substitution rules, and squad rotati
 - Implementation and validation contracts:
   [PR 3 plan](docs/superpowers/plans/2026-09-05-task-1811-play-season-fixtures.md).
 
-**PR 4 — Classic data and progression (2026-09-05, draft PR #212):**
+**PR 4 — Classic Season Orbit (2026-09-06, draft PR #212):**
 
 - Audited all 34 committed fixture/standings archives: complete home-away leagues;
   22 clubs/42 games per club in 1992–1994, 20 clubs/38 games thereafter.
@@ -6031,9 +6031,10 @@ targets and relegation start, era-authentic substitution rules, and squad rotati
   away orientation, chronological prefixes and duplicate-result rejection.
 - Published final targets are separate from earned points; future point adjustments are
   retained explicitly. Fixtures have dates, not matchweeks: do not invent equal-sized weeks.
-- Classic remains locked until its season-scoped squads, chooser, progression, save identity
-  and ghost UI are integrated. Squad audit now covers all 686 club-seasons; chronological
-  progression is implemented and 30 playable concepts are ready for the owner’s selection.
+- Owner selected 02 / Season orbit from the revised 30 distinct concepts. Classic Season
+  now integrates the chooser, legal XI, chronological sim/play, historical comparison,
+  table and isolated save/recovery at `/game/classic`. All 686 club-seasons are audited.
+  Single-match Classic, era substitution rules and Survival remain pending.
 - [Classic plan and audit](docs/superpowers/plans/2026-09-05-task-1811-classic-season.md).
 
 ### TASK-1812
