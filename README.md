@@ -214,5 +214,6 @@ Production is hosted on **Vercel** with the GitHub integration: every push to `m
 Legacy season fixture play and return-to-table results shipped in PR #211. The next slice
 adds Classic's historical schedule and ghost comparison foundation, validated across all
 34 committed seasons. Classic is not playable yet; its season-specific squads, chooser,
-progression and persistence are next. See the
+and persistence remain in integration; legal squads and calendar progression now back a
+30-concept playable local gallery. See the
 [Classic implementation plan](docs/superpowers/plans/2026-09-05-task-1811-classic-season.md).

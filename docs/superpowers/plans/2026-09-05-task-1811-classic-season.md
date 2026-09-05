@@ -76,3 +76,45 @@ Era substitution rules, rotation/injuries and Survival remain separate follow-up
   Node/libuv worker crash during happy-dom image-fetch teardown, reporting
   `ERR_IPC_CHANNEL_CLOSED`; this is not a green full-suite result. CI must verify the
   complete suite before merge. No routes or rendered surfaces changed in this slice.
+
+## Squad and progression continuation (2026-09-05)
+
+- All **686 club-seasons** field at least one legal XI using only that season's players.
+  Formation coverage is 3–20 supported shapes per club; the chooser must offer only
+  supported shapes. Season squad payloads measure **198,923–225,918 bytes** before
+  compression. Serve one selected season, not all 34 as a page prop.
+- `loadClassicSquads` builds one shared rating context per season and respects the
+  existing `playerInSquad` membership helper, including players who represented multiple
+  clubs. It does not infer precise transfer-date availability from season totals.
+- `classicLineup` uses deterministic bipartite assignment with reassignment, not an
+  ineligible fallback. Player identity is unique within each XI. This proves legal
+  feasibility; it does not claim a globally optimal rating assignment.
+- `advanceClassic` appends a calendar prefix through the next coach fixture; on the last
+  coach fixture it completes the rival-only tail. Unequal games played are allowed.
+  A supplied played score must match that exact next fixture. Existing results remain
+  unchanged; seeds derive from fixture identity and the season seed.
+- Classic's final app route and saved-run recovery are still pending the surface choice.
+  The prototype does not persist simulation progress and does not claim to implement
+  interactive minute-by-minute match coaching.
+
+### Playable concept review
+
+A local gallery is available at `http://localhost:8903/`, with its sources in the shared
+workspace's sibling `classic-gallery/` directory. It imports the real progression and
+simulation code, using adapter exports for 1992, 2003 and 2015. Thirty layout/treatment
+combinations share a single run. Choose a season, club and supported formation; simulate
+fixtures or five at a time; compare against the same historical fixtures; save a concept.
+This is round 1 of the owner's concept workflow, not a production route or final design.
+The formation/club/season controls explicitly restart the prototype run.
+
+Chromium verification passed all 30 desktop interaction loops and all 30 mobile horizontal
+bounds checks. A full 1992 run finishes 42 coach fixtures and all 462 league games. The
+concept choice persists across reloads. No page errors were reported. Desktop and mobile
+screenshots live beside the gallery, and the desktop screenshot was visually inspected.
+
+Next dependent step: owner chooses a frame, then refinements/animation choices as needed;
+implement the selected screen, static data route and isolated save identity with the
+already-tested squad and calendar primitives.
+
+Continuation validation: 127 tests passed across ten Classic/season suites; type-check
+and lint passed. CI must run again on the continuation commit before merge.

@@ -258,3 +258,9 @@ games played. 1992–1994 have 22 clubs and 42 matches per club. Ghost earned po
 same fixtures and published final points/rank are distinct targets; preserve any points
 adjustment without inventing its historical timing. Classic remains locked pending its
 squad/route/UI/storage integration. See the Classic plan in `docs/superpowers/plans/`.
+
+Classic squad coverage is measured across 686 club-seasons: only offer formations that
+`classicLineup` can fill legally. `loadClassicSquads` shares a rating context per season;
+use `playerInSquad`, not just a row's final club. The calendar driver `advanceClassic`
+finishes the rival-only tail on the coach's final fixture and keys seeds by fixture ID.
+Never discard the tail or remap a saved result to another fixture by array position.
