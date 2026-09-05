@@ -7,8 +7,12 @@ import type { SeasonSpec } from "@/features/game/domain/rule-packs";
 import { loadRival } from "@/features/game/view/rival-choice";
 import { pickOpponents } from "@/features/game/view/season-league";
 import { SeasonHub } from "./SeasonHub";
+import { clearRun, type SavedRun } from "@/features/game/storage/season-slot";
 
 export interface SeasonStartProps {
+  saved?: SavedRun;
+  captaincies?: Record<number, number>;
+  referees?: readonly string[];
   spec: SeasonSpec;
   coachId: number;
   coachName: string;
@@ -31,6 +35,9 @@ export interface SeasonStartProps {
  * the biggest payload in the app by twenty, on 51 prerendered pages.
  */
 export function SeasonStart({
+  saved,
+  captaincies,
+  referees,
   spec,
   coachId,
   coachName,
@@ -44,16 +51,19 @@ export function SeasonStart({
   const t = useTranslations("game");
   const [pools, setPools] = useState<Record<number, PoolCard[]> | null>(null);
   const [failed, setFailed] = useState(0);
+  const [attempt, setAttempt] = useState(0);
+  const [arming, setArming] = useState(false);
 
   const opponents = useMemo(
     () =>
+      saved?.leagueIds?.filter((id) => id !== coachId) ??
       pickOpponents(
         clubs.map((c) => c.id),
         coachId,
         spec.clubs,
         seed,
       ),
-    [clubs, coachId, spec.clubs, seed],
+    [clubs, coachId, spec.clubs, seed, saved],
   );
 
   useEffect(() => {
@@ -69,14 +79,14 @@ export function SeasonStart({
       for (const id of opponents) {
         const rival = await loadRival(id, ac.signal);
         if (ac.signal.aborted) return;
-        if (rival == null) missing++;
+        if (rival == null || rival.cards.length === 0) missing++;
         else got[id] = rival.cards;
       }
       setFailed(missing);
       setPools(got);
     })();
     return () => ac.abort();
-  }, [opponents]);
+  }, [opponents, attempt]);
 
   if (pools == null) {
     return (
@@ -96,9 +106,44 @@ export function SeasonStart({
    */
   const usable = opponents.filter((id) => pools[id] != null);
   const trimmed = usable.length % 2 === 0 ? usable.slice(0, usable.length - 1) : usable;
-  const leagueIds = [coachId, ...trimmed];
+  const leagueIds = saved?.leagueIds ?? [coachId, ...trimmed];
   const clubNames = Object.fromEntries(clubs.map((c) => [c.id, c.name]));
   const allPools: Record<number, PoolCard[]> = { ...pools, [coachId]: [...squad] };
+
+  // A legacy shortened save has no recoverable club order. Never guess its identities.
+  if (
+    saved != null &&
+    (failed > 0 ||
+      saved.clubs !== leagueIds.length ||
+      (saved.leagueIds == null && saved.clubs !== opponents.length + 1))
+  ) {
+    return (
+      <div className="sh-loading">
+        <p role="alert">{t("seasonResumeBlocked")}</p>
+        <button
+          type="button"
+          onClick={() => {
+            setPools(null);
+            setAttempt((n) => n + 1);
+          }}
+        >
+          {t("seasonRetry")}
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            if (!arming) {
+              setArming(true);
+              return;
+            }
+            void clearRun().then(() => onAbandon?.());
+          }}
+        >
+          {t(arming ? "seasonAbandonSure" : "seasonAbandon")}
+        </button>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -108,6 +153,8 @@ export function SeasonStart({
         </p>
       ) : null}
       <SeasonHub
+        captaincies={captaincies}
+        referees={referees}
         coachId={coachId}
         coachName={coachName}
         seed={seed}

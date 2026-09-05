@@ -18,7 +18,17 @@ import { buildSeasonTeams } from "@/features/game/view/season-league";
 import { clubLogo } from "@/utils/club-logo";
 import { prefersReducedMotion } from "@/utils/motion";
 
+import {
+  finishSeasonWeek,
+  seasonFixture,
+  type SeasonFixture,
+} from "@/features/game/view/season-match";
+import type { MatchResult } from "@/features/game/domain/match-types";
+import { SeasonFixturePlay } from "./SeasonFixturePlay";
+
 export interface SeasonHubProps {
+  captaincies?: Record<number, number>;
+  referees?: readonly string[];
   coachId: number;
   coachName: string;
   seed: number;
@@ -56,6 +66,8 @@ const GOALS_PER_MATCH = 2.7;
  * `transform` on `tr.me` would silently break the FLIP.
  */
 export function SeasonHub({
+  captaincies = {},
+  referees = [],
   coachId,
   coachName,
   seed,
@@ -108,6 +120,9 @@ export function SeasonHub({
    * — and the coach would only find out on the reload after the one that worked.
    */
   const [loaded, setLoaded] = useState(false);
+  const [blocked, setBlocked] = useState(false);
+  const [playing, setPlaying] = useState<SeasonFixture | null>(null);
+  const playingRef = useRef(false);
   /** "Abandon" is armed by the first click and fires on the second. */
   const [arming, setArming] = useState(false);
   /** The table order before the last advance, so the FLIP knows how far each row travelled. */
@@ -137,7 +152,8 @@ export function SeasonHub({
         saved != null &&
         saved.seed === seed &&
         saved.clubs === clubs &&
-        saved.coach === coachIndex
+        saved.coach === coachIndex &&
+        (saved.leagueIds == null || saved.leagueIds.join(",") === leagueIds.join(","))
       ) {
         setRun({
           seed: saved.seed,
@@ -146,6 +162,13 @@ export function SeasonHub({
           results: saved.results,
         });
       }
+      setBlocked(
+        saved != null &&
+          saved.seed === seed &&
+          (saved.clubs !== clubs ||
+            saved.coach !== coachIndex ||
+            (saved.leagueIds != null && saved.leagueIds.join(",") !== leagueIds.join(","))),
+      );
       setLoaded(true);
     })();
     return () => {
@@ -163,16 +186,17 @@ export function SeasonHub({
    * saving it would turn every visit to the setup screen into a wipe.
    */
   useEffect(() => {
-    if (!loaded || run.results.length === 0) return;
+    if (!loaded || blocked || run.results.length === 0) return;
     void saveRun({
       ...run,
+      leagueIds: [...leagueIds],
       cardIds: squad.map((p) => p.cardId),
       // ⛔ `formationKey`, not `formation.name`. The record is resolved back through
       // `formationKey(f) === record.formationKey`, so a bare name never matches and the
       // season silently refuses to resume.
       formationKey: formationKey(formation),
     });
-  }, [loaded, run, squad, formation]);
+  }, [loaded, blocked, run, squad, formation, leagueIds]);
 
   const abandon = useCallback(() => {
     if (!arming) {
@@ -237,6 +261,7 @@ export function SeasonHub({
   /** Play `count` whole matchweeks through the REAL engine. */
   const advance = useCallback(
     (count: number) => {
+      if (!loaded || blocked || playingRef.current) return;
       wasRef.current = Object.fromEntries(
         seasonTable(clubs, run.results).map((row, i) => [row.club, i]),
       );
@@ -266,8 +291,35 @@ export function SeasonHub({
       setRun(next);
       setAnimate(!reduced);
     },
-    [clubs, run, schedule, teams, reduced],
+    [clubs, run, schedule, teams, reduced, loaded, blocked],
   );
+
+  const play = () => {
+    if (!loaded || blocked || playingRef.current || clubs < 2) return;
+    const fixture = seasonFixture(run, teams);
+    if (fixture == null) return;
+    playingRef.current = true;
+    // Explicit play saves even week zero; a refresh restarts this fixed fixture.
+    void saveRun({
+      ...run,
+      leagueIds: [...leagueIds],
+      cardIds: squad.map((p) => p.cardId),
+      formationKey: formationKey(formation),
+    });
+    setPlaying(fixture);
+  };
+  const returnFromFixture = (result: MatchResult | null) => {
+    if (!playingRef.current) return;
+    playingRef.current = false;
+    if (result != null) {
+      wasRef.current = Object.fromEntries(
+        seasonTable(clubs, run.results).map((row, i) => [row.club, i]),
+      );
+      setRun(finishSeasonWeek(run, teams, result));
+      setAnimate(!reduced);
+    }
+    setPlaying(null);
+  };
 
   const myFixtures = useMemo(
     () =>
@@ -294,174 +346,211 @@ export function SeasonHub({
   const done = isComplete(run);
 
   return (
-    // ⚠️ `sh-play` is added by the effect above, never here. A className React owns cannot be
-    // taken off and put back within one commit, which is what restarting an animation needs.
-    <section ref={rootRef} className="sh" data-testid="season-hub">
-      {/* ── header: BOTH crests (the owner's 12 + 6 hybrid) ───────────────────────── */}
-      <div className="sh-hd sh-blk">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          className="sh-watermark"
-          data-testid="season-watermark"
-          src={clubLogo(coachId, season)}
-          alt=""
-          aria-hidden="true"
+    <>
+      {playing != null ? (
+        <SeasonFixturePlay
+          fixture={playing}
+          crests={{
+            home: leagueIds[teams.indexOf(playing.setup.home)]!,
+            away: leagueIds[teams.indexOf(playing.setup.away)]!,
+          }}
+          captaincies={captaincies}
+          referees={referees}
+          onReturn={returnFromFixture}
         />
-        <div className="sh-hrow">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            className="sh-crest"
-            data-testid="season-crest"
-            src={clubLogo(coachId, season)}
-            alt=""
-          />
-          <div className="sh-hdtext">
-            <div className="sh-club">{coachName}</div>
-            <div className="sh-wk" data-testid="season-week">
-              {t("seasonWeek", { week, total: schedule.length, pos: myPos })}
-            </div>
-          </div>
-        </div>
-        {/* ⚠️ scaleX, never width — an animated width re-lays-out every frame and fails the
-            motion audit. */}
-        <div className="sh-prog">
-          <i style={{ transform: `scaleX(${schedule.length ? week / schedule.length : 0})` }} />
-        </div>
-      </div>
-
-      {/* ── controls ──────────────────────────────────────────────────────────────── */}
-      <div className="sh-ctl sh-blk">
-        <div className="sh-ttl">{t("seasonMatchweek")}</div>
-        <div className="sh-btns">
-          <button type="button" className="sh-go" onClick={() => advance(1)} disabled={done}>
-            {t("seasonSimWeek")}
-          </button>
-          <button type="button" onClick={() => advance(5)} disabled={done}>
-            {t("seasonSimFive")}
-          </button>
-          <button type="button" onClick={() => advance(schedule.length)} disabled={done}>
-            {t("seasonSimEnd")}
-          </button>
-        </div>
-        <div className="sh-wk sh-hint">{t("seasonAutoHint")}</div>
-        {/* ⚠️ Two clicks. It sits beside "Sim week", and one stray click must not destroy a
-            season that took thirty-eight of them to build. */}
-        <button
-          type="button"
-          className={`sh-ab${arming ? " sh-arm" : ""}`}
-          data-testid="season-abandon"
-          onClick={abandon}
-        >
-          {arming ? t("seasonAbandonSure") : t("seasonAbandon")}
-        </button>
-      </div>
-
-      {/* ── the league ────────────────────────────────────────────────────────────── */}
-      <div className="sh-tbl sh-blk">
-        <div className="sh-ttl">{t("seasonLeague")}</div>
-        <table>
-          <thead>
-            <tr>
-              <th />
-              <th>{t("seasonClub")}</th>
-              <th>{t("seasonPlayed")}</th>
-              <th>{t("seasonGd")}</th>
-              <th>{t("seasonPts")}</th>
-            </tr>
-          </thead>
-          <tbody ref={bodyRef}>
-            {table.map((row, i) => (
-              <tr
-                key={row.club}
-                data-testid="season-row"
-                data-club={row.club}
-                data-was={wasRef.current[row.club] ?? i}
-                data-played={row.played}
-                data-points={row.points}
-                data-gf={row.goalsFor}
-                data-ga={row.goalsAgainst}
-                className={row.club === coachIndex ? "sh-me" : undefined}
-              >
-                <td>{i + 1}</td>
-                <td>
-                  <span className="sh-cn">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      className="sh-tb"
-                      data-testid="season-row-crest"
-                      src={clubLogo(idOf(row.club), season)}
-                      alt=""
-                    />
-                    {nameOf(row.club)}
-                  </span>
-                </td>
-                <td>{row.played}</td>
-                <td>
-                  {row.goalDifference > 0 ? "+" : ""}
-                  {row.goalDifference}
-                </td>
-                <td>
-                  <b>{row.points}</b>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* ── your side of it ───────────────────────────────────────────────────────── */}
-      <div className="sh-side sh-blk">
-        <div className="sh-ttl">{t("seasonNext")}</div>
-        <div className="sh-bigfx" data-testid="season-next">
-          {next ? (
-            <>
+      ) : null}
+      <div hidden={playing != null}>
+        {/* ⚠️ `sh-play` is added by the effect above, never here. A className React owns cannot be
+    taken off and put back within one commit, which is what restarting an animation needs. */}
+        <section ref={rootRef} className="sh" data-testid="season-hub">
+          {/* ── header: BOTH crests (the owner's 12 + 6 hybrid) ───────────────────────── */}
+          <div className="sh-hd sh-blk">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              className="sh-watermark"
+              data-testid="season-watermark"
+              src={clubLogo(coachId, season)}
+              alt=""
+              aria-hidden="true"
+            />
+            <div className="sh-hrow">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                className="sh-fcrest"
-                data-testid="season-next-crest"
-                src={clubLogo(idOf(next.opp), season)}
+                className="sh-crest"
+                data-testid="season-crest"
+                src={clubLogo(coachId, season)}
                 alt=""
               />
-              <div>
-                <div className="sh-op">{nameOf(next.opp)}</div>
-                <div className="sh-ha">
-                  {next.atHome ? t("seasonHome") : t("seasonAway")} ·{" "}
-                  {t("seasonWeekN", { n: next.week + 1 })}
+              <div className="sh-hdtext">
+                <div className="sh-club">{coachName}</div>
+                <div className="sh-wk" data-testid="season-week">
+                  {t("seasonWeek", { week, total: schedule.length, pos: myPos })}
                 </div>
               </div>
-            </>
-          ) : (
-            <div className="sh-op">{t("seasonComplete")}</div>
-          )}
-        </div>
+            </div>
+            {/* ⚠️ scaleX, never width — an animated width re-lays-out every frame and fails the
+            motion audit. */}
+            <div className="sh-prog">
+              <i style={{ transform: `scaleX(${schedule.length ? week / schedule.length : 0})` }} />
+            </div>
+          </div>
 
-        <div className="sh-ttl sh-gap">{t("seasonForm")}</div>
-        <div className="sh-form">
-          {form.length === 0 ? (
-            <i>–</i>
-          ) : (
-            form.map((f, i) => (
-              <i key={i} className={`sh-${f}`}>
-                {f}
-              </i>
-            ))
-          )}
-        </div>
+          {blocked ? <p role="alert">{t("seasonResumeBlocked")}</p> : null}
+          {/* ── controls ──────────────────────────────────────────────────────────────── */}
+          <div className="sh-ctl sh-blk">
+            <div className="sh-ttl">{t("seasonMatchweek")}</div>
+            <div className="sh-btns">
+              <button
+                type="button"
+                onClick={play}
+                disabled={done || !loaded || blocked || clubs < 2}
+              >
+                {t("seasonPlayFixture")}
+              </button>
+              <button
+                type="button"
+                className="sh-go"
+                onClick={() => advance(1)}
+                disabled={done || !loaded || blocked}
+              >
+                {t("seasonSimWeek")}
+              </button>
+              <button
+                type="button"
+                onClick={() => advance(5)}
+                disabled={done || !loaded || blocked}
+              >
+                {t("seasonSimFive")}
+              </button>
+              <button
+                type="button"
+                onClick={() => advance(schedule.length)}
+                disabled={done || !loaded || blocked}
+              >
+                {t("seasonSimEnd")}
+              </button>
+            </div>
+            <div className="sh-wk sh-hint">{t("seasonAutoHint")}</div>
+            {/* ⚠️ Two clicks. It sits beside "Sim week", and one stray click must not destroy a
+            season that took thirty-eight of them to build. */}
+            <button
+              type="button"
+              className={`sh-ab${arming ? " sh-arm" : ""}`}
+              data-testid="season-abandon"
+              onClick={abandon}
+            >
+              {arming ? t("seasonAbandonSure") : t("seasonAbandon")}
+            </button>
+          </div>
 
-        {/* ⚠️ The shape is shown because a season is "draft once and live with it" — it is
+          {/* ── the league ────────────────────────────────────────────────────────────── */}
+          <div className="sh-tbl sh-blk">
+            <div className="sh-ttl">{t("seasonLeague")}</div>
+            <table>
+              <thead>
+                <tr>
+                  <th />
+                  <th>{t("seasonClub")}</th>
+                  <th>{t("seasonPlayed")}</th>
+                  <th>{t("seasonGd")}</th>
+                  <th>{t("seasonPts")}</th>
+                </tr>
+              </thead>
+              <tbody ref={bodyRef}>
+                {table.map((row, i) => (
+                  <tr
+                    key={row.club}
+                    data-testid="season-row"
+                    data-club={row.club}
+                    data-was={wasRef.current[row.club] ?? i}
+                    data-played={row.played}
+                    data-points={row.points}
+                    data-gf={row.goalsFor}
+                    data-ga={row.goalsAgainst}
+                    className={row.club === coachIndex ? "sh-me" : undefined}
+                  >
+                    <td>{i + 1}</td>
+                    <td>
+                      <span className="sh-cn">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          className="sh-tb"
+                          data-testid="season-row-crest"
+                          src={clubLogo(idOf(row.club), season)}
+                          alt=""
+                        />
+                        {nameOf(row.club)}
+                      </span>
+                    </td>
+                    <td>{row.played}</td>
+                    <td>
+                      {row.goalDifference > 0 ? "+" : ""}
+                      {row.goalDifference}
+                    </td>
+                    <td>
+                      <b>{row.points}</b>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* ── your side of it ───────────────────────────────────────────────────────── */}
+          <div className="sh-side sh-blk">
+            <div className="sh-ttl">{t("seasonNext")}</div>
+            <div className="sh-bigfx" data-testid="season-next">
+              {next ? (
+                <>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    className="sh-fcrest"
+                    data-testid="season-next-crest"
+                    src={clubLogo(idOf(next.opp), season)}
+                    alt=""
+                  />
+                  <div>
+                    <div className="sh-op">{nameOf(next.opp)}</div>
+                    <div className="sh-ha">
+                      {next.atHome ? t("seasonHome") : t("seasonAway")} ·{" "}
+                      {t("seasonWeekN", { n: next.week + 1 })}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="sh-op">{t("seasonComplete")}</div>
+              )}
+            </div>
+
+            <div className="sh-ttl sh-gap">{t("seasonForm")}</div>
+            <div className="sh-form">
+              {form.length === 0 ? (
+                <i>–</i>
+              ) : (
+                form.map((f, i) => (
+                  <i key={i} className={`sh-${f}`}>
+                    {f}
+                  </i>
+                ))
+              )}
+            </div>
+
+            {/* ⚠️ The shape is shown because a season is "draft once and live with it" — it is
             fixed for all 38 weeks, so it is a standing fact about the run rather than a
             setting. It is also the field a resumed run is rebuilt from. */}
-        <div className="sh-ttl sh-gap">
-          {t("seasonSquad")} · {formation.name}
-        </div>
-        <div className="sh-sq" data-testid="season-squad">
-          {squad.map((p) => (
-            <span key={p.cardId}>
-              {p.role} {p.name.split(" ").pop()} {p.ratings?.overall ?? 0}
-            </span>
-          ))}
-        </div>
+            <div className="sh-ttl sh-gap">
+              {t("seasonSquad")} · {formation.name}
+            </div>
+            <div className="sh-sq" data-testid="season-squad">
+              {squad.map((p) => (
+                <span key={p.cardId}>
+                  {p.role} {p.name.split(" ").pop()} {p.ratings?.overall ?? 0}
+                </span>
+              ))}
+            </div>
+          </div>
+        </section>
       </div>
-    </section>
+    </>
   );
 }

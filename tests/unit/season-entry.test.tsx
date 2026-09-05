@@ -153,7 +153,7 @@ describe("the season entry seam (TASK-1811)", () => {
     expect(screen.queryByTestId("season-loading")).toBeNull();
   });
 
-  it("⚠️ asking for a season shows the SETUP first — the squad is drafted before any league", () => {
+  it("⚠️ asking for a season shows the SETUP first — the squad is drafted before any league", async () => {
     at(
       "?format=season",
       <GamePlay
@@ -164,6 +164,7 @@ describe("the season entry seam (TASK-1811)", () => {
         season={{ clubs: 20, league: "clubs" }}
       />,
     );
+    expect(await screen.findByRole("heading", { name: "Build your XI" })).toBeInTheDocument();
     // The hub cannot exist until an XI does: a season is "draft once and live with it".
     expect(screen.queryByTestId("season-hub")).toBeNull();
   });
@@ -186,7 +187,7 @@ describe("⭐ the POSITIVE control — the seam actually fires", () => {
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: /^Lock in / }));
+    await user.click(await screen.findByRole("button", { name: /^Lock in / }));
     // ⚠️ A round may already be OPEN — clicking a slot while it is would just churn. Take a
     // candidate whenever one is on screen, and only open a slot when none is.
     for (let i = 0; i < 30; i++) {

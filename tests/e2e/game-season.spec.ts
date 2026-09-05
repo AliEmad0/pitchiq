@@ -68,7 +68,7 @@ test.describe("Full Season — the league itself", () => {
   test.describe.configure({ retries: 0 });
 
   test("⭐ drafting an XI reaches the hub, and a matchweek moves the table", async ({ page }) => {
-    test.setTimeout(240_000);
+    test.setTimeout(300_000);
     await page.goto(`/game/legacy/${CLUB}?format=season`);
 
     await page.getByRole("button", { name: /^Lock in / }).click();
@@ -127,5 +127,43 @@ test.describe("Full Season — the league itself", () => {
       .evaluateAll((rows) => rows.map((r) => Number((r as HTMLElement).dataset.played)));
     expect(played).toHaveLength(before);
     expect(played.every((p) => p === 1)).toBe(true);
+
+    // Reuse this already-fetched league: week two puts the coach AWAY, preserving the
+    // schedule's home advantage instead of always treating his XI as the home team.
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.getByRole("button", { name: "Play fixture" }).click();
+    await expect(hub).toBeHidden();
+    // Next dev also renders a status toast; target the fixture notice specifically.
+    await expect(
+      page.getByRole("status").filter({ hasText: "Leaving or refreshing" }),
+    ).toContainText("Completed matchweeks stay saved");
+    await page.getByRole("button", { name: "Return to season" }).click();
+    await expect(week).toContainText(/Matchweek 1 of/);
+    await page.getByRole("button", { name: "Play fixture" }).click();
+    await page.getByRole("button", { name: /Kick off/i }).click();
+    await page.getByRole("button", { name: "Full time", exact: true }).click({ timeout: 60_000 });
+    await expect(page.getByRole("heading", { name: "Full time", exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Copy link/i })).toHaveCount(0);
+    await page.getByRole("button", { name: "Return to season" }).click();
+    await expect(week).toContainText(/Matchweek 2 of/);
+    // Persisted standings only: data-was is the previous position used by the FLIP animation.
+    const finishedRows = await page.getByTestId("season-row").evaluateAll((rows) =>
+      rows.map((r) => {
+        const { club, played, points, gf, ga } = (r as HTMLElement).dataset;
+        return { club, played, points, gf, ga };
+      }),
+    );
+    expect(finishedRows).toHaveLength(before);
+    expect(finishedRows.every((row) => row.played === "2")).toBe(true);
+    await page.reload();
+    await expect(week).toContainText(/Matchweek 2 of/, { timeout: 180_000 });
+    expect(
+      await page.getByTestId("season-row").evaluateAll((rows) =>
+        rows.map((r) => {
+          const { club, played, points, gf, ga } = (r as HTMLElement).dataset;
+          return { club, played, points, gf, ga };
+        }),
+      ),
+    ).toEqual(finishedRows);
   });
 });

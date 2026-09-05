@@ -6003,13 +6003,25 @@ targets and relegation start, era-authentic substitution rules, and squad rotati
   looking right. `ChoiceLink` carries it, matching the one literal it understands rather than
   echoing user input into an href. Same family as the #202 shared-string rule and the nation
   pack inheriting the club rival picker.
-- ⛔ **IN SCOPE: auto-sim only.** Launching a real match from a fixture means driving `GamePlay`'s
-  whole phase machine from inside a run and taking a result back — that is **PR 3**.
+- **PR 2 scope was auto-sim only.** PR 3 adds opt-in fixture play through the shared match
+  screens, driver and phase reducer; the hub retains the run and records a whole matchweek.
 - **Still to come:** the ghost of the real season (Classic), Survival's point targets and
-  relegation start, era-authentic substitution rules, squad rotation/injuries — and a recovery
-  for the one gap this PR leaves: if a rivals fetch fails on the resume visit but not the first,
-  the league comes back a different size, the run is correctly refused as foreign, and the coach
-  restarts at week 0 with nothing telling him so.
+  relegation start, era-authentic substitution rules, squad rotation/injuries.
+
+**PR 3 — fixture play and resume recovery (2026-09-05, implementation in review):**
+
+- Play fixture → programme → live match → summary → Return to season. Auto-sim stays default.
+- Exact league teams and seed, including away fixtures; no re-draft. Played results and the
+  remaining fixtures are committed as one week, guarded against duplicate returns.
+- Save exact league IDs; failed resume fetches show recovery controls and cannot overwrite
+  progress. Legacy full leagues migrate; shortened legacy saves are blocked because their
+  original club order was never stored. Draft/advance wait for the slot read.
+- An unfinished fixture restarts from kickoff after refresh; completed weeks remain saved.
+- Browser testing exposed empty benches opening repeated 20-second substitution windows.
+  The view now requires legal outgoing and incoming players before advertising a change;
+  the engine and seeded outputs stay unchanged. Red/green tests cover the original stall.
+- Implementation and validation contracts:
+  [PR 3 plan](docs/superpowers/plans/2026-09-05-task-1811-play-season-fixtures.md).
 
 ### TASK-1812
 

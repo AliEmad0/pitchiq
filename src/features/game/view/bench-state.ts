@@ -76,7 +76,13 @@ export function answerFor(d: MatchDecision, mode: SubMode): DecisionAnswer {
  * the coach presses it. That is the entire point of the redesign.
  */
 export function benchLabel(pending: SubOfferDecision | null): "idle" | "available" {
-  return pending?.engineSuggests === true ? "available" : "idle";
+  // The engine rolls even with an empty bench or exhausted subs. Advertising that roll
+  // as a choice stalls the live view for 20 seconds with nothing the coach can do.
+  return pending?.engineSuggests === true &&
+    pending.legalOff.length > 0 &&
+    pending.legalOn.length > 0
+    ? "available"
+    : "idle";
 }
 
 /** The pending decision, if it is a substitution offer this bench can act on. */

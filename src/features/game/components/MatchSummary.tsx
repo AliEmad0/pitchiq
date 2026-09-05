@@ -10,6 +10,7 @@ import { ShareLink } from "./ShareLink";
 import { SummaryCard } from "./SummaryCard";
 
 interface Props {
+  newMatchLabel?: string;
   homeName: string;
   awayName: string;
   score: { home: number; away: number };
@@ -72,6 +73,7 @@ const CHOICE_KEY: Record<string, string> = {
  * sharing and records work in TASK-1812 will build on.
  */
 export function MatchSummary({
+  newMatchLabel,
   homeName,
   awayName,
   score,
@@ -249,7 +251,7 @@ export function MatchSummary({
           onClick={onNewMatch}
           className="bg-primary text-primary-foreground ms-auto rounded-md px-5 py-2 text-sm font-bold"
         >
-          {t("playNewMatch")}
+          {newMatchLabel ?? t("playNewMatch")}
         </button>
       </div>
     </div>

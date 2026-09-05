@@ -1080,7 +1080,13 @@
     "continentAs": "آسيا",
     "continentNa": "أمريكا الشمالية",
     "continentSa": "أمريكا الجنوبية",
-    "continentOc": "أوقيانوسيا"
+    "continentOc": "أوقيانوسيا",
+    "seasonPlayFixture": "العب المباراة",
+    "seasonReturn": "العودة إلى الموسم",
+    "seasonRestartHint": "مغادرة الصفحة أو تحديثها يعيد المباراة من ضربة البداية. تبقى الأسابيع المكتملة محفوظة.",
+    "seasonResumeBlocked": "تعذرت استعادة الدوري المحفوظ. تقدمك محفوظ. أعد تحميل الدوري أو اترك هذا الموسم لبدء موسم جديد.",
+    "seasonRetry": "إعادة تحميل الدوري",
+    "livePitchAwayAria": "الفريقان على الملعب، فريقك يهاجم نحو اليسار"
   },
   "commentary": {
     "armbandHandover": "شارة القيادة تنتقل إلى {name}.",

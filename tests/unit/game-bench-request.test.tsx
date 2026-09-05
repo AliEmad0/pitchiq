@@ -206,3 +206,23 @@ describe("a bench request nothing can honour", () => {
     expect(screen.getByRole("button", { name: /^Bench$/ })).toBeEnabled();
   });
 });
+
+it("answers an unusable recommended offer immediately instead of waiting twenty seconds", () => {
+  const pending = { ...offer(77, false), engineSuggests: true, legalOn: [] };
+  const onAnswer = vi.fn();
+  renderWithIntl(
+    <MatchLive
+      model={model}
+      teams={{ home, away }}
+      holdAt={77}
+      pending={pending}
+      captaincies={{}}
+      referees={[]}
+      onAnswer={onAnswer}
+    />,
+  );
+  expect(onAnswer).toHaveBeenCalledExactlyOnceWith(
+    expect.objectContaining({ kind: "sub-offer", minute: 77, side: "home" }),
+  );
+  expect(screen.queryByRole("button", { name: "Change available" })).toBeNull();
+});
