@@ -41,9 +41,7 @@ it.each([0, 1])(
             : "Both teams on the pitch, yours attacking left",
       }),
     ).toBeInTheDocument();
-    await user.click(
-      await screen.findByRole("button", { name: "Full time", exact: true }, { timeout: 2000 }),
-    );
+    await user.click(await screen.findByRole("button", { name: "Full time" }, { timeout: 2000 }));
     await user.click(screen.getByRole("button", { name: "Return to season" }));
     expect(onReturn).toHaveBeenCalledExactlyOnceWith(simulate(fixture.setup));
   },
