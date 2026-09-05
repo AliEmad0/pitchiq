@@ -10,6 +10,8 @@ import { ClubCrest } from "./ClubCrest";
 import { PlayerCard } from "./PlayerCard";
 
 interface Props {
+  coachSide?: "home" | "away";
+  backLabel?: string;
   home: GameTeam;
   away: GameTeam;
   /**
@@ -74,6 +76,8 @@ const WEATHER_IMPACT_KEY: Record<Weather, string> = {
  * still render `MatchupPreview`.
  */
 export function MatchProgramme({
+  coachSide = "home",
+  backLabel,
   home,
   away,
   referee,
@@ -87,7 +91,7 @@ export function MatchProgramme({
   const reduced = prefersReducedMotion();
 
   const tape = { home: taleOfTheTape(home), away: taleOfTheTape(away) };
-  const span = decadeSpan(home);
+  const span = decadeSpan(coachSide === "home" ? home : away);
   const star = { home: starOf(home), away: starOf(away) };
 
   const BARS = [
@@ -134,7 +138,7 @@ export function MatchProgramme({
       <section className="lg-prog-stars" aria-label={t("progSpotlight")}>
         {(["home", "away"] as const).map((side) => {
           const p = star[side];
-          const tag = side === "home" ? t("progYourStar") : t("progTheirStar");
+          const tag = side === coachSide ? t("progYourStar") : t("progTheirStar");
           return (
             <article
               key={side}
@@ -168,7 +172,11 @@ export function MatchProgramme({
               data-testid="prog-bar"
               className="lg-tape-row"
               role="img"
-              aria-label={t("progTapeAria", { label: t(b.key), home: b.h, away: b.a })}
+              aria-label={t("progTapeAria", {
+                label: t(b.key),
+                home: coachSide === "home" ? b.h : b.a,
+                away: coachSide === "home" ? b.a : b.h,
+              })}
             >
               <span className="lg-tape-n lg-home">{b.h}</span>
               <span className="lg-tape-track">
@@ -191,7 +199,7 @@ export function MatchProgramme({
           {(["home", "away"] as const).map((side) => (
             <div key={side} className={`lg-xi lg-xi-${side}`}>
               <h3 className="lg-xi-title">
-                {side === "home" ? t("progYourXi") : t("progTheirXi")}
+                {side === coachSide ? t("progYourXi") : t("progTheirXi")}
               </h3>
               <div className="lg-xi-cards">
                 {(side === "home" ? home : away).players.map((p, i) => (
@@ -238,7 +246,7 @@ export function MatchProgramme({
       {/* ⚠️ FULL WIDTH, and the only --cta on the page. */}
       <div className="lg-prog-go">
         <button type="button" onClick={onBack} className="lg-ghost">
-          {t("progBack")}
+          {backLabel ?? t("progBack")}
         </button>
         <button type="button" onClick={onKickOff} className="lg-kick">
           {t("progKickOff")}

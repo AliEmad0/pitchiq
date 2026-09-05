@@ -16,6 +16,8 @@ import { idbDel, idbGet, idbPut } from "./idb";
  * and why the reason is engine drift rather than speed.
  */
 export interface SavedRun extends SeasonRun {
+  /** Exact table-index order. Absent only on saves made before PR 3. */
+  leagueIds?: number[];
   cardIds: PlayerSeasonId[];
   formationKey: string;
 }

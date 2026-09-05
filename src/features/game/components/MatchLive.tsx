@@ -63,6 +63,7 @@ const SPEEDS = [1, 2, 4] as const;
 const DECISION_LIMIT = 20;
 
 interface Props {
+  coachSide?: "home" | "away";
   model: MatchViewModel;
   /** The source teams — the only place the formation and the seasons survive. */
   teams: { home: GameTeam; away: GameTeam };
@@ -74,7 +75,7 @@ interface Props {
   /**
    * The man who wears the armband whatever the counts say (Captain's Draft, TASK-1810).
    *
-   * ⚠️ HOME only. The icon is the coach's, so the opponent's sheet still ranks on real
+   * Applied only to coachSide (home by default); the opponent's sheet still ranks on real
    * captaincies — passing it to both would put his armband on a side he is not playing for.
    */
   forcedCaptainId?: number;
@@ -133,6 +134,7 @@ const stripMinuteSuffix = (s: string) => s.replace(/\s*\(\d+'\)\s*$/, "");
  * this screen at all.
  */
 export function MatchLive({
+  coachSide = "home",
   model,
   teams,
   holdAt,
@@ -373,9 +375,9 @@ export function MatchLive({
       rankCaptains(
         model.home.players.map((p) => ({ playerId: p.playerId, rating: p.rating ?? 0 })),
         counts,
-        forcedCaptainId,
+        coachSide === "home" ? forcedCaptainId : undefined,
       ),
-    [model.home.players, counts, forcedCaptainId],
+    [model.home.players, counts, forcedCaptainId, coachSide],
   );
   const offPitch = useMemo(
     () => new Set(homeLineup.roster.filter((r) => !r.onPitch).map((r) => r.player.playerId)),
@@ -399,8 +401,9 @@ export function MatchLive({
       rankCaptains(
         model.away.players.map((p) => ({ playerId: p.playerId, rating: p.rating ?? 0 })),
         counts,
+        coachSide === "away" ? forcedCaptainId : undefined,
       ),
-    [model.away.players, counts],
+    [model.away.players, counts, forcedCaptainId, coachSide],
   );
   const awayOffPitch = useMemo(
     () => new Set(awayLineup.roster.filter((r) => !r.onPitch).map((r) => r.player.playerId)),
@@ -416,13 +419,14 @@ export function MatchLive({
    * arc rests on.
    */
   const handover = useMemo(() => {
-    if (armband == null) return null;
-    const order = captaincy.order ?? [];
+    const band = coachSide === "home" ? armband : awayArmband;
+    if (band == null) return null;
+    const order = (coachSide === "home" ? captaincy : awayCaptaincy).order ?? [];
     /**
      * Everyone ranked ahead of the current wearer — and every one of them is off the
      * pitch, because `armbandAt` returns the FIRST man in the order who is still on it.
      */
-    const ahead = order.slice(0, order.indexOf(armband));
+    const ahead = order.slice(0, order.indexOf(band));
     if (ahead.length === 0) return null; // he has worn it since kick-off
     /**
      * ⚠️ The LATEST of their exits, not the captain's (TASK-1838). Once the armband can
@@ -431,14 +435,14 @@ export function MatchLive({
      */
     let minute: number | null = null;
     for (const e of shown) {
-      if (e.side !== "home" || e.playerId == null || !ahead.includes(e.playerId)) continue;
+      if (e.side !== coachSide || e.playerId == null || !ahead.includes(e.playerId)) continue;
       if (e.kind !== "substitution" && !(e.kind === "card" && e.card === "red")) continue;
       if (minute == null || e.minute > minute) minute = e.minute;
     }
-    const name = model.home.players.find((p) => p.playerId === armband)?.name;
+    const name = model[coachSide].players.find((p) => p.playerId === band)?.name;
     if (minute == null || name == null) return null;
     return { minute, name };
-  }, [captaincy.order, armband, shown, model.home.players]);
+  }, [captaincy, awayCaptaincy, armband, awayArmband, shown, model, coachSide]);
 
   // ---- the feed, newest first ----
   type Line = { minute: number; text: string; weight: "loud" | "mid" | "quiet"; id: string };

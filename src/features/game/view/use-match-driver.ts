@@ -12,6 +12,7 @@ import {
   type SessionNames,
 } from "./match-session";
 import type { StreamStep } from "./match-stream";
+import { buildFixtureSession, type SeasonFixture } from "./season-match";
 
 export interface DrivenMatch {
   home: GameTeam;
@@ -43,6 +44,7 @@ export interface MatchDriver {
     /** Who he is playing, and how that side drafts. See `buildSession`. */
     rival?: RivalSetup,
   ) => void;
+  startFixture: (fixture: SeasonFixture) => void;
   answer: (a: DecisionAnswer) => void;
   adopt: (replayed: AdoptableMatch) => void;
 }
@@ -91,6 +93,19 @@ export function useMatchDriver(): MatchDriver {
       setPending(step.decision);
     }
   }, []);
+
+  const startFixture = useCallback(
+    (fixture: SeasonFixture) => {
+      const session = buildFixtureSession(fixture);
+      streamRef.current = session.stream;
+      setMatch({ home: session.home, away: session.away, seed: session.seed });
+      setEvents([]);
+      setAnswers([]);
+      setResult(null);
+      consume(session.stream.advance());
+    },
+    [consume],
+  );
 
   const start = useCallback<MatchDriver["start"]>(
     (pool, players, formation, seed, names, rival) => {
@@ -174,5 +189,5 @@ export function useMatchDriver(): MatchDriver {
     setResult(replayed.result);
   }, []);
 
-  return { match, events, answers, pending, result, start, answer, adopt };
+  return { match, events, answers, pending, result, start, startFixture, answer, adopt };
 }

@@ -27,7 +27,7 @@ import { summaryFrom } from "@/features/game/domain/summary-card";
 import type { RefereeStyle, Weather } from "@/features/game/domain/match-types";
 import type { DraftSpec, ScreensSpec, SetupSpec } from "@/features/game/domain/rule-packs";
 import { clearMatch, loadMatch, saveMatch } from "@/features/game/storage/match-slot";
-import { loadRun } from "@/features/game/storage/season-slot";
+import { loadRun, type SavedRun } from "@/features/game/storage/season-slot";
 import { buildMatchViewModel } from "@/features/game/view/match-view-model";
 import { replayMatch, type RestoredMatch } from "@/features/game/view/match-replay";
 import { createPlayState, playReducer, type PlayPhase } from "@/features/game/view/play-machine";
@@ -323,11 +323,13 @@ export function GamePlay({
    */
   const [formatParam] = useQueryState("format", parseAsString);
   const seasonRequested = season != null && formatParam === "season";
+  const [seasonReading, setSeasonReading] = useState(seasonRequested);
   /** The squad he drafted for a season — set once, then the hub owns the run. */
   const [seasonSquad, setSeasonSquad] = useState<{
     players: PoolCard[];
     formation: Formation;
     seed: number;
+    saved?: SavedRun;
   } | null>(null);
 
   /**
@@ -347,21 +349,25 @@ export function GamePlay({
     if (!seasonRequested) return;
     let live = true;
     void (async () => {
-      const saved = await loadRun();
-      if (!live || saved == null) return;
-      const byId = new Map(pool.map((c) => [c.cardId, c]));
-      const players: PoolCard[] = [];
-      for (const id of saved.cardIds) {
-        const card = byId.get(id);
-        // ⚠️ NOT cleared. The slot is global and a season is per-club, so a run this pool
-        // cannot rebuild is almost always another club's live season rather than a corrupt
-        // record — discarding it here would destroy it just for visiting a second club.
-        if (card == null) return;
-        players.push(card);
+      try {
+        const saved = await loadRun();
+        if (!live || saved == null) return;
+        const byId = new Map(pool.map((c) => [c.cardId, c]));
+        const players: PoolCard[] = [];
+        for (const id of saved.cardIds) {
+          const card = byId.get(id);
+          // ⚠️ NOT cleared. The slot is global and a season is per-club, so a run this pool
+          // cannot rebuild is almost always another club's live season rather than a corrupt
+          // record — discarding it here would destroy it just for visiting a second club.
+          if (card == null) return;
+          players.push(card);
+        }
+        const formation = FORMATIONS.find((f) => formationKey(f) === saved.formationKey);
+        if (formation == null || formation.slots.length !== players.length) return;
+        setSeasonSquad({ players, formation, seed: saved.seed, saved });
+      } finally {
+        if (live) setSeasonReading(false);
       }
-      const formation = FORMATIONS.find((f) => formationKey(f) === saved.formationKey);
-      if (formation == null || formation.slots.length !== players.length) return;
-      setSeasonSquad({ players, formation, seed: saved.seed });
     })();
     return () => {
       live = false;
@@ -451,7 +457,7 @@ export function GamePlay({
    * plays the full 90 with commentary and speed control. No new phase, no new screen.
    */
   useEffect(() => {
-    if (shareCode == null || shareCode === "") return;
+    if (seasonRequested || shareCode == null || shareCode === "") return;
     const decoded = decodeMatch(shareCode);
     if (decoded == null) {
       // ⚠️ A bad code is not an error screen. Someone following a mangled link should land
@@ -523,7 +529,7 @@ export function GamePlay({
       // ⚠️ A share link OUTRANKS a saved match. Offering Resume on top of someone else's
       // match would put two matches on one screen, and the visitor's own is not lost —
       // it is simply left in the slot untouched.
-      if (shareCode != null && shareCode !== "") return;
+      if (seasonRequested || (shareCode != null && shareCode !== "")) return;
       const record = await loadMatch();
       if (!live || record == null) return;
       // ⛔ Same rule as the share path: the rival's cards before the replay, never after.
@@ -573,7 +579,7 @@ export function GamePlay({
   useEffect(() => {
     // ⛔ Never persist a shared match. Watching someone else's must not overwrite your own,
     // and a shared match is finished on arrival so there would be nothing to resume into.
-    if (shared) return;
+    if (shared || seasonRequested) return;
     if (state.phase !== "live" || match == null || squad == null || result != null) return;
     void saveMatch({
       cardIds: squad.cardIds,
@@ -586,7 +592,7 @@ export function GamePlay({
     });
     // ⚠️ `rival` is deliberately in the deps: a resumed match adopts its club AFTER the
     // first save, so leaving it out would persist the next write against the wrong opponent.
-  }, [state.phase, match, squad, answers, events, result, shared, rival]);
+  }, [state.phase, match, squad, answers, events, result, shared, rival, seasonRequested]);
 
   const resume = () => {
     if (offer == null) return;
@@ -638,9 +644,14 @@ export function GamePlay({
    * guard below treats a null match as "still in setup", which would send the coach back to the
    * draft he has already completed.
    */
+  if (seasonRequested && seasonReading)
+    return <p data-testid="season-loading">{t("seasonBuilding")}</p>;
   if (seasonRequested && season != null && seasonSquad != null && clubId != null) {
     return (
       <SeasonStart
+        saved={seasonSquad.saved}
+        captaincies={captaincies}
+        referees={referees}
         spec={season}
         coachId={clubId}
         coachName={clubs?.find((c) => c.id === clubId)?.name ?? String(clubId)}

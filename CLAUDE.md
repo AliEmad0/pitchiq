@@ -224,3 +224,19 @@ A playable game built on the committed data, route-split under `/game/*`. Its la
 - [`TASKS.md`](TASKS.md) — phased ticket board.
 - [`docs/design-system.md`](docs/design-system.md), [`docs/motion.md`](docs/motion.md), [`docs/i18n-glossary.md`](docs/i18n-glossary.md) — the design/motion/i18n conventions.
 - [`.env.example`](.env.example) — env vars.
+
+### TASK-1811: played season fixtures and resume identity (PR 3)
+
+`SeasonHub` owns the run while `SeasonFixturePlay` reuses the shared match screens,
+`playReducer` and `useMatchDriver`. `view/season-match.ts` builds an exact fixture session;
+never use `buildSession` here, because that drafts teams again and assumes the coach is home.
+On Return to season, `finishSeasonWeek` retains the played score and simulates every other
+fixture with its own seed. The hub claims the callback synchronously so a repeated return
+cannot advance a second week. Saved results carry no events.
+
+Season saves now include `leagueIds` in table-index order. Fetch those exact rivals on
+resume. Missing rivals must show retry/abandon controls, never a writable empty season.
+Legacy full leagues can restore from their seed; shortened legacy saves cannot prove their
+old club identities and are blocked. Wait for the slot read before showing draft/advance
+controls. The standard single-match slot is untouched by season play. The programme warns
+that refreshing an unfinished fixture restarts it from kickoff; completed weeks stay saved.
