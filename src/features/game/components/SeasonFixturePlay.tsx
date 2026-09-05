@@ -3,7 +3,7 @@ import { useEffect, useMemo, useReducer, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import type { DecisionAnswer } from "@/features/game/domain/match-decisions";
 import type { MatchResult } from "@/features/game/domain/match-types";
-import type { SeasonFixture } from "@/features/game/view/season-match";
+import { buildFixtureSession, type SeasonFixture } from "@/features/game/view/season-match";
 import { useMatchDriver } from "@/features/game/view/use-match-driver";
 import { buildMatchViewModel } from "@/features/game/view/match-view-model";
 import { playReducer } from "@/features/game/view/play-machine";
@@ -28,15 +28,15 @@ export function SeasonFixturePlay({
   const t = useTranslations("game");
   const locale = useLocale();
   const driver = useMatchDriver();
-  const { startFixture } = driver;
+  const { startSession } = driver;
   const [{ phase }, dispatch] = useReducer(playReducer, {
     phase: "preview",
     seed: fixture.setup.seed,
   });
   const [moves, setMoves] = useState<DecisionAnswer[]>([]);
   useEffect(() => {
-    startFixture(fixture);
-  }, [fixture, startFixture]);
+    startSession(buildFixtureSession(fixture));
+  }, [fixture, startSession]);
   const { home, away, seed } = fixture.setup;
   const model = useMemo(
     () =>

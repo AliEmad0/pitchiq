@@ -12,7 +12,6 @@ import {
   type SessionNames,
 } from "./match-session";
 import type { StreamStep } from "./match-stream";
-import { buildFixtureSession, type SeasonFixture } from "./season-match";
 
 export interface DrivenMatch {
   home: GameTeam;
@@ -44,7 +43,8 @@ export interface MatchDriver {
     /** Who he is playing, and how that side drafts. See `buildSession`. */
     rival?: RivalSetup,
   ) => void;
-  startFixture: (fixture: SeasonFixture) => void;
+  /** Start an exact prepared session without drafting either side again. */
+  startSession: (session: MatchSession) => void;
   answer: (a: DecisionAnswer) => void;
   adopt: (replayed: AdoptableMatch) => void;
 }
@@ -94,9 +94,8 @@ export function useMatchDriver(): MatchDriver {
     }
   }, []);
 
-  const startFixture = useCallback(
-    (fixture: SeasonFixture) => {
-      const session = buildFixtureSession(fixture);
+  const startSession = useCallback(
+    (session: MatchSession) => {
       streamRef.current = session.stream;
       setMatch({ home: session.home, away: session.away, seed: session.seed });
       setEvents([]);
@@ -109,18 +108,9 @@ export function useMatchDriver(): MatchDriver {
 
   const start = useCallback<MatchDriver["start"]>(
     (pool, players, formation, seed, names, rival) => {
-      const session = buildSession(pool, players, formation, seed, names, rival);
-      streamRef.current = session.stream;
-      setMatch({ home: session.home, away: session.away, seed });
-      setEvents([]);
-      setAnswers([]);
-      setResult(null);
-      // The first segment carries the referee and the weather — they are the first two
-      // draws inside `runMatch`, so advancing here is the only way to show the coach the
-      // official who is actually taking charge.
-      consume(session.stream.advance());
+      startSession(buildSession(pool, players, formation, seed, names, rival));
     },
-    [consume],
+    [startSession],
   );
 
   /**
@@ -189,5 +179,5 @@ export function useMatchDriver(): MatchDriver {
     setResult(replayed.result);
   }, []);
 
-  return { match, events, answers, pending, result, start, startFixture, answer, adopt };
+  return { match, events, answers, pending, result, start, startSession, answer, adopt };
 }
