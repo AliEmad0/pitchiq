@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NuqsTestingAdapter } from "nuqs/adapters/testing";
-import type { ReactElement } from "react";
+import { StrictMode, type ReactElement } from "react";
 import { describe, expect, it, vi } from "vitest";
 import type { PlayerRole } from "@/data/schemas";
 import type { PoolCard } from "@/features/game/domain/chaos-draft";
@@ -112,9 +112,16 @@ const CLUBS = [
   { id: 42, name: "Arsenal" },
 ];
 
-/** Render at a URL, so `?format=` is read exactly as it is in the app. */
+/**
+ * Render with the app's Strict Mode lifecycle as well as its URL state. Without StrictMode,
+ * the positive control missed a fetch aborted by cleanup and never restarted on the next setup.
+ */
 const at = (search: string, ui: ReactElement) =>
-  renderWithIntl(<NuqsTestingAdapter searchParams={search}>{ui}</NuqsTestingAdapter>);
+  renderWithIntl(
+    <StrictMode>
+      <NuqsTestingAdapter searchParams={search}>{ui}</NuqsTestingAdapter>
+    </StrictMode>,
+  );
 
 describe("the season entry seam (TASK-1811)", () => {
   it("⛔ THE INERTNESS CONTROL — no season prop means nothing changes, whatever the URL says", () => {

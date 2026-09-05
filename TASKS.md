@@ -5965,6 +5965,13 @@ targets and relegation start, era-authentic substitution rules, and squad rotati
 
 > ### 🔶 PR 2 of N SHIPPED — THE SEASON IS PLAYABLE. Ticket stays open.
 >
+> **CI follow-up 2026-09-05:** the league stalled under React Strict Mode because effect
+> cleanup aborted its first fetch while a persistent `started` flag suppressed the replacement.
+> Fetch setup now owns its AbortController without that flag. The real season-entry test runs
+> under StrictMode: it failed on the old implementation and passes with the fix.
+> The two chooser navigation traces issued the correct RSC requests; concurrent dev renders
+> took about 12 seconds, so only their final URL assertions now allow 30 seconds.
+
 > Plan: [`docs/superpowers/plans/2026-09-01-task-1811-season-hub.md`](docs/superpowers/plans/2026-09-01-task-1811-season-hub.md).
 > Pick Full Season on the gate, draft your XI once, and run a 38-week league from a hub that
 > persists across reloads. **No new route**: `/game/legacy/[club]?format=season` reuses the page

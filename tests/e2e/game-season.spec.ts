@@ -26,7 +26,11 @@ test.describe("Full Season (TASK-1811)", () => {
       .getByRole("link", { name: /Liverpool/ })
       .first()
       .click();
-    await expect(page).toHaveURL(new RegExp(`/game/legacy/${CLUB}\\?format=season$`));
+    // CI traces show the RSC request is sent, but a concurrent full-history render takes
+    // ~12s even after route compilation is warm. Wait for that render, not another click.
+    await expect(page).toHaveURL(new RegExp(`/game/legacy/${CLUB}\\?format=season$`), {
+      timeout: 30_000,
+    });
   });
 
   test("⚠️ and ONE MATCH still arrives with no param at all", async ({ page }) => {
@@ -41,7 +45,7 @@ test.describe("Full Season (TASK-1811)", () => {
       .getByRole("link", { name: /Liverpool/ })
       .first()
       .click();
-    await expect(page).toHaveURL(new RegExp(`/game/legacy/${CLUB}$`));
+    await expect(page).toHaveURL(new RegExp(`/game/legacy/${CLUB}$`), { timeout: 30_000 });
   });
 });
 

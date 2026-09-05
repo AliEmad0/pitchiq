@@ -2,7 +2,14 @@
 
 > **STATUS 2026-09-03 — ALL SEVEN TASKS DONE.** Shipped as
 > [#210](https://github.com/AliEmad0/pitchiq/pull/210), off `main` @ `4e1ab76`.
->
+
+> **CI follow-up 2026-09-05:** the league stalled under React Strict Mode because effect
+> cleanup aborted its first fetch while a persistent `started` flag suppressed the replacement.
+> Fetch setup now owns its AbortController without that flag. The real season-entry test runs
+> under StrictMode: it failed on the old implementation and passes with the fix.
+> The two chooser navigation traces issued the correct RSC requests; concurrent dev renders
+> took about 12 seconds, so only their final URL assertions now allow 30 seconds.
+
 > ⚠️ **Task 6 was three files, not the one this plan listed.** The restore had to move up to
 > `GamePlay`: the season's seed is fresh entropy from `confirmSquad` and the league is drawn
 > from it, so a hub-only resume re-drafts into a different set of clubs and the stored results

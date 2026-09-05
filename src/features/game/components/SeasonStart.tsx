@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { PoolCard } from "@/features/game/domain/chaos-draft";
 import type { Formation } from "@/features/game/domain/formation";
@@ -44,7 +44,6 @@ export function SeasonStart({
   const t = useTranslations("game");
   const [pools, setPools] = useState<Record<number, PoolCard[]> | null>(null);
   const [failed, setFailed] = useState(0);
-  const started = useRef(false);
 
   const opponents = useMemo(
     () =>
@@ -58,10 +57,9 @@ export function SeasonStart({
   );
 
   useEffect(() => {
-    // ⚠️ Once. The league is part of the run's identity — re-fetching on a re-render could
-    // hand the hub a different set of clubs mid-season.
-    if (started.current) return;
-    started.current = true;
+    // The memoized opponents keep ordinary renders from restarting the fetch. Each effect
+    // setup owns its controller: Strict Mode cleans up and starts again on mount, so a
+    // persistent "started" flag would abort the first fetch and suppress its replacement.
     const ac = new AbortController();
     void (async () => {
       const got: Record<number, PoolCard[]> = {};
