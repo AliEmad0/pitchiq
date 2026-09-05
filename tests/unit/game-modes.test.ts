@@ -1,7 +1,12 @@
 import { readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { COLLECTION_SURFACES, GAME_MODES, MODE_GROUPS } from "@/features/game/domain/modes";
+import {
+  COLLECTION_SURFACES,
+  GAME_MODES,
+  MODE_GROUPS,
+  formatHref,
+} from "@/features/game/domain/modes";
 import { packFor } from "@/features/game/domain/rule-packs";
 import ar from "@/i18n/messages/ar.json";
 import en from "@/i18n/messages/en.json";
@@ -48,7 +53,10 @@ describe("the mode registry", () => {
     const patterns = gameRoutes().map((r) => new RegExp(`^${r.replace(/\[[^\]]+\]/g, "[^/]+")}$`));
     for (const mode of GAME_MODES) {
       if (mode.href == null) continue;
-      expect(patterns.some((p) => p.test(mode.href!)), `${mode.id} -> ${mode.href}`).toBe(true);
+      expect(
+        patterns.some((p) => p.test(mode.href!)),
+        `${mode.id} -> ${mode.href}`,
+      ).toBe(true);
     }
   });
 
@@ -80,5 +88,25 @@ describe("the mode registry", () => {
   it("assigns every mode to a declared group", () => {
     const groups = new Set(MODE_GROUPS.map((g) => g.id));
     for (const mode of GAME_MODES) expect(groups).toContain(mode.group);
+  });
+});
+
+describe("formatHref (TASK-1811)", () => {
+  const legacy = () => GAME_MODES.find((m) => m.id === "legacy")!;
+
+  it("⛔ Legacy's season format is LIVE and routes with ?format=season", () => {
+    expect(legacy().formats.season).toBe("live");
+    expect(formatHref(legacy(), "season")).toBe("/game/legacy?format=season");
+    expect(formatHref(legacy(), "single")).toBe("/game/legacy");
+  });
+
+  it("⚠️ a mode with no season is untouched — no param is ever appended", () => {
+    const chem = GAME_MODES.find((m) => m.id === "chemistry")!;
+    expect(formatHref(chem, "single")).toBe("/game/chemistry");
+  });
+
+  it("returns null for a mode with no route at all", () => {
+    const planned = GAME_MODES.find((m) => m.href == null);
+    if (planned) expect(formatHref(planned, "single")).toBeNull();
   });
 });

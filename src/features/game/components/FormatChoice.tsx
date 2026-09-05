@@ -1,6 +1,6 @@
 "use client";
 import { useTranslations } from "next-intl";
-import { applicableFormats, type GameMode } from "@/features/game/domain/modes";
+import { applicableFormats, formatHref, type GameMode } from "@/features/game/domain/modes";
 import { Link } from "@/i18n/navigation";
 
 const LABEL_KEY = { single: "formatSingle", season: "formatSeason" } as const;
@@ -42,7 +42,10 @@ export function FormatChoice({ mode }: { mode: GameMode }) {
         }
 
         return (
-          <Link key={format} href={mode.href!} className="mg-fmt-row mg-fmt-on">
+          // ⚠️ `formatHref`, not `mode.href` — the season and the single match share a route
+          // and are told apart by `?format=` (TASK-1811). Linking to `mode.href` here would
+          // silently start a single match when the coach asked for a season.
+          <Link key={format} href={formatHref(mode, format)!} className="mg-fmt-row mg-fmt-on">
             <span className="mg-fmt-cur" aria-hidden>
               ▶
             </span>

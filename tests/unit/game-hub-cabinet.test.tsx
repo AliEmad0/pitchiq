@@ -130,23 +130,48 @@ describe("the expand-in-place transition", () => {
      * deleted, because the same selector also appears in the reduced-motion gate
      * further down the file. Sabotage caught it.
      */
-    expect(css).toMatch(
-      /\.mg-cab:has\(\.mg-slot-open\) \.mg-slot-off \{\s*animation: mg-dim-off/,
-    );
+    expect(css).toMatch(/\.mg-cab:has\(\.mg-slot-open\) \.mg-slot-off \{\s*animation: mg-dim-off/);
     /** And the collapsed single-rule form must NOT be there — it is the bug itself. */
     expect(css).not.toMatch(/\.mg-cab:has\(\.mg-slot-open\) \.mg-slot:not\(\.mg-slot-open\)/);
   });
 
   it("⚠️ reduce-gates all three halves, not just the one that moves most", () => {
-    const gate = css.slice(css.lastIndexOf("@media (prefers-reduced-motion: reduce)"));
+    /**
+     * ⚠️ EVERY reduce block, not `lastIndexOf`. That assumed the cabinet's gate was the last
+     * one in the sheet, and it stopped being so the moment another surface added its own
+     * (the season hub, TASK-1811) — after which this reported the cabinet ungated while it
+     * had been gated all along.
+     */
+    const gates = [
+      ...css.matchAll(/@media \(prefers-reduced-motion: reduce\)\s*\{[\s\S]*?\n\}/g),
+    ].map((m) => m[0]);
+    expect(gates.length).toBeGreaterThan(0);
     for (const sel of [".mg-slot-open", ".mg-slot-open .mg-fmt", ".mg-slot-off"]) {
-      expect(gate, `${sel} is not reduce-gated`).toContain(sel);
+      expect(
+        gates.some((gate) => gate.includes(sel)),
+        `${sel} is not reduce-gated`,
+      ).toBe(true);
     }
   });
 
-  /** ⛔ Nothing animates height — the motion audit rejects layout properties outright. */
+  /**
+   * ⛔ Nothing animates height — the motion audit rejects layout properties outright.
+   *
+   * ⚠️ Scoped to the CABINET'S OWN KEYFRAMES, not "every byte below this point in the file".
+   * The slice ran to EOF, so the first unrelated rule added underneath it — the season hub's
+   * `padding` (TASK-1811) — failed a test about the cabinet's animation, naming neither the
+   * rule nor the property. A keyframe is the only place a property is animated at all;
+   * `motion-audit.test.ts` holds the global allowlist for the rest of the sheet.
+   */
   it("⛔ animates no layout property", () => {
-    const block = css.slice(css.indexOf("@keyframes mg-flicker"));
-    expect(block).not.toMatch(/\b(height|width|margin|padding|top|left):/);
+    const blocks = [...css.matchAll(/@keyframes\s+mg-[\w-]+\s*\{[\s\S]*?\n\}/g)].map((m) => m[0]);
+    // The three halves of the owner's hybrid — flicker, bloom, neighbour dim.
+    expect(blocks.length).toBeGreaterThanOrEqual(3);
+    for (const block of blocks) {
+      const name = /@keyframes\s+(\S+)/.exec(block)?.[1];
+      expect(block, `${name} animates a layout property`).not.toMatch(
+        /\b(height|width|margin|padding|top|left):/,
+      );
+    }
   });
 });

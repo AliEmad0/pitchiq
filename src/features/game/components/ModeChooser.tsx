@@ -3,6 +3,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import type { EnrichedCard } from "@/features/game/domain/player-card";
 import { Link } from "@/i18n/navigation";
 import { CaptainDeal } from "./CaptainDeal";
+import { ChoiceLink } from "./ChoiceLink";
 import { Flag } from "@/features/players/components/Flag";
 import { continentOf, type Continent } from "@/features/game/domain/continents";
 import { clubLogo } from "@/utils/club-logo";
@@ -163,7 +164,11 @@ export async function ModeChooser({
               // still waiting a second and a half after the first.
               style={{ "--i": Math.min(i, 26) } as React.CSSProperties}
             >
-              <Link
+              {/* ⛔ `ChoiceLink`, not `Link` — the club sheet has to CARRY `?format=season`
+                  down to the club page or Full Season silently becomes One Match (TASK-1811).
+                  Clubs only: a nation league is not a club league, so a nation pack declares
+                  no season and its sheet has nothing to carry. */}
+              <ChoiceLink
                 href={`/game/${mode}/${c.id}`}
                 className="border-border hover:border-primary hover:bg-muted/60 flex h-full flex-col items-center gap-2 rounded-md border-2 border-dashed p-3 text-center transition-colors"
               >
@@ -195,7 +200,7 @@ export async function ModeChooser({
                     count: localizeDigits(c.seasons, locale),
                   })}
                 </span>
-              </Link>
+              </ChoiceLink>
             </li>
           ))}
         </ul>
