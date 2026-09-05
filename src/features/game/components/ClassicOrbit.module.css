@@ -5,6 +5,7 @@
   --muted: #647566;
   --line: #bcc9b8;
   --accent: #416d4e;
+  width: calc(100% - 32px);
   max-width: 1180px;
   margin: 32px auto;
   padding: 36px;
@@ -375,4 +376,12 @@
   .target button {
     margin-top: 15px;
   }
+}
+
+.console {
+  min-width: 0;
+}
+.console p {
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
