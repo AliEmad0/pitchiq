@@ -133,7 +133,10 @@ test.describe("Full Season — the league itself", () => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.getByRole("button", { name: "Play fixture" }).click();
     await expect(hub).toBeHidden();
-    await expect(page.getByRole("status")).toContainText("Completed matchweeks stay saved");
+    // Next dev also renders a status toast; target the fixture notice specifically.
+    await expect(
+      page.getByRole("status").filter({ hasText: "Leaving or refreshing" }),
+    ).toContainText("Completed matchweeks stay saved");
     await page.getByRole("button", { name: "Return to season" }).click();
     await expect(week).toContainText(/Matchweek 1 of/);
     await page.getByRole("button", { name: "Play fixture" }).click();
