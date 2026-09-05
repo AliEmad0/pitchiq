@@ -208,3 +208,11 @@ Production is hosted on **Vercel** with the GitHub integration: every push to `m
 - **Preview:** open a PR → Vercel bot posts a `Visit Preview` link as a status check within ~90s.
 - **Production:** merge to `main` → check the Deployments tab; the deploy should reach `Ready` within ~3 minutes.
 - **Smoke test:** on either environment, `curl $DEPLOY_URL/api/health` should return HTTP 200 with `{ status: "ok", commit, uptime, data: { lastRefresh, datasets }, ts }` — confirms the committed data is reachable from the deployed function. Also worth hitting: `/api/standings?season=2024`, `/api/leaderboards/scorers?season=2024`, `/api/fixtures?mode=last&season=2024`, `/fixtures/{id}/opengraph-image` (binary PNG, 1200×630). `/api/health` is the canonical uptime-monitor target — an uptime monitor wanting to alert on stale data can check `data.lastRefresh` against now.
+
+### Season game development (TASK-1811)
+
+Legacy season fixture play and return-to-table results shipped in PR #211. The next slice
+adds playable Classic Season at `/game/classic`, using the owner-selected Season Orbit
+screen, season-specific squads, real historical fixtures, sim/play, historical comparison
+and isolated save/resume. All 34 archives and 686 club-seasons are validated. See the
+[Classic implementation plan](docs/superpowers/plans/2026-09-05-task-1811-classic-season.md).

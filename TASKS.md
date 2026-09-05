@@ -6008,7 +6008,7 @@ targets and relegation start, era-authentic substitution rules, and squad rotati
 - **Still to come:** the ghost of the real season (Classic), Survival's point targets and
   relegation start, era-authentic substitution rules, squad rotation/injuries.
 
-**PR 3 — fixture play and resume recovery (2026-09-05, implementation in review):**
+**PR 3 — fixture play and resume recovery (shipped 2026-09-05, PR #211):**
 
 - Play fixture → programme → live match → summary → Return to season. Auto-sim stays default.
 - Exact league teams and seed, including away fixtures; no re-draft. Played results and the
@@ -6022,6 +6022,20 @@ targets and relegation start, era-authentic substitution rules, and squad rotati
   the engine and seeded outputs stay unchanged. Red/green tests cover the original stall.
 - Implementation and validation contracts:
   [PR 3 plan](docs/superpowers/plans/2026-09-05-task-1811-play-season-fixtures.md).
+
+**PR 4 — Classic Season Orbit (2026-09-06, draft PR #212):**
+
+- Audited all 34 committed fixture/standings archives: complete home-away leagues;
+  22 clubs/42 games per club in 1992–1994, 20 clubs/38 games thereafter.
+- Added validated historical schedules and fixture-ID-based ghost comparisons, including
+  away orientation, chronological prefixes and duplicate-result rejection.
+- Published final targets are separate from earned points; future point adjustments are
+  retained explicitly. Fixtures have dates, not matchweeks: do not invent equal-sized weeks.
+- Owner selected 02 / Season orbit from the revised 30 distinct concepts. Classic Season
+  now integrates the chooser, legal XI, chronological sim/play, historical comparison,
+  table and isolated save/recovery at `/game/classic`. All 686 club-seasons are audited.
+  Single-match Classic, era substitution rules and Survival remain pending.
+- [Classic plan and audit](docs/superpowers/plans/2026-09-05-task-1811-classic-season.md).
 
 ### TASK-1812
 
