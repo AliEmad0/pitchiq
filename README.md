@@ -223,3 +223,9 @@ selected from the roster. If no legal XI exists, bulk sim pauses and an explicit
 forfeit advances recovery. Legacy fixes and saves up to seven reserves beside the
 original XI. Results and availability save together, with retry on failure; old scores
 are never replayed. Survival remains the next season milestone.
+
+## Deployment footprint
+
+Locale catalogs are shared client modules instead of repeated props in every prerendered
+page. See [deployment storage](docs/deployment-storage.md) for the measured HTML savings,
+static-route safeguards, and the outstanding Vercel retention cleanup.
