@@ -216,3 +216,10 @@ adds playable Classic Season at `/game/classic`, using the owner-selected Season
 screen, season-specific squads, real historical fixtures, sim/play, historical comparison
 and isolated save/resume. All 34 archives and 686 club-seasons are validated. See the
 [Classic implementation plan](docs/superpowers/plans/2026-09-05-task-1811-classic-season.md).
+
+TASK-1811 / PR #214 adds saved Classic and Legacy squad rotation and coach injury
+carryover. Moderate injuries miss one fixture, severe injuries three; legal cover is
+selected from the roster. If no legal XI exists, bulk sim pauses and an explicit 0–3
+forfeit advances recovery. Legacy fixes and saves up to seven reserves beside the
+original XI. Results and availability save together, with retry on failure; old scores
+are never replayed. Survival remains the next season milestone.

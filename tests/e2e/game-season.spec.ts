@@ -128,8 +128,16 @@ test.describe("Full Season — the league itself", () => {
     expect(played).toHaveLength(before);
     expect(played.every((p) => p === 1)).toBe(true);
 
-    // Reuse this already-fetched league: week two puts the coach AWAY, preserving the
-    // schedule's home advantage instead of always treating his XI as the home team.
+    // A random opening fixture may cause injuries. Resolve only explicit shortage
+    // forfeits, then exercise the next playable fixture without discarding availability.
+    let completed = 1;
+    const forfeit = page.getByRole("button", { name: "Forfeit fixture (0–3)", exact: true });
+    for (let i = 0; i < 3 && (await forfeit.count()); i++) {
+      await forfeit.click();
+      completed++;
+      await expect(week).toContainText(`Matchweek ${completed} of`);
+    }
+    await expect(page.getByRole("button", { name: "Play fixture" })).toBeEnabled();
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.getByRole("button", { name: "Play fixture" }).click();
     await expect(hub).toBeHidden();
@@ -138,14 +146,14 @@ test.describe("Full Season — the league itself", () => {
       page.getByRole("status").filter({ hasText: "Leaving or refreshing" }),
     ).toContainText("Completed matchweeks stay saved");
     await page.getByRole("button", { name: "Return to season" }).click();
-    await expect(week).toContainText(/Matchweek 1 of/);
+    await expect(week).toContainText(`Matchweek ${completed} of`);
     await page.getByRole("button", { name: "Play fixture" }).click();
     await page.getByRole("button", { name: /Kick off/i }).click();
     await page.getByRole("button", { name: "Full time", exact: true }).click({ timeout: 60_000 });
     await expect(page.getByRole("heading", { name: "Full time", exact: true })).toBeVisible();
     await expect(page.getByRole("button", { name: /Copy link/i })).toHaveCount(0);
     await page.getByRole("button", { name: "Return to season" }).click();
-    await expect(week).toContainText(/Matchweek 2 of/);
+    await expect(week).toContainText(`Matchweek ${completed + 1} of`);
     // Persisted standings only: data-was is the previous position used by the FLIP animation.
     const finishedRows = await page.getByTestId("season-row").evaluateAll((rows) =>
       rows.map((r) => {
@@ -154,9 +162,9 @@ test.describe("Full Season — the league itself", () => {
       }),
     );
     expect(finishedRows).toHaveLength(before);
-    expect(finishedRows.every((row) => row.played === "2")).toBe(true);
-    await page.reload();
-    await expect(week).toContainText(/Matchweek 2 of/, { timeout: 180_000 });
+    expect(finishedRows.every((row) => row.played === String(completed + 1))).toBe(true);
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await expect(week).toContainText(`Matchweek ${completed + 1} of`, { timeout: 180_000 });
     expect(
       await page.getByTestId("season-row").evaluateAll((rows) =>
         rows.map((r) => {

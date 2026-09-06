@@ -1,3 +1,4 @@
+import { availableSeasonTeam, carryInjuries } from "../domain/season-availability";
 import {
   fixtureSeed,
   nextWeek,
@@ -23,10 +24,12 @@ export function seasonFixture(run: SeasonRun, teams: readonly GameTeam[]): Seaso
   const index = fixtures?.findIndex(([h, a]) => h === run.coach || a === run.coach) ?? -1;
   if (index < 0 || fixtures == null) return null;
   const [h, a] = fixtures[index]!;
+  const own = availableSeasonTeam(teams[run.coach], run.injuries);
+  if (!own) return null;
   return {
     setup: {
-      home: teams[h]!,
-      away: teams[a]!,
+      home: h === run.coach ? own : teams[h]!,
+      away: a === run.coach ? own : teams[a]!,
       seed: fixtureSeed(run.seed, week, index),
       targetGoalsPerMatch: 2.7,
     },
@@ -47,19 +50,39 @@ export function buildFixtureSession({ setup, coachSide }: SeasonFixture): MatchS
 export function finishSeasonWeek(
   run: SeasonRun,
   teams: readonly GameTeam[],
-  played: MatchResult,
+  played: MatchResult | null,
 ): SeasonRun {
   const fixture = seasonFixture(run, teams);
-  if (fixture == null || played.seed !== fixture.setup.seed)
-    throw new Error("Result does not belong to the next season fixture");
   const week = nextWeek(run);
+  const fixtures = seasonFixtures(run.clubs)[week];
+  if (
+    !fixtures ||
+    (played ? fixture == null || played.seed !== fixture.setup.seed : fixture != null)
+  )
+    throw new Error("Result does not belong to the next season fixture");
   return seasonFixtures(run.clubs)[week]!.reduce((next, [h, a], index) => {
     const seed = fixtureSeed(run.seed, week, index);
     const result =
       h === run.coach || a === run.coach
-        ? played
+        ? (played ?? {
+            score: { home: h === run.coach ? 0 : 3, away: a === run.coach ? 0 : 3 },
+            events: [],
+            seed,
+          })
         : simulate({ home: teams[h]!, away: teams[a]!, seed, targetGoalsPerMatch: 2.7 });
-    return recordResult(next, {
+    const withInjuries =
+      h === run.coach || a === run.coach
+        ? {
+            ...next,
+            injuries: carryInjuries(
+              run.injuries ?? [],
+              result.events,
+              h === run.coach ? "home" : "away",
+              fixture?.setup[h === run.coach ? "home" : "away"] ?? teams[run.coach],
+            ),
+          }
+        : next;
+    return recordResult(withInjuries, {
       week,
       home: h,
       away: a,
@@ -68,4 +91,15 @@ export function finishSeasonWeek(
       seed,
     });
   }, run);
+}
+
+/** Bulk callers must stop on an unavailable XI; only an explicit forfeit advances it. */
+export function simulateSeasonWeek(
+  run: SeasonRun,
+  teams: readonly GameTeam[],
+  forfeit = false,
+): SeasonRun {
+  const fixture = seasonFixture(run, teams);
+  if (!fixture && !forfeit) throw new Error("No available season XI");
+  return finishSeasonWeek(run, teams, fixture ? simulate(fixture.setup) : null);
 }

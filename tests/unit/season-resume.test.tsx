@@ -1,3 +1,4 @@
+import { classicLineup } from "@/features/game/domain/classic-lineup";
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NuqsTestingAdapter } from "nuqs/adapters/testing";
@@ -101,7 +102,7 @@ const hubProps = (onAbandon?: () => void) => ({
   pools: Object.fromEntries(IDS.map((id) => [id, poolFor(id)])),
   clubNames: Object.fromEntries(IDS.map((id) => [id, `Club ${id}`])),
   leagueIds: IDS,
-  squad: poolFor(1).slice(0, 11),
+  squad: classicLineup(poolFor(1), formationByName("4-4-2 Flat"))! as PoolCard[],
   formation: FORMATION,
   onAbandon,
 });
@@ -126,9 +127,7 @@ const savedRun = (over: Partial<SavedRun> = {}): SavedRun => ({
   clubs: 20,
   coach: 0,
   results: weeksOf(20, 3),
-  cardIds: poolFor(1)
-    .slice(0, 11)
-    .map((c) => c.cardId),
+  cardIds: classicLineup(poolFor(1), FORMATION)!.map((c) => c.cardId),
   formationKey: "4-4-2 Flat/11",
   ...over,
 });
@@ -159,10 +158,14 @@ describe("a season is persisted as it is played (TASK-1811)", () => {
     expect(saved.formationKey).toBe("4-4-2 Flat/11");
   });
 
-  it("⛔ a fresh mount writes NOTHING — an empty run must never overwrite a real one", async () => {
+  it("saves the fixed roster only after confirming the slot is empty", async () => {
     renderWithIntl(<SeasonHub {...hubProps()} />);
     await waitFor(() => expect(slot.loadRun).toHaveBeenCalled());
-    expect(slot.saveRun).not.toHaveBeenCalled();
+    await waitFor(() =>
+      expect(slot.saveRun).toHaveBeenCalledWith(
+        expect.objectContaining({ results: [], rosterIds: expect.any(Array) }),
+      ),
+    );
   });
 
   it("resumes at the week the saved run reached", async () => {
@@ -272,7 +275,7 @@ describe("⭐ a saved season survives the reload — the point of the whole task
       clubs: 4,
       coach: 0,
       results: weeksOf(4, 1),
-      cardIds: coachPool.slice(0, 11).map((c) => c.cardId),
+      cardIds: classicLineup(coachPool, FORMATION)!.map((c) => c.cardId),
       formationKey: "4-4-2 Flat/11",
     } satisfies SavedRun);
 
@@ -280,6 +283,9 @@ describe("⭐ a saved season survives the reload — the point of the whole task
 
     const hub = await screen.findByTestId("season-hub", undefined, { timeout: 10_000 });
     expect(hub).toBeInTheDocument();
+    await waitFor(() =>
+      expect((slot.saveRun.mock.calls.at(-1)![0] as SavedRun).rosterIds).toHaveLength(18),
+    );
     // The draft never appeared: a season is drafted once, and this one already was.
     expect(screen.queryByRole("button", { name: /^Lock in / })).toBeNull();
     // ⚠️ WAITED for, not asserted on the spot. The hub MOUNTS before it has adopted the run —

@@ -19,31 +19,23 @@ export interface SavedRun extends SeasonRun {
   /** Exact table-index order. Absent only on saves made before PR 3. */
   leagueIds?: number[];
   cardIds: PlayerSeasonId[];
+  rosterIds?: string[];
+  lineupIds?: string[];
   formationKey: string;
 }
 
 /** One run at a time, exactly as `match-slot.ts` keeps one match. */
 const KEY = "current";
 
-/**
- * ⚠️ Every operation swallows failure, the same rule `match-slot.ts` follows. Private
- * browsing, a quota error or a blocked upgrade must never interrupt a season — a run that
- * fails to save is a run that cannot be resumed, which beats a thrown error mid-matchweek.
- */
+/** Writes are strict: results and availability must either both persist or show retry. */
 export async function saveRun(run: SavedRun): Promise<void> {
-  try {
-    await idbPut("season", KEY, run);
-  } catch {
-    // Persistence is best-effort by design.
-  }
+  if (typeof indexedDB === "undefined") throw new Error("Storage unavailable");
+  await idbPut("season", KEY, run);
 }
 
 export async function loadRun(): Promise<SavedRun | null> {
-  try {
-    return await idbGet<SavedRun>("season", KEY);
-  } catch {
-    return null;
-  }
+  if (typeof indexedDB === "undefined") throw new Error("Storage unavailable");
+  return await idbGet<SavedRun>("season", KEY);
 }
 
 export async function clearRun(): Promise<void> {

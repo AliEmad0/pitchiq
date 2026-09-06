@@ -132,3 +132,71 @@ it("refuses illegal rotation and cannot edit a completed season", () => {
   };
   expect(() => rotateClassic(data, complete, initial.cardIds)).toThrow("complete");
 });
+
+it("persists live injuries and advances recovery on coach fixtures only, including explicit forfeits", async () => {
+  const first = restoreClassic(data, initial);
+  const fixture = nextClassicFixture(data, initial)!;
+  const player = first.teams[first.run.coach].players[0];
+  // Arsenal 2003 has no spare eligible keeper, deliberately testing the shortage policy.
+  const next = advanceClassic(data.schedule, first.teams, first.run, {
+    fixtureId: fixture.id,
+    homeGoals: 4,
+    awayGoals: 1,
+    events: [
+      {
+        kind: "injury",
+        minute: 20,
+        side: fixture.coachSide,
+        playerId: player.playerId,
+        injurySeverity: "severe",
+      },
+    ],
+  });
+  expect(next.injuries).toEqual([{ cardId: player.cardId, remaining: 3 }]);
+  let saved: SavedClassic = { ...initial, results: [...next.results], injuries: next.injuries };
+  await saveClassic(saved);
+  saved = (await loadClassicSave())!;
+  expect(nextClassicFixture(data, saved)).toBeNull();
+  for (let remaining = 2; remaining >= 0; remaining--) {
+    const current = restoreClassic(data, saved);
+    expect(current.unavailable).toBe(true);
+    expect(() => advanceClassic(data.schedule, current.teams, current.run)).toThrow("XI");
+    const advanced = advanceClassic(data.schedule, current.teams, current.run, undefined, true);
+    expect(advanced.results.slice(0, saved.results.length)).toEqual(saved.results);
+    expect(advanced.injuries).toEqual(remaining ? [{ cardId: player.cardId, remaining }] : []);
+    saved = { ...saved, results: [...advanced.results], injuries: advanced.injuries };
+    await saveClassic(saved);
+    saved = (await loadClassicSave())!;
+  }
+  expect(nextClassicFixture(data, saved)).not.toBeNull();
+  expect(saved.results.slice(0, next.results.length)).toEqual(next.results);
+});
+it("rejects corrupt saved availability without clearing the Classic slot", async () => {
+  await idbPut("season", "classic-current", {
+    ...initial,
+    injuries: [{ cardId: initial.cardIds[0], remaining: -1 }],
+  });
+  await expect(loadClassicSave()).rejects.toThrow();
+  expect(await idbGet("season", "classic-current")).not.toBeNull();
+  expect(() =>
+    restoreClassic(data, { ...initial, injuries: [{ cardId: "foreign", remaining: 1 }] }),
+  ).toThrow("injuries");
+});
+
+it("finishes a full Classic season with injury recovery without rewriting earlier results", () => {
+  let saved: SavedClassic = initial;
+  for (let fixture = 0; fixture < 38; fixture++) {
+    const current = restoreClassic(data, saved);
+    const next = advanceClassic(
+      data.schedule,
+      current.teams,
+      current.run,
+      undefined,
+      current.unavailable,
+    );
+    expect(next.results.slice(0, saved.results.length)).toEqual(saved.results);
+    saved = { ...saved, results: [...next.results], injuries: next.injuries };
+  }
+  expect(saved.results).toHaveLength(data.schedule.fixtures.length);
+  expect(nextClassicFixture(data, saved)).toBeNull();
+});

@@ -1,3 +1,4 @@
+import type { SeasonInjury } from "./season-availability";
 /**
  * TASK-1811 — the season spine.
  *
@@ -43,7 +44,7 @@ export function seasonFixtures(n: number): Fixture[][] {
  *
  * ⛔ NO EVENTS. Measured: a match result is 3.1 KB of which 3.0 KB is its events, and nothing
  * reads them back — the whole season would be ~114 KB of data nobody looks at. The `seed` is
- * kept instead, so any single match stays re-watchable by replaying it.
+ * retained as fixture identity; it cannot reproduce a past XI after squad rotation.
  */
 export interface SeasonResult {
   week: number;
@@ -129,6 +130,7 @@ export function seasonTable(clubs: number, results: readonly SeasonResult[]): Ta
  * coach who played it.
  */
 export interface SeasonRun {
+  injuries?: SeasonInjury[];
   seed: number;
   clubs: number;
   /** Which index in the league is the coach's own club. */

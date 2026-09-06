@@ -1,16 +1,21 @@
 "use client";
+import {
+  availableSeasonTeam,
+  reservePlayers,
+  rotateSeasonTeam,
+  validateInjuries,
+} from "../domain/season-availability";
+import type { GamePlayer } from "../domain/player";
+import { canPlay } from "../domain/eligibility";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { PoolCard } from "@/features/game/domain/chaos-draft";
 import {
-  fixtureSeed,
   isComplete,
-  recordResult,
   seasonFixtures,
   seasonTable,
   type SeasonRun,
 } from "@/features/game/domain/season";
-import { simulate } from "@/features/game/domain/simulate";
 import { type Formation, formationKey } from "@/features/game/domain/formation";
 import { makeGameTeam } from "@/features/game/domain/team";
 import { clearRun, loadRun, saveRun } from "@/features/game/storage/season-slot";
@@ -20,6 +25,7 @@ import { prefersReducedMotion } from "@/utils/motion";
 
 import {
   finishSeasonWeek,
+  simulateSeasonWeek,
   seasonFixture,
   type SeasonFixture,
 } from "@/features/game/view/season-match";
@@ -39,6 +45,7 @@ export interface SeasonHubProps {
   leagueIds: readonly number[];
   /** The XI he drafted once and lives with. */
   squad: readonly PoolCard[];
+  rosterPool?: readonly PoolCard[];
   /** The shape he locked. Passed whole, not as a key — see the note in the component. */
   formation: Formation;
   season?: number;
@@ -49,8 +56,6 @@ export interface SeasonHubProps {
    */
   onAbandon?: () => void;
 }
-
-const GOALS_PER_MATCH = 2.7;
 
 /**
  * TASK-1811 PR 2 — the season hub.
@@ -75,6 +80,7 @@ export function SeasonHub({
   clubNames,
   leagueIds,
   squad,
+  rosterPool,
   formation,
   season = 2025,
   onAbandon,
@@ -86,7 +92,7 @@ export function SeasonHub({
    * ⚠️ The league is built ONCE. `buildLeagueTeams` is deterministic, but rebuilding it on
    * every render would re-run 20 drafts per simmed week for no gain.
    */
-  const teams = useMemo(
+  const baseTeams = useMemo(
     () =>
       buildSeasonTeams({
         leagueIds,
@@ -101,7 +107,7 @@ export function SeasonHub({
     [leagueIds, pools, seed, clubNames, coachId, coachName, season, formation, squad],
   );
   const coachIndex = Math.max(0, leagueIds.indexOf(coachId));
-  const clubs = teams.length;
+  const clubs = baseTeams.length;
   const schedule = useMemo(
     () => (clubs >= 2 && clubs % 2 === 0 ? seasonFixtures(clubs) : []),
     [clubs],
@@ -119,6 +125,27 @@ export function SeasonHub({
    * ⛔ Without this an empty run would race the load and overwrite a real season with week 0
    * — and the coach would only find out on the reload after the one that worked.
    */
+  const sourcePool = rosterPool ?? pools[coachId] ?? squad;
+  const [roster, setRoster] = useState<readonly GamePlayer[]>(() => [
+    ...squad,
+    ...reservePlayers(sourcePool, squad),
+  ]);
+  const [lineupIds, setLineupIds] = useState<readonly string[]>(() => squad.map((p) => p.cardId));
+  const teams = useMemo(
+    () =>
+      baseTeams.map((team, i) =>
+        i === coachIndex ? rotateSeasonTeam(team, roster, lineupIds) : team,
+      ),
+    [baseTeams, coachIndex, roster, lineupIds],
+  );
+  const available = availableSeasonTeam(teams[coachIndex], run.injuries, roster);
+  const displayed = available ?? teams[coachIndex];
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(false);
+  const [saveAttempt, setSaveAttempt] = useState(0);
+  const savingRef = useRef(false);
+  const writes = useRef(Promise.resolve());
+  const [readAttempt, setReadAttempt] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const [blocked, setBlocked] = useState(false);
   const [playing, setPlaying] = useState<SeasonFixture | null>(null);
@@ -146,7 +173,16 @@ export function SeasonHub({
   useEffect(() => {
     let live = true;
     void (async () => {
-      const saved = await loadRun();
+      let saved;
+      try {
+        saved = await loadRun();
+      } catch {
+        if (live) {
+          setBlocked(true);
+          setLoaded(true);
+        }
+        return;
+      }
       if (!live) return;
       if (
         saved != null &&
@@ -155,17 +191,40 @@ export function SeasonHub({
         saved.coach === coachIndex &&
         (saved.leagueIds == null || saved.leagueIds.join(",") === leagueIds.join(","))
       ) {
+        try {
+          const restored = saved.rosterIds
+            ? saved.rosterIds.map((id) => sourcePool.find((p) => p.cardId === id))
+            : roster;
+          if (
+            restored.some((p) => !p) ||
+            restored.length < 11 ||
+            restored.length > 18 ||
+            new Set(restored.map((p) => p!.playerId)).size !== restored.length ||
+            squad.some((p) => !restored.some((r) => r!.cardId === p.cardId))
+          )
+            throw new Error("Invalid season roster");
+          const resolved = restored.map((p) => p!);
+          validateInjuries(saved.injuries === undefined ? [] : saved.injuries, resolved);
+          rotateSeasonTeam(baseTeams[coachIndex], resolved, saved.lineupIds ?? saved.cardIds);
+          setRoster(resolved);
+          setLineupIds(saved.lineupIds ?? saved.cardIds);
+        } catch {
+          setBlocked(true);
+          setLoaded(true);
+          return;
+        }
         setRun({
           seed: saved.seed,
           clubs: saved.clubs,
           coach: saved.coach,
           results: saved.results,
+          injuries: saved.injuries,
         });
       }
       setBlocked(
         saved != null &&
-          saved.seed === seed &&
-          (saved.clubs !== clubs ||
+          (saved.seed !== seed ||
+            saved.clubs !== clubs ||
             saved.coach !== coachIndex ||
             (saved.leagueIds != null && saved.leagueIds.join(",") !== leagueIds.join(","))),
       );
@@ -177,35 +236,60 @@ export function SeasonHub({
     // Mount only. The league's identity is fixed for the life of the hub, and re-reading the
     // slot mid-season could only ever undo weeks the coach has just played.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [readAttempt]);
 
   /**
    * Persist after every advance — around 38 writes across a whole season.
    *
-   * ⚠️ Gated on there being results: an empty run is the state a fresh hub is BORN in, so
-   * saving it would turn every visit to the setup screen into a wipe.
+   * First wait for the slot and validate its identity. Then persist the fixed roster even
+   * at week zero. Writes are serialized; failure blocks actions until the same state saves.
    */
   useEffect(() => {
-    if (!loaded || blocked || run.results.length === 0) return;
-    void saveRun({
+    if (!loaded || blocked) return;
+    let live = true;
+    savingRef.current = true;
+    setSaving(true);
+    const snapshot = {
       ...run,
       leagueIds: [...leagueIds],
       cardIds: squad.map((p) => p.cardId),
-      // ⛔ `formationKey`, not `formation.name`. The record is resolved back through
-      // `formationKey(f) === record.formationKey`, so a bare name never matches and the
-      // season silently refuses to resume.
+      rosterIds: roster.map((p) => p.cardId),
+      lineupIds: [...lineupIds],
       formationKey: formationKey(formation),
-    });
-  }, [loaded, blocked, run, squad, formation, leagueIds]);
+    };
+    writes.current = writes.current.catch(() => {}).then(() => saveRun(snapshot));
+    void writes.current
+      .then(
+        () => {
+          if (live) setSaveError(false);
+        },
+        () => {
+          if (live) setSaveError(true);
+        },
+      )
+      .finally(() => {
+        if (live) {
+          savingRef.current = false;
+          setSaving(false);
+        }
+      });
+    return () => {
+      live = false;
+    };
+  }, [loaded, blocked, run, squad, formation, leagueIds, roster, lineupIds, saveAttempt]);
 
   const abandon = useCallback(() => {
     if (!arming) {
       setArming(true);
       return;
     }
-    void clearRun();
-    setArming(false);
-    onAbandon?.();
+    void writes.current
+      .catch(() => {})
+      .then(() => clearRun())
+      .then(() => {
+        setArming(false);
+        onAbandon?.();
+      });
   }, [arming, onAbandon]);
 
   /**
@@ -261,51 +345,31 @@ export function SeasonHub({
   /** Play `count` whole matchweeks through the REAL engine. */
   const advance = useCallback(
     (count: number) => {
-      if (!loaded || blocked || playingRef.current) return;
+      if (!loaded || blocked || saveError || savingRef.current || playingRef.current) return;
       wasRef.current = Object.fromEntries(
         seasonTable(clubs, run.results).map((row, i) => [row.club, i]),
       );
       let next = run;
       for (let n = 0; n < count; n++) {
-        const w = next.results.length === 0 ? 0 : Math.max(...next.results.map((r) => r.week)) + 1;
-        const fixtures = schedule[w];
-        if (fixtures == null || isComplete(next)) break;
-        fixtures.forEach(([h, a], i) => {
-          const s = fixtureSeed(next.seed, w, i);
-          const res = simulate({
-            home: teams[h]!,
-            away: teams[a]!,
-            seed: s,
-            targetGoalsPerMatch: GOALS_PER_MATCH,
-          });
-          next = recordResult(next, {
-            week: w,
-            home: h,
-            away: a,
-            homeGoals: res.score.home,
-            awayGoals: res.score.away,
-            seed: s,
-          });
-        });
+        if (isComplete(next)) break;
+        const canField = availableSeasonTeam(teams[coachIndex], next.injuries, roster);
+        if (!canField && (count !== 1 || n > 0)) break;
+        next = simulateSeasonWeek(next, teams, !canField);
       }
+      if (next === run) return;
+      savingRef.current = true;
       setRun(next);
       setAnimate(!reduced);
     },
-    [clubs, run, schedule, teams, reduced, loaded, blocked],
+    [clubs, run, teams, reduced, loaded, blocked, saveError, coachIndex, roster],
   );
 
   const play = () => {
-    if (!loaded || blocked || playingRef.current || clubs < 2) return;
+    if (!loaded || blocked || saveError || savingRef.current || playingRef.current || clubs < 2)
+      return;
     const fixture = seasonFixture(run, teams);
     if (fixture == null) return;
     playingRef.current = true;
-    // Explicit play saves even week zero; a refresh restarts this fixed fixture.
-    void saveRun({
-      ...run,
-      leagueIds: [...leagueIds],
-      cardIds: squad.map((p) => p.cardId),
-      formationKey: formationKey(formation),
-    });
     setPlaying(fixture);
   };
   const returnFromFixture = (result: MatchResult | null) => {
@@ -315,6 +379,7 @@ export function SeasonHub({
       wasRef.current = Object.fromEntries(
         seasonTable(clubs, run.results).map((row, i) => [row.club, i]),
       );
+      savingRef.current = true;
       setRun(finishSeasonWeek(run, teams, result));
       setAnimate(!reduced);
     }
@@ -351,8 +416,8 @@ export function SeasonHub({
         <SeasonFixturePlay
           fixture={playing}
           crests={{
-            home: leagueIds[teams.indexOf(playing.setup.home)]!,
-            away: leagueIds[teams.indexOf(playing.setup.away)]!,
+            home: playing.setup.home.teamId,
+            away: playing.setup.away.teamId,
           }}
           captaincies={captaincies}
           referees={referees}
@@ -395,15 +460,39 @@ export function SeasonHub({
             </div>
           </div>
 
-          {blocked ? <p role="alert">{t("seasonResumeBlocked")}</p> : null}
           {/* ── controls ──────────────────────────────────────────────────────────────── */}
           <div className="sh-ctl sh-blk">
+            {blocked ? (
+              <div role="alert">
+                {t("seasonResumeBlocked")}{" "}
+                <button
+                  onClick={() => {
+                    setLoaded(false);
+                    setBlocked(false);
+                    setReadAttempt((n) => n + 1);
+                  }}
+                >
+                  {t("seasonRetry")}
+                </button>
+              </div>
+            ) : null}
+            {saveError && (
+              <div role="alert">
+                {t("seasonSaveFailed")}{" "}
+                <button disabled={saving} onClick={() => setSaveAttempt((n) => n + 1)}>
+                  {t("seasonRetrySave")}
+                </button>
+              </div>
+            )}
+            {!available && !done && <p role="alert">{t("seasonUnavailable")}</p>}
             <div className="sh-ttl">{t("seasonMatchweek")}</div>
             <div className="sh-btns">
               <button
                 type="button"
                 onClick={play}
-                disabled={done || !loaded || blocked || clubs < 2}
+                disabled={
+                  done || !loaded || blocked || saving || saveError || !available || clubs < 2
+                }
               >
                 {t("seasonPlayFixture")}
               </button>
@@ -411,21 +500,21 @@ export function SeasonHub({
                 type="button"
                 className="sh-go"
                 onClick={() => advance(1)}
-                disabled={done || !loaded || blocked}
+                disabled={done || !loaded || blocked || saving || saveError}
               >
-                {t("seasonSimWeek")}
+                {t(available ? "seasonSimWeek" : "seasonForfeit")}
               </button>
               <button
                 type="button"
                 onClick={() => advance(5)}
-                disabled={done || !loaded || blocked}
+                disabled={done || !loaded || blocked || saving || saveError || !available}
               >
                 {t("seasonSimFive")}
               </button>
               <button
                 type="button"
                 onClick={() => advance(schedule.length)}
-                disabled={done || !loaded || blocked}
+                disabled={done || !loaded || blocked || saving || saveError || !available}
               >
                 {t("seasonSimEnd")}
               </button>
@@ -437,6 +526,7 @@ export function SeasonHub({
               type="button"
               className={`sh-ab${arming ? " sh-arm" : ""}`}
               data-testid="season-abandon"
+              disabled={saving}
               onClick={abandon}
             >
               {arming ? t("seasonAbandonSure") : t("seasonAbandon")}
@@ -541,11 +631,51 @@ export function SeasonHub({
             <div className="sh-ttl sh-gap">
               {t("seasonSquad")} · {formation.name}
             </div>
+            <p>{t("seasonRotationHint")}</p>
+            <p>{t("seasonInjuryRules")}</p>
+            {(run.injuries ?? []).map((injury) => (
+              <p key={injury.cardId}>
+                {t("seasonInjured", {
+                  name: roster.find((p) => p.cardId === injury.cardId)!.name,
+                  count: injury.remaining,
+                })}
+              </p>
+            ))}
             <div className="sh-sq" data-testid="season-squad">
-              {squad.map((p) => (
-                <span key={p.cardId}>
-                  {p.role} {p.name.split(" ").pop()} {p.ratings?.overall ?? 0}
-                </span>
+              {displayed.players.map((p, i) => (
+                <label key={i}>
+                  {formation.slots[i].role}
+                  <select
+                    aria-label={t("seasonPosition", { n: i + 1 })}
+                    value={p.cardId}
+                    disabled={done || !loaded || blocked || saving || saveError || !available}
+                    onChange={(e) => {
+                      if (savingRef.current || playingRef.current || blocked || saveError) return;
+                      const ids: string[] = displayed.players.map((p) => p.cardId);
+                      ids[i] = e.target.value;
+                      rotateSeasonTeam(teams[coachIndex], roster, ids, run.injuries);
+                      savingRef.current = true;
+                      setLineupIds(ids);
+                    }}
+                  >
+                    {roster
+                      .filter(
+                        (r) =>
+                          canPlay(r, formation.slots[i].role) &&
+                          (r.playerId === p.playerId ||
+                            !displayed.players.some((chosen) => chosen.playerId === r.playerId)),
+                      )
+                      .map((r) => (
+                        <option
+                          key={r.cardId}
+                          value={r.cardId}
+                          disabled={run.injuries?.some((injury) => injury.cardId === r.cardId)}
+                        >
+                          {r.name} · {r.ratings?.overall ?? 0}
+                        </option>
+                      ))}
+                  </select>
+                </label>
               ))}
             </div>
           </div>

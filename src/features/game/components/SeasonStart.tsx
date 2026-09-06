@@ -11,6 +11,7 @@ import { clearRun, type SavedRun } from "@/features/game/storage/season-slot";
 
 export interface SeasonStartProps {
   saved?: SavedRun;
+  rosterPool?: readonly PoolCard[];
   captaincies?: Record<number, number>;
   referees?: readonly string[];
   spec: SeasonSpec;
@@ -36,6 +37,7 @@ export interface SeasonStartProps {
  */
 export function SeasonStart({
   saved,
+  rosterPool,
   captaincies,
   referees,
   spec,
@@ -162,6 +164,7 @@ export function SeasonStart({
         clubNames={clubNames}
         leagueIds={leagueIds}
         squad={squad}
+        rosterPool={rosterPool}
         formation={formation}
         season={season}
         onAbandon={onAbandon}

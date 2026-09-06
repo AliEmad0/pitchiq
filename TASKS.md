@@ -6052,19 +6052,22 @@ targets and relegation start, era-authentic substitution rules, and squad rotati
 - Remaining: rotation/injuries across fixtures and Survival; named-bench history and
   concussion protocols are outside this ordinary-substitution slice.
 
-**Next slice — Classic XI rotation (implementation, 2026-09-06):**
+**PR 6 — injury carryover and Classic/Legacy rotation (PR #214, implementation 2026-09-06):**
 
-- The existing Season Orbit XI controls now allow legal changes between fixtures.
-  Each selection is saved immediately; both sim and play restore that XI and rebuild
-  the bench. Completed results and fixture seeds stay unchanged.
-- Existing version-1 saves require no migration. Completed seasons cannot be edited.
-  Save failure blocks further rotation and fixture progression until retry succeeds.
-- Verified: 13 focused unit/component tests, type-check, lint and a browser scenario
-  covering sim, rotation, reload, preview cancellation and mobile overflow.
-- This is the rotation foundation, not completed injury carryover. Next: persist compact
-  injury availability from sim/live results, define recovery and the insufficient-eligible-XI
-  case, then extend rotation/availability to Legacy. Survival remains pending.
-- [Scope and follow-up](docs/superpowers/plans/2026-09-06-task-1811-classic-rotation.md).
+- Both existing season squad panels allow legal rotation between fixtures. Classic uses
+  its club-season pool; Legacy persists the drafted XI plus up to seven fixed reserves.
+- Coach injuries carry from actual sim/live events: moderate misses one fixture, severe
+  three, knocks none. Availability saves with results; reload/cancel never advances recovery.
+- Injured players cannot start or sit on the bench. If no legal XI exists, play is disabled
+  and an explicit 0–3 forfeit advances recovery. Bulk sim pauses before that fixture.
+- Old scores stay unchanged. Old saves get no invented injuries; Legacy reserves are
+  selected once and persisted. Missing reserves block resume. Save failure blocks further
+  play/rotation until retry; another league's save cannot be overwritten during initialization.
+- Unit/component and browser coverage checks sim/play/save/resume, recovery, fixed-roster
+  identity, duplicate returns, forfeits, full seasons, failed saves and mobile overflow.
+- [Scope, contracts and validation](docs/superpowers/plans/2026-09-06-task-1811-classic-rotation.md).
+- Remaining: Survival mid-season starts/point targets. Carryover currently models the
+  coach's squad; rival injury history, named-bench history and concussion protocols are not modeled.
 
 ### TASK-1812
 

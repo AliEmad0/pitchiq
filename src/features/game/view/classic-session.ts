@@ -1,3 +1,8 @@
+import {
+  availableSeasonTeam,
+  validateInjuries,
+  rotateSeasonTeam,
+} from "../domain/season-availability";
 import { premierLeagueSubstitutions } from "../domain/substitution-rules";
 import type { ClassicData } from "../domain/classic-data";
 import type { SavedClassic } from "../storage/classic-slot";
@@ -65,16 +70,28 @@ export function restoreClassic(data: ClassicData, saved: SavedClassic) {
     )
   )
     throw new Error("Classic calendar changed");
+  const teams = classicTeams(data, saved.clubId, saved.formation, saved.cardIds);
+  const pool = data.squads.find((c) => c.teamId === saved.clubId)!.pool;
+  validateInjuries(saved.injuries ?? [], pool);
+  const available = availableSeasonTeam(teams[coach], saved.injuries, pool);
+  if (available) teams[coach] = available;
   return {
-    teams: classicTeams(data, saved.clubId, saved.formation, saved.cardIds),
-    run: { seed: saved.seed, coach, results: saved.results } satisfies ClassicRun,
+    teams,
+    unavailable: available == null,
+    run: {
+      seed: saved.seed,
+      coach,
+      results: saved.results,
+      injuries: saved.injuries,
+    } satisfies ClassicRun,
   };
 }
 export function nextClassicFixture(
   data: ClassicData,
   saved: SavedClassic,
 ): (SeasonFixture & { id: string }) | null {
-  const { teams, run } = restoreClassic(data, saved);
+  const { teams, run, unavailable } = restoreClassic(data, saved);
+  if (unavailable) return null;
   const f = data.schedule.fixtures.find(
     (f, i) => i >= run.results.length && (f.home === run.coach || f.away === run.coach),
   );
@@ -100,7 +117,14 @@ export function rotateClassic(
   saved: SavedClassic,
   cardIds: readonly string[],
 ): SavedClassic {
-  if (!nextClassicFixture(data, saved)) throw new Error("Classic season is complete");
-  classicTeams(data, saved.clubId, saved.formation, cardIds);
+  const { teams, run } = restoreClassic(data, saved);
+  if (run.results.length === data.schedule.fixtures.length)
+    throw new Error("Classic season is complete");
+  rotateSeasonTeam(
+    teams[run.coach],
+    data.squads.find((c) => c.teamId === saved.clubId)!.pool,
+    cardIds,
+    saved.injuries,
+  );
   return { ...saved, cardIds: [...cardIds] };
 }

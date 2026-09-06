@@ -17,6 +17,7 @@ export function ClassicOrbit({
   run,
   seasons,
   started,
+  unavailable = false,
   clubId,
   shape,
   busy,
@@ -35,6 +36,7 @@ export function ClassicOrbit({
   run: ClassicRun;
   seasons: number[];
   started: boolean;
+  unavailable?: boolean;
   clubId: number;
   shape: string;
   busy: boolean;
@@ -153,6 +155,7 @@ export function ClassicOrbit({
             </p>
           )}
           {next && <p>{t("historyScore", { home: next.homeGoals, away: next.awayGoals })}</p>}
+          {unavailable && <p role="alert">{t("unavailable")}</p>}
           <div className={styles.actions}>
             {!started ? (
               <button type="button" disabled={busy} onClick={onStart}>
@@ -161,9 +164,13 @@ export function ClassicOrbit({
             ) : (
               <>
                 <button type="button" disabled={busy || ghost.complete} onClick={onSim}>
-                  {t("sim")}
+                  {t(unavailable ? "forfeit" : "sim")}
                 </button>
-                <button type="button" disabled={busy || ghost.complete} onClick={onPlay}>
+                <button
+                  type="button"
+                  disabled={busy || ghost.complete || unavailable}
+                  onClick={onPlay}
+                >
                   {t("play")}
                 </button>
               </>
@@ -247,6 +254,15 @@ export function ClassicOrbit({
       <details className={styles.squad} open={!started}>
         <summary>{t("squad")}</summary>
         {!ghost.complete && <p>{t(started ? "rotationHint" : "squadHint")}</p>}
+        {started && <p>{t("injuryRules")}</p>}
+        {(run.injuries ?? []).map((injury) => (
+          <p key={injury.cardId}>
+            {t("injured", {
+              name: club.pool.find((p) => p.cardId === injury.cardId)!.name,
+              count: injury.remaining,
+            })}
+          </p>
+        ))}
         <div className={styles.players}>
           {coach.players.map((player, i) => (
             <label key={i}>
@@ -256,7 +272,7 @@ export function ClassicOrbit({
               ) : (
                 <select
                   aria-label={`${t("slot")} ${i + 1} ${coach.formation.slots[i].role}`}
-                  disabled={busy}
+                  disabled={busy || unavailable}
                   value={player.cardId}
                   onChange={(e) => {
                     const values = coach.players.map((p) => p.cardId as string);
@@ -272,7 +288,11 @@ export function ClassicOrbit({
                           !coach.players.some((chosen) => chosen.playerId === p.playerId)),
                     )
                     .map((p) => (
-                      <option key={p.cardId} value={p.cardId}>
+                      <option
+                        key={p.cardId}
+                        value={p.cardId}
+                        disabled={run.injuries?.some((injury) => injury.cardId === p.cardId)}
+                      >
                         {p.name} · {n(p.ratings?.overall ?? 0)}
                       </option>
                     ))}

@@ -1,4 +1,5 @@
-import { screen } from "@testing-library/react";
+import { classicLineup } from "@/features/game/domain/classic-lineup";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { PlayerRole } from "@/data/schemas";
 import { describe, expect, it, vi } from "vitest";
@@ -67,35 +68,38 @@ const props = () => ({
   pools: Object.fromEntries(IDS.map((id) => [id, poolFor(id)])),
   clubNames: Object.fromEntries(IDS.map((id) => [id, `Club ${id}`])),
   leagueIds: IDS,
-  squad: poolFor(1).slice(0, 11),
+  squad: classicLineup(poolFor(1), formationByName("4-4-2 Flat"))! as PoolCard[],
   formation: formationByName("4-4-2 Flat"),
 });
 
-const render = () => renderWithIntl(<SeasonHub {...props()} />);
+const render = async () => {
+  renderWithIntl(<SeasonHub {...props()} />);
+  await waitFor(() => expect(screen.getByRole("button", { name: /sim week/i })).toBeEnabled());
+};
 
-describe("SeasonHub", () => {
-  it("renders the table, the next fixture, the form and the squad", () => {
-    render();
+describe("SeasonHub", async () => {
+  it("renders the table, the next fixture, the form and the squad", async () => {
+    await render();
     expect(screen.getAllByTestId("season-row")).toHaveLength(20);
     expect(screen.getByTestId("season-next")).toBeInTheDocument();
     expect(screen.getByTestId("season-squad")).toBeInTheDocument();
     expect(screen.getByTestId("season-week")).toHaveTextContent(/0.*38/);
   });
 
-  it("⛔ the header carries BOTH crests — the owner's hybrid, 12 + 6", () => {
-    render();
+  it("⛔ the header carries BOTH crests — the owner's hybrid, 12 + 6", async () => {
+    await render();
     expect(screen.getByTestId("season-watermark")).toBeInTheDocument();
     expect(screen.getByTestId("season-crest")).toBeInTheDocument();
   });
 
-  it("puts a crest on every table row and on the next fixture", () => {
-    render();
+  it("puts a crest on every table row and on the next fixture", async () => {
+    await render();
     expect(screen.getAllByTestId("season-row-crest")).toHaveLength(20);
     expect(screen.getByTestId("season-next-crest")).toBeInTheDocument();
   });
 
   it("⭐ simming a week advances the clock and fills the table", async () => {
-    render();
+    await render();
     expect(screen.getByTestId("season-week")).toHaveTextContent(/0.*38/);
     await userEvent.click(screen.getByRole("button", { name: /sim week/i }));
     expect(screen.getByTestId("season-week")).toHaveTextContent(/1.*38/);
@@ -105,7 +109,7 @@ describe("SeasonHub", () => {
   });
 
   it("⚠️ every row carries data-was — what makes the FLIP travel the REAL distance", async () => {
-    render();
+    await render();
     await userEvent.click(screen.getByRole("button", { name: /sim week/i }));
     for (const row of screen.getAllByTestId("season-row")) {
       expect(row.dataset.was).toMatch(/^\d+$/);
@@ -114,13 +118,15 @@ describe("SeasonHub", () => {
   });
 
   it("⛔ the table stays a valid league — points and goals are conserved", async () => {
-    render();
+    await render();
     await userEvent.click(screen.getByRole("button", { name: /sim 5/i }));
     const rows = screen.getAllByTestId("season-row");
     const pts = rows.reduce((a, r) => a + Number(r.dataset.points), 0);
     const gf = rows.reduce((a, r) => a + Number(r.dataset.gf), 0);
     const ga = rows.reduce((a, r) => a + Number(r.dataset.ga), 0);
-    const played = 5 * 10;
+    const played = rows.reduce((sum, r) => sum + Number(r.dataset.played), 0) / 2;
+    expect(played).toBeGreaterThan(0);
+    expect(played).toBeLessThanOrEqual(50);
     // 3 per decisive match, 2 per draw — so the total sits between the two.
     expect(pts).toBeGreaterThanOrEqual(played * 2);
     expect(pts).toBeLessThanOrEqual(played * 3);
@@ -128,8 +134,18 @@ describe("SeasonHub", () => {
   });
 
   it("runs to the end of the season and stops there", async () => {
-    render();
-    await userEvent.click(screen.getByRole("button", { name: /to the end/i }));
+    await render();
+    for (
+      let i = 0;
+      i < 38 && !screen.getByTestId("season-next").textContent?.includes("complete");
+      i++
+    ) {
+      const action =
+        screen.queryByRole("button", { name: /Forfeit fixture/i }) ??
+        screen.getByRole("button", { name: /to the end/i });
+      await waitFor(() => expect(action).toBeEnabled());
+      await userEvent.click(action);
+    }
     expect(screen.getByTestId("season-week")).toHaveTextContent(/38.*38/);
     const rows = screen.getAllByTestId("season-row");
     for (const r of rows) expect(Number(r.dataset.played)).toBe(38);
