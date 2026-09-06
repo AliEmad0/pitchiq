@@ -298,3 +298,12 @@ shared JS chunks. Keep explicit provider locales and the Arabic catalog while pa
 The local map HTML shrank by 55,780 bytes (23.1%); production storage must be measured
 separately. PR #214 merged as `00c69ca`. Retention cleanup still requires Vercel account
 access; no old deployments have been deleted. See `docs/deployment-storage.md`.
+
+### TASK-1811 Survival gallery (2026-09-06)
+
+PRs #213–#215 are merged. Survival is next; the owner explicitly selected a new 30-concept
+gallery. Source is `design/survival-gallery`, standalone output is ignored under
+`artifacts/survival-gallery` (never `public`). The gallery uses real January takeovers,
+separate historical baseline/campaign suffix, and a points benchmark that does not guarantee
+safety. Exact final boundary ties are unresolved. Production save integration and UI wait
+for the layout choice. See `docs/superpowers/plans/2026-09-06-task-1811-survival-gallery.md`.

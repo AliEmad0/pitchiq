@@ -7,7 +7,7 @@ A phased, ticket-level breakdown of the work required to ship **PitchIQ**. Each 
 ## Deployment storage follow-up — 2026-09-06
 
 PR #214 is merged (`00c69ca`): season injury carryover and Classic/Legacy rotation.
-Storage optimization is in review: shared client translation catalogs remove repeated
+Storage optimization PR #215 is merged and deployed: shared client translation catalogs remove repeated
 messages from page HTML/RSC. Local map HTML is 23.1% smaller; production output and
 Vercel retention cleanup remain to verify. See [deployment storage](docs/deployment-storage.md).
 
@@ -5916,10 +5916,12 @@ next to whom_ matters. Design + measurements:
 
 **Season-mode engine** · 🟡 In Progress · `P3` · `L` · Type: Feature
 
-**Current status (2026-09-06):** PRs #210–#212 shipped the playable Legacy season,
-fixture play/recovery and Classic Season Orbit. Historical substitution limits are the
-current follow-up. Squad rotation/injuries and Survival remain open. Earlier “Classic
-pending” / “Backlog” notes below describe previous implementation stages.
+**Current status (2026-09-06):** PRs #210–#214 are merged: playable Legacy seasons,
+Classic Season Orbit, fixture play/recovery, historical substitutions, injury carryover,
+and Classic/Legacy rotation. Survival is the remaining season objective. The owner chose
+a new 30-concept gallery on September 6; its playable foundation and standalone gallery
+are built on `codex/task-1811-survival`, awaiting a layout choice. Production integration
+and dedicated save migration follow the choice. Earlier progress notes below are historical.
 
 **Description** — Multi-match progression for the season-shaped modes. Signature feature: **"ghost of the real season"** — Classic Season shows your run against the real historical result of each fixture ("the real Arsenal won here 2-0; you drew"), chasing the actual final table. Survival tracks point targets from a mid-season relegation start; Legacy drafts season-by-season. Era-authentic rules (e.g. 3 subs pre-2020 vs 5). **Depends on:** TASK-1810, **[TASK-1844](#task-1844)**.
 
@@ -6059,7 +6061,7 @@ targets and relegation start, era-authentic substitution rules, and squad rotati
 - Remaining: rotation/injuries across fixtures and Survival; named-bench history and
   concussion protocols are outside this ordinary-substitution slice.
 
-**PR 6 — injury carryover and Classic/Legacy rotation (PR #214, implementation 2026-09-06):**
+**PR 6 — injury carryover and Classic/Legacy rotation (PR #214, merged 2026-09-06):**
 
 - Both existing season squad panels allow legal rotation between fixtures. Classic uses
   its club-season pool; Legacy persists the drafted XI plus up to seven fixed reserves.

@@ -229,3 +229,6 @@ are never replayed. Survival remains the next season milestone.
 Locale catalogs are shared client modules instead of repeated props in every prerendered
 page. See [deployment storage](docs/deployment-storage.md) for the measured HTML savings,
 static-route safeguards, and the outstanding Vercel retention cleanup.
+
+Survival's playable 30-concept gallery is ready for layout selection; production integration
+remains pending. [Gallery scope and reproduction](docs/superpowers/plans/2026-09-06-task-1811-survival-gallery.md).
