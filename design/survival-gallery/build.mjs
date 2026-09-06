@@ -1,0 +1,11 @@
+import { createRequire } from "node:module";
+const require = createRequire(import.meta.url);
+const vitestRequire = createRequire(require.resolve("vitest/package.json"));
+const viteRequire = createRequire(vitestRequire.resolve("vite/package.json"));
+const { build } = viteRequire("esbuild");
+import { readFile, writeFile } from "node:fs/promises";
+const output = await build({entryPoints:["design/survival-gallery/main.ts"],bundle:true,write:false,format:"iife",minify:true,target:"es2022"});
+const html=await readFile("design/survival-gallery/index.html","utf8");
+const css=await readFile("design/survival-gallery/style.css","utf8");
+await writeFile("artifacts/survival-gallery/survival-concepts.html",html.replace("/*STYLE*/",css).replace("/*SCRIPT*/",()=>output.outputFiles[0].text.replaceAll("</script", "<\\/script")));
+console.log("Built standalone Survival gallery");

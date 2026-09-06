@@ -1,0 +1,227 @@
+.root {
+  --accent: var(--life-accent);
+  --line: #49634a;
+  --muted: #c4d2bc;
+  --life-bg: #14251b;
+  --life-panel: #21392a;
+  --life-ink: #f1f6e5;
+  --life-accent: #c8f58d;
+  background: var(--life-bg);
+  color: var(--life-ink);
+  padding: clamp(20px, 4vw, 56px);
+  max-width: 1600px;
+  margin: auto;
+}
+.root h1 {
+  font-size: clamp(2.5rem, 5vw, 5rem);
+  line-height: 1.1;
+  margin-block: 12px;
+  letter-spacing: -0.04em;
+}
+.root header > p:first-child {
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--life-accent);
+}
+.root h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+.root h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+.root p {
+  margin-block: 12px;
+}
+.chooser {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-block: 28px;
+  border-block: 1px solid #49634a;
+  padding-block: 20px;
+}
+.chooser label {
+  display: grid;
+  gap: 8px;
+  flex: 1;
+  min-width: 160px;
+}
+.root select {
+  background: var(--life-panel);
+  color: var(--life-ink);
+  padding: 10px;
+  border: 1px solid #678265;
+  max-width: 100%;
+}
+.columns {
+  display: grid;
+  grid-template-columns: minmax(140px, 0.65fr) minmax(260px, 1.6fr) minmax(300px, 1.3fr);
+  gap: 32px;
+  margin-block: 36px;
+}
+.gaugePanel {
+  text-align: center;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+.gaugePanel > strong,
+.tablePanel > strong {
+  font-size: 4.5rem;
+  line-height: 1.1;
+  color: var(--life-accent);
+}
+.gauge {
+  position: relative;
+  width: 96px;
+  height: 350px;
+  background: var(--life-panel);
+  border: 1px solid #678265;
+  border-radius: 60px;
+  margin: 24px 20px;
+  isolation: isolate;
+}
+.gauge > div {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: #597f43;
+  border-radius: 60px;
+  z-index: -1;
+}
+.gauge > span {
+  position: absolute;
+  inset-inline: -18px;
+  border-block-start: 2px dashed var(--life-accent);
+  text-align: end;
+  color: var(--life-accent);
+}
+.team {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.team img {
+  flex-shrink: 0;
+  object-fit: contain;
+}
+.next {
+  background: var(--life-panel);
+  border-inline-start: 5px solid var(--life-accent);
+  padding: 24px;
+  margin-block: 28px;
+}
+.list {
+  list-style: none;
+  padding: 0;
+}
+.list li {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  border-block-end: 1px solid #49634a;
+  padding-block: 16px;
+}
+.list b {
+  color: var(--life-accent);
+}
+.list small {
+  font-size: 0.7rem;
+}
+.actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-block: 24px;
+}
+.root button {
+  padding: 12px 18px;
+  border: 1px solid var(--life-accent);
+  cursor: pointer;
+}
+.actions button:first-child {
+  background: var(--life-accent);
+  color: var(--life-bg);
+  font-weight: 700;
+}
+.root button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.root :focus-visible {
+  outline: 3px solid var(--life-accent);
+  outline-offset: 3px;
+}
+.scroll {
+  overflow: auto;
+  max-height: 510px;
+}
+.tablePanel table {
+  font-size: 0.75rem;
+  width: 100%;
+  border-collapse: collapse;
+}
+.tablePanel th,
+.tablePanel td {
+  text-align: start;
+  padding: 10px 5px;
+  border-block-end: 1px solid #49634a;
+}
+.tablePanel thead th {
+  font-size: 0.65rem;
+}
+.own {
+  background: var(--life-panel);
+  color: var(--life-accent);
+}
+.boundary {
+  border-block-start: 2px dashed var(--life-accent);
+}
+.abandon {
+  margin-block-start: 24px;
+}
+@media (max-width: 1050px) {
+  .columns {
+    grid-template-columns: 140px 1fr;
+  }
+  .tablePanel {
+    grid-column: 1/-1;
+  }
+  .scroll {
+    max-height: 400px;
+  }
+}
+@media (max-width: 600px) {
+  .columns {
+    grid-template-columns: 1fr;
+  }
+  .gauge {
+    height: 180px;
+    width: 80px;
+  }
+  .gaugePanel {
+    padding-block: 20px;
+  }
+  .tablePanel {
+    grid-column: auto;
+  }
+  .list li {
+    grid-template-columns: 22px 1fr;
+  }
+  .list small {
+    grid-column: 2;
+  }
+  .root h2 {
+    font-size: 1.5rem;
+  }
+  .root {
+    padding: 20px;
+  }
+  .team {
+    gap: 8px;
+  }
+}

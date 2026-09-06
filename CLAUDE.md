@@ -298,3 +298,25 @@ shared JS chunks. Keep explicit provider locales and the Arabic catalog while pa
 The local map HTML shrank by 55,780 bytes (23.1%); production storage must be measured
 separately. PR #214 merged as `00c69ca`. Retention cleanup still requires Vercel account
 access; no old deployments have been deleted. See `docs/deployment-storage.md`.
+
+### TASK-1811 Survival gallery (2026-09-06)
+
+PRs #213–#215 are merged. Survival is next; the owner explicitly selected a new 30-concept
+gallery. Source is `design/survival-gallery`, standalone output is ignored under
+`artifacts/survival-gallery` (never `public`). The gallery uses real January takeovers,
+separate historical baseline/campaign suffix, and a points benchmark that does not guarantee
+safety. Exact final boundary ties are unresolved. Production save integration and UI wait
+for the layout choice. See `docs/superpowers/plans/2026-09-06-task-1811-survival-gallery.md`.
+
+**Survival layout selected:** 01 / The Lifeline, with club crests beside team names in
+the center next-fixture card and upcoming list (owner, 2026-09-06). Prototype updated;
+carry this approved layout into the production integration.
+
+### TASK-1811 Survival production integration
+
+Lifeline now runs at `/game/classic?objective=survival`, sharing the Classic controller
+and squad editor. Keep `survival-current` separate and store only post-takeover results.
+Validate archive and scenario identity before play; never persist the temporary historical
+prefix used by the Classic adapter. Undated point deductions block Survival selection;
+1994/95 has four relegation places. Local focused tests/browser checks pass; full CI/build
+and owner review remain pending. See `docs/superpowers/plans/2026-09-06-task-1811-survival-production.md`.

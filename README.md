@@ -229,3 +229,9 @@ are never replayed. Survival remains the next season milestone.
 Locale catalogs are shared client modules instead of repeated props in every prerendered
 page. See [deployment storage](docs/deployment-storage.md) for the measured HTML savings,
 static-route safeguards, and the outstanding Vercel retention cleanup.
+
+Survival's selected layout is **01 / The Lifeline**, with opponent crests in the center
+fixture card/list. Production integration is implemented on the Survival branch at
+`/game/classic?objective=survival`, with January takeovers, isolated saves, injury carryover
+and sim/play results. CI/build and review remain pending.
+[Implementation and validation](docs/superpowers/plans/2026-09-06-task-1811-survival-production.md). [Gallery scope and reproduction](docs/superpowers/plans/2026-09-06-task-1811-survival-gallery.md).

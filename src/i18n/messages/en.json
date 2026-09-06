@@ -1285,5 +1285,24 @@
     "unavailable": "Injuries leave no legal XI. Forfeit this fixture to advance recovery; your team loses 0–3.",
     "injuryRules": "Game recovery: knocks clear before the next fixture; moderate injuries miss 1 fixture, severe injuries miss 3. Recovery advances only when your team completes a fixture.",
     "injured": "{name}: unavailable for {count} more fixtures."
+  },
+  "gameSurvival": {
+    "objective": "Season objective",
+    "classic": "Classic season",
+    "survival": "Survival",
+    "title": "The Lifeline",
+    "intro": "Take over on 1 January. Rewrite the run-in. Keep your club up.",
+    "benchmark": "Points benchmark",
+    "needed": "{points} points to the benchmark",
+    "benchmarkHint": "A benchmark, not a guarantee. The final league table decides survival.",
+    "opportunity": "Your next opportunity",
+    "remaining": "{count} fixtures remaining",
+    "start": "Start Survival",
+    "in-progress": "The fight continues",
+    "survived": "Survival secured",
+    "relegated": "Relegated",
+    "tiebreak": "Survival unresolved: tied at the boundary",
+    "relegation": "Bottom {count} clubs go down. The dashed line marks the safety boundary.",
+    "unsupported": "This season has points adjustments without dated deductions. Choose another season for an accurate January takeover."
   }
 }
