@@ -325,6 +325,8 @@ export function GamePlay({
   const seasonRequested = season != null && formatParam === "season";
   const [seasonReading, setSeasonReading] = useState(seasonRequested);
   /** The squad he drafted for a season — set once, then the hub owns the run. */
+  const [seasonReadFailed, setSeasonReadFailed] = useState(false);
+  const [seasonReadAttempt, setSeasonReadAttempt] = useState(0);
   const [seasonSquad, setSeasonSquad] = useState<{
     players: PoolCard[];
     formation: Formation;
@@ -347,6 +349,7 @@ export function GamePlay({
    */
   useEffect(() => {
     if (!seasonRequested) return;
+    setSeasonReadFailed(false);
     let live = true;
     void (async () => {
       try {
@@ -365,6 +368,8 @@ export function GamePlay({
         const formation = FORMATIONS.find((f) => formationKey(f) === saved.formationKey);
         if (formation == null || formation.slots.length !== players.length) return;
         setSeasonSquad({ players, formation, seed: saved.seed, saved });
+      } catch {
+        if (live) setSeasonReadFailed(true);
       } finally {
         if (live) setSeasonReading(false);
       }
@@ -375,7 +380,7 @@ export function GamePlay({
     // Mount only: `pool` is a build-time constant, and re-running this after the coach has
     // abandoned a season would drag him straight back into it.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [seasonReadAttempt]);
 
   /**
    * A shared match, read from the URL (TASK-1812).
@@ -644,6 +649,20 @@ export function GamePlay({
    * guard below treats a null match as "still in setup", which would send the coach back to the
    * draft he has already completed.
    */
+  if (seasonRequested && seasonReadFailed)
+    return (
+      <div role="alert">
+        {t("seasonResumeBlocked")}{" "}
+        <button
+          onClick={() => {
+            setSeasonReading(true);
+            setSeasonReadAttempt((n) => n + 1);
+          }}
+        >
+          {t("seasonRetry")}
+        </button>
+      </div>
+    );
   if (seasonRequested && seasonReading)
     return <p data-testid="season-loading">{t("seasonBuilding")}</p>;
   if (seasonRequested && season != null && seasonSquad != null && clubId != null) {
@@ -657,6 +676,7 @@ export function GamePlay({
         coachName={clubs?.find((c) => c.id === clubId)?.name ?? String(clubId)}
         seed={seasonSquad.seed}
         squad={seasonSquad.players}
+        rosterPool={pool}
         formation={seasonSquad.formation}
         clubs={clubs ?? []}
         onAbandon={() => setSeasonSquad(null)}

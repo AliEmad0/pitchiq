@@ -5448,3 +5448,25 @@
     transition: none;
   }
 }
+
+/* Season rotation stays within the approved cockpit side panel. */
+.sh-sq label {
+  display: grid;
+  min-width: 0;
+  width: 100%;
+  gap: 3px;
+  color: var(--sh-dim);
+  font-size: 12px;
+}
+.sh-sq select {
+  width: 100%;
+  min-width: 0;
+  padding: 6px;
+  border: 1px solid var(--sh-line);
+  border-radius: 5px;
+  background: #0d2c39;
+  color: #edf7fa;
+}
+.sh-sq select:disabled {
+  opacity: 0.6;
+}

@@ -1092,7 +1092,15 @@
     "benchResetBatch": "Clear queued changes",
     "seasonSubLimit": "Match rules: up to {count} substitutions per team.",
     "seasonSubKeeperExtra": "The third change is reserved for a goalkeeper replacement.",
-    "seasonSubWindows": "Use up to {count} stoppages; half-time changes do not count as a stoppage."
+    "seasonSubWindows": "Use up to {count} stoppages; half-time changes do not count as a stoppage.",
+    "seasonForfeit": "Forfeit fixture (0–3)",
+    "seasonUnavailable": "Injuries leave no legal XI. Forfeit this fixture to advance recovery; your team loses 0–3.",
+    "seasonInjuryRules": "Game recovery: knocks clear before the next fixture; moderate injuries miss 1 fixture, severe injuries miss 3. Recovery advances only when your team completes a fixture.",
+    "seasonInjured": "{name}: unavailable for {count} more fixtures.",
+    "seasonSaveFailed": "Your latest squad and results could not be saved. Retry before continuing.",
+    "seasonRetrySave": "Retry save",
+    "seasonPosition": "Position {n}",
+    "seasonRotationHint": "Rotate within your fixed squad. Your original XI and up to seven reserves are saved; changes apply to future fixtures."
   },
   "commentary": {
     "armbandHandover": "The armband goes to {name}.",
@@ -1266,11 +1274,16 @@
     "difference": "GD",
     "points": "Pts",
     "squad": "Your XI",
-    "squadHint": "Choose once and live with your squad. Changing the formation rebuilds the XI before you start.",
+    "squadHint": "Choose your starting XI. You can rotate players between fixtures. Changing the formation rebuilds the XI before you start.",
+    "rotationHint": "Rotate your XI between fixtures using this season’s squad. Changes save automatically and apply to your next match; completed results stay unchanged.",
     "slot": "Position",
     "loading": "Loading Classic season…",
     "loadFailed": "This season could not be restored. Your saved progress has been kept. Retry, or abandon it to start again.",
     "saveFailed": "This progress has not been saved yet. Retry saving before continuing.",
-    "retry": "Retry"
+    "retry": "Retry",
+    "forfeit": "Forfeit fixture (0–3)",
+    "unavailable": "Injuries leave no legal XI. Forfeit this fixture to advance recovery; your team loses 0–3.",
+    "injuryRules": "Game recovery: knocks clear before the next fixture; moderate injuries miss 1 fixture, severe injuries miss 3. Recovery advances only when your team completes a fixture.",
+    "injured": "{name}: unavailable for {count} more fixtures."
   }
 }

@@ -1,7 +1,7 @@
 import { expect, test } from "./_helpers/test";
 
 test("map: nav, 51 markers, slider changes the season, badge → team page", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/", { waitUntil: "domcontentloaded" });
   await page.getByRole("link", { name: "Map" }).first().click();
   await expect(page).toHaveURL(/\/map$/);
 
@@ -19,16 +19,16 @@ test("map: nav, 51 markers, slider changes the season, badge → team page", asy
   await slider.press("Home"); // jump to 1992-93
   await expect(page.getByText("1992-93").first()).toBeVisible();
 
-  // An active badge navigates to its team page. force:true because dense
-  // clusters intentionally stack badges (active ones layer on top; users hover
-  // the visible edge to bring one forward — Playwright clicks dead-centre).
+  // Dense clusters overlap: keyboard activation targets the actual link instead
+  // of forcing a centre click through another badge or the sticky slider.
   const active = page.locator('a.club-marker[data-active="true"]').first();
-  await active.click({ force: true });
-  await expect(page).toHaveURL(/\/teams\/\d+/);
+  await expect(active).toHaveAttribute("href", "/teams/33?season=1992");
+  await active.press("Enter");
+  await expect(page).toHaveURL(/\/teams\/33\?season=1992$/);
 });
 
 test("map: a region opens its modal with clubs + titles", async ({ page }) => {
-  await page.goto("/map");
+  await page.goto("/map", { waitUntil: "domcontentloaded" });
   // Activate the region via keyboard — a centre click can land on a marker
   // badge that overlays the region (markers are clickable on top).
   await page.getByRole("button", { name: /North West — view clubs/ }).press("Enter");

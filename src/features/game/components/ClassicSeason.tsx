@@ -2,7 +2,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { ClassicData } from "../domain/classic-data";
-import { classicTeams, nextClassicFixture, restoreClassic } from "../view/classic-session";
+import {
+  classicTeams,
+  nextClassicFixture,
+  restoreClassic,
+  rotateClassic,
+} from "../view/classic-session";
 import { advanceClassic } from "../view/classic-run";
 import { randomSeed } from "../view/seed";
 import {
@@ -80,6 +85,7 @@ export function ClassicSeason({ seasons }: { seasons: number[] }) {
       const formation = club.formations.includes(shape) ? shape : club.formations[0];
       return {
         teams: classicTeams(data, club.teamId, formation, cards),
+        unavailable: false,
         run: { seed: 0, coach: data.clubIds.indexOf(club.teamId), results: [] },
         clubId: club.teamId,
         shape: formation,
@@ -128,10 +134,14 @@ export function ClassicSeason({ seasons }: { seasons: number[] }) {
   const step = () =>
     void transact(async () => {
       if (!data || !saved || !prepared || error) return;
-      await persist({
-        ...saved,
-        results: [...advanceClassic(data.schedule, prepared.teams, prepared.run).results],
-      });
+      const next = advanceClassic(
+        data.schedule,
+        prepared.teams,
+        prepared.run,
+        undefined,
+        prepared.unavailable,
+      );
+      await persist({ ...saved, results: [...next.results], injuries: next.injuries });
     });
   const remove = () => {
     if (!abandon) {
@@ -169,8 +179,9 @@ export function ClassicSeason({ seasons }: { seasons: number[] }) {
               fixtureId: playing.id,
               homeGoals: result.score.home,
               awayGoals: result.score.away,
+              events: result.events,
             });
-            await persist({ ...saved, results: [...next.results] });
+            await persist({ ...saved, results: [...next.results], injuries: next.injuries });
             setPlaying(null);
           });
         }}
@@ -212,6 +223,7 @@ export function ClassicSeason({ seasons }: { seasons: number[] }) {
             teams={prepared.teams}
             run={prepared.run}
             seasons={seasons}
+            unavailable={prepared.unavailable}
             started={saved != null}
             clubId={prepared.clubId}
             shape={prepared.shape}
@@ -229,7 +241,14 @@ export function ClassicSeason({ seasons }: { seasons: number[] }) {
               setCards(undefined);
               setShape(value);
             }}
-            onCards={setCards}
+            onCards={(values) => {
+              if (!saved) {
+                setCards(values);
+                return;
+              }
+              if (!data || error || lock.current) return;
+              void transact(() => persist(rotateClassic(data, saved, values)));
+            }}
             onStart={start}
             onSim={step}
             onAbandon={remove}

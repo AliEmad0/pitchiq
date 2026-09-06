@@ -1,9 +1,16 @@
+import type { Page } from "@playwright/test";
+import { seasonSave } from "./_helpers/season-save";
+import type { SavedClassic } from "../../src/features/game/storage/classic-slot";
+import type { ClassicData } from "../../src/features/game/domain/classic-data";
+import { restoreClassic } from "../../src/features/game/view/classic-session";
+import { advanceClassic } from "../../src/features/game/view/classic-run";
 import { expect, test } from "./_helpers/test";
 
 test("Classic orbit: sim, play away, return to table and resume", async ({ page }) => {
   test.setTimeout(240_000);
-  await page.goto("/game/classic");
+  await page.goto("/game/classic", { waitUntil: "domcontentloaded" });
   await page.getByRole("button", { name: "Start season", exact: true }).click({ timeout: 60_000 });
+  await healthyFirstFixture(page);
   await page.getByRole("button", { name: "Sim fixture", exact: true }).click();
   await expect(page.getByText("1 of 38 fixtures", { exact: false })).toBeVisible();
   await page.emulateMedia({ reducedMotion: "reduce" });
@@ -21,7 +28,7 @@ test("Classic orbit: sim, play away, return to table and resume", async ({ page 
   await expect(page.getByText("2 of 38 fixtures", { exact: false })).toBeVisible();
   const table = page.getByRole("table");
   const before = await table.innerText();
-  await page.reload();
+  await page.reload({ waitUntil: "domcontentloaded" });
   await expect(page.getByText("2 of 38 fixtures", { exact: false })).toBeVisible({
     timeout: 60_000,
   });
@@ -30,7 +37,7 @@ test("Classic orbit: sim, play away, return to table and resume", async ({ page 
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 test("Classic 1992 has 42 fixtures", async ({ page }) => {
-  await page.goto("/game/classic");
+  await page.goto("/game/classic", { waitUntil: "domcontentloaded" });
   await page
     .getByRole("group", { name: "Choose your historical season" })
     .getByRole("combobox", { name: "Season", exact: true })
@@ -45,7 +52,7 @@ test("Classic modern half-time supports two changes in one submission", async ({
   page,
 }, testInfo) => {
   test.setTimeout(180_000);
-  await page.goto("/game/classic");
+  await page.goto("/game/classic", { waitUntil: "domcontentloaded" });
   await page
     .getByRole("group", { name: "Choose your historical season" })
     .getByRole("combobox", { name: "Season", exact: true })
@@ -85,3 +92,58 @@ test("Classic modern half-time supports two changes in one submission", async ({
   await page.getByRole("button", { name: "Return to season" }).click();
   await expect(page.getByText("1 of 38 fixtures", { exact: false })).toBeVisible();
 });
+
+test("Classic rotation saves after a fixture and survives reload", async ({ page }) => {
+  await page.goto("/game/classic", { waitUntil: "domcontentloaded" });
+  await page.getByRole("button", { name: "Start season", exact: true }).click({ timeout: 60_000 });
+  await healthyFirstFixture(page);
+  await page.getByRole("button", { name: "Sim fixture", exact: true }).click();
+  await expect(page.getByText("1 of 38 fixtures", { exact: false })).toBeVisible();
+  const before = await page.getByRole("table").innerText();
+  await page.locator("summary").filter({ hasText: "Your XI" }).click();
+  const slot = page.getByRole("combobox", { name: /^Position 2 / });
+  const original = await slot.inputValue();
+  const replacement = await slot.locator("option").evaluateAll(
+    (options, value) =>
+      options
+        .filter((o) => !(o as HTMLOptionElement).disabled)
+        .map((o) => (o as HTMLOptionElement).value)
+        .find((v) => v !== value),
+    original,
+  );
+  expect(replacement).toBeTruthy();
+  await slot.selectOption(replacement!);
+  await expect(page.getByRole("button", { name: "Play fixture", exact: true })).toBeEnabled();
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await expect(page.getByText("1 of 38 fixtures", { exact: false })).toBeVisible();
+  await page.locator("summary").filter({ hasText: "Your XI" }).click();
+  await expect(slot).toHaveValue(replacement!);
+  expect(await page.getByRole("table").innerText()).toBe(before);
+  await page.getByRole("button", { name: "Play fixture", exact: true }).click();
+  await page.getByRole("button", { name: "Return to season" }).click();
+  await page.locator("summary").filter({ hasText: "Your XI" }).click();
+  await expect(slot).toHaveValue(replacement!);
+  expect(await page.getByRole("table").innerText()).toBe(before);
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+/** Injury progression has its own E2E; these cases need a playable second fixture. */
+async function healthyFirstFixture(page: Page) {
+  const saved = await seasonSave<SavedClassic>(page, "classic-current");
+  const data: ClassicData = await (
+    await page.request.get(`/api/game/classic/${saved.season}`)
+  ).json();
+  let found = false;
+  for (let seed = 0; seed < 100; seed++) {
+    const current = restoreClassic(data, { ...saved, seed });
+    if (!advanceClassic(data.schedule, current.teams, current.run).injuries?.length) {
+      saved.seed = seed;
+      found = true;
+      break;
+    }
+  }
+  expect(found).toBe(true);
+  await seasonSave(page, "classic-current", saved);
+  await page.reload({ waitUntil: "domcontentloaded" });
+}

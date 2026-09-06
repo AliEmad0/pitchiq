@@ -36,7 +36,7 @@ beforeEach(() => {
 });
 
 describe("season fixture lifecycle", () => {
-  it("saves week zero on explicit play; cancellation preserves the mounted hub", async () => {
+  it("saves the fixed roster at week zero; cancellation preserves the mounted hub", async () => {
     const { props } = seasonSetup();
     const user = userEvent.setup();
     renderWithIntl(
@@ -45,7 +45,9 @@ describe("season fixture lifecycle", () => {
       </StrictMode>,
     );
     await waitFor(() => expect(screen.getByRole("button", { name: "Play fixture" })).toBeEnabled());
-    expect(slot.saveRun).not.toHaveBeenCalled();
+    expect(slot.saveRun).toHaveBeenCalledWith(
+      expect.objectContaining({ results: [], rosterIds: expect.any(Array) }),
+    );
     const hub = screen.getByTestId("season-hub");
     await user.click(screen.getByRole("button", { name: "Play fixture" }));
     expect(hub).not.toBeVisible();

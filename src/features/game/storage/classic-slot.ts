@@ -4,6 +4,10 @@ const key = "classic-current";
 const score = z.number().int().nonnegative();
 const schema = z.object({
   version: z.literal(1),
+  injuries: z
+    .array(z.object({ cardId: z.string().min(1), remaining: z.number().int().min(1).max(3) }))
+    .max(100)
+    .optional(),
   season: z.number().int().min(1992).max(2025),
   clubId: z.number().int().positive(),
   formation: z.string().min(1),

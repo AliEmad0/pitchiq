@@ -274,3 +274,18 @@ stoppages on all replacement paths, including forced injuries and keeper recover
 Grouped changes travel in one answer; never repeat the same kind/minute/side decision
 and undermine the driver duplicate guard. Saved results stay immutable.
 See `docs/superpowers/plans/2026-09-06-task-1811-era-substitutions.md` for scope and sources.
+
+### TASK-1811: season rotation and injury carryover (PR #214)
+
+`domain/season-availability.ts` owns recovery and legal cover. Moderate injuries miss one
+future coach fixture, severe three, knocks none; count only completed coach fixtures.
+Capture actual sim/live events once and save compact availability with results, never
+replay past scores. Side matters: the same player ID may belong to both teams.
+If no eligible XI exists, bulk sim pauses and only an explicit 0–3 forfeit advances recovery.
+
+Legacy keeps original `cardIds` plus fixed `rosterIds` and selected `lineupIds`. Never rebuild
+saved reserves from the new lineup or redraft them on reload. One reserve keeper, then
+outfield cover: an all-time pool can otherwise fill all seven reserve places with keepers.
+Season slot reads/writes now throw on failure; callers show retry and block progress.
+Wait for slot identity before the first write, including week zero, and serialize writes.
+See the PR #214 plan for the old-save migration baseline and coach-only carryover scope.

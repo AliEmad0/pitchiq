@@ -9,6 +9,7 @@ import type { GamePlayer } from "./player";
 export function classicLineup(
   pool: readonly GamePlayer[],
   formation: Formation,
+  preferred: readonly string[] = [],
 ): GamePlayer[] | null {
   if (formation.slots.length !== 11) return null;
   const ranked = pool
@@ -21,7 +22,11 @@ export function classicLineup(
     seen.add(p.playerId);
     return true;
   });
-  const candidates = formation.slots.map((s) => unique.filter((p) => canPlay(p, s.role)));
+  const candidates = formation.slots.map((s, i) =>
+    unique
+      .filter((p) => canPlay(p, s.role))
+      .sort((a, b) => Number(b.cardId === preferred[i]) - Number(a.cardId === preferred[i])),
+  );
   const assigned = new Map<number, number>();
   const picks: GamePlayer[] = [];
   const place = (slot: number, visited: Set<number>): boolean => {

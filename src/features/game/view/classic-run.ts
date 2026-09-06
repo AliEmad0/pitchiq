@@ -1,3 +1,6 @@
+import { availableSeasonTeam, carryInjuries } from "../domain/season-availability";
+import type { MatchEvent } from "../domain/match-types";
+import type { SeasonInjury } from "../domain/season-availability";
 import { premierLeagueSubstitutions } from "../domain/substitution-rules";
 import type { HistoricalSchedule, PlayedHistoricalFixture } from "../domain/classic-season";
 import { fixtureSeed } from "../domain/season";
@@ -8,6 +11,7 @@ export interface ClassicResult extends PlayedHistoricalFixture {
   seed: number;
 }
 export interface ClassicRun {
+  injuries?: SeasonInjury[];
   seed: number;
   coach: number;
   results: readonly ClassicResult[];
@@ -28,7 +32,8 @@ export function advanceClassic(
   schedule: HistoricalSchedule,
   teams: readonly GameTeam[],
   run: ClassicRun,
-  played?: PlayedHistoricalFixture,
+  played?: PlayedHistoricalFixture & { events?: MatchEvent[] },
+  forfeit = false,
 ): ClassicRun {
   if (
     teams.length !== schedule.clubs ||
@@ -70,23 +75,39 @@ export function advanceClassic(
   const hasLaterCoach = schedule.fixtures.some((f, i) => i > next && isCoach(f));
   const end = next >= 0 && hasLaterCoach ? next + 1 : schedule.fixtures.length;
   const results = [...run.results];
+  let injuries = run.injuries;
+  const own = availableSeasonTeam(teams[run.coach], injuries);
+  if (!own && (!forfeit || played)) throw new Error("No available Classic XI");
   const rate =
     schedule.fixtures.reduce((sum, f) => sum + f.homeGoals + f.awayGoals, 0) /
     schedule.fixtures.length;
   for (let i = results.length; i < end; i++) {
     const f = schedule.fixtures[i];
     const seed = classicFixtureSeed(run.seed, f.id);
-    const score =
+    const result =
       played && i === next
-        ? { home: played.homeGoals, away: played.awayGoals }
-        : simulate({
-            home: teams[f.home],
-            away: teams[f.away],
-            seed,
-            targetGoalsPerMatch: rate,
-            substitutions: premierLeagueSubstitutions(teams[f.home].season, f.date),
-          }).score;
+        ? { score: { home: played.homeGoals, away: played.awayGoals }, events: played.events ?? [] }
+        : i === next && !own
+          ? {
+              score: { home: f.home === run.coach ? 0 : 3, away: f.away === run.coach ? 0 : 3 },
+              events: [],
+            }
+          : simulate({
+              home: f.home === run.coach ? own! : teams[f.home],
+              away: f.away === run.coach ? own! : teams[f.away],
+              seed,
+              targetGoalsPerMatch: rate,
+              substitutions: premierLeagueSubstitutions(teams[f.home].season, f.date),
+            });
+    const score = result.score;
+    if (i === next)
+      injuries = carryInjuries(
+        injuries ?? [],
+        result.events,
+        f.home === run.coach ? "home" : "away",
+        own ?? teams[run.coach],
+      );
     results.push({ fixtureId: f.id, seed, homeGoals: score.home, awayGoals: score.away });
   }
-  return { ...run, results };
+  return { ...run, results, injuries };
 }

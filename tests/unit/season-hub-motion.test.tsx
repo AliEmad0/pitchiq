@@ -1,3 +1,4 @@
+import { classicLineup } from "@/features/game/domain/classic-lineup";
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { PlayerRole } from "@/data/schemas";
@@ -74,7 +75,7 @@ const props = {
   pools: Object.fromEntries(IDS.map((id) => [id, poolFor(id)])),
   clubNames: Object.fromEntries(IDS.map((id) => [id, `Club ${id}`])),
   leagueIds: IDS,
-  squad: poolFor(1).slice(0, 11),
+  squad: classicLineup(poolFor(1), formationByName("4-4-2 Flat"))! as PoolCard[],
   formation: formationByName("4-4-2 Flat"),
 };
 

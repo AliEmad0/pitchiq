@@ -6042,7 +6042,7 @@ targets and relegation start, era-authentic substitution rules, and squad rotati
   Single-match Classic and Survival remain pending; era rules are the next slice.
 - [Classic plan and audit](docs/superpowers/plans/2026-09-05-task-1811-classic-season.md).
 
-**PR 5 — historical substitution limits (implementation, 2026-09-06):**
+**PR 5 — historical substitution limits (merged 2026-09-06, PR #213):**
 
 - Fixture-date policies cover the early two-player limit, goalkeeper-only extra change,
   three-player seasons, the temporary 2019/20 restart and permanent five-player rules.
@@ -6051,6 +6051,23 @@ targets and relegation start, era-authentic substitution rules, and squad rotati
 - [Scope, sources and tests](docs/superpowers/plans/2026-09-06-task-1811-era-substitutions.md).
 - Remaining: rotation/injuries across fixtures and Survival; named-bench history and
   concussion protocols are outside this ordinary-substitution slice.
+
+**PR 6 — injury carryover and Classic/Legacy rotation (PR #214, implementation 2026-09-06):**
+
+- Both existing season squad panels allow legal rotation between fixtures. Classic uses
+  its club-season pool; Legacy persists the drafted XI plus up to seven fixed reserves.
+- Coach injuries carry from actual sim/live events: moderate misses one fixture, severe
+  three, knocks none. Availability saves with results; reload/cancel never advances recovery.
+- Injured players cannot start or sit on the bench. If no legal XI exists, play is disabled
+  and an explicit 0–3 forfeit advances recovery. Bulk sim pauses before that fixture.
+- Old scores stay unchanged. Old saves get no invented injuries; Legacy reserves are
+  selected once and persisted. Missing reserves block resume. Save failure blocks further
+  play/rotation until retry; another league's save cannot be overwritten during initialization.
+- Unit/component and browser coverage checks sim/play/save/resume, recovery, fixed-roster
+  identity, duplicate returns, forfeits, full seasons, failed saves and mobile overflow.
+- [Scope, contracts and validation](docs/superpowers/plans/2026-09-06-task-1811-classic-rotation.md).
+- Remaining: Survival mid-season starts/point targets. Carryover currently models the
+  coach's squad; rival injury history, named-bench history and concussion protocols are not modeled.
 
 ### TASK-1812
 
