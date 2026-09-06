@@ -148,8 +148,16 @@ test.describe("Full Season — the league itself", () => {
     await page.getByRole("button", { name: "Return to season" }).click();
     await expect(week).toContainText(`Matchweek ${completed} of`);
     await page.getByRole("button", { name: "Play fixture" }).click();
+    // A full bench introduces real 20-second coach windows. Exercise their expiry
+    // with the browser clock instead of waiting through every window in wall time.
+    await page.clock.install();
     await page.getByRole("button", { name: /Kick off/i }).click();
-    await page.getByRole("button", { name: "Full time", exact: true }).click({ timeout: 60_000 });
+    const fullTime = page.getByRole("button", { name: "Full time", exact: true });
+    for (let window = 0; window < 40 && !(await fullTime.isVisible()); window++) {
+      await page.clock.fastForward(21_000);
+    }
+    await expect(fullTime).toBeVisible();
+    await fullTime.click();
     await expect(page.getByRole("heading", { name: "Full time", exact: true })).toBeVisible();
     await expect(page.getByRole("button", { name: /Copy link/i })).toHaveCount(0);
     await page.getByRole("button", { name: "Return to season" }).click();

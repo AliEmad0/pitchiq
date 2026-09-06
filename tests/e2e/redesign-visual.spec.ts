@@ -12,7 +12,8 @@ const PRIMARY_LIGHT_MODERN: [number, number, number] = [163, 23, 154];
 test("map: the letterbox lines are sticky + full-bleed and the slider uses the accent", async ({
   page,
 }) => {
-  await page.goto("/map");
+  // Optimized badge images need not finish loading before checking the map layout.
+  await page.goto("/map", { waitUntil: "domcontentloaded" });
 
   // The caption is a sticky <h1> letterbox line.
   const caption = page.getByRole("heading", {
