@@ -6079,6 +6079,14 @@ targets and relegation start, era-authentic substitution rules, and squad rotati
 - Remaining: Survival mid-season starts/point targets. Carryover currently models the
   coach's squad; rival injury history, named-bench history and concussion protocols are not modeled.
 
+**PR 7 — Survival Lifeline (implemented on branch, CI/review pending):**
+
+- Approved 01 / The Lifeline is integrated as the Survival objective at `/game/classic?objective=survival`, with crests in the center fixture card/list.
+- January bottom-five takeovers, fixed historical baseline, suffix-only save, points benchmark and final-table survival/tiebreak outcome.
+- Shared sim/play, injury carryover, legal rotation, explicit forfeit, isolated save/retry and return-to-table behavior.
+- Undated deduction seasons are explicitly unavailable; 1994/95 uses four relegation places.
+- [Implementation and validation](docs/superpowers/plans/2026-09-06-task-1811-survival-production.md). Remaining: full CI/build and owner review; no merge claimed.
+
 ### TASK-1812
 
 **Persistence, records, shareable seeded matches** · 📋 Backlog · `P3` · `M` · Type: Feature

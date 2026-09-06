@@ -311,3 +311,12 @@ for the layout choice. See `docs/superpowers/plans/2026-09-06-task-1811-survival
 **Survival layout selected:** 01 / The Lifeline, with club crests beside team names in
 the center next-fixture card and upcoming list (owner, 2026-09-06). Prototype updated;
 carry this approved layout into the production integration.
+
+### TASK-1811 Survival production integration
+
+Lifeline now runs at `/game/classic?objective=survival`, sharing the Classic controller
+and squad editor. Keep `survival-current` separate and store only post-takeover results.
+Validate archive and scenario identity before play; never persist the temporary historical
+prefix used by the Classic adapter. Undated point deductions block Survival selection;
+1994/95 has four relegation places. Local focused tests/browser checks pass; full CI/build
+and owner review remain pending. See `docs/superpowers/plans/2026-09-06-task-1811-survival-production.md`.
