@@ -1,7 +1,7 @@
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { hasLocale, NextIntlClientProvider } from "next-intl";
-import { getMessages, setRequestLocale } from "next-intl/server";
+import { hasLocale } from "next-intl";
+import { setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import {
   Geist,
@@ -28,6 +28,7 @@ import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { EraController } from "@/components/theme/EraController";
 import { DailyBubble } from "@/features/game/components/DailyBubble";
 import { routing } from "@/i18n/routing";
+import { IntlProvider } from "@/i18n/providers";
 import { REVEAL_GATE_SCRIPT } from "@/utils/reveal";
 import { getSiteUrl } from "@/utils/site-url";
 
@@ -156,7 +157,6 @@ export default async function LocaleLayout({
   // it, getMessages()/getTranslations() (used here + in <Footer>) would force
   // the whole route to render dynamically.
   setRequestLocale(locale);
-  const messages = await getMessages();
   // ⚠️ Compared as a plain string list, NOT `locale === "ar"` (TASK-1843). With Arabic parked,
   // `routing.locales` narrows to the literal `"en"`, and a `=== "ar"` check is then a
   // no-overlap TYPE ERROR that fails the build. Keeping the RTL knowledge here as data means
@@ -185,7 +185,7 @@ export default async function LocaleLayout({
             `?season=` swap in <PlayerSeasonView> requested
             `/api/players/[id]/profile?locale=en` on /ar and replaced the
             Arabic name with the Latin one. Caught by tests/e2e/ar-data.spec.ts. */}
-        <NextIntlClientProvider locale={locale} messages={messages}>
+        <IntlProvider locale={locale}>
           {/* TASK-1702 boot loader — inside the intl provider (the wordmark
               localizes) but outside the theme/query providers it doesn't need.
               SSR-painted; removes itself once per session via its inline
@@ -218,7 +218,7 @@ export default async function LocaleLayout({
               </QueryProvider>
             </ThemeProvider>
           </NuqsAdapter>
-        </NextIntlClientProvider>
+        </IntlProvider>
         <Analytics />
         <SpeedInsights />
       </body>

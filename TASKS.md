@@ -4,6 +4,13 @@ A phased, ticket-level breakdown of the work required to ship **PitchIQ**. Each 
 
 ---
 
+## Deployment storage follow-up — 2026-09-06
+
+PR #214 is merged (`00c69ca`): season injury carryover and Classic/Legacy rotation.
+Storage optimization is in review: shared client translation catalogs remove repeated
+messages from page HTML/RSC. Local map HTML is 23.1% smaller; production output and
+Vercel retention cleanup remain to verify. See [deployment storage](docs/deployment-storage.md).
+
 ## 📐 Conventions
 
 ### Ticket ID prefixes

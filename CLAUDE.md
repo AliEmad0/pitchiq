@@ -289,3 +289,12 @@ outfield cover: an all-time pool can otherwise fill all seven reserve places wit
 Season slot reads/writes now throw on failure; callers show retry and block progress.
 Wait for slot identity before the first write, including week zero, and serialize writes.
 See the PR #214 plan for the old-save migration baseline and coach-only carryover scope.
+
+### Deployment storage (2026-09-06)
+
+Do not pass the full catalog as a prop from the root server layout to a client provider.
+`src/i18n/providers` selects locale-specific client modules that import catalogs into
+shared JS chunks. Keep explicit provider locales and the Arabic catalog while parked.
+The local map HTML shrank by 55,780 bytes (23.1%); production storage must be measured
+separately. PR #214 merged as `00c69ca`. Retention cleanup still requires Vercel account
+access; no old deployments have been deleted. See `docs/deployment-storage.md`.
