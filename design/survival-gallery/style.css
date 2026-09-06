@@ -1516,3 +1516,32 @@ select {
     font-size: 12px;
   }
 }
+
+/* Owner-selected Lifeline: crests accompany every center-column opponent name. */
+.concept-0 .next h3 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.concept-0 .next h3 img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.concept-0 .fixture-team {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.concept-0 .fixture-team img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.concept-0 .fixture-team > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}

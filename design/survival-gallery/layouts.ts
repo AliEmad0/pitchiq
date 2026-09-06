@@ -57,14 +57,14 @@ export function renderConcept(i: number, c: GalleryContext) {
   const table = (full = false) =>
     `<section class="table"><div class="block-label">THE LEAGUE <span>PTS / GD</span></div>${(full ? c.table : rows).map((r) => `<div class="row ${r.own ? "own" : ""} ${r.rank === c.progress.safePlaces + 1 ? "line" : ""}"><b>${r.rank}</b>${c.logo(r.id)}<span>${esc(r.name)}</span><strong>${r.points}</strong><small>${r.goalDifference}</small></div>`).join("")}</section>`;
   const next = () =>
-    `<section class="next"><small>${esc(c.nextDate)} · ${c.venue}</small><h3>${esc(c.opponent)}</h3><span>${left ? "Your next opportunity" : "Campaign complete"}</span></section>`;
+    `<section class="next"><small>${esc(c.nextDate)} · ${c.venue}</small><h3>${i === 0 && c.opponentId != null ? c.logo(c.opponentId) : ""}${esc(c.opponent)}</h3><span>${left ? "Your next opportunity" : "Campaign complete"}</span></section>`;
   const fixtures = () =>
     `<div class="fixtures">${
       c.fixtures
         .slice(0, 6)
         .map(
           (f, j: number) =>
-            `<div><b>${String(j + 1).padStart(2, "0")}</b><span>${esc(f.name)}</span><small>${f.date.slice(5)} · ${f.venue}</small></div>`,
+            `<div><b>${String(j + 1).padStart(2, "0")}</b><span class="fixture-team">${i === 0 ? c.logo(f.id) : ""}<span>${esc(f.name)}</span></span><small>${f.date.slice(5)} · ${f.venue}</small></div>`,
         )
         .join("") || "<p>No fixtures remain</p>"
     }</div>`;

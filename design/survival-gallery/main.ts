@@ -123,8 +123,10 @@ function context() {
     available,
     nextDate: f ? f.date.slice(0, 10) : "FULL TIME",
     venue: f ? (f.home === run.coach ? "HOME" : "AWAY") : "FINAL TABLE",
+    opponentId: f ? teams[f.home === run.coach ? f.away : f.home].teamId : null,
     opponent: f ? teams[f.home === run.coach ? f.away : f.home].name : "The season is over",
     fixtures: p.remaining.map((f) => ({
+      id: teams[f.home === run.coach ? f.away : f.home].teamId,
       name: teams[f.home === run.coach ? f.away : f.home].name,
       date: f.date.slice(0, 10),
       venue: f.home === run.coach ? "H" : "A",
@@ -312,8 +314,9 @@ try {
   message = "The gallery save was incompatible; started a new demo campaign.";
   render();
 }
-const picked = Number.parseInt(read("survival-gallery-choice-v1") ?? "", 10);
-if (picked >= 1 && picked <= 30) choose(picked - 1);
+// Owner-approved layout, 2026-09-06. Keep alternatives available for reference.
+write("survival-gallery-choice-v1", "01 / The Lifeline");
+choose(0);
 const gallery = {
   choose,
   reset,

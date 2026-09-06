@@ -51,3 +51,11 @@ final ties, deterministic simulation, immutable history, JSON resume, and played
 Chromium checks all thirty concepts simulate, have thirty distinct block-geometry signatures,
 fit at 390px, finish a run-in, restore saved results, and persist a selection. Desktop/mobile
 screenshots are inspected separately. Production integration remains unbuilt pending choice.
+
+## Owner selection — 2026-09-06
+
+Approved **01 / The Lifeline**, with club crests beside opponent names in both the
+center next-fixture card and the upcoming-fixture list. The prototype now includes
+those crests and opens on the approved layout. Preserve its three-column structure
+and responsive stacking. The other concepts remain reference material. Production
+Survival integration is the next implementation step; no further layout gallery is needed.

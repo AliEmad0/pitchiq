@@ -5920,7 +5920,8 @@ next to whom_ matters. Design + measurements:
 Classic Season Orbit, fixture play/recovery, historical substitutions, injury carryover,
 and Classic/Legacy rotation. Survival is the remaining season objective. The owner chose
 a new 30-concept gallery on September 6; its playable foundation and standalone gallery
-are built on `codex/task-1811-survival`, awaiting a layout choice. Production integration
+are built on `codex/task-1811-survival`. The owner selected **01 / The Lifeline**, adding
+club crests to the center fixture card/list. Production integration
 and dedicated save migration follow the choice. Earlier progress notes below are historical.
 
 **Description** — Multi-match progression for the season-shaped modes. Signature feature: **"ghost of the real season"** — Classic Season shows your run against the real historical result of each fixture ("the real Arsenal won here 2-0; you drew"), chasing the actual final table. Survival tracks point targets from a mid-season relegation start; Legacy drafts season-by-season. Era-authentic rules (e.g. 3 subs pre-2020 vs 5). **Depends on:** TASK-1810, **[TASK-1844](#task-1844)**.

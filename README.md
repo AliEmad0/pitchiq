@@ -230,5 +230,5 @@ Locale catalogs are shared client modules instead of repeated props in every pre
 page. See [deployment storage](docs/deployment-storage.md) for the measured HTML savings,
 static-route safeguards, and the outstanding Vercel retention cleanup.
 
-Survival's playable 30-concept gallery is ready for layout selection; production integration
-remains pending. [Gallery scope and reproduction](docs/superpowers/plans/2026-09-06-task-1811-survival-gallery.md).
+Survival's selected layout is **01 / The Lifeline**, with opponent crests in the center
+fixture card/list; production integration remains pending. [Gallery scope and reproduction](docs/superpowers/plans/2026-09-06-task-1811-survival-gallery.md).

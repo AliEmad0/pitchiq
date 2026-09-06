@@ -307,3 +307,7 @@ gallery. Source is `design/survival-gallery`, standalone output is ignored under
 separate historical baseline/campaign suffix, and a points benchmark that does not guarantee
 safety. Exact final boundary ties are unresolved. Production save integration and UI wait
 for the layout choice. See `docs/superpowers/plans/2026-09-06-task-1811-survival-gallery.md`.
+
+**Survival layout selected:** 01 / The Lifeline, with club crests beside team names in
+the center next-fixture card and upcoming list (owner, 2026-09-06). Prototype updated;
+carry this approved layout into the production integration.
