@@ -13,7 +13,7 @@ test.describe("Chemistry Draft", () => {
     /**
      * ⚠️ A TILE, then a FORMAT — not a direct link, for the same reason as Budget Cap:
      * `isDirectEntry` only collapses the step for a mode with exactly ONE applicable format,
-     * and chemistry has two (`single` live, `season` planned for TASK-1811).
+     * and chemistry has two (`single` and `season`, both live since 2026-10-12).
      */
     await page.getByRole("button", { name: /Chemistry Draft/ }).click();
     await page.getByRole("link", { name: /One Match/ }).click();
