@@ -172,7 +172,7 @@ describe("headlineFor — side, determinism, values", () => {
     const r = res([g(30, "home", 1)], 4242);
     expect(headlineFor(r, HOME, AWAY, "home")).toEqual(headlineFor(r, HOME, AWAY, "home"));
     expect(headlineFor(r, HOME, AWAY, "home").key).toMatch(
-      new RegExp(`^game\\.report\\.headline\\.win\\.[0-${HEADLINE_POOL - 1}]$`),
+      new RegExp(`^gameReport\\.headline\\.win\\.[0-${HEADLINE_POOL - 1}]$`),
     );
   });
 });

@@ -831,6 +831,7 @@ export function GamePlay({
         crests={crests}
         shared={shared}
         drifted={drifted}
+        report={{ result, home: match.home, away: match.away, coachSide: "home" }}
         onNewMatch={() => {
           void clearMatch();
           // ⚠️ Clear `?m=` too, or "New match" re-enters the shared match on the next

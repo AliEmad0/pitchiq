@@ -2,6 +2,7 @@ import { StrictMode, type ComponentProps } from "react";
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, it, vi } from "vitest";
+import { headlineFor } from "@/features/game/domain/match-headline";
 import { defaultAnswer } from "@/features/game/domain/match-decisions";
 import { simulate } from "@/features/game/domain/simulate";
 import { finishSeasonWeek, seasonFixture } from "@/features/game/view/season-match";
@@ -57,6 +58,12 @@ it.each([0, 1])(
     }
     expect(answered).toBeGreaterThan(0);
     await user.click(screen.getByRole("button", { name: "Full time" }));
+    // TASK-1815 — the report is written from the COACH's side, which a season can make away.
+    const played = simulate(fixture.setup);
+    expect(screen.getByTestId("post-match-report")).toHaveAttribute(
+      "data-arc",
+      headlineFor(played, fixture.setup.home, fixture.setup.away, fixture.coachSide).arc,
+    );
     expect(onReturn).not.toHaveBeenCalled();
     expect(screen.queryByRole("button", { name: /Copy link/i })).toBeNull();
     await user.click(screen.getByRole("button", { name: "Return to season" }));

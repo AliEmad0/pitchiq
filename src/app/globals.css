@@ -5581,6 +5581,10 @@
     text-align: center;
   }
 }
+.pmr-wheel-wrap {
+  width: 100%;
+  max-width: 230px;
+}
 .pmr-wheel {
   display: block;
   width: 100%;

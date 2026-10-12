@@ -36,13 +36,13 @@ const VALUES = {
   minute: "88",
 };
 const OTHER = {
-  "game.report.xgAria": { home: "H", away: "A", homeXg: "1.0", awayXg: "0.5" },
-  "game.report.xgLine": { homeXg: "1.0", awayXg: "0.5" },
-  "game.report.ownGoal": { name: "N" },
-  "game.report.scorerCount": { name: "N", goals: "2" },
-  "game.report.masthead": {},
-  "game.report.aria": {},
-  "game.report.xgTitle": {},
+  "gameReport.xgAria": { home: "H", away: "A", homeXg: "1.0", awayXg: "0.5" },
+  "gameReport.xgLine": { homeXg: "1.0", awayXg: "0.5" },
+  "gameReport.ownGoal": { name: "N" },
+  "gameReport.scorerCount": { name: "N", goals: "2" },
+  "gameReport.masthead": {},
+  "gameReport.aria": {},
+  "gameReport.xgTitle": {},
 };
 
 describe("post-match report catalog", () => {
@@ -52,7 +52,7 @@ describe("post-match report catalog", () => {
   ] as const) {
     const t = createTranslator({
       locale,
-      messages: messages as Record<string, never>,
+      messages: messages as unknown as Record<string, never>,
       onError: (e) => {
         throw e;
       },
@@ -61,14 +61,14 @@ describe("post-match report catalog", () => {
     it(`every headline renders in ${locale} with no missing args`, () => {
       for (const arc of ARCS)
         for (let i = 0; i < HEADLINE_POOL; i++) {
-          const out = t(`game.report.headline.${arc}.${i}`, VALUES);
-          expect(out, `${locale} ${arc}.${i}`).not.toMatch(/game\.report|\{/);
+          const out = t(`gameReport.headline.${arc}.${i}`, VALUES);
+          expect(out, `${locale} ${arc}.${i}`).not.toMatch(/gameReport|\{/);
         }
     });
 
     it(`every other report string renders in ${locale}`, () => {
       for (const [key, values] of Object.entries(OTHER))
-        expect(t(key, values), `${locale} ${key}`).not.toMatch(/game\.report|\{/);
+        expect(t(key, values), `${locale} ${key}`).not.toMatch(/gameReport|\{/);
     });
   }
 });

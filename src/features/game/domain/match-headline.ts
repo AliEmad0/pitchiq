@@ -31,7 +31,7 @@ export type HeadlineArc =
   | "draw"
   | "loss";
 
-/** Every arc has this many wordings: `game.report.headline.<arc>.0 … POOL-1`. */
+/** Every arc has this many wordings: `gameReport.headline.<arc>.0 … POOL-1`. */
 export const HEADLINE_POOL = 3;
 const LATE_MINUTE = 85;
 /** Hundredths — a full goal of expected goals. */
@@ -170,5 +170,5 @@ export function headlineFor(
 
   const arc = pick();
   const variant = hashStr(`${result.seed}:${arc}`) % HEADLINE_POOL;
-  return { arc, key: `game.report.headline.${arc}.${variant}`, values };
+  return { arc, key: `gameReport.headline.${arc}.${variant}`, values };
 }

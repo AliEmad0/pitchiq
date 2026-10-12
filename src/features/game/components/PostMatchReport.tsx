@@ -45,7 +45,7 @@ export function PostMatchReport({
   coachSide: Side;
   locale: string;
 }) {
-  const t = useTranslations("game.report");
+  const t = useTranslations("gameReport");
   // Headline keys are built at runtime; next-intl types `t` against literal keys.
   const tAny = useTranslations() as unknown as (k: string, v: Record<string, string>) => string;
   const ld = (v: string | number) => localizeDigits(v, locale);
@@ -93,41 +93,42 @@ export function PostMatchReport({
       aria-label={t("aria")}
       className="pmr-root"
     >
-      <svg
-        data-testid="report-xg-chart"
-        dir="ltr"
-        viewBox={`0 0 ${SIZE} ${SIZE}`}
-        role="img"
-        aria-label={t("xgAria", { home: home.name, away: away.name, homeXg, awayXg })}
-        className="pmr-wheel"
-      >
-        <circle cx={C} cy={C} r={RING} className="pmr-ring" />
-        <circle cx={C} cy={C} r={INNER} className="pmr-label" />
-        <line x1={C} y1={C - RING - 4} x2={C} y2={C - RING + 4} className="pmr-tick" />
-        {shots.map((s, i) => {
-          const len = STEM + s.xg * PER_XG;
-          const [x1, y1] = point(s.minute, RING, span);
-          const [x2, y2] = point(s.minute, s.side === "home" ? RING + len : RING - len, span);
-          const scored = s.goal && !s.disallowed;
-          return (
-            <line
-              key={i}
-              data-testid="report-shot"
-              x1={x1}
-              y1={y1}
-              x2={x2}
-              y2={y2}
-              className={`pmr-spoke pmr-${s.side}${scored ? " pmr-goal" : ""}`}
-            />
-          );
-        })}
-        <text x={C} y={C - 2} textAnchor="middle" className="pmr-score">
-          {ld(`${homeGoals}–${awayGoals}`)}
-        </text>
-        <text x={C} y={C + 16} textAnchor="middle" className="pmr-xg">
-          {xgLine}
-        </text>
-      </svg>
+      {/* `dir` lives on a wrapper: React's SVG props do not accept it. */}
+      <div data-testid="report-xg-chart" dir="ltr" className="pmr-wheel-wrap">
+        <svg
+          viewBox={`0 0 ${SIZE} ${SIZE}`}
+          role="img"
+          aria-label={t("xgAria", { home: home.name, away: away.name, homeXg, awayXg })}
+          className="pmr-wheel"
+        >
+          <circle cx={C} cy={C} r={RING} className="pmr-ring" />
+          <circle cx={C} cy={C} r={INNER} className="pmr-label" />
+          <line x1={C} y1={C - RING - 4} x2={C} y2={C - RING + 4} className="pmr-tick" />
+          {shots.map((s, i) => {
+            const len = STEM + s.xg * PER_XG;
+            const [x1, y1] = point(s.minute, RING, span);
+            const [x2, y2] = point(s.minute, s.side === "home" ? RING + len : RING - len, span);
+            const scored = s.goal && !s.disallowed;
+            return (
+              <line
+                key={i}
+                data-testid="report-shot"
+                x1={x1}
+                y1={y1}
+                x2={x2}
+                y2={y2}
+                className={`pmr-spoke pmr-${s.side}${scored ? " pmr-goal" : ""}`}
+              />
+            );
+          })}
+          <text x={C} y={C - 2} textAnchor="middle" className="pmr-score">
+            {ld(`${homeGoals}–${awayGoals}`)}
+          </text>
+          <text x={C} y={C + 16} textAnchor="middle" className="pmr-xg">
+            {xgLine}
+          </text>
+        </svg>
+      </div>
       <div className="pmr-copy">
         <p className="pmr-mast">{t("masthead")}</p>
         <h2 data-testid="report-headline" className="pmr-headline">

@@ -159,6 +159,10 @@ test.describe("Full Season — the league itself", () => {
     await expect(fullTime).toBeVisible();
     await fullTime.click();
     await expect(page.getByRole("heading", { name: "Full time", exact: true })).toBeVisible();
+    // TASK-1815 — the post-match report (headline + xG wheel) on the real full-time screen.
+    await expect(page.getByTestId("post-match-report")).toBeVisible();
+    await expect(page.getByTestId("report-headline")).not.toBeEmpty();
+    await expect(page.getByTestId("report-xg-chart")).toHaveAttribute("dir", "ltr");
     await expect(page.getByRole("button", { name: /Copy link/i })).toHaveCount(0);
     await page.getByRole("button", { name: "Return to season" }).click();
     await expect(week).toContainText(`Matchweek ${completed + 1} of`);

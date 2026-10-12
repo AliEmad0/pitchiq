@@ -1,11 +1,14 @@
 "use client";
 import { useTranslations } from "next-intl";
 import type { DecisionAnswer } from "@/features/game/domain/match-decisions";
+import type { MatchResult, Side } from "@/features/game/domain/match-types";
 import type { GamePlayer } from "@/features/game/domain/player";
 import type { SummaryCardData } from "@/features/game/domain/summary-card";
+import type { GameTeam } from "@/features/game/domain/team";
 import { splitDecisions } from "@/features/game/view/decision-summary";
 import { localizeDigits } from "@/utils/format";
 import { ClubCrest } from "./ClubCrest";
+import { PostMatchReport } from "./PostMatchReport";
 import { ShareLink } from "./ShareLink";
 import { SummaryCard } from "./SummaryCard";
 
@@ -55,6 +58,11 @@ interface Props {
   shared?: boolean;
   /** Our replay differs from the sender's fingerprint. */
   drifted?: boolean;
+  /**
+   * TASK-1815 — the match itself, for the post-match report (headline + xG wheel).
+   * Derived on render, never stored. Absent = no report (nothing extra renders).
+   */
+  report?: { result: MatchResult; home: GameTeam; away: GameTeam; coachSide: Side };
   onNewMatch: () => void;
 }
 
@@ -88,6 +96,7 @@ export function MatchSummary({
   crests,
   shared = false,
   drifted = false,
+  report,
   onNewMatch,
 }: Props) {
   const t = useTranslations("game");
@@ -174,6 +183,8 @@ export function MatchSummary({
           <ClubCrest teamId={crests?.away} size={34} />
         </span>
       </div>
+
+      {report != null ? <PostMatchReport {...report} locale={locale} /> : null}
 
       {cardData != null ? (
         <>
