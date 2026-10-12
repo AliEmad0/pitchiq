@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { loadChaosPool } from "@/features/game/adapter/chaos-pool";
-import { captaincyCounts, refereeNames } from "@/features/game/adapter/pool";
+import { captaincyCounts, clubChoices, refereeNames } from "@/features/game/adapter/pool";
 import { GamePlay } from "@/features/game/components/GamePlay";
+import { CHAOS_PACK } from "@/features/game/domain/rule-packs";
+import { soloLeagueId } from "@/features/game/view/season-league";
 
 export const dynamic = "force-static";
 export const revalidate = false; // see docs/adr or CLAUDE.md — deploys are the only data change
@@ -30,6 +32,7 @@ export default async function ChaosDraftPage({ params }: Props) {
    */
   const captaincies = await captaincyCounts(pool.map((c) => c.playerId));
   const referees = await refereeNames();
+  const clubs = (await clubChoices()).map((c) => ({ id: c.id, name: c.name }));
 
   return (
     <main className="mx-auto w-full max-w-6xl px-4 py-10">
@@ -45,6 +48,12 @@ export default async function ChaosDraftPage({ params }: Props) {
         screens="legacy"
         captaincies={captaincies}
         referees={referees}
+        // Every mode has a season (owner, 2026-10-12): a 38-week league against Premier
+        // League clubs, entered with `?format=season`. A solo league id, because this page
+        // is not one club's — see `soloLeagueId`.
+        season={CHAOS_PACK.season}
+        clubs={clubs}
+        seasonCoachId={soloLeagueId("chaos")}
       />
     </main>
   );

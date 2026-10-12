@@ -100,9 +100,22 @@ describe("formatHref (TASK-1811)", () => {
     expect(formatHref(legacy(), "single")).toBe("/game/legacy");
   });
 
-  it("⚠️ a mode with no season is untouched — no param is ever appended", () => {
+  it("⚠️ the single format never carries the param", () => {
     const chem = GAME_MODES.find((m) => m.id === "chemistry")!;
     expect(formatHref(chem, "single")).toBe("/game/chemistry");
+  });
+
+  it("⭐ every playable mode with a single match also offers a LIVE season (owner, 2026-10-12)", () => {
+    // The daily is the one exception, and it is `n/a` rather than missing: a season-long
+    // "one challenge a day" is a contradiction (TASK-1841).
+    const shipped = GAME_MODES.filter((m) => m.formats.single === "live" && m.id !== "daily");
+    expect(shipped.map((m) => m.id).sort()).toEqual(
+      ["budget", "captains", "chaos", "chemistry", "h2h", "legacy", "nation"].sort(),
+    );
+    for (const m of shipped) {
+      expect(m.formats.season, m.id).toBe("live");
+      expect(formatHref(m, "season"), m.id).toBe(`${m.href}?format=season`);
+    }
   });
 
   it("returns null for a mode with no route at all", () => {

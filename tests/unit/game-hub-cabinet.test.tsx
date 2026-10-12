@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { GAME_MODES, isPlayable } from "@/features/game/domain/modes";
 import { ModeGate } from "@/features/game/components/ModeGate";
+import en from "@/i18n/messages/en.json";
 import { renderWithIntl } from "./_helpers/intl";
 
 /**
@@ -76,8 +77,13 @@ describe("the cursor-select format step", () => {
   it("puts a cursor on what can be played and none on what cannot", async () => {
     const user = userEvent.setup();
     const { container } = renderWithIntl(<ModeGate />);
-    // Tactical H2H — one live format, one planned.
-    await user.click(screen.getByRole("button", { name: /Tactical H2H/ }));
+    // ⛔ DERIVED — any playable mode with one live format and one planned. This named Tactical
+    // H2H until every mode got a season (owner, 2026-10-12) and its planned row became a link.
+    const mixed = GAME_MODES.find(
+      (m) => isPlayable(m) && Object.values(m.formats).includes("planned"),
+    )!;
+    const name = (en.game as Record<string, string>)[mixed.nameKey]!;
+    await user.click(screen.getByRole("button", { name: new RegExp(`^${name}`) }));
 
     expect(screen.getByText("Select length")).toBeInTheDocument();
     const rows = [...container.querySelectorAll(".mg-fmt-row")];

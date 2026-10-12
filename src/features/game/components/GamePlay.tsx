@@ -82,6 +82,7 @@ export function GamePlay({
   chemistry,
   season,
   clubs,
+  seasonCoachId,
 }: {
   pool: PoolCard[];
   initialPhase?: PlayPhase;
@@ -124,15 +125,24 @@ export function GamePlay({
    */
   chemistry?: boolean;
   /**
-   * The pack's season league (TASK-1811). Absent = the mode has no season, which is every pack
-   * but Legacy — so they are untouched, and the inertness control asserts it.
+   * The pack's season league (TASK-1811). Absent = the mode has no season. Every shipped pack
+   * declares one since the owner asked for a season on every mode (2026-10-12).
    *
    * ⚠️ Declaring it does NOT start a season. The coach must also have asked for one via
    * `?format=season`; the two together are what swap the match flow for the hub.
    */
   season?: SeasonSpec;
-  /** Every club the mode offers, so a season can draw a league from them. */
-  clubs?: ReadonlyArray<{ id: number; name: string }>;
+  /**
+   * Every side a season can draw its league from. `key` is what the rivals route is fetched
+   * by when it is not the id itself — a nation's flag-icons code behind its numeric league id.
+   */
+  clubs?: ReadonlyArray<{ id: number; name: string; key?: string }>;
+  /**
+   * The coach's own league id when the page is NOT one club's (owner, 2026-10-12). See
+   * `soloLeagueId` — negative, and distinct per mode and choice, because it is also the
+   * identity a saved season is resumed by.
+   */
+  seasonCoachId?: number;
   /**
    * How the XI is assembled (TASK-1838). Absent = the coach builds it himself.
    *
@@ -323,6 +333,11 @@ export function GamePlay({
    */
   const [formatParam] = useQueryState("format", parseAsString);
   const seasonRequested = season != null && formatParam === "season";
+  /**
+   * The coach's id in the league table: his club on a club page, otherwise the page's own
+   * solo id (owner, 2026-10-12 — every mode has a season). Null = no season can start here.
+   */
+  const coachId = clubId ?? seasonCoachId ?? null;
   const [seasonReading, setSeasonReading] = useState(seasonRequested);
   /** The squad he drafted for a season — set once, then the hub owns the run. */
   const [seasonReadFailed, setSeasonReadFailed] = useState(false);
@@ -332,6 +347,11 @@ export function GamePlay({
     formation: Formation;
     seed: number;
     saved?: SavedRun;
+    /**
+     * The squad he PAID for, when it is longer than the XI (Budget Cap's sixteen). It is the
+     * season's roster, so his reserves are the bench he bought — never free stars from the pool.
+     */
+    roster?: PoolCard[];
   } | null>(null);
 
   /**
@@ -355,6 +375,10 @@ export function GamePlay({
       try {
         const saved = await loadRun();
         if (!live || saved == null) return;
+        // ⛔ Another side's season is not this page's to resume. `/game/draft` and `/game/chaos`
+        // share one pool, so the card check below cannot tell their runs apart — the league
+        // id can (`leagueIds[0]` is always the coach).
+        if (saved.leagueIds != null && saved.leagueIds[0] !== coachId) return;
         const byId = new Map(pool.map((c) => [c.cardId, c]));
         const players: PoolCard[] = [];
         for (const id of saved.cardIds) {
@@ -425,7 +449,15 @@ export function GamePlay({
      * resume slot.
      */
     if (seasonRequested && season != null) {
-      setSeasonSquad({ players, formation, seed });
+      // ⚠️ Split in exactly one place, like `buildSession` does: the XI is the formation's
+      // length and anything beyond it is the bench he drafted (Budget Cap).
+      const xi = players.slice(0, formation.slots.length);
+      setSeasonSquad({
+        players: xi,
+        formation,
+        seed,
+        roster: players.length > xi.length ? [...players] : undefined,
+      });
       return;
     }
 
@@ -665,18 +697,18 @@ export function GamePlay({
     );
   if (seasonRequested && seasonReading)
     return <p data-testid="season-loading">{t("seasonBuilding")}</p>;
-  if (seasonRequested && season != null && seasonSquad != null && clubId != null) {
+  if (seasonRequested && season != null && seasonSquad != null && coachId != null) {
     return (
       <SeasonStart
         saved={seasonSquad.saved}
         captaincies={captaincies}
         referees={referees}
         spec={season}
-        coachId={clubId}
-        coachName={clubs?.find((c) => c.id === clubId)?.name ?? String(clubId)}
+        coachId={coachId}
+        coachName={clubs?.find((c) => c.id === coachId)?.name ?? t("yourXi")}
         seed={seasonSquad.seed}
         squad={seasonSquad.players}
-        rosterPool={pool}
+        rosterPool={seasonSquad.roster ?? pool}
         formation={seasonSquad.formation}
         clubs={clubs ?? []}
         onAbandon={() => setSeasonSquad(null)}

@@ -11,7 +11,7 @@ test.describe("Budget Cap Draft", () => {
     /**
      * ⚠️ A TILE, then a FORMAT — not a direct link. `isDirectEntry` only collapses the step
      * for a mode with exactly ONE applicable format, and Budget Cap has two: `single` is live
-     * and `season` is `planned` (TASK-1811), which still renders as a choice. Only the daily,
+     * and `season` is `live` (2026-10-12), so the tile is a choice. Only the daily,
      * whose season format is `n/a`, goes straight in.
      */
     await page.getByRole("button", { name: /Budget Cap Draft/ }).click();

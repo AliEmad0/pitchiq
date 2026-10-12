@@ -372,9 +372,22 @@ export interface RulePack {
 export interface SeasonSpec {
   /** Including the coach's own club. */
   clubs: number;
-  /** Where the other clubs come from. `"clubs"` = the prerendered `/api/game/rivals` routes. */
-  league: "clubs";
+  /**
+   * Where the other sides come from. Both read the prerendered `/api/game/rivals` routes:
+   * `"clubs"` by club id, `"nations"` by flag-icons code — a nation faces NATIONS, the same
+   * rule its single match follows (TASK-1842).
+   */
+  league: "clubs" | "nations";
 }
+
+/**
+ * The 38-week league every club-facing mode plays (owner, 2026-10-12: "add the season for all
+ * modes"). ONE constant, so the modes cannot drift into different league shapes.
+ */
+export const LEAGUE_SEASON: SeasonSpec = { clubs: 20, league: "clubs" };
+
+/** Nationality Draft's league: twenty nations, each fielded ring-aware from its own pool. */
+export const NATIONS_SEASON: SeasonSpec = { clubs: 20, league: "nations" };
 
 /**
  * The clubs Legacy Club offers.
@@ -404,6 +417,7 @@ export const CHAOS_PACK: RulePack = {
     topTeamsPerSeason: 3,
     cardsPerTeamSeason: 14,
   },
+  season: LEAGUE_SEASON,
   constraints: [],
   objective: "win",
 };
@@ -429,9 +443,7 @@ const LEGACY_PACK: RulePack = {
     standout: true,
     onePerPlayer: true,
   },
-  // TASK-1811 PR 1 — the season SPINE only. The domain can build and play a 38-week league;
-  // the hub that would render it is deliberately absent until the owner's 30-concept ritual.
-  season: { clubs: 20, league: "clubs" },
+  season: LEAGUE_SEASON,
   constraints: [],
   objective: "win",
 };
@@ -466,6 +478,7 @@ export const CAPTAINS_PACK: RulePack = {
     standout: true,
     onePerPlayer: true,
   },
+  season: LEAGUE_SEASON,
   constraints: [{ kind: "captainFirst" }],
   objective: "win",
 };
@@ -516,6 +529,7 @@ export const BUDGET_PACK: RulePack = {
    * against a median squad. That is deliberately tighter than the £19m the XI-only £100m gave;
    * £130m would reproduce the old feel if this proves too punishing.
    */
+  season: LEAGUE_SEASON,
   constraints: [{ kind: "budgetCap", amount: 1200 }],
   objective: "win",
 };
@@ -551,6 +565,7 @@ export const NATION_PACK: RulePack = {
     onePerPlayer: true,
     redeal: true,
   },
+  season: NATIONS_SEASON,
   constraints: [],
   objective: "win",
 };
@@ -594,6 +609,7 @@ export const CHEMISTRY_PACK: RulePack = {
     confirm: true,
     onePerPlayer: true,
   },
+  season: LEAGUE_SEASON,
   constraints: [{ kind: "chemistry" }],
   objective: "win",
 };

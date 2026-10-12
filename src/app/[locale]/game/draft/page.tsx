@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { loadChaosPool } from "@/features/game/adapter/chaos-pool";
-import { captaincyCounts, refereeNames } from "@/features/game/adapter/pool";
+import { captaincyCounts, clubChoices, refereeNames } from "@/features/game/adapter/pool";
 import { GamePlay } from "@/features/game/components/GamePlay";
+import { LEAGUE_SEASON } from "@/features/game/domain/rule-packs";
+import { soloLeagueId } from "@/features/game/view/season-league";
 
 // force-static, exactly like /game and /game/chaos. The M71 arc exists to keep every
 // route CDN-served; a dynamic render here would put game weight back on a lambda.
@@ -31,6 +33,7 @@ export default async function DraftPage({ params }: Props) {
    */
   const captaincies = await captaincyCounts(pool.map((c) => c.playerId));
   const referees = await refereeNames();
+  const clubs = (await clubChoices()).map((c) => ({ id: c.id, name: c.name }));
 
   return (
     <main className="mx-auto w-full max-w-6xl px-4 py-10">
@@ -48,6 +51,12 @@ export default async function DraftPage({ params }: Props) {
         screens="legacy"
         captaincies={captaincies}
         referees={referees}
+        // Every mode has a season (owner, 2026-10-12): a 38-week league against Premier
+        // League clubs, entered with `?format=season`. A solo league id, because this page
+        // is not one club's — see `soloLeagueId`.
+        season={LEAGUE_SEASON}
+        clubs={clubs}
+        seasonCoachId={soloLeagueId("h2h")}
       />
     </main>
   );

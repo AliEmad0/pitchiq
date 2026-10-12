@@ -37,8 +37,11 @@ test.describe("the game hub", () => {
     // Mode, then format.
     await page.getByRole("button", { name: /Tactical H2H/ }).click();
     await expect(page.getByRole("link", { name: /One Match/ })).toBeVisible();
-    // Season is planned on every mode until TASK-1810/1811 ship.
-    await expect(page.getByRole("link", { name: /Full Season/ })).toHaveCount(0);
+    // ⭐ Every mode has a live season since 2026-10-12 — the same page, told apart by the param.
+    await expect(page.getByRole("link", { name: /Full Season/ })).toHaveAttribute(
+      "href",
+      /\/game\/draft\?format=season$/,
+    );
 
     await page.getByRole("link", { name: /One Match/ }).click();
     await expect(page).toHaveURL(/\/game\/draft$/);

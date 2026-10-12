@@ -139,8 +139,17 @@ describe("budget pack (TASK-1810)", () => {
 });
 
 describe("the season spec (TASK-1811)", () => {
-  it("⛔ ONLY Legacy declares a season — every other pack must stay byte-identical", () => {
-    expect(RULE_PACKS.filter((p) => p.season != null).map((p) => p.id)).toEqual(["legacy"]);
+  it("⭐ EVERY pack declares a season (owner, 2026-10-12)", () => {
+    expect(RULE_PACKS.filter((p) => p.season == null).map((p) => p.id)).toEqual([]);
+  });
+
+  it("⛔ a nation faces NATIONS over a season, every other pack the clubs", () => {
+    // The single-match rule (TASK-1842): an Egypt side against Arsenal is the club menu
+    // leaking through the shared route.
+    for (const p of RULE_PACKS) {
+      expect(p.season!.league, p.id).toBe(p.chooser?.kind === "nation" ? "nations" : "clubs");
+      expect(seasonFixtures(p.season!.clubs), p.id).toHaveLength(38);
+    }
   });
 
   it("Legacy's league is 20 clubs, which is exactly 38 weeks", () => {

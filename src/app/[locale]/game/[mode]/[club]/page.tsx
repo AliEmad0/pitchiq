@@ -12,6 +12,7 @@ import {
 import { countryNameFromCode } from "@/utils/country";
 import { GamePlay } from "@/features/game/components/GamePlay";
 import { packFor, routedPacks } from "@/features/game/domain/rule-packs";
+import { soloLeagueId } from "@/features/game/view/season-league";
 
 export const dynamic = "force-static";
 export const revalidate = false; // see docs/adr or CLAUDE.md — deploys are the only data change
@@ -136,6 +137,26 @@ export default async function ModeClubPage({ params }: Props) {
         name: countryNameFromCode(n.code, locale) ?? n.code,
       }))
     : (await clubChoices()).map((c) => ({ id: c.id, name: c.name }));
+  /**
+   * The sides a SEASON is drawn from (owner, 2026-10-12: every mode has one).
+   *
+   * ⭐ A nation's league is NATIONS — the single-match rule (TASK-1842) — and they travel under
+   * solo league ids with their code as the fetch key, because the season machinery works in
+   * numbers and a bare code like "eg" would otherwise read as a club id. A captain's league is
+   * the clubs, exactly as his single match's rival picker is.
+   */
+  const leagueSides = isNation
+    ? (await nationChoices()).map((n) => ({
+        id: soloLeagueId(`nation:${n.code}`),
+        name: countryNameFromCode(n.code, locale) ?? n.code,
+        key: n.code,
+      }))
+    : (rivals as Array<{ id: number; name: string }>);
+  const seasonCoachId = isNation
+    ? soloLeagueId(`nation:${nation}`)
+    : isCaptain
+      ? soloLeagueId(`captains:${choice!.id}`)
+      : undefined;
 
   return (
     <main className="mx-auto w-full max-w-6xl px-4 py-10">
@@ -158,9 +179,10 @@ export default async function ModeClubPage({ params }: Props) {
         // and `?format=season` on a mode without one is ignored.
         // ⭐ `rivals` is ALREADY the {id, name} list of every club, fetched just above for the
         // rival picker — so a league costs this page nothing extra. A nation pack's ids are
-        // flag-icons codes, which is not a club league, so it gets nothing.
+        // flag-icons codes, so a nation's league is built from `leagueSides` instead.
         season={pack.season}
-        clubs={isCaptain || isNation ? undefined : (rivals as Array<{ id: number; name: string }>)}
+        clubs={leagueSides}
+        seasonCoachId={seasonCoachId}
         backHref={`/game/${pack.id}`}
       />
     </main>

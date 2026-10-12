@@ -5493,51 +5493,51 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 
 **⛔ Blocked by [TASK-M56](#task-m56)** (true player roles — the draft needs real positions) and **enriched by [TASK-M57](#task-m57)** (historical advanced stats — shrinks the sparse-rating era to 1992-2002). Start the headless slice (1801-1805) once M56 lands.
 
-| ID                      | Title                                                           | Status         | Priority | Est |
-| ----------------------- | --------------------------------------------------------------- | -------------- | -------- | --- |
-| [TASK-1801](#task-1801) | Game domain model + read-only data adapter                      | ✅ Done        | P2       | L   |
-| [TASK-1802](#task-1802) | Era-aware player rating model (one interface, provenance tier)  | ✅ Done        | P2       | L   |
-| [TASK-1803](#task-1803) | Deterministic seeded match engine → `MatchEvent[]`              | ✅ Done        | P2       | XL  |
-| [TASK-1804](#task-1804) | Commentary system (ICU keys, en + ar, AST-guard clean)          | ✅ Done        | P2       | L   |
-| [TASK-1805](#task-1805) | Hybrid opponent model (modern squad / historical record)        | ✅ Done        | P2       | M   |
-| [TASK-1806](#task-1806) | Chaos Draft — first end-to-end vertical slice                   | ✅ Done        | P2       | L   |
-| [TASK-1807](#task-1807) | Draft hub + live match loop (A ✅ B1 ✅ B2 ✅ C ✅)             | ✅ Done        | P2       | L   |
-| [TASK-1808](#task-1808) | Live tactical pitch UI + speed controls (1x/2x/skip)            | ✅ Done        | P3       | L   |
-| [TASK-1809](#task-1809) | Key-event animations — gallery pass ran, hybrid 05+14+15 chosen | ✅ Done        | P3       | S   |
-| [TASK-1810](#task-1810) | Remaining six modes as rule packs                               | ✅ Done        | P3       | XL  |
-| [TASK-1811](#task-1811) | Season-mode engine (ghost-of-real-season, Survival, Legacy)     | 🟡 In Progress | P3       | L   |
-| [TASK-1812](#task-1812) | Persistence, records, shareable seeded matches                  | 📋 Backlog     | P3       | M   |
-| [TASK-1813](#task-1813) | Hall of Fame & retro achievements (IndexedDB, provenance-aware) | 📋 Backlog     | P3       | M   |
-| [TASK-1814](#task-1814) | Momentum engine + data-derived personality traits (modifiers)   | 📋 Backlog     | P3       | L   |
-| [TASK-1815](#task-1815) | Post-match analytics — xG timeline + retro newspaper headlines  | 📋 Backlog     | P3       | M   |
-| [TASK-1816](#task-1816) | "What-If" historical scenario mode (rule pack)                  | 📋 Backlog     | P3       | M   |
-| [TASK-1817](#task-1817) | Daily seeded challenge — client-only (streaks, PB, seed replay) | ✅ Done        | P3       | M   |
-| [TASK-1818](#task-1818) | Rogue-like / Mystery Market mode (local run history)            | 📋 Backlog     | P3       | L   |
-| [TASK-1819](#task-1819) | Retro sticker album & collection book (IndexedDB)               | 📋 Backlog     | P3       | S   |
-| [TASK-1820](#task-1820) | Rating model — absolute/cross-position stats + GK pipeline      | ✅ Done        | P2       | L   |
-| [TASK-1821](#task-1821) | Tier-Anchored Hybrid rating engine (anchors + delta + team)     | ✅ Done        | P2       | L   |
-| [TASK-1822](#task-1822) | Dynamic event-driven match engine (drama, VAR, subs, injuries)  | ✅ Done        | P1       | XL  |
-| [TASK-1823](#task-1823) | Draft Room — 11 slots × 5 cards, free roam + pick timer         | ✅ Done        | P2       | L   |
-| [TASK-1824](#task-1824) | Squad chemistry (era / club / nation links) as a modifier       | 📋 Backlog     | P3       | M   |
-| [TASK-1825](#task-1825) | Tactical style + mentality selection on the draft hub           | 📋 Backlog     | P3       | S   |
-| [TASK-1826](#task-1826) | Market value progression across a season                        | 📋 Backlog     | P3       | M   |
-| [TASK-1827](#task-1827) | Onboarding — coach identity + tutorial match (local only)       | 📋 Backlog     | P3       | M   |
-| [TASK-1828](#task-1828) | Weekly modifier ladder (local, seeded from the ISO week)        | 📋 Backlog     | P3       | M   |
-| [TASK-1829](#task-1829) | Card crafting — duplicates → trait badges (local)               | 📋 Backlog     | P3       | S   |
-| [TASK-1830](#task-1830) | Segmented interactive match engine (live decisions, replayable) | ✅ Done        | P1       | L   |
-| [TASK-1831](#task-1831) | The full formation set — 20 shapes in three families            | ✅ Done        | P2       | M   |
-| [TASK-1832](#task-1832) | The game hub — `/game` as the mode-selection gate               | ✅ Done        | P2       | M   |
-| [TASK-1833](#task-1833) | Design the game hub — the 30-concept ritual 1832 deferred       | ✅ Done        | P3       | M   |
-| [TASK-1834](#task-1834) | Redesign `/game/draft` — "The Market" (30-concept ritual)       | ✅ Done        | P2       | M   |
-| [TASK-1835](#task-1835) | Redesign `/game/chaos` — "Match Night" (30-concept ritual)      | ✅ Done        | P2       | M   |
-| [TASK-1836](#task-1836) | Redesign `/game/daily` — "Arcade Cabinet" (30-concept ritual)   | ✅ Done        | P2       | M   |
-| [TASK-1837](#task-1837) | Unify `/game/draft` onto the Legacy screens + real card backs   | ✅ Done        | P2       | M   |
-| [TASK-1838](#task-1838) | Unify `/game/chaos` onto the Legacy screens (driver adoption)   | ✅ Done        | P2       | L   |
-| [TASK-1839](#task-1839) | Draft Room candidates become real player cards (+ back flip)    | ✅ Done        | P2       | M   |
-| [TASK-1840](#task-1840) | One numeral convention across the match flow (`/ar` digits)     | ✅ Done        | P2       | S   |
-| [TASK-1841](#task-1841) | A mode with one applicable format goes straight in (`n/a`)      | ✅ Done        | P2       | S   |
-| [TASK-1842](#task-1842) | Nationality Draft — build a side from one country, widening     | ✅ Done        | P3       | M   |
-| [TASK-1844](#task-1844) | Calibrate the engine's sensitivity to squad quality             | ✅ Done        | P2       | M   |
+| ID                      | Title                                                           | Status     | Priority | Est |
+| ----------------------- | --------------------------------------------------------------- | ---------- | -------- | --- |
+| [TASK-1801](#task-1801) | Game domain model + read-only data adapter                      | ✅ Done    | P2       | L   |
+| [TASK-1802](#task-1802) | Era-aware player rating model (one interface, provenance tier)  | ✅ Done    | P2       | L   |
+| [TASK-1803](#task-1803) | Deterministic seeded match engine → `MatchEvent[]`              | ✅ Done    | P2       | XL  |
+| [TASK-1804](#task-1804) | Commentary system (ICU keys, en + ar, AST-guard clean)          | ✅ Done    | P2       | L   |
+| [TASK-1805](#task-1805) | Hybrid opponent model (modern squad / historical record)        | ✅ Done    | P2       | M   |
+| [TASK-1806](#task-1806) | Chaos Draft — first end-to-end vertical slice                   | ✅ Done    | P2       | L   |
+| [TASK-1807](#task-1807) | Draft hub + live match loop (A ✅ B1 ✅ B2 ✅ C ✅)             | ✅ Done    | P2       | L   |
+| [TASK-1808](#task-1808) | Live tactical pitch UI + speed controls (1x/2x/skip)            | ✅ Done    | P3       | L   |
+| [TASK-1809](#task-1809) | Key-event animations — gallery pass ran, hybrid 05+14+15 chosen | ✅ Done    | P3       | S   |
+| [TASK-1810](#task-1810) | Remaining six modes as rule packs                               | ✅ Done    | P3       | XL  |
+| [TASK-1811](#task-1811) | Season-mode engine (ghost-of-real-season, Survival, Legacy)     | ✅ Done    | P3       | L   |
+| [TASK-1812](#task-1812) | Persistence, records, shareable seeded matches                  | 📋 Backlog | P3       | M   |
+| [TASK-1813](#task-1813) | Hall of Fame & retro achievements (IndexedDB, provenance-aware) | 📋 Backlog | P3       | M   |
+| [TASK-1814](#task-1814) | Momentum engine + data-derived personality traits (modifiers)   | 📋 Backlog | P3       | L   |
+| [TASK-1815](#task-1815) | Post-match analytics — xG timeline + retro newspaper headlines  | 📋 Backlog | P3       | M   |
+| [TASK-1816](#task-1816) | "What-If" historical scenario mode (rule pack)                  | 📋 Backlog | P3       | M   |
+| [TASK-1817](#task-1817) | Daily seeded challenge — client-only (streaks, PB, seed replay) | ✅ Done    | P3       | M   |
+| [TASK-1818](#task-1818) | Rogue-like / Mystery Market mode (local run history)            | 📋 Backlog | P3       | L   |
+| [TASK-1819](#task-1819) | Retro sticker album & collection book (IndexedDB)               | 📋 Backlog | P3       | S   |
+| [TASK-1820](#task-1820) | Rating model — absolute/cross-position stats + GK pipeline      | ✅ Done    | P2       | L   |
+| [TASK-1821](#task-1821) | Tier-Anchored Hybrid rating engine (anchors + delta + team)     | ✅ Done    | P2       | L   |
+| [TASK-1822](#task-1822) | Dynamic event-driven match engine (drama, VAR, subs, injuries)  | ✅ Done    | P1       | XL  |
+| [TASK-1823](#task-1823) | Draft Room — 11 slots × 5 cards, free roam + pick timer         | ✅ Done    | P2       | L   |
+| [TASK-1824](#task-1824) | Squad chemistry (era / club / nation links) as a modifier       | 📋 Backlog | P3       | M   |
+| [TASK-1825](#task-1825) | Tactical style + mentality selection on the draft hub           | 📋 Backlog | P3       | S   |
+| [TASK-1826](#task-1826) | Market value progression across a season                        | 📋 Backlog | P3       | M   |
+| [TASK-1827](#task-1827) | Onboarding — coach identity + tutorial match (local only)       | 📋 Backlog | P3       | M   |
+| [TASK-1828](#task-1828) | Weekly modifier ladder (local, seeded from the ISO week)        | 📋 Backlog | P3       | M   |
+| [TASK-1829](#task-1829) | Card crafting — duplicates → trait badges (local)               | 📋 Backlog | P3       | S   |
+| [TASK-1830](#task-1830) | Segmented interactive match engine (live decisions, replayable) | ✅ Done    | P1       | L   |
+| [TASK-1831](#task-1831) | The full formation set — 20 shapes in three families            | ✅ Done    | P2       | M   |
+| [TASK-1832](#task-1832) | The game hub — `/game` as the mode-selection gate               | ✅ Done    | P2       | M   |
+| [TASK-1833](#task-1833) | Design the game hub — the 30-concept ritual 1832 deferred       | ✅ Done    | P3       | M   |
+| [TASK-1834](#task-1834) | Redesign `/game/draft` — "The Market" (30-concept ritual)       | ✅ Done    | P2       | M   |
+| [TASK-1835](#task-1835) | Redesign `/game/chaos` — "Match Night" (30-concept ritual)      | ✅ Done    | P2       | M   |
+| [TASK-1836](#task-1836) | Redesign `/game/daily` — "Arcade Cabinet" (30-concept ritual)   | ✅ Done    | P2       | M   |
+| [TASK-1837](#task-1837) | Unify `/game/draft` onto the Legacy screens + real card backs   | ✅ Done    | P2       | M   |
+| [TASK-1838](#task-1838) | Unify `/game/chaos` onto the Legacy screens (driver adoption)   | ✅ Done    | P2       | L   |
+| [TASK-1839](#task-1839) | Draft Room candidates become real player cards (+ back flip)    | ✅ Done    | P2       | M   |
+| [TASK-1840](#task-1840) | One numeral convention across the match flow (`/ar` digits)     | ✅ Done    | P2       | S   |
+| [TASK-1841](#task-1841) | A mode with one applicable format goes straight in (`n/a`)      | ✅ Done    | P2       | S   |
+| [TASK-1842](#task-1842) | Nationality Draft — build a side from one country, widening     | ✅ Done    | P3       | M   |
+| [TASK-1844](#task-1844) | Calibrate the engine's sensitivity to squad quality             | ✅ Done    | P2       | M   |
 
 _Enhancement roadmap 1813-1819 added 2026-08-03 from the owner's feature proposal (Option A — 100% client-side/static). See the locked-architecture notes above for the modifier-stack + determinism + no-backend decisions that govern them._
 
@@ -5914,9 +5914,17 @@ next to whom_ matters. Design + measurements:
 
 ### TASK-1811
 
-**Season-mode engine** · 🟡 In Progress · `P3` · `L` · Type: Feature
+**Season-mode engine** · ✅ Done (2026-10-12) · `P3` · `L` · Type: Feature
 
-**Current status (2026-09-06):** PRs #210–#214 are merged: playable Legacy seasons,
+> ### ✅ DONE 2026-10-12 — closed by the owner after Survival (#216) shipped.
+>
+> Every season objective the ticket named is live: Legacy seasons, Classic Season Orbit
+> (ghost of the real season), era-authentic substitutions, injury carryover and rotation,
+> and Survival Lifeline. The close-out PR also gave **every** drafted mode a Full Season
+> (PR 8 below). ⚠️ One open question carried forward rather than blocking the close: exact
+> final relegation-boundary ties in Survival (teams level on every tiebreak) are unresolved.
+
+**Status as of 2026-09-06 (historical):** PRs #210–#214 are merged: playable Legacy seasons,
 Classic Season Orbit, fixture play/recovery, historical substitutions, injury carryover,
 and Classic/Legacy rotation. Survival is the remaining season objective. The owner chose
 a new 30-concept gallery on September 6; its playable foundation and standalone gallery
@@ -6079,13 +6087,32 @@ targets and relegation start, era-authentic substitution rules, and squad rotati
 - Remaining: Survival mid-season starts/point targets. Carryover currently models the
   coach's squad; rival injury history, named-bench history and concussion protocols are not modeled.
 
-**PR 7 — Survival Lifeline (implemented on branch, CI/review pending):**
+**PR 7 — Survival Lifeline (PR #216, merged):**
 
 - Approved 01 / The Lifeline is integrated as the Survival objective at `/game/classic?objective=survival`, with crests in the center fixture card/list.
 - January bottom-five takeovers, fixed historical baseline, suffix-only save, points benchmark and final-table survival/tiebreak outcome.
 - Shared sim/play, injury carryover, legal rotation, explicit forfeit, isolated save/retry and return-to-table behavior.
 - Undated deduction seasons are explicitly unavailable; 1994/95 uses four relegation places.
-- [Implementation and validation](docs/superpowers/plans/2026-09-06-task-1811-survival-production.md). Remaining: full CI/build and owner review; no merge claimed.
+- [Implementation and validation](docs/superpowers/plans/2026-09-06-task-1811-survival-production.md). Merged with CI and E2E green; the owner closed the ticket on 2026-10-12.
+
+**PR 8 — a Full Season on every mode (owner, 2026-10-12: "add the all season for all mods"):**
+
+- Tactical H2H, Chaos, Captain's Draft, Budget Cap, Chemistry and Nationality all flip
+  `season: "planned"` → `"live"`. Every pack declares a `season` spec (`LEAGUE_SEASON`, or
+  `NATIONS_SEASON` for Nationality — a nation faces NATIONS, the TASK-1842 rule).
+- **No new route and no new engine.** Each page passes the same `season` / `clubs` props
+  Legacy already used; `?format=season` is read on the client, so every `/game/*` route stays
+  `force-static`.
+- ⭐ A page that is not one club's has no club id, so it plays under a **solo league id**
+  (`soloLeagueId`, negative and hashed from `mode[:choice]`). ⛔ It must be distinct per mode:
+  `/game/draft` and `/game/chaos` draft from the SAME pool, so the card check alone would let
+  each resume the other's season. The resume now also requires `leagueIds[0]` to match.
+- ⚠️ Budget Cap's sixteen are split in one place (`confirmSquad`): the XI plays, and the
+  paid bench is the season ROSTER — so his reserves are men he bought, not free stars drawn
+  from the 600-card pool.
+- Negative ids have no crest; the hub renders none rather than a broken image.
+- Known limits: Chemistry's link bonus applies to single matches, not to season fixtures;
+  the other modes' reserves are the pool's best (Legacy's existing rule).
 
 ### TASK-1812
 
@@ -7252,6 +7279,7 @@ Everything in the owner's A-to-Z roadmap (2026-08-11) that **cannot** be built u
 | [TASK-M91](#task-m91) | Add PFA POTY + Team of the Season — the award-blind roles                                   | ✅ Done | P2       | L   |
 | [TASK-M92](#task-m92) | Surface honours / transfers / caps on the player profile page                               | ✅ Done | P2       | M   |
 | [TASK-M93](#task-m93) | Show the player enrichment summary where players are listed                                 | ✅ Done | P3       | S   |
+| [TASK-M94](#task-m94) | Five-card pick hand fits a phone screen (draft veil + daily overlay)                        | ✅ Done | P2       | S   |
 
 ### TASK-M01
 
@@ -9446,6 +9474,30 @@ So on a hero the two disagree: the thumbnail recovers, the lightbox behind it do
 **Suggested guard:** a component test that renders each hero with a photo whose first candidate fails and asserts the lightbox `src` advances — the thumbnail-only assertions in `player-image.test.tsx` pass today while this bug is live.
 
 **Depends on:** nothing. **Related:** TASK-M93 (published the fallback the lightbox cannot reach), TASK-M28 (why the thumbnail chain exists).
+
+---
+
+### TASK-M94
+
+**Five-card pick hand fits a phone screen (draft veil + daily overlay)** · ✅ Done (2026-10-12) · `P2` · `S` · Type: Bug
+
+**Owner report:** "I can't see all 5 cards on my mobile." Each dealt card was a fixed 176px,
+so a 375px phone fitted **one card per row — five rows, ~1,300px** — inside a `position:
+fixed` veil with no overflow, centred with `align-items: center`. The cards below the fold
+could never be reached.
+
+- **Scaled, not squashed.** Both hands now follow the footprint → scaler → flipper rule:
+  the footprint reserves `176×256 × --pd-s` (`--dh-s` on the daily), a scaler carries
+  `transform: scale()`, and the deal/flip keyframes keep owning `transform` on the faces.
+  Phones get 0.6 (≤640px), 0.55 (≤380px) and 0.5 (≤340px) — **three cards per row, two
+  rows**, all five on one screen.
+- **Unreachable is never an option again.** Both overlays scroll (`overflow-y: auto`), and
+  the inner panel centres with `margin: auto` rather than `align-items: center`, so a hand
+  taller than the screen collapses to the top instead of being pushed above the scroll origin.
+- ⚠️ The scaler is positioned with physical `left: 0`, because its `transform-origin` is the
+  top-LEFT corner — an inline-start offset would shrink it away from its own footprint in RTL.
+- Labels (the "your pick" mark, chemistry delta, ring chip) and the tap target stay on the
+  footprint, outside the scaler, so they keep a readable size.
 
 ---
 

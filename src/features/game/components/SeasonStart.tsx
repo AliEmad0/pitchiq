@@ -20,8 +20,11 @@ export interface SeasonStartProps {
   seed: number;
   squad: readonly PoolCard[];
   formation: Formation;
-  /** Every club the mode offers, so the league can be drawn from them. */
-  clubs: ReadonlyArray<{ id: number; name: string }>;
+  /**
+   * Every side the mode offers, so the league can be drawn from them. `key` is what its rivals
+   * route is fetched by when that is not the id — a nation's code behind its league id.
+   */
+  clubs: ReadonlyArray<{ id: number; name: string; key?: string }>;
   season?: number;
   /** Passed straight through to the hub — see `SeasonHubProps.onAbandon`. */
   onAbandon?: () => void;
@@ -78,8 +81,9 @@ export function SeasonStart({
       let missing = 0;
       // Sequential on purpose: twenty parallel requests to the same origin is a burst for no
       // gain, and these are static CDN files that resolve fast.
+      const keys = new Map(clubs.map((c) => [c.id, c.key ?? c.id]));
       for (const id of opponents) {
-        const rival = await loadRival(id, ac.signal);
+        const rival = await loadRival(keys.get(id) ?? id, ac.signal);
         if (ac.signal.aborted) return;
         if (rival == null || rival.cards.length === 0) missing++;
         else got[id] = rival.cards;
@@ -88,6 +92,8 @@ export function SeasonStart({
       setPools(got);
     })();
     return () => ac.abort();
+    // `clubs` is a build-time prop, so it never changes under a live fetch.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [opponents, attempt]);
 
   if (pools == null) {
