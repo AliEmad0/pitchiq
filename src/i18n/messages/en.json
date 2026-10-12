@@ -447,7 +447,10 @@
       "relegation": "Relegation",
       "runner-up": "Runner-up",
       "participation": "Squad member"
-    }
+    },
+    "archiveTitle": "Player archive",
+    "archiveLoading": "Loading the player…",
+    "archiveError": "This player could not be loaded. Check your connection and refresh."
   },
   "managers": {
     "pageTitle": "Premier League managers",

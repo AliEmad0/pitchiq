@@ -36,6 +36,11 @@ ROUTES=(
   # warm both, or the first fixture-detail spec pays two compiles inside its timeout.
   "/fixtures/2025-05-25-BOU-LEI"
   "/api/archive/fixtures/2025-05-25-BOU-LEI"
+  # TASK-M96 PR B — an archived player is the /archive/player shell plus two static JSON
+  # files; compare.spec deep-links straight into this one.
+  "/players/1002187?season=2007"
+  "/api/archive/players/1002187"
+  "/api/archive/club-logos"
   "/leaderboards"
   "/compare"
   "/map"

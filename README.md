@@ -233,10 +233,11 @@ are never replayed.
 
 ## Deployment footprint
 
-Matches from past seasons are served as a static-data archive (TASK-M96): one prerendered
-JSON file per match, rendered by a single shell page, instead of a full prerendered page each.
-URLs are unchanged, nothing renders per request, and a build fell from 4.9 GB to 2.7 GB. Only
-`main` deploys on Vercel; branch previews are off to save Deployment Storage.
+Past seasons' matches and players are served as a static-data archive (TASK-M96): one
+prerendered JSON file per match or player, rendered by a single shell page, instead of a full
+prerendered page each. URLs are unchanged and nothing renders per request; an archived
+player's season switcher even works without a server call. Deployable build output fell from
+~3.9 GB to ~0.8 GB. Only `main` deploys on Vercel; branch previews are off.
 
 The production build prerenders 19,161 pages on Vercel's 2-core, 8 GB builder. TASK-M95 fixed
 a server-side TanStack Query `gcTime` timer that kept each finished page in memory for five

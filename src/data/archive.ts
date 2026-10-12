@@ -19,3 +19,14 @@ import { currentDataSeason } from "@/utils/season";
  * Pure and edge-safe: no I/O, so it is importable from routes, tests and scripts alike.
  */
 export const isArchivedSeason = (season: number): boolean => season < currentDataSeason();
+
+/**
+ * A player is archived when EVERY season he played is archived — i.e. he has no row in the
+ * current season (TASK-M96 PR B). Current-season players keep their prerendered page and its
+ * season switcher; everyone else is one prerendered JSON file holding all his seasons.
+ *
+ * ⚠️ Defined from `isArchivedSeason`, never restated, so the match and player splits move
+ * together when the data season rolls over.
+ */
+export const isArchivedPlayer = (seasonsPlayed: readonly number[]): boolean =>
+  seasonsPlayed.length > 0 && seasonsPlayed.every(isArchivedSeason);

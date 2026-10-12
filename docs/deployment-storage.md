@@ -104,3 +104,19 @@ Old matches moved to the static-data archive and branch previews turned off. Ful
 **4.9 GB → 2.7 GB**. `/fixtures/*` fell from 2.5 GB to 83 MB (current season only), plus
 174 MB of archive JSON (12,786 files, ~13.6 KB each). The build took 7.8 minutes instead
 of 9.5, at the same 2.7 GB peak memory. Next step (PR B): archived players, about 1 GB.
+
+## TASK-M96 PR B result (2026-10-13)
+
+Archived players (4,578 with no current-season row) moved to the same pattern. Full local
+build, deployable output only (excluding Next's local `.next/cache`): **~3.9 GB → ~0.8 GB**.
+
+| Output               | Before   | After                |
+| -------------------- | -------- | -------------------- |
+| `/players/*` pages   | 1,030 MB | 113 MB (537 players) |
+| archived player JSON | n/a      | 49 MB                |
+| `/fixtures/*` pages  | 2,560 MB | 83 MB                |
+| archived match JSON  | n/a      | 104 MB               |
+
+The build took 5.8 minutes instead of 9.5. Branch previews are off, so the three deployments
+Vercel always keeps total about 2.4 GB of the 10 GB limit. Confirm the dashboard's Deployment
+Storage figure after old deployments age out of retention (up to 30 days).
