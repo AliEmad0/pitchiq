@@ -1106,7 +1106,93 @@
     "seasonSaveFailed": "Your latest squad and results could not be saved. Retry before continuing.",
     "seasonRetrySave": "Retry save",
     "seasonPosition": "Position {n}",
-    "seasonRotationHint": "Rotate within your fixed squad. Your original XI and up to seven reserves are saved; changes apply to future fixtures."
+    "seasonRotationHint": "Rotate within your fixed squad. Your original XI and up to seven reserves are saved; changes apply to future fixtures.",
+    "report": {
+      "masthead": "The Final Whistle",
+      "aria": "Post-match report",
+      "xgTitle": "Expected goals, minute by minute",
+      "xgAria": "Expected goals wheel: {home} {homeXg}, {away} {awayXg}",
+      "xgLine": "xG {homeXg}–{awayXg}",
+      "ownGoal": "{name} (og)",
+      "scorerCount": "{name} {goals}",
+      "headline": {
+        "comeback": {
+          "0": "{coach} RISE FROM THE DEAD",
+          "1": "NEVER IN DOUBT! {coach} STUN {opponent}",
+          "2": "THE GREAT ESCAPE: {coach} FIGHT BACK"
+        },
+        "lateWinner": {
+          "0": "{player} SNATCHES IT AT THE DEATH",
+          "1": "{minute}' HEARTBREAK FOR {opponent}",
+          "2": "LAST-GASP GLORY FOR {coach}"
+        },
+        "lateLoser": {
+          "0": "SUCKER PUNCH! {coach} UNDONE LATE",
+          "1": "{player} BREAKS {coach} HEARTS",
+          "2": "SO CLOSE: {coach} FALL AT THE LAST"
+        },
+        "robbed": {
+          "0": "DAYLIGHT ROBBERY!",
+          "1": "{coach} DOMINATE — AND LOSE",
+          "2": "THE ONE THAT GOT AWAY"
+        },
+        "smashAndGrab": {
+          "0": "SMASH AND GRAB!",
+          "1": "{coach} PINCH IT",
+          "2": "OUTPLAYED, NOT OUTSCORED"
+        },
+        "routWin": {
+          "0": "{coach} RUN RIOT",
+          "1": "MASSACRE! {coach} HIT {coachGoals}",
+          "2": "{opponent} PUT TO THE SWORD"
+        },
+        "routLoss": {
+          "0": "NIGHTMARE FOR {coach}",
+          "1": "{coach} HUMBLED",
+          "2": "{opponent} RUN RIOT"
+        },
+        "hatTrick": {
+          "0": "HAT-TRICK HERO {player}",
+          "1": "{player} TAKES THE MATCH BALL",
+          "2": "THREE AND EASY FOR {player}"
+        },
+        "tenMen": {
+          "0": "TEN-MAN {coach} HOLD FIRM",
+          "1": "BACKS TO THE WALL — AND IT WORKS",
+          "2": "DOWN A MAN, NOT DOWN AND OUT"
+        },
+        "varDrama": {
+          "0": "VAR THE VILLAIN",
+          "1": "SCREEN TIME: VAR DECIDES IT",
+          "2": "MONITOR MAYHEM"
+        },
+        "boreDraw": {
+          "0": "BORE DRAW",
+          "1": "NIL-NIL NOTHING",
+          "2": "STALEMATE"
+        },
+        "thriller": {
+          "0": "GOAL FEST!",
+          "1": "WHAT A GAME!",
+          "2": "THRILLER TO THE FINAL WHISTLE"
+        },
+        "win": {
+          "0": "JOB DONE FOR {coach}",
+          "1": "{coach} TAKE THE POINTS",
+          "2": "{coach} SEE OFF {opponent}"
+        },
+        "draw": {
+          "0": "HONOURS EVEN",
+          "1": "SPOILS SHARED",
+          "2": "ALL SQUARE"
+        },
+        "loss": {
+          "0": "{coach} COME UP SHORT",
+          "1": "{opponent} TOO STRONG",
+          "2": "NO WAY THROUGH FOR {coach}"
+        }
+      }
+    }
   },
   "commentary": {
     "armbandHandover": "The armband goes to {name}.",

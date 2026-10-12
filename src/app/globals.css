@@ -5551,3 +5551,127 @@
 .sh-sq select:disabled {
   opacity: 0.6;
 }
+
+/* ---- TASK-1815 post-match report: "Vinyl Sleeve" (owner's pick, concept #23) ----
+   The match wrapped around a record: one spoke per shot at its minute, home outward,
+   away inward, length = estimated xG. Scoped to `.pmr-root`; the wheel is `dir="ltr"`
+   in the markup (a clock face is not text). Static here — motion is Task 6. */
+.pmr-root {
+  --pmr-home: var(--primary);
+  --pmr-away: #0e7c86;
+  container-type: inline-size;
+  display: grid;
+  grid-template-columns: minmax(0, 230px) minmax(0, 1fr);
+  gap: 20px;
+  align-items: center;
+  margin-block: 16px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--card);
+  color: var(--card-foreground);
+}
+.dark .pmr-root {
+  --pmr-away: #2fd4ec;
+}
+@container (max-width: 520px) {
+  .pmr-root {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    text-align: center;
+  }
+}
+.pmr-wheel {
+  display: block;
+  width: 100%;
+  max-width: 230px;
+  height: auto;
+  overflow: visible;
+}
+.pmr-ring {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 1;
+}
+.pmr-label {
+  fill: currentColor;
+  opacity: 0.06;
+}
+.pmr-tick {
+  stroke: var(--muted-foreground);
+  stroke-width: 2;
+}
+.pmr-spoke {
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.pmr-spoke.pmr-goal {
+  stroke-width: 5;
+}
+.pmr-spoke.pmr-home {
+  stroke: var(--pmr-home);
+}
+.pmr-spoke.pmr-away {
+  stroke: var(--pmr-away);
+}
+.pmr-score {
+  fill: currentColor;
+  font:
+    800 26px var(--font-sans),
+    system-ui,
+    sans-serif;
+}
+.pmr-xg {
+  fill: var(--muted-foreground);
+  font:
+    10px var(--font-sans),
+    system-ui,
+    sans-serif;
+}
+.pmr-mast {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.pmr-headline {
+  margin: 0.25em 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(22px, 5cqi, 30px);
+  font-weight: 900;
+  line-height: 1.05;
+}
+.pmr-standfirst {
+  margin: 0.4em 0 0;
+  color: var(--muted-foreground);
+  font-size: 14px;
+}
+.pmr-key {
+  display: flex;
+  gap: 14px;
+  margin: 8px 0 0;
+  color: var(--muted-foreground);
+  font-size: 12px;
+}
+@container (max-width: 520px) {
+  .pmr-key {
+    justify-content: center;
+  }
+}
+.pmr-key span::before {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-inline-end: 5px;
+  border-radius: 50%;
+  vertical-align: -1px;
+}
+.pmr-key-home::before {
+  background: var(--pmr-home);
+}
+.pmr-key-away::before {
+  background: var(--pmr-away);
+}
