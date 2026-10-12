@@ -7280,6 +7280,7 @@ Everything in the owner's A-to-Z roadmap (2026-08-11) that **cannot** be built u
 | [TASK-M92](#task-m92) | Surface honours / transfers / caps on the player profile page                               | ✅ Done | P2       | M   |
 | [TASK-M93](#task-m93) | Show the player enrichment summary where players are listed                                 | ✅ Done | P3       | S   |
 | [TASK-M94](#task-m94) | Five-card pick hand fits a phone screen (draft veil + daily overlay)                        | ✅ Done | P2       | S   |
+| [TASK-M95](#task-m95) | Production build out of memory — server QueryClient pinned every page for 5 minutes         | ✅ Done | P1       | S   |
 
 ### TASK-M01
 
@@ -9498,6 +9499,45 @@ could never be reached.
   top-LEFT corner — an inline-start offset would shrink it away from its own footprint in RTL.
 - Labels (the "your pick" mark, chemistry delta, ring chip) and the tap target stay on the
   footprint, outside the scaler, so they keep a readable size.
+
+---
+
+### TASK-M95
+
+**Production build out of memory — server QueryClient pinned every page for 5 minutes** · ✅ Done (2026-10-12) · `P1` · `S` · Type: Bug
+
+**Symptom.** The production build for `682f919` (#217) hit Vercel's 45-minute limit: 14,370 of
+19,161 pages in under six minutes, then almost no progress. An identical preview passed in 21
+minutes after a 10-minute stall, and older builds had logged "took more than 60 seconds"
+retries. Locally (6 GB machine, 2 GB worker heap) **both `main` and the pre-#217 `8854e0e`**
+died with `JavaScript heap out of memory` around page 12,500, so #217 did not cause it.
+
+**Root cause, measured in four steps — two plausible fixes were tried and DISPROVED first:**
+
+1. A sampling heap profile put ~1.1 GB of live memory inside React's Flight decoder: the
+   worker was holding the RSC payload of pages it had already written.
+2. ❌ Disproved: caching only a few seasons of `lineups`/`events`, Sentry disabled during the
+   build, and caching loader values instead of promises — each still died around page 12,500.
+3. A full heap snapshot traced the retained `flightData` buffers (one per page) through a
+   chain of **pending `Timeout`s** whose `kResourceStore` held each page's render context.
+4. An `async_hooks` probe identified the timers: **two per page** — a **300,000 ms** one from
+   TanStack Query's `scheduleGc`, and Next's own 60 s export watchdog.
+
+`QueryProvider` set `gcTime: 5 * 60 * 1000` for every QueryClient. On the server TanStack's
+default is `Infinity`, which schedules no timer; the explicit value overrode it, so each
+prerendered page's QueryClient left a 5-minute timer that kept the whole finished page alive.
+
+Full report: [`docs/build-oom-incident-2026-10.md`](docs/build-oom-incident-2026-10.md).
+
+**Fix.** `queryDefaults(server)` returns `gcTime: Infinity` on the server and keeps 5 minutes in
+the browser. Verified: the same capped local build now completes **19,161 / 19,161 pages in
+9.5 minutes**, peak 2.65 GB per process (was 3.6 GB and out of memory). Guarded by
+`tests/unit/query-provider-server-gc.test.ts`, whose control proves the browser defaults do
+schedule the timer.
+
+**Also (2026-10-12):** the pipeline's daily data sync is **disabled** (2025-26 is finished and
+the runs were no-ops), so production now deploys only on merges. Deployment Storage
+(22 GB of 10 GB) is a separate follow-up: one build is ~4.9 GB, of which `/fixtures/*` is 2.5 GB.
 
 ---
 

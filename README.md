@@ -233,6 +233,10 @@ are never replayed.
 
 ## Deployment footprint
 
+The production build prerenders 19,161 pages on Vercel's 2-core, 8 GB builder. TASK-M95 fixed
+a server-side TanStack Query `gcTime` timer that kept each finished page in memory for five
+minutes and ran the build out of time; it now completes in about 10 minutes.
+
 Locale catalogs are shared client modules instead of repeated props in every prerendered
 page. See [deployment storage](docs/deployment-storage.md) for the measured HTML savings,
 static-route safeguards, and the outstanding Vercel retention cleanup.

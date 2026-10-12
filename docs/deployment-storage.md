@@ -61,3 +61,39 @@ Do not trade storage for the previous runtime-cost regression: retain
 `dynamicParams = false` on entity routes and never add positive `revalidate` values.
 Do not exclude runtime JSON from function tracing without measuring the bundle and
 proving all affected routes can still load their data.
+
+## October 12, 2026 measurement
+
+Dashboard: **Deployment Storage 22.26 GB of 10 GB**. Every other Hobby line is far below its
+cap: Fluid Active CPU 4 min of 4 h, Functions Storage 0.89 GB of 10 GB.
+
+The retention policy is already set (read from the Vercel project API): preview 7 days,
+production 30 days, errored and cancelled 1 day, `deploymentsToKeep` 10. Only **six**
+deployments existed, so cleanup cannot fix this. One deployment is about 4.4 GB, and every
+merge adds a production build plus a preview build.
+
+A full local build (TASK-M95) produced **4.9 GB** of output:
+
+| Route                               | Size       | Files  |
+| ----------------------------------- | ---------- | ------ |
+| `/fixtures/*` (~13,000 match pages) | **2.5 GB** | 39,498 |
+| `/players/*`                        | 1.0 GB     | 15,345 |
+| `/seasons/*`                        | 110 MB     | 597    |
+| `/game/*`                           | 105 MB     | 492    |
+| `/managers/*`                       | 51 MB      | 879    |
+| `/teams/*`                          | 14 MB      | 153    |
+
+| File kind | Size     | Files  |
+| --------- | -------- | ------ |
+| `.html`   | 2,490 MB | 18,998 |
+| `.rsc`    | 1,387 MB | 18,998 |
+
+Every page is stored twice, as HTML (131 KB average) and as its RSC payload (73 KB average).
+To stay under 10 GB with more than one deployment alive, a build has to shrink well below
+half of its current size. The levers, in order of expected yield:
+
+1. Shrink the per-page payload, starting with what dominates a fixture page.
+2. Prerender fewer archive pages, without breaking the hard rules: `force-static`,
+   `dynamicParams = false`, no positive `revalidate`, and `entity-routes-bounded.test.ts`.
+3. Stop Vercel building previews for non-`main` branches, since each PR push adds another
+   ~4.4 GB. This needs the owner's decision.
