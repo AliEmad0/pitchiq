@@ -9527,6 +9527,8 @@ died with `JavaScript heap out of memory` around page 12,500, so #217 did not ca
 default is `Infinity`, which schedules no timer; the explicit value overrode it, so each
 prerendered page's QueryClient left a 5-minute timer that kept the whole finished page alive.
 
+Full report: [`docs/build-oom-incident-2026-10.md`](docs/build-oom-incident-2026-10.md).
+
 **Fix.** `queryDefaults(server)` returns `gcTime: Infinity` on the server and keeps 5 minutes in
 the browser. Verified: the same capped local build now completes **19,161 / 19,161 pages in
 9.5 minutes**, peak 2.65 GB per process (was 3.6 GB and out of memory). Guarded by

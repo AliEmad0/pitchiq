@@ -225,6 +225,8 @@ A playable game built on the committed data, route-split under `/game/*`. Its la
 - [`TASKS.md`](TASKS.md) — phased ticket board.
 - [`docs/design-system.md`](docs/design-system.md), [`docs/motion.md`](docs/motion.md), [`docs/i18n-glossary.md`](docs/i18n-glossary.md) — the design/motion/i18n conventions.
 - [`.env.example`](.env.example) — env vars.
+- [`docs/build-oom-incident-2026-10.md`](docs/build-oom-incident-2026-10.md) — the TASK-M95 build-memory incident: root cause, disproved hypotheses, and the leak-diagnosis toolkit.
+- [`docs/deployment-storage.md`](docs/deployment-storage.md) — Deployment Storage measurements and levers.
 
 ### TASK-1811: played season fixtures and resume identity (PR 3)
 
