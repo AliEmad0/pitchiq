@@ -97,3 +97,10 @@ half of its current size. The levers, in order of expected yield:
    `dynamicParams = false`, no positive `revalidate`, and `entity-routes-bounded.test.ts`.
 3. Stop Vercel building previews for non-`main` branches, since each PR push adds another
    ~4.4 GB. This needs the owner's decision.
+
+## TASK-M96 PR A result (2026-10-13)
+
+Old matches moved to the static-data archive and branch previews turned off. Full local build:
+**4.9 GB → 2.7 GB**. `/fixtures/*` fell from 2.5 GB to 83 MB (current season only), plus
+174 MB of archive JSON (12,786 files, ~13.6 KB each). The build took 7.8 minutes instead
+of 9.5, at the same 2.7 GB peak memory. Next step (PR B): archived players, about 1 GB.

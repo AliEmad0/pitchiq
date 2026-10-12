@@ -3,17 +3,10 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
 import { fixtureOgImagePath } from "@/app/api/og/fixture-card";
+import { isArchivedSeason } from "@/data/archive";
 import { getAvailableSeasons, loadFixtures } from "@/data/loaders";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { EventsUnavailable } from "@/features/leagues/components/EventsUnavailable";
-import { EventTimeline } from "@/features/leagues/components/EventTimeline";
-import { FixtureHeader } from "@/features/leagues/components/FixtureHeader";
-import { LineupUnavailable } from "@/features/leagues/components/LineupUnavailable";
-import { PitchLineup } from "@/features/leagues/components/PitchLineup";
-import { StatComparison } from "@/features/leagues/components/StatComparison";
+import { FixtureDetailView } from "@/features/leagues/components/FixtureDetailView";
 import { getFixtureDetail } from "@/features/leagues/fixture-detail.api";
-import { revealProps } from "@/utils/reveal";
-import { currentDataSeason, seasonFromFixtureId } from "@/utils/season";
 import { canonicalPath } from "@/utils/canonical";
 
 type Props = { params: Promise<{ locale: string; id: string }> };
@@ -35,14 +28,18 @@ export const dynamicParams = false;
 export const dynamic = "force-static";
 export const revalidate = false; // see docs/adr or CLAUDE.md — deploys are the only data change
 
-// ⭐ Every fixture of every season — the whole archive, ~13,166 of them. This is the single
-// biggest block of pages in the build (~26,000 across both locales), so it is also the first
-// thing to trim if the build ever approaches the Hobby ceiling. Trim it by SEASON RANGE, never
-// by flipping `dynamicParams` back on: an unbuilt path that something links to is exactly the
-// shape that caused the incident this replaced.
+// ⭐ Every NON-archived season's fixtures — today the current season's ~380 (TASK-M96).
+//
+// Older seasons are NOT left unbuilt: `isArchivedSeason` is the one predicate that splits the
+// archive, and `/api/archive/fixtures/[id]` prerenders a JSON file for every match on the other
+// side of it. The middleware rewrites those URLs to the shared `/archive/fixture` shell, so no
+// reachable path is unbuilt and `dynamicParams` stays false (TASK-1843). Prerendering all
+// ~13,166 matches here cost ~2.5 GB per deployment — half of a ~4.9 GB build against Vercel
+// Hobby's 10 GB Deployment Storage, of which at least three builds are always kept.
 export async function generateStaticParams(): Promise<Array<{ id: string }>> {
   const ids: Array<{ id: string }> = [];
   for (const season of await getAvailableSeasons()) {
+    if (isArchivedSeason(season)) continue;
     for (const f of (await loadFixtures(season)) ?? []) ids.push({ id: f.id });
   }
   return ids;
@@ -86,57 +83,10 @@ export default async function FixtureDetailPage({ params }: Props) {
   const detail = await getFixtureDetail(id);
   if (!detail) notFound();
 
-  // M21: the fixture's own season, carried onto player/manager links.
-  const season = seasonFromFixtureId(id) ?? currentDataSeason();
-  const hasLineups = detail.lineups.length > 0;
-  const hasEvents = detail.events.length > 0;
-  // Lineups is the default tab when we have them; otherwise fall back to Stats
-  // (the only tab guaranteed to have content for uncovered fixtures).
-  const defaultTab = hasLineups ? "lineups" : "stats";
-
   return (
-    <div className="container-page py-6 lg:py-10">
-      <FixtureHeader fixture={detail.fixture} />
-
-      <Tabs defaultValue={defaultTab} className="mt-6">
-        {/* TASK-1512 — pill tabs: rounded, the active one filled in the era accent. */}
-        <TabsList className="h-auto gap-2 bg-transparent p-0">
-          {(
-            [
-              ["lineups", t("tabLineups")],
-              ["events", t("tabEvents")],
-              ["stats", t("tabStatistics")],
-            ] as const
-          ).map(([value, label]) => (
-            <TabsTrigger
-              key={value}
-              value={value}
-              className="ix-tab ix-glow ix-press border-border rounded-full border px-4 py-1.5 data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-            >
-              {label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-        {/* Each panel carries a reveal (TASK-1704): Radix mounts a tab's content
-            on activation, so a tab switch soft-rises the incoming panel too. */}
-        <TabsContent value="lineups" className="mt-4" {...revealProps()}>
-          {hasLineups ? <PitchLineup detail={detail} season={season} /> : <LineupUnavailable />}
-        </TabsContent>
-        <TabsContent value="events" className="mt-4" {...revealProps()}>
-          {hasEvents ? (
-            <EventTimeline
-              events={detail.events}
-              homeId={detail.fixture.teams.home.id}
-              season={season}
-            />
-          ) : (
-            <EventsUnavailable />
-          )}
-        </TabsContent>
-        <TabsContent value="stats" className="mt-4" {...revealProps()}>
-          <StatComparison statistics={detail.statistics} fixtureTeams={detail.fixture.teams} />
-        </TabsContent>
-      </Tabs>
-    </div>
+    <FixtureDetailView
+      detail={detail}
+      labels={{ lineups: t("tabLineups"), events: t("tabEvents"), stats: t("tabStatistics") }}
+    />
   );
 }

@@ -236,7 +236,10 @@
     "badgeEpicComeback": "Epic Comeback",
     "badgeTitleDecider": "Title-Race Decider",
     "badgeRelegationBattle": "Relegation Battle",
-    "badgeMarquee": "Marquee Clash"
+    "badgeMarquee": "Marquee Clash",
+    "archiveTitle": "Match archive",
+    "archiveLoading": "Loading the match…",
+    "archiveError": "This match could not be loaded. Check your connection and refresh."
   },
   "notFound": {
     "teamTitle": "Team not found",
