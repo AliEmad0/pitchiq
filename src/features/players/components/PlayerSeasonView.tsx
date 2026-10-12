@@ -37,6 +37,7 @@ export function PlayerSeasonView({
   clubLogos,
   hero,
   careerBlock,
+  preloaded,
   children,
 }: {
   playerId: number;
@@ -61,6 +62,16 @@ export function PlayerSeasonView({
    * `/api/players/[id]/profile` path that drives the swap.
    */
   careerBlock?: ReactNode;
+  /**
+   * Every season's data, already in hand (TASK-M96 PR B — the archived-player shell).
+   *
+   * ⭐ When present, a season change answers from this map and NEVER calls the request-time
+   * `/api/players/[id]/profile` or `/api/trivia` routes — an archived player's whole history is
+   * baked into one prerendered JSON file. Absent (the prerendered current-season page), the
+   * switcher fetches exactly as before. A season missing from the map is one he did not play,
+   * which renders the same `DataUnavailable` state a 404 from the API does.
+   */
+  preloaded?: Readonly<Record<string, { profile: PlayerProfile | null; facts: TriviaFact[] }>>;
   children: ReactNode;
 }) {
   const t = useTranslations("players");
@@ -91,6 +102,11 @@ export function PlayerSeasonView({
       setLoading(false);
       return;
     }
+    if (preloaded) {
+      setSwapped(preloaded[String(season)] ?? { profile: null, facts: [] });
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     void (async () => {
       const [pRes, tRes] = await Promise.all([
@@ -107,7 +123,7 @@ export function PlayerSeasonView({
     return () => {
       cancelled = true;
     };
-  }, [season, initialSeason, playerId, locale]);
+  }, [season, initialSeason, playerId, locale, preloaded]);
 
   function changeSeason(next: number) {
     setSeason(next);
@@ -159,20 +175,41 @@ export function PlayerSeasonView({
       {!swapping ? (
         children
       ) : !loading && swappedProfile ? (
-        <>
-          <PlayerSeasonStats metrics={swappedProfile.metrics} />
-          {swappedProfile.splits && (
-            <PlayerSeasonSplits
-              splits={swappedProfile.splits}
-              season={season}
-              clubLogos={clubLogos}
-            />
-          )}
-          {swapped && swapped.facts.length > 0 && (
-            <TriviaCard facts={swapped.facts} className="mt-10!" />
-          )}
-        </>
+        <PlayerSeasonBody
+          profile={swappedProfile}
+          facts={swapped?.facts ?? []}
+          season={season}
+          clubLogos={clubLogos}
+        />
       ) : null}
     </main>
+  );
+}
+
+/**
+ * One season's stats, splits and trivia — the subtree under the hero.
+ *
+ * Shared by the swap branch above and the archived-player shell's initial season, so an
+ * archived player's page is built from exactly the components a current player's swap uses.
+ */
+export function PlayerSeasonBody({
+  profile,
+  facts,
+  season,
+  clubLogos,
+}: {
+  profile: PlayerProfile;
+  facts: TriviaFact[];
+  season: number;
+  clubLogos: ClubLogosFile | null;
+}) {
+  return (
+    <>
+      <PlayerSeasonStats metrics={profile.metrics} />
+      {profile.splits && (
+        <PlayerSeasonSplits splits={profile.splits} season={season} clubLogos={clubLogos} />
+      )}
+      {facts.length > 0 && <TriviaCard facts={facts} className="mt-10!" />}
+    </>
   );
 }

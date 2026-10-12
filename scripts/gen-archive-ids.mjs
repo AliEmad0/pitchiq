@@ -23,9 +23,21 @@ for (const season of seasons) {
 }
 fixtures.sort();
 
+// Players: archived when EVERY season they played is archived (mirrors isArchivedPlayer).
+const lastSeason = new Map();
+for (const season of seasons) {
+  for (const p of read(`data/players-${season}.json`)) {
+    lastSeason.set(p.id, Math.max(lastSeason.get(p.id) ?? -Infinity, season));
+  }
+}
+const players = [...lastSeason].filter(([, last]) => last < current).map(([id]) => id);
+players.sort((a, b) => a - b);
+
 mkdirSync("src/generated", { recursive: true });
 writeFileSync(
   "src/generated/archive-ids.json",
-  JSON.stringify({ currentSeason: current, fixtures: fixtures.join(",") }) + "\n",
+  JSON.stringify({ currentSeason: current, fixtures: fixtures.join(","), players: players.join(",") }) + "\n",
 );
-console.log(`archive-ids.json: ${fixtures.length} archived fixtures (current season ${current})`);
+console.log(
+  `archive-ids.json: ${fixtures.length} archived fixtures, ${players.length} archived players (current season ${current})`,
+);

@@ -116,4 +116,56 @@ describe("PlayerSeasonView", () => {
     expect(screen.getByTestId("career-block")).toBeInTheDocument();
     expect(screen.queryByText("Initial Content")).not.toBeInTheDocument();
   });
+
+  /**
+   * TASK-M96 PR B — the archived-player shell hands every season in up front. A season change
+   * must then answer from that map: the request-time profile and trivia routes would turn the
+   * storage saving into Fluid Active CPU, which the owner ruled out.
+   */
+  it("⛔ with `preloaded`, a ?season= deep link swaps WITHOUT any fetch", async () => {
+    const fetchSpy = vi.fn();
+    vi.stubGlobal("fetch", fetchSpy);
+    window.history.replaceState(null, "", "/players/42?season=2016");
+    render(
+      <NextIntlClientProvider locale="en" messages={messages}>
+        <PlayerSeasonView
+          playerId={42}
+          seasons={[2025, 2016]}
+          initialSeason={2025}
+          displayName="Test Player"
+          clubLogos={null}
+          hero={<div>Initial Hero</div>}
+          preloaded={{ "2016": { profile: profile(42, "Preloaded 2016"), facts: [] } }}
+        >
+          <div>Initial Content</div>
+        </PlayerSeasonView>
+      </NextIntlClientProvider>,
+    );
+    await waitFor(() => expect(screen.queryByText("Initial Content")).toBeNull());
+    expect(screen.getAllByText(/Preloaded 2016/).length).toBeGreaterThan(0);
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it("⚠️ with `preloaded`, a season he did not play shows the empty state — still no fetch", async () => {
+    const fetchSpy = vi.fn();
+    vi.stubGlobal("fetch", fetchSpy);
+    window.history.replaceState(null, "", "/players/42?season=1999");
+    render(
+      <NextIntlClientProvider locale="en" messages={messages}>
+        <PlayerSeasonView
+          playerId={42}
+          seasons={[2016]}
+          initialSeason={2016}
+          displayName="Test Player"
+          clubLogos={null}
+          hero={<div>Initial Hero</div>}
+          preloaded={{ "2016": { profile: profile(42, "Preloaded 2016"), facts: [] } }}
+        >
+          <div>Initial Content</div>
+        </PlayerSeasonView>
+      </NextIntlClientProvider>,
+    );
+    expect(await screen.findByText(/No .*1999.* data for Test Player/)).toBeInTheDocument();
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
 });

@@ -66,15 +66,21 @@ describe("entity detail routes are bounded", () => {
   // The negative assertion above still passes for a route that prerenders only ONE season —
   // which is the state that caused the incident. These two routes are season-scoped, so they
   // must enumerate every committed season rather than `currentDataSeason()` alone.
-  it.each([["src/app/[locale]/players/[id]/page.tsx", "loadPlayers"]])(
-    "⚠️ %s prerenders EVERY season, not just the current one",
-    (rel, loader) => {
-      const body = staticParamsBody(read(rel));
-      expect(body, "must iterate the committed seasons").toContain("getAvailableSeasons");
-      // The precise regression: loading exactly one season inside generateStaticParams.
-      expect(body).not.toMatch(new RegExp(`${loader}\\(\\s*currentDataSeason\\(\\)\\s*\\)`));
-    },
-  );
+  /**
+   * TASK-M96 PR B — players are split the same way: the page prerenders the non-archived
+   * players and the archive JSON route the rest, both from ONE index filtered by the same
+   * predicate. `archive-ids.test.ts` proves it is a partition against the real data.
+   */
+  it("⚠️ the player page and the archive route split EVERY player by `isArchivedPlayer`", () => {
+    const page = staticParamsBody(read("src/app/[locale]/players/[id]/page.tsx"));
+    expect(page).toContain("playerSeasonIndex");
+    expect(page).toMatch(/if \(isArchivedPlayer\(seasons\)\) continue/);
+    expect(page).not.toMatch(/loadPlayers\(\s*currentDataSeason\(\)\s*\)/);
+
+    const archive = staticParamsBody(read("src/app/api/archive/players/[id]/route.ts"));
+    expect(archive).toContain("playerSeasonIndex");
+    expect(archive).toMatch(/if \(!isArchivedPlayer\(seasons\)\) continue/);
+  });
 
   /**
    * TASK-M96 — fixtures are split, not trimmed. The page prerenders the non-archived seasons and

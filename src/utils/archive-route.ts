@@ -18,11 +18,15 @@ import archiveIds from "@/generated/archive-ids.json";
  * `tests/unit/archive-ids.test.ts` fails if it drifts from the committed data.
  */
 const ARCHIVED_FIXTURES: ReadonlySet<string> = new Set(archiveIds.fixtures.split(","));
+const ARCHIVED_PLAYERS: ReadonlySet<string> = new Set(archiveIds.players.split(","));
 
 /** The shell that renders every archived match, under the locale segment. */
 export const FIXTURE_ARCHIVE_SHELL = "/archive/fixture";
+/** The shell that renders every archived player (TASK-M96 PR B). */
+export const PLAYER_ARCHIVE_SHELL = "/archive/player";
 
 const FIXTURE_PATH = /^\/fixtures\/([^/]+)\/?$/;
+const PLAYER_PATH = /^\/players\/(\d+)\/?$/;
 
 /**
  * The shell an UNPREFIXED path should be rewritten to, or null to leave it alone.
@@ -34,8 +38,13 @@ const FIXTURE_PATH = /^\/fixtures\/([^/]+)\/?$/;
 export function archiveShellFor(pathname: string): string | null {
   const m = FIXTURE_PATH.exec(pathname);
   if (m != null && ARCHIVED_FIXTURES.has(m[1]!)) return FIXTURE_ARCHIVE_SHELL;
+  const p = PLAYER_PATH.exec(pathname);
+  if (p != null && ARCHIVED_PLAYERS.has(p[1]!)) return PLAYER_ARCHIVE_SHELL;
   return null;
 }
 
 /** For tests: is this fixture served from the archive? */
 export const isArchivedFixtureId = (id: string): boolean => ARCHIVED_FIXTURES.has(id);
+
+/** For tests: is this player served from the archive? */
+export const isArchivedPlayerId = (id: number): boolean => ARCHIVED_PLAYERS.has(String(id));

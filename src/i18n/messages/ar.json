@@ -447,7 +447,10 @@
       "relegation": "هبوط",
       "runner-up": "وصيف",
       "participation": "ضمن الفريق"
-    }
+    },
+    "archiveTitle": "أرشيف اللاعبين",
+    "archiveLoading": "جارٍ تحميل اللاعب…",
+    "archiveError": "تعذّر تحميل هذا اللاعب. تحقّق من اتصالك ثم حدّث الصفحة."
   },
   "managers": {
     "pageTitle": "مدربو الدوري الإنجليزي الممتاز",
