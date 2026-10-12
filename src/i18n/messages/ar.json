@@ -236,7 +236,10 @@
     "badgeEpicComeback": "ريمونتادا مثيرة",
     "badgeTitleDecider": "قمة حاسمة للقب",
     "badgeRelegationBattle": "معركة الهبوط",
-    "badgeMarquee": "مواجهة كبرى"
+    "badgeMarquee": "مواجهة كبرى",
+    "archiveTitle": "أرشيف المباريات",
+    "archiveLoading": "جارٍ تحميل المباراة…",
+    "archiveError": "تعذّر تحميل هذه المباراة. تحقّق من اتصالك ثم حدّث الصفحة."
   },
   "notFound": {
     "teamTitle": "الفريق غير موجود",

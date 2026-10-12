@@ -2,6 +2,7 @@ import createMiddleware from "next-intl/middleware";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { routing } from "@/i18n/routing";
+import { archiveShellFor } from "@/utils/archive-route";
 import { isProbePath } from "@/utils/probe-path";
 
 const intlMiddleware = createMiddleware(routing);
@@ -24,6 +25,16 @@ export default function middleware(request: NextRequest): NextResponse {
     // ⚠️ No body. This branch is only reachable by something that already knows it is
     // fishing; a bare status is the cheapest honest answer and the least encouraging one.
     return new NextResponse(null, { status: 404 });
+  }
+  // TASK-M96 — an archived match is served by ONE shared shell page that loads the match's
+  // prerendered JSON, instead of ~200 KB of prerendered HTML+RSC per match. A rewrite, not a
+  // redirect: the URL the visitor sees (and every link and bookmark) is unchanged. Only a set
+  // lookup happens here — see `archiveShellFor` for why it must stay that cheap.
+  const shell = archiveShellFor(request.nextUrl.pathname);
+  if (shell != null) {
+    const url = request.nextUrl.clone();
+    url.pathname = `/${routing.defaultLocale}${shell}`;
+    return NextResponse.rewrite(url);
   }
   return intlMiddleware(request);
 }

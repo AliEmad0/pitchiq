@@ -32,6 +32,10 @@ ROUTES=(
   "/ar/teams/42?season=2003"
   "/managers"
   "/fixtures"
+  # TASK-M96 — an archived match is the /archive/fixture shell plus its prerendered JSON;
+  # warm both, or the first fixture-detail spec pays two compiles inside its timeout.
+  "/fixtures/2025-05-25-BOU-LEI"
+  "/api/archive/fixtures/2025-05-25-BOU-LEI"
   "/leaderboards"
   "/compare"
   "/map"
