@@ -109,7 +109,7 @@ export const GAME_MODES: readonly GameMode[] = [
     nameKey: "modeH2hName",
     descriptionKey: "modeH2hDesc",
     href: "/game/draft",
-    formats: { single: "live", season: "planned" },
+    formats: { single: "live", season: "live" },
     accent: "#22d3ee",
     ticket: "TASK-1807",
   },
@@ -120,7 +120,7 @@ export const GAME_MODES: readonly GameMode[] = [
     nameKey: "modeChaosName",
     descriptionKey: "modeChaosDesc",
     href: "/game/chaos",
-    formats: { single: "live", season: "planned" },
+    formats: { single: "live", season: "live" },
     accent: "#ff6b35",
     ticket: "TASK-1806",
   },
@@ -131,7 +131,7 @@ export const GAME_MODES: readonly GameMode[] = [
     nameKey: "modeCaptainsName",
     descriptionKey: "modeCaptainsDesc",
     href: "/game/captains",
-    formats: { single: "live", season: "planned" },
+    formats: { single: "live", season: "live" },
     accent: "#e0b341",
     ticket: "TASK-1810",
   },
@@ -144,9 +144,9 @@ export const GAME_MODES: readonly GameMode[] = [
     // ⚠️ A bespoke route, not the parameterised `/game/[mode]` one — the pack declares no
     // chooser, so `routedPacks()` deliberately excludes it. See `BUDGET_PACK`.
     href: "/game/budget",
-    // TASK-1810 ships the single-match format. Season is TASK-1811 — the registry's
-    // per-format status is exactly what lets those ship in separate PRs.
-    formats: { single: "live", season: "planned" },
+    // TASK-1810 shipped the single match; the season followed (owner, 2026-10-12), with the
+    // sixteen he paid for as his season roster.
+    formats: { single: "live", season: "live" },
     accent: "#34d399",
     ticket: "TASK-1810",
   },
@@ -157,8 +157,8 @@ export const GAME_MODES: readonly GameMode[] = [
     nameKey: "modeChemistryName",
     descriptionKey: "modeChemistryDesc",
     href: "/game/chemistry",
-    // TASK-1810 PR 5 ships the single-match format; the 38-week engine is TASK-1811.
-    formats: { single: "live", season: "planned" },
+    // TASK-1810 PR 5 shipped the single match; the 38-week season followed (2026-10-12).
+    formats: { single: "live", season: "live" },
     accent: "#a78bfa",
     ticket: "TASK-1810",
   },
@@ -173,7 +173,7 @@ export const GAME_MODES: readonly GameMode[] = [
     // Served by the parameterised `/game/[mode]` route — the segment resolves because
     // NATION_PACK backs the id, exactly as Legacy's and Captain's do.
     href: "/game/nation",
-    formats: { single: "live", season: "planned" },
+    formats: { single: "live", season: "live" },
     accent: "#60a5fa",
     ticket: "TASK-1842",
   },

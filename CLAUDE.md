@@ -318,5 +318,20 @@ Lifeline now runs at `/game/classic?objective=survival`, sharing the Classic con
 and squad editor. Keep `survival-current` separate and store only post-takeover results.
 Validate archive and scenario identity before play; never persist the temporary historical
 prefix used by the Classic adapter. Undated point deductions block Survival selection;
-1994/95 has four relegation places. Local focused tests/browser checks pass; full CI/build
-and owner review remain pending. See `docs/superpowers/plans/2026-09-06-task-1811-survival-production.md`.
+1994/95 has four relegation places. Shipped in PR #216; the owner closed TASK-1811 on 2026-10-12.
+Exact final boundary ties stay an open question. See `docs/superpowers/plans/2026-09-06-task-1811-survival-production.md`.
+
+### Every mode has a season (2026-10-12)
+
+All drafted modes now declare `season` (`LEAGUE_SEASON`; Nationality uses `NATIONS_SEASON`
+and plays a league of nations, fetched by flag-icons code via `clubs[].key`). A page that is
+not one club's plays under a **negative** `soloLeagueId(mode[:choice])`. The id must be
+distinct per mode: `/game/draft` and `/game/chaos` share one pool, so GamePlay's resume also
+requires `leagueIds[0] === coachId`. Negative ids have no crest; SeasonHub renders none.
+Budget Cap's sixteen split in `confirmSquad`: the XI plays, the paid bench is the roster.
+Season fixtures do not apply Chemistry's link bonus.
+
+**Phone hands (TASK-M94):** the draft veil and daily overlay scale their five cards by
+footprint → scaler → flipper (`--pd-s` / `--dh-s`, 0.6/0.55/0.5 below 640/380/340px), and
+both overlays scroll with a `margin: auto` inner panel. At 176px a phone fitted one card per
+row in an unscrollable fixed veil. Keep labels and the tap target outside the scaler.

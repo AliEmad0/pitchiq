@@ -406,6 +406,13 @@ export function SeasonHub({
     });
 
   const idOf = (index: number) => leagueIds[index] ?? 0;
+  /**
+   * A side's crest, or null when it has none. Only a real club (positive id) has one — the
+   * solo league ids every non-club mode uses are negative (`soloLeagueId`), and asking
+   * `/logos/` for them would paint a broken image on every row.
+   */
+  const crestOf = (id: number): string | null => (id > 0 ? clubLogo(id, season) : null);
+  const coachCrest = crestOf(coachId);
   const nameOf = (index: number) => clubNames[idOf(index)] ?? String(idOf(index));
   const myPos = table.findIndex((r) => r.club === coachIndex) + 1;
   const done = isComplete(run);
@@ -430,22 +437,21 @@ export function SeasonHub({
         <section ref={rootRef} className="sh" data-testid="season-hub">
           {/* ── header: BOTH crests (the owner's 12 + 6 hybrid) ───────────────────────── */}
           <div className="sh-hd sh-blk">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              className="sh-watermark"
-              data-testid="season-watermark"
-              src={clubLogo(coachId, season)}
-              alt=""
-              aria-hidden="true"
-            />
-            <div className="sh-hrow">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
+            {coachCrest != null ? (
+              // eslint-disable-next-line @next/next/no-img-element
               <img
-                className="sh-crest"
-                data-testid="season-crest"
-                src={clubLogo(coachId, season)}
+                className="sh-watermark"
+                data-testid="season-watermark"
+                src={coachCrest}
                 alt=""
+                aria-hidden="true"
               />
+            ) : null}
+            <div className="sh-hrow">
+              {coachCrest != null ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img className="sh-crest" data-testid="season-crest" src={coachCrest} alt="" />
+              ) : null}
               <div className="sh-hdtext">
                 <div className="sh-club">{coachName}</div>
                 <div className="sh-wk" data-testid="season-week">
@@ -562,13 +568,18 @@ export function SeasonHub({
                     <td>{i + 1}</td>
                     <td>
                       <span className="sh-cn">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          className="sh-tb"
-                          data-testid="season-row-crest"
-                          src={clubLogo(idOf(row.club), season)}
-                          alt=""
-                        />
+                        {crestOf(idOf(row.club)) != null ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            className="sh-tb"
+                            data-testid="season-row-crest"
+                            src={crestOf(idOf(row.club))!}
+                            alt=""
+                          />
+                        ) : (
+                          // Keeps the name column aligned with the rows that do carry one.
+                          <span className="sh-tb" aria-hidden="true" />
+                        )}
                         {nameOf(row.club)}
                       </span>
                     </td>
@@ -592,13 +603,15 @@ export function SeasonHub({
             <div className="sh-bigfx" data-testid="season-next">
               {next ? (
                 <>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    className="sh-fcrest"
-                    data-testid="season-next-crest"
-                    src={clubLogo(idOf(next.opp), season)}
-                    alt=""
-                  />
+                  {crestOf(idOf(next.opp)) != null ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      className="sh-fcrest"
+                      data-testid="season-next-crest"
+                      src={crestOf(idOf(next.opp))!}
+                      alt=""
+                    />
+                  ) : null}
                   <div>
                     <div className="sh-op">{nameOf(next.opp)}</div>
                     <div className="sh-ha">

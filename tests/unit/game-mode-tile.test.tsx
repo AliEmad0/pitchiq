@@ -50,12 +50,24 @@ describe("ModeTile", () => {
   });
 
   it("renders a planned FORMAT as text, not a link", () => {
-    renderWithIntl(<ModeTile mode={h2h} open onOpen={vi.fn()} />);
+    // ⛔ DERIVED, never hardcoded (CLAUDE.md): this used H2H while its season was planned, and
+    // went red the day every mode got a season. Any playable mode with a planned format will do.
+    const mixed = GAME_MODES.find(
+      (m) => isPlayable(m) && Object.values(m.formats).includes("planned"),
+    )!;
+    expect(mixed).toBeDefined();
+    renderWithIntl(<ModeTile mode={mixed} open onOpen={vi.fn()} />);
 
-    expect(screen.getByRole("link", { name: /One Match/ })).toBeInTheDocument();
-    // Season is `planned` on every mode until TASK-1810/1811 ship.
-    expect(screen.queryByRole("link", { name: /Full Season/ })).not.toBeInTheDocument();
-    expect(screen.getByText("Full Season")).toBeInTheDocument();
+    const label = { single: /One Match/, season: /Full Season/ } as const;
+    const text = { single: "One Match", season: "Full Season" } as const;
+    for (const f of ["single", "season"] as const) {
+      if (mixed.formats[f] === "live") {
+        expect(screen.getByRole("link", { name: label[f] })).toBeInTheDocument();
+      } else {
+        expect(screen.queryByRole("link", { name: label[f] })).not.toBeInTheDocument();
+        expect(screen.getByText(text[f])).toBeInTheDocument();
+      }
+    }
   });
 
   it("⛔ a mode with no second format goes STRAIGHT IN — no expander, no Full Season box", () => {

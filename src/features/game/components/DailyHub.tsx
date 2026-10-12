@@ -301,17 +301,25 @@ export function DailyHub({
                   onClick={() => pick(open, c.cardId)}
                   className="dh-pick"
                 >
-                  <span
-                    className={reduced ? "dh-flip dh-flip-still" : "dh-flip"}
-                    style={reduced ? undefined : { animationDelay: `${k * 120}ms` }}
-                  >
-                    <span className="dh-face">
-                      {/* ⚠️ Face only — the tile is already a button, and a card that is
-                          its own button nested inside it is ejected by the parser. */}
-                      <PlayerCard card={c as EnrichedCard} reduced={reduced} interactive={false} />
-                    </span>
-                    <span className="dh-back" aria-hidden>
-                      <CardBack card={c as EnrichedCard} back={pickBack(c as EnrichedCard)} />
+                  {/* Footprint (the button) → scaler → flipper, so phones can shrink the
+                      card without the flip keyframe overwriting the scale. */}
+                  <span className="dh-scale">
+                    <span
+                      className={reduced ? "dh-flip dh-flip-still" : "dh-flip"}
+                      style={reduced ? undefined : { animationDelay: `${k * 120}ms` }}
+                    >
+                      <span className="dh-face">
+                        {/* ⚠️ Face only — the tile is already a button, and a card that is
+                            its own button nested inside it is ejected by the parser. */}
+                        <PlayerCard
+                          card={c as EnrichedCard}
+                          reduced={reduced}
+                          interactive={false}
+                        />
+                      </span>
+                      <span className="dh-back" aria-hidden>
+                        <CardBack card={c as EnrichedCard} back={pickBack(c as EnrichedCard)} />
+                      </span>
                     </span>
                   </span>
                 </button>

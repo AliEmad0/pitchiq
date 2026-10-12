@@ -324,3 +324,58 @@ describe("⭐ a saved season survives the reload — the point of the whole task
     expect(slot.clearRun).not.toHaveBeenCalled();
   });
 });
+
+/**
+ * Every mode has a season (owner, 2026-10-12), and most of them are not one club's page — so
+ * the coach's league id is a SOLO id (`soloLeagueId`), and that id is what a resume keys on.
+ */
+describe("⭐ a season on a page that is not one club's", () => {
+  const SOLO = -7;
+  const OTHER_SOLO = -8;
+  const soloPage = (coachId: number) =>
+    at(
+      "?format=season",
+      <GamePlay
+        pool={coachPool}
+        initialPhase="setup"
+        clubs={RESTORE_CLUBS}
+        seasonCoachId={coachId}
+        season={{ clubs: 20, league: "clubs" }}
+        draft={{ handSize: 5, roam: "free", timer: null, lockPicks: true, onePerPlayer: true }}
+      />,
+    );
+  const soloRun = (leagueHead: number): SavedRun => ({
+    seed: SEED,
+    clubs: 4,
+    coach: 0,
+    results: weeksOf(4, 1),
+    leagueIds: [leagueHead, 40, 42, 33],
+    cardIds: classicLineup(coachPool, FORMATION)!.map((c) => c.cardId),
+    formationKey: "4-4-2 Flat/11",
+  });
+
+  it("resumes its OWN run straight into the hub, with no crest for a side that has none", async () => {
+    slot.loadRun.mockResolvedValue(soloRun(SOLO));
+    soloPage(SOLO);
+
+    await screen.findByTestId("season-hub", undefined, { timeout: 10_000 });
+    await waitFor(() => expect(screen.getByTestId("season-week")).toHaveTextContent(/1.*6/));
+    // ⚠️ A negative id is not a club: asking `/logos/` for it would paint a broken image.
+    expect(screen.queryByTestId("season-crest")).toBeNull();
+    expect(screen.queryByTestId("season-watermark")).toBeNull();
+    // Three real clubs still carry theirs.
+    expect(screen.getAllByTestId("season-row-crest")).toHaveLength(3);
+  }, 30_000);
+
+  it("⛔ THE CONTROL — another mode's run over the SAME pool is not adopted", async () => {
+    // `/game/draft` and `/game/chaos` draft from one pool, so every card below resolves here.
+    // Only the league id can tell the two runs apart — without the guard this page would
+    // resume the other mode's season as its own.
+    slot.loadRun.mockResolvedValue(soloRun(OTHER_SOLO));
+    soloPage(SOLO);
+
+    await expect(screen.findByTestId("season-hub", undefined, { timeout: 1500 })).rejects.toThrow();
+    expect(screen.getByRole("button", { name: /^Lock in / })).toBeInTheDocument();
+    expect(slot.clearRun).not.toHaveBeenCalled();
+  });
+});

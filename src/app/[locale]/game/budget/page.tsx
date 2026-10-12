@@ -1,8 +1,14 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { buildPool, captaincyCounts, refereeNames } from "@/features/game/adapter/pool";
+import {
+  buildPool,
+  captaincyCounts,
+  clubChoices,
+  refereeNames,
+} from "@/features/game/adapter/pool";
 import { GamePlay } from "@/features/game/components/GamePlay";
 import { BUDGET_PACK } from "@/features/game/domain/rule-packs";
+import { soloLeagueId } from "@/features/game/view/season-league";
 
 export const dynamic = "force-static";
 export const revalidate = false; // see CLAUDE.md — deploys are the only data change
@@ -36,6 +42,7 @@ export default async function BudgetDraftPage({ params }: Props) {
   const pool = await buildPool(BUDGET_PACK.pool);
   const captaincies = await captaincyCounts(pool.map((c) => c.playerId));
   const referees = await refereeNames();
+  const clubs = (await clubChoices()).map((c) => ({ id: c.id, name: c.name }));
 
   return (
     <main className="mx-auto w-full max-w-6xl px-4 py-10">
@@ -50,6 +57,12 @@ export default async function BudgetDraftPage({ params }: Props) {
         budget={budgetOf()}
         captaincies={captaincies}
         referees={referees}
+        // Every mode has a season (owner, 2026-10-12): a 38-week league against Premier
+        // League clubs, entered with `?format=season`. A solo league id, because this page
+        // is not one club's — see `soloLeagueId`.
+        season={BUDGET_PACK.season}
+        clubs={clubs}
+        seasonCoachId={soloLeagueId("budget")}
       />
     </main>
   );

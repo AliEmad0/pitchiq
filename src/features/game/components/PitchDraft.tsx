@@ -957,11 +957,20 @@ export function PitchDraft({
                   >
                     {/* TASK-1837 — the card's OWN back, seeded per card exactly as a tap
                         flip picks it, so a face-down card is never a generic grey panel. */}
-                    <span className="pd-back" aria-hidden="true">
-                      <CardBack card={c as EnrichedCard} back={pickBack(c as EnrichedCard)} />
-                    </span>
-                    <span className="pd-front">
-                      <PlayerCard card={c as EnrichedCard} reduced={reduced} interactive={false} />
+                    {/* ⛔ Footprint → scaler → flipper (CLAUDE.md). The deal keyframes OWN
+                        `transform` on the faces, so the phone-width scale lives on its own
+                        element; `.pd-card` reserves the scaled footprint. */}
+                    <span className="pd-card-scale">
+                      <span className="pd-back" aria-hidden="true">
+                        <CardBack card={c as EnrichedCard} back={pickBack(c as EnrichedCard)} />
+                      </span>
+                      <span className="pd-front">
+                        <PlayerCard
+                          card={c as EnrichedCard}
+                          reduced={reduced}
+                          interactive={false}
+                        />
+                      </span>
                     </span>
                     {/* ⚠️ Says which of the five he already owns. Without it the swap veil is
                         five strangers and the one he is trying to replace is invisible. */}

@@ -2780,10 +2780,17 @@
   background: rgb(6 9 13 / 82%);
   backdrop-filter: blur(7px);
   text-align: center;
+  /* ⛔ A hand taller than the screen must SCROLL, never clip. With `align-items: center` and no
+     overflow, a phone showed the first card or two and the rest sat below an edge nothing
+     could reach (owner report, 2026-10-12). */
+  overflow-y: auto;
 }
 .pd-veil-inner {
   width: 100%;
   max-width: 1000px;
+  /* Auto margins centre it while it fits and collapse to 0 once it overflows, so the top of a
+     tall hand stays reachable — plain `center` would push it above the scroll origin. */
+  margin: auto;
 }
 .pd-hand {
   display: flex;
@@ -2802,11 +2809,48 @@
 }
 
 /* ---- a dealt card ---- */
+/* ⛔ Footprint → scaler → flipper. `.pd-card` reserves the SCALED footprint, `.pd-card-scale`
+   carries the scale at the card's real 176×256, and the faces own the deal keyframes'
+   `transform`. `--pd-s` drops on phones so the whole hand of five fits on screen — at 176px a
+   375px phone had room for ONE card per row, five rows deep. */
 .pd-card {
+  --pd-s: 1;
   position: relative;
+  width: calc(176px * var(--pd-s));
+  height: calc(256px * var(--pd-s));
+}
+.pd-card-scale {
+  /* Physical `left`, not inline-start: the scale's origin is the top-LEFT corner, so the box
+     must sit at the left edge in RTL too or it shrinks away from its own footprint. */
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 176px;
-  aspect-ratio: 11 / 16;
+  height: 256px;
+  transform: scale(var(--pd-s));
+  transform-origin: top left;
   perspective: 1300px;
+}
+@media (max-width: 640px) {
+  .pd-veil {
+    padding: 16px 12px;
+  }
+  .pd-hand {
+    gap: 14px 8px;
+  }
+  .pd-card {
+    --pd-s: 0.6;
+  }
+}
+@media (max-width: 380px) {
+  .pd-card {
+    --pd-s: 0.55;
+  }
+}
+@media (max-width: 340px) {
+  .pd-card {
+    --pd-s: 0.5;
+  }
 }
 .pd-back,
 .pd-front {
@@ -4482,6 +4526,9 @@
 .dh-overlay-inner {
   width: min(1000px, 96vw);
   text-align: center;
+  /* Centred while it fits; once it overflows the auto margins collapse so the top stays
+     scrollable-to rather than clipped above the scroll origin by `place-items: center`. */
+  margin: auto;
 }
 .dh-overlay-meta {
   margin: 0;
@@ -4546,13 +4593,47 @@
   flex-wrap: wrap;
   margin-top: 16px;
 }
+/* Footprint (the button) → scaler → flipper — same build and same phone scales as the
+   pitch-draft hand, because `.dh-flip`'s keyframe owns `transform`. */
 .dh-pick {
+  --dh-s: 1;
+  position: relative;
+  width: calc(176px * var(--dh-s));
+  height: calc(256px * var(--dh-s));
   border: none;
   background: none;
   padding: 0;
   border-radius: 14px;
   cursor: pointer;
+}
+.dh-scale {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  width: 176px;
+  height: 256px;
+  transform: scale(var(--dh-s));
+  transform-origin: top left;
   perspective: 900px;
+}
+@media (max-width: 640px) {
+  .dh-hand {
+    gap: 14px 8px;
+  }
+  .dh-pick {
+    --dh-s: 0.6;
+  }
+}
+@media (max-width: 380px) {
+  .dh-pick {
+    --dh-s: 0.55;
+  }
+}
+@media (max-width: 340px) {
+  .dh-pick {
+    --dh-s: 0.5;
+  }
 }
 .dh-pick:hover .dh-flip,
 .dh-pick:focus-visible .dh-flip {

@@ -209,7 +209,14 @@ Production is hosted on **Vercel** with the GitHub integration: every push to `m
 - **Production:** merge to `main` → check the Deployments tab; the deploy should reach `Ready` within ~3 minutes.
 - **Smoke test:** on either environment, `curl $DEPLOY_URL/api/health` should return HTTP 200 with `{ status: "ok", commit, uptime, data: { lastRefresh, datasets }, ts }` — confirms the committed data is reachable from the deployed function. Also worth hitting: `/api/standings?season=2024`, `/api/leaderboards/scorers?season=2024`, `/api/fixtures?mode=last&season=2024`, `/fixtures/{id}/opengraph-image` (binary PNG, 1200×630). `/api/health` is the canonical uptime-monitor target — an uptime monitor wanting to alert on stale data can check `data.lastRefresh` against now.
 
-### Season game development (TASK-1811)
+### Season game development (TASK-1811 — ✅ Done)
+
+**Every drafted mode now has a Full Season** (2026-10-12): Tactical H2H, Chaos, Captain's
+Draft, Budget Cap, Chemistry, Nationality, Legacy and Classic. Pick _Full Season_ on the
+`/game` gate, draft once, and play a 38-week league against Premier League clubs (Nationality
+plays a league of nations). The season shares each mode's prerendered page through
+`?format=season`, so no route went dynamic. Survival Lifeline shipped in PR #216, which closed
+the ticket.
 
 Legacy season fixture play and return-to-table results shipped in PR #211. The next slice
 adds playable Classic Season at `/game/classic`, using the owner-selected Season Orbit
@@ -222,7 +229,7 @@ carryover. Moderate injuries miss one fixture, severe injuries three; legal cove
 selected from the roster. If no legal XI exists, bulk sim pauses and an explicit 0–3
 forfeit advances recovery. Legacy fixes and saves up to seven reserves beside the
 original XI. Results and availability save together, with retry on failure; old scores
-are never replayed. Survival remains the next season milestone.
+are never replayed.
 
 ## Deployment footprint
 
@@ -233,5 +240,5 @@ static-route safeguards, and the outstanding Vercel retention cleanup.
 Survival's selected layout is **01 / The Lifeline**, with opponent crests in the center
 fixture card/list. Production integration is implemented on the Survival branch at
 `/game/classic?objective=survival`, with January takeovers, isolated saves, injury carryover
-and sim/play results. CI/build and review remain pending.
+and sim/play results. Shipped in PR #216.
 [Implementation and validation](docs/superpowers/plans/2026-09-06-task-1811-survival-production.md). [Gallery scope and reproduction](docs/superpowers/plans/2026-09-06-task-1811-survival-gallery.md).

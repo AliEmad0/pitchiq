@@ -1,4 +1,5 @@
 import { chaosDraft, type PoolCard } from "@/features/game/domain/chaos-draft";
+import { hashStr } from "@/features/game/domain/hash";
 import { mulberry32 } from "@/features/game/domain/rng";
 import type { GameTeam } from "@/features/game/domain/team";
 
@@ -9,6 +10,22 @@ import type { GameTeam } from "@/features/game/domain/team";
  * and works in club indices; deciding WHICH clubs fill a league, and building their XIs from
  * fetched pools, is the view layer's job — the same split `view/match-session.ts` already keeps.
  */
+
+/**
+ * A league id for a side that is NOT a Premier League club (owner, 2026-10-12: every mode
+ * gets a season).
+ *
+ * ⚠️ NEGATIVE, so it can never collide with a real club id (all positive) and the hub knows
+ * there is no crest to draw. Hashed from a stable KEY rather than taken from a list index, so
+ * a saved run keeps naming the same side after the data grows.
+ *
+ * ⛔ The key must be distinct per mode AND per choice ("h2h", "captains:<icon>",
+ * "nation:<code>"). It is the run's identity on resume: `/game/draft` and `/game/chaos` draft
+ * from the SAME pool, so with one shared id each would happily resume the other's season.
+ */
+export function soloLeagueId(key: string): number {
+  return -((hashStr(key) % 1_000_000_000) + 1);
+}
 
 /**
  * Draw the coach's opponents for a season.
