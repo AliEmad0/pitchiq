@@ -26,6 +26,7 @@ import { DailyHub } from "./DailyHub";
 import { DailyPreview } from "./DailyPreview";
 import { DecisionPrompt } from "./DecisionPrompt";
 import { MatchView } from "./MatchView";
+import { PostMatchReport } from "./PostMatchReport";
 
 /** Seconds a decision waits before answering itself. Mirrors GamePlay. */
 const DECISION_LIMIT = 20;
@@ -279,6 +280,15 @@ export function DailyChallenge({ pool }: { pool: PoolCard[] }) {
       ) : null}
       {text != null ? (
         <div data-testid="daily-result" className="mt-4">
+          {driver.result != null && driver.match != null ? (
+            <PostMatchReport
+              result={driver.result}
+              home={driver.match.home}
+              away={driver.match.away}
+              coachSide="home"
+              locale={locale}
+            />
+          ) : null}
           <pre className="border-border bg-muted rounded-md border p-4 font-mono text-sm whitespace-pre-wrap">
             {text}
           </pre>

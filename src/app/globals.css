@@ -5551,3 +5551,226 @@
 .sh-sq select:disabled {
   opacity: 0.6;
 }
+
+/* ---- TASK-1815 post-match report: "Vinyl Sleeve" (owner's pick, concept #23) ----
+   The match wrapped around a record: one spoke per shot at its minute, home outward,
+   away inward, length = estimated xG. Scoped to `.pmr-root`; the wheel is `dir="ltr"`
+   in the markup (a clock face is not text). Motion: see the hybrid block below. */
+.pmr-root {
+  --pmr-home: var(--primary);
+  --pmr-away: #0e7c86;
+  container-type: inline-size;
+  display: grid;
+  grid-template-columns: minmax(0, 230px) minmax(0, 1fr);
+  gap: 20px;
+  align-items: center;
+  margin-block: 16px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--card);
+  color: var(--card-foreground);
+}
+.dark .pmr-root {
+  --pmr-away: #2fd4ec;
+}
+@container (max-width: 520px) {
+  .pmr-root {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    text-align: center;
+  }
+}
+.pmr-wheel-wrap {
+  width: 100%;
+  max-width: 230px;
+}
+.pmr-wheel {
+  display: block;
+  width: 100%;
+  max-width: 230px;
+  height: auto;
+  overflow: visible;
+}
+.pmr-ring {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 1;
+}
+.pmr-label {
+  fill: currentColor;
+  opacity: 0.06;
+}
+.pmr-tick {
+  stroke: var(--muted-foreground);
+  stroke-width: 2;
+}
+.pmr-spoke {
+  stroke-width: 3;
+  stroke-linecap: round;
+  transform-box: view-box;
+  /* Needle Drop: each spoke grows out of the ring at its own minute (`--pmr-t`, 0…1),
+     once the disc has landed. `transform-origin` is set inline at the ring point. */
+  animation: pmr-spoke-grow 350ms var(--ease-out-soft) both;
+  animation-delay: calc(1000ms + var(--pmr-t, 0) * 1400ms);
+}
+.pmr-spoke.pmr-goal {
+  stroke-width: 5;
+}
+.pmr-spoke.pmr-home {
+  stroke: var(--pmr-home);
+}
+.pmr-spoke.pmr-away {
+  stroke: var(--pmr-away);
+}
+.pmr-score {
+  fill: currentColor;
+  font:
+    800 26px var(--font-sans),
+    system-ui,
+    sans-serif;
+}
+.pmr-xg {
+  fill: var(--muted-foreground);
+  font:
+    10px var(--font-sans),
+    system-ui,
+    sans-serif;
+}
+.pmr-mast {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.pmr-headline {
+  margin: 0.25em 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(22px, 5cqi, 30px);
+  font-weight: 900;
+  line-height: 1.05;
+  /* The wordings are caps; the team/player names they carry are not. No-op in Arabic. */
+  text-transform: uppercase;
+}
+.pmr-standfirst {
+  margin: 0.4em 0 0;
+  color: var(--muted-foreground);
+  font-size: 14px;
+}
+.pmr-key {
+  display: flex;
+  gap: 14px;
+  margin: 8px 0 0;
+  color: var(--muted-foreground);
+  font-size: 12px;
+}
+@container (max-width: 520px) {
+  .pmr-key {
+    justify-content: center;
+  }
+}
+.pmr-key span::before {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-inline-end: 5px;
+  border-radius: 50%;
+  vertical-align: -1px;
+}
+.pmr-key-home::before {
+  background: var(--pmr-home);
+}
+.pmr-key-away::before {
+  background: var(--pmr-away);
+}
+
+/* ---- TASK-1815 motion: the owner's HYBRID, 17 Ripple → 1 Needle Drop → 18 Turntable ----
+   ⛔ The spin-in and the turntable BOTH animate `transform` on the disc, so they live on
+   two NESTED groups (`.pmr-disc-in > .pmr-disc-turn`). On one element the later rule
+   wins and the other never runs — the TASK-1833 hybrid lesson. The spokes animate their
+   own transform inside both, which composes. Guarded by post-match-report-motion.test. */
+.pmr-ripple {
+  fill: none;
+  stroke: var(--pmr-home);
+  stroke-width: 1.5;
+  opacity: 0;
+  transform-box: view-box;
+  transform-origin: 110px 110px;
+  animation: pmr-ripple 1000ms var(--ease-out-soft) both;
+}
+.pmr-ripple-2 {
+  animation-delay: 200ms;
+}
+.pmr-disc-in {
+  transform-box: view-box;
+  transform-origin: 110px 110px;
+  animation: pmr-spin-in 900ms var(--ease-out-soft) 150ms both;
+}
+.pmr-disc-turn {
+  transform-box: view-box;
+  transform-origin: 110px 110px;
+  /* Starts once every spoke has landed, turns three whole times and comes to rest with
+     minute 0 back at the top (owner, 2026-10-13). Never a looping count: an endless turn has
+     no pause control (WCAG 2.2.2) and repaints an idle full-time screen forever. */
+  animation: pmr-turn 8s linear 2800ms 3;
+}
+.pmr-copy {
+  animation: pmr-rise 500ms var(--ease-out-soft) 200ms both;
+}
+@keyframes pmr-ripple {
+  0% {
+    transform: scale(0.2);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.15);
+    opacity: 0;
+  }
+}
+@keyframes pmr-spin-in {
+  from {
+    transform: rotate(-360deg) scale(0.6);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@keyframes pmr-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes pmr-spoke-grow {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@keyframes pmr-rise {
+  from {
+    transform: translateY(12px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pmr-ripple,
+  .pmr-disc-in,
+  .pmr-disc-turn,
+  .pmr-spoke,
+  .pmr-copy {
+    animation: none;
+  }
+}

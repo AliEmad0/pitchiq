@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Post-match Report Gallery</title>
+<!--
+  TASK-1815 — 30-concept layout gallery for the post-match report (headline + xG timeline).
+  Standalone: open this file directly. No network, no build step.
+  Every chart is computed in-page from the sample match's events using the FROZEN xG
+  table from the plan (penalty .76, free kick .06, goals by style, chances by outcome).
+  Each concept renders in a DESKTOP frame (720px) and a MOBILE frame (375px) side by side;
+  the frames are CSS containers, so each concept adapts with container queries.
+-->
+<style>
+:root{--ui:#0f0d17;--ui-fg:#ece9f5;--ui-mut:#8f8aa3;--ui-line:#2a2638}
+/* ── era × theme tokens (copied from the app's globals.css) ── */
+body[data-era=modern][data-theme=light]{--bg:#fafafa;--fg:#0c0a14;--card:#fff;--mut:#52525b;--line:#e4e2ea;--pri:#a3179a;--away:#0e7c86;--paper:#f6f2ea}
+body[data-era=modern][data-theme=dark]{--bg:#0c0a14;--fg:#fafafa;--card:#1a1726;--mut:#a1a1aa;--line:#2f2a40;--pri:#c91dbb;--away:#2fd4ec;--paper:#1f1b2b}
+body[data-era=retro90s][data-theme=light]{--bg:#e9e0cb;--fg:#241f16;--card:#e3d8bc;--mut:#5c503a;--line:#cbbd99;--pri:#8f2b25;--away:#2d5a3d;--paper:#efe5cc}
+body[data-era=retro90s][data-theme=dark]{--bg:#211c15;--fg:#ece0c4;--card:#2a2418;--mut:#b3a585;--line:#3d3424;--pri:#d2554c;--away:#8fbf6f;--paper:#2e2719}
+body[data-era=golden][data-theme=light]{--bg:#e9f0f7;--fg:#14243a;--card:#fff;--mut:#4a5d75;--line:#cfdbe8;--pri:#11647c;--away:#b5462e;--paper:#f4f8fc}
+body[data-era=golden][data-theme=dark]{--bg:#081322;--fg:#eaf2fb;--card:#0e1a2c;--mut:#93a8c2;--line:#1d3350;--pri:#2fd4ec;--away:#ff8a5c;--paper:#102236}
+
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--ui);color:var(--ui-fg);font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+.bar{position:sticky;top:0;z-index:10;display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;padding:12px 16px;background:#14111ef2;border-bottom:1px solid var(--ui-line);backdrop-filter:blur(6px)}
+.bar h1{font-size:15px;margin:0 8px 0 0}
+.seg{display:flex;border:1px solid var(--ui-line);border-radius:8px;overflow:hidden}
+.seg button{background:none;border:0;color:var(--ui-mut);padding:6px 10px;font:inherit;cursor:pointer}
+.seg button[aria-pressed=true]{background:#2b2640;color:#fff}
+.bar small{color:var(--ui-mut)}
+main{padding:16px;max-width:1180px;margin:0 auto}
+.intro{color:var(--ui-mut);max-width:780px}
+.concept{margin:28px 0 40px}
+.concept h2{font-size:16px;margin:0 0 2px}
+.concept h2 b{display:inline-block;min-width:34px;color:#fff;background:#2b2640;border-radius:6px;padding:1px 7px;margin-right:8px;text-align:center}
+.concept p.why{color:var(--ui-mut);margin:0 0 10px;max-width:820px}
+.frames{display:flex;gap:16px;align-items:flex-start;overflow-x:auto;padding-bottom:6px}
+.frame{flex:none;background:var(--bg);color:var(--fg);border-radius:14px;border:1px solid var(--ui-line);padding:16px;container-type:inline-size}
+.frame.d{width:720px}.frame.m{width:375px;padding:16px}
+.tag{font:11px/1 system-ui;color:var(--ui-mut);margin:0 0 6px}
+@media (max-width:760px){.frames{flex-direction:column}.frames>div{width:100%}.frame.d{width:100%;min-width:0}.frame.m{width:100%;max-width:375px}}
+
+/* ── shared report atoms ── */
+.r{font-family:Georgia,"Times New Roman",serif}
+.r svg{display:block;width:100%;height:auto;overflow:visible}
+.mast{font:700 11px/1 system-ui;letter-spacing:.18em;text-transform:uppercase;color:var(--mut)}
+.hl{margin:.25em 0;line-height:1.02}
+.sf{color:var(--mut);font-size:14px;margin:.4em 0 0}
+.xg-h{stroke:var(--pri)}.xg-a{stroke:var(--away)}
+.fill-h{fill:var(--pri)}.fill-a{fill:var(--away)}
+.axis{stroke:var(--line);stroke-width:1}
+.half{stroke:var(--line);stroke-dasharray:3 4}
+.lbl{fill:var(--mut);font:10px system-ui}
+.key{display:flex;gap:14px;font:12px system-ui;color:var(--mut);margin-top:6px}
+.key i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+
+/* ── 30 concepts ── */
+.c1 .hl{font-size:44px;font-weight:800;letter-spacing:-.02em;border-top:3px double var(--fg);border-bottom:1px solid var(--fg);padding:.25em 0}
+.c1 .mast{text-align:center;font:italic 700 22px Georgia;letter-spacing:0;text-transform:none;color:var(--fg)}
+@container (max-width:420px){.c1 .hl{font-size:30px}}
+
+.c2 .mast{background:#d4161c;color:#fff;display:inline-block;padding:6px 10px;font:900 18px Impact,system-ui;letter-spacing:.02em}
+.c2 .hl{font:900 54px/0.95 Impact,"Arial Narrow",system-ui;text-transform:uppercase}
+.c2 .inset{border:3px solid var(--fg);padding:8px;margin-top:10px;background:var(--card)}
+@container (max-width:420px){.c2 .hl{font-size:36px}}
+
+.c3{position:relative;padding-top:8px}
+.c3 .stamp{position:absolute;right:6%;top:30%;transform:rotate(-9deg);border:4px solid var(--pri);color:var(--pri);padding:6px 14px;font:900 30px/1 Impact,system-ui;text-transform:uppercase;background:color-mix(in srgb,var(--bg) 70%,transparent);z-index:1}
+.c3 .hl{font-size:18px;font-family:system-ui;color:var(--mut)}
+@container (max-width:420px){.c3 .stamp{font-size:20px;right:2%}}
+
+.c4 .tick{background:var(--fg);color:var(--bg);font:700 16px/1 "Courier New",monospace;padding:10px 12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase}
+.c4 .tick b{color:var(--pri)}
+.c4 .spark{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;margin-top:10px;font:700 18px system-ui}
+
+.c5{display:grid;grid-template-columns:1fr 1.3fr;gap:20px;align-items:center}
+.c5 .hl{font-size:36px;font-weight:800}
+@container (max-width:520px){.c5{grid-template-columns:1fr}.c5 .hl{font-size:28px}}
+
+.c6 .score{display:flex;justify-content:center;align-items:center;gap:16px;font:800 48px system-ui}
+.c6 .score span{font:600 14px system-ui;color:var(--mut)}
+.c6 .hl{text-align:center;font-size:24px;font-style:italic}
+
+.c7{border:2px solid var(--fg);padding:14px;background:var(--paper)}
+.c7 .cols{columns:2;column-gap:20px;column-rule:1px solid var(--line);font-size:13px}
+.c7 .hl{font-size:34px;text-transform:uppercase;letter-spacing:.04em;text-align:center;border-bottom:2px solid var(--fg);padding-bottom:.2em}
+@container (max-width:420px){.c7 .cols{columns:1}.c7 .hl{font-size:24px}}
+
+.c8{background:#f3e7c9;color:#2b2416;padding:16px;font-family:"Courier New",monospace;border:1px dashed #8a7a55}
+.c8 .hl{font:700 20px "Courier New",monospace;text-transform:uppercase}
+.c8 .sf{color:#5c503a}
+body[data-theme=dark] .c8{background:#2e2719;color:#ece0c4}
+
+.c9{background:var(--paper);padding:16px 18px;transform:rotate(-1.2deg);box-shadow:0 10px 30px #0004;clip-path:polygon(0 2%,6% 0,14% 2%,26% 0,40% 2%,55% 0,70% 2%,85% 0,100% 2%,100% 98%,88% 100%,72% 98%,58% 100%,40% 98%,24% 100%,10% 98%,0 100%)}
+.c9 .hl{font-size:30px;font-weight:800}
+.c9 .tape{width:80px;height:20px;background:#f5e9a8aa;margin:-26px auto 6px;transform:rotate(3deg)}
+
+.c10{background:var(--card);padding:14px;filter:contrast(1.1);border:2px solid var(--fg)}
+.c10 .hl{font:900 40px/0.9 "Arial Black",Impact,sans-serif;transform:rotate(-2deg);text-transform:uppercase;background:var(--pri);color:#fff;display:inline-block;padding:4px 10px}
+.c10 .sf{font-family:"Comic Sans MS","Marker Felt",cursive}
+@container (max-width:420px){.c10 .hl{font-size:26px}}
+
+.c11{background:#11101a;color:#eee;border-radius:12px;padding:16px;font-family:system-ui}
+.c11 .hl{font:700 22px system-ui}
+.c11 .big{display:flex;justify-content:space-between;font:800 30px system-ui}
+.c11 .big small{display:block;font:500 11px system-ui;color:#aaa;letter-spacing:.1em}
+.c11 .sf,.c11 .mast{color:#aaa}
+
+.c12 .hl{font:800 30px system-ui;letter-spacing:-.01em}
+@container (max-width:420px){.c12 .hl{font-size:22px}}
+
+.c13 .pitch{background:repeating-linear-gradient(90deg,#2f7d3b 0 8.33%,#2a7035 8.33% 16.66%);border-radius:8px;padding:10px;border:2px solid #fff6}
+.c13 .pitch .xg-h{stroke:#fff}.c13 .pitch .xg-a{stroke:#ffd84d}.c13 .pitch .lbl{fill:#e8f5e9}.c13 .pitch .axis,.c13 .pitch .half{stroke:#fff8}
+.c13 .pitch .fill-h{fill:#fff}.c13 .pitch .fill-a{fill:#ffd84d}
+.c13 .hl{font:800 28px system-ui}
+
+.c14 .halves{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+.c14 .halves div{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px;font-family:system-ui}
+.c14 .halves b{font-size:22px}
+.c14 .hl{font-size:30px;font-weight:800}
+
+.c15 .hl{font:800 28px system-ui;text-align:center}
+
+.c16 .hl{font-size:32px;font-weight:700;font-style:italic}
+
+.c17 .hl{font:300 34px system-ui;letter-spacing:-.02em}
+.c17 .hl b{font-weight:800}
+
+.c18 table{width:100%;border-collapse:collapse;font:13px "Courier New",monospace}
+.c18 td,.c18 th{border-bottom:1px solid var(--line);padding:3px 6px;text-align:start}
+.c18 th{color:var(--mut);font-weight:600}
+.c18 td.n{text-align:end}
+.c18 .hl{font-size:26px;border-bottom:3px double var(--fg);padding-bottom:.2em}
+.c18 .tw{max-height:200px;overflow:auto}
+
+.c19{background:#000;color:#fff;font:16px/1.25 "Courier New",monospace;padding:12px;border:2px solid #333}
+.c19 .row{display:flex;gap:10px}
+.c19 .p{background:#00f;color:#ff0;padding:0 6px}
+.c19 .hl{background:#f00;color:#fff;padding:4px 8px;font:700 22px "Courier New",monospace;text-transform:uppercase;overflow-wrap:anywhere}
+.c19 .sf{color:#0ff}
+
+.c20 ol{list-style:none;padding:0;margin:10px 0 0;border-inline-start:3px solid var(--pri);font:13px system-ui}
+.c20 li{padding:4px 0 4px 14px;position:relative}
+.c20 li::before{content:"";position:absolute;inset-inline-start:-7px;top:9px;width:11px;height:11px;border-radius:50%;background:var(--bg);border:2px solid var(--pri)}
+.c20 li.g::before{background:var(--pri)}
+.c20 li.a::before{border-color:var(--away)}.c20 li.a.g::before{background:var(--away)}
+.c20 .hl{font:800 26px system-ui}
+
+.c21{background:#e8d8a8;color:#3a2a12;border:6px double #3a2a12;padding:16px;text-align:center;font-family:Georgia}
+.c21 .mast{color:#3a2a12;font:900 34px/1 "Rockwell","Courier New",serif;letter-spacing:.1em}
+.c21 .hl{font-size:26px;font-weight:900;text-transform:uppercase}
+.c21 .sf{color:#5a4320}
+.c21 .xg-h{stroke:#8f2b25}.c21 .xg-a{stroke:#2d5a3d}.c21 .fill-h{fill:#8f2b25}.c21 .fill-a{fill:#2d5a3d}
+
+.c22{text-align:center;background:linear-gradient(180deg,var(--pri),color-mix(in srgb,var(--pri) 60%,#000));color:#fff;border-radius:14px;padding:18px}
+.c22 .badges{display:flex;justify-content:center;align-items:center;gap:18px;font:800 18px system-ui}
+.c22 .badges span{width:56px;height:56px;border-radius:50%;background:#fff2;display:grid;place-items:center;border:2px solid #fff8}
+.c22 .hl{font:800 26px Georgia}
+.c22 .sf,.c22 .mast{color:#fffc}
+.c22 .xg-h{stroke:#fff}.c22 .xg-a{stroke:#ffd84d}.c22 .lbl{fill:#fffc}.c22 .axis,.c22 .half{stroke:#fff6}.c22 .fill-h{fill:#fff}.c22 .fill-a{fill:#ffd84d}
+
+.c23{display:grid;grid-template-columns:230px 1fr;gap:20px;align-items:center}
+.c23 .hl{font:900 30px/1 Georgia}
+@container (max-width:520px){.c23{grid-template-columns:1fr;justify-items:center;text-align:center}}
+
+.c24 .duo{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;text-align:center;font-family:system-ui;margin:10px 0}
+.c24 .duo b{display:block;font:800 52px system-ui}
+.c24 .duo .h b{color:var(--pri)}.c24 .duo .a b{color:var(--away)}
+.c24 .duo em{font-style:normal;color:var(--mut)}
+.c24 .hl{font:800 24px system-ui;text-align:center}
+@container (max-width:420px){.c24 .duo b{font-size:38px}}
+
+.c25{position:relative;padding:10px 0 0 10px}
+.c25 .sheet{background:var(--paper);border:1px solid var(--line);padding:16px;position:relative;box-shadow:0 2px 0 var(--line)}
+.c25 .sheet.b1{position:absolute;inset:0 10px 10px 0;transform:rotate(2.5deg)}
+.c25 .sheet.b2{position:absolute;inset:4px 6px 6px 4px;transform:rotate(-1.5deg)}
+.c25 .hl{font-size:32px;font-weight:800}
+
+.c26{background:#22302a;color:#e9efe6;border:10px solid #6b4a2b;border-radius:6px;padding:16px;font-family:"Segoe Print","Bradley Hand","Comic Sans MS",cursive}
+.c26 .hl{font:700 30px "Segoe Print","Bradley Hand","Comic Sans MS",cursive}
+.c26 .sf,.c26 .mast{color:#c9d3c5}
+.c26 .xg-h{stroke:#fff}.c26 .xg-a{stroke:#ffe27a}.c26 .lbl{fill:#c9d3c5}.c26 .axis,.c26 .half{stroke:#ffffff55}.c26 .fill-h{fill:#fff}.c26 .fill-a{fill:#ffe27a}
+
+.c27{background:#05030b;border-radius:12px;padding:16px;border:1px solid #2b1940}
+.c27 .hl{font:700 26px/1.1 "Courier New",monospace;color:#ff4fd8;text-shadow:0 0 6px #ff4fd8,0 0 18px #ff4fd855;text-transform:uppercase;letter-spacing:.06em}
+.c27 .sf,.c27 .mast{color:#8fe9ff}
+.c27 .xg-h{stroke:#ff4fd8;filter:drop-shadow(0 0 3px #ff4fd8)}.c27 .xg-a{stroke:#2fd4ec;filter:drop-shadow(0 0 3px #2fd4ec)}
+.c27 .fill-h{fill:#ff4fd8}.c27 .fill-a{fill:#2fd4ec}.c27 .lbl{fill:#8fe9ff}.c27 .axis,.c27 .half{stroke:#2b1940}
+
+.c28 .pull{font:italic 800 42px/1 Georgia;border-inline-start:6px solid var(--pri);padding-inline-start:14px;margin:6px 0 12px}
+.c28 .bleed{margin:0 -16px;background:var(--card);padding:10px 16px;border-block:1px solid var(--line)}
+@container (max-width:420px){.c28 .pull{font-size:28px}}
+
+.c29{background:var(--paper);border:1px solid var(--line);padding:14px;display:grid;grid-template-columns:1fr 1fr;gap:14px;font-family:Georgia}
+.c29 .stampbox{justify-self:end;width:64px;height:76px;border:3px dotted var(--pri);display:grid;place-items:center;font:800 12px system-ui;color:var(--pri);text-align:center}
+.c29 .msg{font:italic 20px "Segoe Print","Bradley Hand",Georgia;border-inline-end:1px solid var(--line);padding-inline-end:14px}
+@container (max-width:420px){.c29{grid-template-columns:1fr}.c29 .msg{border:0;padding:0}}
+
+.c30{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;font-family:system-ui}
+.c30 .chip{display:inline-block;font:700 11px system-ui;text-transform:uppercase;letter-spacing:.08em;background:color-mix(in srgb,var(--pri) 16%,transparent);color:var(--pri);border-radius:999px;padding:4px 10px}
+.c30 .hl{font:800 24px system-ui}
+.c30 .sf{font-size:13px}
+</style>
+</head>
+<body data-era="modern" data-theme="dark">
+<div class="bar">
+  <h1>TASK-1815 · Post-match report — 30 concepts</h1>
+  <div class="seg" id="match"><button data-v="comeback" aria-pressed="true">Comeback 3–2</button><button data-v="robbed" aria-pressed="false">Robbed 0–1</button><button data-v="bore" aria-pressed="false">Bore 0–0</button></div>
+  <div class="seg" id="era"><button data-v="modern" aria-pressed="true">Modern</button><button data-v="golden" aria-pressed="false">Golden</button><button data-v="retro90s" aria-pressed="false">Retro 90s</button></div>
+  <div class="seg" id="theme"><button data-v="dark" aria-pressed="true">Dark</button><button data-v="light" aria-pressed="false">Light</button></div>
+  <small>Desktop 720px · Mobile 375px</small>
+</div>
+<main>
+  <p class="intro">Each concept shows the same match: the headline for its arc, the standfirst (scorers + total xG) and an xG view computed from the match's events with the frozen table. Switch the match, era and theme at the top. Pick a number — motion comes later in its own 20-design gallery.</p>
+  <div id="list"></div>
+</main>
+<script>
+/* ── the frozen xG table (plan Task 2), in hundredths ── */
+const XG={pen:76,fk:6,open:30,style:{"tap-in":55,counter:30,header:18,chip:15,volley:12,trivela:5,"long-range":4},chance:{post:20,crossbar:20,saved:12,wide:6,blocked:5}};
+
+/* ── three sample matches: [minute, side, kind, detail, scorer?] ── */
+const MATCHES={
+  comeback:{home:"Rovers",away:"United",score:[3,2],end:94,arc:"Comeback",
+    headline:"ROVERS RISE FROM THE DEAD",sub:"Kane 2, Saka · Brown, Green",
+    ev:[[12,"a","goal","tap-in","Brown"],[20,"h","chance","saved"],[31,"a","goal","header","Green"],[38,"h","chance","post"],[44,"a","chance","wide"],
+        [52,"h","goal","counter","Saka"],[60,"h","chance","saved"],[66,"a","chance","blocked"],[74,"h","pen","scored","Kane"],[81,"h","chance","crossbar"],[88,"h","goal","header","Kane"],[90,"a","chance","wide"]]},
+  robbed:{home:"Rovers",away:"United",score:[0,1],end:95,arc:"Robbed",
+    headline:"DAYLIGHT ROBBERY!",sub:"Green",
+    ev:[[8,"h","chance","saved"],[17,"h","chance","post"],[23,"h","chance","saved"],[29,"a","chance","wide"],[34,"h","chance","crossbar"],[41,"h","pen","saved-held"],
+        [55,"h","chance","saved"],[61,"h","chance","blocked"],[67,"a","goal","long-range","Green"],[72,"h","chance","post"],[79,"h","chance","saved"],[85,"h","fk","wall"],[89,"h","chance","saved"],[93,"h","chance","wide"]]},
+  bore:{home:"Rovers",away:"United",score:[0,0],end:92,arc:"Bore draw",
+    headline:"BORE DRAW",sub:"",
+    ev:[[22,"h","chance","wide"],[48,"a","chance","blocked"],[70,"h","fk","wide"],[84,"a","chance","wide"]]}
+};
+
+function shots(m){
+  return m.ev.map(([min,s,k,d,who])=>{
+    const xg=k==="pen"?XG.pen:k==="fk"?XG.fk:k==="goal"?(XG.style[d]??XG.open):XG.chance[d];
+    const goal=k==="goal"||(k==="pen"&&d.startsWith("scored"))||(k==="fk"&&d==="scored");
+    return {min,side:s,xg,goal,band:xg<10?"low":xg<30?"medium":"high",kind:k,detail:d,who};
+  });
+}
+function totals(sh){const t={h:0,a:0};sh.forEach(s=>t[s.side]+=s.xg);return t}
+function series(sh,end){const p=[{min:0,h:0,a:0}],r={h:0,a:0};sh.forEach(s=>{r[s.side]+=s.xg;p.push({min:s.min,h:r.h,a:r.a})});p.push({min:Math.max(end,p.at(-1).min),h:r.h,a:r.a});return p}
+const fx=h=>(h/100).toFixed(1);
+const R={low:3,medium:5,high:8};
+
+/* ── chart builders (all SVG, viewBox units) ── */
+function stepChart(m,{w=600,h=170,area=false,dots=true,labels=true}={}){
+  const sh=shots(m),se=series(sh,m.end),t=totals(sh),max=Math.max(100,t.h,t.a),mm=Math.max(m.end,90);
+  const X=v=>v/mm*w,Y=v=>h-v/max*h;
+  const path=side=>{let d=`M0 ${Y(0)}`;se.slice(1).forEach(p=>d+=` H${X(p.min)} V${Y(p[side])}`);return d};
+  const fill=side=>area?`<path d="${path(side)} V${h} H0 Z" class="fill-${side}" opacity=".14"/>`:"";
+  const dd=dots?sh.map((s,i)=>`<circle cx="${X(s.min)}" cy="${Y(se[i+1][s.side])}" r="${R[s.band]}" class="fill-${s.side}" ${s.goal?'stroke="currentColor" stroke-width="2"':'opacity=".75"'}/>`).join(""):"";
+  const lb=labels?`<text x="0" y="${h+14}" class="lbl">0'</text><text x="${X(45)-8}" y="${h+14}" class="lbl">45'</text><text x="${w-20}" y="${h+14}" class="lbl">90'</text><text x="${w+4}" y="${Y(t.h)+4}" class="lbl">${fx(t.h)}</text><text x="${w+4}" y="${Y(t.a)+4}" class="lbl">${fx(t.a)}</text>`:"";
+  return `<svg dir="ltr" viewBox="0 0 ${w+28} ${h+(labels?18:2)}" role="img" aria-label="xG timeline">
+    <line x1="0" x2="${w}" y1="${h}" y2="${h}" class="axis"/><line x1="${X(45)}" x2="${X(45)}" y1="0" y2="${h}" class="half"/>
+    ${fill("h")}${fill("a")}<path d="${path("h")}" class="xg-h" fill="none" stroke-width="3"/><path d="${path("a")}" class="xg-a" fill="none" stroke-width="3"/>${dd}${lb}</svg>`;
+}
+function wormChart(m,{w=600,h=150}={}){
+  const sh=shots(m),se=series(sh,m.end),mm=Math.max(m.end,90),diffs=se.map(p=>p.h-p.a),max=Math.max(60,...diffs.map(Math.abs));
+  const X=v=>v/mm*w,Y=v=>h/2-v/max*(h/2-6);
+  let d=`M0 ${Y(0)}`;se.slice(1).forEach((p,i)=>d+=` H${X(p.min)} V${Y(diffs[i+1])}`);
+  return `<svg dir="ltr" viewBox="0 0 ${w} ${h+16}"><defs><clipPath id="up${m.arc.length}"><rect width="${w}" height="${h/2}"/></clipPath><clipPath id="dn${m.arc.length}"><rect y="${h/2}" width="${w}" height="${h/2}"/></clipPath></defs>
+    <path d="${d} V${h/2} H0 Z" class="fill-h" opacity=".3" clip-path="url(#up${m.arc.length})"/><path d="${d} V${h/2} H0 Z" class="fill-a" opacity=".3" clip-path="url(#dn${m.arc.length})"/>
+    <line x1="0" x2="${w}" y1="${h/2}" y2="${h/2}" class="axis"/><line x1="${X(45)}" x2="${X(45)}" y1="0" y2="${h}" class="half"/>
+    <path d="${d}" fill="none" stroke="currentColor" stroke-width="2.5"/>
+    <text x="4" y="12" class="lbl">${m.home} on top</text><text x="4" y="${h-4}" class="lbl">${m.away} on top</text><text x="${X(45)-8}" y="${h+14}" class="lbl">45'</text></svg>`;
+}
+function barsChart(m,{w=600,h=160}={}){
+  const sh=shots(m),b=[0,1,2,3,4,5].map(i=>({h:0,a:0}));sh.forEach(s=>b[Math.min(5,Math.floor(s.min/15))][s.side]+=s.xg);
+  const max=Math.max(40,...b.flatMap(x=>[x.h,x.a])),bw=w/6,mid=h/2;
+  return `<svg dir="ltr" viewBox="0 0 ${w} ${h+16}">${b.map((x,i)=>`<rect x="${i*bw+bw*.2}" y="${mid-x.h/max*(mid-4)}" width="${bw*.6}" height="${x.h/max*(mid-4)}" class="fill-h" rx="3"/><rect x="${i*bw+bw*.2}" y="${mid}" width="${bw*.6}" height="${x.a/max*(mid-4)}" class="fill-a" rx="3"/><text x="${i*bw+bw*.3}" y="${h+14}" class="lbl">${i*15}–${i*15+15}'</text>`).join("")}<line x1="0" x2="${w}" y1="${mid}" y2="${mid}" class="axis"/></svg>`;
+}
+function constellation(m,{w=600,h=120}={}){
+  const sh=shots(m),mm=Math.max(m.end,90),X=v=>v/mm*w;
+  return `<svg dir="ltr" viewBox="0 0 ${w} ${h+16}"><line x1="0" x2="${w}" y1="${h/2}" y2="${h/2}" class="axis"/><line x1="${X(45)}" x2="${X(45)}" y1="0" y2="${h}" class="half"/>
+  ${sh.map(s=>`<circle cx="${X(s.min)}" cy="${s.side==="h"?h/2-6-s.xg*.45:h/2+6+s.xg*.45}" r="${4+s.xg*.22}" class="fill-${s.side}" opacity="${s.goal?1:.45}" ${s.goal?'stroke="currentColor" stroke-width="2"':""}/>`).join("")}
+  <text x="0" y="${h+14}" class="lbl">0'</text><text x="${w-20}" y="${h+14}" class="lbl">90'</text></svg>`;
+}
+function ribbon(m,{w=600,h=70}={}){
+  const sh=shots(m),mm=Math.max(m.end,90),X=v=>v/mm*w;
+  return `<svg dir="ltr" viewBox="0 0 ${w} ${h+16}"><rect x="0" y="${h/2-5}" width="${w}" height="10" rx="5" fill="currentColor" opacity=".12"/>
+  ${sh.map(s=>`<line x1="${X(s.min)}" x2="${X(s.min)}" y1="${h/2}" y2="${s.side==="h"?h/2-8-s.xg*.32:h/2+8+s.xg*.32}" class="xg-${s.side}" stroke-width="${s.goal?5:2.5}" stroke-linecap="round"/>`).join("")}
+  <line x1="${X(45)}" x2="${X(45)}" y1="0" y2="${h}" class="half"/><text x="0" y="${h+14}" class="lbl">0'</text><text x="${X(45)-8}" y="${h+14}" class="lbl">HT</text><text x="${w-20}" y="${h+14}" class="lbl">FT</text></svg>`;
+}
+function radial(m,{s=220}={}){
+  const sh=shots(m),c=s/2,r0=c-34,mm=Math.max(m.end,90);
+  const pt=(min,r)=>{const a=-Math.PI/2+min/mm*2*Math.PI;return [c+r*Math.cos(a),c+r*Math.sin(a)]};
+  return `<svg dir="ltr" viewBox="0 0 ${s} ${s}" style="max-width:${s}px"><circle cx="${c}" cy="${c}" r="${r0}" fill="none" class="axis"/><circle cx="${c}" cy="${c}" r="${r0-28}" fill="currentColor" opacity=".06"/>
+  ${sh.map(x=>{const[a,b]=pt(x.min,r0),[e,f]=pt(x.min,x.side==="h"?r0+6+x.xg*.3:r0-6-x.xg*.3);return `<line x1="${a}" y1="${b}" x2="${e}" y2="${f}" class="xg-${x.side}" stroke-width="${x.goal?5:3}" stroke-linecap="round"/>`}).join("")}
+  <text x="${c}" y="${c-2}" text-anchor="middle" style="font:800 26px system-ui;fill:currentColor">${m.score[0]}–${m.score[1]}</text><text x="${c}" y="${c+16}" text-anchor="middle" class="lbl">xG ${fx(totals(sh).h)}–${fx(totals(sh).a)}</text></svg>`;
+}
+function blocks(m){
+  const sh=shots(m),cols=18,cell=Array.from({length:cols},()=>({h:0,a:0}));sh.forEach(s=>cell[Math.min(cols-1,Math.floor(s.min/(Math.max(m.end,90)/cols)))][s.side]+=s.xg);
+  const lvl=v=>v===0?0:v<15?1:v<40?2:3,ch=[" ","▂","▅","█"];
+  return `<div dir="ltr" style="white-space:pre;font:18px/1 'Courier New',monospace;letter-spacing:1px"><span style="color:#ff0">H </span><span style="color:#f0f">${cell.map(c=>ch[lvl(c.h)]).join("")}</span>\n<span style="color:#ff0">A </span><span style="color:#0ff">${cell.map(c=>ch[lvl(c.a)]).join("")}</span></div>`;
+}
+
+/* ── shared text bits ── */
+const sfLine=m=>{const t=totals(shots(m));return `${m.sub?m.sub+" — ":""}xG ${fx(t.h)}–${fx(t.a)}`};
+const key=m=>`<div class="key"><span><i style="background:var(--pri)"></i>${m.home}</span><span><i style="background:var(--away)"></i>${m.away}</span></div>`;
+const tc=s=>s.charAt(0)+s.slice(1).toLowerCase();
+
+/* ── the 30 concepts ── */
+const C=[
+ ["Broadsheet Front","A classic broadsheet: masthead, double-ruled headline, standfirst, step chart beneath.",
+  m=>`<div class="r c1"><div class="mast">The Final Whistle</div><h3 class="hl">${tc(m.headline)}</h3><p class="sf">${sfLine(m)}</p>${stepChart(m)}${key(m)}</div>`],
+ ["Tabloid Splash","Red-top banner, giant condensed caps, chart boxed as an inset.",
+  m=>`<div class="r c2"><div class="mast">FULL TIME</div><h3 class="hl">${m.headline}</h3><p class="sf">${sfLine(m)}</p><div class="inset">${stepChart(m,{area:true})}</div></div>`],
+ ["Stop Press Stamp","The chart is the page; the headline is stamped across it at an angle.",
+  m=>`<div class="r c3"><p class="hl">${m.home} ${m.score[0]}–${m.score[1]} ${m.away}</p><div class="stamp">${m.headline}</div>${stepChart(m,{area:true})}<p class="sf">${sfLine(m)}</p></div>`],
+ ["Ticker Tape","A news-ticker headline over a slim sparkline with the two xG totals at its ends.",
+  m=>{const t=totals(shots(m));return `<div class="r c4"><div class="tick"><b>● FT</b> ${m.headline} — ${m.home} ${m.score[0]}–${m.score[1]} ${m.away}</div><div class="spark"><span style="color:var(--pri)">${fx(t.h)}</span>${stepChart(m,{h:60,dots:false,labels:false})}<span style="color:var(--away)">${fx(t.a)}</span></div><p class="sf">${m.sub}</p></div>`}],
+ ["Two-Column Column","Headline left, chart right; stacks to one column on a phone.",
+  m=>`<div class="r c5"><div><div class="mast">Match report</div><h3 class="hl">${tc(m.headline)}</h3><p class="sf">${sfLine(m)}</p></div><div>${stepChart(m)}${key(m)}</div></div>`],
+ ["Scoreboard Gazette","Scoreline first, the headline as its caption, and a dominance worm.",
+  m=>`<div class="r c6"><div class="score"><span>${m.home}</span>${m.score[0]}–${m.score[1]}<span>${m.away}</span></div><h3 class="hl">“${tc(m.headline)}”</h3>${wormChart(m)}<p class="sf" style="text-align:center">${sfLine(m)}</p></div>`],
+ ["Programme Back Page","A matchday programme's back page: framed, centred caps, two text columns.",
+  m=>`<div class="r c7"><div class="mast" style="text-align:center">Official Programme · Result</div><h3 class="hl">${m.headline}</h3>${stepChart(m)}<div class="cols"><p><b>${m.home} ${m.score[0]}</b> — ${m.sub||"no scorers"}.</p><p>Expected goals ${sfLine(m).split("xG ")[1]}. ${m.arc} the story of the day.</p></div></div>`],
+ ["Telegram","A typed telegram — STOP — over a single dotted shot line.",
+  m=>`<div class="r c8"><div class="mast">Post Office Telegram</div><p class="hl">${m.headline} STOP ${m.home.toUpperCase()} ${m.score[0]} ${m.away.toUpperCase()} ${m.score[1]} STOP</p>${constellation(m,{h:90})}<p class="sf">${sfLine(m)} STOP</p></div>`],
+ ["Pinned Clipping","A torn newspaper clipping taped to the screen, slightly askew.",
+  m=>`<div class="r c9"><div class="tape"></div><div class="mast">The Evening Echo</div><h3 class="hl">${tc(m.headline)}</h3><p class="sf">${sfLine(m)}</p>${stepChart(m)}</div>`],
+ ["Terrace Fanzine","Photocopied fanzine energy: slapped-on headline block, scrawled caption.",
+  m=>`<div class="r c10"><div class="mast">ISSUE 94 · 50p</div><h3 class="hl">${m.headline}</h3><p class="sf">${sfLine(m)} — we were there.</p>${barsChart(m)}</div>`],
+ ["Pundit Board","A dark analytics panel: big xG figures, filled area chart, headline as a takeaway.",
+  m=>{const t=totals(shots(m));return `<div class="r c11"><div class="mast">Post-match analysis</div><div class="big"><div><small>${m.home} xG</small>${fx(t.h)}</div><div style="text-align:end"><small>${m.away} xG</small>${fx(t.a)}</div></div>${stepChart(m,{area:true})}<h3 class="hl">${tc(m.headline)}</h3><p class="sf">${m.sub}</p></div>`}],
+ ["Minute Ribbon","One 90-minute ribbon, every shot a tick above (home) or below (away), length = xG.",
+  m=>`<div class="r c12"><div class="mast">Full time</div><h3 class="hl">${tc(m.headline)}</h3>${ribbon(m)}<p class="sf">${sfLine(m)}</p></div>`],
+ ["Pitch Overlay","The chart drawn on mown grass stripes — the match told on its own pitch.",
+  m=>`<div class="r c13"><h3 class="hl">${tc(m.headline)}</h3><div class="pitch">${stepChart(m)}</div><p class="sf">${sfLine(m)}</p></div>`],
+ ["Split Halves","Headline, then the match as two halves with each side's xG per half.",
+  m=>{const sh=shots(m),half=(a,b)=>{const t={h:0,a:0};sh.filter(s=>s.min>a&&s.min<=b).forEach(s=>t[s.side]+=s.xg);return t},f=half(0,45),s=half(45,200);
+   return `<div class="r c14"><h3 class="hl">${tc(m.headline)}</h3><p class="sf">${sfLine(m)}</p><div class="halves"><div>First half<br><b style="color:var(--pri)">${fx(f.h)}</b> – <b style="color:var(--away)">${fx(f.a)}</b></div><div>Second half<br><b style="color:var(--pri)">${fx(s.h)}</b> – <b style="color:var(--away)">${fx(s.a)}</b></div></div>${stepChart(m,{h:110})}</div>`}],
+ ["Bar Ladder","xG in six 15-minute bins, mirrored home above / away below.",
+  m=>`<div class="r c15"><div class="mast" style="text-align:center">The Final Whistle</div><h3 class="hl">${tc(m.headline)}</h3>${barsChart(m)}<p class="sf" style="text-align:center">${sfLine(m)}</p></div>`],
+ ["Dominance Worm","One line: who was on top, minute by minute (home xG minus away xG).",
+  m=>`<div class="r c16"><h3 class="hl">${tc(m.headline)}</h3>${wormChart(m)}<p class="sf">${sfLine(m)}</p></div>`],
+ ["Shot Constellation","No lines — every shot is a bubble sized by its xG; goals ringed.",
+  m=>`<div class="r c17"><h3 class="hl"><b>${tc(m.headline)}</b></h3>${constellation(m)}<p class="sf">${sfLine(m)}</p>${key(m)}</div>`],
+ ["The Ledger","An accountant's ledger of every shot with a running total, headline as the heading.",
+  m=>{const sh=shots(m),r={h:0,a:0};return `<div class="r c18"><h3 class="hl">${tc(m.headline)}</h3><div class="tw"><table><tr><th>Min</th><th>Side</th><th>Shot</th><th class="n">xG</th><th class="n">Total</th></tr>${sh.map(s=>{r[s.side]+=s.xg;return `<tr><td>${s.min}'</td><td style="color:var(${s.side==="h"?"--pri":"--away"})">${s.side==="h"?m.home:m.away}</td><td>${s.goal?"⚽ "+(s.who||"Goal"):s.detail}</td><td class="n">${fx(s.xg)}</td><td class="n">${fx(r[s.side])}</td></tr>`}).join("")}</table></div><p class="sf">${sfLine(m)}</p></div>`}],
+ ["Teletext p302","Ceefax-era page: blocky colour bands, the xG as character blocks.",
+  m=>`<div class="r c19"><div class="row"><span class="p">P302</span><span>FOOTBALL</span><span style="margin-inline-start:auto;color:#0f0">FT</span></div><p class="hl">${m.headline}</p><p>${m.home.toUpperCase()} ${m.score[0]}  ${m.away.toUpperCase()} ${m.score[1]}</p>${blocks(m)}<p class="sf">${sfLine(m)}</p></div>`],
+ ["Radio Script","A vertical timeline of the shots, read like the radio commentary sheet.",
+  m=>`<div class="r c20"><h3 class="hl">${tc(m.headline)}</h3><p class="sf">${sfLine(m)}</p><ol>${shots(m).map(s=>`<li class="${s.side==="a"?"a":""}${s.goal?" g":""}"><b>${s.min}'</b> ${s.side==="h"?m.home:m.away} — ${s.goal?"GOAL"+(s.who?" "+s.who:""):s.detail} <span style="color:var(--mut)">(${fx(s.xg)})</span></li>`).join("")}</ol></div>`],
+ ["Wanted Poster","Western bill-poster framing — made for robberies and smash-and-grabs.",
+  m=>`<div class="r c21"><div class="mast">WANTED</div><h3 class="hl">${m.headline}</h3>${stepChart(m)}<p class="sf">${sfLine(m)}</p></div>`],
+ ["Cup Final Cover","A programme cover: two club roundels, the score, headline, chart.",
+  m=>`<div class="r c22"><div class="mast">Full time</div><div class="badges"><span>${m.home[0]}</span>${m.score[0]}–${m.score[1]}<span>${m.away[0]}</span></div><h3 class="hl">${tc(m.headline)}</h3>${stepChart(m,{h:110})}<p class="sf">${sfLine(m)}</p></div>`],
+ ["Vinyl Sleeve","The 90 minutes wrapped around a record — shots as spokes out (home) and in (away).",
+  m=>`<div class="r c23">${radial(m)}<div><div class="mast">Side A · Full time</div><h3 class="hl">${tc(m.headline)}</h3><p class="sf">${sfLine(m)}</p>${key(m)}</div></div>`],
+ ["Stat Card Duo","The two xG totals face off in big numerals, headline above, thin chart below.",
+  m=>{const t=totals(shots(m));return `<div class="r c24"><h3 class="hl">${tc(m.headline)}</h3><div class="duo"><div class="h"><b>${fx(t.h)}</b>${m.home}</div><em>xG</em><div class="a"><b>${fx(t.a)}</b>${m.away}</div></div>${stepChart(m,{h:80,dots:false})}<p class="sf" style="text-align:center">${m.sub}</p></div>`}],
+ ["Stacked Editions","Yesterday's editions piled underneath — the report is the top sheet.",
+  m=>`<div class="r c25"><div class="sheet b1"></div><div class="sheet b2"></div><div class="sheet"><div class="mast">Late edition</div><h3 class="hl">${tc(m.headline)}</h3><p class="sf">${sfLine(m)}</p>${stepChart(m)}</div></div>`],
+ ["Dressing-room Chalkboard","The manager's chalkboard: handwritten headline, chalk lines.",
+  m=>`<div class="r c26"><div class="mast">Gaffer's notes</div><h3 class="hl">${tc(m.headline)}</h3>${stepChart(m)}<p class="sf">${sfLine(m)}</p></div>`],
+ ["Neon Scoreboard","The arcade cabinet's own language: LED headline, glowing lines.",
+  m=>`<div class="r c27"><div class="mast">GAME OVER · FT</div><p class="hl">${m.headline}</p>${stepChart(m)}<p class="sf">${sfLine(m)}</p></div>`],
+ ["Magazine Spread","A pull-quote headline with a full-bleed chart band.",
+  m=>`<div class="r c28"><div class="mast">The Monthly · Match of the week</div><p class="pull">${tc(m.headline)}</p><div class="bleed">${stepChart(m,{area:true})}</div><p class="sf">${sfLine(m)}</p></div>`],
+ ["Postcard Home","A postcard from the ground: the headline is the message, the chart the picture.",
+  m=>`<div class="r c29"><div class="msg">${tc(m.headline)}<br><small style="font-size:13px">${sfLine(m)}</small></div><div><div class="stampbox">FT<br>${m.score[0]}–${m.score[1]}</div>${constellation(m,{w:300,h:90})}</div></div>`],
+ ["Minimal App Card","Quiet, app-native: an arc chip, the headline, chart and legend.",
+  m=>`<div class="r c30"><span class="chip">${m.arc}</span><h3 class="hl">${tc(m.headline)}</h3><p class="sf">${sfLine(m)}</p>${stepChart(m,{area:true})}${key(m)}</div>`],
+];
+
+let cur="comeback";
+function render(){
+  const m=MATCHES[cur];
+  document.getElementById("list").innerHTML=C.map(([name,why,fn],i)=>`<section class="concept" id="c${i+1}"><h2><b>${i+1}</b>${name}</h2><p class="why">${why}</p><div class="frames"><div><p class="tag">Desktop · 720</p><div class="frame d">${fn(m)}</div></div><div><p class="tag">Mobile · 375</p><div class="frame m">${fn(m)}</div></div></div></section>`).join("");
+}
+function seg(id,apply){const el=document.getElementById(id);el.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;el.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));apply(b.dataset.v)})}
+seg("match",v=>{cur=v;render()});
+seg("era",v=>document.body.dataset.era=v);
+seg("theme",v=>document.body.dataset.theme=v);
+render();
+</script>
+</body>
+</html>

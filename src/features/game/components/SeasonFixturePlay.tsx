@@ -86,6 +86,7 @@ export function SeasonFixturePlay({
         locale={locale}
         crests={crests}
         newMatchLabel={t("seasonReturn")}
+        report={{ result: driver.result, home, away, coachSide: fixture.coachSide }}
         onNewMatch={() => onReturn(driver.result)}
       />
     );

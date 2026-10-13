@@ -149,6 +149,35 @@ describe("DailyChallenge", () => {
     await waitFor(() => expect(sessionStorage.getItem(`daily_active_lock_${today()}`)).toBe("1"));
   });
 
+  it("TASK-1815 — full time carries the post-match report above the share text", async () => {
+    const user = userEvent.setup();
+    mount();
+    await waitFor(() => expect(screen.getByTestId("daily-header")).toBeTruthy());
+    await user.click(screen.getByRole("button", { name: /Start picking/ }));
+    for (let i = 0; i < 11; i++) {
+      const cards = screen.queryAllByRole("button", { name: /rated \d+$/ });
+      if (cards.length === 0) break;
+      await user.click(cards[0]!);
+    }
+    await user.click(await screen.findByRole("button", { name: /kick.?off/i }));
+
+    // Through the preview's own kick-off, then answer every decision the match raises
+    // with its first option until full time.
+    for (let i = 0; i < 1500 && screen.queryByTestId("daily-result") == null; i++) {
+      // The LAST enabled button: a squad choice's first buttons only select a player.
+      const options = [...(screen.queryByRole("dialog")?.querySelectorAll("button") ?? [])].filter(
+        (b) => !b.disabled,
+      );
+      const option = options.at(-1);
+      const kick = screen.queryByRole("button", { name: /kick.?off/i });
+      if (option) await user.click(option);
+      else if (kick) await user.click(kick);
+      else await new Promise((r) => setTimeout(r, 10));
+    }
+    const result = await screen.findByTestId("daily-result");
+    expect(result.querySelector('[data-testid="post-match-report"]')).not.toBeNull();
+  }, 30_000);
+
   it("⚠️ an EARLIER day's finished record does not spend today", async () => {
     await saveDaily({
       day: "1999-01-01",
