@@ -64,6 +64,12 @@ describe("post-match report motion — CSS", () => {
     for (const selector of Object.keys(ANIMATED)) expect(gate![1]).toContain(selector);
   });
 
+  it("the headline sets in CAPITALS, names included (no 'JOB DONE FOR Arsenal')", () => {
+    // The English wordings are written in caps but {coach}/{player} arrive mixed-case.
+    // `text-transform` is a no-op for Arabic, which has no case.
+    expect(ruleBody(".pmr-headline")!).toMatch(/text-transform: uppercase/);
+  });
+
   it("a ripple is invisible at rest, so no-animation leaves no stray rings", () => {
     expect(ruleBody(".pmr-ripple")!).toMatch(/opacity: 0/);
   });

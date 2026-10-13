@@ -11,6 +11,8 @@ import type { GamePlayer } from "@/features/game/domain/player";
 import type { PlayerRatings } from "@/features/game/domain/ratings";
 import { simulate } from "@/features/game/domain/simulate";
 import { makeGameTeam } from "@/features/game/domain/team";
+import ar from "@/i18n/messages/ar.json";
+import en from "@/i18n/messages/en.json";
 
 /** TASK-1815 — the match's arc, read from the coach's side. */
 const RATINGS = {
@@ -153,6 +155,39 @@ describe("headlineFor — arcs", () => {
     expect(arc(res([g(30, "home", 1)]))).toBe("win");
     expect(arc(res([g(30, "home", 1), g(50, "away", 11)]))).toBe("draw");
     expect(arc(res([g(30, "away", 11)]))).toBe("loss");
+  });
+});
+
+describe("headlineFor — a nameless hero (review finding)", () => {
+  /** The message a key resolves to, in one catalog. */
+  const msg = (catalog: unknown, key: string): string =>
+    key.split(".").reduce<unknown>((o, k) => (o as Record<string, unknown>)[k], catalog) as string;
+
+  it("⛔ a late OWN GOAL decides it: never a wording that needs {player}", () => {
+    // An own goal carries no playerId, so the "hero" is nobody. Across many seeds every
+    // variant the pool can pick must read without an empty {player} slot.
+    for (let seed = 1; seed <= 60; seed++) {
+      const own = { minute: 88, kind: "goal", side: "home", source: "own-goal", ownGoalBy: 12 };
+      const h = headlineFor(
+        res([g(10, "home", 1), g(30, "away", 11), own as MatchEvent], seed),
+        HOME,
+        AWAY,
+        "home",
+      );
+      expect(h.arc).toBe("lateWinner");
+      expect(h.values.player).toBe("");
+      expect(msg(en, h.key), `en ${h.key}`).not.toContain("{player}");
+      expect(msg(ar, h.key), `ar ${h.key}`).not.toContain("{player}");
+    }
+  });
+
+  it("…and the same for a late own goal AGAINST the coach", () => {
+    for (let seed = 1; seed <= 60; seed++) {
+      const own = { minute: 89, kind: "goal", side: "away", source: "own-goal", ownGoalBy: 1 };
+      const h = headlineFor(res([own as MatchEvent], seed), HOME, AWAY, "home");
+      expect(h.arc).toBe("lateLoser");
+      expect(msg(en, h.key), `en ${h.key}`).not.toContain("{player}");
+    }
   });
 });
 

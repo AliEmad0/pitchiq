@@ -140,7 +140,9 @@ export function PostMatchReport({
             </g>
           </g>
           <text x={C} y={C - 2} textAnchor="middle" className="pmr-score">
-            {ld(`${homeGoals}–${awayGoals}`)}
+            {/* ⛔ WESTERN in every locale — the scoreline rule MatchSummary follows
+                (owner, 2026-08-24); the xG line below is prose and stays localized. */}
+            {`${homeGoals}–${awayGoals}`}
           </text>
           <text x={C} y={C + 16} textAnchor="middle" className="pmr-xg">
             {xgLine}

@@ -38,6 +38,15 @@ const LATE_MINUTE = 85;
 const XG_GAP = 100;
 const ROUT_MARGIN = 4;
 const THRILLER_GOALS = 5;
+/**
+ * For an arc whose wordings sometimes name a hero, the variants that do NOT — the only
+ * ones usable when the decisive goal has no scorer. Must match the catalogs; pinned by
+ * game-match-headline.test against both en and ar.
+ */
+const NAMELESS: Partial<Record<HeadlineArc, readonly number[]>> = {
+  lateWinner: [1, 2],
+  lateLoser: [0, 2],
+};
 
 export interface HeadlineValues {
   coach: string;
@@ -169,6 +178,10 @@ export function headlineFor(
   };
 
   const arc = pick();
-  const variant = hashStr(`${result.seed}:${arc}`) % HEADLINE_POOL;
+  const h = hashStr(`${result.seed}:${arc}`);
+  // ⛔ A late OWN GOAL has no scorer (`playerId` is unset), so the hero is nobody: draw
+  // only from the wordings that never print `{player}`, or the headline opens on a blank.
+  const nameless = values.player === "" ? NAMELESS[arc] : undefined;
+  const variant = nameless != null ? nameless[h % nameless.length]! : h % HEADLINE_POOL;
   return { arc, key: `gameReport.headline.${arc}.${variant}`, values };
 }

@@ -83,7 +83,7 @@ describe("PostMatchReport", () => {
     expect(screen.getByTestId("post-match-report")).toHaveAttribute("data-arc", "win");
   });
 
-  it("⛔ Arabic: Eastern-Arabic digits in the standfirst and the wheel, chart still LTR", () => {
+  it("⛔ Arabic: Eastern-Arabic xG digits, a WESTERN centre score, chart still LTR", () => {
     renderWithIntl(
       <PostMatchReport
         result={result([{ minute: 30, kind: "chance", side: "home", outcome: "post" }], {
@@ -99,7 +99,13 @@ describe("PostMatchReport", () => {
     );
     expect(screen.getByTestId("report-standfirst").textContent).toMatch(/[٠-٩]/);
     expect(screen.getByTestId("report-standfirst").textContent).not.toMatch(/[0-9]/);
-    expect(screen.getByTestId("report-xg-chart").textContent).not.toMatch(/[0-9]/);
+    // ⛔ The centre SCORE stays Western in every locale — the owner's scoreline rule
+    // (MatchSummary, 2026-08-24), so "0–0" never sits under a "٠–٠" on one screen. The
+    // xG figures are prose and stay localized.
+    const wheel = screen.getByTestId("report-xg-chart");
+    expect(wheel.querySelector(".pmr-score")!.textContent).toBe("0–0");
+    expect(wheel.querySelector(".pmr-xg")!.textContent).toMatch(/[٠-٩]/);
+    expect(wheel.querySelector(".pmr-xg")!.textContent).not.toMatch(/[0-9]/);
     expect(screen.getByTestId("report-xg-chart")).toHaveAttribute("dir", "ltr");
   });
 
