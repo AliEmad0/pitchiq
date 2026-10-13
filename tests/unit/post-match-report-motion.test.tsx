@@ -10,7 +10,7 @@ import { renderWithIntl } from "./_helpers/intl";
 /**
  * TASK-1815 motion — the owner's HYBRID of three gallery designs:
  * 17 Ripple (rings out from the centre) → 1 Needle Drop (the disc spins in, spokes grow
- * minute by minute) → 18 Turntable (the record keeps turning slowly).
+ * minute by minute) → 18 Turntable (the record turns three times, then rests).
  *
  * ⛔ Needle Drop and Turntable BOTH animate `transform` on the disc. On one element the
  * later declaration wins and the other silently never runs (the TASK-1833 hybrid lesson),
@@ -49,13 +49,18 @@ describe("post-match report motion — CSS", () => {
     expect(ruleBody(".pmr-disc-turn")!).not.toMatch(/pmr-spin-in/);
   });
 
-  it("the turntable loops; every entrance plays once", () => {
-    expect(ruleBody(".pmr-disc-turn")!).toMatch(/infinite/);
+  it("⛔ the turntable spins a FINITE 3 turns and stops (owner, 2026-10-13)", () => {
+    // An endless turn had no pause control (WCAG 2.2.2) and repainted an idle screen
+    // forever. Whole turns, so it comes to rest with minute 0 back at the top.
+    const turn = ruleBody(".pmr-disc-turn")!;
+    expect(turn).toMatch(/animation:[^;]*pmr-turn[^;]* 3;/);
+    expect(turn).not.toMatch(/infinite/);
+    expect(css).toMatch(/@keyframes pmr-turn \{\s*to \{\s*transform: rotate\(360deg\);/);
     for (const s of [".pmr-ripple", ".pmr-disc-in", ".pmr-spoke", ".pmr-copy"])
       expect(ruleBody(s)!, s).not.toMatch(/infinite/);
   });
 
-  it("⛔ reduced motion stops EVERY layer, the endless one included", () => {
+  it("⛔ reduced motion stops EVERY layer, the turntable included", () => {
     const gate =
       /@media \(prefers-reduced-motion: reduce\) \{\s*(\.pmr-[^{]+)\{\s*animation: none;\s*\}/.exec(
         css,

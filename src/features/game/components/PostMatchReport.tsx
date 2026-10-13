@@ -105,7 +105,7 @@ export function PostMatchReport({
           className="pmr-wheel"
         >
           {/* Motion is the owner's hybrid: Ripple → Needle Drop → Turntable. The spin-in
-              and the endless turn both animate `transform`, so they sit on two NESTED
+              and the three-turn spin both animate `transform`, so they sit on two NESTED
               groups — on one element the later rule would silently cancel the other. */}
           <circle cx={C} cy={C} r={RIPPLE} className="pmr-ripple" />
           <circle cx={C} cy={C} r={RIPPLE} className="pmr-ripple pmr-ripple-2" />

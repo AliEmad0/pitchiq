@@ -354,6 +354,7 @@ away. A real-engine sweep must reach all 15 arcs. Strings live in a top-level `g
 namespace, because two tests assume `game` is flat. The wheel carries `dir="ltr"` on a
 wrapper, because React SVG props have no `dir`. ⛔ Spin-in and turntable both animate
 `transform`, so they stay on nested groups. One reduce gate stops all five layers.
+The turntable spins a **finite** 3 turns, then rests; never make it `infinite` (owner, 2026-10-13).
 The wheel's centre **score** stays Western, matching the scoreline rule; xG figures are
 localized. A late **own goal** has no scorer, so `NAMELESS` in `match-headline.ts` limits
 the late arcs to wordings without `{player}`. Keep that list in step with both catalogs.

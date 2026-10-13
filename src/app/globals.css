@@ -5688,7 +5688,7 @@
 }
 
 /* ---- TASK-1815 motion: the owner's HYBRID, 17 Ripple → 1 Needle Drop → 18 Turntable ----
-   ⛔ The spin-in and the endless turn BOTH animate `transform` on the disc, so they live on
+   ⛔ The spin-in and the turntable BOTH animate `transform` on the disc, so they live on
    two NESTED groups (`.pmr-disc-in > .pmr-disc-turn`). On one element the later rule
    wins and the other never runs — the TASK-1833 hybrid lesson. The spokes animate their
    own transform inside both, which composes. Guarded by post-match-report-motion.test. */
@@ -5712,8 +5712,10 @@
 .pmr-disc-turn {
   transform-box: view-box;
   transform-origin: 110px 110px;
-  /* Starts once every spoke has landed, then turns for as long as the screen is open. */
-  animation: pmr-turn 24s linear 2800ms infinite;
+  /* Starts once every spoke has landed, turns three whole times and comes to rest with
+     minute 0 back at the top (owner, 2026-10-13). Never a looping count: an endless turn has
+     no pause control (WCAG 2.2.2) and repaints an idle full-time screen forever. */
+  animation: pmr-turn 8s linear 2800ms 3;
 }
 .pmr-copy {
   animation: pmr-rise 500ms var(--ease-out-soft) 200ms both;

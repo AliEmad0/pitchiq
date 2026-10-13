@@ -261,5 +261,5 @@ the match wrapped around a record with one spoke per shot at its minute. It appe
 drafted mode, season fixtures and the daily challenge, in English and Arabic. xG is
 **estimated** from what each shot already records, so the engine, saved matches and share
 links are untouched, and the report costs no server time. The record drops in with a ripple,
-spins up while the spokes grow minute by minute, then keeps turning. That motion switches
+spins up while the spokes grow minute by minute, then turns three times and rests. That motion switches
 off under reduced motion. See the [design](docs/superpowers/specs/2026-10-13-task-1815-post-match-report-design.md).

@@ -6272,7 +6272,7 @@ targets and relegation start, era-authentic substitution rules, and squad rotati
 2. **A set piece is counted ONCE.** The engine emits `penalty`/`freekick` AND a separate `goal` with `source`; the shot is the set-piece event, its goal adds nothing, an own goal is not a shot. A VAR-disallowed goal keeps its xG.
 3. **The headline is the COACH's**, not home's — a season fixture can put him away. Pinned by the real season flow (the away week fails if the side is forced to home).
 4. **Every arc is reachable** — a 2,400-match sweep over the real engine must produce all 15, so no arc is dead copy.
-5. ⛔ **Spin-in and Turntable both animate `transform`**, so they live on nested groups (`.pmr-disc-in > .pmr-disc-turn`); one reduce gate stops all five layers, the endless one included. The motion test asserts RULES, not selectors.
+5. ⛔ **Spin-in and Turntable both animate `transform`**, so they live on nested groups (`.pmr-disc-in > .pmr-disc-turn`); one reduce gate stops all five layers. The turntable spins a **finite** 3 turns (8s each) and rests at minute 0 — never `infinite` (owner, 2026-10-13: an endless turn had no pause control and repainted an idle screen). The motion test asserts RULES, not selectors.
 
 ### TASK-1816
 
