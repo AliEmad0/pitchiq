@@ -252,3 +252,14 @@ fixture card/list. Production integration is implemented on the Survival branch 
 `/game/classic?objective=survival`, with January takeovers, isolated saves, injury carryover
 and sim/play results. Shipped in PR #216.
 [Implementation and validation](docs/superpowers/plans/2026-09-06-task-1811-survival-production.md). [Gallery scope and reproduction](docs/superpowers/plans/2026-09-06-task-1811-survival-gallery.md).
+
+### Post-match report (TASK-1815 — ✅ Done)
+
+Every match now ends with its own front page: a retro newspaper headline for the match's
+story — a comeback, a late winner, daylight robbery — and an expected-goals **"Vinyl Sleeve"**,
+the match wrapped around a record with one spoke per shot at its minute. It appears on every
+drafted mode, season fixtures and the daily challenge, in English and Arabic. xG is
+**estimated** from what each shot already records, so the engine, saved matches and share
+links are untouched, and the report costs no server time. The record drops in with a ripple,
+spins up while the spokes grow minute by minute, then keeps turning. That motion switches
+off under reduced motion. See the [design](docs/superpowers/specs/2026-10-13-task-1815-post-match-report-design.md).

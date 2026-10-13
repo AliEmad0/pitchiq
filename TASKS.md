@@ -5509,7 +5509,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1812](#task-1812) | Persistence, records, shareable seeded matches                  | 📋 Backlog | P3       | M   |
 | [TASK-1813](#task-1813) | Hall of Fame & retro achievements (IndexedDB, provenance-aware) | 📋 Backlog | P3       | M   |
 | [TASK-1814](#task-1814) | Momentum engine + data-derived personality traits (modifiers)   | 📋 Backlog | P3       | L   |
-| [TASK-1815](#task-1815) | Post-match analytics — xG timeline + retro newspaper headlines  | 📋 Backlog | P3       | M   |
+| [TASK-1815](#task-1815) | Post-match analytics — xG timeline + retro newspaper headlines  | ✅ Done    | P3       | M   |
 | [TASK-1816](#task-1816) | "What-If" historical scenario mode (rule pack)                  | 📋 Backlog | P3       | M   |
 | [TASK-1817](#task-1817) | Daily seeded challenge — client-only (streaks, PB, seed replay) | ✅ Done    | P3       | M   |
 | [TASK-1818](#task-1818) | Rogue-like / Mystery Market mode (local run history)            | 📋 Backlog | P3       | L   |
@@ -6256,9 +6256,23 @@ targets and relegation start, era-authentic substitution rules, and squad rotati
 
 ### TASK-1815
 
-**Post-match analytics — xG timeline + retro headlines** · 📋 Backlog · `P3` · `M` · Type: Feature
+**Post-match analytics — xG timeline + retro headlines** · ✅ Done · `P3` · `M` · Type: Feature
 
 **Description** — Post-match visualizations over the already-emitted `MatchEvent[]`: a cumulative **xG timeline** (minute-by-minute, with shot-danger) and a procedurally-generated **retro newspaper headline** matching the match's dramatic arc — via **ICU message keys** (en + ar, Eastern-Arabic numerals), never hardcoded strings, reusing the TASK-1804 commentary key system. **Depends on:** TASK-1804, TASK-1808.
+
+**Shipped (2026-10-13)** — design: [`docs/superpowers/specs/2026-10-13-task-1815-post-match-report-design.md`](docs/superpowers/specs/2026-10-13-task-1815-post-match-report-design.md); plan: [`docs/superpowers/plans/2026-10-13-task-1815-post-match-report.md`](docs/superpowers/plans/2026-10-13-task-1815-post-match-report.md); galleries: `design/post-match-gallery/` (30 layouts, 20 motions). Every full-time screen — every drafted mode, season fixtures and the daily — ends with a **post-match report**: a retro headline for the match's arc and the owner's **"Vinyl Sleeve"** (concept #23), the match wrapped around a record with one spoke per shot at its minute (home out, away in, length = xG). Motion is the owner's hybrid **17 Ripple → 1 Needle Drop → 18 Turntable**.
+
+- `domain/match-xg.ts` — an **estimated** xG per shot from what each event already records (penalty .76, free kick .06, goals by `goalStyle`, chances by `outcome`), integer hundredths. The engine is untouched, so no save or share code drifts.
+- `domain/match-headline.ts` — 15 arcs in priority order (comeback, late winner/loser, robbed, smash-and-grab, rout, hat-trick, ten men, VAR drama, bore draw, thriller, win/draw/loss), **from the coach's side**, as `gameReport.headline.<arc>.<0-2>` keys hashed from the seed.
+- `components/PostMatchReport.tsx` — derived on render, never stored; strings in a top-level `gameReport` namespace (en + ar).
+
+**⚠️ Rules this ticket pinned**
+
+1. **The xG table is FROZEN** (golden test). The report is derived on every view, so an edit rewrites every match ever played or shared.
+2. **A set piece is counted ONCE.** The engine emits `penalty`/`freekick` AND a separate `goal` with `source`; the shot is the set-piece event, its goal adds nothing, an own goal is not a shot. A VAR-disallowed goal keeps its xG.
+3. **The headline is the COACH's**, not home's — a season fixture can put him away. Pinned by the real season flow (the away week fails if the side is forced to home).
+4. **Every arc is reachable** — a 2,400-match sweep over the real engine must produce all 15, so no arc is dead copy.
+5. ⛔ **Spin-in and Turntable both animate `transform`**, so they live on nested groups (`.pmr-disc-in > .pmr-disc-turn`); one reduce gate stops all five layers, the endless one included. The motion test asserts RULES, not selectors.
 
 ### TASK-1816
 

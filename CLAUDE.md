@@ -339,3 +339,18 @@ Season fixtures do not apply Chemistry's link bonus.
 footprint → scaler → flipper (`--pd-s` / `--dh-s`, 0.6/0.55/0.5 below 640/380/340px), and
 both overlays scroll with a `margin: auto` inner panel. At 176px a phone fitted one card per
 row in an unscrollable fixed veil. Keep labels and the tap target outside the scaler.
+
+### TASK-1815 post-match report (2026-10-13)
+
+Every full-time screen (`MatchSummary` for drafted modes and season fixtures, plus the daily
+result) renders `PostMatchReport`: a retro headline and the owner's **Vinyl Sleeve** xG wheel.
+It is **derived on render** from `MatchResult.events`; nothing is stored, and the engine is
+untouched. `domain/match-xg.ts` estimates xG per event from a **frozen** table. A golden test
+pins it, because editing a value rewrites every report ever shared. Count a set piece
+**once**: the engine emits `penalty`/`freekick` and a separate `goal` with `source`. The goal
+adds nothing, an own goal is not a shot, and a VAR-disallowed goal keeps its xG.
+`domain/match-headline.ts` writes the arc from the **coach's** side; season fixtures can be
+away. A real-engine sweep must reach all 15 arcs. Strings live in a top-level `gameReport`
+namespace, because two tests assume `game` is flat. The wheel carries `dir="ltr"` on a
+wrapper, because React SVG props have no `dir`. ⛔ Spin-in and turntable both animate
+`transform`, so they stay on nested groups. One reduce gate stops all five layers.
