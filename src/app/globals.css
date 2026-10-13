@@ -5555,7 +5555,7 @@
 /* ---- TASK-1815 post-match report: "Vinyl Sleeve" (owner's pick, concept #23) ----
    The match wrapped around a record: one spoke per shot at its minute, home outward,
    away inward, length = estimated xG. Scoped to `.pmr-root`; the wheel is `dir="ltr"`
-   in the markup (a clock face is not text). Static here — motion is Task 6. */
+   in the markup (a clock face is not text). Motion: see the hybrid block below. */
 .pmr-root {
   --pmr-home: var(--primary);
   --pmr-away: #0e7c86;
@@ -5608,6 +5608,11 @@
 .pmr-spoke {
   stroke-width: 3;
   stroke-linecap: round;
+  transform-box: view-box;
+  /* Needle Drop: each spoke grows out of the ring at its own minute (`--pmr-t`, 0…1),
+     once the disc has landed. `transform-origin` is set inline at the ring point. */
+  animation: pmr-spoke-grow 350ms var(--ease-out-soft) both;
+  animation-delay: calc(1000ms + var(--pmr-t, 0) * 1400ms);
 }
 .pmr-spoke.pmr-goal {
   stroke-width: 5;
@@ -5678,4 +5683,90 @@
 }
 .pmr-key-away::before {
   background: var(--pmr-away);
+}
+
+/* ---- TASK-1815 motion: the owner's HYBRID, 17 Ripple → 1 Needle Drop → 18 Turntable ----
+   ⛔ The spin-in and the endless turn BOTH animate `transform` on the disc, so they live on
+   two NESTED groups (`.pmr-disc-in > .pmr-disc-turn`). On one element the later rule
+   wins and the other never runs — the TASK-1833 hybrid lesson. The spokes animate their
+   own transform inside both, which composes. Guarded by post-match-report-motion.test. */
+.pmr-ripple {
+  fill: none;
+  stroke: var(--pmr-home);
+  stroke-width: 1.5;
+  opacity: 0;
+  transform-box: view-box;
+  transform-origin: 110px 110px;
+  animation: pmr-ripple 1000ms var(--ease-out-soft) both;
+}
+.pmr-ripple-2 {
+  animation-delay: 200ms;
+}
+.pmr-disc-in {
+  transform-box: view-box;
+  transform-origin: 110px 110px;
+  animation: pmr-spin-in 900ms var(--ease-out-soft) 150ms both;
+}
+.pmr-disc-turn {
+  transform-box: view-box;
+  transform-origin: 110px 110px;
+  /* Starts once every spoke has landed, then turns for as long as the screen is open. */
+  animation: pmr-turn 24s linear 2800ms infinite;
+}
+.pmr-copy {
+  animation: pmr-rise 500ms var(--ease-out-soft) 200ms both;
+}
+@keyframes pmr-ripple {
+  0% {
+    transform: scale(0.2);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.15);
+    opacity: 0;
+  }
+}
+@keyframes pmr-spin-in {
+  from {
+    transform: rotate(-360deg) scale(0.6);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@keyframes pmr-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes pmr-spoke-grow {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@keyframes pmr-rise {
+  from {
+    transform: translateY(12px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pmr-ripple,
+  .pmr-disc-in,
+  .pmr-disc-turn,
+  .pmr-spoke,
+  .pmr-copy {
+    animation: none;
+  }
 }

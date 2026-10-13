@@ -1,5 +1,6 @@
 "use client";
 import { useTranslations } from "next-intl";
+import type { CSSProperties } from "react";
 import { headlineFor, scorersOf } from "@/features/game/domain/match-headline";
 import type { MatchResult, Side } from "@/features/game/domain/match-types";
 import { formatXg, shotsOf, xgTotals } from "@/features/game/domain/match-xg";
@@ -14,6 +15,8 @@ const INNER = RING - 28;
 const STEM = 6;
 /** Spoke length per hundredth of xG — a penalty (76) reaches ~29 units. */
 const PER_XG = 0.3;
+/** The needle-drop rings ripple out to just past the longest spoke. */
+const RIPPLE = 90;
 
 const point = (minute: number, r: number, span: number): [number, number] => {
   const a = -Math.PI / 2 + (minute / span) * 2 * Math.PI;
@@ -101,26 +104,41 @@ export function PostMatchReport({
           aria-label={t("xgAria", { home: home.name, away: away.name, homeXg, awayXg })}
           className="pmr-wheel"
         >
-          <circle cx={C} cy={C} r={RING} className="pmr-ring" />
-          <circle cx={C} cy={C} r={INNER} className="pmr-label" />
-          <line x1={C} y1={C - RING - 4} x2={C} y2={C - RING + 4} className="pmr-tick" />
-          {shots.map((s, i) => {
-            const len = STEM + s.xg * PER_XG;
-            const [x1, y1] = point(s.minute, RING, span);
-            const [x2, y2] = point(s.minute, s.side === "home" ? RING + len : RING - len, span);
-            const scored = s.goal && !s.disallowed;
-            return (
-              <line
-                key={i}
-                data-testid="report-shot"
-                x1={x1}
-                y1={y1}
-                x2={x2}
-                y2={y2}
-                className={`pmr-spoke pmr-${s.side}${scored ? " pmr-goal" : ""}`}
-              />
-            );
-          })}
+          {/* Motion is the owner's hybrid: Ripple → Needle Drop → Turntable. The spin-in
+              and the endless turn both animate `transform`, so they sit on two NESTED
+              groups — on one element the later rule would silently cancel the other. */}
+          <circle cx={C} cy={C} r={RIPPLE} className="pmr-ripple" />
+          <circle cx={C} cy={C} r={RIPPLE} className="pmr-ripple pmr-ripple-2" />
+          <g className="pmr-disc-in">
+            <g className="pmr-disc-turn">
+              <circle cx={C} cy={C} r={RING} className="pmr-ring" />
+              <circle cx={C} cy={C} r={INNER} className="pmr-label" />
+              <line x1={C} y1={C - RING - 4} x2={C} y2={C - RING + 4} className="pmr-tick" />
+              {shots.map((s, i) => {
+                const len = STEM + s.xg * PER_XG;
+                const [x1, y1] = point(s.minute, RING, span);
+                const [x2, y2] = point(s.minute, s.side === "home" ? RING + len : RING - len, span);
+                const scored = s.goal && !s.disallowed;
+                // Each spoke grows out of the ring at its own point, in minute order.
+                const style = {
+                  transformOrigin: `${x1.toFixed(1)}px ${y1.toFixed(1)}px`,
+                  "--pmr-t": (s.minute / span).toFixed(3),
+                } as CSSProperties;
+                return (
+                  <line
+                    key={i}
+                    data-testid="report-shot"
+                    x1={x1}
+                    y1={y1}
+                    x2={x2}
+                    y2={y2}
+                    style={style}
+                    className={`pmr-spoke pmr-${s.side}${scored ? " pmr-goal" : ""}`}
+                  />
+                );
+              })}
+            </g>
+          </g>
           <text x={C} y={C - 2} textAnchor="middle" className="pmr-score">
             {ld(`${homeGoals}–${awayGoals}`)}
           </text>
