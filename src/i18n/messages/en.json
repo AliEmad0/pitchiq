@@ -1498,6 +1498,23 @@
       "rewriteAll": "Rewrite all seven What-Ifs",
       "collector100": "Collect 100 cards",
       "setComplete": "Complete a club-season set"
-    }
+    },
+    "title": "Trophy Room",
+    "tabAlbum": "Album",
+    "tabHall": "Hall of Fame",
+    "intro": "Every card you field in a finished match, and everything you have won.",
+    "albumTotal": "{cards} cards · {sets} of {total} sets complete",
+    "empty": "Your album is empty. Every card you field in a finished match lands here — play a match to start it.",
+    "stickers": "{have} of {total} stickers",
+    "complete": "Set complete",
+    "seasons": "Seasons",
+    "clubs": "Clubs",
+    "loading": "Opening the album…",
+    "noSet": "This set could not be loaded.",
+    "hallCount": "{n} of {total} unlocked",
+    "tapCup": "Tap a cup to see what it takes.",
+    "unlockedOn": "Unlocked {day} · {context}",
+    "unlockedDay": "Unlocked {day}",
+    "locked": "Locked"
   }
 }

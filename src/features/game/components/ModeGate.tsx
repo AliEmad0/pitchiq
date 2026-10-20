@@ -86,15 +86,26 @@ export function ModeGate() {
         {t("groupCollection")}
       </h2>
       <div className="flex flex-wrap gap-1.5">
-        {COLLECTION_SURFACES.map((surface) => (
-          <div
-            key={surface.id}
-            className="border-border rounded-full border border-dashed px-3 py-1 text-xs opacity-45"
-          >
-            <span aria-hidden>{surface.emoji}</span> {t(surface.nameKey)}
-            <span className="ms-1 opacity-70">{t("statusPlanned")}</span>
-          </div>
-        ))}
+        {COLLECTION_SURFACES.map((surface) =>
+          surface.status === "live" && surface.href != null ? (
+            // TASK-1813/1819 — a built surface is a real link into the Trophy Room.
+            <Link
+              key={surface.id}
+              href={surface.href}
+              className="border-border hover:border-primary rounded-full border px-3 py-1 text-xs"
+            >
+              <span aria-hidden>{surface.emoji}</span> {t(surface.nameKey)}
+            </Link>
+          ) : (
+            <div
+              key={surface.id}
+              className="border-border rounded-full border border-dashed px-3 py-1 text-xs opacity-45"
+            >
+              <span aria-hidden>{surface.emoji}</span> {t(surface.nameKey)}
+              <span className="ms-1 opacity-70">{t("statusPlanned")}</span>
+            </div>
+          ),
+        )}
       </div>
 
       {/*
