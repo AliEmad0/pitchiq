@@ -6,6 +6,7 @@ import {
 } from "@/features/game/domain/achievements";
 import type { AlbumSeason } from "@/features/game/domain/album";
 import type { MatchResult, Side } from "@/features/game/domain/match-types";
+import { seasonTable } from "@/features/game/domain/season";
 import type { GamePlayer } from "@/features/game/domain/player";
 import type { PlayerRatings } from "@/features/game/domain/ratings";
 import {
@@ -58,7 +59,7 @@ export function albumCards(
   }));
 }
 
-async function fetchSeason(season: number): Promise<AlbumSeason | null> {
+export async function fetchSeason(season: number): Promise<AlbumSeason | null> {
   try {
     const res = await fetch(`/api/game/album/${season}`);
     if (!res.ok) return null;
@@ -154,3 +155,30 @@ export function matchEntry(a: {
 /** "Arsenal 5–0 Spurs" — the line an unlock keeps. */
 export const scoreLine = (home: string, away: string, score: { home: number; away: number }) =>
   `${home} ${score.home}–${score.away} ${away}`;
+
+/**
+ * How a COMPLETE league season ended for the coach — champions and invincibles read this. One
+ * helper for the season hub, Classic and the backfill, so the three can never disagree.
+ */
+export function leagueEnd(
+  clubs: number,
+  coach: number,
+  results: readonly { home: number; away: number; homeGoals: number; awayGoals: number }[],
+): { season: NonNullable<CareerFacts["season"]>; position: number } {
+  const rows = seasonTable(
+    clubs,
+    results.map((r) => ({ ...r, week: 0, seed: 0 })),
+  );
+  const lost = results.some((r) =>
+    r.home === coach
+      ? r.homeGoals < r.awayGoals
+      : r.away === coach
+        ? r.awayGoals < r.homeGoals
+        : false,
+  );
+  const position = rows.findIndex((row) => row.club === coach) + 1;
+  return {
+    season: { kind: "league", won: position === 1, unbeaten: !lost, complete: true },
+    position,
+  };
+}

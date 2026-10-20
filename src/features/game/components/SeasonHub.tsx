@@ -21,6 +21,7 @@ import { makeGameTeam } from "@/features/game/domain/team";
 import { clearRun, loadRun, saveRun } from "@/features/game/storage/season-slot";
 import {
   albumCards,
+  leagueEnd,
   localDay,
   matchEntry,
   recordFullTime,
@@ -392,20 +393,13 @@ export function SeasonHub({
         );
       }
       if (!isComplete(before) && isComplete(after)) {
-        const rows = seasonTable(after.clubs, after.results);
-        const mine = after.results.filter((r) => r.home === after.coach || r.away === after.coach);
-        const lost = mine.some((r) =>
-          r.home === after.coach ? r.homeGoals < r.awayGoals : r.awayGoals < r.homeGoals,
-        );
-        const pos = rows.findIndex((row) => row.club === after.coach) + 1;
+        const { season, position } = leagueEnd(after.clubs, after.coach, after.results);
         void recordFullTime({
           key: `r:${after.seed}`,
           day,
           cards: [],
-          facts: {
-            season: { kind: "league", won: pos === 1, unbeaten: !lost, complete: true },
-          },
-          context: `${nameOf(after.coach)} · ${pos}/${after.clubs}`,
+          facts: { season },
+          context: `${nameOf(after.coach)} · ${position}/${after.clubs}`,
         });
       }
     },

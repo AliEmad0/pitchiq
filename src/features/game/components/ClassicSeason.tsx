@@ -16,10 +16,16 @@ import {
   saveClassic,
   type SavedClassic,
 } from "../storage/classic-slot";
-import { seasonTable } from "../domain/season";
 import { survivalProgress } from "../domain/survival";
 import type { MatchResult } from "../domain/match-types";
-import { albumCards, localDay, matchEntry, recordFullTime, scoreLine } from "../view/trophy-record";
+import {
+  albumCards,
+  leagueEnd,
+  localDay,
+  matchEntry,
+  recordFullTime,
+  scoreLine,
+} from "../view/trophy-record";
 import { SeasonFixturePlay } from "./SeasonFixturePlay";
 import { ClassicOrbit } from "./ClassicOrbit";
 import { SurvivalLifeline } from "./SurvivalLifeline";
@@ -249,23 +255,17 @@ function HistoricalSeason({ seasons, survival }: { seasons: number[]; survival: 
       return;
     }
     if (before.length < total && after.length >= total) {
-      const rows = seasonTable(
+      const { season, position } = leagueEnd(
         data.schedule.clubs,
-        after.map((r) => ({ ...byId.get(r.fixtureId)!, ...r, week: 0, seed: 0 })),
+        coach,
+        after.map((r) => ({ ...byId.get(r.fixtureId)!, ...r })),
       );
-      const mine = after
-        .map((r) => ({ f: byId.get(r.fixtureId)!, r }))
-        .filter(({ f }) => f.home === coach || f.away === coach);
-      const lost = mine.some(({ f, r }) =>
-        f.home === coach ? r.homeGoals < r.awayGoals : r.awayGoals < r.homeGoals,
-      );
-      const pos = rows.findIndex((row) => row.club === coach) + 1;
       void recordFullTime({
         key: `r:${saved.seed}`,
         day,
         cards: [],
-        facts: { season: { kind: "league", won: pos === 1, unbeaten: !lost, complete: true } },
-        context: `${nameOf(coach)} · ${pos}/${data.schedule.clubs}`,
+        facts: { season },
+        context: `${nameOf(coach)} · ${position}/${data.schedule.clubs}`,
       });
     }
   }
