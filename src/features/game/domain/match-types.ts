@@ -274,6 +274,22 @@ export interface MatchSetup {
   /** Override a side's power (a record-based opponent has no XI to aggregate). */
   homePower?: TeamPower;
   awayPower?: TeamPower;
+  /**
+   * TASK-1816 — start part-way through a REAL match.
+   *
+   * `priorEvents` are the real goals and red cards up to `minute`; the starting score and
+   * the dismissed players are DERIVED from them, so the scoreboard, the event list and
+   * every view that counts goal events agree by construction. `subsUsed` is the real
+   * substitutions already made. At `minute + 1` the engine raises a team talk — a
+   * response for `teamTalk`, then a half-time-style sub-offer for both sides — before any
+   * play. ⛔ Absent = the engine is byte-identical to before (golden-pinned).
+   */
+  startState?: {
+    minute: number;
+    priorEvents: MatchEvent[];
+    subsUsed: { home: number; away: number };
+    teamTalk: Side;
+  };
 }
 
 export interface MatchResult {

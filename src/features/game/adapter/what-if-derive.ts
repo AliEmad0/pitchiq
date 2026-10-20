@@ -3,6 +3,8 @@ import { loadEvents, loadFixture, loadLineup } from "@/data/loaders";
 import type { Side } from "../domain/match-types";
 import type { Scenario } from "../domain/what-if";
 
+type RawEvent = NonNullable<Awaited<ReturnType<typeof loadEvents>>>[number];
+
 const RED_CARDS = new Set(["Red Card", "SecondYellow Card", "StraightRed Card"]);
 const isGoal = (type: string, detail: string | null | undefined) =>
   type === "Goal" && !/missed/i.test(detail ?? "");
@@ -52,11 +54,11 @@ export async function deriveScenario(
   const startMinute = best.minute;
 
   const before = events.filter((e) => e.minute <= startMinute);
-  const count = (pred: (e: (typeof events)[number]) => boolean) => ({
+  const count = (pred: (e: RawEvent) => boolean) => ({
     home: before.filter((e) => pred(e) && sideOf(e.teamId) === "home").length,
     away: before.filter((e) => pred(e) && sideOf(e.teamId) === "away").length,
   });
-  const reds = (e: (typeof events)[number]) => e.type === "Card" && RED_CARDS.has(e.detail ?? "");
+  const reds = (e: RawEvent) => e.type === "Card" && RED_CARDS.has(e.detail ?? "");
   const names = (side: Side) =>
     before.filter((e) => reds(e) && sideOf(e.teamId) === side).map((e) => e.player ?? "");
 

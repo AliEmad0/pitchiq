@@ -360,6 +360,27 @@ export function* runMatch(
     on.role === "GK" && (off.role === "GK" || !squads[side].some((p) => p.role === "GK"));
   const canChange = (side: Side, minute: number, off: GamePlayer, on: GamePlayer) =>
     substitutionAllowed(rules, usage[side], minute, isKeeperChange(side, off, on));
+  // TASK-1816 — seed a match that starts part-way through from its REAL prior events.
+  // Nothing here draws from the rng, and nothing runs without `startState`.
+  const start = setup.startState;
+  if (start != null) {
+    const prior = [...start.priorEvents].sort((a, b) => a.minute - b.minute);
+    state.events.push(...prior);
+    for (const e of prior) {
+      if (e.side == null) continue;
+      if (e.kind === "goal" && e.disallowedAt == null) state[e.side].score += 1;
+      if (e.kind === "card" && e.card === "red" && e.playerId != null) {
+        state.dismissed.add(`${e.side}:${e.playerId}`);
+        squads[e.side] = squads[e.side].filter((p) => p.playerId !== e.playerId);
+        state[e.side].sentOff += 1;
+      }
+    }
+    for (const side of sides) {
+      state[side].subsUsed = start.subsUsed[side];
+      usage[side].used = start.subsUsed[side];
+    }
+  }
+
   const subRate = SUBS_PER_SIDE / (SUB_WINDOW_END - SUB_WINDOW_START + 1);
   const injuryRate = INJURY_PER_SIDE / FULL_TIME;
   const keeperRate = KEEPER_SWEEP_PER_SIDE / FULL_TIME;
@@ -452,7 +473,8 @@ export function* runMatch(
   /** How many dismissals have already raised a reshape prompt. */
   let prompted = 0;
 
-  for (let m = 1; m <= lastMinute; m++) {
+  const firstMinute = (start?.minute ?? 0) + 1;
+  for (let m = firstMinute; m <= lastMinute; m++) {
     state.minute = m;
     for (const side of sides) {
       const s = state[side];
@@ -463,6 +485,54 @@ export function* runMatch(
       // Injustice fades, but slowly — a wronged side carries it a long way.
       s.rage *= 0.97;
       if (s.rage < 0.02) s.rage = 0;
+    }
+
+    // TASK-1816 — the TEAM TALK: before any play on the first minute of a mid-match
+    // start, the coach of `teamTalk` chooses how to respond, then each side may make
+    // changes at this stoppage. No rng is drawn, so the rest of the stream is unchanged.
+    if (start != null && m === firstMinute) {
+      const talk = start.teamTalk;
+      const answer = yield {
+        kind: "response",
+        minute: m,
+        side: talk,
+        concededBy: talk,
+        events: [...state.events],
+      };
+      state[talk].responseChoice = answer.kind === "response" ? answer.choice : "hold";
+      state[talk].momentum = Math.min(1, state[talk].momentum + RESPONSE_URGENCY);
+      state[talk].respondingUntil = m + RESPONSE_WINDOW;
+      for (const side of sides) {
+        const legalOff = legalOffFor(side);
+        const legalOn = legalOnFor(side);
+        if (legalOff.length === 0 || legalOn.length === 0) continue;
+        const offer = yield {
+          kind: "sub-offer",
+          maxChanges: rules.maxSubs - state[side].subsUsed,
+          halftime: true,
+          minute: m,
+          side,
+          stoppage: true,
+          engineSuggests: false,
+          legalOff,
+          legalOn,
+          events: [...state.events],
+        };
+        if (offer.kind !== "sub-offer") continue;
+        const changes = [
+          ...(offer.off != null ? [{ off: offer.off, on: offer.on }] : []),
+          ...(offer.changes ?? []),
+        ];
+        const usedOff = new Set<number>();
+        for (const change of changes) {
+          if (usedOff.has(change.off)) continue;
+          usedOff.add(change.off);
+          const off = squads[side].find((p) => p.playerId === change.off);
+          const on =
+            change.on == null ? undefined : benches[side].find((p) => p.playerId === change.on);
+          if (off != null) substitute(side, m, off, "tactical", on);
+        }
+      }
     }
 
     // Announce a late all-out push once per side, so the comeback is VISIBLE rather
