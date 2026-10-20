@@ -47,10 +47,12 @@ export async function backfillTrophies(today: string): Promise<void> {
       }
       const set = await setFor(season);
       if (set == null) return null;
-      const club =
-        set.clubs.find(
-          (c) => (teamId == null || c.teamId === teamId) && c.cards.some((x) => x.id === id),
-        ) ?? null;
+      const holders = set.clubs.filter(
+        (c) => (teamId == null || c.teamId === teamId) && c.cards.some((x) => x.id === id),
+      );
+      // ⚠️ A saved daily keeps card ids, not clubs. A man in TWO clubs' sets (a mid-season
+      // transfer) cannot be placed, so he is skipped: absent beats wrong.
+      const club = holders.length === 1 ? holders[0]! : null;
       const card = club?.cards.find((x) => x.id === id);
       if (club == null || card == null) continue;
       out.push({

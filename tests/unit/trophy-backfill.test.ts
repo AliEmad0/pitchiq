@@ -69,6 +69,25 @@ describe("backfillTrophies", () => {
     });
   });
 
+  it("⛔ a daily card that sits in TWO clubs' sets (a mid-season transfer) is skipped, never guessed", async () => {
+    const twoClubs = {
+      season: 2003,
+      clubs: [
+        set2003.clubs[0],
+        { teamId: 47, name: "Spurs", cards: [{ id: "100@2003", n: "P0", r: "CM", o: 80 }] },
+      ],
+    };
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({ ok: true, json: async () => twoClubs })),
+    );
+    await daily("2026-10-01", ids(100));
+    await backfillTrophies("2026-10-21");
+    const album = await loadAlbum();
+    expect(album).toHaveLength(10);
+    expect(album.some((e) => e.cardId === "100@2003")).toBe(false);
+  });
+
   it("⛔ a daily already recorded at full time is not counted again", async () => {
     await daily("2026-10-01", ids(100));
     await claimLog("d:2026-10-01"); // full time got there first
