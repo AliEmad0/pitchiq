@@ -16,7 +16,8 @@ import type { Modifier, Side } from "./match-types";
  *    the trailer while the leader's edge stays ~0.5. The leader easing off is also the
  *    football: a side three up sits back.
  *
- * Fitted on the shipped list to a mean of 25.0% (15.7–43% per scenario); the test re-measures.
+ * Fitted on the shipped list to a mean of ~26% (16–44% per scenario, after the review fixes);
+ * the test re-measures.
  * ⛔ One rule for every scenario, passed through `MatchSetup.modifiers` — never added to
  * `BASELINE_MODIFIERS`, so no other mode moves.
  */

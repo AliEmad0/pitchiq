@@ -365,9 +365,12 @@ the late arcs to wordings without `{player}`. Keep that list in step with both c
 `adapter/what-if-derive.ts`, never the values, and its test re-derives every entry.
 `MatchSetup.startState` starts a match at a minute: `priorEvents` are the real goals and
 reds, and score and dismissals derive from them. Absent, the engine matches 250 pinned
-fingerprints. The team talk is a `response` plus a half-time-style `sub-offer` at
-`minute + 1`; `WhatIf` answers both before `MatchLive` mounts, whose optional `startMinute`
-skips the replayed first half-hour. ⛔ The boost lives only in `domain/what-if-boost.ts`
+fingerprints. The team talk is a `response` plus a half-time-style `sub-offer` raised AT
+`minute`, where no play happens. ⛔ Never move it to `minute + 1`: there it shares
+kind/minute/side with that minute's in-play decisions and defeats the driver's duplicate
+guard. `WhatIf` answers both before `MatchLive` mounts, whose optional `startMinute` skips
+the replayed first half-hour. Real pre-start substitutions apply only where the XI still
+seats legally, and only those are charged; a pre-start red always costs a man. ⛔ The boost lives only in `domain/what-if-boost.ts`
 (tempo ×2 plus a trailing lift and leader ease-off). Never move it into
 `BASELINE_MODIFIERS`. After changing the engine, re-run `what-if-difficulty.test.ts`; it
 pins the 15–45% band and the 22–28% mean. Real XIs match by folded exact name: absent beats

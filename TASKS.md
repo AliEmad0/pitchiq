@@ -6284,15 +6284,15 @@ targets and relegation start, era-authentic substitution rules, and squad rotati
 
 | Scenario                             | Start      | Real result | Rescue rate (300 runs) |
 | ------------------------------------ | ---------- | ----------- | ---------------------- |
-| Spurs v **Man United**, 2001         | 3–0 at 45' | 3–5         | 26.7%                  |
+| Spurs v **Man United**, 2001         | 3–0 at 45' | 3–5         | 32.0%                  |
 | **Newcastle** v Arsenal, 2011        | 0–4 at 26' | 4–4         | 22.0%                  |
 | **Crystal Palace** v Liverpool, 2014 | 0–3 at 55' | 3–3         | 20.0%                  |
-| **West Brom** v Man United, 2013     | 0–3 at 30' | 5–5         | 43.0%                  |
-| **Liverpool** v Man United, 1994     | 0–3 at 24' | 3–3         | 23.7%                  |
-| **Southampton** v Liverpool, 2000    | 0–3 at 64' | 3–3         | 15.7%                  |
-| West Ham v **Wimbledon**, 1998       | 3–0 at 27' | 3–4         | 24.3%                  |
+| **West Brom** v Man United, 2013     | 0–3 at 30' | 5–5         | 44.0%                  |
+| **Liverpool** v Man United, 1994     | 0–3 at 24' | 3–3         | 24.0%                  |
+| **Southampton** v Liverpool, 2000    | 0–3 at 64' | 3–3         | 16.0%                  |
+| West Ham v **Wimbledon**, 1998       | 3–0 at 27' | 3–4         | 24.7%                  |
 
-Mean **25.0%** — the owner's "1 in 4". Unboosted, every rescue succeeded **0–3%**.
+Mean **26.1%** — the owner's "1 in 4". Unboosted, every rescue succeeded **0–3%**.
 
 **⚠️ Rules this ticket pinned**
 
@@ -6300,7 +6300,9 @@ Mean **25.0%** — the owner's "1 in 4". Unboosted, every rescue succeeded **0�
 2. **`MatchSetup.startState` is inert when absent** — 250 pre-change fingerprints are pinned. Its score and dismissals are **derived from the real prior events**, so the scoreboard and every goal-counting view (report, commentary) agree by construction.
 3. **The boost is TWO levers in ONE rule** (`domain/what-if-boost.ts`): the engine fixes a match's total chances and weights only split them, so a trailing-side lift alone stalls near a ⅔ share. Tempo ×2 plus a lift for the trailer / ease-off for the leader, per goal of deficit, scaled by time left. What-If only, never in `BASELINE_MODIFIERS`.
 4. **Real XI by name, never a guess** — accent/case-folded exact matching; 15 of 20 sides field their real XI, the rest show "Best available". Absent beats wrong.
-5. Dropped after measuring: Bournemouth–Luton (44%) and Chelsea–Man United (41%) too easy, Norwich–Middlesbrough (7%) too hard.
+5. **The team talk is raised AT the start minute, where no play happens** — at `minute + 1` it collided with that minute's in-play sub-offer or goal response (same kind/minute/side), which the driver's duplicate guard cannot tell apart.
+6. **Real substitutions before the start are applied** where the changed XI still seats legally, and only applied ones are charged (Spurs 2001: Silvestre for Irwin applies; Solskjær for Butt — three strikers — cannot seat and is not charged). A pre-start red always costs the side a man.
+7. Dropped after measuring: Bournemouth–Luton (44%) and Chelsea–Man United (41%) too easy, Norwich–Middlesbrough (7%) too hard.
 
 ### TASK-1817
 
