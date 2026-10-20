@@ -106,9 +106,12 @@ describe("formatHref (TASK-1811)", () => {
   });
 
   it("⭐ every playable mode with a single match also offers a LIVE season (owner, 2026-10-12)", () => {
-    // The daily is the one exception, and it is `n/a` rather than missing: a season-long
-    // "one challenge a day" is a contradiction (TASK-1841).
-    const shipped = GAME_MODES.filter((m) => m.formats.single === "live" && m.id !== "daily");
+    // The exceptions are `n/a` rather than missing, and each is pinned by name so a new one
+    // is a deliberate edit: a season-long "one challenge a day" is a contradiction
+    // (TASK-1841), and a What-If rescue is ONE real match, not a league (TASK-1816).
+    const exempt = GAME_MODES.filter((m) => m.formats.season === "n/a").map((m) => m.id);
+    expect(exempt.sort()).toEqual(["daily", "whatIf"]);
+    const shipped = GAME_MODES.filter((m) => m.formats.single === "live" && !exempt.includes(m.id));
     expect(shipped.map((m) => m.id).sort()).toEqual(
       ["budget", "captains", "chaos", "chemistry", "h2h", "legacy", "nation"].sort(),
     );

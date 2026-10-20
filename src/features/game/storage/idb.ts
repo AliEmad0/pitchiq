@@ -1,5 +1,5 @@
 const DB_NAME = "pitchiq-game";
-const DB_VERSION = 3;
+export const DB_VERSION = 4;
 
 /**
  * Every object store in the database.
@@ -15,8 +15,12 @@ const DB_VERSION = 3;
  *
  * TASK-1811 added `season` the same way, taking it to v3, and `season-slot.test.ts` proves the
  * survival claim again rather than inheriting it.
+ *
+ * TASK-1816 added `whatIf` (best result per scenario), taking it to v4. `what-if-slot.test.ts`
+ * opens a REAL v3 database first and then upgrades it — the earlier tests wrote and read at
+ * the current version, so they never exercised an upgrade at all.
  */
-const STORES = ["match", "daily", "season"] as const;
+const STORES = ["match", "daily", "season", "whatIf"] as const;
 export type StoreName = (typeof STORES)[number];
 
 /**

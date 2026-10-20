@@ -1396,5 +1396,40 @@
         "2": "لا طريق لـ{coach}"
       }
     }
+  },
+  "gameWhatIf": {
+    "title": "ماذا لو؟",
+    "subtitle": "انهيارات حقيقية في الدوري الإنجليزي. تولَّ الفريق المتأخر — في الدقيقة الحقيقية وبالنتيجة الحقيقية — وأعد كتابة التاريخ.",
+    "listHeading": "متابعة؟",
+    "listAria": "السيناريوهات",
+    "deficit": "{score} في الدقيقة {minute}",
+    "ended": "انتهت {score}",
+    "youTake": "تتولى {club}",
+    "play": "العب",
+    "chipNone": "لم تُلعب",
+    "chipRewrote": "أُعيدت كتابتها",
+    "chipMatched": "تعادلت مع التاريخ",
+    "chipRepeated": "تكرّر التاريخ",
+    "loading": "نعيد الشريط…",
+    "loadError": "تعذّر تحميل الشريط.",
+    "retry": "حاول مجدداً",
+    "back": "كل السيناريوهات",
+    "talkLive": "مباشر · {date}",
+    "talkRadio": "«…والنتيجة {score} هنا في الدقيقة {minute}. {club} بحاجة إلى معجزة.»",
+    "talkLeft": "{minutes} دقيقة لإعادة كتابتها",
+    "talkHeading": "حديثك مع الفريق، {club}",
+    "talkPitchAria": "تشكيلة {club}",
+    "xiReal": "التشكيلة الحقيقية",
+    "xiBest": "أفضل المتاح",
+    "talkHint": "اختر كيف يعودون إلى الملعب. التغييرات بعد ذلك.",
+    "verdictFull": "نهاية المباراة",
+    "verdictHistory": "التاريخ {score}",
+    "verdictRewrote": "أُعيدت كتابة التاريخ",
+    "verdictMatched": "التاريخ يتكرر بالتساوي",
+    "verdictRepeated": "تكرّر التاريخ",
+    "verdictRewroteLine": "قدّمت أفضل مما قدّمه {club} الحقيقي.",
+    "verdictMatchedLine": "تماماً كما فعل {club} الحقيقي.",
+    "verdictRepeatedLine": "{club} الحقيقي قدّم أفضل.",
+    "again": "حاول مجدداً"
   }
 }

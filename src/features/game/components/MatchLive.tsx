@@ -64,6 +64,12 @@ const DECISION_LIMIT = 20;
 
 interface Props {
   coachSide?: "home" | "away";
+  /**
+   * TASK-1816 — the minute the clock starts at. A What-If scenario resumes a REAL match
+   * part-way through; replaying its first half-hour at 1× before the coach can act would
+   * be dead time. Absent = 0, the kick-off every other mode has.
+   */
+  startMinute?: number;
   model: MatchViewModel;
   /** The source teams — the only place the formation and the seasons survive. */
   teams: { home: GameTeam; away: GameTeam };
@@ -135,6 +141,7 @@ const stripMinuteSuffix = (s: string) => s.replace(/\s*\(\d+'\)\s*$/, "");
  */
 export function MatchLive({
   coachSide = "home",
+  startMinute = 0,
   model,
   teams,
   holdAt,
@@ -152,7 +159,7 @@ export function MatchLive({
   const reduced = prefersReducedMotion();
 
   const ceiling = holdAt != null ? Math.min(holdAt, model.lastMinute) : model.lastMinute;
-  const [minute, setMinute] = useState(reduced ? ceiling : 0);
+  const [minute, setMinute] = useState(reduced ? ceiling : startMinute);
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState<number>(1);
   const [mode, setMode] = useState<SubMode>("auto");

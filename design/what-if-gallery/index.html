@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>What-If Gallery</title>
+<!--
+  TASK-1816 — 30-concept gallery for the What-If mode. Standalone: open index.html directly.
+  Built from template.html by build.py, which embeds the REAL scenario data extracted from
+  data/events-*.json, fixtures-*.json and lineups-*.json (deficit minute, score, final score,
+  real starting XIs, real scorers). Three screens per concept — the scenario LIST, the TEAM
+  TALK at the start whistle, and the VERDICT — switch with the bar at the top. Each concept
+  renders in a DESKTOP (720px) and a MOBILE (375px) frame; frames are CSS containers.
+-->
+<style>
+:root{--ui:#0f0d17;--ui-fg:#ece9f5;--ui-mut:#8f8aa3;--ui-line:#2a2638}
+body[data-era=modern][data-theme=light]{--bg:#fafafa;--fg:#0c0a14;--card:#fff;--mut:#52525b;--line:#e4e2ea;--pri:#a3179a;--acc:#2dd4bf;--paper:#f6f2ea}
+body[data-era=modern][data-theme=dark]{--bg:#0c0a14;--fg:#fafafa;--card:#1a1726;--mut:#a1a1aa;--line:#2f2a40;--pri:#c91dbb;--acc:#2dd4bf;--paper:#1f1b2b}
+body[data-era=retro90s][data-theme=light]{--bg:#e9e0cb;--fg:#241f16;--card:#e3d8bc;--mut:#5c503a;--line:#cbbd99;--pri:#8f2b25;--acc:#2d6a5a;--paper:#efe5cc}
+body[data-era=retro90s][data-theme=dark]{--bg:#211c15;--fg:#ece0c4;--card:#2a2418;--mut:#b3a585;--line:#3d3424;--pri:#d2554c;--acc:#5fc4a8;--paper:#2e2719}
+body[data-era=golden][data-theme=light]{--bg:#e9f0f7;--fg:#14243a;--card:#fff;--mut:#4a5d75;--line:#cfdbe8;--pri:#11647c;--acc:#b5462e;--paper:#f4f8fc}
+body[data-era=golden][data-theme=dark]{--bg:#081322;--fg:#eaf2fb;--card:#0e1a2c;--mut:#93a8c2;--line:#1d3350;--pri:#2fd4ec;--acc:#ff8a5c;--paper:#102236}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--ui);color:var(--ui-fg);font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+.bar{position:sticky;top:0;z-index:10;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;padding:10px 16px;background:#14111ef2;border-bottom:1px solid var(--ui-line)}
+.bar h1{font-size:15px;margin:0 6px 0 0}
+.seg{display:flex;border:1px solid var(--ui-line);border-radius:8px;overflow:hidden;flex-wrap:wrap}
+.seg button{background:none;border:0;color:var(--ui-mut);padding:6px 9px;font:inherit;cursor:pointer}
+.seg button[aria-pressed=true]{background:#2b2640;color:#fff}
+select{background:#1d1929;color:#fff;border:1px solid var(--ui-line);border-radius:8px;padding:5px 8px;font:inherit;max-width:240px}
+main{padding:16px;max-width:1180px;margin:0 auto}
+.intro{color:var(--ui-mut);max-width:820px}
+.concept{margin:26px 0 40px}
+.concept h2{font-size:16px;margin:0 0 2px}
+.concept h2 b{display:inline-block;min-width:34px;color:#fff;background:#2b2640;border-radius:6px;padding:1px 7px;margin-right:8px;text-align:center}
+.concept p.why{color:var(--ui-mut);margin:0 0 10px;max-width:860px}
+.frames{display:flex;gap:16px;align-items:flex-start;overflow-x:auto;padding-bottom:6px}
+.frame{flex:none;background:var(--bg);color:var(--fg);border-radius:14px;border:1px solid var(--ui-line);padding:14px;container-type:inline-size;overflow:hidden}
+.frame.d{width:720px}.frame.m{width:375px}
+.tag{font:11px/1 system-ui;color:var(--ui-mut);margin:0 0 6px}
+@media (max-width:760px){.frames{flex-direction:column}.frames>div{width:100%}.frame.d{width:100%}.frame.m{width:100%;max-width:375px}}
+
+/* ── shared atoms ── */
+.s{--k-bg:var(--card);--k-fg:var(--fg);--k-mut:var(--mut);--k-line:var(--line);--k-pri:var(--pri);--k-acc:var(--acc);--k-font:system-ui,sans-serif;--k-head:system-ui,sans-serif;--k-rad:12px;background:var(--k-bg);color:var(--k-fg);font-family:var(--k-font);border-radius:var(--k-rad);padding:14px;border:1px solid var(--k-line)}
+.s h3,.s .h{font-family:var(--k-head);margin:0 0 8px}
+.mut{color:var(--k-mut)}
+.crest{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;font:800 11px system-ui;color:#fff;flex:none}
+.chip{display:inline-block;font:700 10px/1 system-ui;letter-spacing:.06em;text-transform:uppercase;padding:4px 8px;border-radius:999px;border:1px solid currentColor}
+.chip.rewrote{color:#16a34a}.chip.matched{color:#d97706}.chip.repeated{color:#dc2626}.chip.new{color:var(--k-mut)}
+.btn{display:inline-block;background:var(--k-pri);color:#fff;border-radius:999px;padding:8px 16px;font:700 13px system-ui;border:0}
+.btn.ghost{background:transparent;color:var(--k-fg);border:1px solid var(--k-line)}
+.score{font:800 1.6em/1 var(--k-head);font-variant-numeric:tabular-nums}
+.grid{display:grid;gap:10px}
+@container (min-width:520px){.grid.c2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid.c3{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.grid>*{min-width:0}.l-card,.l-teams{overflow-wrap:anywhere}.l-teams{flex-wrap:wrap}
+
+/* list layouts */
+.l-card{border:1px solid var(--k-line);border-radius:calc(var(--k-rad) - 4px);padding:10px;display:grid;gap:6px;background:color-mix(in srgb,var(--k-bg) 85%,var(--k-fg))}
+.l-teams{display:flex;align-items:center;gap:8px;font-weight:700}
+.l-deficit{font:800 22px/1 var(--k-head);color:var(--k-pri)}
+.l-row{display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--k-line)}
+@container (max-width:520px){.l-row{grid-template-columns:auto 1fr auto}.l-row .hide-m{display:none}}
+.l-tl{position:relative;padding-inline-start:18px;border-inline-start:3px solid var(--k-pri)}
+.l-tl .l-card{margin:0 0 10px;position:relative}
+.l-tl .l-card::before{content:"";position:absolute;inset-inline-start:-26px;top:14px;width:12px;height:12px;border-radius:50%;background:var(--k-pri)}
+.l-ticket{display:grid;grid-template-columns:1fr auto;border:2px dashed var(--k-line);border-radius:8px;overflow:hidden}
+.l-ticket .stub{writing-mode:vertical-rl;padding:8px 6px;background:var(--k-pri);color:#fff;font:800 12px system-ui;letter-spacing:.1em}
+.l-ticket .body{padding:10px}
+.l-board{font:700 14px/1.2 "Courier New",monospace;background:#111;color:#ffd84d;padding:8px;border-radius:6px}
+.l-board .l-row{border-color:#333}
+.l-poster{text-align:center;padding:16px;border:3px double var(--k-line)}
+.l-poster .l-deficit{font-size:44px}
+
+/* team talk */
+.t-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.t-moment{font:800 30px/1 var(--k-head)}
+.t-pitch{position:relative;aspect-ratio:3/2;border-radius:10px;background:repeating-linear-gradient(90deg,#2f7d3b 0 10%,#2a7035 10% 20%);border:2px solid #fff6;margin:8px 0}
+.t-dot{position:absolute;transform:translate(-50%,-50%);font:700 9px/1.1 system-ui;color:#fff;text-align:center;width:70px}
+.t-dot i{display:block;width:12px;height:12px;border-radius:50%;background:var(--k-pri);border:2px solid #fff;margin:0 auto 2px}
+.t-resp{display:grid;gap:8px}
+@container (min-width:520px){.t-resp{grid-template-columns:repeat(3,1fr)}}
+.t-opt{border:1px solid var(--k-line);border-radius:10px;padding:10px}
+.t-opt b{display:block}
+.t-opt.on{border-color:var(--k-pri);box-shadow:0 0 0 2px var(--k-pri) inset}
+.t-xi{columns:2;font-size:12px;margin:6px 0}
+@container (max-width:420px){.t-xi{columns:1}}
+.t-dial{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.t-dial .t-opt{width:120px;height:120px;border-radius:50%;display:grid;place-items:center;text-align:center}
+
+/* verdict */
+.v-stamp{display:inline-block;transform:rotate(-8deg);border:5px solid currentColor;padding:6px 16px;font:900 34px/1 Impact,system-ui;text-transform:uppercase}
+.v-cmp{display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:center}
+.v-cmp>div{border:1px solid var(--k-line);border-radius:10px;padding:10px}
+.v-ladder{display:grid;gap:6px}
+.v-ladder div{padding:8px 10px;border-radius:8px;border:1px solid var(--k-line);opacity:.45}
+.v-ladder div.on{opacity:1;border-color:currentColor;font-weight:800}
+.v-cert{border:6px double var(--k-line);padding:18px;text-align:center}
+.rewrote{color:#16a34a}.matched{color:#d97706}.repeated{color:#dc2626}
+
+/* ── 30 skins ── */
+.k1{--k-head:Georgia,serif}.k1 .h{font-size:28px;font-weight:800;border-bottom:3px double var(--k-line);padding-bottom:4px}
+.k2{--k-bg:#fff;--k-fg:#111;--k-head:Impact,"Arial Narrow",sans-serif;--k-pri:#d4161c;--k-line:#111;--k-rad:0}.k2 .h{font-size:34px;text-transform:uppercase}
+.k3{--k-bg:#05030b;--k-fg:#f3e8ff;--k-mut:#8fe9ff;--k-line:#2b1940;--k-pri:#ff4fd8;--k-head:"Courier New",monospace}.k3 .h{color:#ff4fd8;text-shadow:0 0 8px #ff4fd8;text-transform:uppercase}
+.k4{--k-bg:#1b1b1b;--k-fg:#e8e8e8;--k-pri:#ff5a36;--k-head:"Courier New",monospace;--k-rad:4px}.k4 .h::before{content:"▶ PLAY  ";color:#ff5a36}
+.k5{--k-bg:#000;--k-fg:#fff;--k-mut:#0ff;--k-pri:#00f;--k-line:#333;--k-font:"Courier New",monospace;--k-head:"Courier New",monospace;--k-rad:0}.k5 .h{background:#f00;padding:3px 6px;text-transform:uppercase}
+.k6{--k-bg:#22302a;--k-fg:#e9efe6;--k-mut:#c9d3c5;--k-line:#ffffff33;--k-pri:#ffe27a;--k-head:"Segoe Print","Bradley Hand","Comic Sans MS",cursive;--k-rad:4px;border:8px solid #6b4a2b}
+.k7{--k-bg:var(--paper);--k-head:Georgia,serif;--k-rad:2px;border:2px solid var(--k-fg)}.k7 .h{text-align:center;text-transform:uppercase;letter-spacing:.08em}
+.k8{--k-bg:#f3e7c9;--k-fg:#2b2416;--k-mut:#5c503a;--k-line:#8a7a55;--k-pri:#8f2b25;--k-font:"Courier New",monospace;--k-head:"Courier New",monospace;--k-rad:0;border-style:dashed}
+.k9{--k-bg:#e8d8a8;--k-fg:#3a2a12;--k-mut:#5a4320;--k-line:#3a2a12;--k-pri:#8f2b25;--k-head:Rockwell,"Courier New",serif;--k-rad:0;border:6px double #3a2a12}
+.k10{--k-bg:#fffdf5;--k-fg:#111;--k-line:#111;--k-pri:#ffcf00;--k-head:"Comic Sans MS","Marker Felt",cursive;--k-rad:6px;border:3px solid #111;box-shadow:6px 6px 0 #111}.k10 .btn{color:#111}
+.k11{--k-bg:#0b0f14;--k-fg:#e6edf5;--k-mut:#8aa0b8;--k-line:#1e2a38;--k-pri:#e10600;--k-head:"Arial Black",system-ui}.k11 .h{border-inline-start:6px solid #e10600;padding-inline-start:8px}
+.k12{--k-head:system-ui;--k-rad:16px}.k12 .h{font-weight:300;font-size:26px}
+.k13{--k-bg:color-mix(in srgb,var(--card) 60%,transparent);--k-rad:20px;backdrop-filter:blur(8px);box-shadow:0 10px 40px #0005}
+.k14{--k-bg:#071226;--k-fg:#fff;--k-mut:#9fb3d1;--k-line:#1c2c4a;--k-pri:#f5c518;--k-head:"Arial Black",system-ui;background-image:radial-gradient(120% 60% at 50% -10%,#f5c51833,transparent)}
+.k15{--k-pri:#e4002b;--k-acc:#00205b;--k-head:"Arial Black",system-ui;--k-rad:6px;border-top:10px solid #e4002b}
+.k16{--k-bg:#fbf6ea;--k-fg:#2c2416;--k-head:"Segoe Print","Bradley Hand",cursive;--k-rad:4px;box-shadow:0 4px 0 #d9cdb2;transform:rotate(-.4deg)}
+.k17{--k-bg:#0d3b66;--k-fg:#e8f1ff;--k-mut:#a9c6ea;--k-line:#ffffff40;--k-pri:#ffd166;--k-font:"Courier New",monospace;--k-head:"Courier New",monospace;--k-rad:2px;background-image:linear-gradient(#ffffff14 1px,transparent 1px),linear-gradient(90deg,#ffffff14 1px,transparent 1px);background-size:20px 20px}
+.k18{--k-bg:#2a2a2a;--k-fg:#f2f2f2;--k-pri:#e8b04a;--k-head:"Courier New",monospace;--k-rad:10px;border:4px solid #555}
+.k19{--k-bg:#fff;--k-fg:#222;--k-pri:#ff2d75;--k-head:"Arial Rounded MT Bold","Segoe UI",system-ui;--k-rad:22px;border:4px solid #fff;box-shadow:0 0 0 3px #ff2d75}
+.k20{--k-bg:#d9cfbd;--k-fg:#2a241b;--k-mut:#5d5240;--k-line:#8d8068;--k-pri:#2a241b;--k-head:Georgia,serif;--k-rad:0;filter:sepia(.25)}
+.k21{--k-bg:#f5f0e1;--k-fg:#1e1e1e;--k-pri:#b91c1c;--k-font:"Courier New",monospace;--k-head:"Courier New",monospace;--k-rad:2px;border-inline-start:14px solid #c9b88a}
+.k22{--k-bg:#111;--k-fg:#ffd84d;--k-mut:#bba84a;--k-line:#333;--k-pri:#ffd84d;--k-font:"Courier New",monospace;--k-head:"Courier New",monospace;--k-rad:6px}.k22 .btn{color:#111}
+.k23{--k-bg:#fff;--k-fg:#222;--k-rad:4px;padding:14px 14px 34px;box-shadow:0 8px 24px #0004;transform:rotate(.6deg)}
+.k24{--k-bg:#141414;--k-fg:#f0f0f0;--k-pri:#36c5f0;--k-head:"Courier New",monospace;--k-rad:14px}.k24 .h::after{content:" ●";color:#e01e5a}
+.k25{--k-head:Georgia,serif}.k25 .h{font-size:34px;font-style:italic;font-weight:800}
+.k26{--k-bg:#1c1407;--k-fg:#f6e7c1;--k-mut:#c9b27a;--k-line:#6b5420;--k-pri:#d4a52c;--k-head:Georgia,serif;background-image:linear-gradient(180deg,#2a1e09,#1c1407)}
+.k27{--k-head:system-ui;--k-rad:0;border:0;border-top:3px solid var(--k-pri)}
+.k28{--k-bg:linear-gradient(135deg,#ffd6f6,#c7f9ff,#fff6c2);--k-fg:#1a1030;--k-pri:#7c3aed;--k-rad:18px;background:linear-gradient(135deg,#ffd6f6,#c7f9ff,#fff6c2)}
+.k29{--k-bg:#0e1116;--k-fg:#d7e1ea;--k-pri:#2dd4bf;--k-head:system-ui;--k-rad:10px;border-color:#2dd4bf55}
+.k30{--k-head:system-ui;--k-rad:14px}
+</style>
+</head>
+<body data-era="modern" data-theme="dark">
+<div class="bar">
+  <h1>TASK-1816 · What-If — 30 concepts</h1>
+  <div class="seg" id="screen"><button data-v="list" aria-pressed="true">1 · Scenario list</button><button data-v="talk" aria-pressed="false">2 · Team talk</button><button data-v="verdict" aria-pressed="false">3 · Verdict</button></div>
+  <select id="pick" aria-label="Scenario"></select>
+  <div class="seg" id="vd"><button data-v="rewrote" aria-pressed="true">Rewrote</button><button data-v="matched" aria-pressed="false">Matched</button><button data-v="repeated" aria-pressed="false">Repeated</button></div>
+  <div class="seg" id="era"><button data-v="modern" aria-pressed="true">Modern</button><button data-v="golden" aria-pressed="false">Golden</button><button data-v="retro90s" aria-pressed="false">Retro 90s</button></div>
+  <div class="seg" id="theme"><button data-v="dark" aria-pressed="true">Dark</button><button data-v="light" aria-pressed="false">Light</button></div>
+</div>
+<main>
+  <p class="intro">Every scenario is real: the minute and score of the biggest deficit, the real final score, and the real starting XIs come straight from the archive. Switch between the three screens, the scenario, the verdict, the era and the theme at the top. Pick a number (or two to combine).</p>
+  <div id="list"></div>
+</main>
+<script>
+const S=[{"id":"2001-09-29-TOT-MUN","season":2001,"date":"2001-09-29","home":"Tottenham","away":"Man United","homeId":47,"awayId":33,"side":"away","start":45,"sh":3,"sa":0,"fh":3,"fa":5,"reds":[],"subs":2,"xi":{"home":[{"n":"Teddy Sheringham","g":"6:1","p":"Forward"},{"n":"Darren Anderton","g":"4:1","p":"Midfielder"},{"n":"Dean Richards","g":"2:1","p":"Defender"},{"n":"Les Ferdinand","g":"6:2","p":"Forward"},{"n":"Ledley King","g":"2:2","p":"Centre Central Defender"},{"n":"Christian Ziege","g":"2:3","p":"Defender"},{"n":"Mauricio Taricco","g":"2:4","p":"Defender"},{"n":"Steffen Freund","g":"4:2","p":"Midfielder"},{"n":"Gustavo Poyet","g":"4:3","p":"Midfielder"},{"n":"Chris Perry","g":"2:5","p":"Defender"},{"n":"Neil Sullivan","g":"1:1","p":"Goalkeeper"}],"away":[{"n":"Andrew Cole","g":"6:1","p":"Forward"},{"n":"Ronny Johnsen","g":"2:1","p":"Defender"},{"n":"Laurent Blanc","g":"2:2","p":"Defender"},{"n":"Gary Neville","g":"2:4","p":"Right Full Back"},{"n":"Juan Sebastián Verón","g":"4:1","p":"Midfielder"},{"n":"Paul Scholes","g":"4:2","p":"Centre Central Midfielder"},{"n":"Fabien Barthez","g":"1:1","p":"Goalkeeper"},{"n":"Nicky Butt","g":"4:3","p":"Midfielder"},{"n":"Ruud van Nistelrooij","g":"6:2","p":"Forward"},{"n":"Denis Irwin","g":"2:3","p":"Defender"},{"n":"David Beckham","g":"4:4","p":"Midfielder"}],"hf":"5-3-2","af":"4-4-2"},"scorers":[[15,"h","Dean Richards"],[25,"h","Les Ferdinand"],[45,"h","Christian Ziege"],[46,"a","Andrew Cole"],[58,"a","Laurent Blanc"],[72,"a","Ruud van Nistelrooij"],[76,"a","Juan Sebastián Verón"],[87,"a","David Beckham"]]},{"id":"2011-02-05-NEW-ARS","season":2010,"date":"2011-02-05","home":"Newcastle","away":"Arsenal","homeId":34,"awayId":42,"side":"home","start":26,"sh":0,"sa":4,"fh":4,"fa":4,"reds":[],"subs":0,"xi":{"home":[{"n":"Michael Williamson","g":"2:1","p":"Defender"},{"n":"Fabricio Coloccini","g":"2:2","p":"Defender"},{"n":"Kevin Nolan","g":"4:1","p":"Midfielder"},{"n":"José Enrique","g":"2:3","p":"Defender"},{"n":"Peter Løvenkrands","g":"6:1","p":"Forward"},{"n":"Joey Barton","g":"4:2","p":"Midfielder"},{"n":"Jonás Gutiérrez","g":"4:3","p":"Midfielder"},{"n":"Leon Best","g":"6:2","p":"Forward"},{"n":"Steve Harper","g":"1:1","p":"Goalkeeper"},{"n":"Danny Simpson","g":"2:4","p":"Defender"},{"n":"Cheik Tioté","g":"4:4","p":"Midfielder"}],"away":[{"n":"Wojciech Szczesny","g":"1:1","p":"Goalkeeper"},{"n":"Francesc Fábregas","g":"4:1","p":"Midfielder"},{"n":"Robin van Persie","g":"6:1","p":"Forward"},{"n":"Johan Djourou","g":"2:1","p":"Defender"},{"n":"Bacary Sagna","g":"2:2","p":"Defender"},{"n":"Jack Wilshere","g":"4:2","p":"Midfielder"},{"n":"Vassiriki Abou Diaby","g":"4:3","p":"Midfielder"},{"n":"Gaël Clichy","g":"2:3","p":"Defender"},{"n":"Laurent Koscielny","g":"2:4","p":"Defender"},{"n":"Andrey Arshavin","g":"4:4","p":"Midfielder"},{"n":"Theo Walcott","g":"4:5","p":"Midfielder"}],"hf":"4-4-2","af":"4-5-1"},"scorers":[[1,"a","Theo Walcott"],[3,"a","Johan Djourou"],[10,"a","Robin van Persie"],[26,"a","Robin van Persie"],[68,"h","Joey Barton"],[75,"h","Leon Best"],[83,"h","Joey Barton"],[87,"h","Cheik Tioté"]]},{"id":"2014-05-05-CRY-LIV","season":2013,"date":"2014-05-05","home":"Crystal Palace","away":"Liverpool","homeId":52,"awayId":40,"side":"home","start":55,"sh":0,"sa":3,"fh":3,"fa":3,"reds":[],"subs":0,"xi":{"home":[{"n":"Mile Jedinak","g":"3:3","p":"Midfielder"},{"n":"Jason Puncheon","g":"3:1","p":"Midfielder"},{"n":"Marouane Chamakh","g":"5:1","p":"Forward"},{"n":"Julian Speroni","g":"1:1","p":"Goalkeeper"},{"n":"Damien Delaney","g":"2:3","p":"Defender"},{"n":"Kagisho Dikgacoi","g":"3:2","p":"Midfielder"},{"n":"Yannick Bolasie","g":"3:4","p":"Midfielder"},{"n":"Joe Ledley","g":"4:1","p":"Forward"},{"n":"Joel Ward","g":"2:4","p":"Defender"},{"n":"Scott Dann","g":"2:2","p":"Defender"},{"n":"Adrian Mariappa","g":"2:1","p":"Defender"}],"away":[{"n":"Martin Skrtel","g":"2:2","p":"Defender"},{"n":"Mamadou Sakho","g":"2:3","p":"Defender"},{"n":"Steven Gerrard","g":"3:1","p":"Midfielder"},{"n":"Lucas Leiva","g":"4:1","p":"Midfielder"},{"n":"Joe Allen","g":"4:2","p":"Midfielder"},{"n":"Simon Mignolet","g":"1:1","p":"Goalkeeper"},{"n":"Jon Flanagan","g":"2:4","p":"Defender"},{"n":"Raheem Sterling","g":"5:1","p":"Midfielder"},{"n":"Daniel Sturridge","g":"6:2","p":"Forward"},{"n":"Glen Johnson","g":"2:1","p":"Defender"},{"n":"Luis Suarez","g":"6:1","p":"Forward"}],"hf":"4-4-1-1","af":"4-1-2-1-2"},"scorers":[[18,"a","Joe Allen"],[53,"a","Damien Delaney"],[55,"a","Luis Suarez"],[79,"h","Damien Delaney"],[81,"h","Dwight Gayle"],[88,"h","Dwight Gayle"]]},{"id":"2013-05-19-WBA-MUN","season":2012,"date":"2013-05-19","home":"West Brom","away":"Man United","homeId":60,"awayId":33,"side":"home","start":30,"sh":0,"sa":3,"fh":5,"fa":5,"reds":[],"subs":0,"xi":{"home":[{"n":"Gareth McAuley","g":"2:2","p":"Defender"},{"n":"Jonas Olsson","g":"2:3","p":"Defender"},{"n":"Graham Dorrans","g":"4:1","p":"Midfielder"},{"n":"Youssouf Mulumbu","g":"3:2","p":"Midfielder"},{"n":"Billy Jones","g":"2:1","p":"Defender"},{"n":"Liam Ridgewell","g":"2:4","p":"Defender"},{"n":"Claudio Yacob","g":"3:1","p":"Midfielder"},{"n":"James Morrison","g":"4:2","p":"Midfielder"},{"n":"Shane Long","g":"5:1","p":"Forward"},{"n":"Ben Foster","g":"1:1","p":"Goalkeeper"},{"n":"Chris Brunt","g":"4:3","p":"Midfielder"}],"away":[{"n":"Chicharito","g":"4:2","p":"Midfielder"},{"n":"Tom Cleverley","g":"4:1","p":"Midfielder"},{"n":"Anders Lindegaard","g":"1:1","p":"Goalkeeper"},{"n":"Alexander Büttner","g":"2:4","p":"Defender"},{"n":"Antonio Valencia","g":"2:1","p":"Defender"},{"n":"Michael Carrick","g":"3:2","p":"Midfielder"},{"n":"Robin van Persie","g":"5:1","p":"Forward"},{"n":"Jonny Evans","g":"2:3","p":"Defender"},{"n":"Phil Jones","g":"2:2","p":"Defender"},{"n":"Anderson","g":"3:1","p":"Midfielder"},{"n":"Shinji Kagawa","g":"4:3","p":"Midfielder"}],"hf":"4-2-3-1","af":"4-2-3-1"},"scorers":[[6,"a","Shinji Kagawa"],[9,"a","Jonas Olsson"],[30,"a","Alexander Büttner"],[40,"h","James Morrison"],[50,"h","Romelu Lukaku"],[53,"a","Robin van Persie"],[63,"a","Chicharito"],[80,"h","Romelu Lukaku"],[81,"h","Youssouf Mulumbu"],[86,"h","Romelu Lukaku"]]},{"id":"2024-03-13-BOU-LUT","season":2023,"date":"2024-03-13","home":"Bournemouth","away":"Luton","homeId":35,"awayId":1359,"side":"home","start":46,"sh":0,"sa":3,"fh":4,"fa":3,"reds":[],"subs":2,"xi":{"home":[{"n":"Neto","g":"1:1","p":"Goalkeeper"},{"n":"Dango Ouattara","g":"2:4","p":"Defender"},{"n":"Dominic Solanke","g":"5:1","p":"Forward"},{"n":"Chris Mepham","g":"2:2","p":"Defender"},{"n":"Adam Smith","g":"2:1","p":"Defender"},{"n":"Illia Zabarnyi","g":"2:3","p":"Defender"},{"n":"Antoine Semenyo","g":"4:1","p":"Midfielder"},{"n":"Lewis Cook","g":"3:1","p":"Midfielder"},{"n":"Luis Sinisterra","g":"4:3","p":"Midfielder"},{"n":"Alex Scott","g":"4:2","p":"Midfielder"},{"n":"Ryan Christie","g":"3:2","p":"Midfielder"}],"away":[{"n":"Daiki Hashioka","g":"2:3","p":"Defender"},{"n":"Alfie Doughty","g":"3:4","p":"Midfielder"},{"n":"Carlton Morris","g":"5:1","p":"Forward"},{"n":"Chiedozie Ogbene","g":"4:1","p":"Forward"},{"n":"Tahith Chong","g":"4:2","p":"Forward"},{"n":"Thomas Kaminski","g":"1:1","p":"Goalkeeper"},{"n":"Teden Mengi","g":"2:2","p":"Defender"},{"n":"Ross Barkley","g":"3:3","p":"Midfielder"},{"n":"Reece Burke","g":"2:1","p":"Defender"},{"n":"Jordan Clark","g":"3:2","p":"Midfielder"},{"n":"Issa Kaboré","g":"3:1","p":"Midfielder"}],"hf":"4-2-3-1","af":"3-4-2-1"},"scorers":[[9,"a","Tahith Chong"],[31,"a","Chiedozie Ogbene"],[46,"a","Ross Barkley"],[50,"h","Dominic Solanke"],[62,"h","Illia Zabarnyi"],[64,"h","Antoine Semenyo"],[83,"h","Antoine Semenyo"]]},{"id":"2005-01-22-NOR-MID","season":2004,"date":"2005-01-22","home":"Norwich","away":"Middlesbrough","homeId":71,"awayId":70,"side":"home","start":78,"sh":1,"sa":4,"fh":4,"fa":4,"reds":[],"subs":5,"xi":{"home":[{"n":"Dean Ashton","g":"6:1","p":"Forward"},{"n":"Robert Green","g":"1:1","p":"Goalkeeper"},{"n":"Adam Drury","g":"2:1","p":"Left Full Back"},{"n":"Craig Fleming","g":"2:2","p":"Defender"},{"n":"Damien Francis","g":"4:1","p":"Midfielder"},{"n":"Gary Doherty","g":"2:3","p":"Defender"},{"n":"Phil Mulryne","g":"4:2","p":"Midfielder"},{"n":"Mattias Jonson","g":"4:3","p":"Midfielder"},{"n":"Darren Huckerby","g":"6:2","p":"Forward"},{"n":"Marc Edworthy","g":"2:4","p":"Defender"},{"n":"Jim Brennan","g":"2:5","p":"Defender"}],"away":[{"n":"Franck Queudrue","g":"2:1","p":"Defender"},{"n":"Stewart Downing","g":"6:1","p":"Left/Right Winger"},{"n":"Tony McMahon","g":"2:2","p":"Defender"},{"n":"Ray Parlour","g":"4:1","p":"Midfielder"},{"n":"Gareth Southgate","g":"2:3","p":"Defender"},{"n":"Mark Schwarzer","g":"1:1","p":"Goalkeeper"},{"n":"Michael Reiziger","g":"2:4","p":"Defender"},{"n":"Doriva","g":"4:2","p":"Midfielder"},{"n":"Boudewijn Zenden","g":"4:3","p":"Midfielder"},{"n":"Jimmy Floyd Hasselbaink","g":"6:2","p":"Forward"},{"n":"Joseph-Desire Job","g":"6:3","p":"Forward"}],"hf":"5-3-2","af":"4-3-3"},"scorers":[[17,"h","Damien Francis"],[34,"a","Jimmy Floyd Hasselbaink"],[49,"a","Franck Queudrue"],[55,"a","Franck Queudrue"],[78,"a","Jimmy Floyd Hasselbaink"],[80,"h","Dean Ashton"],[89,"h","Leon McKenzie"],[90,"h","Adam Drury"]]},{"id":"1994-01-04-LIV-MUN","season":1993,"date":"1994-01-04","home":"Liverpool","away":"Man United","homeId":40,"awayId":33,"side":"home","start":24,"sh":0,"sa":3,"fh":3,"fa":3,"reds":[],"subs":0,"xi":{"home":[{"n":"Jamie Redknapp","g":"4:1","p":"Midfielder"},{"n":"Bruce Grobbelaar","g":"1:1","p":"Goalkeeper"},{"n":"Mark Wright","g":"2:1","p":"Defender"},{"n":"Neil Ruddock","g":"2:2","p":"Defender"},{"n":"Rob Jones","g":"2:3","p":"Defender"},{"n":"Steve McManaman","g":"4:2","p":"Midfielder"},{"n":"John Barnes","g":"4:3","p":"Midfielder"},{"n":"Nigel Clough","g":"4:4","p":"Midfielder"},{"n":"Ian Rush","g":"6:1","p":"Forward"},{"n":"Robbie Fowler","g":"6:2","p":"Forward"},{"n":"Julian Dicks","g":"2:4","p":"Defender"}],"away":[{"n":"Gary Pallister","g":"2:1","p":"Defender"},{"n":"Steve Bruce","g":"2:2","p":"Defender"},{"n":"Roy Keane","g":"4:2","p":"Midfielder"},{"n":"Eric Cantona","g":"6:1","p":"Forward"},{"n":"Brian McClair","g":"6:2","p":"Forward"},{"n":"Paul Parker","g":"2:3","p":"Defender"},{"n":"Denis Irwin","g":"2:4","p":"Defender"},{"n":"Ryan Giggs","g":"4:1","p":"Left/Centre Central Midfielder"},{"n":"Paul Ince","g":"4:3","p":"Midfielder"},{"n":"Andrei Kanchelskis","g":"4:4","p":"Midfielder"},{"n":"Peter Schmeichel","g":"1:1","p":"Goalkeeper"}],"hf":"4-4-2","af":"4-4-2"},"scorers":[[9,"a","Steve Bruce"],[20,"a","Ryan Giggs"],[24,"a","Denis Irwin"],[25,"h","Nigel Clough"],[38,"h","Nigel Clough"],[79,"h","Neil Ruddock"]]},{"id":"2000-08-26-SOU-LIV","season":2000,"date":"2000-08-26","home":"Southampton","away":"Liverpool","homeId":41,"awayId":40,"side":"home","start":64,"sh":0,"sa":3,"fh":3,"fa":3,"reds":[],"subs":2,"xi":{"home":[{"n":"Hassan Kachloul","g":"4:1","p":"Midfielder"},{"n":"Matt Oakley","g":"4:2","p":"Midfielder"},{"n":"Marian Pahars","g":"6:1","p":"Forward"},{"n":"Uwe Rösler","g":"6:2","p":"Forward"},{"n":"Neil Moss","g":"1:1","p":"Goalkeeper"},{"n":"Jason Dodd","g":"2:1","p":"Defender"},{"n":"Dean Richards","g":"2:2","p":"Defender"},{"n":"Claus Lundekvam","g":"2:3","p":"Defender"},{"n":"Jo Tessem","g":"4:3","p":"Midfielder"},{"n":"Wayne Bridge","g":"2:4","p":"Defender"},{"n":"Mark Draper","g":"4:4","p":"Midfielder"}],"away":[{"n":"Jamie Carragher","g":"2:5","p":"Centre/Right Central Defender"},{"n":"Sander Westerveld","g":"1:1","p":"Goalkeeper"},{"n":"Dietmar Hamann","g":"4:1","p":"Midfielder"},{"n":"Michael Owen","g":"6:1","p":"Forward"},{"n":"Sami Hyypiä","g":"2:1","p":"Defender"},{"n":"Nick Barmby","g":"4:2","p":"Midfielder"},{"n":"Stéphane Henchoz","g":"2:2","p":"Defender"},{"n":"Markus Babbel","g":"2:3","p":"Defender"},{"n":"Steven Gerrard","g":"3:1","p":"Centre Defensive Midfielder"},{"n":"Vladimir Smicer","g":"4:3","p":"Midfielder"},{"n":"Djimi Traore","g":"2:4","p":"Defender"}],"hf":"4-4-2","af":"5-1-3-1"},"scorers":[[24,"a","Michael Owen"],[55,"a","Sami Hyypiä"],[64,"a","Michael Owen"],[73,"h","Marian Pahars"],[85,"h","Tahar El-Khalej"],[90,"h","Marian Pahars"]]},{"id":"2012-02-05-CHE-MUN","season":2011,"date":"2012-02-05","home":"Chelsea","away":"Man United","homeId":49,"awayId":33,"side":"away","start":50,"sh":3,"sa":0,"fh":3,"fa":3,"reds":[],"subs":0,"xi":{"home":[{"n":"Florent Malouda","g":"4:1","p":"Midfielder"},{"n":"Michael Essien","g":"4:2","p":"Midfielder"},{"n":"José Bosingwa","g":"2:1","p":"Defender"},{"n":"David Luiz","g":"2:2","p":"Defender"},{"n":"Gary Cahill","g":"2:3","p":"Defender"},{"n":"Raul Meireles","g":"4:3","p":"Midfielder"},{"n":"Daniel Sturridge","g":"6:1","p":"Forward"},{"n":"Fernando Torres","g":"6:2","p":"Forward"},{"n":"Petr Cech","g":"1:1","p":"Goalkeeper"},{"n":"Branislav Ivanovic","g":"2:4","p":"Defender"},{"n":"Juan Mata","g":"6:3","p":"Forward"}],"away":[{"n":"David De Gea","g":"1:1","p":"Goalkeeper"},{"n":"Rafael","g":"2:1","p":"Defender"},{"n":"Michael Carrick","g":"4:1","p":"Midfielder"},{"n":"Wayne Rooney","g":"6:1","p":"Forward"},{"n":"Rio Ferdinand","g":"2:2","p":"Defender"},{"n":"Patrice Evra","g":"2:3","p":"Defender"},{"n":"Jonny Evans","g":"2:4","p":"Defender"},{"n":"Ashley Young","g":"4:2","p":"Midfielder"},{"n":"Ryan Giggs","g":"4:3","p":"Midfielder"},{"n":"Antonio Valencia","g":"4:4","p":"Midfielder"},{"n":"Danny Welbeck","g":"6:2","p":"Forward"}],"hf":"4-3-3","af":"4-4-2"},"scorers":[[36,"h","Jonny Evans"],[46,"h","Juan Mata"],[50,"h","David Luiz"],[58,"a","Wayne Rooney"],[69,"a","Wayne Rooney"],[84,"a","Javier Hernández"]]},{"id":"1998-09-09-WHU-WIM","season":1998,"date":"1998-09-09","home":"West Ham","away":"Wimbledon","homeId":48,"awayId":1333,"side":"away","start":27,"sh":3,"sa":0,"fh":3,"fa":4,"reds":[],"subs":0,"xi":{"home":[{"n":"John Moncur","g":"4:1","p":"Midfielder"},{"n":"Ian Wright","g":"6:1","p":"Forward"},{"n":"Javier Margas","g":"2:1","p":"Defender"},{"n":"Stan Lazaridis","g":"4:2","p":"Midfielder"},{"n":"Shaka Hislop","g":"1:1","p":"Goalkeeper"},{"n":"John Hartson","g":"6:2","p":"Forward"},{"n":"Frank Lampard","g":"4:3","p":"Midfielder"},{"n":"Trevor Sinclair","g":"4:4","p":"Midfielder"},{"n":"Neil Ruddock","g":"2:2","p":"Defender"},{"n":"Ian Pearce","g":"2:3","p":"Defender"},{"n":"Eyal Berkovic","g":"4:5","p":"Midfielder"}],"away":[{"n":"Duncan Jupp","g":"2:1","p":"Defender"},{"n":"Carl Leaburn","g":"4:1","p":"Midfielder"},{"n":"Alan Kimble","g":"2:2","p":"Defender"},{"n":"Andy Roberts","g":"2:3","p":"Defender"},{"n":"Neil Sullivan","g":"1:1","p":"Goalkeeper"},{"n":"Marcus Gayle","g":"6:1","p":"Forward"},{"n":"Kenny Cunningham","g":"2:4","p":"Defender"},{"n":"Robbie Earle","g":"4:2","p":"Midfielder"},{"n":"Chris Perry","g":"2:5","p":"Defender"},{"n":"Michael Hughes","g":"4:3","p":"Midfielder"},{"n":"Jason Euell","g":"6:2","p":"Forward"}],"hf":"3-5-2","af":"5-3-2"},"scorers":[[7,"h","John Hartson"],[14,"h","Ian Wright"],[27,"h","Ian Wright"],[30,"a","Marcus Gayle"],[64,"a","Jason Euell"],[77,"a","Marcus Gayle"],[81,"a","Efan Ekoku"]]}];
+const BEST={"2011-02-05-NEW-ARS":"rewrote","2014-05-05-CRY-LIV":"matched","1994-01-04-LIV-MUN":"repeated"};
+const coach=s=>s.side==="home"?s.home:s.away, opp=s=>s.side==="home"?s.away:s.home;
+const deficit=s=>`${s.sh}–${s.sa}`, fin=s=>`${s.fh}–${s.fa}`;
+const hue=n=>{let h=0;for(const c of n)h=(h*31+c.charCodeAt(0))%360;return h};
+const crest=n=>`<span class="crest" style="background:hsl(${hue(n)} 55% 38%)">${n.split(/\s+/).map(w=>w[0]).join("").slice(0,3).toUpperCase()}</span>`;
+const yr=s=>s.date.slice(0,4);
+const chip=s=>{const v=BEST[s.id];return `<span class="chip ${v||"new"}">${v?{rewrote:"Rewritten",matched:"Matched",repeated:"Repeated"}[v]:"Not played"}</span>`};
+const ago=s=>`${s.start}'`;
+const left=s=>90-s.start;
+const yourFinal=(s,v)=>{const real=s.side==="home"?[s.fh,s.fa]:[s.fa,s.fh];let [c,o]=real;if(v==="rewrote")c+=1;if(v==="repeated")c=Math.max(s.side==="home"?s.sh:s.sa,c-2);return s.side==="home"?[c,o]:[o,c]};
+const VT={rewrote:["HISTORY REWRITTEN","You did better than the real "+"%c"],matched:["HISTORY MATCHED","Exactly what the real %c managed"],repeated:["HISTORY REPEATED","The real %c did better"]};
+
+/* LIST layouts */
+function lCards(cols){return `<div class="grid ${cols}">${S.map(s=>`<div class="l-card"><div class="l-teams">${crest(s.home)}${s.home} <span class="mut">v</span> ${s.away}${crest(s.away)}</div><div class="mut">${s.date} · you take ${coach(s)}</div><div><span class="l-deficit">${deficit(s)}</span> <span class="mut">at ${ago(s)} · ended ${fin(s)}</span></div>${chip(s)}</div>`).join("")}</div>`}
+function lRows(){return S.map(s=>`<div class="l-row">${crest(coach(s))}<div><b>${coach(s)}</b> <span class="mut">v ${opp(s)} · ${yr(s)}</span><div class="mut">${deficit(s)} at ${ago(s)} → ${fin(s)}</div></div><span class="hide-m">${chip(s)}</span><span class="btn">Play</span></div>`).join("")}
+function lTimeline(){return `<div class="l-tl">${S.slice().sort((a,b)=>a.date<b.date?-1:1).map(s=>`<div class="l-card"><b>${yr(s)}</b> — ${s.home} ${deficit(s)} ${s.away} <span class="mut">(${ago(s)})</span><div class="mut">It ended ${fin(s)}. You take ${coach(s)}.</div>${chip(s)}</div>`).join("")}</div>`}
+function lTickets(){return `<div class="grid c2">${S.map(s=>`<div class="l-ticket"><div class="body"><b>${s.home} v ${s.away}</b><div class="mut">${s.date}</div><div class="l-deficit">${deficit(s)} · ${ago(s)}</div><div class="mut">Admit one: ${coach(s)} dressing room</div></div><div class="stub">${yr(s)}</div></div>`).join("")}</div>`}
+function lBoard(){return `<div class="l-board">${S.map(s=>`<div class="l-row"><span>${yr(s)}</span><span>${coach(s).toUpperCase()} v ${opp(s).toUpperCase()}</span><span>${deficit(s)}</span><span class="hide-m">${ago(s)}</span></div>`).join("")}</div>`}
+function lPoster(){const s=S[0];return `<div class="l-poster"><div class="mut">${s.date} · ${s.home} v ${s.away}</div><div class="l-deficit">${deficit(s)}</div><div>${ago(s)} — you take ${coach(s)}</div><p class="mut">It ended ${fin(s)}.</p><span class="btn">Take over</span></div><div class="grid c3" style="margin-top:10px">${S.slice(1,7).map(s=>`<div class="l-card"><b>${coach(s)}</b><span class="mut">${deficit(s)} · ${yr(s)}</span></div>`).join("")}</div>`}
+const LIST={cards:()=>lCards("c2"),cards3:()=>lCards("c3"),rows:lRows,timeline:lTimeline,tickets:lTickets,board:lBoard,poster:lPoster};
+
+/* TEAM TALK layouts */
+const _POS={"4-4-2":[[50,92],[15,72],[38,75],[62,75],[85,72],[15,48],[38,52],[62,52],[85,48],[38,24],[62,24]],"4-5-1":[[50,92],[15,72],[38,75],[62,75],[85,72],[10,48],[30,52],[50,55],[70,52],[90,48],[50,22]],"5-3-2":[[50,92],[8,66],[28,75],[50,78],[72,75],[92,66],[28,50],[50,52],[72,50],[38,24],[62,24]],"4-3-3":[[50,92],[15,72],[38,75],[62,75],[85,72],[28,52],[50,55],[72,52],[18,26],[50,22],[82,26]],"4-2-3-1":[[50,92],[15,72],[38,75],[62,75],[85,72],[38,58],[62,58],[18,38],[50,36],[82,38],[50,18]]};
+/* The REAL XI, ordered keeper → forwards by its archived grid ("row:col"). */
+const gridOf=p=>p.g.split(":").map(Number);
+const xiOf=s=>(s.side==="home"?s.xi.home:s.xi.away).slice().sort((a,b)=>gridOf(a)[0]-gridOf(b)[0]||gridOf(a)[1]-gridOf(b)[1]);
+const names=s=>xiOf(s).map(p=>p.n);
+function pitch(s){const xi=xiOf(s);const rows=Math.max(...xi.map(p=>gridOf(p)[0]));
+  return `<div class="t-pitch" dir="ltr">${xi.map(p=>{const [r,c]=gridOf(p);const inRow=xi.filter(q=>gridOf(q)[0]===r).length;
+    const y=92-(r-1)/Math.max(1,rows-1)*72, x=(c-0.5)/inRow*100;
+    return `<div class="t-dot" style="left:${x.toFixed(1)}%;top:${y.toFixed(1)}%"><i></i>${p.n.split(" ").slice(-1)[0]}</div>`}).join("")}</div>`}
+const RESP=[["Overload","Throw bodies forward. More chances — and more risk at the back."],["Stabilize","Win the next ten minutes before chasing it."],["Hold","Trust the shape. Let them tire."]];
+const resp=(cls="t-resp")=>`<div class="${cls}">${RESP.map((r,i)=>`<div class="t-opt${i===0?" on":""}"><b>${r[0]}</b><span class="mut">${r[1]}</span></div>`).join("")}</div>`;
+const moment=s=>`<div class="t-head"><div><div class="mut">${s.date} · ${s.home} v ${s.away}</div><div class="t-moment">${deficit(s)} · ${ago(s)}</div></div><span class="chip new">${left(s)} minutes left</span></div>`;
+const subs=s=>`<div class="mut" style="font-size:12px">Substitutions: ${s.subs} used before ${ago(s)} · bench ready</div>`;
+const TALK={
+ pitch:s=>`${moment(s)}<h3 class="h">Your team talk, ${coach(s)}</h3>${pitch(s)}${subs(s)}${resp()}<div style="margin-top:10px"><span class="btn">Back out there ▶</span></div>`,
+ chalk:s=>`${moment(s)}<h3 class="h">Half-time talk</h3><div class="t-xi">${names(s).map(n=>`<div>· ${n}</div>`).join("")}</div>${subs(s)}${resp()}`,
+ dial:s=>`${moment(s)}<h3 class="h">How do you go after it?</h3>${resp("t-dial")}${subs(s)}`,
+ dossier:s=>`<div class="mut">FILE ${s.id}</div><h3 class="h">${coach(s)}: ${deficit(s)} down at ${ago(s)}</h3><p>The real ${coach(s)} came back to ${fin(s)}. Can you do better?</p><div class="t-xi">${names(s).map(n=>`<div>${n}</div>`).join("")}</div>${resp()}`,
+ split:s=>`<div class="grid c2"><div style="text-align:center"><div class="mut">${ago(s)}</div><div class="score" style="font-size:56px">${deficit(s)}</div><div>${s.home} v ${s.away}</div><div class="mut">${left(s)} minutes to rewrite it</div></div><div>${resp()}${subs(s)}</div></div>`,
+ radio:s=>`<div class="mut">LIVE · ${s.date}</div><h3 class="h">"…and it's ${deficit(s)} here at ${ago(s)}. ${coach(s)} need a miracle."</h3>${pitch(s)}${resp()}`,
+ clock:s=>`${moment(s)}<svg viewBox="0 0 200 200" style="width:160px;display:block;margin:6px auto" dir="ltr"><circle cx="100" cy="100" r="80" fill="none" stroke="currentColor" opacity=".2" stroke-width="14"/><circle cx="100" cy="100" r="80" fill="none" stroke="var(--k-pri)" stroke-width="14" stroke-dasharray="${(left(s)/90*502).toFixed(0)} 502" transform="rotate(${-90+s.start/90*360} 100 100)"/><text x="100" y="108" text-anchor="middle" style="font:800 30px system-ui;fill:currentColor">${left(s)}'</text></svg>${resp()}`,
+};
+
+/* VERDICT layouts */
+function vparts(s,v){const [h,a]=yourFinal(s,v);return {h,a,real:fin(s),yours:`${h}–${a}`,line:VT[v][1].replace("%c",coach(s)),title:VT[v][0]}}
+const VERD={
+ stamp:(s,v)=>{const p=vparts(s,v);return `<div class="mut">${s.home} v ${s.away} · ${s.date}</div><div class="score" style="font-size:44px;margin:8px 0">${p.yours}</div><div class="v-stamp ${v}">${p.title}</div><p class="mut">Real result: ${p.real}. ${p.line}.</p>`},
+ compare:(s,v)=>{const p=vparts(s,v);return `<h3 class="h ${v}">${p.title}</h3><div class="v-cmp"><div><div class="mut">History</div><div class="score">${p.real}</div></div><div><div class="mut">Yours</div><div class="score ${v}">${p.yours}</div></div></div><p class="mut">${p.line}.</p>`},
+ ladder:(s,v)=>{const p=vparts(s,v);return `<div class="mut">${coach(s)} from ${deficit(s)} at ${ago(s)}</div><div class="score" style="margin:6px 0">${p.yours}</div><div class="v-ladder">${["rewrote","matched","repeated"].map(k=>`<div class="${k}${k===v?" on":""}">${VT[k][0]}</div>`).join("")}</div>`},
+ board:(s,v)=>{const p=vparts(s,v);return `<div class="l-board" style="text-align:center;padding:14px"><div>FULL TIME</div><div style="font-size:30px">${s.home.toUpperCase()} ${p.yours} ${s.away.toUpperCase()}</div><div>HISTORY: ${p.real}</div></div><h3 class="h ${v}" style="margin-top:10px">${p.title}</h3>`},
+ cert:(s,v)=>{const p=vparts(s,v);return `<div class="v-cert"><div class="mut">This is to certify that</div><h3 class="h">${coach(s)}</h3><div class="mut">trailing ${deficit(s)} at ${ago(s)} on ${s.date}, finished</div><div class="score ${v}" style="margin:8px 0">${p.yours}</div><div class="${v}" style="font-weight:800">${p.title}</div></div>`},
+ headline:(s,v)=>{const p=vparts(s,v);return `<div class="mut">The Final Whistle · ${s.date}</div><h3 class="h" style="font-size:30px">${v==="rewrote"?coach(s).toUpperCase()+" RISE FROM THE DEAD":v==="matched"?"HISTORY HOLDS AT "+p.yours:"NO MIRACLE FOR "+coach(s).toUpperCase()}</h3><p class="mut">${p.yours} — real result ${p.real}</p><span class="chip ${v}">${p.title}</span>`},
+};
+
+const C=[
+ ["Broadsheet Archive","k1","cards","chalk","headline","A newspaper archive: each scenario a clipping, the verdict a front page."],
+ ["Red-Top Recall","k2","poster","split","stamp","Tabloid shouting: one hero match up top, the deficit in giant type, a stamped verdict."],
+ ["Arcade Continue?","k3","rows","dial","board","The cabinet's own language: 'CONTINUE?' — three glowing response dials, an LED full-time board."],
+ ["VHS Rewind","k4","tickets","radio","compare","Old match tapes on a shelf: press play on a collapse, rewind history, compare the tapes."],
+ ["Ceefax 302","k5","board","chalk","board","Teletext pages: the list as a results page, the team talk in block caps."],
+ ["Dressing-room Chalkboard","k6","rows","chalk","ladder","The half-time chalkboard: the XI written up, three plans, a ladder of outcomes."],
+ ["Matchday Programme","k7","cards","pitch","cert","A programme's centre pages: line-ups on the pitch, the result printed like a souvenir."],
+ ["Telegram from the Ground","k8","timeline","dossier","stamp","Typed dispatches in date order: '0–4 down STOP your move STOP'."],
+ ["Wanted: A Comeback","k9","poster","dossier","stamp","Wild-west bill poster: the impossible job, the reward, the stamp."],
+ ["Comic Strip","k10","cards","dial","headline","Bold panels and speech: big dials for the team talk, a splash headline at the end."],
+ ["Sky Sports Studio","k11","rows","split","compare","The broadcast graphic package: lower-third rows, the big score, history versus you."],
+ ["Clean App","k12","cards","pitch","compare","Native app restraint: tidy cards, the real XI on a pitch, a two-column verdict."],
+ ["Glass Stadium","k13","cards3","clock","ladder","Frosted glass over the era colours; the minutes left as a clock ring."],
+ ["Floodlights","k14","poster","pitch","board","Night match under lights: the hero fixture glowing, a gold scoreboard."],
+ ["Club Shop","k15","tickets","pitch","cert","Ticket stubs for each match, a club-colour stripe, a framed certificate."],
+ ["Scrapbook","k16","timeline","chalk","headline","A fan's scrapbook, taped in by year, handwritten talk."],
+ ["Blueprint","k17","board","pitch","ladder","Tactical blueprint paper: the plan drawn on a grid."],
+ ["Cassette Tapes","k18","tickets","radio","stamp","Mixtape spines per match, the radio commentary as your cue."],
+ ["Sticker Book","k19","cards3","dial","cert","Shiny stickers: collect the rescues, peel off a verdict."],
+ ["Newsreel","k20","timeline","radio","headline","Sepia Pathé newsreel: dated reels, the announcer's voice."],
+ ["Case Files","k21","rows","dossier","stamp","A detective's case file per collapse — reopen it, close it with a stamp."],
+ ["Departures Board","k22","board","split","board","The split-flap board: every collapse a departure you can still catch."],
+ ["Polaroids","k23","cards","pitch","compare","Instant photos of the moment, pinned; history and yours side by side."],
+ ["Live Radio Booth","k24","rows","radio","headline","On-air: the list as the running order, the team talk as live commentary."],
+ ["Magazine Feature","k25","poster","dossier","headline","A long-read feature: one cover story, the rest as contents."],
+ ["Trophy Cabinet","k26","cards3","split","cert","Gold and wood: rescues you've rewritten shine in the cabinet."],
+ ["Timeline Rail","k27","timeline","clock","ladder","One rail through 30 years of collapses; the clock of minutes left."],
+ ["Holo Foil","k28","cards","dial","stamp","Holographic special-edition cards for the most famous rescues."],
+ ["Turntable Teal","k29","rows","clock","compare","Built around the mode's teal accent and the Vinyl Sleeve's language."],
+ ["Minimal Modal Flow","k30","rows","pitch","ladder","Quietest option: a list, one sheet for the team talk, a calm verdict."],
+];
+
+let screen="list",cur=0,verdict="rewrote";
+function render(){
+  const s=S[cur];
+  document.getElementById("list").innerHTML=C.map(([n,skin,l,t,v,why],i)=>{
+    const body=screen==="list"?`<h3 class="h">What-If · rewrite history</h3>${LIST[l]()}`:screen==="talk"?TALK[t](s):VERD[v](s,verdict);
+    const card=`<div class="s ${skin}">${body}</div>`;
+    return `<section class="concept" id="c${i+1}"><h2><b>${i+1}</b>${n}</h2><p class="why">${why} <span style="opacity:.7">[list: ${l} · talk: ${t} · verdict: ${v}]</span></p><div class="frames"><div><p class="tag">Desktop · 720</p><div class="frame d">${card}</div></div><div><p class="tag">Mobile · 375</p><div class="frame m">${card}</div></div></div></section>`;
+  }).join("");
+}
+const pick=document.getElementById("pick");
+pick.innerHTML=S.map((s,i)=>`<option value="${i}">${yr(s)} · ${s.home} ${deficit(s)} ${s.away} (${ago(s)})</option>`).join("");
+pick.onchange=()=>{cur=+pick.value;render()};
+function seg(id,apply){const el=document.getElementById(id);el.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;el.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));apply(b.dataset.v)})}
+seg("screen",v=>{screen=v;render()});seg("vd",v=>{verdict=v;render()});
+seg("era",v=>document.body.dataset.era=v);seg("theme",v=>document.body.dataset.theme=v);
+render();
+</script>
+</body>
+</html>

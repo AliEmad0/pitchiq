@@ -360,6 +360,27 @@ export function* runMatch(
     on.role === "GK" && (off.role === "GK" || !squads[side].some((p) => p.role === "GK"));
   const canChange = (side: Side, minute: number, off: GamePlayer, on: GamePlayer) =>
     substitutionAllowed(rules, usage[side], minute, isKeeperChange(side, off, on));
+  // TASK-1816 — seed a match that starts part-way through from its REAL prior events.
+  // Nothing here draws from the rng, and nothing runs without `startState`.
+  const start = setup.startState;
+  if (start != null) {
+    const prior = [...start.priorEvents].sort((a, b) => a.minute - b.minute);
+    state.events.push(...prior);
+    for (const e of prior) {
+      if (e.side == null) continue;
+      if (e.kind === "goal" && e.disallowedAt == null) state[e.side].score += 1;
+      if (e.kind === "card" && e.card === "red" && e.playerId != null) {
+        state.dismissed.add(`${e.side}:${e.playerId}`);
+        squads[e.side] = squads[e.side].filter((p) => p.playerId !== e.playerId);
+        state[e.side].sentOff += 1;
+      }
+    }
+    for (const side of sides) {
+      state[side].subsUsed = start.subsUsed[side];
+      usage[side].used = start.subsUsed[side];
+    }
+  }
+
   const subRate = SUBS_PER_SIDE / (SUB_WINDOW_END - SUB_WINDOW_START + 1);
   const injuryRate = INJURY_PER_SIDE / FULL_TIME;
   const keeperRate = KEEPER_SWEEP_PER_SIDE / FULL_TIME;
@@ -452,7 +473,60 @@ export function* runMatch(
   /** How many dismissals have already raised a reshape prompt. */
   let prompted = 0;
 
-  for (let m = 1; m <= lastMinute; m++) {
+  // TASK-1816 — the TEAM TALK, raised AT the start minute, where no play happens: the coach
+  // of `teamTalk` chooses how to respond, then each side may make changes at this stoppage.
+  // ⛔ Not at `minute + 1` — play then raises its own sub-offer (55'–85') or a response to a
+  // goal in that same minute, and two decisions sharing kind/minute/side defeat the
+  // driver's duplicate guard (review finding). No rng is drawn.
+  if (start != null) {
+    const m = start.minute;
+    state.minute = m;
+    const talk = start.teamTalk;
+    const answer = yield {
+      kind: "response",
+      minute: m,
+      side: talk,
+      concededBy: talk,
+      events: [...state.events],
+    };
+    state[talk].responseChoice = answer.kind === "response" ? answer.choice : "hold";
+    state[talk].momentum = Math.min(1, state[talk].momentum + RESPONSE_URGENCY);
+    state[talk].respondingUntil = m + RESPONSE_WINDOW;
+    for (const side of sides) {
+      const legalOff = legalOffFor(side);
+      const legalOn = legalOnFor(side);
+      if (legalOff.length === 0 || legalOn.length === 0) continue;
+      const offer = yield {
+        kind: "sub-offer",
+        maxChanges: rules.maxSubs - state[side].subsUsed,
+        halftime: true,
+        minute: m,
+        side,
+        stoppage: true,
+        engineSuggests: false,
+        legalOff,
+        legalOn,
+        events: [...state.events],
+      };
+      if (offer.kind !== "sub-offer") continue;
+      const changes = [
+        ...(offer.off != null ? [{ off: offer.off, on: offer.on }] : []),
+        ...(offer.changes ?? []),
+      ];
+      const usedOff = new Set<number>();
+      for (const change of changes) {
+        if (usedOff.has(change.off)) continue;
+        usedOff.add(change.off);
+        const off = squads[side].find((p) => p.playerId === change.off);
+        const on =
+          change.on == null ? undefined : benches[side].find((p) => p.playerId === change.on);
+        if (off != null) substitute(side, m, off, "tactical", on);
+      }
+    }
+  }
+
+  const firstMinute = (start?.minute ?? 0) + 1;
+  for (let m = firstMinute; m <= lastMinute; m++) {
     state.minute = m;
     for (const side of sides) {
       const s = state[side];
