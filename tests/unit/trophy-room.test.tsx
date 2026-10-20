@@ -104,6 +104,21 @@ describe("TrophyRoom", () => {
     expect(await screen.findAllByTestId("tc-cup")).toHaveLength(16);
   });
 
+  it("⛔ switching back to the album shows it at once — no refetch, no 'Opening the album…'", async () => {
+    store.album = [entry(0), entry(1)];
+    const fetchMock = vi.fn(async () => ({ ok: true, json: async () => set2003 }));
+    vi.stubGlobal("fetch", fetchMock);
+    renderWithIntl(<TrophyRoom />);
+    await screen.findByTestId("ta-spread");
+    const fetched = fetchMock.mock.calls.length;
+    await userEvent.click(screen.getByRole("tab", { name: "Hall of Fame" }));
+    await screen.findAllByTestId("tc-cup");
+    await userEvent.click(screen.getByRole("tab", { name: "Album" }));
+    expect(screen.getByTestId("ta-spread")).toBeVisible();
+    expect(screen.queryByText("Opening the album…")).toBeNull();
+    expect(fetchMock.mock.calls.length).toBe(fetched);
+  });
+
   it("the tabs are wired for keyboards and screen readers", async () => {
     renderWithIntl(<TrophyRoom />);
     await screen.findByText(/Your album is empty/);

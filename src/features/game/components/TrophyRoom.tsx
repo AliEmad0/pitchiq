@@ -88,7 +88,7 @@ export function TrophyRoom() {
             type="button"
             role="tab"
             aria-selected={tab === k}
-            aria-controls="tr-panel"
+            aria-controls={`tr-panel-${k}`}
             tabIndex={tab === k ? 0 : -1}
             onClick={() => choose(k)}
           >
@@ -96,17 +96,32 @@ export function TrophyRoom() {
           </button>
         ))}
       </div>
-      <div role="tabpanel" id="tr-panel" aria-labelledby={`tr-tab-${tab}`}>
-        {data == null ? (
-          <p className="ta-empty-state" aria-busy="true">
-            {t("loading")}
-          </p>
-        ) : tab === "album" ? (
-          <StickerAlbum album={data.album} />
-        ) : (
-          <TrophyCabinet unlocks={data.unlocks} />
-        )}
-      </div>
+      {data == null ? (
+        <p className="ta-empty-state" aria-busy="true">
+          {t("loading")}
+        </p>
+      ) : (
+        // ⚠️ Both panels stay MOUNTED and the inactive one is hidden: unmounting the album on a
+        // tab switch threw away its loaded set lists, and coming back refetched every season.
+        <>
+          <div
+            role="tabpanel"
+            id="tr-panel-album"
+            aria-labelledby="tr-tab-album"
+            hidden={tab !== "album"}
+          >
+            <StickerAlbum album={data.album} />
+          </div>
+          <div
+            role="tabpanel"
+            id="tr-panel-hall"
+            aria-labelledby="tr-tab-hall"
+            hidden={tab !== "hall"}
+          >
+            <TrophyCabinet unlocks={data.unlocks} />
+          </div>
+        </>
+      )}
     </section>
   );
 }
