@@ -5507,19 +5507,19 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1810](#task-1810) | Remaining six modes as rule packs                               | ✅ Done    | P3       | XL  |
 | [TASK-1811](#task-1811) | Season-mode engine (ghost-of-real-season, Survival, Legacy)     | ✅ Done    | P3       | L   |
 | [TASK-1812](#task-1812) | Persistence, records, shareable seeded matches                  | 📋 Backlog | P3       | M   |
-| [TASK-1813](#task-1813) | Hall of Fame & retro achievements (IndexedDB, provenance-aware) | 📋 Backlog | P3       | M   |
+| [TASK-1813](#task-1813) | Hall of Fame & retro achievements (IndexedDB, provenance-aware) | ✅ Done    | P3       | M   |
 | [TASK-1814](#task-1814) | Momentum engine + data-derived personality traits (modifiers)   | 📋 Backlog | P3       | L   |
 | [TASK-1815](#task-1815) | Post-match analytics — xG timeline + retro newspaper headlines  | ✅ Done    | P3       | M   |
 | [TASK-1816](#task-1816) | "What-If" historical scenario mode (rule pack)                  | ✅ Done    | P3       | M   |
 | [TASK-1817](#task-1817) | Daily seeded challenge — client-only (streaks, PB, seed replay) | ✅ Done    | P3       | M   |
 | [TASK-1818](#task-1818) | Rogue-like / Mystery Market mode (local run history)            | 📋 Backlog | P3       | L   |
-| [TASK-1819](#task-1819) | Retro sticker album & collection book (IndexedDB)               | 📋 Backlog | P3       | S   |
+| [TASK-1819](#task-1819) | Retro sticker album & collection book (IndexedDB)               | ✅ Done    | P3       | S   |
 | [TASK-1820](#task-1820) | Rating model — absolute/cross-position stats + GK pipeline      | ✅ Done    | P2       | L   |
 | [TASK-1821](#task-1821) | Tier-Anchored Hybrid rating engine (anchors + delta + team)     | ✅ Done    | P2       | L   |
 | [TASK-1822](#task-1822) | Dynamic event-driven match engine (drama, VAR, subs, injuries)  | ✅ Done    | P1       | XL  |
 | [TASK-1823](#task-1823) | Draft Room — 11 slots × 5 cards, free roam + pick timer         | ✅ Done    | P2       | L   |
 | [TASK-1824](#task-1824) | Squad chemistry (era / club / nation links) as a modifier       | 📋 Backlog | P3       | M   |
-| [TASK-1825](#task-1825) | Tactical style + mentality selection on the draft hub           | 📋 Backlog | P3       | S   |
+| [TASK-1825](#task-1825) | Tactical style + mentality selection on the draft hub           | ✅ Done    | P3       | S   |
 | [TASK-1826](#task-1826) | Market value progression across a season                        | 📋 Backlog | P3       | M   |
 | [TASK-1827](#task-1827) | Onboarding — coach identity + tutorial match (local only)       | 📋 Backlog | P3       | M   |
 | [TASK-1828](#task-1828) | Weekly modifier ladder (local, seeded from the ISO week)        | 📋 Backlog | P3       | M   |
@@ -6244,9 +6244,23 @@ targets and relegation start, era-authentic substitution rules, and squad rotati
 
 ### TASK-1813
 
-**Hall of Fame & retro achievements** · 📋 Backlog · `P3` · `M` · Type: Feature
+**Hall of Fame & retro achievements** · ✅ Done · `P3` · `M` · Type: Feature
 
 **Description** — A persistent **IndexedDB** achievement layer (no backend) rewarding historical milestones — e.g. **The Invincibles** (win a Classic Season undefeated), **Giant Killer** (beat a powerhouse with a bottom-tier side in Survival), **Hat-trick Hero** (a hat-trick with a **sparse-era** 1992–2002 card — reads `provenance.tier`). Achievement predicates are pure functions over `MatchResult` / run state; unlocks surface as profile badges + retro UI themes. **Depends on:** TASK-1812. **Uses:** TASK-1802 provenance.
+
+**Shipped (2026-10-21)** — design: [`docs/superpowers/specs/2026-10-20-task-1813-1819-1825-trophy-room-design.md`](docs/superpowers/specs/2026-10-20-task-1813-1819-1825-trophy-room-design.md); plan: [`docs/superpowers/plans/2026-10-21-task-1813-1819-1825-trophy-room.md`](docs/superpowers/plans/2026-10-21-task-1813-1819-1825-trophy-room.md); galleries: `design/trophy-gallery/` (30 layouts, 20 motions). Built together with TASK-1819 and TASK-1825. The **Hall of Fame** is the second tab of `/game/trophies`: the owner's Hall #1 **"Trophy Cabinet"**, sixteen cups on four shelves, lit once earned; each cup says what it takes and, once won, when and how. A full-time screen names what a match just unlocked.
+
+- `domain/achievements.ts` — the frozen list of 16 (`first-win … set-complete`) and pure predicates: `matchFacts` reads one match from the **coach's** side over the same goal timeline as the post-match headline (`givenGoals`); `earned` maps facts to ids. A 2,400-match real-engine sweep reaches every match badge.
+- `view/trophy-record.ts` — `recordFullTime`, the **one** entry point every full-time path calls (drafted single matches, the daily, season fixtures played or simmed, Classic, Survival, What-If, and each finished run).
+- Seven Days reads the app's own daily streak: consecutive days **won**.
+
+**⚠️ Rules this ticket pinned**
+
+1. **Recorded once per key, atomically** (`trophyLog`, IndexedDB `add`): `m:<route>:<seed>`, `d:<day>`, `s:<runSeed>:<week>`, `c:<runSeed>:<fixtureId>`, `r:<runSeed>`, `w:<scenario>:<seed>`. A StrictMode double effect or a remount cannot double a count.
+2. **Never a shared link** — watching someone else's match is not fielding those men.
+3. **Match badges only from a PLAYED match** — a simmed fixture adds cards, never a badge, or bulk sim would farm them. Champions and Invincibles read whole league runs (Legacy-style seasons and Classic); Survival has Great Escape.
+4. **The backfill uses the same keys** — the first open records old daily, season, Classic and Survival saves and What-If bests through `recordFullTime`, so whichever gets there first wins and nothing counts twice. Match badges cannot be backfilled: saves keep results, not events.
+5. **Best-effort everywhere** — nothing may throw into a full-time screen, and a Classic save that succeeded must never show a load error because the Trophy Room failed.
 
 ### TASK-1814
 
@@ -6330,9 +6344,20 @@ Mean **26.1%** — the owner's "1 in 4". Unboosted, every rescue succeeded **0�
 
 ### TASK-1819
 
-**Retro sticker album & collection book** · 📋 Backlog · `P3` · `S` · Type: Feature
+**Retro sticker album & collection book** · ✅ Done · `P3` · `S` · Type: Feature
 
 **Description** — Every unique player-season card drafted in any mode auto-populates a personal **collection** (IndexedDB). Completing a historical squad set (e.g. all 2006/07 Milan cards) unlocks profile badges / retro golden UI themes. Pure client-side; no backend. **Depends on:** TASK-1812.
+
+**Shipped (2026-10-21)** — design: [`docs/superpowers/specs/2026-10-20-task-1813-1819-1825-trophy-room-design.md`](docs/superpowers/specs/2026-10-20-task-1813-1819-1825-trophy-room-design.md); plan: [`docs/superpowers/plans/2026-10-21-task-1813-1819-1825-trophy-room.md`](docs/superpowers/plans/2026-10-21-task-1813-1819-1825-trophy-room.md); galleries: `design/trophy-gallery/` (30 layouts, 20 motions). Built together with TASK-1813 and TASK-1825. The **Album** is the first tab of `/game/trophies`: the owner's Album #1 **"Panini Classic"**, a two-page sticker spread per club-season, numbered empty slots whose names stay hidden, gold foil on a finished set. Every card the coach fields in a finished match goes in (his XI, plus a bench he drafted); What-If and shared links add nothing.
+
+- **A set = every rated card of one club-season, exactly the Classic pool** (measured: 686 sets, 19–39 cards, median 27, 18,653 cards), so every set can be completed by playing that club's Classic season. Served by `/api/game/album/[season]` — `force-static`, one prerendered file per season (≤ 60 KB), cards best-first (that order is the sticker number).
+- IndexedDB **v5**: `album` (key `cardId#teamId`), `trophies`, `trophyLog`. A count per card is kept for TASK-1829, not spent.
+
+**⚠️ Rules this ticket pinned**
+
+1. **Key = card + club**, never the card alone — a mid-season transfer is in two clubs' squads under one card id.
+2. **An auto-drafted bench is not his collection** — only a bench he drafted (Budget Cap) counts.
+3. Re-skinning the UI as a reward was left out: it would touch the site-wide Time-Machine era system.
 
 ### TASK-1820
 
@@ -6632,9 +6657,20 @@ Built: `domain/draft-room.ts` (`roomDeals`), `view/room-state.ts` (the reducer),
 
 ### TASK-1825
 
-**Tactical style + mentality selection** · 📋 Backlog · `S` · `P3` · Type: Feature
+**Tactical style + mentality selection** · ✅ Done · `S` · `P3` · Type: Feature
 
 **Description** — Surface the six `TacticalStyle` values already shipped in TASK-1805 (`balanced`, `tiki-taka`, `high-press`, `low-block`, `counter`, `direct`) as a picker on the draft hub, replacing the currently seeded random style. The counter matrix and `tacticalStyleModifier` already exist — this is UI plus wiring, no engine work. Show the matchup edge against the opponent's style on the pre-match screen so the choice is legible rather than arbitrary. **Depends on:** TASK-1805, TASK-1807.
+
+**Shipped (2026-10-21)** — design: [`docs/superpowers/specs/2026-10-20-task-1813-1819-1825-trophy-room-design.md`](docs/superpowers/specs/2026-10-20-task-1813-1819-1825-trophy-room-design.md); plan: [`docs/superpowers/plans/2026-10-21-task-1813-1819-1825-trophy-room.md`](docs/superpowers/plans/2026-10-21-task-1813-1819-1825-trophy-room.md); galleries: `design/trophy-gallery/` (30 layouts, 20 motions). Built together with TASK-1813 and TASK-1819. **Owner: "Scouting report."** A blind pick against a uniform draw is a coin flip (the styles are a 5-cycle with Balanced neutral), so each opponent has a **tendency** read from its own XI and plays it 6 times in 10. The pick moved from the draft hub to the **pre-match screen**, the only place every mode knows the opponent: the owner's Style #2 **"Scout's Dossier"** — the scout's line, all six styles priced as bars, the pick, **Kick off** (reveals both styles and who has the edge, "Your High Press beats their Tiki-Taka."), **Walk out**. Motion is the owner's hybrid of Sticker Slap (the bars) and Stamp Slam (stamp, folder shake, verdict). Single-match only: season fixtures, the daily, Classic, Survival and What-If keep playing without styles.
+
+- `domain/style-scouting.ts` — `styleTendency` reads the XI's **shape, not strength** (each dimension against the archive median, then against the side's own mean); `scoutedStyle` draws it with `TENDENCY_P = 0.6`, each other style 0.08. A real-data test makes every style some club-season's tendency.
+
+**⚠️ Rules this ticket pinned**
+
+1. **Style is IDENTITY** (`RivalSetup.style`), carried by live, resume and share. **Absent = the shipped uniform draw**, pinned by a 120-match golden captured before the change: every old save and link replays byte-for-byte.
+2. **Share code v3** = v2 plus one style token, written only when a style exists; v2 still decodes and replays under the old rule (a lossless upgrade, unlike v1 → v2).
+3. **Kick off rebuilds the match on the same seed** — a style changes no squad, so the opponent on the programme is the one he plays.
+4. The odds on the dossier come from the draw's own constants, never copied numbers.
 
 ### TASK-1826
 

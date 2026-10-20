@@ -85,6 +85,8 @@ async function kickOff(user: ReturnType<typeof userEvent.setup>) {
     await user.click(screen.getAllByRole("button", { name: /^Choose / })[0]);
   }
   await user.click(screen.getByRole("button", { name: /^Kick off$/ }));
+  // TASK-1825: Kick off on the Scout's Dossier reveals the styles; Walk out starts the match.
+  await user.click(await screen.findByRole("button", { name: "Walk out" }));
 }
 
 const live = () =>

@@ -376,3 +376,16 @@ seats legally, and only those are charged; a pre-start red always costs a man. �
 pins the 15–45% band and the 22–28% mean. Real XIs match by folded exact name: absent beats
 wrong. The team-talk pitch (`TeamTalkPitch`) is real metres, left to right. The game-modes
 guard exempts season `n/a` modes, pinned to `daily` and `whatIf`.
+
+### TASK-1813/1819/1825 Trophy Room and scouted style (2026-10-21)
+
+`/game/trophies` (force-static) holds the Album (Panini Classic) and the Hall of Fame (Trophy
+Cabinet). ⛔ Every full-time path calls `view/trophy-record.ts#recordFullTime`, once per key,
+claimed atomically in `trophyLog` (IndexedDB v5). Never for a shared link; match badges only
+from PLAYED matches; the first-open backfill reuses the same keys, so nothing counts twice. A
+set is the Classic pool of one club-season (`/api/game/album/[season]`, static); the album key
+is cardId + teamId. ⛔ A coach's style is match IDENTITY (`RivalSetup.style`): absent means the
+shipped uniform draw, pinned by `tests/unit/fixtures/session-legacy-golden.json`. Never re-run
+`capture-session-golden.ts` to make that golden pass. Share code v3 is written only with a
+style; v2 still decodes. The style is picked on the pre-match Scout's Dossier; Kick off rebuilds
+the match on the same seed. Season fixtures play no style.
