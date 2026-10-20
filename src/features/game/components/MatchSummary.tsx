@@ -1,5 +1,6 @@
 "use client";
 import { useTranslations } from "next-intl";
+import type { AchievementId } from "@/features/game/domain/achievements";
 import type { DecisionAnswer } from "@/features/game/domain/match-decisions";
 import type { MatchResult, Side } from "@/features/game/domain/match-types";
 import type { GamePlayer } from "@/features/game/domain/player";
@@ -9,6 +10,7 @@ import { splitDecisions } from "@/features/game/view/decision-summary";
 import { localizeDigits } from "@/utils/format";
 import { ClubCrest } from "./ClubCrest";
 import { PostMatchReport } from "./PostMatchReport";
+import { UnlockBanner } from "./UnlockBanner";
 import { ShareLink } from "./ShareLink";
 import { SummaryCard } from "./SummaryCard";
 
@@ -63,6 +65,8 @@ interface Props {
    * Derived on render, never stored. Absent = no report (nothing extra renders).
    */
   report?: { result: MatchResult; home: GameTeam; away: GameTeam; coachSide: Side };
+  /** Achievements this match unlocked for the first time (TASK-1813). */
+  unlocked?: readonly AchievementId[];
   onNewMatch: () => void;
 }
 
@@ -97,6 +101,7 @@ export function MatchSummary({
   shared = false,
   drifted = false,
   report,
+  unlocked,
   onNewMatch,
 }: Props) {
   const t = useTranslations("game");
@@ -184,6 +189,7 @@ export function MatchSummary({
         </span>
       </div>
 
+      {unlocked != null ? <UnlockBanner ids={unlocked} /> : null}
       {report != null ? <PostMatchReport {...report} locale={locale} /> : null}
 
       {cardData != null ? (

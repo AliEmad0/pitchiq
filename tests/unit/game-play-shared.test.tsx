@@ -1,6 +1,7 @@
 import { screen } from "@testing-library/react";
 import { NuqsTestingAdapter } from "nuqs/adapters/testing";
-import type { ReactElement } from "react";
+import { StrictMode, type ReactElement } from "react";
+import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { PlayerRole } from "@/data/schemas";
 import { makeCardId } from "@/features/game/domain/card-id";
@@ -26,6 +27,16 @@ const slot = {
     slot.saved = null;
   }),
 };
+
+/** TASK-1813/1819 — every call the full-time screen makes to the Trophy Room. */
+const recorded = vi.hoisted(() => [] as { key: string; cards: unknown[]; facts: unknown }[]);
+vi.mock("@/features/game/view/trophy-record", async (orig) => ({
+  ...(await orig<typeof import("@/features/game/view/trophy-record")>()),
+  recordFullTime: async (e: { key: string; cards: unknown[]; facts: unknown }) => {
+    recorded.push(e);
+    return ["first-win"];
+  },
+}));
 
 vi.mock("@/features/game/storage/match-slot", () => ({
   saveMatch: (m: unknown) => slot.save(m),
@@ -240,5 +251,49 @@ describe("TASK-1825 — a saved match keeps the coach's style", () => {
     renderWith(<GamePlay pool={pool} />, {});
     expect(await screen.findByRole("dialog", { name: "Match in progress" })).toBeInTheDocument();
     expect(slot.clear).not.toHaveBeenCalled();
+  });
+});
+
+describe("TASK-1813/1819 — the full-time screen records the coach's OWN match", () => {
+  beforeEach(() => {
+    slot.saved = null;
+    recorded.length = 0;
+  });
+
+  it("⛔ a shared match records nothing", async () => {
+    const user = userEvent.setup();
+    renderWith(<GamePlay pool={pool} />, { m: codeForAMatch() });
+    await user.click(await screen.findByRole("button", { name: "Full time" }));
+    await screen.findByRole("button", { name: /New match/i });
+    expect(recorded).toEqual([]);
+  });
+
+  it("his own finished match is recorded under one key, with his XI, even under StrictMode", async () => {
+    const seed = 4242;
+    const { answers, events } = playMatch(seed);
+    slot.saved = {
+      cardIds: squad().map((c) => c.cardId),
+      formationKey: formationKey(FORMATION),
+      seed,
+      answers,
+      fingerprint: hashEvents(events),
+      eventCount: events.length,
+    };
+    const user = userEvent.setup();
+    renderWith(
+      <StrictMode>
+        <GamePlay pool={pool} />
+      </StrictMode>,
+      {},
+    );
+    await user.click(await screen.findByRole("button", { name: "Resume match" }));
+    await user.click(await screen.findByRole("button", { name: "Full time" }));
+    await vi.waitFor(() => expect(recorded.length).toBeGreaterThan(0));
+    expect(new Set(recorded.map((e) => e.key)).size).toBe(1);
+    expect(recorded[0]!.key).toMatch(new RegExp(`^m:.*:${seed}$`));
+    // His XI, one sticker per card (this fixture's XI repeats a card per duplicated role).
+    expect(recorded[0]!.cards).toHaveLength(new Set(squad().map((c) => c.cardId)).size);
+    expect(recorded[0]!.facts).toHaveProperty("match");
+    expect(await screen.findByText("Off the Mark")).toBeInTheDocument();
   });
 });

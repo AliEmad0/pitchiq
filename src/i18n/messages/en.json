@@ -1460,5 +1460,44 @@
       "counter": "Hit on the break",
       "direct": "Long and early"
     }
+  },
+  "gameTrophies": {
+    "unlocked": "Achievement unlocked",
+    "name": {
+      "firstWin": "Off the Mark",
+      "cleanSheet": "Shut Out",
+      "thrashing": "Thrashing",
+      "hatTrick": "Hat-trick Hero",
+      "sparseHatTrick": "Old School",
+      "comeback": "Never Say Die",
+      "lateWinner": "Squeaky Bum Time",
+      "tenMen": "Backs to the Wall",
+      "champions": "Champions",
+      "invincibles": "The Invincibles",
+      "greatEscape": "Great Escape",
+      "daily7": "Seven Days",
+      "rewrite": "History Rewritten",
+      "rewriteAll": "Alternate History",
+      "collector100": "Collector",
+      "setComplete": "Full Set"
+    },
+    "condition": {
+      "firstWin": "Win any match",
+      "cleanSheet": "Win without conceding",
+      "thrashing": "Win by 5 or more",
+      "hatTrick": "One of your players scores 3 in a match",
+      "sparseHatTrick": "A hat-trick by a 1992–2002 card",
+      "comeback": "Win after trailing by 2 or more",
+      "lateWinner": "Win with a goal at 90' or later that breaks a tie",
+      "tenMen": "Win after one of your players is sent off",
+      "champions": "Win a league season",
+      "invincibles": "Finish a league season unbeaten",
+      "greatEscape": "Survive in Survival",
+      "daily7": "Play the daily 7 days in a row",
+      "rewrite": "Rewrite any What-If",
+      "rewriteAll": "Rewrite all seven What-Ifs",
+      "collector100": "Collect 100 cards",
+      "setComplete": "Complete a club-season set"
+    }
   }
 }

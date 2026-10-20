@@ -17,6 +17,13 @@ import {
 import type { RivalSetup } from "@/features/game/view/match-session";
 import type { TacticalStyle } from "@/features/game/domain/opponent";
 import { scoutedStyle, STYLES, styleTendency } from "@/features/game/domain/style-scouting";
+import type { AchievementId } from "@/features/game/domain/achievements";
+import {
+  localDay,
+  matchEntry,
+  recordFullTime,
+  scoreLine,
+} from "@/features/game/view/trophy-record";
 import {
   formationKey,
   formationNameFromKey,
@@ -685,6 +692,41 @@ export function GamePlay({
     // first save, so leaving it out would persist the next write against the wrong opponent.
   }, [state.phase, match, squad, answers, events, result, shared, rival, style, seasonRequested]);
 
+  /**
+   * TASK-1813/1819 — at full time, record the coach's OWN match in the Trophy Room: his cards
+   * into the album, and whatever it earned. ⛔ Never a shared match (watching someone else's is
+   * not fielding those men), never a season (the hub records its own fixtures). Recorded once
+   * per seed: `recordFullTime` claims the key atomically, so StrictMode's double effect is safe.
+   */
+  const [unlocked, setUnlocked] = useState<AchievementId[]>([]);
+  useEffect(() => {
+    if (state.phase !== "summary" || result == null || match == null || squad == null) return;
+    if (shared || seasonRequested) return;
+    let live = true;
+    // His XI, plus the bench only when he DRAFTED one (Budget Cap) — an auto-drafted bench is
+    // not his collection. One sticker per card.
+    const drafted = squad.cardIds.length > match.home.players.length;
+    const seen = new Set<string>();
+    const players = [...match.home.players, ...(drafted ? (match.home.bench ?? []) : [])].filter(
+      (p) => !seen.has(p.cardId) && seen.add(p.cardId) != null,
+    );
+    void recordFullTime(
+      matchEntry({
+        key: `m:${sharePath}:${match.seed}`,
+        day: localDay(),
+        players,
+        result,
+        coachSide: "home",
+        context: scoreLine(match.home.name, match.away.name, result.score),
+      }),
+    ).then((fresh) => {
+      if (live && fresh.length > 0) setUnlocked(fresh);
+    });
+    return () => {
+      live = false;
+    };
+  }, [state.phase, result, match, squad, shared, seasonRequested, sharePath]);
+
   const resume = () => {
     if (offer == null) return;
     // ⛔ Adopted WITH its rival. The record was replayed against that club, and every
@@ -931,6 +973,7 @@ export function GamePlay({
         shared={shared}
         drifted={drifted}
         report={{ result, home: match.home, away: match.away, coachSide: "home" }}
+        unlocked={unlocked}
         onNewMatch={() => {
           void clearMatch();
           // ⚠️ Clear `?m=` too, or "New match" re-enters the shared match on the next
@@ -940,6 +983,7 @@ export function GamePlay({
           setDrifted(false);
           setRival(null);
           setStyle(undefined);
+          setUnlocked([]);
           dispatch({ type: "newMatch" });
         }}
       />

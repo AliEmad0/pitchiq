@@ -6270,3 +6270,22 @@
     animation: none;
   }
 }
+
+/* ── TASK-1813 · the full-time "Achievement unlocked" line ── */
+.ub-banner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  align-items: center;
+  margin: 12px 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #f2c14e, #e0a526);
+  color: #2a1d00;
+  font-weight: 700;
+}
+.ub-label {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.75rem;
+}

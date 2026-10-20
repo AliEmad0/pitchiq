@@ -161,3 +161,8 @@ export function earned(f: CareerFacts): AchievementId[] {
   if ((f.setsComplete ?? 0) >= 1) out.add("set-complete");
   return ACHIEVEMENT_IDS.filter((id) => out.has(id));
 }
+
+/** The catalog key for an id (`gameTrophies.name.<key>`): next-intl keys avoid dashes. */
+export function achievementKey(id: AchievementId): string {
+  return id.replace(/-(\w)/g, (_, c: string) => c.toUpperCase());
+}
