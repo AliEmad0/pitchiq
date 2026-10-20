@@ -5823,11 +5823,15 @@
   border: 1px solid var(--wi-line);
   border-radius: 12px;
   background: var(--wi-bg);
+  /* #1 Insert Coin — the board blinks on. */
+  animation: wi-blink 800ms steps(1) both;
 }
 .wi-h {
   color: var(--wi-pink);
   font-size: 22px;
   text-shadow: 0 0 6px var(--wi-pink);
+  /* #4 Neon Flicker — the sign strikes up. */
+  animation: wi-flicker 1200ms linear both;
 }
 .wi-row {
   display: grid;
@@ -5836,6 +5840,9 @@
   align-items: center;
   padding: 10px 0;
   border-bottom: 1px solid var(--wi-line);
+  /* #1 Insert Coin — rows blink on in turn, like an attract screen. */
+  animation: wi-blink 700ms steps(1) both;
+  animation-delay: calc(var(--wi-i, 0) * 120ms);
 }
 .wi-row-main {
   min-width: 0;
@@ -5898,6 +5905,7 @@
 /* #4 VHS Rewind — the live-radio moment over the real XI. */
 .wi-vhs {
   background: linear-gradient(180deg, #1b1b1b, var(--wi-bg));
+  animation: wi-fade 500ms ease-out both;
 }
 .wi-radio {
   font-size: clamp(18px, 3.6vw, 24px);
@@ -5910,31 +5918,43 @@
   gap: 8px;
 }
 .wi-pitch {
-  position: relative;
-  aspect-ratio: 3 / 2;
-  max-height: 340px;
-  border: 2px solid #ffffff55;
+  max-width: 640px;
   border-radius: 10px;
-  background: repeating-linear-gradient(90deg, #2f7d3b 0 10%, #2a7035 10% 20%);
+  overflow: hidden;
 }
-.wi-dot {
-  position: absolute;
-  width: 72px;
-  transform: translate(-50%, -50%);
-  color: #fff;
-  font:
-    700 10px/1.1 system-ui,
-    sans-serif;
-  text-align: center;
-}
-.wi-dot i {
+.wi-pitch svg {
   display: block;
-  width: 12px;
-  height: 12px;
-  margin: 0 auto 2px;
-  border: 2px solid #fff;
-  border-radius: 50%;
-  background: var(--wi-pink);
+  width: 100%;
+  height: auto;
+}
+.wi-grass-a {
+  fill: #2a7035;
+}
+.wi-grass-b {
+  fill: #2f7d3b;
+}
+.wi-lines {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 0.45;
+}
+.wi-lines .wi-spot {
+  fill: #ffffff;
+  stroke: none;
+}
+.wi-player circle {
+  fill: var(--wi-pink);
+  stroke: #ffffff;
+  stroke-width: 0.6;
+}
+.wi-player text {
+  fill: #ffffff;
+  font:
+    700 2.6px system-ui,
+    sans-serif;
+  paint-order: stroke;
+  stroke: #0b1f14;
+  stroke-width: 0.6px;
 }
 .wi-resp {
   display: grid;
@@ -5982,8 +6002,70 @@
   margin: 0;
   font-size: clamp(22px, 5vw, 32px);
   text-shadow: 0 0 10px currentColor;
+  /* #4 Neon Flicker — the verdict strikes up once the board is lit. */
+  animation: wi-flicker 1200ms linear 600ms both;
 }
 .wi-board-actions {
   display: flex;
   justify-content: center;
+}
+
+/* ---- TASK-1816 motion: the owner's HYBRID, #1 Insert Coin + #4 Neon Flicker ----
+   ⛔ Both halves animate `opacity`, so they stay on DIFFERENT elements: the board blinks,
+   the verdict INSIDE it flickers. Guarded by what-if-motion.test. Every run is finite. */
+@keyframes wi-blink {
+  0%,
+  40% {
+    opacity: 0;
+  }
+  41%,
+  60% {
+    opacity: 1;
+  }
+  61%,
+  80% {
+    opacity: 0;
+  }
+  81%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes wi-flicker {
+  0% {
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  20% {
+    opacity: 0.2;
+  }
+  30% {
+    opacity: 1;
+  }
+  45% {
+    opacity: 0.4;
+  }
+  60%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes wi-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wi-row,
+  .wi-board,
+  .wi-h,
+  .wi-board-verdict,
+  .wi-vhs {
+    animation: none;
+  }
 }

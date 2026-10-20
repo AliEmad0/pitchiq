@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { type CSSProperties, useCallback, useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import type { ClassicData } from "@/features/game/domain/classic-data";
 import type { MatchDecision } from "@/features/game/domain/match-decisions";
@@ -20,6 +20,7 @@ import { BenchDialog } from "./BenchDialog";
 import { ClubCrest } from "./ClubCrest";
 import { MatchLive } from "./MatchLive";
 import { MatchSummary } from "./MatchSummary";
+import { TeamTalkPitch } from "./TeamTalkPitch";
 
 /** What the page knows about each scenario's clubs (read from the fixture at build time). */
 export interface WhatIfCard {
@@ -112,13 +113,18 @@ export function WhatIf({ cards }: { cards: readonly WhatIfCard[] }) {
         </header>
         <section className="wi-panel" aria-label={t("listAria")}>
           <h2 className="wi-h">{t("listHeading")}</h2>
-          {listed.map((s) => {
+          {listed.map((s, i) => {
             const c = cardOf(s.id);
             const best = bests[s.id];
             const coach = c[s.side];
             const opp = c[other(s.side)];
             return (
-              <div key={s.id} className="wi-row" data-testid={`wi-row-${s.id}`}>
+              <div
+                key={s.id}
+                className="wi-row"
+                data-testid={`wi-row-${s.id}`}
+                style={{ "--wi-i": i } as CSSProperties}
+              >
                 <ClubCrest teamId={coach.id} size={34} />
                 <div className="wi-row-main">
                   <b>{coach.name}</b>{" "}
@@ -257,7 +263,6 @@ export function WhatIf({ cards }: { cards: readonly WhatIfCard[] }) {
   if (talkResponse != null || talkBench != null) {
     const coach = coachName(s);
     const team = session.setup[s.side];
-    const rows = Math.max(...team.formation.slots.map((sl) => sl.row));
     return (
       <div className="wi-root">
         <section className="wi-panel wi-vhs" data-testid="wi-talk">
@@ -275,31 +280,7 @@ export function WhatIf({ cards }: { cards: readonly WhatIfCard[] }) {
               {session.xiSource[s.side] === "real" ? t("xiReal") : t("xiBest")}
             </span>
           </div>
-          <div
-            className="wi-pitch"
-            dir="ltr"
-            role="img"
-            aria-label={t("talkPitchAria", { club: coach })}
-          >
-            {team.players.map((p, i) => {
-              const slot = team.formation.slots[i]!;
-              const inRow = team.formation.slots.filter((x) => x.row === slot.row);
-              const col = inRow.indexOf(slot);
-              const top = 92 - ((slot.row - 1) / Math.max(1, rows - 1)) * 76;
-              const left = ((col + 0.5) / inRow.length) * 100;
-              return (
-                <div
-                  key={p.playerId}
-                  className="wi-dot"
-                  data-testid="wi-pitch-player"
-                  style={{ top: `${top}%`, left: `${left}%` }}
-                >
-                  <i />
-                  {p.name.split(" ").slice(-1)[0]}
-                </div>
-              );
-            })}
-          </div>
+          <TeamTalkPitch team={team} label={t("talkPitchAria", { club: coach })} />
           <h3 className="wi-h">{t("talkHeading", { club: coach })}</h3>
           <p className="wi-mut">{t("talkHint")}</p>
           {talkResponse != null ? (
