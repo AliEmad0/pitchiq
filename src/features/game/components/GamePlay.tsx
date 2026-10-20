@@ -17,13 +17,8 @@ import {
 import type { RivalSetup } from "@/features/game/view/match-session";
 import type { TacticalStyle } from "@/features/game/domain/opponent";
 import { scoutedStyle, STYLES, styleTendency } from "@/features/game/domain/style-scouting";
-import type { AchievementId } from "@/features/game/domain/achievements";
-import {
-  localDay,
-  matchEntry,
-  recordFullTime,
-  scoreLine,
-} from "@/features/game/view/trophy-record";
+import { localDay, matchEntry, scoreLine } from "@/features/game/view/trophy-record";
+import { useFullTimeRecord } from "@/features/game/view/use-full-time-record";
 import {
   formationKey,
   formationNameFromKey,
@@ -698,11 +693,9 @@ export function GamePlay({
    * not fielding those men), never a season (the hub records its own fixtures). Recorded once
    * per seed: `recordFullTime` claims the key atomically, so StrictMode's double effect is safe.
    */
-  const [unlocked, setUnlocked] = useState<AchievementId[]>([]);
-  useEffect(() => {
-    if (state.phase !== "summary" || result == null || match == null || squad == null) return;
-    if (shared || seasonRequested) return;
-    let live = true;
+  const fullTimeEntry = (() => {
+    if (state.phase !== "summary" || result == null || match == null || squad == null) return null;
+    if (shared || seasonRequested) return null;
     // His XI, plus the bench only when he DRAFTED one (Budget Cap) — an auto-drafted bench is
     // not his collection. One sticker per card.
     const drafted = squad.cardIds.length > match.home.players.length;
@@ -710,22 +703,16 @@ export function GamePlay({
     const players = [...match.home.players, ...(drafted ? (match.home.bench ?? []) : [])].filter(
       (p) => !seen.has(p.cardId) && seen.add(p.cardId) != null,
     );
-    void recordFullTime(
-      matchEntry({
-        key: `m:${sharePath}:${match.seed}`,
-        day: localDay(),
-        players,
-        result,
-        coachSide: "home",
-        context: scoreLine(match.home.name, match.away.name, result.score),
-      }),
-    ).then((fresh) => {
-      if (live && fresh.length > 0) setUnlocked(fresh);
+    return matchEntry({
+      key: `m:${sharePath}:${match.seed}`,
+      day: localDay(),
+      players,
+      result,
+      coachSide: "home",
+      context: scoreLine(match.home.name, match.away.name, result.score),
     });
-    return () => {
-      live = false;
-    };
-  }, [state.phase, result, match, squad, shared, seasonRequested, sharePath]);
+  })();
+  const unlocked = useFullTimeRecord(fullTimeEntry);
 
   const resume = () => {
     if (offer == null) return;
@@ -983,7 +970,6 @@ export function GamePlay({
           setDrifted(false);
           setRival(null);
           setStyle(undefined);
-          setUnlocked([]);
           dispatch({ type: "newMatch" });
         }}
       />

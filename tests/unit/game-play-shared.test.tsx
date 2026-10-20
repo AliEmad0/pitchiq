@@ -32,9 +32,11 @@ const slot = {
 const recorded = vi.hoisted(() => [] as { key: string; cards: unknown[]; facts: unknown }[]);
 vi.mock("@/features/game/view/trophy-record", async (orig) => ({
   ...(await orig<typeof import("@/features/game/view/trophy-record")>()),
+  // Like the real one: a key unlocks ONCE — a second call with the same key returns nothing.
   recordFullTime: async (e: { key: string; cards: unknown[]; facts: unknown }) => {
+    const first = !recorded.some((r) => r.key === e.key);
     recorded.push(e);
-    return ["first-win"];
+    return first ? ["first-win"] : [];
   },
 }));
 
