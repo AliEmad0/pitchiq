@@ -139,3 +139,58 @@ describe("shareUrl", () => {
     expect(shareUrl("v1.abc", "ar")).toBe("/ar/game/draft?m=v1.abc");
   });
 });
+
+describe("TASK-1825 — the coach's style survives the link", () => {
+  /** Like `senderPlays`, with a picked style. */
+  function senderPlaysStyled(seed: number) {
+    const session = buildSession(pool, squad(), FORMATION, seed, NAMES, { style: "direct" });
+    const events: MatchEvent[] = [];
+    const answers: DecisionAnswer[] = [];
+    let step = session.stream.advance();
+    events.push(...step.events);
+    while (step.kind === "decision") {
+      const a = coachAnswer(step.decision);
+      answers.push(a);
+      step = session.stream.answer(a);
+      events.push(...step.events);
+    }
+    return { answers, events };
+  }
+
+  it("a styled match replays to the sender's fingerprint", () => {
+    const seed = 4242;
+    const sent = senderPlaysStyled(seed);
+    const code = buildShareCode({
+      cardIds: squad().map((c) => c.cardId),
+      formationKey: formationKey(FORMATION),
+      seed,
+      answers: sent.answers,
+      fingerprint: hashEvents(sent.events),
+      style: "direct",
+    });
+    expect(code.startsWith("v3.")).toBe(true);
+    const replayed = replayShared(pool, decodeMatch(code)!, NAMES)!;
+    expect(replayed.drifted).toBe(false);
+    expect(hashEvents(replayed.events)).toBe(hashEvents(sent.events));
+    expect(replayed.session.styles.home).toBe("direct");
+  });
+
+  it("the same code with another style is flagged as drifted", () => {
+    const seeds = [4242, 4243, 4244, 4245, 4246];
+    const drifted = seeds.some((seed) => {
+      const sent = senderPlaysStyled(seed);
+      const code = buildShareCode({
+        cardIds: squad().map((c) => c.cardId),
+        formationKey: formationKey(FORMATION),
+        seed,
+        answers: sent.answers,
+        fingerprint: hashEvents(sent.events),
+        style: "direct",
+      });
+      const swapped = decodeMatch(code.replace(/\.d$/, ".t"))!;
+      const replayed = replayShared(pool, swapped, NAMES);
+      return replayed == null || replayed.drifted;
+    });
+    expect(drifted).toBe(true);
+  });
+});

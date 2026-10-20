@@ -203,3 +203,42 @@ describe("arriving with ?m=", () => {
     expect(await screen.findByRole("button", { name: "Auto-fill" })).toBeInTheDocument();
   });
 });
+
+describe("TASK-1825 — a saved match keeps the coach's style", () => {
+  beforeEach(() => {
+    slot.saved = null;
+    slot.clear.mockClear();
+  });
+
+  /** The record a styled match leaves after kick-off: no answers yet, the first segment run. */
+  function styledRecord(seed: number) {
+    const session = buildSession(pool, squad(), FORMATION, seed, NAMES_, { style: "direct" });
+    const events = session.stream.advance().events;
+    return {
+      cardIds: squad().map((c) => c.cardId),
+      formationKey: formationKey(FORMATION),
+      seed,
+      answers: [],
+      fingerprint: hashEvents(events),
+      eventCount: events.length,
+      style: "direct" as const,
+    };
+  }
+  const NAMES_ = { home: "Your XI", away: "Rivals" };
+
+  it("⛔ a styled save is offered for resume — the replay uses its style", async () => {
+    // A seed where the style actually changes the first segment, so a replay that dropped
+    // the style would mismatch and silently discard the coach's match.
+    const seed = [...Array(60).keys()]
+      .map((i) => i + 1)
+      .find((s) => {
+        const plain = buildSession(pool, squad(), FORMATION, s, NAMES_).stream.advance().events;
+        return hashEvents(plain) !== styledRecord(s).fingerprint;
+      })!;
+    expect(seed).toBeDefined();
+    slot.saved = styledRecord(seed);
+    renderWith(<GamePlay pool={pool} />, {});
+    expect(await screen.findByRole("dialog", { name: "Match in progress" })).toBeInTheDocument();
+    expect(slot.clear).not.toHaveBeenCalled();
+  });
+});

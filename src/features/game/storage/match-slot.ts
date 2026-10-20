@@ -1,3 +1,4 @@
+import type { TacticalStyle } from "@/features/game/domain/opponent";
 import type { PlayerSeasonId } from "@/features/game/domain/card-id";
 import type { DecisionAnswer } from "@/features/game/domain/match-decisions";
 import { idbDel, idbGet, idbPut } from "./idb";
@@ -48,6 +49,13 @@ export interface SavedMatch {
   /** A club's numeric id, or a NATION's flag-icons code (TASK-1842). IndexedDB stores
    *  either untouched; every reader resolves it through the same rivals route. */
   rival?: { teamId: number | string; policy: "random" | "best" | "strong" };
+  /**
+   * The coach's tactical style, picked on the pre-match screen (TASK-1825).
+   *
+   * ⛔ IDENTITY, like `rival`. Absent = a record from before styles could be picked, which was
+   * played under the shipped uniform draw — and replays under it.
+   */
+  style?: TacticalStyle;
 }
 
 const KEY = "current";

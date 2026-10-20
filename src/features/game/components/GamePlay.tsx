@@ -15,6 +15,7 @@ import {
   type Difficulty,
 } from "@/features/game/view/rival-choice";
 import type { RivalSetup } from "@/features/game/view/match-session";
+import type { TacticalStyle } from "@/features/game/domain/opponent";
 import {
   formationKey,
   formationNameFromKey,
@@ -238,6 +239,15 @@ export function GamePlay({
   const [coachMoves, setCoachMoves] = useState<DecisionAnswer[]>([]);
   /** An unfinished match found in storage, replayed and verified, awaiting the coach. */
   const [offer, setOffer] = useState<RestoredMatch | null>(null);
+  /**
+   * The coach's tactical style for THIS match (TASK-1825) — undefined until he picks one on the
+   * pre-match screen, and for any match made before styles existed.
+   *
+   * ⛔ IDENTITY: it rides in the save, the share code and every replay, exactly like `rival`.
+   */
+  const [style, setStyle] = useState<TacticalStyle | undefined>(undefined);
+  /** The style belonging to the RESTORE OFFER, held until he accepts it. */
+  const [offerStyle, setOfferStyle] = useState<TacticalStyle | undefined>(undefined);
   /**
    * The club being faced, and how it drafted (owner, 2026-08-19).
    *
@@ -543,6 +553,7 @@ export function GamePlay({
       // ⚠️ `pending: null` — a shared match is finished on arrival, so there is nothing
       // waiting to be answered.
       setRival(picked);
+      setStyle(decoded.style);
       driver.adopt({ ...replayed, pending: null });
       setSquad({
         cardIds: decoded.cardIds,
@@ -589,7 +600,12 @@ export function GamePlay({
         pool,
         record,
         { home: t("yourXi"), away: t("rivals") },
-        picked == null ? { policy: opponent, budget, chemistry } : rivalSetup(picked),
+        // ⛔ The record's style is identity: without it the replay plays the shipped draw,
+        // mismatches, and the coach's match is discarded as if it were corrupt.
+        {
+          ...(picked == null ? { policy: opponent, budget, chemistry } : rivalSetup(picked)),
+          ...(record.style == null ? {} : { style: record.style }),
+        },
       );
       if (!live) return;
       if (restored == null) {
@@ -598,6 +614,7 @@ export function GamePlay({
         return;
       }
       setOfferRival(picked);
+      setOfferStyle(record.style);
       setOffer(restored);
     })();
     return () => {
@@ -626,16 +643,18 @@ export function GamePlay({
       fingerprint: hashEvents(events),
       eventCount: events.length,
       rival: rivalRef(rival) ?? undefined,
+      ...(style == null ? {} : { style }),
     });
     // ⚠️ `rival` is deliberately in the deps: a resumed match adopts its club AFTER the
     // first save, so leaving it out would persist the next write against the wrong opponent.
-  }, [state.phase, match, squad, answers, events, result, shared, rival, seasonRequested]);
+  }, [state.phase, match, squad, answers, events, result, shared, rival, style, seasonRequested]);
 
   const resume = () => {
     if (offer == null) return;
     // ⛔ Adopted WITH its rival. The record was replayed against that club, and every
     // save and share from here on has to name the same one.
     setRival(offerRival);
+    setStyle(offerStyle);
     driver.adopt(offer);
     // ⚠️ Taken from the RECORD, never reconstructed from the session: a resumed match must
     // keep saving under the same identity, and `GameTeam` holds cards rather than the
@@ -798,6 +817,7 @@ export function GamePlay({
             answers,
             fingerprint: hashEvents(events),
             rival: rivalRef(rival),
+            style,
           });
     const cardData =
       squad == null || code == null
@@ -840,6 +860,7 @@ export function GamePlay({
           setShared(false);
           setDrifted(false);
           setRival(null);
+          setStyle(undefined);
           dispatch({ type: "newMatch" });
         }}
       />
