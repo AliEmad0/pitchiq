@@ -17,6 +17,8 @@ export interface DrivenMatch {
   home: GameTeam;
   away: GameTeam;
   seed: number;
+  /** The coach's and the opponent's tactical styles (TASK-1825). */
+  styles: MatchSession["styles"];
 }
 
 /** What an already-replayed match hands over. Matches `RestoredMatch`/`ReplayedMatch`. */
@@ -97,7 +99,12 @@ export function useMatchDriver(): MatchDriver {
   const startSession = useCallback(
     (session: MatchSession) => {
       streamRef.current = session.stream;
-      setMatch({ home: session.home, away: session.away, seed: session.seed });
+      setMatch({
+        home: session.home,
+        away: session.away,
+        seed: session.seed,
+        styles: session.styles,
+      });
       setEvents([]);
       setAnswers([]);
       setResult(null);
@@ -172,6 +179,7 @@ export function useMatchDriver(): MatchDriver {
       home: replayed.session.home,
       away: replayed.session.away,
       seed: replayed.session.seed,
+      styles: replayed.session.styles,
     });
     setEvents(replayed.events);
     setAnswers(replayed.answers);

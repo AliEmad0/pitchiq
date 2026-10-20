@@ -6,7 +6,7 @@ import type { Formation, FormationSlot } from "./formation";
 import type { Opponent, TacticalStyle } from "./opponent";
 import type { GamePlayer } from "./player";
 import { mulberry32 } from "./rng";
-import { STYLES } from "./style-scouting";
+import { scoutedStyle, STYLES } from "./style-scouting";
 import { type GameTeam, makeGameTeam } from "./team";
 
 // TASK-1806 — Chaos Draft. A fully-randomised squad, drafted from a build-time
@@ -473,6 +473,14 @@ export interface MatchupOptions {
    * so a man who turned out for both would otherwise line up against himself.
    */
   exclude?: ReadonlySet<number>;
+  /**
+   * The coach's chosen style (TASK-1825, owner: "Scouting report").
+   *
+   * ⛔ IDENTITY. Absent = the shipped rule, both styles from the uniform `sr` draw below,
+   * untouched — every old save and v2 share link replays byte-for-byte. Present = this is the
+   * home style and the opponent's is SCOUTED from its own XI (`scoutedStyle`).
+   */
+  homeStyle?: TacticalStyle;
 }
 
 /** Draft your XI plus a distinct auto-drafted opponent, each with a seeded style. */
@@ -482,7 +490,7 @@ export function chaosMatchup(
   names: { home: string; away: string } = { home: "Your XI", away: "Rivals" },
   options: MatchupOptions = {},
 ): ChaosMatchup {
-  const { opponent, exclude, rivalPool, rivalName, budget } = options;
+  const { opponent, exclude, rivalPool, rivalName, budget, homeStyle } = options;
   const home = chaosDraft(pool, seed, names.home, { exclude });
   const away = chaosDraft(rivalPool ?? pool, seed ^ 0x9e3779b9, rivalName ?? names.away, {
     policy: opponent,
@@ -492,6 +500,13 @@ export function chaosMatchup(
     // look completely normal on screen.
     budget,
   });
+  if (homeStyle != null) {
+    return {
+      home,
+      homeStyle,
+      opponent: { kind: "squad", team: away, style: scoutedStyle(away.players, seed) },
+    };
+  }
   const sr = mulberry32(seed ^ 0x51ed270b);
   return {
     home,

@@ -43,6 +43,8 @@ export function buildFixtureSession({ setup, coachSide }: SeasonFixture): MatchS
     away: setup.away,
     seed: setup.seed,
     stream: createStream(runMatch(setup), coachSide),
+    // Season fixtures play no style modifier (TASK-1825 keeps them as they shipped).
+    styles: { home: "balanced", away: "balanced" },
   };
 }
 
