@@ -37,6 +37,11 @@ describe("the trophy slots", () => {
     expect(await loadAlbum()).toEqual([{ ...henry, firstDay: "2026-10-21", count: 2 }]);
   });
 
+  it("⛔ concurrent adds of the same card all count (bulk sim fires them without awaiting)", async () => {
+    await Promise.all(Array.from({ length: 10 }, () => addCards([henry], "2026-10-21")));
+    expect((await loadAlbum())[0]!.count).toBe(10);
+  });
+
   it("the same card for two clubs is two stickers", async () => {
     await addCards([henry, { ...henry, teamId: 47 }], "2026-10-21");
     const album = await loadAlbum();

@@ -35,13 +35,19 @@ export function TrophyRoom() {
   useEffect(() => {
     let live = true;
     void (async () => {
+      const read = async () => {
+        const [album, unlocks] = await Promise.all([loadAlbum(), loadUnlocks()]);
+        if (live) setData({ album, unlocks });
+      };
+      // What is already stored shows at once; the backfill (which may fetch set lists) then
+      // fills in older saves and the room re-reads.
+      await read();
       try {
         await backfillTrophies(localDay());
       } catch {
-        // Best-effort: the room still opens on what is already stored.
+        // Best-effort: the room stays on what is already stored.
       }
-      const [album, unlocks] = await Promise.all([loadAlbum(), loadUnlocks()]);
-      if (live) setData({ album, unlocks });
+      await read();
     })();
     return () => {
       live = false;

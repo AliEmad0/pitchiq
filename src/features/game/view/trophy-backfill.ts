@@ -8,7 +8,7 @@ import { loadClassicSave } from "@/features/game/storage/classic-slot";
 import { allDaily } from "@/features/game/storage/daily-slot";
 import { loadRun } from "@/features/game/storage/season-slot";
 import { loadSurvivalSave, type SavedSurvival } from "@/features/game/storage/survival-slot";
-import type { AlbumCard } from "@/features/game/storage/trophy-slot";
+import { type AlbumCard, isClaimed } from "@/features/game/storage/trophy-slot";
 import { loadWhatIfBests } from "@/features/game/storage/what-if-slot";
 import { fetchSeason, leagueEnd, recordFullTime } from "./trophy-record";
 
@@ -29,32 +29,47 @@ export async function backfillTrophies(today: string): Promise<void> {
     if (!sets.has(season)) sets.set(season, fetchSeason(season));
     return sets.get(season)!;
   };
-  /** A saved card id as an album card, read from its season's set list. */
-  const cardsOf = async (ids: readonly string[], teamId?: number): Promise<AlbumCard[]> => {
+  /**
+   * Saved card ids as album cards, read from their seasons' set lists.
+   *
+   * ⛔ NULL when any of those lists could not be fetched: the item is then left UNRECORDED (its
+   * key unclaimed), so the next open — with the network back — fills it. Recording it with
+   * missing cards would claim the key and lose them for good.
+   */
+  const cardsOf = async (ids: readonly string[], teamId?: number): Promise<AlbumCard[] | null> => {
     const out: AlbumCard[] = [];
     for (const id of ids) {
+      let season: number;
       try {
-        const { season } = parseCardId(id as never);
-        const set = await setFor(season);
-        const club =
-          set?.clubs.find(
-            (c) => (teamId == null || c.teamId === teamId) && c.cards.some((x) => x.id === id),
-          ) ?? null;
-        const card = club?.cards.find((x) => x.id === id);
-        if (club == null || card == null) continue;
-        out.push({
-          cardId: id,
-          teamId: club.teamId,
-          name: card.n,
-          role: card.r,
-          season,
-          ovr: card.o,
-        });
+        season = parseCardId(id as never).season;
       } catch {
-        // An unreadable id is simply not backfilled.
+        continue; // An unreadable id is simply not backfilled.
       }
+      const set = await setFor(season);
+      if (set == null) return null;
+      const club =
+        set.clubs.find(
+          (c) => (teamId == null || c.teamId === teamId) && c.cards.some((x) => x.id === id),
+        ) ?? null;
+      const card = club?.cards.find((x) => x.id === id);
+      if (club == null || card == null) continue;
+      out.push({
+        cardId: id,
+        teamId: club.teamId,
+        name: card.n,
+        role: card.r,
+        season,
+        ovr: card.o,
+      });
     }
     return out;
+  };
+  /** Record one saved item under its full-time key — skipped if already recorded or unresolvable. */
+  const item = async (key: string, day: string, ids: readonly string[], teamId?: number) => {
+    if (await isClaimed(key)) return;
+    const cards = await cardsOf(ids, teamId);
+    if (cards == null) return;
+    await recordFullTime({ key, day, cards, facts: {}, context: "" });
   };
   const safe = async <T>(f: () => Promise<T>): Promise<T | null> => {
     try {
@@ -66,28 +81,19 @@ export async function backfillTrophies(today: string): Promise<void> {
 
   // The daily: every finished day's XI.
   const dailies = (await safe(allDaily)) ?? [];
-  for (const d of dailies.filter((x) => x.done)) {
-    await recordFullTime({
-      key: `d:${d.day}`,
-      day: d.day,
-      cards: await cardsOf(d.cardIds),
-      facts: {},
-      context: "",
-    });
-  }
+  for (const d of dailies.filter((x) => x.done)) await item(`d:${d.day}`, d.day, d.cardIds);
 
   // A Legacy-style season: each coach week's lineup, and the run if it is finished.
   const run = await safe(loadRun);
   if (run != null) {
-    const lineup = await cardsOf(run.lineupIds ?? run.cardIds);
+    const coachClub = run.leagueIds?.[run.coach];
     for (const r of run.results.filter((x) => x.home === run.coach || x.away === run.coach)) {
-      await recordFullTime({
-        key: `s:${run.seed}:${r.week}`,
-        day: today,
-        cards: lineup,
-        facts: {},
-        context: "",
-      });
+      await item(
+        `s:${run.seed}:${r.week}`,
+        today,
+        run.lineupIds ?? run.cardIds,
+        coachClub != null && coachClub > 0 ? coachClub : undefined,
+      );
     }
     if (isComplete(run)) {
       const { season, position } = leagueEnd(run.clubs, run.coach, run.results);
@@ -112,17 +118,10 @@ export async function backfillTrophies(today: string): Promise<void> {
     const coach = data.clubIds.indexOf(save.clubId);
     if (coach < 0) continue;
     const byId = new Map(data.schedule.fixtures.map((f) => [f.id, f]));
-    const cards = await cardsOf(save.cardIds, save.clubId);
     for (const r of save.results) {
       const f = byId.get(r.fixtureId);
       if (f == null || (f.home !== coach && f.away !== coach)) continue;
-      await recordFullTime({
-        key: `c:${save.seed}:${r.fixtureId}`,
-        day: today,
-        cards,
-        facts: {},
-        context: "",
-      });
+      await item(`c:${save.seed}:${r.fixtureId}`, today, save.cardIds, save.clubId);
     }
     if ("scenario" in save && save.scenario != null) {
       const p = await safe(async () =>

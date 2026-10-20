@@ -1,5 +1,5 @@
 import type { AchievementId } from "@/features/game/domain/achievements";
-import { idbAdd, idbGet, idbGetAll, idbPut } from "./idb";
+import { idbAdd, idbGet, idbGetAll, idbUpdateMany } from "./idb";
 
 /**
  * TASK-1819 — one sticker in the album: a card as it played for ONE club.
@@ -36,15 +36,14 @@ const albumKey = (c: { cardId: string; teamId: number }) => `${c.cardId}#${c.tea
  */
 export async function addCards(cards: readonly AlbumCard[], day: string): Promise<void> {
   try {
-    for (const c of cards) {
-      const key = albumKey(c);
-      const old = await idbGet<AlbumEntry>("album", key);
-      await idbPut("album", key, {
-        ...c,
-        firstDay: old?.firstDay ?? day,
-        count: (old?.count ?? 0) + 1,
-      } satisfies AlbumEntry);
-    }
+    // ⛔ One transaction for the whole match — see `idbUpdateMany` for the lost-update race.
+    await idbUpdateMany<AlbumEntry>(
+      "album",
+      cards.map((c) => ({
+        key: albumKey(c),
+        update: (old) => ({ ...c, firstDay: old?.firstDay ?? day, count: (old?.count ?? 0) + 1 }),
+      })),
+    );
   } catch {
     // Persistence is best-effort by design.
   }
@@ -72,6 +71,15 @@ export async function loadUnlocks(): Promise<Unlock[]> {
     return await idbGetAll<Unlock>("trophies");
   } catch {
     return [];
+  }
+}
+
+/** Has a record key already been claimed? (A read only — the claim itself is `claimLog`.) */
+export async function isClaimed(key: string): Promise<boolean> {
+  try {
+    return (await idbGet<boolean>("trophyLog", key)) != null;
+  } catch {
+    return false;
   }
 }
 

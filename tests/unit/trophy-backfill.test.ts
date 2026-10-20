@@ -96,6 +96,20 @@ describe("backfillTrophies", () => {
     expect(got).not.toContain("first-win"); // match badges need events, which saves do not keep
   });
 
+  it("⛔ an item whose set list could not be fetched is NOT claimed — the next open fills it", async () => {
+    await daily("2026-10-01", ids(100));
+    const ok = globalThis.fetch;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => Promise.reject(new Error("offline"))),
+    );
+    await backfillTrophies("2026-10-21");
+    expect(await loadAlbum()).toEqual([]);
+    vi.stubGlobal("fetch", ok);
+    await backfillTrophies("2026-10-21");
+    expect(await loadAlbum()).toHaveLength(11);
+  });
+
   it("never throws, even with the set lists unreachable", async () => {
     vi.stubGlobal(
       "fetch",
