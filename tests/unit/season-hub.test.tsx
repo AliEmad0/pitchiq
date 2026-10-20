@@ -14,6 +14,18 @@ vi.mock("@/features/game/storage/season-slot", () => ({
   clearRun: vi.fn(async () => {}),
 }));
 
+/** TASK-1813/1819 — what the hub hands the Trophy Room. */
+const recorded = vi.hoisted(
+  () => [] as { key: string; cards: unknown[]; facts: Record<string, unknown> }[],
+);
+vi.mock("@/features/game/view/trophy-record", async (orig) => ({
+  ...(await orig<typeof import("@/features/game/view/trophy-record")>()),
+  recordFullTime: async (e: (typeof recorded)[number]) => {
+    recorded.push(e);
+    return [];
+  },
+}));
+
 const { SeasonHub } = await import("@/features/game/components/SeasonHub");
 
 const ROLES: PlayerRole[] = [
@@ -151,4 +163,32 @@ describe("SeasonHub", async () => {
     for (const r of rows) expect(Number(r.dataset.played)).toBe(38);
     expect(screen.getByTestId("season-next")).toHaveTextContent(/complete/i);
   });
+});
+
+describe("SeasonHub — the Trophy Room (TASK-1813/1819)", () => {
+  it("every simmed coach week adds his cards (no match badges), and the finished run records once", async () => {
+    recorded.length = 0;
+    await render();
+    for (
+      let i = 0;
+      i < 38 && !screen.getByTestId("season-next").textContent?.includes("complete");
+      i++
+    ) {
+      const action =
+        screen.queryByRole("button", { name: /Forfeit fixture/i }) ??
+        screen.getByRole("button", { name: /to the end/i });
+      await waitFor(() => expect(action).toBeEnabled());
+      await userEvent.click(action);
+    }
+    await waitFor(() => expect(recorded.some((e) => e.key === "r:4242")).toBe(true));
+    const weeks = recorded.filter((e) => e.key.startsWith("s:4242:"));
+    expect(new Set(weeks.map((e) => e.key)).size).toBe(38);
+    for (const w of weeks) {
+      expect(w.facts.match).toBeUndefined();
+      expect(w.cards.length).toBeGreaterThan(0);
+    }
+    const end = recorded.filter((e) => e.key === "r:4242");
+    expect(end).toHaveLength(1);
+    expect(end[0]!.facts.season).toMatchObject({ kind: "league", complete: true });
+  }, 60_000);
 });

@@ -61,7 +61,10 @@ export function albumCards(
 async function fetchSeason(season: number): Promise<AlbumSeason | null> {
   try {
     const res = await fetch(`/api/game/album/${season}`);
-    return res.ok ? ((await res.json()) as AlbumSeason) : null;
+    if (!res.ok) return null;
+    const json = (await res.json()) as Partial<AlbumSeason>;
+    // A file of the wrong shape (or a test stub) is "no set data", never a crash.
+    return Array.isArray(json.clubs) ? (json as AlbumSeason) : null;
   } catch {
     return null;
   }

@@ -19,6 +19,13 @@ import {
 import { type Formation, formationKey } from "@/features/game/domain/formation";
 import { makeGameTeam } from "@/features/game/domain/team";
 import { clearRun, loadRun, saveRun } from "@/features/game/storage/season-slot";
+import {
+  albumCards,
+  localDay,
+  matchEntry,
+  recordFullTime,
+  scoreLine,
+} from "@/features/game/view/trophy-record";
 import { buildSeasonTeams } from "@/features/game/view/season-league";
 import { clubLogo } from "@/utils/club-logo";
 import { prefersReducedMotion } from "@/utils/motion";
@@ -342,6 +349,69 @@ export function SeasonHub({
     [run.results],
   );
 
+  /**
+   * TASK-1813/1819 — hand the Trophy Room every coach fixture this step added, and the run itself
+   * once it is complete. A PLAYED fixture carries its match facts; a simmed one only his cards,
+   * so bulk sim can never farm a match badge. Keys make every record once-only.
+   */
+  const recordSteps = useCallback(
+    (
+      before: SeasonRun,
+      after: SeasonRun,
+      played?: { result: MatchResult; fixture: SeasonFixture },
+    ) => {
+      const nameOf = (i: number) => clubNames[leagueIds[i] ?? 0] ?? String(leagueIds[i] ?? 0);
+      const day = localDay();
+      const had = new Set(before.results.map((r) => `${r.week}:${r.home}:${r.away}`));
+      for (const r of after.results) {
+        if (had.has(`${r.week}:${r.home}:${r.away}`)) continue;
+        if (r.home !== after.coach && r.away !== after.coach) continue;
+        const context = scoreLine(nameOf(r.home), nameOf(r.away), {
+          home: r.homeGoals,
+          away: r.awayGoals,
+        });
+        const key = `s:${after.seed}:${r.week}`;
+        void recordFullTime(
+          played != null
+            ? matchEntry({
+                key,
+                day,
+                players: played.fixture.setup[played.fixture.coachSide].players,
+                squadTeamId: coachId,
+                result: played.result,
+                coachSide: played.fixture.coachSide,
+                context,
+              })
+            : {
+                key,
+                day,
+                cards: albumCards(teams[coachIndex]?.players ?? [], coachId),
+                facts: {},
+                context,
+              },
+        );
+      }
+      if (!isComplete(before) && isComplete(after)) {
+        const rows = seasonTable(after.clubs, after.results);
+        const mine = after.results.filter((r) => r.home === after.coach || r.away === after.coach);
+        const lost = mine.some((r) =>
+          r.home === after.coach ? r.homeGoals < r.awayGoals : r.awayGoals < r.homeGoals,
+        );
+        const pos = rows.findIndex((row) => row.club === after.coach) + 1;
+        void recordFullTime({
+          key: `r:${after.seed}`,
+          day,
+          cards: [],
+          facts: {
+            season: { kind: "league", won: pos === 1, unbeaten: !lost, complete: true },
+          },
+          context: `${nameOf(after.coach)} · ${pos}/${after.clubs}`,
+        });
+      }
+    },
+    [clubNames, leagueIds, coachId, coachIndex, teams],
+  );
+
   /** Play `count` whole matchweeks through the REAL engine. */
   const advance = useCallback(
     (count: number) => {
@@ -357,11 +427,12 @@ export function SeasonHub({
         next = simulateSeasonWeek(next, teams, !canField);
       }
       if (next === run) return;
+      recordSteps(run, next);
       savingRef.current = true;
       setRun(next);
       setAnimate(!reduced);
     },
-    [clubs, run, teams, reduced, loaded, blocked, saveError, coachIndex, roster],
+    [clubs, run, teams, reduced, loaded, blocked, saveError, coachIndex, roster, recordSteps],
   );
 
   const play = () => {
@@ -380,7 +451,9 @@ export function SeasonHub({
         seasonTable(clubs, run.results).map((row, i) => [row.club, i]),
       );
       savingRef.current = true;
-      setRun(finishSeasonWeek(run, teams, result));
+      const after = finishSeasonWeek(run, teams, result);
+      if (playing != null) recordSteps(run, after, { result, fixture: playing });
+      setRun(after);
       setAnimate(!reduced);
     }
     setPlaying(null);

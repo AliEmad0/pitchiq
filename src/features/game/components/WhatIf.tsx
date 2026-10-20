@@ -8,6 +8,8 @@ import { SCENARIOS, verdictFor, type Scenario, type Verdict } from "@/features/g
 import { buildMatchViewModel } from "@/features/game/view/match-view-model";
 import { buildFixtureSession } from "@/features/game/view/season-match";
 import { randomSeed } from "@/features/game/view/seed";
+import { localDay, recordFullTime, scoreLine } from "@/features/game/view/trophy-record";
+import type { AchievementId } from "@/features/game/domain/achievements";
 import { useMatchDriver } from "@/features/game/view/use-match-driver";
 import { buildBoostedSession, type WhatIfSession } from "@/features/game/view/what-if-session";
 import {
@@ -60,6 +62,7 @@ export function WhatIf({ cards }: { cards: readonly WhatIfCard[] }) {
   const { startSession } = driver;
   const [stage, setStage] = useState<Stage>({ kind: "list" });
   const [bests, setBests] = useState<Record<string, WhatIfBest>>({});
+  const [unlocked, setUnlocked] = useState<AchievementId[]>([]);
   const cardOf = useCallback((id: string) => cards.find((c) => c.id === id)!, [cards]);
   // Only scenarios whose clubs the page could read — every one, today, since each is derived
   // from a real fixture; never a crash if one went missing.
@@ -246,6 +249,7 @@ export function WhatIf({ cards }: { cards: readonly WhatIfCard[] }) {
           crests={crests}
           newMatchLabel={t("back")}
           report={{ result, home, away, coachSide: s.side }}
+          unlocked={unlocked}
           onNewMatch={() => setStage({ kind: "list" })}
         />
       </div>
@@ -360,7 +364,25 @@ export function WhatIf({ cards }: { cards: readonly WhatIfCard[] }) {
       driver={driver}
       onFullTime={() => {
         if (driver.result == null) return;
-        void recordWhatIf(s, driver.result.score);
+        const score = driver.result.score;
+        const { home, away, seed } = session.setup;
+        setUnlocked([]);
+        void (async () => {
+          await recordWhatIf(s, score);
+          // TASK-1813 — History Rewritten / Alternate History read the bests. No cards: the XI
+          // is history's, not drafted (TASK-1819).
+          const rewritten = Object.values(await loadWhatIfBests()).filter(
+            (b) => b.verdict === "rewrote",
+          ).length;
+          const fresh = await recordFullTime({
+            key: `w:${s.id}:${seed}`,
+            day: localDay(),
+            cards: [],
+            facts: { whatIfRewritten: rewritten },
+            context: scoreLine(home.name, away.name, score),
+          });
+          if (fresh.length > 0) setUnlocked(fresh);
+        })();
         setStage({ kind: "summary", scenario: s, session });
       }}
     />
