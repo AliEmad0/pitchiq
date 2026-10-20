@@ -242,6 +242,7 @@ main{padding:16px;max-width:1180px;margin:0 auto}
 <script>
 const DATA = /*DATA*/[];
 const CRESTS = /*CRESTS*/{};
+const MODE = /*MODE*/"layout";
 const SURF = [["album","Album (1819)"],["hall","Hall of Fame (1813)"],["style","Style + scouting (1825)"]];
 const ERAS = [["modern","Modern"],["retro90s","Retro 90s"],["golden","Golden"]];
 const THEMES = [["dark","Dark"],["light","Light"]];
@@ -391,7 +392,119 @@ document.getElementById("out").onclick=e=>{
   else if(a==="again"){S.revealed=null;}
   render(); window.scrollTo(0,y);
 };
-render();
+/* ── MOTION gallery: the owner's three picks (Album #1, Hall #1, Style #2), 20 motion designs ──
+   Audit rules (motion-audit.test.ts): only transform / opacity / box-shadow, every animation finite,
+   one prefers-reduced-motion gate. Each design says what it does to the four moments:
+   a sticker landing, a set turning gold, a trophy lighting, the dossier + kick-off reveal. */
+const MO = [
+ ["Sticker Slap","Stickers slap down one by one with a tiny overshoot; the cabinet's cups pop lit; the dossier bars draw left to right and the stamp thuds.",
+  `ST{animation:mo-pop .42s var(--pop) both;animation-delay:calc(var(--i)*45ms)}CUP{animation:mo-pop .5s var(--pop) both;animation-delay:calc(var(--i)*90ms)}BAR{transform-origin:0 50%;animation:mo-grow .6s ease-out both;animation-delay:calc(var(--i)*80ms)}STAMP{animation:mo-thud .45s cubic-bezier(.2,1.6,.4,1) .5s both}RES{animation:mo-rise .4s ease-out both}`],
+ ["Pack Rip","Stickers fly out of a torn pack, up from below and fanned, and settle into their slots.",
+  `ST{animation:mo-fly .55s cubic-bezier(.2,.9,.2,1) both;animation-delay:calc(var(--i)*35ms)}CUP{animation:mo-rise .5s ease-out both;animation-delay:calc(var(--i)*70ms)}BAR{transform-origin:0 50%;animation:mo-grow .5s ease-out both;animation-delay:calc(var(--i)*60ms)}STAMP{animation:mo-thud .4s ease-out .4s both}RES{animation:mo-rise .4s ease-out both}`],
+ ["Page Turn","The album page swings open on its spine; trophies fade up behind the glass; the folder flaps open.",
+  `PAGE{transform-origin:0 50%;animation:mo-turn .7s cubic-bezier(.3,.7,.2,1) both}PAGE2{transform-origin:100% 50%;animation:mo-turn2 .7s cubic-bezier(.3,.7,.2,1) .1s both}CUP{animation:mo-fade .6s ease-out both;animation-delay:calc(var(--i)*60ms)}DOS{transform-origin:50% 0;animation:mo-flap .6s ease-out both}RES{animation:mo-rise .4s ease-out both}`],
+ ["Foil Sweep","A light sweep runs across a finished set, the gold foil catching the light. Earned cups glow in turn.",
+  `ST{animation:mo-fade .35s ease-out both;animation-delay:calc(var(--i)*30ms)}GOLD::after{animation:mo-sweep 1.1s ease-in-out .6s both}CUP{animation:mo-glow 1.2s ease-out both;animation-delay:calc(var(--i)*120ms)}BAR{transform-origin:0 50%;animation:mo-grow .6s ease-out both}STAMP{animation:mo-fade .3s ease-out .4s both}RES{animation:mo-rise .4s ease-out both}`],
+ ["Stamp Slam","Quiet until the CONFIDENTIAL stamp slams down and shakes the folder; the verdict slams the same way.",
+  `ST{animation:mo-fade .3s ease-out both}CUP{animation:mo-fade .3s ease-out both}STAMP{animation:mo-slam .5s cubic-bezier(.5,0,.75,0) .3s both}DOS{animation:mo-shake .3s ease-out .8s both}RES{animation:mo-slam .45s cubic-bezier(.5,0,.75,0) both}`],
+ ["Trophy Rise","Cups rise onto the shelves one at a time like a presentation; stickers rise with them.",
+  `ST{animation:mo-rise .45s ease-out both;animation-delay:calc(var(--i)*40ms)}CUP{animation:mo-lift .6s cubic-bezier(.2,1.3,.4,1) both;animation-delay:calc(var(--i)*110ms)}BAR{transform-origin:0 50%;animation:mo-grow .5s ease-out both}RES{animation:mo-lift .5s cubic-bezier(.2,1.3,.4,1) both}`],
+ ["Spotlight","Earned cups take a spotlight glow that blooms and holds; the gold set glows the same way.",
+  `CUP{animation:mo-glow 1.4s ease-out both;animation-delay:calc(var(--i)*150ms)}GOLDBOX{animation:mo-bloom 1.2s ease-out .3s both}ST{animation:mo-fade .4s ease-out both}BAR{transform-origin:0 50%;animation:mo-grow .6s ease-out both}RES{animation:mo-bloom .9s ease-out both}`],
+ ["Bar Chart Count","The dossier leads: the odds bars count up in order, then the stamp; stickers and cups grow up from their base.",
+  `BAR{transform-origin:0 50%;animation:mo-grow .9s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i)*140ms)}STAMP{animation:mo-thud .4s ease-out 1.1s both}ST{animation:mo-grow-y .5s ease-out both;transform-origin:50% 100%;animation-delay:calc(var(--i)*35ms)}CUP{animation:mo-grow-y .5s ease-out both;transform-origin:50% 100%;animation-delay:calc(var(--i)*80ms)}RES{animation:mo-rise .4s ease-out both}`],
+ ["Card Flip","Stickers turn over from their backs one by one; the verdict flips over like a turned card.",
+  `ST{animation:mo-flip .55s ease-out both;animation-delay:calc(var(--i)*50ms)}CUP{animation:mo-flip .55s ease-out both;animation-delay:calc(var(--i)*90ms)}BAR{transform-origin:0 50%;animation:mo-grow .5s ease-out both}RES{animation:mo-flip .6s ease-out both}`],
+ ["Confetti Set","A finished set bursts confetti over the page; unlocked cups pop; the reveal pops.",
+  `ST{animation:mo-fade .35s ease-out both;animation-delay:calc(var(--i)*25ms)}CONF{animation:mo-confetti 1.2s cubic-bezier(.2,.7,.3,1) both;animation-delay:calc(var(--i)*20ms + .5s)}CUP{animation:mo-pop .5s var(--pop) both;animation-delay:calc(var(--i)*90ms)}RES{animation:mo-pop .5s var(--pop) both}`],
+ ["Soft Cascade","The quiet one: everything rises 8px and fades in, in reading order. Nothing shouts.",
+  `ST{animation:mo-rise .5s ease-out both;animation-delay:calc(var(--i)*30ms)}CUP{animation:mo-rise .5s ease-out both;animation-delay:calc(var(--i)*60ms)}BAR{animation:mo-rise .5s ease-out both;animation-delay:calc(var(--i)*60ms)}STAMP{animation:mo-fade .5s ease-out .4s both}RES{animation:mo-rise .5s ease-out both}`],
+ ["Bounce In","Rubbery and playful: stickers and cups drop in and bounce twice.",
+  `ST{animation:mo-bounce .7s ease-out both;animation-delay:calc(var(--i)*40ms)}CUP{animation:mo-bounce .7s ease-out both;animation-delay:calc(var(--i)*80ms)}BAR{transform-origin:0 50%;animation:mo-grow .6s var(--pop) both}RES{animation:mo-bounce .7s ease-out both}`],
+ ["Shelf Slide","The cabinet's shelves slide in from the side, each a beat later; album pages slide in from opposite sides.",
+  `SHELF{animation:mo-slide .6s cubic-bezier(.2,.9,.2,1) both;animation-delay:calc(var(--i)*120ms)}PAGE{animation:mo-slide .6s cubic-bezier(.2,.9,.2,1) both}PAGE2{animation:mo-slide-r .6s cubic-bezier(.2,.9,.2,1) .1s both}DOS{animation:mo-slide .6s cubic-bezier(.2,.9,.2,1) both}RES{animation:mo-slide .4s ease-out both}`],
+ ["Ink Bleed","The dossier prints itself: lines fade in as if inked, bars draw, the stamp lands last.",
+  `DOSL{animation:mo-ink .5s ease-out both;animation-delay:calc(var(--i)*90ms)}BAR{transform-origin:0 50%;animation:mo-grow .7s ease-out both;animation-delay:calc(var(--i)*90ms + .2s)}STAMP{animation:mo-thud .4s ease-out 1s both}ST{animation:mo-ink .45s ease-out both;animation-delay:calc(var(--i)*35ms)}CUP{animation:mo-ink .45s ease-out both;animation-delay:calc(var(--i)*70ms)}RES{animation:mo-ink .45s ease-out both}`],
+ ["Gold Ripple","Each sticker lands with a ring that ripples out from it; cups and the verdict ripple too.",
+  `ST{animation:mo-ring .7s ease-out both;animation-delay:calc(var(--i)*45ms)}CUP{animation:mo-ring .7s ease-out both;animation-delay:calc(var(--i)*90ms)}BAR{transform-origin:0 50%;animation:mo-grow .6s ease-out both}RES{animation:mo-ring .8s ease-out both}`],
+ ["Rattle","Each shelf rattles as its cups are added; the folder rattles under the stamp. Physical, a bit cheeky.",
+  `ST{animation:mo-fade .3s ease-out both;animation-delay:calc(var(--i)*25ms)}SHELF{animation:mo-shake .4s ease-out both;animation-delay:calc(var(--i)*200ms + .2s)}CUP{animation:mo-pop .4s var(--pop) both;animation-delay:calc(var(--i)*60ms)}STAMP{animation:mo-slam .4s cubic-bezier(.5,0,.75,0) .3s both}DOS{animation:mo-shake .3s ease-out .7s both}RES{animation:mo-pop .45s var(--pop) both}`],
+ ["Progress Fill","The meters lead: the album's progress bar fills, then the stickers it counts appear.",
+  `PROG{transform-origin:0 50%;animation:mo-grow 1s cubic-bezier(.2,.8,.2,1) both}ST{animation:mo-fade .3s ease-out both;animation-delay:calc(var(--i)*30ms + .6s)}CUP{animation:mo-fade .4s ease-out both;animation-delay:calc(var(--i)*60ms)}BAR{transform-origin:0 50%;animation:mo-grow 1s cubic-bezier(.2,.8,.2,1) both}RES{animation:mo-rise .4s ease-out both}`],
+ ["Polaroid Drop","Stickers fall from above, slightly turned, and straighten as they stick.",
+  `ST{animation:mo-drop .6s cubic-bezier(.2,.9,.3,1.2) both;animation-delay:calc(var(--i)*45ms)}CUP{animation:mo-drop .6s cubic-bezier(.2,.9,.3,1.2) both;animation-delay:calc(var(--i)*90ms)}DOS{animation:mo-drop .6s cubic-bezier(.2,.9,.3,1.2) both}STAMP{animation:mo-thud .4s ease-out .7s both}RES{animation:mo-drop .5s ease-out both}`],
+ ["Glint","Nothing slides in; a glint runs over each cup and across the gold set once, in turn.",
+  `CUP{animation:mo-glint .9s ease-in-out both;animation-delay:calc(var(--i)*140ms)}GOLD::after{animation:mo-sweep 1s ease-in-out .3s both}STAMP{animation:mo-glint .8s ease-in-out .3s both}RES{animation:mo-glint .7s ease-in-out both}`],
+ ["Curtain","The cabinet doors and the album cover open from the middle to reveal what's inside.",
+  `CURT::before{animation:mo-door .8s cubic-bezier(.6,0,.2,1) .2s both}CURT::after{animation:mo-door .8s cubic-bezier(.6,0,.2,1) .2s both}ST{animation:mo-fade .4s ease-out .6s both}CUP{animation:mo-fade .4s ease-out .6s both}DOS{transform-origin:50% 0;animation:mo-flap .6s ease-out both}RES{animation:mo-rise .4s ease-out both}`],
+];
+const SEL = {ST:".a1 .st",PAGE:".a1 .page:first-child",PAGE2:".a1 .page:nth-child(2)",GOLD:".a1.gold",GOLDBOX:".a1.gold",CONF:".a1 .conf i",CUP:".h1 .tr",SHELF:".h1 .sh",BAR:".s2 .bars i",STAMP:".s2 .stamp",DOS:".s2",DOSL:".s2 > *",RES:".result",PROG:".head .bar-p i",CURT:".mv-curt"};
+function moCss(){ return MO.map((m,k)=>m[2].replace(/(GOLDBOX|GOLD|PAGE2|PAGE|SHELF|STAMP|DOSL|DOS|CONF|CUP|BAR|RES|PROG|CURT|ST)(::\w+)?\{/g,(_,g,ps)=>`[data-m="${k}"] ${SEL[g]}${ps??""}{`)).join("\n"); }
+const KEYS = `
+:root{--pop:cubic-bezier(.34,1.56,.64,1)}
+@keyframes mo-pop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
+@keyframes mo-fade{from{opacity:0}to{opacity:1}}
+@keyframes mo-rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes mo-grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes mo-grow-y{from{opacity:0;transform:scaleY(0)}to{opacity:1;transform:none}}
+@keyframes mo-thud{from{opacity:0;transform:scale(2) rotate(-6deg)}to{opacity:1;transform:rotate(-6deg)}}
+@keyframes mo-slam{0%{opacity:0;transform:scale(2.4) rotate(-10deg)}70%{opacity:1;transform:scale(.95) rotate(-6deg)}100%{opacity:1;transform:rotate(-6deg)}}
+@keyframes mo-fly{from{opacity:0;transform:translateY(120px) rotate(-14deg) scale(.7)}to{opacity:1;transform:none}}
+@keyframes mo-turn{from{opacity:0;transform:perspective(900px) rotateY(-80deg)}to{opacity:1;transform:none}}
+@keyframes mo-turn2{from{opacity:0;transform:perspective(900px) rotateY(80deg)}to{opacity:1;transform:none}}
+@keyframes mo-flap{from{opacity:0;transform:perspective(800px) rotateX(-70deg)}to{opacity:1;transform:none}}
+@keyframes mo-sweep{from{opacity:1;transform:translateX(-100%)}to{opacity:1;transform:translateX(100%)}}
+@keyframes mo-glow{0%{box-shadow:0 0 0 0 #ffd84d00}40%{box-shadow:0 0 24px 6px #ffd84d99}100%{box-shadow:0 0 12px 2px #ffd84d55}}
+@keyframes mo-bloom{0%{box-shadow:0 0 0 0 #ffd84d00}50%{box-shadow:0 0 30px 8px #ffd84d80}100%{box-shadow:0 0 10px 2px #ffd84d40}}
+@keyframes mo-shake{0%,100%{transform:none}20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-2px)}80%{transform:translateX(2px)}}
+@keyframes mo-lift{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}
+@keyframes mo-flip{from{opacity:0;transform:perspective(600px) rotateY(90deg)}to{opacity:1;transform:none}}
+@keyframes mo-confetti{0%{opacity:1;transform:translate(0,0) rotate(0)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(540deg)}}
+@keyframes mo-bounce{0%{opacity:0;transform:translateY(-40px)}50%{opacity:1;transform:translateY(0)}70%{transform:translateY(-10px)}85%{transform:translateY(0)}93%{transform:translateY(-3px)}100%{transform:none}}
+@keyframes mo-slide{from{opacity:0;transform:translateX(-60px)}to{opacity:1;transform:none}}
+@keyframes mo-slide-r{from{opacity:0;transform:translateX(60px)}to{opacity:1;transform:none}}
+@keyframes mo-ink{from{opacity:0;transform:scale(1.04)}to{opacity:1;transform:none}}
+@keyframes mo-ring{0%{opacity:0;box-shadow:0 0 0 0 #a3179a88}30%{opacity:1}100%{opacity:1;box-shadow:0 0 0 14px #a3179a00}}
+@keyframes mo-drop{from{opacity:0;transform:translateY(-60px) rotate(8deg)}to{opacity:1;transform:none}}
+@keyframes mo-glint{0%,100%{transform:none;box-shadow:none}50%{transform:scale(1.08);box-shadow:0 0 18px 4px #fff8}}
+@keyframes mo-door{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+.a1.gold{position:relative;overflow:hidden}
+.a1.gold::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(100deg,transparent 35%,#fff9 50%,transparent 65%);opacity:0}
+.a1 .conf{position:absolute;inset:0;pointer-events:none}
+.a1 .conf i{position:absolute;left:50%;top:40%;width:8px;height:12px;opacity:0}
+.mv-curt{position:relative}
+.mv-curt::before,.mv-curt::after{content:"";position:absolute;top:0;bottom:0;width:50%;z-index:2;background:linear-gradient(90deg,#3a2614,#6b4a24);pointer-events:none;transform:scaleX(0)}
+.mv-curt::before{left:0;transform-origin:0 50%}.mv-curt::after{right:0;transform-origin:100% 50%}
+.mv-stage{display:grid;gap:14px}
+.mv-stage>section{min-width:0}
+.mv-lbl{font:700 11px system-ui;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin:0 0 6px}
+@media (prefers-reduced-motion:reduce){[data-m] *,[data-m] *::before,[data-m] *::after{animation:none!important}}
+`;
+function motionStage(){
+  S.set=1; S.opp=2; S.my="high-press"; S.revealed=tendency(2);
+  const cs=cards().slice(0,12);
+  const album=`<section><p class="mv-lbl">Album · a full set</p><div class="mv-curt">${setHead()}<div class="a1 gold">${[0,1].map(p=>`<div class="page">${cs.filter((_,k)=>k%2===p).map(c=>`<div class="st have"><div><div class="ovr">${c.o}</div>${sur(c.n)}<div class="role">${c.r}</div></div></div>`).join("")}</div>`).join("")}<div class="conf">${Array.from({length:18},(_,k)=>`<i style="background:hsl(${k*40} 80% 55%);--dx:${Math.round(Math.cos(k)*160)}px;--dy:${Math.round(Math.sin(k*1.7)*120-40)}px"></i>`).join("")}</div></div></div></section>`;
+  const hall=`<section><p class="mv-lbl">Hall of Fame · unlocks</p><div class="mv-curt"><div class="h1">${[0,1].map(r=>`<div class="sh">${ACH.slice(r*4,r*4+4).map(a=>`<div class="tr ${achOn(a)?"on":""}"><div class="cup">${a[3]}</div>${a[1]}</div>`).join("")}</div>`).join("")}</div></div></section>`;
+  const t=tendency(S.opp);
+  const dossier=`<section><p class="mv-lbl">Pre-match · scouting and kick-off</p><div class="s2"><div class="row" style="justify-content:space-between"><b>SCOUTING REPORT</b><span class="stamp">CONFIDENTIAL</span></div>${vs()}<div class="bars" style="margin:10px 0">${odds(t).map(([k,p])=>`<div><span>${sname(k)}</span><i style="width:${p}%"></i><span>${p}%</span></div>`).join("")}</div>${pickBtns()}${resultLine()}</div></section>`;
+  return `<div class="mv-stage">${album}${hall}${dossier}</div>`;
+}
+function stagger(root){ for(const sel of [".a1 .st",".h1 .tr",".h1 .sh",".s2 .bars i",".a1 .conf i",".s2 > *"]) root.querySelectorAll(sel).forEach((el,k)=>el.style.setProperty("--i",k)); }
+function motionInit(){
+  document.getElementById("surf").style.display="none";
+  const st=document.createElement("style"); st.textContent=KEYS+moCss(); document.head.appendChild(st);
+  document.querySelector(".bar h1").textContent="Trophy Room · motion";
+  document.title="Trophy Room Motion";
+  document.getElementById("intro").textContent="20 motion designs on your three picks (Album #1 Panini Classic, Hall #1 Trophy Cabinet, Style #2 Scout's Dossier), with real data. Each plays once; press Replay to see it again. Only transform, opacity and box-shadow move, nothing loops, and reduced motion turns it all off.";
+  const jump=document.getElementById("jump");
+  jump.innerHTML=`<option value="">Jump to…</option>`+MO.map((m,k)=>`<option value="m${k+1}">${k+1}. ${m[0]}</option>`).join("");
+  const stage=motionStage();
+  document.getElementById("out").innerHTML=MO.map((m,k)=>`<section class="concept" id="m${k+1}"><h2><b>${k+1}</b>${m[0]} <button class="btn ghost" data-replay="${k}" style="margin-inline-start:8px;padding:4px 12px">Replay</button></h2><p class="why">${m[1]}</p><div class="frames"><div><p class="tag">Desktop · 720</p><div class="frame d" data-m="${k}">${stage}</div></div><div><p class="tag">Mobile · 375</p><div class="frame m" data-m="${k}">${stage}</div></div></div></section>`).join("");
+  document.querySelectorAll("[data-m]").forEach(stagger);
+  document.getElementById("out").onclick=e=>{ const b=e.target.closest("[data-replay]"); if(!b) return; document.querySelectorAll(`[data-m="${b.dataset.replay}"]`).forEach(f=>{ const h=f.innerHTML; f.innerHTML=""; void f.offsetWidth; f.innerHTML=h; stagger(f); }); };
+}
+
+if (MODE === "motion") motionInit(); else render();
 </script>
 </body>
 </html>
