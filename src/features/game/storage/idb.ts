@@ -1,5 +1,5 @@
 const DB_NAME = "pitchiq-game";
-export const DB_VERSION = 4;
+export const DB_VERSION = 5;
 
 /**
  * Every object store in the database.
@@ -20,7 +20,7 @@ export const DB_VERSION = 4;
  * opens a REAL v3 database first and then upgrades it — the earlier tests wrote and read at
  * the current version, so they never exercised an upgrade at all.
  */
-const STORES = ["match", "daily", "season", "whatIf"] as const;
+const STORES = ["match", "daily", "season", "whatIf", "album", "trophies", "trophyLog"] as const;
 export type StoreName = (typeof STORES)[number];
 
 /**
@@ -87,6 +87,21 @@ export async function idbGet<T>(store: StoreName, key: string): Promise<T | null
 export async function idbPut(store: StoreName, key: string, value: unknown): Promise<void> {
   if (!available()) return;
   await run(store, "readwrite", (s) => s.put(value, key));
+}
+
+/**
+ * Insert a value only if the key is new — true if it was inserted, false if it already
+ * existed. Atomic: the store itself refuses the duplicate (TASK-1813's once-only writes).
+ */
+export async function idbAdd(store: StoreName, key: string, value: unknown): Promise<boolean> {
+  if (!available()) return false;
+  try {
+    await run(store, "readwrite", (s) => s.add(value, key));
+    return true;
+  } catch (e) {
+    if (e instanceof DOMException && e.name === "ConstraintError") return false;
+    throw e;
+  }
 }
 
 export async function idbDel(store: StoreName, key: string): Promise<void> {
