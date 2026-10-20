@@ -6,6 +6,7 @@ import type { Formation, FormationSlot } from "./formation";
 import type { Opponent, TacticalStyle } from "./opponent";
 import type { GamePlayer } from "./player";
 import { mulberry32 } from "./rng";
+import { STYLES } from "./style-scouting";
 import { type GameTeam, makeGameTeam } from "./team";
 
 // TASK-1806 — Chaos Draft. A fully-randomised squad, drafted from a build-time
@@ -128,7 +129,7 @@ export const FORMATIONS: Formation[] = [
   ]),
 ];
 
-const pick = <T>(list: T[], rng: () => number): T => list[Math.floor(rng() * list.length)];
+const pick = <T>(list: readonly T[], rng: () => number): T => list[Math.floor(rng() * list.length)];
 
 /**
  * Draft a full XI from the pool: a random formation, then a random ELIGIBLE card
@@ -430,15 +431,6 @@ export function chaosDraft(
 
   return makeGameTeam(-1, name, 0, shape, chosen, bench);
 }
-
-const STYLES: TacticalStyle[] = [
-  "balanced",
-  "tiki-taka",
-  "high-press",
-  "low-block",
-  "counter",
-  "direct",
-];
 
 export interface ChaosMatchup {
   home: GameTeam;
