@@ -1,5 +1,5 @@
 const DB_NAME = "pitchiq-game";
-const DB_VERSION = 4;
+export const DB_VERSION = 4;
 
 /**
  * Every object store in the database.

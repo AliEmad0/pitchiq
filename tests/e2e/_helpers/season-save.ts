@@ -1,10 +1,15 @@
 import type { Page } from "@playwright/test";
-/** Read/write only the test browser's season slot, awaiting transaction completion. */
+import { DB_VERSION } from "@/features/game/storage/idb";
+/**
+ * Read/write only the test browser's season slot, awaiting transaction completion.
+ * ⛔ Opens at the APP's `DB_VERSION`: a pinned number turns every schema bump into a
+ * `VersionError` here (TASK-1816 moved it 3 → 4).
+ */
 export async function seasonSave<T>(page: Page, key: string, value?: T): Promise<T> {
   return page.evaluate(
-    ({ key, value }) =>
+    ({ key, value, version }) =>
       new Promise<T>((resolve, reject) => {
-        const request = indexedDB.open("pitchiq-game", 3);
+        const request = indexedDB.open("pitchiq-game", version);
         request.onerror = () => reject(request.error);
         request.onsuccess = () => {
           const db = request.result;
@@ -27,6 +32,6 @@ export async function seasonSave<T>(page: Page, key: string, value?: T): Promise
           };
         };
       }),
-    { key, value },
+    { key, value, version: DB_VERSION },
   );
 }
