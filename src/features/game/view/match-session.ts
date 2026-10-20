@@ -2,7 +2,7 @@ import { chaosMatchup, type DraftPolicy, type PoolCard } from "@/features/game/d
 import type { Formation } from "@/features/game/domain/formation";
 import { chemistry, type Linkable } from "@/features/game/domain/chemistry";
 import { chemistryModifier } from "@/features/game/domain/chemistry-modifier";
-import { opponentSetup } from "@/features/game/domain/opponent";
+import { opponentSetup, type TacticalStyle } from "@/features/game/domain/opponent";
 import { runMatch } from "@/features/game/domain/simulate";
 import { type GameTeam, makeGameTeam } from "@/features/game/domain/team";
 import { createStream } from "./match-stream";
@@ -50,12 +50,22 @@ export interface RivalSetup {
    * codec needs no version bump.
    */
   chemistry?: boolean;
+  /**
+   * The coach's tactical style, picked on the pre-match screen (TASK-1825).
+   *
+   * ⛔ IDENTITY, like every field here: it must reach live, resume and share alike. Absent
+   * means the shipped rule — both styles from the uniform seeded draw — which is exactly what
+   * every save and v2 code made before this field existed was played under.
+   */
+  style?: TacticalStyle;
 }
 
 export interface MatchSession {
   home: GameTeam;
   away: GameTeam;
   seed: number;
+  /** The two styles this match is played with — the coach's and the opponent's. */
+  styles: { home: TacticalStyle; away: TacticalStyle };
   stream: ReturnType<typeof createStream>;
 }
 
@@ -97,6 +107,7 @@ export function buildSession(
       rivalPool: rival.pool,
       rivalName: rival.name,
       budget: rival.budget,
+      homeStyle: rival.style,
       exclude: rival.policy == null ? undefined : new Set(players.map((p) => p.playerId)),
     },
   );
@@ -153,5 +164,6 @@ export function buildSession(
     "home",
   );
 
-  return { home, away, seed, stream };
+  const awayStyle = matchup.opponent.style;
+  return { home, away, seed, stream, styles: { home: matchup.homeStyle, away: awayStyle } };
 }

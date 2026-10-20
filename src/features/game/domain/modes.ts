@@ -88,6 +88,8 @@ export interface CollectionSurface {
   nameKey: string;
   status: ModeStatus;
   ticket: string;
+  /** Where a LIVE surface opens (TASK-1813/1819). A planned surface has none. */
+  href?: string;
 }
 
 export const MODE_GROUPS: readonly ModeGroup[] = [
@@ -271,14 +273,16 @@ export const COLLECTION_SURFACES: readonly CollectionSurface[] = [
     id: "hallOfFame",
     emoji: "🥇",
     nameKey: "collectionHallOfFame",
-    status: "planned",
+    status: "live",
+    href: "/game/trophies#hall",
     ticket: "TASK-1813",
   },
   {
     id: "album",
     emoji: "🖼️",
     nameKey: "collectionAlbum",
-    status: "planned",
+    status: "live",
+    href: "/game/trophies",
     ticket: "TASK-1819",
   },
 ];

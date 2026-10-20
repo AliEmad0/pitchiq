@@ -1,3 +1,4 @@
+import type { TacticalStyle } from "@/features/game/domain/opponent";
 import type { PlayerSeasonId } from "@/features/game/domain/card-id";
 import type { PoolCard } from "@/features/game/domain/chaos-draft";
 import { encodeTokens, readTokens } from "@/features/game/domain/decision-tokens";
@@ -35,6 +36,8 @@ export function buildShareCode(args: {
   fingerprint: number;
   /** The club he chose to face. Absent = his own pool. See `ShareableMatch.rival`. */
   rival?: RivalRef | null;
+  /** The coach's tactical style (TASK-1825). Absent = the shipped draw; the code stays v2. */
+  style?: TacticalStyle;
 }): string {
   return encodeMatch({
     cardIds: [...args.cardIds] as PlayerSeasonId[],
@@ -43,6 +46,7 @@ export function buildShareCode(args: {
     tokens: encodeTokens(args.answers),
     fingerprint: args.fingerprint,
     rival: args.rival ?? null,
+    ...(args.style == null ? {} : { style: args.style }),
   });
 }
 
@@ -78,7 +82,8 @@ export function replayShared(
     names,
     // ⚠️ `keep`, and no expected event count — see the drift table in the design doc.
     { onDrift: "keep", expectedFingerprint: shared.fingerprint },
-    rival,
+    // ⛔ The code's style is identity: it joins whatever rival the caller resolved.
+    shared.style == null ? rival : { ...rival, style: shared.style },
   );
 }
 

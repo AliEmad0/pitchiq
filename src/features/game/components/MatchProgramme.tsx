@@ -8,6 +8,7 @@ import type { GameTeam } from "@/features/game/domain/team";
 import { prefersReducedMotion } from "@/utils/motion";
 import { ClubCrest } from "./ClubCrest";
 import { PlayerCard } from "./PlayerCard";
+import { ScoutingDossier, type ScoutingDossierProps } from "./ScoutingDossier";
 
 interface Props {
   coachSide?: "home" | "away";
@@ -30,6 +31,11 @@ interface Props {
    * owner request 2026-08-28). Absent = the tape is exactly the four bars it always was.
    */
   chemistry?: boolean;
+  /**
+   * The Scout's Dossier (TASK-1825). Present = the coach picks a style here, and the dossier
+   * owns Kick off / Walk out. Absent (season fixtures) = the programme exactly as it shipped.
+   */
+  scouting?: ScoutingDossierProps;
   onKickOff: () => void;
   onBack: () => void;
 }
@@ -84,6 +90,7 @@ export function MatchProgramme({
   weather,
   crests,
   chemistry,
+  scouting,
   onKickOff,
   onBack,
 }: Props) {
@@ -244,13 +251,17 @@ export function MatchProgramme({
 
       {/* ---- 6 · kick off ---- */}
       {/* ⚠️ FULL WIDTH, and the only --cta on the page. */}
+      {scouting != null ? <ScoutingDossier {...scouting} /> : null}
       <div className="lg-prog-go">
         <button type="button" onClick={onBack} className="lg-ghost">
           {backLabel ?? t("progBack")}
         </button>
-        <button type="button" onClick={onKickOff} className="lg-kick">
-          {t("progKickOff")}
-        </button>
+        {/* With a dossier, Kick off and Walk out are the dossier's own controls. */}
+        {scouting == null ? (
+          <button type="button" onClick={onKickOff} className="lg-kick">
+            {t("progKickOff")}
+          </button>
+        ) : null}
       </div>
     </div>
   );

@@ -9,6 +9,7 @@ import { defaultAnswer } from "@/features/game/domain/match-decisions";
 import { SCENARIOS } from "@/features/game/domain/what-if";
 import type { MatchLive } from "@/features/game/components/MatchLive";
 import type { WhatIfCard } from "@/features/game/components/WhatIf";
+import { loadAlbum, loadUnlocks } from "@/features/game/storage/trophy-slot";
 import { renderWithIntl } from "./_helpers/intl";
 
 /**
@@ -112,6 +113,13 @@ describe("What-If — a scenario, start to finish", () => {
     expect(["rewrote", "matched", "repeated"]).toContain(board.getAttribute("data-verdict"));
     expect(board).toHaveTextContent("4–4"); // history
     expect(screen.getByTestId("post-match-report")).toBeInTheDocument();
+
+    // TASK-1813/1819 — a rescue earns History Rewritten, and collects no cards (history's XI).
+    const rewrote = board.getAttribute("data-verdict") === "rewrote";
+    await waitFor(async () =>
+      expect((await loadUnlocks()).some((u) => u.id === "rewrite")).toBe(rewrote),
+    );
+    expect(await loadAlbum()).toEqual([]);
 
     // …and the list remembers it.
     await user.click(screen.getByRole("button", { name: /all scenarios/i }));

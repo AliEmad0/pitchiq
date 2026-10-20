@@ -16,6 +16,17 @@ import {
   saveClassic,
   type SavedClassic,
 } from "../storage/classic-slot";
+import { survivalProgress } from "../domain/survival";
+import type { MatchResult } from "../domain/match-types";
+import {
+  albumCards,
+  leagueEnd,
+  localDay,
+  matchEntry,
+  recordFullTime,
+  runContext,
+  scoreLine,
+} from "../view/trophy-record";
 import { SeasonFixturePlay } from "./SeasonFixturePlay";
 import { ClassicOrbit } from "./ClassicOrbit";
 import { SurvivalLifeline } from "./SurvivalLifeline";
@@ -92,12 +103,23 @@ function HistoricalSeason({ seasons, survival }: { seasons: number[]; survival: 
   const [playing, setPlaying] = useState<ReturnType<typeof nextClassicFixture>>(null);
   const lock = useRef(false);
   const returned = useRef(false);
+  /**
+   * TASK-1813/1819 — the results the Trophy Room has been handed, and a played fixture whose save
+   * is still to succeed. ⛔ Records go out only after a save SUCCEEDS (see `persist`): a fixture
+   * recorded before a failed save would claim its key, and the replay would never be recorded.
+   */
+  const recordedRef = useRef<SavedHistorical["results"] | null>(null);
+  const pendingPlayed = useRef<
+    { result: MatchResult; fixture: NonNullable<typeof playing> } | undefined
+  >(undefined);
   useEffect(() => {
     let live = true;
     (survival ? loadSurvivalSave() : loadClassicSave())
       .then((value) => {
         if (!live) return;
         setSaved(value);
+        // A loaded run's results were recorded when they were played (or by the backfill).
+        recordedRef.current = value?.results ?? null;
         if (value) {
           setSeason(value.season);
           setClubId(value.clubId);
@@ -165,15 +187,118 @@ function HistoricalSeason({ seasons, survival }: { seasons: number[]; survival: 
       return null;
     }
   }, [data, saved, clubId, shape, cards, survival]);
-  async function persist(next: SavedHistorical) {
+  /**
+   * TASK-1813/1819 — hand the Trophy Room each coach fixture these results added (a PLAYED one
+   * with its match facts, a simmed one with only his cards) and the run once it is complete.
+   * Keyed by the run's own seed, so a new run of the same season records afresh.
+   */
+  function recordHistorical(
+    before: readonly { fixtureId: string }[],
+    after: readonly { fixtureId: string; homeGoals: number; awayGoals: number }[],
+    played?: { result: MatchResult; fixture: NonNullable<typeof playing> },
+  ) {
+    // ⛔ Runs inside `transact`: a throw here would show the coach a load error for a save that
+    // succeeded. The Trophy Room is best-effort, so it never throws.
+    try {
+      recordHistoricalSteps(before, after, played);
+    } catch {
+      // Best-effort by design.
+    }
+  }
+  function recordHistoricalSteps(
+    before: readonly { fixtureId: string }[],
+    after: readonly { fixtureId: string; homeGoals: number; awayGoals: number }[],
+    played?: { result: MatchResult; fixture: NonNullable<typeof playing> },
+  ) {
+    if (!data || !saved || !prepared) return;
+    const coach = prepared.run.coach;
+    const byId = new Map(data.schedule.fixtures.map((f) => [f.id, f]));
+    const nameOf = (i: number) => prepared.teams[i]?.name ?? "";
+    const had = new Set(before.map((r) => r.fixtureId));
+    const day = localDay();
+    for (const r of after) {
+      const f = byId.get(r.fixtureId);
+      if (had.has(r.fixtureId) || f == null || (f.home !== coach && f.away !== coach)) continue;
+      const key = `c:${saved.seed}:${r.fixtureId}`;
+      const context = scoreLine(nameOf(f.home), nameOf(f.away), {
+        home: r.homeGoals,
+        away: r.awayGoals,
+      });
+      void recordFullTime(
+        played != null && played.fixture.id === r.fixtureId
+          ? matchEntry({
+              key,
+              day,
+              players: played.fixture.setup[played.fixture.coachSide].players,
+              squadTeamId: prepared.clubId,
+              result: played.result,
+              coachSide: played.fixture.coachSide,
+              context,
+            })
+          : {
+              key,
+              day,
+              cards: albumCards(prepared.teams[coach]?.players ?? [], prepared.clubId),
+              facts: {},
+              context,
+            },
+      );
+    }
+    const total = data.schedule.fixtures.length;
+    if (survival) {
+      const scenario = (saved as SavedSurvival).scenario;
+      const p = survivalProgress(data.schedule, scenario, after as never);
+      if (p.complete && before.length < after.length)
+        void recordFullTime({
+          key: `r:${saved.seed}`,
+          day,
+          cards: [],
+          facts: {
+            season: {
+              kind: "survival",
+              won: false,
+              unbeaten: false,
+              complete: true,
+              survived: p.status === "survived",
+            },
+          },
+          context: runContext(nameOf(coach), p.position, data.schedule.clubs),
+        });
+      return;
+    }
+    if (before.length < total && after.length >= total) {
+      const { season, position } = leagueEnd(
+        data.schedule.clubs,
+        coach,
+        after.map((r) => ({ ...byId.get(r.fixtureId)!, ...r })),
+      );
+      void recordFullTime({
+        key: `r:${saved.seed}`,
+        day,
+        cards: [],
+        facts: { season },
+        context: runContext(nameOf(coach), position, data.schedule.clubs),
+      });
+    }
+  }
+  async function persist(
+    next: SavedHistorical,
+    played?: { result: MatchResult; fixture: NonNullable<typeof playing> },
+  ) {
     setSaved(next);
+    if (played != null) pendingPlayed.current = played;
     try {
       if (survival) await saveSurvival(next as SavedSurvival);
       else await saveClassic(next);
       setError(null);
     } catch {
       setError("save");
+      return;
     }
+    // Saved: hand the Trophy Room whatever is new since its last record.
+    recordHistorical(recordedRef.current ?? [], next.results, pendingPlayed.current);
+    recordedRef.current = next.results;
+    pendingPlayed.current = undefined;
   }
   async function transact(action: () => Promise<void>) {
     if (lock.current) return;
@@ -233,6 +358,7 @@ function HistoricalSeason({ seasons, survival }: { seasons: number[]; survival: 
       if (survival) await clearSurvival();
       else await clearClassic();
       setSaved(null);
+      recordedRef.current = null;
       setPlaying(null);
       setCards(undefined);
       setAbandon(false);
@@ -273,7 +399,10 @@ function HistoricalSeason({ seasons, survival }: { seasons: number[]; survival: 
                   played,
                 )
               : advanceClassic(data.schedule, current.teams, current.run, played);
-            await persist({ ...saved, results: [...next.results], injuries: next.injuries });
+            await persist(
+              { ...saved, results: [...next.results], injuries: next.injuries },
+              { result, fixture: playing },
+            );
             setPlaying(null);
           });
         }}

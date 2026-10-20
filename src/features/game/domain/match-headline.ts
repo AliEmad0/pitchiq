@@ -71,8 +71,13 @@ export interface ScorerLine {
 }
 
 const other = (s: Side): Side => (s === "home" ? "away" : "home");
-const given = (events: readonly MatchEvent[]): MatchEvent[] =>
+/**
+ * The goals that STOOD, in match order — VAR-disallowed ones removed. Shared with the Hall of
+ * Fame (`achievements.ts`, TASK-1813) so the two can never count a match differently.
+ */
+export const givenGoals = (events: readonly MatchEvent[]): MatchEvent[] =>
   events.filter((e) => e.kind === "goal" && e.disallowedAt == null && e.side != null);
+const given = givenGoals;
 
 /** Starters AND bench — a substitute can score (the `commentary.ts#nameOf` rule). */
 function nameIn(team: GameTeam, id: number | undefined): string {

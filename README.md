@@ -274,3 +274,13 @@ the start whistle sets how they go back out; then you coach the rest, under that
 substitution rules, and the full-time board tells you whether you rewrote history, matched it
 or repeated it. A What-If-only boost makes a rescue land about one time in four. Everything
 is prerendered — no server time. See the [design](docs/superpowers/specs/2026-10-20-task-1816-what-if-design.md).
+
+### Trophy Room and scouted styles (TASK-1813, TASK-1819, TASK-1825 — ✅ Done)
+
+`/game/trophies` keeps your career. The **Album** is a Panini-style sticker book: every card you
+field in a finished match goes in, one page per club-season, and a full set turns gold — 686 sets
+in all, each completable through that club's Classic season. The **Hall of Fame** is a trophy
+cabinet of sixteen retro achievements, from Off the Mark to The Invincibles. Before kick-off, a
+**Scout's Dossier** tells you the opponent's usual style; you pick yours, then see what they
+really played and who had the edge. All in your browser — no account, no server time. See the
+[design](docs/superpowers/specs/2026-10-20-task-1813-1819-1825-trophy-room-design.md).

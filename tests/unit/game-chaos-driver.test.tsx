@@ -63,9 +63,7 @@ const pool: PoolCard[] = ROLES.flatMap((role, r) =>
 const render = (ui: ReactElement) => renderWithIntl(<NuqsTestingAdapter>{ui}</NuqsTestingAdapter>);
 
 /** `/game/chaos` as the route mounts it. */
-const chaos = () => (
-  <GamePlay pool={pool} initialPhase="setup" setup="reveal" screens="legacy" />
-);
+const chaos = () => <GamePlay pool={pool} initialPhase="setup" setup="reveal" screens="legacy" />;
 
 /**
  * TASK-1838 — chaos runs on the interactive driver.
@@ -127,6 +125,8 @@ describe("chaos on the match driver", () => {
     await user.click(screen.getByRole("button", { name: /Play Match/ }));
     await screen.findByText("The teams");
     await user.click(screen.getByRole("button", { name: /Kick off/i }));
+    // TASK-1825: Kick off on the Scout's Dossier reveals the styles; Walk out starts the match.
+    await user.click(await screen.findByRole("button", { name: "Walk out" }));
 
     expect(await screen.findByText("The comments")).toBeInTheDocument();
     // Both sheets carry one, hence `getAll` — the coach's is the point, its presence is

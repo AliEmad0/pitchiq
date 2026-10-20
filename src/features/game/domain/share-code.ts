@@ -1,5 +1,6 @@
 import { parseCardId, type PlayerSeasonId } from "./card-id";
 import { readTokens } from "./decision-tokens";
+import type { TacticalStyle } from "./opponent";
 
 /**
  * TASK-1812 — a match as a shareable, replayable URL code.
@@ -55,6 +56,26 @@ import { readTokens } from "./decision-tokens";
  */
 export const SHARE_VERSION = "v2";
 
+/**
+ * TASK-1825 — `v3` is `v2` plus the coach's tactical style as one more segment.
+ *
+ * ⭐ Unlike v1 → v2 this upgrade is LOSSLESS: a v2 code carries no style because none was
+ * picked, and a match without one replays under the shipped rule — exactly what was played.
+ * So v2 keeps decoding, and a code is written as v3 only when a style exists.
+ */
+export const SHARE_VERSION_STYLED = "v3";
+const STYLE_TOKEN: Record<TacticalStyle, string> = {
+  balanced: "b",
+  "tiki-taka": "t",
+  "high-press": "p",
+  "low-block": "l",
+  counter: "c",
+  direct: "d",
+};
+const STYLE_OF: Record<string, TacticalStyle> = Object.fromEntries(
+  Object.entries(STYLE_TOKEN).map(([s, t]) => [t, s as TacticalStyle]),
+);
+
 /** How a rival's policy travels — one character, so the segment stays short. */
 const POLICY_TOKEN = { random: "r", best: "b", strong: "s" } as const;
 const POLICY_OF: Record<string, RivalRef["policy"]> = { r: "random", b: "best", s: "strong" };
@@ -101,6 +122,11 @@ export type ShareableMatch = {
    * a different eleven and the fingerprint check reports it as drift the sender caused.
    */
   rival: RivalRef | null;
+  /**
+   * The coach's tactical style (TASK-1825). ⛔ IDENTITY: absent = the shipped uniform draw.
+   * Present only in v3 codes.
+   */
+  style?: TacticalStyle;
 };
 
 const SQUAD_SIZE = 11;
@@ -145,8 +171,8 @@ export function encodeMatch(match: ShareableMatch): string {
       return `${b36(playerId)}-${b36(season)}`;
     })
     .join("_");
-  return [
-    SHARE_VERSION,
+  const fields = [
+    match.style == null ? SHARE_VERSION : SHARE_VERSION_STYLED,
     b36(match.seed),
     match.formationSlug,
     cards,
@@ -157,7 +183,9 @@ export function encodeMatch(match: ShareableMatch): string {
       : typeof match.rival.teamId === "string"
         ? `${NATION_RIVAL}${match.rival.teamId}${POLICY_TOKEN[match.rival.policy]}`
         : `${b36(match.rival.teamId)}${POLICY_TOKEN[match.rival.policy]}`,
-  ].join(".");
+  ];
+  if (match.style != null) fields.push(STYLE_TOKEN[match.style]);
+  return fields.join(".");
 }
 
 /**
@@ -169,10 +197,32 @@ export function encodeMatch(match: ShareableMatch): string {
 export function decodeMatch(code: string | null | undefined): ShareableMatch | null {
   if (typeof code !== "string" || code.length === 0 || code.length > 400) return null;
   const parts = code.split(".");
-  if (parts.length !== 7) return null;
+  const version = parts[0];
+  // v2 = seven fields; v3 = the same seven plus the style. Nothing else is a code.
+  if (
+    version === SHARE_VERSION
+      ? parts.length !== 7
+      : version === SHARE_VERSION_STYLED
+        ? parts.length !== 8
+        : true
+  ) {
+    return null;
+  }
+  let style: TacticalStyle | undefined;
+  if (version === SHARE_VERSION_STYLED) {
+    style = STYLE_OF[parts[7]!];
+    if (style === undefined) return null;
+  }
 
-  const [version, seedRaw, formationSlug, cardsRaw, tokens, fpRaw, rivalRaw] = parts;
-  if (version !== SHARE_VERSION) return null;
+  const [, seedRaw, formationSlug, cardsRaw, tokens, fpRaw, rivalRaw] = parts as [
+    string,
+    string,
+    string,
+    string,
+    string,
+    string,
+    string,
+  ];
   if (!SLUG_RE.test(formationSlug)) return null;
   // Checked HERE so a malformed stream fails as a bad code, before any match is
   // assembled. Whether each token FITS the decision it answers can only be known during
@@ -217,7 +267,9 @@ export function decodeMatch(code: string | null | undefined): ShareableMatch | n
     cardIds.push(`${playerId}@${season}`);
   }
 
-  return { cardIds, formationSlug, seed, tokens, fingerprint, rival };
+  return style === undefined
+    ? { cardIds, formationSlug, seed, tokens, fingerprint, rival }
+    : { cardIds, formationSlug, seed, tokens, fingerprint, rival, style };
 }
 
 /**

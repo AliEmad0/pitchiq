@@ -4,7 +4,7 @@ import { usePathname } from "@/i18n/navigation";
 import { parseAsString, parseAsStringLiteral, useQueryState } from "nuqs";
 import type { SeasonSpec } from "@/features/game/domain/rule-packs";
 import { SeasonStart } from "./SeasonStart";
-import { useEffect, useMemo, useReducer, useState } from "react";
+import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import type { PlayerSeasonId } from "@/features/game/domain/card-id";
 import { FORMATIONS, type DraftPolicy, type PoolCard } from "@/features/game/domain/chaos-draft";
 import type { RivalRef } from "@/features/game/domain/share-code";
@@ -15,6 +15,10 @@ import {
   type Difficulty,
 } from "@/features/game/view/rival-choice";
 import type { RivalSetup } from "@/features/game/view/match-session";
+import type { TacticalStyle } from "@/features/game/domain/opponent";
+import { scoutedStyle, STYLES, styleTendency } from "@/features/game/domain/style-scouting";
+import { localDay, matchEntry, scoreLine } from "@/features/game/view/trophy-record";
+import { useFullTimeRecord } from "@/features/game/view/use-full-time-record";
 import {
   formationKey,
   formationNameFromKey,
@@ -64,6 +68,9 @@ const DECISION_LIMIT = 20;
  * the round-based room in place of the free-build hub; preview, live and summary are
  * identical either way, because both paths hand up the same `(players, formation)`.
  */
+/** Where the last style pick is remembered — a per-browser convenience (TASK-1825). */
+const STYLE_KEY = "pitchiq.style";
+
 export function GamePlay({
   pool,
   initialPhase,
@@ -238,6 +245,45 @@ export function GamePlay({
   const [coachMoves, setCoachMoves] = useState<DecisionAnswer[]>([]);
   /** An unfinished match found in storage, replayed and verified, awaiting the coach. */
   const [offer, setOffer] = useState<RestoredMatch | null>(null);
+  /**
+   * The coach's tactical style for THIS match (TASK-1825) — undefined until he picks one on the
+   * pre-match screen, and for any match made before styles existed.
+   *
+   * ⛔ IDENTITY: it rides in the save, the share code and every replay, exactly like `rival`.
+   */
+  const [style, setStyle] = useState<TacticalStyle | undefined>(undefined);
+  /** The style belonging to the RESTORE OFFER, held until he accepts it. */
+  const [offerStyle, setOfferStyle] = useState<TacticalStyle | undefined>(undefined);
+  /**
+   * The Scout's Dossier (TASK-1825): the style on the programme, and both styles once Kick off
+   * has been pressed. Defaults to Balanced; the last pick in this browser is a convenience.
+   */
+  const [picked, setPicked] = useState<TacticalStyle>("balanced");
+  const [revealed, setRevealed] = useState<{ home: TacticalStyle; away: TacticalStyle } | null>(
+    null,
+  );
+  /**
+   * What `confirmSquad` started the match with, so Kick off can rebuild it with the pick.
+   *
+   * ⛔ Same seed, same squad, same rival: a style changes no squad (pinned by
+   * `match-style-identity.test.ts`), so the opponent on the programme is the one he plays.
+   */
+  const startArgs = useRef<{
+    players: PoolCard[];
+    formation: Formation;
+    seed: number;
+    picked: { setup: ChosenRival | null; difficulty: Difficulty } | null;
+  } | null>(null);
+  useEffect(() => {
+    try {
+      const last = window.localStorage.getItem(STYLE_KEY);
+      if (last != null && (STYLES as readonly string[]).includes(last)) {
+        setPicked(last as TacticalStyle);
+      }
+    } catch {
+      // Storage blocked: Balanced it is.
+    }
+  }, []);
   /**
    * The club being faced, and how it drafted (owner, 2026-08-19).
    *
@@ -463,6 +509,8 @@ export function GamePlay({
 
     const picked = chosen ?? null;
     setRival(picked);
+    setRevealed(null);
+    startArgs.current = { players, formation, seed, picked };
     driver.start(
       pool,
       players,
@@ -543,6 +591,7 @@ export function GamePlay({
       // ⚠️ `pending: null` — a shared match is finished on arrival, so there is nothing
       // waiting to be answered.
       setRival(picked);
+      setStyle(decoded.style);
       driver.adopt({ ...replayed, pending: null });
       setSquad({
         cardIds: decoded.cardIds,
@@ -589,7 +638,12 @@ export function GamePlay({
         pool,
         record,
         { home: t("yourXi"), away: t("rivals") },
-        picked == null ? { policy: opponent, budget, chemistry } : rivalSetup(picked),
+        // ⛔ The record's style is identity: without it the replay plays the shipped draw,
+        // mismatches, and the coach's match is discarded as if it were corrupt.
+        {
+          ...(picked == null ? { policy: opponent, budget, chemistry } : rivalSetup(picked)),
+          ...(record.style == null ? {} : { style: record.style }),
+        },
       );
       if (!live) return;
       if (restored == null) {
@@ -598,6 +652,7 @@ export function GamePlay({
         return;
       }
       setOfferRival(picked);
+      setOfferStyle(record.style);
       setOffer(restored);
     })();
     return () => {
@@ -626,16 +681,45 @@ export function GamePlay({
       fingerprint: hashEvents(events),
       eventCount: events.length,
       rival: rivalRef(rival) ?? undefined,
+      ...(style == null ? {} : { style }),
     });
     // ⚠️ `rival` is deliberately in the deps: a resumed match adopts its club AFTER the
     // first save, so leaving it out would persist the next write against the wrong opponent.
-  }, [state.phase, match, squad, answers, events, result, shared, rival, seasonRequested]);
+  }, [state.phase, match, squad, answers, events, result, shared, rival, style, seasonRequested]);
+
+  /**
+   * TASK-1813/1819 — at full time, record the coach's OWN match in the Trophy Room: his cards
+   * into the album, and whatever it earned. ⛔ Never a shared match (watching someone else's is
+   * not fielding those men), never a season (the hub records its own fixtures). Recorded once
+   * per seed: `recordFullTime` claims the key atomically, so StrictMode's double effect is safe.
+   */
+  const fullTimeEntry = (() => {
+    if (state.phase !== "summary" || result == null || match == null || squad == null) return null;
+    if (shared || seasonRequested) return null;
+    // His XI, plus the bench only when he DRAFTED one (Budget Cap) — an auto-drafted bench is
+    // not his collection. One sticker per card.
+    const drafted = squad.cardIds.length > match.home.players.length;
+    const seen = new Set<string>();
+    const players = [...match.home.players, ...(drafted ? (match.home.bench ?? []) : [])].filter(
+      (p) => !seen.has(p.cardId) && seen.add(p.cardId) != null,
+    );
+    return matchEntry({
+      key: `m:${sharePath}:${match.seed}`,
+      day: localDay(),
+      players,
+      result,
+      coachSide: "home",
+      context: scoreLine(match.home.name, match.away.name, result.score),
+    });
+  })();
+  const unlocked = useFullTimeRecord(fullTimeEntry);
 
   const resume = () => {
     if (offer == null) return;
     // ⛔ Adopted WITH its rival. The record was replayed against that club, and every
     // save and share from here on has to name the same one.
     setRival(offerRival);
+    setStyle(offerStyle);
     driver.adopt(offer);
     // ⚠️ Taken from the RECORD, never reconstructed from the session: a resumed match must
     // keep saving under the same identity, and `GameTeam` holds cards rather than the
@@ -753,11 +837,36 @@ export function GamePlay({
 
   if (state.phase === "preview") {
     const onKickOff = () => dispatch({ type: "kickOff" });
+    /**
+     * Kick off on the dossier: rebuild the match with the coach's style, then reveal what the
+     * opponent actually plays. The match starts on Walk out.
+     */
+    const onScoutedKickOff = () => {
+      const args = startArgs.current;
+      if (args == null) return;
+      driver.start(
+        pool,
+        args.players,
+        args.formation,
+        args.seed,
+        { home: t("yourXi"), away: t("rivals") },
+        { ...rivalSetup(args.picked), style: picked },
+      );
+      setStyle(picked);
+      try {
+        window.localStorage.setItem(STYLE_KEY, picked);
+      } catch {
+        // A convenience only.
+      }
+      setRevealed({ home: picked, away: scoutedStyle(match.away.players, args.seed) });
+    };
     const onBack = () => {
       // ⚠️ Cleared in the handler, never in an effect. An effect gated on "phase is
       // not live" would race the restore effect on mount and wipe the record before
       // it could be read.
       void clearMatch();
+      setRevealed(null);
+      setStyle(undefined);
       dispatch({ type: "backToSetup" });
     };
     // TASK-1810: the owner-designed matchday programme, for packs that ask for it.
@@ -770,6 +879,24 @@ export function GamePlay({
         chemistry={chemistry}
         referee={referee}
         weather={weather}
+        scouting={
+          // A match with no hand-off args (a resumed or shared one) never shows a programme;
+          // this guard keeps the dossier off it if that ever changes.
+          startArgs.current == null
+            ? undefined
+            : {
+                opponentName: match.away.name,
+                tendency: styleTendency(match.away.players),
+                picked,
+                onPick: setPicked,
+                revealed,
+                onKickOff: onScoutedKickOff,
+                onWalkOut: () => {
+                  setRevealed(null);
+                  onKickOff();
+                },
+              }
+        }
         onKickOff={onKickOff}
         onBack={onBack}
       />
@@ -798,6 +925,7 @@ export function GamePlay({
             answers,
             fingerprint: hashEvents(events),
             rival: rivalRef(rival),
+            style,
           });
     const cardData =
       squad == null || code == null
@@ -832,6 +960,7 @@ export function GamePlay({
         shared={shared}
         drifted={drifted}
         report={{ result, home: match.home, away: match.away, coachSide: "home" }}
+        unlocked={unlocked}
         onNewMatch={() => {
           void clearMatch();
           // ⚠️ Clear `?m=` too, or "New match" re-enters the shared match on the next
@@ -840,6 +969,7 @@ export function GamePlay({
           setShared(false);
           setDrifted(false);
           setRival(null);
+          setStyle(undefined);
           dispatch({ type: "newMatch" });
         }}
       />

@@ -35,6 +35,21 @@ describe("ModeGate", () => {
     }
   });
 
+  it("TASK-1813/1819 — the album and the Hall of Fame are live links into the Trophy Room", () => {
+    renderWithIntl(<ModeGate />);
+    for (const surface of COLLECTION_SURFACES.filter((c) => c.status === "live")) {
+      const link = screen.getByRole("link", {
+        name: new RegExp(escapeRegExp(label(surface.nameKey))),
+      });
+      expect(link.getAttribute("href")).toMatch(/\/game\/trophies/);
+    }
+    expect(
+      COLLECTION_SURFACES.filter((c) => c.status === "live")
+        .map((c) => c.id)
+        .sort(),
+    ).toEqual(["album", "hallOfFame"]);
+  });
+
   it("opens a mode on click and collapses it on a second click", async () => {
     renderWithIntl(<ModeGate />);
     const tile = screen.getByRole("button", { name: /Tactical H2H/ });

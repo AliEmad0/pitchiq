@@ -1,5 +1,5 @@
 import { classicLineup } from "@/features/game/domain/classic-lineup";
-import { screen, waitFor } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { PlayerRole } from "@/data/schemas";
 import { describe, expect, it, vi } from "vitest";
@@ -8,10 +8,23 @@ import { formationByName } from "@/features/game/domain/formation";
 import { renderWithIntl } from "./_helpers/intl";
 
 vi.mock("@/utils/motion", () => ({ prefersReducedMotion: () => true }));
+const slotMock = vi.hoisted(() => ({ saveRun: vi.fn(async () => {}) }));
 vi.mock("@/features/game/storage/season-slot", () => ({
-  saveRun: vi.fn(async () => {}),
+  saveRun: slotMock.saveRun,
   loadRun: vi.fn(async () => null),
   clearRun: vi.fn(async () => {}),
+}));
+
+/** TASK-1813/1819 — what the hub hands the Trophy Room. */
+const recorded = vi.hoisted(
+  () => [] as { key: string; cards: unknown[]; facts: Record<string, unknown> }[],
+);
+vi.mock("@/features/game/view/trophy-record", async (orig) => ({
+  ...(await orig<typeof import("@/features/game/view/trophy-record")>()),
+  recordFullTime: async (e: (typeof recorded)[number]) => {
+    recorded.push(e);
+    return [];
+  },
 }));
 
 const { SeasonHub } = await import("@/features/game/components/SeasonHub");
@@ -150,5 +163,46 @@ describe("SeasonHub", async () => {
     const rows = screen.getAllByTestId("season-row");
     for (const r of rows) expect(Number(r.dataset.played)).toBe(38);
     expect(screen.getByTestId("season-next")).toHaveTextContent(/complete/i);
+  });
+});
+
+describe("SeasonHub — the Trophy Room (TASK-1813/1819)", () => {
+  it("every simmed coach week adds his cards (no match badges), and the finished run records once", async () => {
+    recorded.length = 0;
+    await render();
+    for (
+      let i = 0;
+      i < 38 && !screen.getByTestId("season-next").textContent?.includes("complete");
+      i++
+    ) {
+      const action =
+        screen.queryByRole("button", { name: /Forfeit fixture/i }) ??
+        screen.getByRole("button", { name: /to the end/i });
+      await waitFor(() => expect(action).toBeEnabled());
+      await userEvent.click(action);
+    }
+    await waitFor(() => expect(recorded.some((e) => e.key === "r:4242")).toBe(true));
+    const weeks = recorded.filter((e) => e.key.startsWith("s:4242:"));
+    expect(new Set(weeks.map((e) => e.key)).size).toBe(38);
+    for (const w of weeks) {
+      expect(w.facts.match).toBeUndefined();
+      expect(w.cards.length).toBeGreaterThan(0);
+    }
+    const end = recorded.filter((e) => e.key === "r:4242");
+    expect(end).toHaveLength(1);
+    expect(end[0]!.facts.season).toMatchObject({ kind: "league", complete: true });
+  }, 60_000);
+});
+
+describe("SeasonHub — records only what was saved (TASK-1813/1819)", () => {
+  it("⛔ a week whose save failed is not recorded until the retried save succeeds", async () => {
+    recorded.length = 0;
+    await render();
+    slotMock.saveRun.mockRejectedValueOnce(new Error("disk full"));
+    await userEvent.click(screen.getByRole("button", { name: /sim week/i }));
+    const alert = await screen.findByRole("alert");
+    expect(recorded.filter((e) => e.key.startsWith("s:"))).toEqual([]);
+    await userEvent.click(within(alert).getByRole("button"));
+    await waitFor(() => expect(recorded.filter((e) => e.key.startsWith("s:"))).toHaveLength(1));
   });
 });

@@ -6,6 +6,13 @@ import type { PoolCard } from "@/features/game/domain/chaos-draft";
 import { dayFormation, dayKey, dayNumber, daySeeds } from "@/features/game/domain/daily";
 import { matchStrip, shareText } from "@/features/game/domain/daily-share";
 import { computeStats } from "@/features/game/domain/daily-stats";
+import type { AchievementId } from "@/features/game/domain/achievements";
+import {
+  localDay,
+  matchEntry,
+  recordFullTime,
+  scoreLine,
+} from "@/features/game/view/trophy-record";
 import { formationKey } from "@/features/game/domain/formation";
 import { hashEvents } from "@/features/game/domain/hash";
 import type { RefereeStyle, Weather } from "@/features/game/domain/match-types";
@@ -27,6 +34,7 @@ import { DailyPreview } from "./DailyPreview";
 import { DecisionPrompt } from "./DecisionPrompt";
 import { MatchView } from "./MatchView";
 import { PostMatchReport } from "./PostMatchReport";
+import { UnlockBanner } from "./UnlockBanner";
 
 /** Seconds a decision waits before answering itself. Mirrors GamePlay. */
 const DECISION_LIMIT = 20;
@@ -51,6 +59,7 @@ export function DailyChallenge({ pool }: { pool: PoolCard[] }) {
   const driver = useMatchDriver();
 
   /** Null until mount resolves it — also the "is the shell still cold" flag. */
+  const [unlocked, setUnlocked] = useState<AchievementId[]>([]);
   const [today, setToday] = useState<string | null>(null);
   const [record, setRecord] = useState<DailyRecord | null>(null);
   const [history, setHistory] = useState<DailyRecord[]>([]);
@@ -152,10 +161,31 @@ export function DailyChallenge({ pool }: { pool: PoolCard[] }) {
       // Full time: re-read the history so the streak shown in the share includes today.
       if (next.done) {
         setRecord(next);
-        setHistory(await allDaily());
+        const all = await allDaily();
+        setHistory(all);
         setSpent(true);
+        // TASK-1813/1819 — the day's XI into the album, and what the match and the streak earned.
+        // Keyed by the ANCHORED day, so a match begun at 23:58 records under the day it began.
+        const m = driver.match;
+        if (m != null && driver.result != null) {
+          const entry = matchEntry({
+            key: `d:${next.day}`,
+            day: localDay(),
+            players: m.home.players,
+            result: driver.result,
+            coachSide: "home",
+            context: scoreLine(m.home.name, m.away.name, driver.result.score),
+          });
+          const fresh = await recordFullTime({
+            ...entry,
+            facts: { ...entry.facts, dailyBestStreak: computeStats(all, next.day).bestStreak },
+          });
+          if (fresh.length > 0) setUnlocked(fresh);
+        }
       }
     })();
+    // `driver.match` is read only at full time, alongside the result it belongs to.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.phase, kickoffDayKey, squad, driver.answers, driver.events, driver.result]);
 
   const model = useMemo(() => {
@@ -289,6 +319,7 @@ export function DailyChallenge({ pool }: { pool: PoolCard[] }) {
               locale={locale}
             />
           ) : null}
+          <UnlockBanner ids={unlocked} />
           <pre className="border-border bg-muted rounded-md border p-4 font-mono text-sm whitespace-pre-wrap">
             {text}
           </pre>

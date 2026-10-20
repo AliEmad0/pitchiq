@@ -1,0 +1,5199 @@
+{
+  "stats": { "clubSeasons": 686, "totalCards": 18653, "min": 19, "median": 27, "max": 39 },
+  "sets": [
+    {
+      "club": "Blackburn Rovers",
+      "teamId": 67,
+      "season": 1994,
+      "cards": [
+        { "id": "1003185@1994", "n": "Alan Shearer", "r": "CF", "o": 95, "ph": null },
+        { "id": "1003904@1994", "n": "Graeme Le Saux", "r": "LB", "o": 87, "ph": null },
+        { "id": "1003497@1994", "n": "Colin Hendry", "r": "CB", "o": 86, "ph": null },
+        { "id": "1005222@1994", "n": "Tim Flowers", "r": "GK", "o": 86, "ph": null },
+        { "id": "1003451@1994", "n": "Chris Sutton", "r": "CF", "o": 83, "ph": null },
+        { "id": "1005223@1994", "n": "Tim Sherwood", "r": "CM", "o": 82, "ph": null },
+        { "id": "1003945@1994", "n": "Henning Berg", "r": "RB", "o": 78, "ph": null },
+        { "id": "1004062@1994", "n": "Jason Wilcox", "r": "LM", "o": 78, "ph": null },
+        { "id": "1003189@1994", "n": "Alan Wright", "r": "LB", "o": 73, "ph": null },
+        { "id": "1005251@1994", "n": "Tony Gale", "r": "CB", "o": 68, "ph": null },
+        { "id": "1004436@1994", "n": "Mark Atkins", "r": "CDM", "o": 67, "ph": null },
+        { "id": "1003976@1994", "n": "Ian Pearce", "r": "CB", "o": 65, "ph": null },
+        { "id": "1004935@1994", "n": "Robbie Slater", "r": "CM", "o": 59, "ph": null },
+        { "id": "1004075@1994", "n": "Jeff Kenna", "r": "RB", "o": 55, "ph": null },
+        { "id": "1005185@1994", "n": "Stuart Ripley", "r": "RM", "o": 55, "ph": null },
+        { "id": "1003602@1994", "n": "David Batty", "r": "CDM", "o": 49, "ph": null },
+        { "id": "1003345@1994", "n": "Bobby Mimms", "r": "GK", "o": 42, "ph": null },
+        { "id": "1004921@1994", "n": "Richard Witschge", "r": "CM", "o": 42, "ph": null },
+        { "id": "1004264@1994", "n": "Kevin Gallacher", "r": "RW", "o": 39, "ph": null },
+        { "id": "1004809@1994", "n": "Paul Warhurst", "r": "CM", "o": 38, "ph": null },
+        { "id": "1004598@1994", "n": "Mike Newell", "r": "CF", "o": 13, "ph": null }
+      ]
+    },
+    {
+      "club": "Arsenal",
+      "teamId": 42,
+      "season": 2003,
+      "cards": [
+        { "id": "1003061@2003", "n": "Thierry Henry", "r": "CF", "o": 95, "ph": null },
+        { "id": "1002003@2003", "n": "Ashley Cole", "r": "LB", "o": 93, "ph": null },
+        { "id": "1002844@2003", "n": "Patrick Vieira", "r": "CDM", "o": 93, "ph": null },
+        { "id": "1002443@2003", "n": "Jens Lehmann", "r": "GK", "o": 92, "ph": null },
+        { "id": "1002910@2003", "n": "Robert Pirès", "r": "LM", "o": 90, "ph": null },
+        { "id": "1003002@2003", "n": "Sol Campbell", "r": "CB", "o": 89, "ph": null },
+        { "id": "1003673@2003", "n": "Dennis Bergkamp", "r": "SS", "o": 86, "ph": null },
+        { "id": "1003798@2003", "n": "Freddie Ljungberg", "r": "RM", "o": 85, "ph": null },
+        { "id": "1004310@2003", "n": "Lauren", "r": "RB", "o": 84, "ph": null },
+        { "id": "1003883@2003", "n": "Gilberto Silva", "r": "CDM", "o": 77, "ph": null },
+        { "id": "1002577@2003", "n": "Kolo Touré", "r": "CB", "o": 73, "ph": null },
+        { "id": "1003724@2003", "n": "Edu", "r": "CM", "o": 66, "ph": null },
+        { "id": "1002303@2003", "n": "Gaël Clichy", "r": "LB", "o": 58, "ph": null },
+        { "id": "1004226@2003", "n": "Justin Hoyte", "r": "RB", "o": 52, "ph": null },
+        { "id": "1004493@2003", "n": "Martin Keown", "r": "CB", "o": 51, "ph": null },
+        { "id": "1004737@2003", "n": "Pascal Cygan", "r": "CB", "o": 51, "ph": null },
+        { "id": "1002150@2003", "n": "David Bentley", "r": "RM", "o": 50, "ph": null },
+        { "id": "1004885@2003", "n": "Ray Parlour", "r": "CM", "o": 49, "ph": null },
+        { "id": "1005471@2003", "n": "José Antonio Reyes", "r": "RW", "o": 49, "ph": null },
+        { "id": "1005191@2003", "n": "Sylvain Wiltord", "r": "SS", "o": 45, "ph": null },
+        { "id": "1004232@2003", "n": "Kanu", "r": "CF", "o": 44, "ph": null },
+        { "id": "1004079@2003", "n": "Jérémie Aliadière", "r": "CF", "o": 36, "ph": null }
+      ]
+    },
+    {
+      "club": "Manchester United",
+      "teamId": 33,
+      "season": 2007,
+      "cards": [
+        { "id": "1002224@2007", "n": "Edwin van der Sar", "r": "GK", "o": 94, "ph": null },
+        { "id": "1002899@2007", "n": "Rio Ferdinand", "r": "CB", "o": 94, "ph": null },
+        { "id": "1000308@2007", "n": "Cristiano Ronaldo", "r": "CF", "o": 92, "ph": null },
+        { "id": "1002788@2007", "n": "Nemanja Vidic", "r": "CB", "o": 91, "ph": null },
+        { "id": "1001239@2007", "n": "Patrice Evra", "r": "LB", "o": 90, "ph": null },
+        { "id": "1001555@2007", "n": "Wayne Rooney", "r": "CF", "o": 90, "ph": null },
+        { "id": "1002073@2007", "n": "Carlos Tevez", "r": "CF", "o": 90, "ph": null },
+        { "id": "1001091@2007", "n": "Michael Carrick", "r": "CDM", "o": 89, "ph": null },
+        { "id": "1002852@2007", "n": "Paul Scholes", "r": "CM", "o": 85, "ph": null },
+        { "id": "1003111@2007", "n": "Wes Brown", "r": "CB", "o": 85, "ph": null },
+        { "id": "1002939@2007", "n": "Ryan Giggs", "r": "LM", "o": 84, "ph": null },
+        { "id": "1002476@2007", "n": "John O'Shea", "r": "CB", "o": 78, "ph": null },
+        { "id": "1002779@2007", "n": "Nani", "r": "LW", "o": 77, "ph": null },
+        { "id": "1002827@2007", "n": "Owen Hargreaves", "r": "CDM", "o": 75, "ph": null },
+        { "id": "1003079@2007", "n": "Tomasz Kuszczak", "r": "GK", "o": 70, "ph": null },
+        { "id": "1000349@2007", "n": "Darren Fletcher", "r": "CM", "o": 60, "ph": null },
+        { "id": "1000157@2007", "n": "Ben Foster", "r": "GK", "o": 58, "ph": null },
+        { "id": "1001966@2007", "n": "Anderson", "r": "CM", "o": 58, "ph": null },
+        { "id": "1004594@2007", "n": "Mikaël Silvestre", "r": "LB", "o": 56, "ph": null },
+        { "id": "1000341@2007", "n": "Danny Simpson", "r": "RB", "o": 55, "ph": null },
+        { "id": "1003871@2007", "n": "Gerard Piqué", "r": "CB", "o": 51, "ph": null },
+        { "id": "1002837@2007", "n": "Park Ji-Sung", "r": "CAM", "o": 50, "ph": null },
+        { "id": "1002619@2007", "n": "Louis Saha", "r": "CF", "o": 46, "ph": null },
+        { "id": "1002086@2007", "n": "Chris Eagles", "r": "RW", "o": 42, "ph": null },
+        { "id": "1002283@2007", "n": "Fraizer Campbell", "r": "CF", "o": 39, "ph": null }
+      ]
+    },
+    {
+      "club": "Manchester City",
+      "teamId": 50,
+      "season": 2007,
+      "cards": [
+        { "id": "1002019@2007", "n": "Benjani", "r": "CF", "o": 80, "ph": null },
+        { "id": "1003729@2007", "n": "Elano", "r": "CAM", "o": 78, "ph": null },
+        { "id": "1000749@2007", "n": "Joe Hart", "r": "GK", "o": 77, "ph": null },
+        { "id": "1002690@2007", "n": "Martin Petrov", "r": "LW", "o": 75, "ph": null },
+        { "id": "1001443@2007", "n": "Stephen Ireland", "r": "CAM", "o": 66, "ph": null },
+        { "id": "1000853@2007", "n": "Kasper Schmeichel", "r": "GK", "o": 64, "ph": null },
+        { "id": "1003566@2007", "n": "Darius Vassell", "r": "CF", "o": 64, "ph": null },
+        { "id": "1002893@2007", "n": "Richard Dunne", "r": "CB", "o": 63, "ph": null },
+        { "id": "1002785@2007", "n": "Nedum Onuoha", "r": "CB", "o": 61, "ph": null },
+        { "id": "1003696@2007", "n": "Dietmar Hamann", "r": "CDM", "o": 60, "ph": null },
+        { "id": "1005498@2007", "n": "Michael Johnson", "r": "CDM", "o": 57, "ph": null },
+        { "id": "1002735@2007", "n": "Micah Richards", "r": "RB", "o": 56, "ph": null },
+        { "id": "1003097@2007", "n": "Vedran Corluka", "r": "CB", "o": 54, "ph": null },
+        { "id": "1004998@2007", "n": "Sam Williamson", "r": "LB", "o": 54, "ph": null },
+        { "id": "1003235@2007", "n": "Andreas Isaksson", "r": "GK", "o": 53, "ph": null },
+        { "id": "1004249@2007", "n": "Kelvin Etuhu", "r": "CDM", "o": 53, "ph": null },
+        { "id": "1002429@2007", "n": "Javier Garrido", "r": "LB", "o": 52, "ph": null },
+        { "id": "1003866@2007", "n": "Geovanni", "r": "CAM", "o": 50, "ph": null },
+        { "id": "1004553@2007", "n": "Michael Ball", "r": "LB", "o": 49, "ph": null },
+        { "id": "1005188@2007", "n": "Sun Jihai", "r": "RB", "o": 49, "ph": null },
+        { "id": "1003857@2007", "n": "Gelson Fernandes", "r": "CDM", "o": 47, "ph": null },
+        { "id": "1004962@2007", "n": "Rolando Bianchi", "r": "CF", "o": 47, "ph": null },
+        { "id": "1005455@2007", "n": "Emile Mpenza", "r": "CF", "o": 41, "ph": null },
+        { "id": "1000335@2007", "n": "Daniel Sturridge", "r": "CF", "o": 39, "ph": null },
+        { "id": "1002328@2007", "n": "Georgios Samaras", "r": "LW", "o": 39, "ph": null },
+        { "id": "1004662@2007", "n": "Nery Castillo", "r": "RW", "o": 39, "ph": null },
+        { "id": "1005280@2007", "n": "Valeri Emilov Bozhinov", "r": "CF", "o": 38, "ph": null },
+        { "id": "1003768@2007", "n": "Felipe Caicedo", "r": "CF", "o": 37, "ph": null }
+      ]
+    },
+    {
+      "club": "Leicester City",
+      "teamId": 46,
+      "season": 2015,
+      "cards": [
+        { "id": "1000684@2015", "n": "Jamie Vardy", "r": "CF", "o": 91, "ph": null },
+        { "id": "1001142@2015", "n": "N'Golo Kanté", "r": "CDM", "o": 91, "ph": null },
+        { "id": "1001313@2015", "n": "Riyad Mahrez", "r": "RW", "o": 91, "ph": null },
+        { "id": "1000853@2015", "n": "Kasper Schmeichel", "r": "GK", "o": 86, "ph": null },
+        { "id": "1001560@2015", "n": "Wes Morgan", "r": "CB", "o": 83, "ph": null },
+        { "id": "1000275@2015", "n": "Christian Fuchs", "r": "LB", "o": 74, "ph": null },
+        { "id": "1002907@2015", "n": "Robert Huth", "r": "CB", "o": 72, "ph": null },
+        { "id": "1000338@2015", "n": "Daniel Drinkwater", "r": "CM", "o": 68, "ph": null },
+        { "id": "1000996@2015", "n": "Marc Albrighton", "r": "RM", "o": 66, "ph": null },
+        { "id": "1000341@2015", "n": "Danny Simpson", "r": "RB", "o": 58, "ph": null },
+        { "id": "1000714@2015", "n": "Jeffrey Schlupp", "r": "LM", "o": 58, "ph": null },
+        { "id": "1000106@2015", "n": "Andy King", "r": "CM", "o": 57, "ph": null },
+        { "id": "1000925@2015", "n": "Leonardo Ulloa", "r": "CF", "o": 57, "ph": null },
+        { "id": "1002900@2015", "n": "Ritchie de Laet", "r": "RB", "o": 54, "ph": null },
+        { "id": "1002339@2015", "n": "Gökhan Inler", "r": "CDM", "o": 53, "ph": null },
+        { "id": "1001421@2015", "n": "Shinji Okazaki", "r": "CF", "o": 52, "ph": null },
+        { "id": "1002660@2015", "n": "Marcin Wasilewski", "r": "CB", "o": 49, "ph": null },
+        { "id": "1001600@2015", "n": "Yohan Benalouane", "r": "CB", "o": 48, "ph": null },
+        { "id": "1000325@2015", "n": "Daniel Amartey", "r": "CB", "o": 47, "ph": null },
+        { "id": "1001155@2015", "n": "Nathan Dyer", "r": "RW", "o": 45, "ph": null },
+        { "id": "1000377@2015", "n": "Demarai Gray", "r": "LW", "o": 43, "ph": null },
+        { "id": "1005547@2015", "n": "Joe Dodoo", "r": "LW", "o": 43, "ph": null },
+        { "id": "1001974@2015", "n": "Andrej Kramaric", "r": "SS", "o": 39, "ph": null }
+      ]
+    }
+  ],
+  "means": [
+    {
+      "club": "Manchester United",
+      "teamId": 33,
+      "season": 1992,
+      "att": 56,
+      "cre": 55,
+      "def": 43,
+      "phy": 51
+    },
+    {
+      "club": "Liverpool",
+      "teamId": 40,
+      "season": 1992,
+      "att": 55,
+      "cre": 53,
+      "def": 30,
+      "phy": 45
+    },
+    {
+      "club": "Southampton",
+      "teamId": 41,
+      "season": 1992,
+      "att": 50,
+      "cre": 50,
+      "def": 25,
+      "phy": 40
+    },
+    { "club": "Arsenal", "teamId": 42, "season": 1992, "att": 43, "cre": 46, "def": 44, "phy": 38 },
+    { "club": "Everton", "teamId": 45, "season": 1992, "att": 49, "cre": 49, "def": 33, "phy": 42 },
+    {
+      "club": "Tottenham Hotspur",
+      "teamId": 47,
+      "season": 1992,
+      "att": 50,
+      "cre": 47,
+      "def": 19,
+      "phy": 36
+    },
+    { "club": "Chelsea", "teamId": 49, "season": 1992, "att": 50, "cre": 52, "def": 38, "phy": 38 },
+    {
+      "club": "Manchester City",
+      "teamId": 50,
+      "season": 1992,
+      "att": 50,
+      "cre": 52,
+      "def": 38,
+      "phy": 46
+    },
+    {
+      "club": "Crystal Palace",
+      "teamId": 52,
+      "season": 1992,
+      "att": 49,
+      "cre": 49,
+      "def": 25,
+      "phy": 45
+    },
+    {
+      "club": "Ipswich Town",
+      "teamId": 57,
+      "season": 1992,
+      "att": 54,
+      "cre": 51,
+      "def": 32,
+      "phy": 48
+    },
+    {
+      "club": "Sheffield United",
+      "teamId": 62,
+      "season": 1992,
+      "att": 47,
+      "cre": 44,
+      "def": 32,
+      "phy": 41
+    },
+    {
+      "club": "Leeds United",
+      "teamId": 63,
+      "season": 1992,
+      "att": 51,
+      "cre": 51,
+      "def": 26,
+      "phy": 38
+    },
+    {
+      "club": "Nottingham Forest",
+      "teamId": 65,
+      "season": 1992,
+      "att": 50,
+      "cre": 46,
+      "def": 23,
+      "phy": 47
+    },
+    {
+      "club": "Aston Villa",
+      "teamId": 66,
+      "season": 1992,
+      "att": 54,
+      "cre": 54,
+      "def": 35,
+      "phy": 45
+    },
+    {
+      "club": "Blackburn Rovers",
+      "teamId": 67,
+      "season": 1992,
+      "att": 52,
+      "cre": 57,
+      "def": 48,
+      "phy": 43
+    },
+    {
+      "club": "Middlesbrough",
+      "teamId": 70,
+      "season": 1992,
+      "att": 49,
+      "cre": 46,
+      "def": 16,
+      "phy": 42
+    },
+    {
+      "club": "Norwich City",
+      "teamId": 71,
+      "season": 1992,
+      "att": 55,
+      "cre": 54,
+      "def": 23,
+      "phy": 47
+    },
+    {
+      "club": "Queens Park Rangers",
+      "teamId": 72,
+      "season": 1992,
+      "att": 53,
+      "cre": 54,
+      "def": 27,
+      "phy": 44
+    },
+    {
+      "club": "Sheffield Wednesday",
+      "teamId": 74,
+      "season": 1992,
+      "att": 50,
+      "cre": 48,
+      "def": 33,
+      "phy": 41
+    },
+    {
+      "club": "Wimbledon",
+      "teamId": 1333,
+      "season": 1992,
+      "att": 48,
+      "cre": 47,
+      "def": 29,
+      "phy": 38
+    },
+    {
+      "club": "Coventry City",
+      "teamId": 1346,
+      "season": 1992,
+      "att": 49,
+      "cre": 49,
+      "def": 25,
+      "phy": 38
+    },
+    {
+      "club": "Oldham Athletic",
+      "teamId": 1349,
+      "season": 1992,
+      "att": 57,
+      "cre": 57,
+      "def": 11,
+      "phy": 45
+    },
+    {
+      "club": "Manchester United",
+      "teamId": 33,
+      "season": 1993,
+      "att": 61,
+      "cre": 60,
+      "def": 42,
+      "phy": 48
+    },
+    {
+      "club": "Newcastle United",
+      "teamId": 34,
+      "season": 1993,
+      "att": 54,
+      "cre": 54,
+      "def": 40,
+      "phy": 46
+    },
+    {
+      "club": "Liverpool",
+      "teamId": 40,
+      "season": 1993,
+      "att": 53,
+      "cre": 51,
+      "def": 27,
+      "phy": 46
+    },
+    {
+      "club": "Southampton",
+      "teamId": 41,
+      "season": 1993,
+      "att": 46,
+      "cre": 47,
+      "def": 15,
+      "phy": 38
+    },
+    { "club": "Arsenal", "teamId": 42, "season": 1993, "att": 39, "cre": 57, "def": 46, "phy": 46 },
+    { "club": "Everton", "teamId": 45, "season": 1993, "att": 48, "cre": 50, "def": 23, "phy": 47 },
+    {
+      "club": "Tottenham Hotspur",
+      "teamId": 47,
+      "season": 1993,
+      "att": 50,
+      "cre": 53,
+      "def": 22,
+      "phy": 40
+    },
+    {
+      "club": "West Ham United",
+      "teamId": 48,
+      "season": 1993,
+      "att": 52,
+      "cre": 50,
+      "def": 30,
+      "phy": 41
+    },
+    { "club": "Chelsea", "teamId": 49, "season": 1993, "att": 51, "cre": 49, "def": 36, "phy": 42 },
+    {
+      "club": "Manchester City",
+      "teamId": 50,
+      "season": 1993,
+      "att": 50,
+      "cre": 47,
+      "def": 32,
+      "phy": 38
+    },
+    {
+      "club": "Ipswich Town",
+      "teamId": 57,
+      "season": 1993,
+      "att": 49,
+      "cre": 42,
+      "def": 32,
+      "phy": 49
+    },
+    {
+      "club": "Sheffield United",
+      "teamId": 62,
+      "season": 1993,
+      "att": 47,
+      "cre": 44,
+      "def": 26,
+      "phy": 38
+    },
+    {
+      "club": "Leeds United",
+      "teamId": 63,
+      "season": 1993,
+      "att": 52,
+      "cre": 57,
+      "def": 44,
+      "phy": 48
+    },
+    {
+      "club": "Aston Villa",
+      "teamId": 66,
+      "season": 1993,
+      "att": 53,
+      "cre": 48,
+      "def": 32,
+      "phy": 42
+    },
+    {
+      "club": "Blackburn Rovers",
+      "teamId": 67,
+      "season": 1993,
+      "att": 51,
+      "cre": 56,
+      "def": 53,
+      "phy": 49
+    },
+    {
+      "club": "Norwich City",
+      "teamId": 71,
+      "season": 1993,
+      "att": 49,
+      "cre": 54,
+      "def": 23,
+      "phy": 45
+    },
+    {
+      "club": "Queens Park Rangers",
+      "teamId": 72,
+      "season": 1993,
+      "att": 57,
+      "cre": 54,
+      "def": 23,
+      "phy": 48
+    },
+    {
+      "club": "Sheffield Wednesday",
+      "teamId": 74,
+      "season": 1993,
+      "att": 57,
+      "cre": 60,
+      "def": 28,
+      "phy": 41
+    },
+    {
+      "club": "Wimbledon",
+      "teamId": 1333,
+      "season": 1993,
+      "att": 49,
+      "cre": 53,
+      "def": 34,
+      "phy": 42
+    },
+    {
+      "club": "Coventry City",
+      "teamId": 1346,
+      "season": 1993,
+      "att": 49,
+      "cre": 50,
+      "def": 35,
+      "phy": 40
+    },
+    {
+      "club": "Oldham Athletic",
+      "teamId": 1349,
+      "season": 1993,
+      "att": 48,
+      "cre": 47,
+      "def": 14,
+      "phy": 42
+    },
+    {
+      "club": "Swindon Town",
+      "teamId": 1353,
+      "season": 1993,
+      "att": 54,
+      "cre": 48,
+      "def": 12,
+      "phy": 48
+    },
+    {
+      "club": "Manchester United",
+      "teamId": 33,
+      "season": 1994,
+      "att": 62,
+      "cre": 62,
+      "def": 44,
+      "phy": 48
+    },
+    {
+      "club": "Newcastle United",
+      "teamId": 34,
+      "season": 1994,
+      "att": 58,
+      "cre": 58,
+      "def": 41,
+      "phy": 48
+    },
+    {
+      "club": "Liverpool",
+      "teamId": 40,
+      "season": 1994,
+      "att": 49,
+      "cre": 54,
+      "def": 48,
+      "phy": 47
+    },
+    {
+      "club": "Southampton",
+      "teamId": 41,
+      "season": 1994,
+      "att": 55,
+      "cre": 49,
+      "def": 18,
+      "phy": 45
+    },
+    { "club": "Arsenal", "teamId": 42, "season": 1994, "att": 49, "cre": 49, "def": 28, "phy": 37 },
+    { "club": "Everton", "teamId": 45, "season": 1994, "att": 50, "cre": 47, "def": 33, "phy": 45 },
+    {
+      "club": "Leicester City",
+      "teamId": 46,
+      "season": 1994,
+      "att": 47,
+      "cre": 49,
+      "def": 12,
+      "phy": 37
+    },
+    {
+      "club": "Tottenham Hotspur",
+      "teamId": 47,
+      "season": 1994,
+      "att": 46,
+      "cre": 50,
+      "def": 24,
+      "phy": 43
+    },
+    {
+      "club": "West Ham United",
+      "teamId": 48,
+      "season": 1994,
+      "att": 47,
+      "cre": 52,
+      "def": 35,
+      "phy": 41
+    },
+    { "club": "Chelsea", "teamId": 49, "season": 1994, "att": 49, "cre": 52, "def": 35, "phy": 44 },
+    {
+      "club": "Manchester City",
+      "teamId": 50,
+      "season": 1994,
+      "att": 49,
+      "cre": 50,
+      "def": 20,
+      "phy": 41
+    },
+    {
+      "club": "Crystal Palace",
+      "teamId": 52,
+      "season": 1994,
+      "att": 48,
+      "cre": 44,
+      "def": 36,
+      "phy": 45
+    },
+    {
+      "club": "Ipswich Town",
+      "teamId": 57,
+      "season": 1994,
+      "att": 48,
+      "cre": 40,
+      "def": 11,
+      "phy": 35
+    },
+    {
+      "club": "Leeds United",
+      "teamId": 63,
+      "season": 1994,
+      "att": 55,
+      "cre": 57,
+      "def": 45,
+      "phy": 47
+    },
+    {
+      "club": "Nottingham Forest",
+      "teamId": 65,
+      "season": 1994,
+      "att": 57,
+      "cre": 58,
+      "def": 35,
+      "phy": 50
+    },
+    {
+      "club": "Aston Villa",
+      "teamId": 66,
+      "season": 1994,
+      "att": 51,
+      "cre": 53,
+      "def": 28,
+      "phy": 48
+    },
+    {
+      "club": "Blackburn Rovers",
+      "teamId": 67,
+      "season": 1994,
+      "att": 52,
+      "cre": 53,
+      "def": 44,
+      "phy": 52
+    },
+    {
+      "club": "Norwich City",
+      "teamId": 71,
+      "season": 1994,
+      "att": 52,
+      "cre": 46,
+      "def": 27,
+      "phy": 46
+    },
+    {
+      "club": "Queens Park Rangers",
+      "teamId": 72,
+      "season": 1994,
+      "att": 52,
+      "cre": 55,
+      "def": 23,
+      "phy": 45
+    },
+    {
+      "club": "Sheffield Wednesday",
+      "teamId": 74,
+      "season": 1994,
+      "att": 54,
+      "cre": 49,
+      "def": 28,
+      "phy": 49
+    },
+    {
+      "club": "Wimbledon",
+      "teamId": 1333,
+      "season": 1994,
+      "att": 51,
+      "cre": 47,
+      "def": 26,
+      "phy": 42
+    },
+    {
+      "club": "Coventry City",
+      "teamId": 1346,
+      "season": 1994,
+      "att": 43,
+      "cre": 49,
+      "def": 30,
+      "phy": 42
+    },
+    {
+      "club": "Manchester United",
+      "teamId": 33,
+      "season": 1995,
+      "att": 58,
+      "cre": 58,
+      "def": 46,
+      "phy": 46
+    },
+    {
+      "club": "Newcastle United",
+      "teamId": 34,
+      "season": 1995,
+      "att": 60,
+      "cre": 66,
+      "def": 42,
+      "phy": 53
+    },
+    {
+      "club": "Liverpool",
+      "teamId": 40,
+      "season": 1995,
+      "att": 55,
+      "cre": 56,
+      "def": 49,
+      "phy": 51
+    },
+    {
+      "club": "Southampton",
+      "teamId": 41,
+      "season": 1995,
+      "att": 47,
+      "cre": 37,
+      "def": 28,
+      "phy": 41
+    },
+    { "club": "Arsenal", "teamId": 42, "season": 1995, "att": 49, "cre": 54, "def": 46, "phy": 40 },
+    { "club": "Everton", "teamId": 45, "season": 1995, "att": 58, "cre": 59, "def": 42, "phy": 39 },
+    {
+      "club": "Tottenham Hotspur",
+      "teamId": 47,
+      "season": 1995,
+      "att": 44,
+      "cre": 48,
+      "def": 35,
+      "phy": 44
+    },
+    {
+      "club": "West Ham United",
+      "teamId": 48,
+      "season": 1995,
+      "att": 46,
+      "cre": 46,
+      "def": 27,
+      "phy": 37
+    },
+    { "club": "Chelsea", "teamId": 49, "season": 1995, "att": 46, "cre": 47, "def": 41, "phy": 42 },
+    {
+      "club": "Manchester City",
+      "teamId": 50,
+      "season": 1995,
+      "att": 44,
+      "cre": 46,
+      "def": 19,
+      "phy": 39
+    },
+    {
+      "club": "Leeds United",
+      "teamId": 63,
+      "season": 1995,
+      "att": 48,
+      "cre": 50,
+      "def": 24,
+      "phy": 36
+    },
+    {
+      "club": "Nottingham Forest",
+      "teamId": 65,
+      "season": 1995,
+      "att": 55,
+      "cre": 53,
+      "def": 19,
+      "phy": 47
+    },
+    {
+      "club": "Aston Villa",
+      "teamId": 66,
+      "season": 1995,
+      "att": 54,
+      "cre": 52,
+      "def": 41,
+      "phy": 45
+    },
+    {
+      "club": "Blackburn Rovers",
+      "teamId": 67,
+      "season": 1995,
+      "att": 48,
+      "cre": 52,
+      "def": 30,
+      "phy": 43
+    },
+    {
+      "club": "Bolton Wanderers",
+      "teamId": 68,
+      "season": 1995,
+      "att": 51,
+      "cre": 49,
+      "def": 13,
+      "phy": 41
+    },
+    {
+      "club": "Middlesbrough",
+      "teamId": 70,
+      "season": 1995,
+      "att": 48,
+      "cre": 44,
+      "def": 28,
+      "phy": 34
+    },
+    {
+      "club": "Queens Park Rangers",
+      "teamId": 72,
+      "season": 1995,
+      "att": 47,
+      "cre": 46,
+      "def": 19,
+      "phy": 39
+    },
+    {
+      "club": "Sheffield Wednesday",
+      "teamId": 74,
+      "season": 1995,
+      "att": 47,
+      "cre": 55,
+      "def": 21,
+      "phy": 41
+    },
+    {
+      "club": "Wimbledon",
+      "teamId": 1333,
+      "season": 1995,
+      "att": 52,
+      "cre": 53,
+      "def": 16,
+      "phy": 40
+    },
+    {
+      "club": "Coventry City",
+      "teamId": 1346,
+      "season": 1995,
+      "att": 47,
+      "cre": 50,
+      "def": 26,
+      "phy": 39
+    },
+    {
+      "club": "Manchester United",
+      "teamId": 33,
+      "season": 1996,
+      "att": 61,
+      "cre": 58,
+      "def": 38,
+      "phy": 47
+    },
+    {
+      "club": "Newcastle United",
+      "teamId": 34,
+      "season": 1996,
+      "att": 61,
+      "cre": 66,
+      "def": 42,
+      "phy": 53
+    },
+    {
+      "club": "Liverpool",
+      "teamId": 40,
+      "season": 1996,
+      "att": 53,
+      "cre": 57,
+      "def": 41,
+      "phy": 45
+    },
+    {
+      "club": "Southampton",
+      "teamId": 41,
+      "season": 1996,
+      "att": 49,
+      "cre": 48,
+      "def": 22,
+      "phy": 39
+    },
+    { "club": "Arsenal", "teamId": 42, "season": 1996, "att": 54, "cre": 57, "def": 47, "phy": 42 },
+    { "club": "Everton", "teamId": 45, "season": 1996, "att": 50, "cre": 49, "def": 23, "phy": 42 },
+    {
+      "club": "Leicester City",
+      "teamId": 46,
+      "season": 1996,
+      "att": 48,
+      "cre": 52,
+      "def": 27,
+      "phy": 44
+    },
+    {
+      "club": "Tottenham Hotspur",
+      "teamId": 47,
+      "season": 1996,
+      "att": 50,
+      "cre": 52,
+      "def": 33,
+      "phy": 41
+    },
+    {
+      "club": "West Ham United",
+      "teamId": 48,
+      "season": 1996,
+      "att": 48,
+      "cre": 47,
+      "def": 27,
+      "phy": 38
+    },
+    { "club": "Chelsea", "teamId": 49, "season": 1996, "att": 54, "cre": 52, "def": 26, "phy": 40 },
+    {
+      "club": "Leeds United",
+      "teamId": 63,
+      "season": 1996,
+      "att": 45,
+      "cre": 43,
+      "def": 45,
+      "phy": 36
+    },
+    {
+      "club": "Nottingham Forest",
+      "teamId": 65,
+      "season": 1996,
+      "att": 47,
+      "cre": 46,
+      "def": 17,
+      "phy": 39
+    },
+    {
+      "club": "Aston Villa",
+      "teamId": 66,
+      "season": 1996,
+      "att": 50,
+      "cre": 51,
+      "def": 48,
+      "phy": 50
+    },
+    {
+      "club": "Blackburn Rovers",
+      "teamId": 67,
+      "season": 1996,
+      "att": 52,
+      "cre": 50,
+      "def": 34,
+      "phy": 43
+    },
+    {
+      "club": "Derby County",
+      "teamId": 69,
+      "season": 1996,
+      "att": 49,
+      "cre": 48,
+      "def": 19,
+      "phy": 45
+    },
+    {
+      "club": "Middlesbrough",
+      "teamId": 70,
+      "season": 1996,
+      "att": 50,
+      "cre": 55,
+      "def": 16,
+      "phy": 39
+    },
+    {
+      "club": "Sheffield Wednesday",
+      "teamId": 74,
+      "season": 1996,
+      "att": 56,
+      "cre": 53,
+      "def": 28,
+      "phy": 48
+    },
+    {
+      "club": "Sunderland",
+      "teamId": 746,
+      "season": 1996,
+      "att": 50,
+      "cre": 44,
+      "def": 26,
+      "phy": 43
+    },
+    {
+      "club": "Wimbledon",
+      "teamId": 1333,
+      "season": 1996,
+      "att": 52,
+      "cre": 52,
+      "def": 31,
+      "phy": 45
+    },
+    {
+      "club": "Coventry City",
+      "teamId": 1346,
+      "season": 1996,
+      "att": 44,
+      "cre": 47,
+      "def": 27,
+      "phy": 43
+    },
+    {
+      "club": "Manchester United",
+      "teamId": 33,
+      "season": 1997,
+      "att": 56,
+      "cre": 53,
+      "def": 49,
+      "phy": 41
+    },
+    {
+      "club": "Newcastle United",
+      "teamId": 34,
+      "season": 1997,
+      "att": 51,
+      "cre": 46,
+      "def": 38,
+      "phy": 45
+    },
+    {
+      "club": "Liverpool",
+      "teamId": 40,
+      "season": 1997,
+      "att": 52,
+      "cre": 54,
+      "def": 42,
+      "phy": 44
+    },
+    {
+      "club": "Southampton",
+      "teamId": 41,
+      "season": 1997,
+      "att": 48,
+      "cre": 48,
+      "def": 25,
+      "phy": 40
+    },
+    { "club": "Arsenal", "teamId": 42, "season": 1997, "att": 55, "cre": 58, "def": 49, "phy": 45 },
+    { "club": "Everton", "teamId": 45, "season": 1997, "att": 47, "cre": 46, "def": 25, "phy": 37 },
+    {
+      "club": "Leicester City",
+      "teamId": 46,
+      "season": 1997,
+      "att": 58,
+      "cre": 49,
+      "def": 40,
+      "phy": 52
+    },
+    {
+      "club": "Tottenham Hotspur",
+      "teamId": 47,
+      "season": 1997,
+      "att": 48,
+      "cre": 50,
+      "def": 22,
+      "phy": 40
+    },
+    {
+      "club": "West Ham United",
+      "teamId": 48,
+      "season": 1997,
+      "att": 53,
+      "cre": 55,
+      "def": 19,
+      "phy": 42
+    },
+    { "club": "Chelsea", "teamId": 49, "season": 1997, "att": 57, "cre": 58, "def": 45, "phy": 40 },
+    {
+      "club": "Crystal Palace",
+      "teamId": 52,
+      "season": 1997,
+      "att": 48,
+      "cre": 49,
+      "def": 15,
+      "phy": 33
+    },
+    {
+      "club": "Leeds United",
+      "teamId": 63,
+      "season": 1997,
+      "att": 54,
+      "cre": 57,
+      "def": 40,
+      "phy": 49
+    },
+    {
+      "club": "Aston Villa",
+      "teamId": 66,
+      "season": 1997,
+      "att": 53,
+      "cre": 60,
+      "def": 31,
+      "phy": 50
+    },
+    {
+      "club": "Blackburn Rovers",
+      "teamId": 67,
+      "season": 1997,
+      "att": 52,
+      "cre": 54,
+      "def": 33,
+      "phy": 53
+    },
+    {
+      "club": "Bolton Wanderers",
+      "teamId": 68,
+      "season": 1997,
+      "att": 49,
+      "cre": 48,
+      "def": 23,
+      "phy": 40
+    },
+    {
+      "club": "Derby County",
+      "teamId": 69,
+      "season": 1997,
+      "att": 52,
+      "cre": 49,
+      "def": 33,
+      "phy": 44
+    },
+    {
+      "club": "Sheffield Wednesday",
+      "teamId": 74,
+      "season": 1997,
+      "att": 52,
+      "cre": 51,
+      "def": 19,
+      "phy": 39
+    },
+    {
+      "club": "Barnsley",
+      "teamId": 747,
+      "season": 1997,
+      "att": 46,
+      "cre": 42,
+      "def": 16,
+      "phy": 45
+    },
+    {
+      "club": "Wimbledon",
+      "teamId": 1333,
+      "season": 1997,
+      "att": 49,
+      "cre": 49,
+      "def": 31,
+      "phy": 45
+    },
+    {
+      "club": "Coventry City",
+      "teamId": 1346,
+      "season": 1997,
+      "att": 44,
+      "cre": 48,
+      "def": 36,
+      "phy": 43
+    },
+    {
+      "club": "Manchester United",
+      "teamId": 33,
+      "season": 1998,
+      "att": 59,
+      "cre": 61,
+      "def": 41,
+      "phy": 49
+    },
+    {
+      "club": "Newcastle United",
+      "teamId": 34,
+      "season": 1998,
+      "att": 48,
+      "cre": 46,
+      "def": 24,
+      "phy": 37
+    },
+    {
+      "club": "Liverpool",
+      "teamId": 40,
+      "season": 1998,
+      "att": 55,
+      "cre": 61,
+      "def": 28,
+      "phy": 45
+    },
+    {
+      "club": "Southampton",
+      "teamId": 41,
+      "season": 1998,
+      "att": 47,
+      "cre": 44,
+      "def": 19,
+      "phy": 38
+    },
+    { "club": "Arsenal", "teamId": 42, "season": 1998, "att": 50, "cre": 52, "def": 51, "phy": 44 },
+    { "club": "Everton", "teamId": 45, "season": 1998, "att": 49, "cre": 44, "def": 34, "phy": 36 },
+    {
+      "club": "Leicester City",
+      "teamId": 46,
+      "season": 1998,
+      "att": 49,
+      "cre": 49,
+      "def": 37,
+      "phy": 46
+    },
+    {
+      "club": "Tottenham Hotspur",
+      "teamId": 47,
+      "season": 1998,
+      "att": 51,
+      "cre": 45,
+      "def": 33,
+      "phy": 41
+    },
+    {
+      "club": "West Ham United",
+      "teamId": 48,
+      "season": 1998,
+      "att": 52,
+      "cre": 53,
+      "def": 32,
+      "phy": 40
+    },
+    { "club": "Chelsea", "teamId": 49, "season": 1998, "att": 51, "cre": 57, "def": 45, "phy": 45 },
+    {
+      "club": "Leeds United",
+      "teamId": 63,
+      "season": 1998,
+      "att": 55,
+      "cre": 55,
+      "def": 46,
+      "phy": 45
+    },
+    {
+      "club": "Nottingham Forest",
+      "teamId": 65,
+      "season": 1998,
+      "att": 47,
+      "cre": 48,
+      "def": 14,
+      "phy": 37
+    },
+    {
+      "club": "Aston Villa",
+      "teamId": 66,
+      "season": 1998,
+      "att": 57,
+      "cre": 61,
+      "def": 39,
+      "phy": 56
+    },
+    {
+      "club": "Blackburn Rovers",
+      "teamId": 67,
+      "season": 1998,
+      "att": 49,
+      "cre": 48,
+      "def": 27,
+      "phy": 41
+    },
+    {
+      "club": "Derby County",
+      "teamId": 69,
+      "season": 1998,
+      "att": 49,
+      "cre": 50,
+      "def": 37,
+      "phy": 43
+    },
+    {
+      "club": "Middlesbrough",
+      "teamId": 70,
+      "season": 1998,
+      "att": 53,
+      "cre": 53,
+      "def": 25,
+      "phy": 42
+    },
+    {
+      "club": "Sheffield Wednesday",
+      "teamId": 74,
+      "season": 1998,
+      "att": 53,
+      "cre": 50,
+      "def": 38,
+      "phy": 38
+    },
+    {
+      "club": "Wimbledon",
+      "teamId": 1333,
+      "season": 1998,
+      "att": 47,
+      "cre": 53,
+      "def": 15,
+      "phy": 49
+    },
+    {
+      "club": "Charlton Athletic",
+      "teamId": 1335,
+      "season": 1998,
+      "att": 52,
+      "cre": 44,
+      "def": 23,
+      "phy": 44
+    },
+    {
+      "club": "Coventry City",
+      "teamId": 1346,
+      "season": 1998,
+      "att": 48,
+      "cre": 52,
+      "def": 25,
+      "phy": 41
+    },
+    {
+      "club": "Manchester United",
+      "teamId": 33,
+      "season": 1999,
+      "att": 58,
+      "cre": 58,
+      "def": 40,
+      "phy": 43
+    },
+    {
+      "club": "Newcastle United",
+      "teamId": 34,
+      "season": 1999,
+      "att": 51,
+      "cre": 49,
+      "def": 33,
+      "phy": 38
+    },
+    { "club": "Watford", "teamId": 38, "season": 1999, "att": 47, "cre": 48, "def": 16, "phy": 36 },
+    {
+      "club": "Liverpool",
+      "teamId": 40,
+      "season": 1999,
+      "att": 53,
+      "cre": 54,
+      "def": 43,
+      "phy": 53
+    },
+    {
+      "club": "Southampton",
+      "teamId": 41,
+      "season": 1999,
+      "att": 50,
+      "cre": 52,
+      "def": 26,
+      "phy": 40
+    },
+    { "club": "Arsenal", "teamId": 42, "season": 1999, "att": 56, "cre": 57, "def": 40, "phy": 41 },
+    { "club": "Everton", "teamId": 45, "season": 1999, "att": 55, "cre": 54, "def": 32, "phy": 43 },
+    {
+      "club": "Leicester City",
+      "teamId": 46,
+      "season": 1999,
+      "att": 52,
+      "cre": 54,
+      "def": 24,
+      "phy": 45
+    },
+    {
+      "club": "Tottenham Hotspur",
+      "teamId": 47,
+      "season": 1999,
+      "att": 50,
+      "cre": 52,
+      "def": 32,
+      "phy": 39
+    },
+    {
+      "club": "West Ham United",
+      "teamId": 48,
+      "season": 1999,
+      "att": 49,
+      "cre": 52,
+      "def": 34,
+      "phy": 41
+    },
+    { "club": "Chelsea", "teamId": 49, "season": 1999, "att": 51, "cre": 52, "def": 54, "phy": 44 },
+    {
+      "club": "Leeds United",
+      "teamId": 63,
+      "season": 1999,
+      "att": 55,
+      "cre": 55,
+      "def": 46,
+      "phy": 52
+    },
+    {
+      "club": "Aston Villa",
+      "teamId": 66,
+      "season": 1999,
+      "att": 54,
+      "cre": 52,
+      "def": 48,
+      "phy": 48
+    },
+    {
+      "club": "Derby County",
+      "teamId": 69,
+      "season": 1999,
+      "att": 48,
+      "cre": 43,
+      "def": 22,
+      "phy": 37
+    },
+    {
+      "club": "Middlesbrough",
+      "teamId": 70,
+      "season": 1999,
+      "att": 48,
+      "cre": 47,
+      "def": 28,
+      "phy": 40
+    },
+    {
+      "club": "Sheffield Wednesday",
+      "teamId": 74,
+      "season": 1999,
+      "att": 48,
+      "cre": 48,
+      "def": 21,
+      "phy": 49
+    },
+    {
+      "club": "Sunderland",
+      "teamId": 746,
+      "season": 1999,
+      "att": 44,
+      "cre": 53,
+      "def": 24,
+      "phy": 42
+    },
+    {
+      "club": "Wimbledon",
+      "teamId": 1333,
+      "season": 1999,
+      "att": 47,
+      "cre": 50,
+      "def": 15,
+      "phy": 41
+    },
+    {
+      "club": "Bradford City",
+      "teamId": 1343,
+      "season": 1999,
+      "att": 50,
+      "cre": 47,
+      "def": 19,
+      "phy": 48
+    },
+    {
+      "club": "Coventry City",
+      "teamId": 1346,
+      "season": 1999,
+      "att": 48,
+      "cre": 47,
+      "def": 33,
+      "phy": 39
+    },
+    {
+      "club": "Manchester United",
+      "teamId": 33,
+      "season": 2000,
+      "att": 58,
+      "cre": 58,
+      "def": 47,
+      "phy": 43
+    },
+    {
+      "club": "Newcastle United",
+      "teamId": 34,
+      "season": 2000,
+      "att": 48,
+      "cre": 45,
+      "def": 26,
+      "phy": 41
+    },
+    {
+      "club": "Liverpool",
+      "teamId": 40,
+      "season": 2000,
+      "att": 55,
+      "cre": 58,
+      "def": 42,
+      "phy": 47
+    },
+    {
+      "club": "Southampton",
+      "teamId": 41,
+      "season": 2000,
+      "att": 49,
+      "cre": 48,
+      "def": 30,
+      "phy": 50
+    },
+    { "club": "Arsenal", "teamId": 42, "season": 2000, "att": 57, "cre": 60, "def": 53, "phy": 46 },
+    { "club": "Everton", "teamId": 45, "season": 2000, "att": 48, "cre": 45, "def": 22, "phy": 40 },
+    {
+      "club": "Leicester City",
+      "teamId": 46,
+      "season": 2000,
+      "att": 49,
+      "cre": 47,
+      "def": 24,
+      "phy": 42
+    },
+    {
+      "club": "Tottenham Hotspur",
+      "teamId": 47,
+      "season": 2000,
+      "att": 52,
+      "cre": 48,
+      "def": 28,
+      "phy": 38
+    },
+    {
+      "club": "West Ham United",
+      "teamId": 48,
+      "season": 2000,
+      "att": 49,
+      "cre": 45,
+      "def": 29,
+      "phy": 36
+    },
+    { "club": "Chelsea", "teamId": 49, "season": 2000, "att": 49, "cre": 55, "def": 37, "phy": 47 },
+    {
+      "club": "Manchester City",
+      "teamId": 50,
+      "season": 2000,
+      "att": 48,
+      "cre": 46,
+      "def": 20,
+      "phy": 41
+    },
+    {
+      "club": "Ipswich Town",
+      "teamId": 57,
+      "season": 2000,
+      "att": 55,
+      "cre": 60,
+      "def": 43,
+      "phy": 53
+    },
+    {
+      "club": "Leeds United",
+      "teamId": 63,
+      "season": 2000,
+      "att": 50,
+      "cre": 55,
+      "def": 42,
+      "phy": 44
+    },
+    {
+      "club": "Aston Villa",
+      "teamId": 66,
+      "season": 2000,
+      "att": 55,
+      "cre": 53,
+      "def": 35,
+      "phy": 50
+    },
+    {
+      "club": "Derby County",
+      "teamId": 69,
+      "season": 2000,
+      "att": 49,
+      "cre": 48,
+      "def": 24,
+      "phy": 38
+    },
+    {
+      "club": "Middlesbrough",
+      "teamId": 70,
+      "season": 2000,
+      "att": 49,
+      "cre": 48,
+      "def": 33,
+      "phy": 46
+    },
+    {
+      "club": "Sunderland",
+      "teamId": 746,
+      "season": 2000,
+      "att": 51,
+      "cre": 55,
+      "def": 45,
+      "phy": 41
+    },
+    {
+      "club": "Charlton Athletic",
+      "teamId": 1335,
+      "season": 2000,
+      "att": 49,
+      "cre": 51,
+      "def": 29,
+      "phy": 46
+    },
+    {
+      "club": "Bradford City",
+      "teamId": 1343,
+      "season": 2000,
+      "att": 47,
+      "cre": 42,
+      "def": 17,
+      "phy": 40
+    },
+    {
+      "club": "Coventry City",
+      "teamId": 1346,
+      "season": 2000,
+      "att": 46,
+      "cre": 44,
+      "def": 20,
+      "phy": 43
+    },
+    {
+      "club": "Manchester United",
+      "teamId": 33,
+      "season": 2001,
+      "att": 57,
+      "cre": 56,
+      "def": 41,
+      "phy": 43
+    },
+    {
+      "club": "Newcastle United",
+      "teamId": 34,
+      "season": 2001,
+      "att": 57,
+      "cre": 57,
+      "def": 27,
+      "phy": 48
+    },
+    { "club": "Fulham", "teamId": 36, "season": 2001, "att": 46, "cre": 46, "def": 38, "phy": 48 },
+    {
+      "club": "Liverpool",
+      "teamId": 40,
+      "season": 2001,
+      "att": 59,
+      "cre": 61,
+      "def": 49,
+      "phy": 50
+    },
+    {
+      "club": "Southampton",
+      "teamId": 41,
+      "season": 2001,
+      "att": 50,
+      "cre": 51,
+      "def": 24,
+      "phy": 40
+    },
+    { "club": "Arsenal", "teamId": 42, "season": 2001, "att": 55, "cre": 52, "def": 51, "phy": 47 },
+    { "club": "Everton", "teamId": 45, "season": 2001, "att": 55, "cre": 52, "def": 28, "phy": 40 },
+    {
+      "club": "Leicester City",
+      "teamId": 46,
+      "season": 2001,
+      "att": 45,
+      "cre": 45,
+      "def": 16,
+      "phy": 35
+    },
+    {
+      "club": "Tottenham Hotspur",
+      "teamId": 47,
+      "season": 2001,
+      "att": 49,
+      "cre": 52,
+      "def": 29,
+      "phy": 46
+    },
+    {
+      "club": "West Ham United",
+      "teamId": 48,
+      "season": 2001,
+      "att": 49,
+      "cre": 51,
+      "def": 26,
+      "phy": 39
+    },
+    { "club": "Chelsea", "teamId": 49, "season": 2001, "att": 56, "cre": 56, "def": 45, "phy": 48 },
+    {
+      "club": "Ipswich Town",
+      "teamId": 57,
+      "season": 2001,
+      "att": 51,
+      "cre": 51,
+      "def": 18,
+      "phy": 47
+    },
+    {
+      "club": "Leeds United",
+      "teamId": 63,
+      "season": 2001,
+      "att": 51,
+      "cre": 60,
+      "def": 51,
+      "phy": 49
+    },
+    {
+      "club": "Aston Villa",
+      "teamId": 66,
+      "season": 2001,
+      "att": 49,
+      "cre": 59,
+      "def": 32,
+      "phy": 47
+    },
+    {
+      "club": "Blackburn Rovers",
+      "teamId": 67,
+      "season": 2001,
+      "att": 55,
+      "cre": 56,
+      "def": 25,
+      "phy": 46
+    },
+    {
+      "club": "Bolton Wanderers",
+      "teamId": 68,
+      "season": 2001,
+      "att": 49,
+      "cre": 49,
+      "def": 19,
+      "phy": 41
+    },
+    {
+      "club": "Derby County",
+      "teamId": 69,
+      "season": 2001,
+      "att": 44,
+      "cre": 45,
+      "def": 21,
+      "phy": 38
+    },
+    {
+      "club": "Middlesbrough",
+      "teamId": 70,
+      "season": 2001,
+      "att": 52,
+      "cre": 43,
+      "def": 32,
+      "phy": 36
+    },
+    {
+      "club": "Sunderland",
+      "teamId": 746,
+      "season": 2001,
+      "att": 44,
+      "cre": 45,
+      "def": 31,
+      "phy": 43
+    },
+    {
+      "club": "Charlton Athletic",
+      "teamId": 1335,
+      "season": 2001,
+      "att": 48,
+      "cre": 46,
+      "def": 33,
+      "phy": 44
+    },
+    {
+      "club": "Manchester United",
+      "teamId": 33,
+      "season": 2002,
+      "att": 51,
+      "cre": 61,
+      "def": 50,
+      "phy": 46
+    },
+    {
+      "club": "Newcastle United",
+      "teamId": 34,
+      "season": 2002,
+      "att": 55,
+      "cre": 55,
+      "def": 34,
+      "phy": 43
+    },
+    { "club": "Fulham", "teamId": 36, "season": 2002, "att": 50, "cre": 47, "def": 33, "phy": 42 },
+    {
+      "club": "Liverpool",
+      "teamId": 40,
+      "season": 2002,
+      "att": 54,
+      "cre": 59,
+      "def": 48,
+      "phy": 50
+    },
+    {
+      "club": "Southampton",
+      "teamId": 41,
+      "season": 2002,
+      "att": 46,
+      "cre": 47,
+      "def": 42,
+      "phy": 44
+    },
+    { "club": "Arsenal", "teamId": 42, "season": 2002, "att": 57, "cre": 57, "def": 43, "phy": 43 },
+    { "club": "Everton", "teamId": 45, "season": 2002, "att": 49, "cre": 54, "def": 36, "phy": 43 },
+    {
+      "club": "Tottenham Hotspur",
+      "teamId": 47,
+      "season": 2002,
+      "att": 51,
+      "cre": 52,
+      "def": 18,
+      "phy": 43
+    },
+    {
+      "club": "West Ham United",
+      "teamId": 48,
+      "season": 2002,
+      "att": 47,
+      "cre": 49,
+      "def": 25,
+      "phy": 46
+    },
+    { "club": "Chelsea", "teamId": 49, "season": 2002, "att": 59, "cre": 62, "def": 44, "phy": 51 },
+    {
+      "club": "Manchester City",
+      "teamId": 50,
+      "season": 2002,
+      "att": 52,
+      "cre": 51,
+      "def": 30,
+      "phy": 43
+    },
+    {
+      "club": "Birmingham City",
+      "teamId": 54,
+      "season": 2002,
+      "att": 50,
+      "cre": 45,
+      "def": 29,
+      "phy": 37
+    },
+    {
+      "club": "West Bromwich Albion",
+      "teamId": 60,
+      "season": 2002,
+      "att": 48,
+      "cre": 40,
+      "def": 17,
+      "phy": 48
+    },
+    {
+      "club": "Leeds United",
+      "teamId": 63,
+      "season": 2002,
+      "att": 51,
+      "cre": 55,
+      "def": 27,
+      "phy": 40
+    },
+    {
+      "club": "Aston Villa",
+      "teamId": 66,
+      "season": 2002,
+      "att": 49,
+      "cre": 54,
+      "def": 35,
+      "phy": 41
+    },
+    {
+      "club": "Blackburn Rovers",
+      "teamId": 67,
+      "season": 2002,
+      "att": 53,
+      "cre": 50,
+      "def": 38,
+      "phy": 40
+    },
+    {
+      "club": "Bolton Wanderers",
+      "teamId": 68,
+      "season": 2002,
+      "att": 49,
+      "cre": 46,
+      "def": 27,
+      "phy": 41
+    },
+    {
+      "club": "Middlesbrough",
+      "teamId": 70,
+      "season": 2002,
+      "att": 53,
+      "cre": 48,
+      "def": 37,
+      "phy": 39
+    },
+    {
+      "club": "Sunderland",
+      "teamId": 746,
+      "season": 2002,
+      "att": 42,
+      "cre": 40,
+      "def": 16,
+      "phy": 35
+    },
+    {
+      "club": "Charlton Athletic",
+      "teamId": 1335,
+      "season": 2002,
+      "att": 53,
+      "cre": 46,
+      "def": 24,
+      "phy": 45
+    },
+    {
+      "club": "Manchester United",
+      "teamId": 33,
+      "season": 2003,
+      "att": 53,
+      "cre": 61,
+      "def": 51,
+      "phy": 51
+    },
+    {
+      "club": "Newcastle United",
+      "teamId": 34,
+      "season": 2003,
+      "att": 51,
+      "cre": 51,
+      "def": 45,
+      "phy": 46
+    },
+    { "club": "Fulham", "teamId": 36, "season": 2003, "att": 49, "cre": 49, "def": 54, "phy": 53 },
+    {
+      "club": "Wolverhampton Wanderers",
+      "teamId": 39,
+      "season": 2003,
+      "att": 51,
+      "cre": 49,
+      "def": 45,
+      "phy": 48
+    },
+    {
+      "club": "Liverpool",
+      "teamId": 40,
+      "season": 2003,
+      "att": 53,
+      "cre": 57,
+      "def": 54,
+      "phy": 54
+    },
+    {
+      "club": "Southampton",
+      "teamId": 41,
+      "season": 2003,
+      "att": 46,
+      "cre": 50,
+      "def": 51,
+      "phy": 52
+    },
+    { "club": "Arsenal", "teamId": 42, "season": 2003, "att": 52, "cre": 59, "def": 55, "phy": 52 },
+    { "club": "Everton", "teamId": 45, "season": 2003, "att": 51, "cre": 50, "def": 45, "phy": 52 },
+    {
+      "club": "Leicester City",
+      "teamId": 46,
+      "season": 2003,
+      "att": 47,
+      "cre": 45,
+      "def": 46,
+      "phy": 50
+    },
+    {
+      "club": "Tottenham Hotspur",
+      "teamId": 47,
+      "season": 2003,
+      "att": 48,
+      "cre": 50,
+      "def": 43,
+      "phy": 47
+    },
+    { "club": "Chelsea", "teamId": 49, "season": 2003, "att": 55, "cre": 60, "def": 55, "phy": 53 },
+    {
+      "club": "Manchester City",
+      "teamId": 50,
+      "season": 2003,
+      "att": 53,
+      "cre": 55,
+      "def": 47,
+      "phy": 52
+    },
+    {
+      "club": "Birmingham City",
+      "teamId": 54,
+      "season": 2003,
+      "att": 49,
+      "cre": 48,
+      "def": 51,
+      "phy": 53
+    },
+    {
+      "club": "Leeds United",
+      "teamId": 63,
+      "season": 2003,
+      "att": 49,
+      "cre": 47,
+      "def": 42,
+      "phy": 47
+    },
+    {
+      "club": "Aston Villa",
+      "teamId": 66,
+      "season": 2003,
+      "att": 49,
+      "cre": 49,
+      "def": 50,
+      "phy": 51
+    },
+    {
+      "club": "Blackburn Rovers",
+      "teamId": 67,
+      "season": 2003,
+      "att": 51,
+      "cre": 48,
+      "def": 45,
+      "phy": 49
+    },
+    {
+      "club": "Bolton Wanderers",
+      "teamId": 68,
+      "season": 2003,
+      "att": 51,
+      "cre": 49,
+      "def": 45,
+      "phy": 49
+    },
+    {
+      "club": "Middlesbrough",
+      "teamId": 70,
+      "season": 2003,
+      "att": 48,
+      "cre": 52,
+      "def": 48,
+      "phy": 50
+    },
+    {
+      "club": "Charlton Athletic",
+      "teamId": 1335,
+      "season": 2003,
+      "att": 53,
+      "cre": 46,
+      "def": 49,
+      "phy": 50
+    },
+    {
+      "club": "Portsmouth",
+      "teamId": 1355,
+      "season": 2003,
+      "att": 48,
+      "cre": 47,
+      "def": 47,
+      "phy": 50
+    },
+    {
+      "club": "Manchester United",
+      "teamId": 33,
+      "season": 2004,
+      "att": 54,
+      "cre": 59,
+      "def": 52,
+      "phy": 50
+    },
+    {
+      "club": "Newcastle United",
+      "teamId": 34,
+      "season": 2004,
+      "att": 49,
+      "cre": 51,
+      "def": 45,
+      "phy": 52
+    },
+    { "club": "Fulham", "teamId": 36, "season": 2004, "att": 50, "cre": 49, "def": 48, "phy": 50 },
+    {
+      "club": "Liverpool",
+      "teamId": 40,
+      "season": 2004,
+      "att": 52,
+      "cre": 53,
+      "def": 50,
+      "phy": 52
+    },
+    {
+      "club": "Southampton",
+      "teamId": 41,
+      "season": 2004,
+      "att": 47,
+      "cre": 49,
+      "def": 44,
+      "phy": 49
+    },
+    { "club": "Arsenal", "teamId": 42, "season": 2004, "att": 56, "cre": 60, "def": 53, "phy": 53 },
+    { "club": "Everton", "teamId": 45, "season": 2004, "att": 52, "cre": 52, "def": 50, "phy": 52 },
+    {
+      "club": "Tottenham Hotspur",
+      "teamId": 47,
+      "season": 2004,
+      "att": 49,
+      "cre": 52,
+      "def": 51,
+      "phy": 51
+    },
+    { "club": "Chelsea", "teamId": 49, "season": 2004, "att": 54, "cre": 57, "def": 53, "phy": 49 },
+    {
+      "club": "Manchester City",
+      "teamId": 50,
+      "season": 2004,
+      "att": 51,
+      "cre": 52,
+      "def": 52,
+      "phy": 47
+    },
+    {
+      "club": "Crystal Palace",
+      "teamId": 52,
+      "season": 2004,
+      "att": 46,
+      "cre": 45,
+      "def": 44,
+      "phy": 48
+    },
+    {
+      "club": "Birmingham City",
+      "teamId": 54,
+      "season": 2004,
+      "att": 47,
+      "cre": 48,
+      "def": 48,
+      "phy": 50
+    },
+    {
+      "club": "West Bromwich Albion",
+      "teamId": 60,
+      "season": 2004,
+      "att": 47,
+      "cre": 45,
+      "def": 44,
+      "phy": 48
+    },
+    {
+      "club": "Aston Villa",
+      "teamId": 66,
+      "season": 2004,
+      "att": 51,
+      "cre": 49,
+      "def": 45,
+      "phy": 46
+    },
+    {
+      "club": "Blackburn Rovers",
+      "teamId": 67,
+      "season": 2004,
+      "att": 48,
+      "cre": 48,
+      "def": 51,
+      "phy": 52
+    },
+    {
+      "club": "Bolton Wanderers",
+      "teamId": 68,
+      "season": 2004,
+      "att": 53,
+      "cre": 51,
+      "def": 49,
+      "phy": 51
+    },
+    {
+      "club": "Middlesbrough",
+      "teamId": 70,
+      "season": 2004,
+      "att": 51,
+      "cre": 49,
+      "def": 48,
+      "phy": 49
+    },
+    {
+      "club": "Norwich City",
+      "teamId": 71,
+      "season": 2004,
+      "att": 48,
+      "cre": 48,
+      "def": 42,
+      "phy": 49
+    },
+    {
+      "club": "Charlton Athletic",
+      "teamId": 1335,
+      "season": 2004,
+      "att": 52,
+      "cre": 45,
+      "def": 45,
+      "phy": 48
+    },
+    {
+      "club": "Portsmouth",
+      "teamId": 1355,
+      "season": 2004,
+      "att": 49,
+      "cre": 47,
+      "def": 48,
+      "phy": 54
+    },
+    {
+      "club": "Manchester United",
+      "teamId": 33,
+      "season": 2005,
+      "att": 52,
+      "cre": 59,
+      "def": 53,
+      "phy": 55
+    },
+    {
+      "club": "Newcastle United",
+      "teamId": 34,
+      "season": 2005,
+      "att": 49,
+      "cre": 54,
+      "def": 47,
+      "phy": 46
+    },
+    { "club": "Fulham", "teamId": 36, "season": 2005, "att": 48, "cre": 48, "def": 48, "phy": 52 },
+    {
+      "club": "Liverpool",
+      "teamId": 40,
+      "season": 2005,
+      "att": 56,
+      "cre": 60,
+      "def": 53,
+      "phy": 51
+    },
+    { "club": "Arsenal", "teamId": 42, "season": 2005, "att": 53, "cre": 56, "def": 52, "phy": 52 },
+    { "club": "Everton", "teamId": 45, "season": 2005, "att": 48, "cre": 45, "def": 47, "phy": 49 },
+    {
+      "club": "Tottenham Hotspur",
+      "teamId": 47,
+      "season": 2005,
+      "att": 52,
+      "cre": 56,
+      "def": 51,
+      "phy": 51
+    },
+    {
+      "club": "West Ham United",
+      "teamId": 48,
+      "season": 2005,
+      "att": 51,
+      "cre": 51,
+      "def": 44,
+      "phy": 48
+    },
+    { "club": "Chelsea", "teamId": 49, "season": 2005, "att": 59, "cre": 61, "def": 55, "phy": 51 },
+    {
+      "club": "Manchester City",
+      "teamId": 50,
+      "season": 2005,
+      "att": 50,
+      "cre": 49,
+      "def": 49,
+      "phy": 54
+    },
+    {
+      "club": "Birmingham City",
+      "teamId": 54,
+      "season": 2005,
+      "att": 46,
+      "cre": 45,
+      "def": 50,
+      "phy": 52
+    },
+    {
+      "club": "West Bromwich Albion",
+      "teamId": 60,
+      "season": 2005,
+      "att": 49,
+      "cre": 45,
+      "def": 46,
+      "phy": 50
+    },
+    {
+      "club": "Wigan Athletic",
+      "teamId": 61,
+      "season": 2005,
+      "att": 50,
+      "cre": 50,
+      "def": 45,
+      "phy": 45
+    },
+    {
+      "club": "Aston Villa",
+      "teamId": 66,
+      "season": 2005,
+      "att": 53,
+      "cre": 50,
+      "def": 45,
+      "phy": 47
+    },
+    {
+      "club": "Blackburn Rovers",
+      "teamId": 67,
+      "season": 2005,
+      "att": 52,
+      "cre": 50,
+      "def": 49,
+      "phy": 47
+    },
+    {
+      "club": "Bolton Wanderers",
+      "teamId": 68,
+      "season": 2005,
+      "att": 51,
+      "cre": 49,
+      "def": 52,
+      "phy": 53
+    },
+    {
+      "club": "Middlesbrough",
+      "teamId": 70,
+      "season": 2005,
+      "att": 49,
+      "cre": 50,
+      "def": 45,
+      "phy": 51
+    },
+    {
+      "club": "Sunderland",
+      "teamId": 746,
+      "season": 2005,
+      "att": 46,
+      "cre": 43,
+      "def": 43,
+      "phy": 48
+    },
+    {
+      "club": "Charlton Athletic",
+      "teamId": 1335,
+      "season": 2005,
+      "att": 47,
+      "cre": 49,
+      "def": 48,
+      "phy": 52
+    },
+    {
+      "club": "Portsmouth",
+      "teamId": 1355,
+      "season": 2005,
+      "att": 48,
+      "cre": 47,
+      "def": 44,
+      "phy": 49
+    },
+    {
+      "club": "Manchester United",
+      "teamId": 33,
+      "season": 2006,
+      "att": 58,
+      "cre": 60,
+      "def": 54,
+      "phy": 51
+    },
+    {
+      "club": "Newcastle United",
+      "teamId": 34,
+      "season": 2006,
+      "att": 49,
+      "cre": 50,
+      "def": 50,
+      "phy": 52
+    },
+    { "club": "Fulham", "teamId": 36, "season": 2006, "att": 50, "cre": 48, "def": 41, "phy": 51 },
+    { "club": "Watford", "teamId": 38, "season": 2006, "att": 47, "cre": 42, "def": 42, "phy": 44 },
+    {
+      "club": "Liverpool",
+      "teamId": 40,
+      "season": 2006,
+      "att": 54,
+      "cre": 58,
+      "def": 54,
+      "phy": 52
+    },
+    { "club": "Arsenal", "teamId": 42, "season": 2006, "att": 54, "cre": 58, "def": 52, "phy": 55 },
+    { "club": "Everton", "teamId": 45, "season": 2006, "att": 54, "cre": 50, "def": 52, "phy": 51 },
+    {
+      "club": "Tottenham Hotspur",
+      "teamId": 47,
+      "season": 2006,
+      "att": 51,
+      "cre": 55,
+      "def": 47,
+      "phy": 57
+    },
+    {
+      "club": "West Ham United",
+      "teamId": 48,
+      "season": 2006,
+      "att": 45,
+      "cre": 50,
+      "def": 44,
+      "phy": 50
+    },
+    { "club": "Chelsea", "teamId": 49, "season": 2006, "att": 53, "cre": 59, "def": 57, "phy": 55 },
+    {
+      "club": "Manchester City",
+      "teamId": 50,
+      "season": 2006,
+      "att": 47,
+      "cre": 47,
+      "def": 50,
+      "phy": 51
+    },
+    { "club": "Reading", "teamId": 53, "season": 2006, "att": 52, "cre": 51, "def": 46, "phy": 48 },
+    {
+      "club": "Wigan Athletic",
+      "teamId": 61,
+      "season": 2006,
+      "att": 49,
+      "cre": 46,
+      "def": 44,
+      "phy": 49
+    },
+    {
+      "club": "Sheffield United",
+      "teamId": 62,
+      "season": 2006,
+      "att": 47,
+      "cre": 46,
+      "def": 44,
+      "phy": 50
+    },
+    {
+      "club": "Aston Villa",
+      "teamId": 66,
+      "season": 2006,
+      "att": 50,
+      "cre": 50,
+      "def": 51,
+      "phy": 50
+    },
+    {
+      "club": "Blackburn Rovers",
+      "teamId": 67,
+      "season": 2006,
+      "att": 47,
+      "cre": 52,
+      "def": 46,
+      "phy": 48
+    },
+    {
+      "club": "Bolton Wanderers",
+      "teamId": 68,
+      "season": 2006,
+      "att": 51,
+      "cre": 48,
+      "def": 46,
+      "phy": 47
+    },
+    {
+      "club": "Middlesbrough",
+      "teamId": 70,
+      "season": 2006,
+      "att": 49,
+      "cre": 51,
+      "def": 47,
+      "phy": 48
+    },
+    {
+      "club": "Charlton Athletic",
+      "teamId": 1335,
+      "season": 2006,
+      "att": 47,
+      "cre": 47,
+      "def": 45,
+      "phy": 51
+    },
+    {
+      "club": "Portsmouth",
+      "teamId": 1355,
+      "season": 2006,
+      "att": 50,
+      "cre": 52,
+      "def": 48,
+      "phy": 49
+    },
+    {
+      "club": "Manchester United",
+      "teamId": 33,
+      "season": 2007,
+      "att": 54,
+      "cre": 63,
+      "def": 56,
+      "phy": 54
+    },
+    {
+      "club": "Newcastle United",
+      "teamId": 34,
+      "season": 2007,
+      "att": 50,
+      "cre": 49,
+      "def": 43,
+      "phy": 49
+    },
+    { "club": "Fulham", "teamId": 36, "season": 2007, "att": 46, "cre": 44, "def": 46, "phy": 46 },
+    {
+      "club": "Liverpool",
+      "teamId": 40,
+      "season": 2007,
+      "att": 51,
+      "cre": 59,
+      "def": 57,
+      "phy": 55
+    },
+    { "club": "Arsenal", "teamId": 42, "season": 2007, "att": 55, "cre": 62, "def": 53, "phy": 54 },
+    { "club": "Everton", "teamId": 45, "season": 2007, "att": 54, "cre": 55, "def": 50, "phy": 49 },
+    {
+      "club": "Tottenham Hotspur",
+      "teamId": 47,
+      "season": 2007,
+      "att": 53,
+      "cre": 53,
+      "def": 47,
+      "phy": 55
+    },
+    {
+      "club": "West Ham United",
+      "teamId": 48,
+      "season": 2007,
+      "att": 50,
+      "cre": 50,
+      "def": 47,
+      "phy": 48
+    },
+    { "club": "Chelsea", "teamId": 49, "season": 2007, "att": 58, "cre": 57, "def": 57, "phy": 54 },
+    {
+      "club": "Manchester City",
+      "teamId": 50,
+      "season": 2007,
+      "att": 50,
+      "cre": 49,
+      "def": 47,
+      "phy": 47
+    },
+    { "club": "Reading", "teamId": 53, "season": 2007, "att": 49, "cre": 46, "def": 42, "phy": 48 },
+    {
+      "club": "Birmingham City",
+      "teamId": 54,
+      "season": 2007,
+      "att": 49,
+      "cre": 46,
+      "def": 44,
+      "phy": 48
+    },
+    {
+      "club": "Wigan Athletic",
+      "teamId": 61,
+      "season": 2007,
+      "att": 49,
+      "cre": 47,
+      "def": 52,
+      "phy": 53
+    },
+    {
+      "club": "Aston Villa",
+      "teamId": 66,
+      "season": 2007,
+      "att": 56,
+      "cre": 49,
+      "def": 51,
+      "phy": 51
+    },
+    {
+      "club": "Blackburn Rovers",
+      "teamId": 67,
+      "season": 2007,
+      "att": 50,
+      "cre": 48,
+      "def": 49,
+      "phy": 52
+    },
+    {
+      "club": "Bolton Wanderers",
+      "teamId": 68,
+      "season": 2007,
+      "att": 45,
+      "cre": 44,
+      "def": 50,
+      "phy": 52
+    },
+    {
+      "club": "Derby County",
+      "teamId": 69,
+      "season": 2007,
+      "att": 43,
+      "cre": 42,
+      "def": 43,
+      "phy": 47
+    },
+    {
+      "club": "Middlesbrough",
+      "teamId": 70,
+      "season": 2007,
+      "att": 52,
+      "cre": 51,
+      "def": 45,
+      "phy": 46
+    },
+    {
+      "club": "Sunderland",
+      "teamId": 746,
+      "season": 2007,
+      "att": 47,
+      "cre": 47,
+      "def": 48,
+      "phy": 51
+    },
+    {
+      "club": "Portsmouth",
+      "teamId": 1355,
+      "season": 2007,
+      "att": 52,
+      "cre": 54,
+      "def": 49,
+      "phy": 47
+    },
+    {
+      "club": "Manchester United",
+      "teamId": 33,
+      "season": 2008,
+      "att": 54,
+      "cre": 56,
+      "def": 52,
+      "phy": 50
+    },
+    {
+      "club": "Newcastle United",
+      "teamId": 34,
+      "season": 2008,
+      "att": 47,
+      "cre": 51,
+      "def": 41,
+      "phy": 44
+    },
+    { "club": "Fulham", "teamId": 36, "season": 2008, "att": 51, "cre": 51, "def": 50, "phy": 46 },
+    {
+      "club": "Liverpool",
+      "teamId": 40,
+      "season": 2008,
+      "att": 55,
+      "cre": 62,
+      "def": 53,
+      "phy": 50
+    },
+    { "club": "Arsenal", "teamId": 42, "season": 2008, "att": 57, "cre": 58, "def": 52, "phy": 52 },
+    { "club": "Everton", "teamId": 45, "season": 2008, "att": 54, "cre": 52, "def": 52, "phy": 51 },
+    {
+      "club": "Tottenham Hotspur",
+      "teamId": 47,
+      "season": 2008,
+      "att": 53,
+      "cre": 54,
+      "def": 47,
+      "phy": 50
+    },
+    {
+      "club": "West Ham United",
+      "teamId": 48,
+      "season": 2008,
+      "att": 48,
+      "cre": 51,
+      "def": 49,
+      "phy": 47
+    },
+    { "club": "Chelsea", "teamId": 49, "season": 2008, "att": 55, "cre": 59, "def": 53, "phy": 52 },
+    {
+      "club": "Manchester City",
+      "teamId": 50,
+      "season": 2008,
+      "att": 51,
+      "cre": 53,
+      "def": 47,
+      "phy": 50
+    },
+    {
+      "club": "West Bromwich Albion",
+      "teamId": 60,
+      "season": 2008,
+      "att": 48,
+      "cre": 48,
+      "def": 41,
+      "phy": 43
+    },
+    {
+      "club": "Wigan Athletic",
+      "teamId": 61,
+      "season": 2008,
+      "att": 49,
+      "cre": 47,
+      "def": 49,
+      "phy": 52
+    },
+    {
+      "club": "Hull City",
+      "teamId": 64,
+      "season": 2008,
+      "att": 49,
+      "cre": 47,
+      "def": 42,
+      "phy": 50
+    },
+    {
+      "club": "Aston Villa",
+      "teamId": 66,
+      "season": 2008,
+      "att": 53,
+      "cre": 48,
+      "def": 52,
+      "phy": 56
+    },
+    {
+      "club": "Blackburn Rovers",
+      "teamId": 67,
+      "season": 2008,
+      "att": 50,
+      "cre": 46,
+      "def": 42,
+      "phy": 45
+    },
+    {
+      "club": "Bolton Wanderers",
+      "teamId": 68,
+      "season": 2008,
+      "att": 48,
+      "cre": 48,
+      "def": 48,
+      "phy": 49
+    },
+    {
+      "club": "Middlesbrough",
+      "teamId": 70,
+      "season": 2008,
+      "att": 45,
+      "cre": 45,
+      "def": 44,
+      "phy": 48
+    },
+    {
+      "club": "Stoke City",
+      "teamId": 75,
+      "season": 2008,
+      "att": 47,
+      "cre": 44,
+      "def": 43,
+      "phy": 45
+    },
+    {
+      "club": "Sunderland",
+      "teamId": 746,
+      "season": 2008,
+      "att": 45,
+      "cre": 45,
+      "def": 48,
+      "phy": 53
+    },
+    {
+      "club": "Portsmouth",
+      "teamId": 1355,
+      "season": 2008,
+      "att": 48,
+      "cre": 48,
+      "def": 44,
+      "phy": 50
+    },
+    {
+      "club": "Manchester United",
+      "teamId": 33,
+      "season": 2009,
+      "att": 53,
+      "cre": 57,
+      "def": 56,
+      "phy": 52
+    },
+    { "club": "Fulham", "teamId": 36, "season": 2009, "att": 47, "cre": 47, "def": 50, "phy": 48 },
+    {
+      "club": "Wolverhampton Wanderers",
+      "teamId": 39,
+      "season": 2009,
+      "att": 43,
+      "cre": 43,
+      "def": 43,
+      "phy": 42
+    },
+    {
+      "club": "Liverpool",
+      "teamId": 40,
+      "season": 2009,
+      "att": 50,
+      "cre": 53,
+      "def": 52,
+      "phy": 52
+    },
+    { "club": "Arsenal", "teamId": 42, "season": 2009, "att": 57, "cre": 57, "def": 51, "phy": 52 },
+    { "club": "Burnley", "teamId": 44, "season": 2009, "att": 49, "cre": 48, "def": 38, "phy": 42 },
+    { "club": "Everton", "teamId": 45, "season": 2009, "att": 51, "cre": 52, "def": 50, "phy": 51 },
+    {
+      "club": "Tottenham Hotspur",
+      "teamId": 47,
+      "season": 2009,
+      "att": 57,
+      "cre": 57,
+      "def": 52,
+      "phy": 55
+    },
+    {
+      "club": "West Ham United",
+      "teamId": 48,
+      "season": 2009,
+      "att": 51,
+      "cre": 51,
+      "def": 45,
+      "phy": 49
+    },
+    { "club": "Chelsea", "teamId": 49, "season": 2009, "att": 55, "cre": 61, "def": 54, "phy": 50 },
+    {
+      "club": "Manchester City",
+      "teamId": 50,
+      "season": 2009,
+      "att": 52,
+      "cre": 52,
+      "def": 52,
+      "phy": 51
+    },
+    {
+      "club": "Birmingham City",
+      "teamId": 54,
+      "season": 2009,
+      "att": 48,
+      "cre": 48,
+      "def": 50,
+      "phy": 52
+    },
+    {
+      "club": "Wigan Athletic",
+      "teamId": 61,
+      "season": 2009,
+      "att": 50,
+      "cre": 50,
+      "def": 42,
+      "phy": 51
+    },
+    {
+      "club": "Hull City",
+      "teamId": 64,
+      "season": 2009,
+      "att": 46,
+      "cre": 40,
+      "def": 43,
+      "phy": 50
+    },
+    {
+      "club": "Aston Villa",
+      "teamId": 66,
+      "season": 2009,
+      "att": 50,
+      "cre": 49,
+      "def": 54,
+      "phy": 50
+    },
+    {
+      "club": "Blackburn Rovers",
+      "teamId": 67,
+      "season": 2009,
+      "att": 50,
+      "cre": 44,
+      "def": 45,
+      "phy": 49
+    },
+    {
+      "club": "Bolton Wanderers",
+      "teamId": 68,
+      "season": 2009,
+      "att": 50,
+      "cre": 47,
+      "def": 45,
+      "phy": 50
+    },
+    {
+      "club": "Stoke City",
+      "teamId": 75,
+      "season": 2009,
+      "att": 46,
+      "cre": 43,
+      "def": 48,
+      "phy": 47
+    },
+    {
+      "club": "Sunderland",
+      "teamId": 746,
+      "season": 2009,
+      "att": 42,
+      "cre": 45,
+      "def": 47,
+      "phy": 52
+    },
+    {
+      "club": "Portsmouth",
+      "teamId": 1355,
+      "season": 2009,
+      "att": 48,
+      "cre": 48,
+      "def": 39,
+      "phy": 44
+    },
+    {
+      "club": "Manchester United",
+      "teamId": 33,
+      "season": 2010,
+      "att": 49,
+      "cre": 55,
+      "def": 52,
+      "phy": 47
+    },
+    {
+      "club": "Newcastle United",
+      "teamId": 34,
+      "season": 2010,
+      "att": 49,
+      "cre": 49,
+      "def": 46,
+      "phy": 49
+    },
+    { "club": "Fulham", "teamId": 36, "season": 2010, "att": 51, "cre": 52, "def": 51, "phy": 48 },
+    {
+      "club": "Wolverhampton Wanderers",
+      "teamId": 39,
+      "season": 2010,
+      "att": 49,
+      "cre": 48,
+      "def": 43,
+      "phy": 49
+    },
+    {
+      "club": "Liverpool",
+      "teamId": 40,
+      "season": 2010,
+      "att": 53,
+      "cre": 51,
+      "def": 52,
+      "phy": 54
+    },
+    { "club": "Arsenal", "teamId": 42, "season": 2010, "att": 54, "cre": 58, "def": 51, "phy": 49 },
+    { "club": "Everton", "teamId": 45, "season": 2010, "att": 52, "cre": 51, "def": 50, "phy": 52 },
+    {
+      "club": "Tottenham Hotspur",
+      "teamId": 47,
+      "season": 2010,
+      "att": 49,
+      "cre": 52,
+      "def": 51,
+      "phy": 56
+    },
+    {
+      "club": "West Ham United",
+      "teamId": 48,
+      "season": 2010,
+      "att": 47,
+      "cre": 47,
+      "def": 45,
+      "phy": 48
+    },
+    { "club": "Chelsea", "teamId": 49, "season": 2010, "att": 59, "cre": 58, "def": 54, "phy": 51 },
+    {
+      "club": "Manchester City",
+      "teamId": 50,
+      "season": 2010,
+      "att": 49,
+      "cre": 53,
+      "def": 55,
+      "phy": 51
+    },
+    {
+      "club": "Birmingham City",
+      "teamId": 54,
+      "season": 2010,
+      "att": 50,
+      "cre": 45,
+      "def": 46,
+      "phy": 48
+    },
+    {
+      "club": "West Bromwich Albion",
+      "teamId": 60,
+      "season": 2010,
+      "att": 51,
+      "cre": 53,
+      "def": 42,
+      "phy": 46
+    },
+    {
+      "club": "Wigan Athletic",
+      "teamId": 61,
+      "season": 2010,
+      "att": 44,
+      "cre": 47,
+      "def": 45,
+      "phy": 51
+    },
+    {
+      "club": "Aston Villa",
+      "teamId": 66,
+      "season": 2010,
+      "att": 49,
+      "cre": 49,
+      "def": 47,
+      "phy": 53
+    },
+    {
+      "club": "Blackburn Rovers",
+      "teamId": 67,
+      "season": 2010,
+      "att": 48,
+      "cre": 44,
+      "def": 47,
+      "phy": 50
+    },
+    {
+      "club": "Bolton Wanderers",
+      "teamId": 68,
+      "season": 2010,
+      "att": 50,
+      "cre": 48,
+      "def": 50,
+      "phy": 52
+    },
+    {
+      "club": "Stoke City",
+      "teamId": 75,
+      "season": 2010,
+      "att": 49,
+      "cre": 44,
+      "def": 48,
+      "phy": 49
+    },
+    {
+      "club": "Sunderland",
+      "teamId": 746,
+      "season": 2010,
+      "att": 48,
+      "cre": 49,
+      "def": 48,
+      "phy": 51
+    },
+    {
+      "club": "Blackpool",
+      "teamId": 1356,
+      "season": 2010,
+      "att": 50,
+      "cre": 50,
+      "def": 42,
+      "phy": 47
+    },
+    {
+      "club": "Manchester United",
+      "teamId": 33,
+      "season": 2011,
+      "att": 54,
+      "cre": 58,
+      "def": 55,
+      "phy": 51
+    },
+    {
+      "club": "Newcastle United",
+      "teamId": 34,
+      "season": 2011,
+      "att": 46,
+      "cre": 49,
+      "def": 49,
+      "phy": 51
+    },
+    { "club": "Fulham", "teamId": 36, "season": 2011, "att": 48, "cre": 51, "def": 49, "phy": 49 },
+    {
+      "club": "Wolverhampton Wanderers",
+      "teamId": 39,
+      "season": 2011,
+      "att": 48,
+      "cre": 45,
+      "def": 43,
+      "phy": 48
+    },
+    {
+      "club": "Liverpool",
+      "teamId": 40,
+      "season": 2011,
+      "att": 51,
+      "cre": 51,
+      "def": 53,
+      "phy": 51
+    },
+    { "club": "Arsenal", "teamId": 42, "season": 2011, "att": 54, "cre": 58, "def": 48, "phy": 52 },
+    { "club": "Everton", "teamId": 45, "season": 2011, "att": 53, "cre": 50, "def": 51, "phy": 49 },
+    {
+      "club": "Tottenham Hotspur",
+      "teamId": 47,
+      "season": 2011,
+      "att": 54,
+      "cre": 55,
+      "def": 50,
+      "phy": 53
+    },
+    { "club": "Chelsea", "teamId": 49, "season": 2011, "att": 57, "cre": 55, "def": 49, "phy": 50 },
+    {
+      "club": "Manchester City",
+      "teamId": 50,
+      "season": 2011,
+      "att": 56,
+      "cre": 61,
+      "def": 54,
+      "phy": 52
+    },
+    {
+      "club": "West Bromwich Albion",
+      "teamId": 60,
+      "season": 2011,
+      "att": 52,
+      "cre": 51,
+      "def": 48,
+      "phy": 49
+    },
+    {
+      "club": "Wigan Athletic",
+      "teamId": 61,
+      "season": 2011,
+      "att": 50,
+      "cre": 46,
+      "def": 45,
+      "phy": 49
+    },
+    {
+      "club": "Aston Villa",
+      "teamId": 66,
+      "season": 2011,
+      "att": 48,
+      "cre": 45,
+      "def": 48,
+      "phy": 53
+    },
+    {
+      "club": "Blackburn Rovers",
+      "teamId": 67,
+      "season": 2011,
+      "att": 48,
+      "cre": 46,
+      "def": 44,
+      "phy": 48
+    },
+    {
+      "club": "Bolton Wanderers",
+      "teamId": 68,
+      "season": 2011,
+      "att": 51,
+      "cre": 45,
+      "def": 44,
+      "phy": 48
+    },
+    {
+      "club": "Norwich City",
+      "teamId": 71,
+      "season": 2011,
+      "att": 49,
+      "cre": 50,
+      "def": 43,
+      "phy": 46
+    },
+    {
+      "club": "Queens Park Rangers",
+      "teamId": 72,
+      "season": 2011,
+      "att": 48,
+      "cre": 48,
+      "def": 46,
+      "phy": 51
+    },
+    {
+      "club": "Stoke City",
+      "teamId": 75,
+      "season": 2011,
+      "att": 44,
+      "cre": 42,
+      "def": 43,
+      "phy": 50
+    },
+    {
+      "club": "Swansea City",
+      "teamId": 76,
+      "season": 2011,
+      "att": 48,
+      "cre": 52,
+      "def": 49,
+      "phy": 49
+    },
+    {
+      "club": "Sunderland",
+      "teamId": 746,
+      "season": 2011,
+      "att": 48,
+      "cre": 43,
+      "def": 53,
+      "phy": 52
+    },
+    {
+      "club": "Manchester United",
+      "teamId": 33,
+      "season": 2012,
+      "att": 53,
+      "cre": 60,
+      "def": 54,
+      "phy": 52
+    },
+    {
+      "club": "Newcastle United",
+      "teamId": 34,
+      "season": 2012,
+      "att": 46,
+      "cre": 47,
+      "def": 42,
+      "phy": 51
+    },
+    { "club": "Fulham", "teamId": 36, "season": 2012, "att": 47, "cre": 49, "def": 48, "phy": 50 },
+    {
+      "club": "Liverpool",
+      "teamId": 40,
+      "season": 2012,
+      "att": 55,
+      "cre": 57,
+      "def": 52,
+      "phy": 49
+    },
+    {
+      "club": "Southampton",
+      "teamId": 41,
+      "season": 2012,
+      "att": 52,
+      "cre": 47,
+      "def": 47,
+      "phy": 51
+    },
+    { "club": "Arsenal", "teamId": 42, "season": 2012, "att": 51, "cre": 57, "def": 56, "phy": 55 },
+    { "club": "Everton", "teamId": 45, "season": 2012, "att": 54, "cre": 55, "def": 52, "phy": 52 },
+    {
+      "club": "Tottenham Hotspur",
+      "teamId": 47,
+      "season": 2012,
+      "att": 53,
+      "cre": 57,
+      "def": 51,
+      "phy": 51
+    },
+    {
+      "club": "West Ham United",
+      "teamId": 48,
+      "season": 2012,
+      "att": 51,
+      "cre": 49,
+      "def": 45,
+      "phy": 48
+    },
+    { "club": "Chelsea", "teamId": 49, "season": 2012, "att": 60, "cre": 56, "def": 52, "phy": 50 },
+    {
+      "club": "Manchester City",
+      "teamId": 50,
+      "season": 2012,
+      "att": 54,
+      "cre": 56,
+      "def": 54,
+      "phy": 48
+    },
+    { "club": "Reading", "teamId": 53, "season": 2012, "att": 45, "cre": 41, "def": 41, "phy": 48 },
+    {
+      "club": "West Bromwich Albion",
+      "teamId": 60,
+      "season": 2012,
+      "att": 51,
+      "cre": 52,
+      "def": 47,
+      "phy": 49
+    },
+    {
+      "club": "Wigan Athletic",
+      "teamId": 61,
+      "season": 2012,
+      "att": 52,
+      "cre": 51,
+      "def": 45,
+      "phy": 47
+    },
+    {
+      "club": "Aston Villa",
+      "teamId": 66,
+      "season": 2012,
+      "att": 47,
+      "cre": 49,
+      "def": 44,
+      "phy": 49
+    },
+    {
+      "club": "Norwich City",
+      "teamId": 71,
+      "season": 2012,
+      "att": 50,
+      "cre": 46,
+      "def": 47,
+      "phy": 48
+    },
+    {
+      "club": "Queens Park Rangers",
+      "teamId": 72,
+      "season": 2012,
+      "att": 44,
+      "cre": 44,
+      "def": 48,
+      "phy": 54
+    },
+    {
+      "club": "Stoke City",
+      "teamId": 75,
+      "season": 2012,
+      "att": 46,
+      "cre": 43,
+      "def": 49,
+      "phy": 52
+    },
+    {
+      "club": "Swansea City",
+      "teamId": 76,
+      "season": 2012,
+      "att": 49,
+      "cre": 52,
+      "def": 46,
+      "phy": 44
+    },
+    {
+      "club": "Sunderland",
+      "teamId": 746,
+      "season": 2012,
+      "att": 51,
+      "cre": 46,
+      "def": 48,
+      "phy": 50
+    },
+    {
+      "club": "Manchester United",
+      "teamId": 33,
+      "season": 2013,
+      "att": 48,
+      "cre": 52,
+      "def": 51,
+      "phy": 51
+    },
+    {
+      "club": "Newcastle United",
+      "teamId": 34,
+      "season": 2013,
+      "att": 49,
+      "cre": 50,
+      "def": 46,
+      "phy": 51
+    },
+    { "club": "Fulham", "teamId": 36, "season": 2013, "att": 49, "cre": 47, "def": 45, "phy": 49 },
+    {
+      "club": "Liverpool",
+      "teamId": 40,
+      "season": 2013,
+      "att": 55,
+      "cre": 57,
+      "def": 52,
+      "phy": 55
+    },
+    {
+      "club": "Southampton",
+      "teamId": 41,
+      "season": 2013,
+      "att": 48,
+      "cre": 52,
+      "def": 52,
+      "phy": 50
+    },
+    { "club": "Arsenal", "teamId": 42, "season": 2013, "att": 55, "cre": 55, "def": 52, "phy": 52 },
+    {
+      "club": "Cardiff City",
+      "teamId": 43,
+      "season": 2013,
+      "att": 46,
+      "cre": 45,
+      "def": 41,
+      "phy": 48
+    },
+    { "club": "Everton", "teamId": 45, "season": 2013, "att": 55, "cre": 56, "def": 52, "phy": 53 },
+    {
+      "club": "Tottenham Hotspur",
+      "teamId": 47,
+      "season": 2013,
+      "att": 50,
+      "cre": 53,
+      "def": 49,
+      "phy": 50
+    },
+    {
+      "club": "West Ham United",
+      "teamId": 48,
+      "season": 2013,
+      "att": 46,
+      "cre": 43,
+      "def": 50,
+      "phy": 50
+    },
+    { "club": "Chelsea", "teamId": 49, "season": 2013, "att": 57, "cre": 57, "def": 53, "phy": 53 },
+    {
+      "club": "Manchester City",
+      "teamId": 50,
+      "season": 2013,
+      "att": 59,
+      "cre": 62,
+      "def": 54,
+      "phy": 50
+    },
+    {
+      "club": "Crystal Palace",
+      "teamId": 52,
+      "season": 2013,
+      "att": 46,
+      "cre": 45,
+      "def": 51,
+      "phy": 51
+    },
+    {
+      "club": "West Bromwich Albion",
+      "teamId": 60,
+      "season": 2013,
+      "att": 51,
+      "cre": 48,
+      "def": 44,
+      "phy": 51
+    },
+    {
+      "club": "Hull City",
+      "teamId": 64,
+      "season": 2013,
+      "att": 50,
+      "cre": 46,
+      "def": 48,
+      "phy": 50
+    },
+    {
+      "club": "Aston Villa",
+      "teamId": 66,
+      "season": 2013,
+      "att": 48,
+      "cre": 46,
+      "def": 44,
+      "phy": 48
+    },
+    {
+      "club": "Norwich City",
+      "teamId": 71,
+      "season": 2013,
+      "att": 47,
+      "cre": 45,
+      "def": 41,
+      "phy": 46
+    },
+    {
+      "club": "Stoke City",
+      "teamId": 75,
+      "season": 2013,
+      "att": 51,
+      "cre": 49,
+      "def": 44,
+      "phy": 52
+    },
+    {
+      "club": "Swansea City",
+      "teamId": 76,
+      "season": 2013,
+      "att": 50,
+      "cre": 54,
+      "def": 46,
+      "phy": 45
+    },
+    {
+      "club": "Sunderland",
+      "teamId": 746,
+      "season": 2013,
+      "att": 51,
+      "cre": 47,
+      "def": 45,
+      "phy": 50
+    },
+    {
+      "club": "Manchester United",
+      "teamId": 33,
+      "season": 2014,
+      "att": 53,
+      "cre": 54,
+      "def": 53,
+      "phy": 50
+    },
+    {
+      "club": "Newcastle United",
+      "teamId": 34,
+      "season": 2014,
+      "att": 48,
+      "cre": 50,
+      "def": 45,
+      "phy": 51
+    },
+    {
+      "club": "Liverpool",
+      "teamId": 40,
+      "season": 2014,
+      "att": 52,
+      "cre": 50,
+      "def": 52,
+      "phy": 53
+    },
+    {
+      "club": "Southampton",
+      "teamId": 41,
+      "season": 2014,
+      "att": 53,
+      "cre": 52,
+      "def": 55,
+      "phy": 50
+    },
+    { "club": "Arsenal", "teamId": 42, "season": 2014, "att": 54, "cre": 56, "def": 54, "phy": 55 },
+    { "club": "Burnley", "teamId": 44, "season": 2014, "att": 45, "cre": 46, "def": 44, "phy": 49 },
+    { "club": "Everton", "teamId": 45, "season": 2014, "att": 52, "cre": 52, "def": 48, "phy": 48 },
+    {
+      "club": "Leicester City",
+      "teamId": 46,
+      "season": 2014,
+      "att": 51,
+      "cre": 47,
+      "def": 47,
+      "phy": 50
+    },
+    {
+      "club": "Tottenham Hotspur",
+      "teamId": 47,
+      "season": 2014,
+      "att": 49,
+      "cre": 54,
+      "def": 48,
+      "phy": 51
+    },
+    {
+      "club": "West Ham United",
+      "teamId": 48,
+      "season": 2014,
+      "att": 51,
+      "cre": 49,
+      "def": 48,
+      "phy": 50
+    },
+    { "club": "Chelsea", "teamId": 49, "season": 2014, "att": 57, "cre": 57, "def": 55, "phy": 53 },
+    {
+      "club": "Manchester City",
+      "teamId": 50,
+      "season": 2014,
+      "att": 58,
+      "cre": 64,
+      "def": 50,
+      "phy": 44
+    },
+    {
+      "club": "Crystal Palace",
+      "teamId": 52,
+      "season": 2014,
+      "att": 51,
+      "cre": 46,
+      "def": 48,
+      "phy": 52
+    },
+    {
+      "club": "West Bromwich Albion",
+      "teamId": 60,
+      "season": 2014,
+      "att": 47,
+      "cre": 48,
+      "def": 45,
+      "phy": 47
+    },
+    {
+      "club": "Hull City",
+      "teamId": 64,
+      "season": 2014,
+      "att": 47,
+      "cre": 47,
+      "def": 47,
+      "phy": 51
+    },
+    {
+      "club": "Aston Villa",
+      "teamId": 66,
+      "season": 2014,
+      "att": 44,
+      "cre": 47,
+      "def": 42,
+      "phy": 48
+    },
+    {
+      "club": "Queens Park Rangers",
+      "teamId": 72,
+      "season": 2014,
+      "att": 48,
+      "cre": 46,
+      "def": 41,
+      "phy": 49
+    },
+    {
+      "club": "Stoke City",
+      "teamId": 75,
+      "season": 2014,
+      "att": 48,
+      "cre": 50,
+      "def": 52,
+      "phy": 54
+    },
+    {
+      "club": "Swansea City",
+      "teamId": 76,
+      "season": 2014,
+      "att": 50,
+      "cre": 50,
+      "def": 48,
+      "phy": 47
+    },
+    {
+      "club": "Sunderland",
+      "teamId": 746,
+      "season": 2014,
+      "att": 50,
+      "cre": 45,
+      "def": 45,
+      "phy": 48
+    },
+    {
+      "club": "Manchester United",
+      "teamId": 33,
+      "season": 2015,
+      "att": 48,
+      "cre": 50,
+      "def": 51,
+      "phy": 47
+    },
+    {
+      "club": "Newcastle United",
+      "teamId": 34,
+      "season": 2015,
+      "att": 49,
+      "cre": 50,
+      "def": 45,
+      "phy": 48
+    },
+    {
+      "club": "AFC Bournemouth",
+      "teamId": 35,
+      "season": 2015,
+      "att": 52,
+      "cre": 51,
+      "def": 43,
+      "phy": 49
+    },
+    { "club": "Watford", "teamId": 38, "season": 2015, "att": 43, "cre": 42, "def": 51, "phy": 51 },
+    {
+      "club": "Liverpool",
+      "teamId": 40,
+      "season": 2015,
+      "att": 52,
+      "cre": 54,
+      "def": 50,
+      "phy": 52
+    },
+    {
+      "club": "Southampton",
+      "teamId": 41,
+      "season": 2015,
+      "att": 52,
+      "cre": 54,
+      "def": 52,
+      "phy": 49
+    },
+    { "club": "Arsenal", "teamId": 42, "season": 2015, "att": 52, "cre": 55, "def": 55, "phy": 54 },
+    { "club": "Everton", "teamId": 45, "season": 2015, "att": 50, "cre": 53, "def": 49, "phy": 52 },
+    {
+      "club": "Leicester City",
+      "teamId": 46,
+      "season": 2015,
+      "att": 52,
+      "cre": 51,
+      "def": 55,
+      "phy": 52
+    },
+    {
+      "club": "Tottenham Hotspur",
+      "teamId": 47,
+      "season": 2015,
+      "att": 57,
+      "cre": 57,
+      "def": 54,
+      "phy": 50
+    },
+    {
+      "club": "West Ham United",
+      "teamId": 48,
+      "season": 2015,
+      "att": 53,
+      "cre": 50,
+      "def": 49,
+      "phy": 54
+    },
+    { "club": "Chelsea", "teamId": 49, "season": 2015, "att": 54, "cre": 55, "def": 50, "phy": 55 },
+    {
+      "club": "Manchester City",
+      "teamId": 50,
+      "season": 2015,
+      "att": 53,
+      "cre": 58,
+      "def": 51,
+      "phy": 50
+    },
+    {
+      "club": "Crystal Palace",
+      "teamId": 52,
+      "season": 2015,
+      "att": 51,
+      "cre": 47,
+      "def": 47,
+      "phy": 49
+    },
+    {
+      "club": "West Bromwich Albion",
+      "teamId": 60,
+      "season": 2015,
+      "att": 48,
+      "cre": 46,
+      "def": 48,
+      "phy": 50
+    },
+    {
+      "club": "Aston Villa",
+      "teamId": 66,
+      "season": 2015,
+      "att": 44,
+      "cre": 45,
+      "def": 44,
+      "phy": 51
+    },
+    {
+      "club": "Norwich City",
+      "teamId": 71,
+      "season": 2015,
+      "att": 50,
+      "cre": 45,
+      "def": 40,
+      "phy": 42
+    },
+    {
+      "club": "Stoke City",
+      "teamId": 75,
+      "season": 2015,
+      "att": 47,
+      "cre": 49,
+      "def": 45,
+      "phy": 51
+    },
+    {
+      "club": "Swansea City",
+      "teamId": 76,
+      "season": 2015,
+      "att": 49,
+      "cre": 51,
+      "def": 46,
+      "phy": 46
+    },
+    {
+      "club": "Sunderland",
+      "teamId": 746,
+      "season": 2015,
+      "att": 46,
+      "cre": 46,
+      "def": 44,
+      "phy": 48
+    },
+    {
+      "club": "Manchester United",
+      "teamId": 33,
+      "season": 2016,
+      "att": 50,
+      "cre": 54,
+      "def": 55,
+      "phy": 52
+    },
+    {
+      "club": "AFC Bournemouth",
+      "teamId": 35,
+      "season": 2016,
+      "att": 52,
+      "cre": 54,
+      "def": 46,
+      "phy": 50
+    },
+    { "club": "Watford", "teamId": 38, "season": 2016, "att": 48, "cre": 47, "def": 44, "phy": 48 },
+    {
+      "club": "Liverpool",
+      "teamId": 40,
+      "season": 2016,
+      "att": 58,
+      "cre": 62,
+      "def": 50,
+      "phy": 51
+    },
+    {
+      "club": "Southampton",
+      "teamId": 41,
+      "season": 2016,
+      "att": 48,
+      "cre": 49,
+      "def": 50,
+      "phy": 48
+    },
+    { "club": "Arsenal", "teamId": 42, "season": 2016, "att": 50, "cre": 57, "def": 52, "phy": 53 },
+    { "club": "Burnley", "teamId": 44, "season": 2016, "att": 50, "cre": 46, "def": 47, "phy": 48 },
+    { "club": "Everton", "teamId": 45, "season": 2016, "att": 49, "cre": 55, "def": 51, "phy": 51 },
+    {
+      "club": "Leicester City",
+      "teamId": 46,
+      "season": 2016,
+      "att": 51,
+      "cre": 46,
+      "def": 45,
+      "phy": 45
+    },
+    {
+      "club": "Tottenham Hotspur",
+      "teamId": 47,
+      "season": 2016,
+      "att": 53,
+      "cre": 59,
+      "def": 55,
+      "phy": 52
+    },
+    {
+      "club": "West Ham United",
+      "teamId": 48,
+      "season": 2016,
+      "att": 48,
+      "cre": 47,
+      "def": 48,
+      "phy": 52
+    },
+    { "club": "Chelsea", "teamId": 49, "season": 2016, "att": 59, "cre": 58, "def": 57, "phy": 56 },
+    {
+      "club": "Manchester City",
+      "teamId": 50,
+      "season": 2016,
+      "att": 55,
+      "cre": 55,
+      "def": 53,
+      "phy": 53
+    },
+    {
+      "club": "Crystal Palace",
+      "teamId": 52,
+      "season": 2016,
+      "att": 50,
+      "cre": 49,
+      "def": 48,
+      "phy": 52
+    },
+    {
+      "club": "West Bromwich Albion",
+      "teamId": 60,
+      "season": 2016,
+      "att": 52,
+      "cre": 49,
+      "def": 43,
+      "phy": 45
+    },
+    {
+      "club": "Hull City",
+      "teamId": 64,
+      "season": 2016,
+      "att": 49,
+      "cre": 46,
+      "def": 41,
+      "phy": 46
+    },
+    {
+      "club": "Middlesbrough",
+      "teamId": 70,
+      "season": 2016,
+      "att": 42,
+      "cre": 45,
+      "def": 51,
+      "phy": 52
+    },
+    {
+      "club": "Stoke City",
+      "teamId": 75,
+      "season": 2016,
+      "att": 48,
+      "cre": 46,
+      "def": 47,
+      "phy": 53
+    },
+    {
+      "club": "Swansea City",
+      "teamId": 76,
+      "season": 2016,
+      "att": 47,
+      "cre": 45,
+      "def": 42,
+      "phy": 49
+    },
+    {
+      "club": "Sunderland",
+      "teamId": 746,
+      "season": 2016,
+      "att": 42,
+      "cre": 39,
+      "def": 43,
+      "phy": 49
+    },
+    {
+      "club": "Manchester United",
+      "teamId": 33,
+      "season": 2017,
+      "att": 55,
+      "cre": 57,
+      "def": 53,
+      "phy": 49
+    },
+    {
+      "club": "Newcastle United",
+      "teamId": 34,
+      "season": 2017,
+      "att": 51,
+      "cre": 49,
+      "def": 49,
+      "phy": 54
+    },
+    {
+      "club": "AFC Bournemouth",
+      "teamId": 35,
+      "season": 2017,
+      "att": 53,
+      "cre": 55,
+      "def": 41,
+      "phy": 47
+    },
+    {
+      "club": "Huddersfield Town",
+      "teamId": 37,
+      "season": 2017,
+      "att": 44,
+      "cre": 43,
+      "def": 47,
+      "phy": 49
+    },
+    { "club": "Watford", "teamId": 38, "season": 2017, "att": 50, "cre": 48, "def": 44, "phy": 52 },
+    {
+      "club": "Liverpool",
+      "teamId": 40,
+      "season": 2017,
+      "att": 53,
+      "cre": 59,
+      "def": 54,
+      "phy": 47
+    },
+    {
+      "club": "Southampton",
+      "teamId": 41,
+      "season": 2017,
+      "att": 49,
+      "cre": 47,
+      "def": 49,
+      "phy": 51
+    },
+    { "club": "Arsenal", "teamId": 42, "season": 2017, "att": 60, "cre": 62, "def": 49, "phy": 46 },
+    { "club": "Burnley", "teamId": 44, "season": 2017, "att": 46, "cre": 45, "def": 51, "phy": 53 },
+    { "club": "Everton", "teamId": 45, "season": 2017, "att": 46, "cre": 46, "def": 46, "phy": 51 },
+    {
+      "club": "Leicester City",
+      "teamId": 46,
+      "season": 2017,
+      "att": 48,
+      "cre": 50,
+      "def": 45,
+      "phy": 53
+    },
+    {
+      "club": "Tottenham Hotspur",
+      "teamId": 47,
+      "season": 2017,
+      "att": 49,
+      "cre": 56,
+      "def": 52,
+      "phy": 48
+    },
+    {
+      "club": "West Ham United",
+      "teamId": 48,
+      "season": 2017,
+      "att": 48,
+      "cre": 46,
+      "def": 45,
+      "phy": 52
+    },
+    { "club": "Chelsea", "teamId": 49, "season": 2017, "att": 57, "cre": 56, "def": 54, "phy": 49 },
+    {
+      "club": "Manchester City",
+      "teamId": 50,
+      "season": 2017,
+      "att": 61,
+      "cre": 63,
+      "def": 53,
+      "phy": 46
+    },
+    {
+      "club": "Brighton & Hove Albion",
+      "teamId": 51,
+      "season": 2017,
+      "att": 45,
+      "cre": 45,
+      "def": 47,
+      "phy": 49
+    },
+    {
+      "club": "Crystal Palace",
+      "teamId": 52,
+      "season": 2017,
+      "att": 51,
+      "cre": 48,
+      "def": 49,
+      "phy": 49
+    },
+    {
+      "club": "West Bromwich Albion",
+      "teamId": 60,
+      "season": 2017,
+      "att": 48,
+      "cre": 47,
+      "def": 45,
+      "phy": 52
+    },
+    {
+      "club": "Stoke City",
+      "teamId": 75,
+      "season": 2017,
+      "att": 47,
+      "cre": 46,
+      "def": 45,
+      "phy": 52
+    },
+    {
+      "club": "Swansea City",
+      "teamId": 76,
+      "season": 2017,
+      "att": 47,
+      "cre": 46,
+      "def": 47,
+      "phy": 50
+    },
+    {
+      "club": "Manchester United",
+      "teamId": 33,
+      "season": 2018,
+      "att": 53,
+      "cre": 53,
+      "def": 47,
+      "phy": 50
+    },
+    {
+      "club": "Newcastle United",
+      "teamId": 34,
+      "season": 2018,
+      "att": 46,
+      "cre": 46,
+      "def": 53,
+      "phy": 52
+    },
+    {
+      "club": "AFC Bournemouth",
+      "teamId": 35,
+      "season": 2018,
+      "att": 50,
+      "cre": 49,
+      "def": 45,
+      "phy": 51
+    },
+    { "club": "Fulham", "teamId": 36, "season": 2018, "att": 44, "cre": 47, "def": 41, "phy": 49 },
+    {
+      "club": "Huddersfield Town",
+      "teamId": 37,
+      "season": 2018,
+      "att": 44,
+      "cre": 42,
+      "def": 44,
+      "phy": 50
+    },
+    { "club": "Watford", "teamId": 38, "season": 2018, "att": 51, "cre": 51, "def": 45, "phy": 49 },
+    {
+      "club": "Wolverhampton Wanderers",
+      "teamId": 39,
+      "season": 2018,
+      "att": 54,
+      "cre": 51,
+      "def": 52,
+      "phy": 52
+    },
+    {
+      "club": "Liverpool",
+      "teamId": 40,
+      "season": 2018,
+      "att": 54,
+      "cre": 57,
+      "def": 53,
+      "phy": 45
+    },
+    {
+      "club": "Southampton",
+      "teamId": 41,
+      "season": 2018,
+      "att": 50,
+      "cre": 46,
+      "def": 46,
+      "phy": 53
+    },
+    { "club": "Arsenal", "teamId": 42, "season": 2018, "att": 52, "cre": 56, "def": 48, "phy": 47 },
+    {
+      "club": "Cardiff City",
+      "teamId": 43,
+      "season": 2018,
+      "att": 48,
+      "cre": 42,
+      "def": 46,
+      "phy": 51
+    },
+    { "club": "Burnley", "teamId": 44, "season": 2018, "att": 47, "cre": 46, "def": 44, "phy": 53 },
+    { "club": "Everton", "teamId": 45, "season": 2018, "att": 52, "cre": 51, "def": 52, "phy": 53 },
+    {
+      "club": "Leicester City",
+      "teamId": 46,
+      "season": 2018,
+      "att": 52,
+      "cre": 49,
+      "def": 51,
+      "phy": 52
+    },
+    {
+      "club": "Tottenham Hotspur",
+      "teamId": 47,
+      "season": 2018,
+      "att": 50,
+      "cre": 53,
+      "def": 53,
+      "phy": 49
+    },
+    {
+      "club": "West Ham United",
+      "teamId": 48,
+      "season": 2018,
+      "att": 49,
+      "cre": 49,
+      "def": 47,
+      "phy": 49
+    },
+    { "club": "Chelsea", "teamId": 49, "season": 2018, "att": 56, "cre": 58, "def": 53, "phy": 46 },
+    {
+      "club": "Manchester City",
+      "teamId": 50,
+      "season": 2018,
+      "att": 59,
+      "cre": 64,
+      "def": 53,
+      "phy": 47
+    },
+    {
+      "club": "Brighton & Hove Albion",
+      "teamId": 51,
+      "season": 2018,
+      "att": 44,
+      "cre": 44,
+      "def": 44,
+      "phy": 49
+    },
+    {
+      "club": "Crystal Palace",
+      "teamId": 52,
+      "season": 2018,
+      "att": 51,
+      "cre": 52,
+      "def": 50,
+      "phy": 50
+    },
+    {
+      "club": "Manchester United",
+      "teamId": 33,
+      "season": 2019,
+      "att": 51,
+      "cre": 54,
+      "def": 50,
+      "phy": 46
+    },
+    {
+      "club": "Newcastle United",
+      "teamId": 34,
+      "season": 2019,
+      "att": 48,
+      "cre": 45,
+      "def": 50,
+      "phy": 51
+    },
+    {
+      "club": "AFC Bournemouth",
+      "teamId": 35,
+      "season": 2019,
+      "att": 47,
+      "cre": 45,
+      "def": 43,
+      "phy": 53
+    },
+    { "club": "Watford", "teamId": 38, "season": 2019, "att": 47, "cre": 45, "def": 44, "phy": 51 },
+    {
+      "club": "Wolverhampton Wanderers",
+      "teamId": 39,
+      "season": 2019,
+      "att": 52,
+      "cre": 51,
+      "def": 55,
+      "phy": 53
+    },
+    {
+      "club": "Liverpool",
+      "teamId": 40,
+      "season": 2019,
+      "att": 58,
+      "cre": 58,
+      "def": 53,
+      "phy": 48
+    },
+    {
+      "club": "Southampton",
+      "teamId": 41,
+      "season": 2019,
+      "att": 51,
+      "cre": 49,
+      "def": 47,
+      "phy": 53
+    },
+    { "club": "Arsenal", "teamId": 42, "season": 2019, "att": 48, "cre": 52, "def": 47, "phy": 46 },
+    { "club": "Burnley", "teamId": 44, "season": 2019, "att": 46, "cre": 45, "def": 52, "phy": 57 },
+    { "club": "Everton", "teamId": 45, "season": 2019, "att": 47, "cre": 49, "def": 49, "phy": 53 },
+    {
+      "club": "Leicester City",
+      "teamId": 46,
+      "season": 2019,
+      "att": 54,
+      "cre": 57,
+      "def": 52,
+      "phy": 50
+    },
+    {
+      "club": "Tottenham Hotspur",
+      "teamId": 47,
+      "season": 2019,
+      "att": 48,
+      "cre": 52,
+      "def": 50,
+      "phy": 49
+    },
+    {
+      "club": "West Ham United",
+      "teamId": 48,
+      "season": 2019,
+      "att": 52,
+      "cre": 50,
+      "def": 46,
+      "phy": 50
+    },
+    { "club": "Chelsea", "teamId": 49, "season": 2019, "att": 55, "cre": 56, "def": 47, "phy": 50 },
+    {
+      "club": "Manchester City",
+      "teamId": 50,
+      "season": 2019,
+      "att": 58,
+      "cre": 61,
+      "def": 51,
+      "phy": 46
+    },
+    {
+      "club": "Brighton & Hove Albion",
+      "teamId": 51,
+      "season": 2019,
+      "att": 49,
+      "cre": 49,
+      "def": 46,
+      "phy": 47
+    },
+    {
+      "club": "Crystal Palace",
+      "teamId": 52,
+      "season": 2019,
+      "att": 45,
+      "cre": 45,
+      "def": 51,
+      "phy": 53
+    },
+    {
+      "club": "Sheffield United",
+      "teamId": 62,
+      "season": 2019,
+      "att": 50,
+      "cre": 48,
+      "def": 55,
+      "phy": 53
+    },
+    {
+      "club": "Aston Villa",
+      "teamId": 66,
+      "season": 2019,
+      "att": 50,
+      "cre": 49,
+      "def": 44,
+      "phy": 53
+    },
+    {
+      "club": "Norwich City",
+      "teamId": 71,
+      "season": 2019,
+      "att": 44,
+      "cre": 45,
+      "def": 44,
+      "phy": 47
+    },
+    {
+      "club": "Manchester United",
+      "teamId": 33,
+      "season": 2020,
+      "att": 55,
+      "cre": 56,
+      "def": 49,
+      "phy": 48
+    },
+    {
+      "club": "Newcastle United",
+      "teamId": 34,
+      "season": 2020,
+      "att": 48,
+      "cre": 45,
+      "def": 44,
+      "phy": 51
+    },
+    { "club": "Fulham", "teamId": 36, "season": 2020, "att": 47, "cre": 47, "def": 48, "phy": 52 },
+    {
+      "club": "Wolverhampton Wanderers",
+      "teamId": 39,
+      "season": 2020,
+      "att": 50,
+      "cre": 48,
+      "def": 48,
+      "phy": 49
+    },
+    {
+      "club": "Liverpool",
+      "teamId": 40,
+      "season": 2020,
+      "att": 51,
+      "cre": 54,
+      "def": 50,
+      "phy": 47
+    },
+    {
+      "club": "Southampton",
+      "teamId": 41,
+      "season": 2020,
+      "att": 51,
+      "cre": 49,
+      "def": 45,
+      "phy": 47
+    },
+    { "club": "Arsenal", "teamId": 42, "season": 2020, "att": 50, "cre": 53, "def": 52, "phy": 47 },
+    { "club": "Burnley", "teamId": 44, "season": 2020, "att": 48, "cre": 44, "def": 48, "phy": 56 },
+    { "club": "Everton", "teamId": 45, "season": 2020, "att": 48, "cre": 52, "def": 51, "phy": 49 },
+    {
+      "club": "Leicester City",
+      "teamId": 46,
+      "season": 2020,
+      "att": 52,
+      "cre": 55,
+      "def": 49,
+      "phy": 50
+    },
+    {
+      "club": "Tottenham Hotspur",
+      "teamId": 47,
+      "season": 2020,
+      "att": 46,
+      "cre": 52,
+      "def": 52,
+      "phy": 52
+    },
+    {
+      "club": "West Ham United",
+      "teamId": 48,
+      "season": 2020,
+      "att": 55,
+      "cre": 52,
+      "def": 49,
+      "phy": 51
+    },
+    { "club": "Chelsea", "teamId": 49, "season": 2020, "att": 57, "cre": 56, "def": 54, "phy": 51 },
+    {
+      "club": "Manchester City",
+      "teamId": 50,
+      "season": 2020,
+      "att": 61,
+      "cre": 61,
+      "def": 53,
+      "phy": 47
+    },
+    {
+      "club": "Brighton & Hove Albion",
+      "teamId": 51,
+      "season": 2020,
+      "att": 52,
+      "cre": 49,
+      "def": 48,
+      "phy": 47
+    },
+    {
+      "club": "Crystal Palace",
+      "teamId": 52,
+      "season": 2020,
+      "att": 46,
+      "cre": 48,
+      "def": 44,
+      "phy": 48
+    },
+    {
+      "club": "West Bromwich Albion",
+      "teamId": 60,
+      "season": 2020,
+      "att": 46,
+      "cre": 42,
+      "def": 43,
+      "phy": 52
+    },
+    {
+      "club": "Sheffield United",
+      "teamId": 62,
+      "season": 2020,
+      "att": 41,
+      "cre": 43,
+      "def": 42,
+      "phy": 50
+    },
+    {
+      "club": "Leeds United",
+      "teamId": 63,
+      "season": 2020,
+      "att": 56,
+      "cre": 54,
+      "def": 47,
+      "phy": 48
+    },
+    {
+      "club": "Aston Villa",
+      "teamId": 66,
+      "season": 2020,
+      "att": 53,
+      "cre": 53,
+      "def": 50,
+      "phy": 55
+    },
+    {
+      "club": "Manchester United",
+      "teamId": 33,
+      "season": 2021,
+      "att": 50,
+      "cre": 54,
+      "def": 47,
+      "phy": 50
+    },
+    {
+      "club": "Newcastle United",
+      "teamId": 34,
+      "season": 2021,
+      "att": 50,
+      "cre": 43,
+      "def": 48,
+      "phy": 51
+    },
+    { "club": "Watford", "teamId": 38, "season": 2021, "att": 43, "cre": 43, "def": 46, "phy": 53 },
+    {
+      "club": "Wolverhampton Wanderers",
+      "teamId": 39,
+      "season": 2021,
+      "att": 50,
+      "cre": 45,
+      "def": 50,
+      "phy": 45
+    },
+    {
+      "club": "Liverpool",
+      "teamId": 40,
+      "season": 2021,
+      "att": 58,
+      "cre": 60,
+      "def": 53,
+      "phy": 48
+    },
+    {
+      "club": "Southampton",
+      "teamId": 41,
+      "season": 2021,
+      "att": 51,
+      "cre": 46,
+      "def": 41,
+      "phy": 52
+    },
+    { "club": "Arsenal", "teamId": 42, "season": 2021, "att": 54, "cre": 54, "def": 49, "phy": 49 },
+    { "club": "Burnley", "teamId": 44, "season": 2021, "att": 47, "cre": 41, "def": 49, "phy": 57 },
+    { "club": "Everton", "teamId": 45, "season": 2021, "att": 49, "cre": 48, "def": 47, "phy": 50 },
+    {
+      "club": "Leicester City",
+      "teamId": 46,
+      "season": 2021,
+      "att": 48,
+      "cre": 49,
+      "def": 46,
+      "phy": 49
+    },
+    {
+      "club": "Tottenham Hotspur",
+      "teamId": 47,
+      "season": 2021,
+      "att": 49,
+      "cre": 53,
+      "def": 54,
+      "phy": 52
+    },
+    {
+      "club": "West Ham United",
+      "teamId": 48,
+      "season": 2021,
+      "att": 53,
+      "cre": 53,
+      "def": 49,
+      "phy": 51
+    },
+    { "club": "Chelsea", "teamId": 49, "season": 2021, "att": 59, "cre": 57, "def": 53, "phy": 50 },
+    {
+      "club": "Manchester City",
+      "teamId": 50,
+      "season": 2021,
+      "att": 63,
+      "cre": 64,
+      "def": 51,
+      "phy": 47
+    },
+    {
+      "club": "Brighton & Hove Albion",
+      "teamId": 51,
+      "season": 2021,
+      "att": 49,
+      "cre": 51,
+      "def": 51,
+      "phy": 50
+    },
+    {
+      "club": "Crystal Palace",
+      "teamId": 52,
+      "season": 2021,
+      "att": 48,
+      "cre": 50,
+      "def": 51,
+      "phy": 53
+    },
+    {
+      "club": "Brentford",
+      "teamId": 55,
+      "season": 2021,
+      "att": 52,
+      "cre": 47,
+      "def": 48,
+      "phy": 51
+    },
+    {
+      "club": "Leeds United",
+      "teamId": 63,
+      "season": 2021,
+      "att": 48,
+      "cre": 47,
+      "def": 42,
+      "phy": 46
+    },
+    {
+      "club": "Aston Villa",
+      "teamId": 66,
+      "season": 2021,
+      "att": 51,
+      "cre": 53,
+      "def": 51,
+      "phy": 52
+    },
+    {
+      "club": "Norwich City",
+      "teamId": 71,
+      "season": 2021,
+      "att": 41,
+      "cre": 42,
+      "def": 42,
+      "phy": 47
+    },
+    {
+      "club": "Manchester United",
+      "teamId": 33,
+      "season": 2022,
+      "att": 52,
+      "cre": 54,
+      "def": 53,
+      "phy": 48
+    },
+    {
+      "club": "Newcastle United",
+      "teamId": 34,
+      "season": 2022,
+      "att": 57,
+      "cre": 54,
+      "def": 49,
+      "phy": 49
+    },
+    {
+      "club": "AFC Bournemouth",
+      "teamId": 35,
+      "season": 2022,
+      "att": 46,
+      "cre": 46,
+      "def": 46,
+      "phy": 50
+    },
+    { "club": "Fulham", "teamId": 36, "season": 2022, "att": 52, "cre": 49, "def": 47, "phy": 49 },
+    {
+      "club": "Wolverhampton Wanderers",
+      "teamId": 39,
+      "season": 2022,
+      "att": 46,
+      "cre": 45,
+      "def": 45,
+      "phy": 48
+    },
+    {
+      "club": "Liverpool",
+      "teamId": 40,
+      "season": 2022,
+      "att": 51,
+      "cre": 56,
+      "def": 49,
+      "phy": 48
+    },
+    {
+      "club": "Southampton",
+      "teamId": 41,
+      "season": 2022,
+      "att": 47,
+      "cre": 46,
+      "def": 46,
+      "phy": 50
+    },
+    { "club": "Arsenal", "teamId": 42, "season": 2022, "att": 58, "cre": 58, "def": 53, "phy": 50 },
+    { "club": "Everton", "teamId": 45, "season": 2022, "att": 49, "cre": 46, "def": 48, "phy": 50 },
+    {
+      "club": "Leicester City",
+      "teamId": 46,
+      "season": 2022,
+      "att": 48,
+      "cre": 48,
+      "def": 46,
+      "phy": 52
+    },
+    {
+      "club": "Tottenham Hotspur",
+      "teamId": 47,
+      "season": 2022,
+      "att": 52,
+      "cre": 54,
+      "def": 46,
+      "phy": 50
+    },
+    {
+      "club": "West Ham United",
+      "teamId": 48,
+      "season": 2022,
+      "att": 51,
+      "cre": 47,
+      "def": 48,
+      "phy": 56
+    },
+    { "club": "Chelsea", "teamId": 49, "season": 2022, "att": 47, "cre": 51, "def": 52, "phy": 49 },
+    {
+      "club": "Manchester City",
+      "teamId": 50,
+      "season": 2022,
+      "att": 56,
+      "cre": 60,
+      "def": 53,
+      "phy": 49
+    },
+    {
+      "club": "Brighton & Hove Albion",
+      "teamId": 51,
+      "season": 2022,
+      "att": 56,
+      "cre": 58,
+      "def": 47,
+      "phy": 49
+    },
+    {
+      "club": "Crystal Palace",
+      "teamId": 52,
+      "season": 2022,
+      "att": 50,
+      "cre": 49,
+      "def": 51,
+      "phy": 49
+    },
+    {
+      "club": "Brentford",
+      "teamId": 55,
+      "season": 2022,
+      "att": 50,
+      "cre": 49,
+      "def": 52,
+      "phy": 52
+    },
+    {
+      "club": "Leeds United",
+      "teamId": 63,
+      "season": 2022,
+      "att": 50,
+      "cre": 48,
+      "def": 41,
+      "phy": 50
+    },
+    {
+      "club": "Nottingham Forest",
+      "teamId": 65,
+      "season": 2022,
+      "att": 44,
+      "cre": 41,
+      "def": 46,
+      "phy": 52
+    },
+    {
+      "club": "Aston Villa",
+      "teamId": 66,
+      "season": 2022,
+      "att": 47,
+      "cre": 50,
+      "def": 51,
+      "phy": 51
+    },
+    {
+      "club": "Manchester United",
+      "teamId": 33,
+      "season": 2023,
+      "att": 49,
+      "cre": 51,
+      "def": 51,
+      "phy": 49
+    },
+    {
+      "club": "Newcastle United",
+      "teamId": 34,
+      "season": 2023,
+      "att": 54,
+      "cre": 53,
+      "def": 48,
+      "phy": 47
+    },
+    {
+      "club": "AFC Bournemouth",
+      "teamId": 35,
+      "season": 2023,
+      "att": 47,
+      "cre": 51,
+      "def": 47,
+      "phy": 52
+    },
+    { "club": "Fulham", "teamId": 36, "season": 2023, "att": 52, "cre": 49, "def": 49, "phy": 50 },
+    {
+      "club": "Wolverhampton Wanderers",
+      "teamId": 39,
+      "season": 2023,
+      "att": 49,
+      "cre": 49,
+      "def": 45,
+      "phy": 46
+    },
+    {
+      "club": "Liverpool",
+      "teamId": 40,
+      "season": 2023,
+      "att": 56,
+      "cre": 57,
+      "def": 51,
+      "phy": 50
+    },
+    { "club": "Arsenal", "teamId": 42, "season": 2023, "att": 59, "cre": 59, "def": 53, "phy": 51 },
+    { "club": "Burnley", "teamId": 44, "season": 2023, "att": 47, "cre": 48, "def": 44, "phy": 51 },
+    { "club": "Everton", "teamId": 45, "season": 2023, "att": 52, "cre": 44, "def": 52, "phy": 50 },
+    {
+      "club": "Tottenham Hotspur",
+      "teamId": 47,
+      "season": 2023,
+      "att": 54,
+      "cre": 53,
+      "def": 49,
+      "phy": 45
+    },
+    {
+      "club": "West Ham United",
+      "teamId": 48,
+      "season": 2023,
+      "att": 51,
+      "cre": 49,
+      "def": 47,
+      "phy": 54
+    },
+    { "club": "Chelsea", "teamId": 49, "season": 2023, "att": 52, "cre": 55, "def": 48, "phy": 50 },
+    {
+      "club": "Manchester City",
+      "teamId": 50,
+      "season": 2023,
+      "att": 60,
+      "cre": 62,
+      "def": 51,
+      "phy": 43
+    },
+    {
+      "club": "Brighton & Hove Albion",
+      "teamId": 51,
+      "season": 2023,
+      "att": 49,
+      "cre": 50,
+      "def": 45,
+      "phy": 48
+    },
+    {
+      "club": "Crystal Palace",
+      "teamId": 52,
+      "season": 2023,
+      "att": 46,
+      "cre": 51,
+      "def": 54,
+      "phy": 53
+    },
+    {
+      "club": "Brentford",
+      "teamId": 55,
+      "season": 2023,
+      "att": 51,
+      "cre": 48,
+      "def": 48,
+      "phy": 54
+    },
+    {
+      "club": "Sheffield United",
+      "teamId": 62,
+      "season": 2023,
+      "att": 45,
+      "cre": 42,
+      "def": 43,
+      "phy": 50
+    },
+    {
+      "club": "Nottingham Forest",
+      "teamId": 65,
+      "season": 2023,
+      "att": 48,
+      "cre": 48,
+      "def": 48,
+      "phy": 53
+    },
+    {
+      "club": "Aston Villa",
+      "teamId": 66,
+      "season": 2023,
+      "att": 53,
+      "cre": 52,
+      "def": 46,
+      "phy": 46
+    },
+    {
+      "club": "Luton Town",
+      "teamId": 1359,
+      "season": 2023,
+      "att": 46,
+      "cre": 44,
+      "def": 45,
+      "phy": 55
+    },
+    {
+      "club": "Manchester United",
+      "teamId": 33,
+      "season": 2024,
+      "att": 50,
+      "cre": 48,
+      "def": 48,
+      "phy": 51
+    },
+    {
+      "club": "Newcastle United",
+      "teamId": 34,
+      "season": 2024,
+      "att": 53,
+      "cre": 56,
+      "def": 48,
+      "phy": 47
+    },
+    {
+      "club": "AFC Bournemouth",
+      "teamId": 35,
+      "season": 2024,
+      "att": 51,
+      "cre": 53,
+      "def": 51,
+      "phy": 53
+    },
+    { "club": "Fulham", "teamId": 36, "season": 2024, "att": 48, "cre": 52, "def": 49, "phy": 51 },
+    {
+      "club": "Wolverhampton Wanderers",
+      "teamId": 39,
+      "season": 2024,
+      "att": 49,
+      "cre": 50,
+      "def": 46,
+      "phy": 50
+    },
+    {
+      "club": "Liverpool",
+      "teamId": 40,
+      "season": 2024,
+      "att": 57,
+      "cre": 61,
+      "def": 52,
+      "phy": 46
+    },
+    {
+      "club": "Southampton",
+      "teamId": 41,
+      "season": 2024,
+      "att": 45,
+      "cre": 44,
+      "def": 43,
+      "phy": 48
+    },
+    { "club": "Arsenal", "teamId": 42, "season": 2024, "att": 57, "cre": 56, "def": 53, "phy": 50 },
+    { "club": "Everton", "teamId": 45, "season": 2024, "att": 48, "cre": 45, "def": 52, "phy": 50 },
+    {
+      "club": "Leicester City",
+      "teamId": 46,
+      "season": 2024,
+      "att": 44,
+      "cre": 45,
+      "def": 44,
+      "phy": 52
+    },
+    {
+      "club": "Tottenham Hotspur",
+      "teamId": 47,
+      "season": 2024,
+      "att": 51,
+      "cre": 50,
+      "def": 43,
+      "phy": 47
+    },
+    {
+      "club": "West Ham United",
+      "teamId": 48,
+      "season": 2024,
+      "att": 46,
+      "cre": 47,
+      "def": 46,
+      "phy": 52
+    },
+    { "club": "Chelsea", "teamId": 49, "season": 2024, "att": 54, "cre": 55, "def": 52, "phy": 49 },
+    {
+      "club": "Manchester City",
+      "teamId": 50,
+      "season": 2024,
+      "att": 54,
+      "cre": 55,
+      "def": 49,
+      "phy": 44
+    },
+    {
+      "club": "Brighton & Hove Albion",
+      "teamId": 51,
+      "season": 2024,
+      "att": 54,
+      "cre": 52,
+      "def": 48,
+      "phy": 52
+    },
+    {
+      "club": "Crystal Palace",
+      "teamId": 52,
+      "season": 2024,
+      "att": 50,
+      "cre": 49,
+      "def": 51,
+      "phy": 54
+    },
+    {
+      "club": "Brentford",
+      "teamId": 55,
+      "season": 2024,
+      "att": 49,
+      "cre": 50,
+      "def": 49,
+      "phy": 53
+    },
+    {
+      "club": "Ipswich Town",
+      "teamId": 57,
+      "season": 2024,
+      "att": 44,
+      "cre": 44,
+      "def": 44,
+      "phy": 51
+    },
+    {
+      "club": "Nottingham Forest",
+      "teamId": 65,
+      "season": 2024,
+      "att": 53,
+      "cre": 51,
+      "def": 54,
+      "phy": 53
+    },
+    {
+      "club": "Aston Villa",
+      "teamId": 66,
+      "season": 2024,
+      "att": 50,
+      "cre": 48,
+      "def": 50,
+      "phy": 49
+    },
+    {
+      "club": "Manchester United",
+      "teamId": 33,
+      "season": 2025,
+      "att": 53,
+      "cre": 52,
+      "def": 51,
+      "phy": 53
+    },
+    {
+      "club": "Newcastle United",
+      "teamId": 34,
+      "season": 2025,
+      "att": 52,
+      "cre": 53,
+      "def": 47,
+      "phy": 51
+    },
+    {
+      "club": "AFC Bournemouth",
+      "teamId": 35,
+      "season": 2025,
+      "att": 52,
+      "cre": 51,
+      "def": 46,
+      "phy": 47
+    },
+    { "club": "Fulham", "teamId": 36, "season": 2025, "att": 48, "cre": 48, "def": 49, "phy": 48 },
+    {
+      "club": "Wolverhampton Wanderers",
+      "teamId": 39,
+      "season": 2025,
+      "att": 46,
+      "cre": 43,
+      "def": 42,
+      "phy": 49
+    },
+    {
+      "club": "Liverpool",
+      "teamId": 40,
+      "season": 2025,
+      "att": 57,
+      "cre": 58,
+      "def": 46,
+      "phy": 47
+    },
+    { "club": "Arsenal", "teamId": 42, "season": 2025, "att": 57, "cre": 57, "def": 55, "phy": 52 },
+    { "club": "Burnley", "teamId": 44, "season": 2025, "att": 42, "cre": 45, "def": 40, "phy": 44 },
+    { "club": "Everton", "teamId": 45, "season": 2025, "att": 51, "cre": 51, "def": 52, "phy": 57 },
+    {
+      "club": "Tottenham Hotspur",
+      "teamId": 47,
+      "season": 2025,
+      "att": 50,
+      "cre": 50,
+      "def": 46,
+      "phy": 50
+    },
+    {
+      "club": "West Ham United",
+      "teamId": 48,
+      "season": 2025,
+      "att": 47,
+      "cre": 46,
+      "def": 46,
+      "phy": 51
+    },
+    { "club": "Chelsea", "teamId": 49, "season": 2025, "att": 52, "cre": 53, "def": 48, "phy": 51 },
+    {
+      "club": "Manchester City",
+      "teamId": 50,
+      "season": 2025,
+      "att": 55,
+      "cre": 60,
+      "def": 55,
+      "phy": 52
+    },
+    {
+      "club": "Brighton & Hove Albion",
+      "teamId": 51,
+      "season": 2025,
+      "att": 54,
+      "cre": 52,
+      "def": 50,
+      "phy": 48
+    },
+    {
+      "club": "Crystal Palace",
+      "teamId": 52,
+      "season": 2025,
+      "att": 51,
+      "cre": 47,
+      "def": 48,
+      "phy": 50
+    },
+    {
+      "club": "Brentford",
+      "teamId": 55,
+      "season": 2025,
+      "att": 49,
+      "cre": 51,
+      "def": 46,
+      "phy": 47
+    },
+    {
+      "club": "Leeds United",
+      "teamId": 63,
+      "season": 2025,
+      "att": 50,
+      "cre": 48,
+      "def": 45,
+      "phy": 52
+    },
+    {
+      "club": "Nottingham Forest",
+      "teamId": 65,
+      "season": 2025,
+      "att": 50,
+      "cre": 50,
+      "def": 48,
+      "phy": 48
+    },
+    {
+      "club": "Aston Villa",
+      "teamId": 66,
+      "season": 2025,
+      "att": 48,
+      "cre": 53,
+      "def": 51,
+      "phy": 51
+    },
+    {
+      "club": "Sunderland",
+      "teamId": 746,
+      "season": 2025,
+      "att": 48,
+      "cre": 46,
+      "def": 51,
+      "phy": 49
+    }
+  ]
+}

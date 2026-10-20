@@ -7,6 +7,7 @@ import { makeCardId } from "@/features/game/domain/card-id";
 import type { PoolCard } from "@/features/game/domain/chaos-draft";
 import { dayFormation, dayKey, dayNumber } from "@/features/game/domain/daily";
 import { saveDaily } from "@/features/game/storage/daily-slot";
+import { claimLog, loadAlbum } from "@/features/game/storage/trophy-slot";
 import { renderWithIntl } from "./_helpers/intl";
 
 vi.mock("@/utils/motion", () => ({ prefersReducedMotion: () => true }));
@@ -176,6 +177,9 @@ describe("DailyChallenge", () => {
     }
     const result = await screen.findByTestId("daily-result");
     expect(result.querySelector('[data-testid="post-match-report"]')).not.toBeNull();
+    // TASK-1819 — the day's XI goes into the album, recorded under the day it began.
+    await waitFor(async () => expect(await loadAlbum()).toHaveLength(11), { timeout: 5000 });
+    expect(await claimLog(`d:${today()}`)).toBe(false); // already claimed by full time
   }, 30_000);
 
   it("⚠️ an EARLIER day's finished record does not spend today", async () => {

@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Trophy Room Gallery</title>
+<!--
+  TASK-1813 / 1819 / 1825 — 30-concept gallery. Standalone: open index.html directly.
+  Built from template.html by build.py, which embeds REAL data from extract.ts: club-season
+  squads exactly as the Classic pool rates them (= an album set), set-size measurements over
+  all 686 club-seasons, squad rating means (for the scouting tendency) and the real crests.
+  Three surfaces — ALBUM, HALL OF FAME, STYLE (scouting + pick on pre-match) — 10 concepts
+  each, every concept in a DESKTOP (720px) and a MOBILE (375px) frame. Everything is
+  playable: collect a missing sticker, open a badge, pick a style and kick off.
+-->
+<style>
+:root{--ui:#0f0d17;--ui-fg:#ece9f5;--ui-mut:#8f8aa3;--ui-line:#2a2638}
+body[data-era=modern][data-theme=light]{--bg:#fafafa;--fg:#0c0a14;--card:#fff;--mut:#52525b;--line:#e4e2ea;--pri:#a3179a;--acc:#2dd4bf;--paper:#f6f2ea;--gold:#c9971c}
+body[data-era=modern][data-theme=dark]{--bg:#0c0a14;--fg:#fafafa;--card:#1a1726;--mut:#a1a1aa;--line:#2f2a40;--pri:#c91dbb;--acc:#2dd4bf;--paper:#1f1b2b;--gold:#f2c14e}
+body[data-era=retro90s][data-theme=light]{--bg:#e9e0cb;--fg:#241f16;--card:#e3d8bc;--mut:#5c503a;--line:#cbbd99;--pri:#8f2b25;--acc:#2d6a5a;--paper:#efe5cc;--gold:#a87a12}
+body[data-era=retro90s][data-theme=dark]{--bg:#211c15;--fg:#ece0c4;--card:#2a2418;--mut:#b3a585;--line:#3d3424;--pri:#d2554c;--acc:#5fc4a8;--paper:#2e2719;--gold:#e0b04a}
+body[data-era=golden][data-theme=light]{--bg:#e9f0f7;--fg:#14243a;--card:#fff;--mut:#4a5d75;--line:#cfdbe8;--pri:#11647c;--acc:#b5462e;--paper:#f4f8fc;--gold:#b8860b}
+body[data-era=golden][data-theme=dark]{--bg:#081322;--fg:#eaf2fb;--card:#0e1a2c;--mut:#93a8c2;--line:#1d3350;--pri:#2fd4ec;--acc:#ff8a5c;--paper:#102236;--gold:#f5c542}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--ui);color:var(--ui-fg);font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+.bar{position:sticky;top:0;z-index:10;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;padding:10px 16px;background:#14111ef2;border-bottom:1px solid var(--ui-line)}
+.bar h1{font-size:15px;margin:0 6px 0 0}
+.seg{display:flex;border:1px solid var(--ui-line);border-radius:8px;overflow:hidden;flex-wrap:wrap}
+.seg button{background:none;border:0;color:var(--ui-mut);padding:6px 9px;font:inherit;cursor:pointer}
+.seg button[aria-pressed=true]{background:#2b2640;color:#fff}
+select{background:#1d1929;color:#fff;border:1px solid var(--ui-line);border-radius:8px;padding:5px 8px;font:inherit;max-width:240px}
+main{padding:16px;max-width:1180px;margin:0 auto}
+.intro{color:var(--ui-mut);max-width:860px}
+.concept{margin:26px 0 40px}
+.concept h2{font-size:16px;margin:0 0 2px}
+.concept h2 b{display:inline-block;min-width:34px;color:#fff;background:#2b2640;border-radius:6px;padding:1px 7px;margin-right:8px;text-align:center}
+.concept p.why{color:var(--ui-mut);margin:0 0 10px;max-width:860px}
+.frames{display:flex;gap:16px;align-items:flex-start;overflow-x:auto;padding-bottom:6px}
+.frames>div{min-width:0}
+.frame{flex:none;background:var(--bg);color:var(--fg);border-radius:14px;border:1px solid var(--ui-line);padding:14px;container-type:inline-size;overflow:hidden}
+.frame.d{width:720px}.frame.m{width:375px}
+.tag{font:11px/1 system-ui;color:var(--ui-mut);margin:0 0 6px}
+@media (max-width:760px){.frames{flex-direction:column}.frames>div{width:100%}.frame.d{width:100%}.frame.m{width:100%;max-width:375px}}
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#2b2640;color:#fff;padding:10px 16px;border-radius:999px;font-weight:700;z-index:20;display:none}
+
+/* atoms */
+.mut{color:var(--mut)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.crest{width:28px;height:28px;object-fit:contain;flex:none}
+.crest.lg{width:44px;height:44px}
+.btn{display:inline-block;background:var(--pri);color:#fff;border-radius:999px;padding:8px 16px;font:700 13px system-ui;border:0;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
+.bar-p{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar-p i{display:block;height:100%;background:var(--pri)}
+.gold .bar-p i{background:var(--gold)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
+.tabs button{border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:999px;padding:4px 10px;font:600 12px system-ui;cursor:pointer;display:flex;gap:6px;align-items:center}
+.tabs button[aria-pressed=true]{background:var(--pri);color:#fff;border-color:var(--pri)}
+.tabs img{width:16px;height:16px}
+.g{display:grid;gap:8px}
+.g>*{min-width:0}
+.ini{display:grid;place-items:center;font:800 13px system-ui;border-radius:50%;width:34px;height:34px;background:color-mix(in srgb,var(--pri) 20%,var(--card));color:var(--pri);flex:none}
+.role{font:700 9px/1 system-ui;letter-spacing:.06em;color:var(--mut)}
+.ovr{font:800 15px/1 system-ui;font-variant-numeric:tabular-nums}
+.slot-missing{cursor:pointer}
+.slot-missing:hover{outline:2px dashed var(--pri);outline-offset:2px}
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap;margin:0 0 10px}
+.head h3{margin:0;font-size:18px}
+.big{font:800 28px/1 system-ui;font-variant-numeric:tabular-nums}
+
+/* ── ALBUM concepts ── */
+.a1{background:var(--paper);border-radius:10px;padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:0;box-shadow:inset 0 0 0 1px var(--line)}
+.a1 .page{padding:6px 10px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;align-content:start}
+.a1 .page+.page{border-inline-start:2px solid var(--line)}
+.a1 .st{aspect-ratio:3/4;border-radius:6px;display:grid;place-items:center;text-align:center;font:600 10px/1.15 system-ui;padding:4px}
+.a1 .st.have{background:linear-gradient(160deg,var(--card),color-mix(in srgb,var(--pri) 18%,var(--card)));box-shadow:0 1px 3px #0004;border:1px solid var(--line)}
+.a1 .st.miss{border:1.5px dashed var(--line);color:var(--mut);font:800 18px system-ui}
+.a1.gold .st.have{background:linear-gradient(160deg,#fff3c4,var(--gold));color:#3a2a00}
+@container (max-width:520px){.a1{grid-template-columns:1fr}.a1 .page+.page{border-inline-start:0;border-top:2px solid var(--line)}}
+.a2{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;background:#0002;border-radius:12px;padding:10px}
+.a2 .sl{aspect-ratio:5/7;border-radius:8px;border:2px solid #fff3;background:linear-gradient(#fff1,#fff0);position:relative;display:grid;place-items:center;text-align:center;padding:6px;font-size:11px}
+.a2 .sl.have{background:var(--card);border-color:var(--pri)}
+.a2 .sl .ovr{position:absolute;top:6px;inset-inline-start:8px}
+.a2.gold .sl.have{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold)}
+.a2-nav{display:flex;justify-content:space-between;align-items:center;margin:8px 0 0}
+@container (min-width:600px){.a2{grid-template-columns:repeat(6,minmax(0,1fr))}}
+.a3 .shelf{display:flex;gap:6px;align-items:flex-end;border-bottom:6px solid color-mix(in srgb,var(--fg) 30%,transparent);padding:8px 4px 0;overflow-x:auto;margin-bottom:14px}
+.a3 .spine{width:46px;flex:none;border-radius:4px 4px 0 0;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 2px;background:var(--card);border:1px solid var(--line);cursor:pointer}
+.a3 .spine b{writing-mode:vertical-rl;font:700 11px system-ui}
+.a3 .spine.gold{background:linear-gradient(var(--gold),#7a5a00);color:#fff}
+.a3 .spine[aria-pressed=true]{outline:2px solid var(--pri)}
+.a4 .tl{display:grid;grid-template-columns:repeat(34,minmax(0,1fr));gap:2px;margin:0 0 10px}
+.a4 .tl i{height:34px;border-radius:2px;background:var(--line);cursor:pointer}
+.a4 .tl i.on{background:var(--pri)}
+.a4 .tl i.gold{background:var(--gold)}
+.a4 .yrs{display:flex;justify-content:space-between;font-size:10px;color:var(--mut)}
+.a5{background:repeating-linear-gradient(90deg,#2f7d3b 0 10%,#2a7035 10% 20%);border-radius:10px;padding:10px;display:grid;gap:8px}
+.a5 .ln{display:flex;justify-content:center;gap:6px;flex-wrap:wrap}
+.a5 .p{width:62px;text-align:center;color:#fff;font:600 10px/1.1 system-ui}
+.a5 .p i{display:grid;place-items:center;margin:0 auto 3px;width:30px;height:30px;border-radius:50%;background:#fff;color:#14532d;font:800 11px system-ui;font-style:normal}
+.a5 .p.miss i{background:#0003;border:2px dashed #fff8;color:#fff}
+.a5.gold .p i{background:var(--gold);color:#3a2a00}
+.a6{columns:3 120px;column-gap:8px}
+.a6 .c{break-inside:avoid;margin:0 0 8px;border-radius:10px;padding:10px;background:var(--card);border:1px solid var(--line)}
+.a6 .c.tall{padding-block:18px}
+.a7{background:var(--paper);padding:14px;border-radius:4px;box-shadow:0 2px 0 var(--line);display:flex;flex-wrap:wrap;gap:14px}
+.a7 .ph{background:#fff;color:#222;padding:6px 6px 14px;width:96px;box-shadow:0 2px 6px #0003;font:12px/1.1 "Segoe Print","Comic Sans MS",cursive;text-align:center;position:relative}
+.a7 .ph:nth-child(odd){transform:rotate(-3deg)}.a7 .ph:nth-child(even){transform:rotate(2deg)}
+.a7 .ph::before{content:"";position:absolute;top:-8px;left:30px;width:36px;height:14px;background:#f3e3a080;transform:rotate(-4deg)}
+.a7 .ph .pic{height:70px;background:#ddd;display:grid;place-items:center;font:800 18px system-ui;color:#555;margin-bottom:6px}
+.a7 .ph.miss{background:transparent;box-shadow:none;border:2px dashed var(--line);color:var(--mut)}
+.a8{background:#0b0f1e;color:#cfe7ff;border:3px solid #3b4a7a;border-radius:6px;padding:10px;font:12px/1.2 "Courier New",monospace}
+.a8 .inv{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
+@container (min-width:600px){.a8 .inv{grid-template-columns:repeat(9,minmax(0,1fr))}}
+.a8 .cell{aspect-ratio:1;border:2px solid #3b4a7a;display:grid;place-items:center;text-align:center;font-size:10px;background:#141b33}
+.a8 .cell.have{background:#1e3a8a;border-color:#7dd3fc;color:#fff}
+.a8.gold .cell.have{background:#7a5a00;border-color:#ffd84d}
+.a8 .hud{display:flex;justify-content:space-between;margin:0 0 8px;color:#ffd84d}
+.a9{display:flex;flex-wrap:wrap;gap:10px}
+.a9 .stamp{width:84px;padding:6px;background:var(--card);text-align:center;font:600 10px/1.2 system-ui;position:relative;-webkit-mask:radial-gradient(circle 3px at 3px 3px,#0000 98%,#000) -3px -3px/9px 9px;mask:radial-gradient(circle 3px at 3px 3px,#0000 98%,#000) -3px -3px/9px 9px}
+.a9 .stamp .face{border:1px solid var(--line);padding:8px 2px;background:color-mix(in srgb,var(--pri) 12%,var(--card))}
+.a9 .stamp.miss .face{background:transparent;color:var(--mut)}
+.a9.gold .stamp .face{background:color-mix(in srgb,var(--gold) 45%,var(--card))}
+.a10 table{width:100%;border-collapse:collapse;font-size:12px}
+.a10 td,.a10 th{padding:5px 6px;border-bottom:1px solid var(--line);text-align:start}
+.a10 tr.miss{color:var(--mut)}
+.a10 .tick{font-weight:800;color:var(--pri)}
+.a10.gold .tick{color:var(--gold)}
+@container (max-width:520px){.a10 .hide-m{display:none}}
+
+/* ── HALL OF FAME concepts ── */
+.h-g{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@container (min-width:600px){.h-g{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.h1{background:linear-gradient(#2a1d10,#140d06);border-radius:10px;padding:12px;color:#f5e6c8}
+.h1 .sh{display:flex;gap:6px;justify-content:space-around;border-bottom:5px solid #6b4a24;padding:10px 0 4px;margin-bottom:12px;flex-wrap:wrap}
+.h1 .tr{width:70px;text-align:center;font:600 10px/1.15 system-ui;cursor:pointer}
+.h1 .tr .cup{font-size:30px;filter:grayscale(1) brightness(.4)}
+.h1 .tr.on .cup{filter:none;text-shadow:0 0 12px #ffd84d}
+.h2 .pin{aspect-ratio:1;border-radius:50%;display:grid;place-items:center;text-align:center;padding:10px;font:700 11px/1.1 system-ui;border:4px solid var(--line);background:var(--card);cursor:pointer}
+.h2 .pin.on{border-color:var(--gold);background:radial-gradient(circle at 35% 30%,#fff8,transparent 50%),color-mix(in srgb,var(--pri) 70%,#000);color:#fff}
+.h2 .pin .ico{font-size:22px;display:block}
+.h3{background:#000;color:#39ff14;font:13px/1.5 "Courier New",monospace;padding:12px;border-radius:8px;border:3px solid #333}
+.h3 .r{display:grid;grid-template-columns:2ch 1fr auto;gap:10px;cursor:pointer}
+.h3 .r.off{color:#2f6b2a}
+.h3 .blink{color:#ffd84d}
+.h4 .pl{background:linear-gradient(135deg,#b08d57,#7a5c2e);color:#fff8e7;border-radius:4px;padding:10px;text-align:center;box-shadow:inset 0 0 0 2px #e6c88f80;cursor:pointer;font:600 12px/1.2 Georgia,serif}
+.h4 .pl.off{background:var(--card);color:var(--mut);box-shadow:inset 0 0 0 1px var(--line)}
+.h4 .pl b{display:block;font-size:14px;letter-spacing:.04em;text-transform:uppercase}
+.h5 .rack{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;max-width:420px}
+.h5 .rb{height:22px;border-radius:2px;cursor:pointer}
+.h5 .rb.off{background:var(--line)!important}
+.h6 .ev{display:grid;grid-template-columns:auto 1fr;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.h6 .ev .d{font:700 11px system-ui;color:var(--pri);width:58px}
+.h6 .ev.off{opacity:.55}
+.h7 .lk{border:2px solid var(--line);border-radius:6px 6px 2px 2px;padding:8px;background:repeating-linear-gradient(0deg,var(--card) 0 6px,color-mix(in srgb,var(--card) 85%,var(--fg)) 6px 7px);text-align:center;font:600 11px system-ui;cursor:pointer;min-height:96px}
+.h7 .lk .np{background:var(--fg);color:var(--bg);font:800 10px system-ui;padding:2px 4px;border-radius:2px;margin-bottom:8px}
+.h7 .lk.on{border-color:var(--gold)}
+.h7 .lk.on .np{background:var(--gold);color:#000}
+.h8{background:var(--paper);padding:14px;border:3px double var(--line);font-family:Georgia,serif}
+.h8 h4{text-align:center;letter-spacing:.2em;margin:0 0 8px}
+.h8 .hl{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dotted var(--line);padding:5px 0;cursor:pointer}
+.h8 .hl.off{color:var(--mut)}
+.h9{background:radial-gradient(#1b2a4a,#050914);border-radius:10px;height:300px;position:relative;overflow:hidden}
+.h9 svg{position:absolute;inset:0;width:100%;height:100%}
+.h9 .st{position:absolute;transform:translate(-50%,-50%);text-align:center;color:#cfe2ff;font:600 10px system-ui;width:80px;cursor:pointer}
+.h9 .st i{display:block;width:10px;height:10px;border-radius:50%;margin:0 auto 3px;background:#334}
+.h9 .st.on i{background:#fff;box-shadow:0 0 10px 3px #9cf}
+.h10{display:flex;gap:10px;overflow-x:auto;padding:0 0 6px;border-top:6px solid #6b4a24}
+.h10 .sc{width:58px;flex:none;text-align:center;font:600 10px/1.15 system-ui;cursor:pointer}
+.h10 .sc .cl{height:150px;border-radius:0 0 4px 4px;background:repeating-linear-gradient(180deg,var(--pri) 0 18px,#fff 18px 30px);margin-bottom:6px;-webkit-mask:linear-gradient(#000 90%,#0000);mask:linear-gradient(#000 90%,#0000)}
+.h10 .sc.off .cl{background:repeating-linear-gradient(180deg,var(--line) 0 18px,var(--card) 18px 30px)}
+.detail{margin-top:10px;padding:10px;border-radius:8px;background:var(--card);border:1px solid var(--line);font-size:13px}
+
+/* ── STYLE concepts ── */
+.s-vs{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.s-team{display:flex;align-items:center;gap:8px;font-weight:700}
+.scout{border-inline-start:4px solid var(--pri);padding:6px 10px;background:var(--card);border-radius:4px;margin:10px 0}
+.picks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+@container (min-width:600px){.picks.six{grid-template-columns:repeat(6,minmax(0,1fr))}}
+.pk{border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:8px;padding:8px;text-align:start;font:600 12px/1.2 system-ui;cursor:pointer}
+.pk small{display:block;font-weight:400;color:var(--mut);margin-top:3px}
+.pk[aria-pressed=true]{border-color:var(--pri);box-shadow:0 0 0 2px var(--pri)}
+.result{margin-top:10px;padding:10px;border-radius:8px;font-weight:700}
+.result.win{background:color-mix(in srgb,#16a34a 18%,var(--card));color:color-mix(in srgb,#16a34a 70%,var(--fg))}
+.result.lose{background:color-mix(in srgb,#dc2626 18%,var(--card));color:color-mix(in srgb,#dc2626 70%,var(--fg))}
+.result.none{background:var(--card)}
+.s1{background:#1f3b2c;color:#eef6e9;border:8px solid #6b4a24;border-radius:6px;padding:12px;font-family:"Segoe Print","Comic Sans MS",cursive}
+.s1 .pk{background:#ffffff14;color:#eef6e9;border-color:#ffffff40;font-family:inherit}
+.s1 .pk[aria-pressed=true]{background:#ffd84d;color:#1f3b2c}
+.s1 .scout{background:#ffffff10;border-color:#ffd84d}
+.s2{background:#d9c08a;color:#2b2111;border-radius:4px 14px 4px 4px;padding:14px;font-family:Georgia,serif}
+.s2 .stamp{display:inline-block;border:2px solid #9b1c1c;color:#9b1c1c;padding:2px 8px;transform:rotate(-6deg);font:800 12px system-ui;letter-spacing:.1em}
+.s2 .bars div{display:grid;grid-template-columns:90px 1fr 34px;gap:6px;align-items:center;font-size:12px}
+.s2 .bars i{height:8px;background:#2b2111;display:block;border-radius:2px}
+.s2 .pk{background:#efe0bb;border-color:#a88f5c;color:#2b2111}
+.s3 .wheel{position:relative;width:min(100%,300px);aspect-ratio:1;margin:0 auto}
+.s3 .wheel svg{position:absolute;inset:0}
+.s3 .node{position:absolute;transform:translate(-50%,-50%);width:86px;text-align:center}
+.s4 .hand{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.s4 .card{width:88px;aspect-ratio:5/7;border-radius:8px;border:2px solid var(--line);background:var(--card);display:grid;place-items:center;text-align:center;padding:6px;font:700 12px system-ui;cursor:pointer;transition:transform .15s}
+.s4 .card[aria-pressed=true]{transform:translateY(-10px);border-color:var(--pri)}
+.s4 .table{display:flex;justify-content:center;gap:20px;margin:12px 0}
+.s4 .table .card{cursor:default}
+.s4 .back{background:repeating-linear-gradient(45deg,var(--pri) 0 6px,color-mix(in srgb,var(--pri) 70%,#000) 6px 12px);color:#fff}
+.s5 svg{width:100%;max-width:260px;display:block;margin:0 auto}
+.s6{background:#000;color:#fff;font:15px/1.35 "Courier New",monospace;padding:10px;border-radius:4px}
+.s6 .t{background:#00f;color:#ff0;padding:0 6px}
+.s6 .c{color:#0ff}.s6 .y{color:#ff0}.s6 .g{color:#0f0}.s6 .r{color:#f55}
+.s6 .pk{background:#000;color:#0ff;border:1px solid #0ff;border-radius:0;font-family:inherit}
+.s6 .pk[aria-pressed=true]{background:#0ff;color:#000}
+.s7{background:#e7e2d6;color:#222;border-radius:10px;padding:16px 14px;position:relative;margin-top:10px;box-shadow:0 0 0 6px #8b6a3e}
+.s7::before{content:"";position:absolute;top:-14px;left:50%;transform:translateX(-50%);width:90px;height:20px;background:#9aa0a6;border-radius:4px}
+.s7 .ck{display:flex;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid #0002;cursor:pointer}
+.s7 .ck i{width:16px;height:16px;border:2px solid #222;border-radius:3px;display:grid;place-items:center;font-style:normal;font-weight:800}
+.s8{background:linear-gradient(90deg,color-mix(in srgb,#dc2626 35%,#000),#000 48%,#000 52%,color-mix(in srgb,#2563eb 35%,#000));color:#fff;border-radius:10px;padding:12px}
+.s8 .vs{font:900 40px/1 Impact,system-ui;text-align:center;color:#ffd84d;text-shadow:3px 3px 0 #b91c1c}
+.s8 .sel{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.s8 .pk{background:#ffffff12;color:#fff;border-color:#fff3}
+.s8 .pk[aria-pressed=true]{background:#ffd84d;color:#000}
+.s9{background:#111;color:#e5e5e5;border-radius:8px;padding:12px;font:13px system-ui}
+.s9 .od{display:grid;grid-template-columns:1fr auto auto;gap:10px;padding:6px 0;border-bottom:1px solid #333;align-items:center}
+.s9 .od b{font:800 14px "Courier New",monospace;color:#ffd84d}
+.s9 .pk{background:#1f1f1f;color:#e5e5e5;border-color:#333}
+.s10 .lower{background:linear-gradient(90deg,var(--pri),color-mix(in srgb,var(--pri) 60%,#000));color:#fff;padding:8px 12px;border-radius:4px 4px 0 0;font:800 13px system-ui;letter-spacing:.04em}
+.s10 .feed{background:var(--card);border:1px solid var(--line);padding:10px;border-radius:0 0 8px 8px}
+.s10 .feed p{margin:4px 0}
+</style>
+</head>
+<body data-era="modern" data-theme="dark">
+<div class="bar">
+  <h1>Trophy Room · gallery</h1>
+  <div class="seg" id="surf"></div>
+  <div class="seg" id="era"></div>
+  <div class="seg" id="theme"></div>
+  <select id="jump"></select>
+</div>
+<main>
+  <p class="intro" id="intro"></p>
+  <div id="out"></div>
+</main>
+<div class="toast" id="toast"></div>
+<script>
+const DATA = /*DATA*/[];
+const CRESTS = /*CRESTS*/{};
+const MODE = /*MODE*/"layout";
+const SURF = [["album","Album (1819)"],["hall","Hall of Fame (1813)"],["style","Style + scouting (1825)"]];
+const ERAS = [["modern","Modern"],["retro90s","Retro 90s"],["golden","Golden"]];
+const THEMES = [["dark","Dark"],["light","Light"]];
+const S = { surf:"album", set:1, open:null, my:null, opp:2, revealed:null, badge:null };
+const sets = DATA.sets;
+const short = n => n.replace("Manchester","Man").replace(" Rovers","").replace(" City","").replace("United","Utd");
+const yr = s => `${s}/${String((s+1)%100).padStart(2,"0")}`;
+const ini = n => n.split(/\s+/).map(w=>w[0]).join("").slice(0,2).toUpperCase();
+const sur = n => n.split(" ").slice(-1)[0];
+const crest = (id,cls="") => CRESTS[id] ? `<img class="crest ${cls}" src="${CRESTS[id]}" alt="">` : "";
+
+/* the coach's collection: a deterministic sample, then whatever is tapped in the gallery */
+const have = sets.map((s,i)=>{ const keep=[5,s.cards.length,17,2,9][i] ?? 3; return new Set(s.cards.slice(0,keep).map(c=>c.id)); });
+const count = id => 1 + (id.length*7 % 5);
+const done = i => have[i].size === sets[i].cards.length;
+const total = () => have.reduce((a,h)=>a+h.size,0);
+function collect(i,id){ if(have[i].has(id)) return; have[i].add(id); toast(done(i) ? `★ Full Set — ${short(sets[i].club)} ${yr(sets[i].season)} turns gold` : `Collected ${sets[i].cards.find(c=>c.id===id).n}`); render(); }
+
+/* the Hall of Fame list (spec, Part 3) with a sample career */
+const ACH = [
+ ["first-win","Off the Mark","Win any match","⚽",true,"Arsenal 03/04 v Spurs, 2–0"],
+ ["clean-sheet","Shut Out","Win without conceding","🧤",true,"Leicester 15/16 v Chelsea, 1–0"],
+ ["thrashing","Thrashing","Win by 5 or more","💥",false],
+ ["hat-trick","Hat-trick Hero","A player scores 3 in one match","🎩",true,"Henry 03/04 v Leeds"],
+ ["sparse-hat-trick","Old School","A hat-trick by a 1992–2002 card","📼",false],
+ ["comeback","Never Say Die","Win after trailing by 2 or more","🔥",false],
+ ["late-winner","Squeaky Bum Time","Win with a tie-breaking goal at 90' or later","⏱",true,"Vardy 90+2' v Everton"],
+ ["ten-men","Backs to the Wall","Win after one of your men is sent off","🟥",false],
+ ["champions","Champions","Win a league season","🏆",true,"Classic 2003/04 — Arsenal"],
+ ["invincibles","The Invincibles","Finish a league season unbeaten","🛡",false],
+ ["great-escape","Great Escape","Survive in Survival","🪜",false],
+ ["daily-7","Seven Days","A 7-day daily streak","📅",true,"Streak ended 2026-10-18"],
+ ["rewrite","History Rewritten","Rewrite any What-If","📺",true,"Newcastle 7–5 Arsenal"],
+ ["rewrite-all","Alternate History","Rewrite all seven What-Ifs","🌀",false,"1 of 7"],
+ ["collector-100","Collector","100 cards in the album","📒",false],
+ ["set-complete","Full Set","Complete a club-season set","⭐",true,"Arsenal 2003/04"],
+];
+const achOn = a => a[0]==="collector-100" ? total()>=100 : a[4];
+const achCtx = a => a[0]==="collector-100" ? `${total()} of 100` : a[5] ?? "";
+
+/* styles: the real 5-cycle (domain/opponent.ts BEATS) */
+const STY = [["balanced","Balanced","No edge, no risk"],["tiki-taka","Tiki-Taka","Keep the ball"],["high-press","High Press","Win it high"],["low-block","Low Block","Sit deep"],["counter","Counter","Hit on the break"],["direct","Direct","Long and early"]];
+const BEATS = {"high-press":"tiki-taka","tiki-taka":"direct","direct":"low-block","low-block":"counter","counter":"high-press"};
+const sname = k => STY.find(s=>s[0]===k)[1];
+const edge = (m,t) => BEATS[m]===t ? 1 : BEATS[t]===m ? -1 : 0;
+/* gallery stand-in for the tendency rule: the squad's strongest dimension against the archive median */
+const MED = {att:50,cre:50,def:46,phy:49};
+function tendency(i){ const s=sets[i]; const m=DATA.means.find(x=>x.teamId===s.teamId&&x.season===s.season); const z={att:m.att-MED.att,cre:m.cre-MED.cre,def:m.def-MED.def,phy:m.phy-MED.phy};
+  const top=Object.entries(z).sort((a,b)=>b[1]-a[1]); if(top[0][1]<3) return "balanced";
+  if(top[0][0]==="cre") return "tiki-taka"; if(top[0][0]==="def") return z.att>2?"counter":"low-block"; if(top[0][0]==="phy") return "direct"; return z.phy>2?"high-press":"direct"; }
+const odds = t => STY.map(s=>[s[0], s[0]===t?60:8]);
+function kick(){ const t=tendency(S.opp); const r=Math.random(); let theirs=t; if(r>=.6){ const o=STY.map(s=>s[0]).filter(k=>k!==t); theirs=o[Math.floor((r-.6)/.4*5)]; } S.revealed=theirs; render(); }
+function resultLine(){ if(!S.revealed) return ""; const e=edge(S.my??"balanced",S.revealed); const m=sname(S.my??"balanced"),t=sname(S.revealed);
+  return `<div class="result ${e>0?"win":e<0?"lose":"none"}">They played ${t}. ${e>0?`Your ${m} beats their ${t} — +8 attack for you.`:e<0?`Their ${t} beats your ${m} — +8 attack for them.`:"No edge either way."} <button class="btn ghost" data-act="again">Again</button></div>`; }
+
+function toast(t){ const el=document.getElementById("toast"); el.textContent=t; el.style.display="block"; clearTimeout(toast.h); toast.h=setTimeout(()=>el.style.display="none",1800); }
+
+/* ── shared album furniture ── */
+function setTabs(){ return `<div class="tabs">${sets.map((s,i)=>`<button data-act="set" data-i="${i}" aria-pressed="${S.set===i}">${crest(s.teamId)}${short(s.club)} ${yr(s.season)} · ${have[i].size}/${s.cards.length}</button>`).join("")}</div>`; }
+function setHead(){ const s=sets[S.set]; const n=have[S.set].size; return `<div class="head ${done(S.set)?"gold":""}"><div class="row">${crest(s.teamId,"lg")}<div><h3>${s.club} ${yr(s.season)}</h3><div class="mut">${n} of ${s.cards.length} stickers${done(S.set)?" · ★ complete":""}</div></div></div><div style="min-width:140px;flex:1;max-width:240px"><div class="bar-p"><i style="width:${100*n/s.cards.length}%"></i></div></div></div>`; }
+function overall(){ return `<div class="row mut" style="margin:0 0 8px">Album: <b style="color:var(--fg)">${total()}</b> of ${DATA.stats.totalCards.toLocaleString()} cards · ${have.filter((_,i)=>done(i)).length} of ${DATA.stats.clubSeasons} sets complete</div>`; }
+const cards = () => sets[S.set].cards.map((c,k)=>({...c,k:k+1,on:have[S.set].has(c.id)}));
+const miss = c => `data-act="collect" data-id="${c.id}" class="slot-missing"`;
+const gold = () => done(S.set)?"gold":"";
+
+const ALBUM = [
+ ["Panini Classic","The two-page sticker spread everyone remembers: numbered empty slots, stickers with a sheen, the club on the left page. Gold foil once the set is full.",()=>`${overall()}${setTabs()}${setHead()}<div class="a1 ${gold()}">${[0,1].map(p=>`<div class="page">${cards().filter((_,k)=>k%2===p).map(c=>c.on?`<div class="st have"><div><div class="ovr">${c.o}</div>${sur(c.n)}<div class="role">${c.r}</div></div></div>`:`<div class="st miss" ${miss(c)}>${c.k}</div>`).join("")}</div>`).join("")}</div>`],
+ ["Binder Sleeves","A card binder: plastic sleeves, one page per club-season. Empty sleeves stay glossy and see-through.",()=>`${overall()}${setTabs()}${setHead()}<div class="a2 ${gold()}">${cards().map(c=>c.on?`<div class="sl have"><span class="ovr">${c.o}</span><div><div class="ini" style="margin:0 auto 4px">${ini(c.n)}</div>${sur(c.n)}<div class="role">${c.r}</div></div></div>`:`<div class="sl" ${miss(c)}><span class="mut">#${c.k}</span></div>`).join("")}</div><div class="a2-nav mut"><span>◀ prev set</span><span>×${cards().filter(c=>c.on).reduce((a,c)=>a+count(c.id),0)} appearances</span><span>next set ▶</span></div>`],
+ ["Club Shelf","Each club-season is a spine on a shelf, thicker as it fills; gold spines are finished sets. Tap a spine to open it below.",()=>`${overall()}<div class="a3"><div class="shelf">${sets.map((s,i)=>`<div class="spine ${done(i)?"gold":""}" data-act="set" data-i="${i}" aria-pressed="${S.set===i}" style="height:${90+60*have[i].size/s.cards.length}px">${crest(s.teamId)}<b>${short(s.club)} ${String(s.season).slice(2)}</b></div>`).join("")}</div>${setHead()}<div class="row">${cards().map(c=>c.on?`<span class="chip" style="border:1px solid var(--line);border-radius:99px;padding:3px 8px;font-size:12px">${sur(c.n)} <b>${c.o}</b></span>`:`<span ${miss(c)} style="border:1px dashed var(--line);border-radius:99px;padding:3px 8px;font-size:12px;color:var(--mut)">#${c.k}</span>`).join("")}</div></div>`],
+ ["Season Timeline","Thirty-four seasons as a strip, lit where you have cards and gold where a set is done. The archive is the album's spine.",()=>`${overall()}<div class="a4"><div class="tl">${Array.from({length:34},(_,k)=>{const y=1992+k;const i=sets.findIndex(s=>s.season===y);const on=sets.some((s,j)=>s.season===y&&have[j].size);const g=sets.some((s,j)=>s.season===y&&done(j));return `<i class="${g?"gold":on?"on":""}" ${i>=0?`data-act="set" data-i="${i}"`:""} title="${yr(y)}"></i>`}).join("")}</div><div class="yrs"><span>1992/93</span><span>2008/09</span><span>2025/26</span></div>${setTabs()}${setHead()}<div class="g" style="grid-template-columns:repeat(auto-fill,minmax(110px,1fr))">${cards().map(c=>c.on?`<div class="row" style="border:1px solid var(--line);border-radius:8px;padding:6px"><span class="ini">${ini(c.n)}</span><div><b>${sur(c.n)}</b><div class="role">${c.r} · ${c.o}</div></div></div>`:`<div ${miss(c)} style="border:1px dashed var(--line);border-radius:8px;padding:6px;color:var(--mut)">#${c.k} · ${c.r}</div>`).join("")}</div></div>`],
+ ["Pitch Album","Each set is a squad on a pitch, grouped by position: you see the hole in your back line, not just a number.",()=>{const lines=[["GK"],["LB","CB","RB","LWB","RWB"],["CDM","CM","LM","RM"],["CAM","LW","RW"],["CF","ST"]];return `${overall()}${setTabs()}${setHead()}<div class="a5 ${gold()}">${lines.slice().reverse().map(l=>`<div class="ln">${cards().filter(c=>l.includes(c.r)).map(c=>c.on?`<div class="p"><i>${c.o}</i>${sur(c.n)}</div>`:`<div class="p miss" ${miss(c)}><i>?</i>${c.r}</div>`).join("")}</div>`).join("")}</div>`}],
+ ["Trading-card Wall","A free wall of everything you own, best first, with the missing count at the top and a ‘next to find’ shortlist.",()=>`${overall()}${setTabs()}${setHead()}<p class="mut" style="margin:0 0 8px">Missing: ${cards().filter(c=>!c.on).slice(0,4).map(c=>`<a ${miss(c)} style="color:var(--pri)">#${c.k} ${c.r}</a>`).join(" · ")||"none — set complete"}</p><div class="a6">${cards().filter(c=>c.on).map((c,k)=>`<div class="c ${k%3===0?"tall":""}"><div class="row"><span class="ini">${ini(c.n)}</span><div><b>${c.n}</b><div class="role">${c.r} · OVR ${c.o} · ×${count(c.id)}</div></div></div></div>`).join("")}</div>`],
+ ["Scrapbook","Polaroids taped onto paper, captions in pen. Warm and personal — a career, not a database.",()=>`${overall()}${setTabs()}${setHead()}<div class="a7">${cards().slice(0,12).map(c=>c.on?`<div class="ph"><div class="pic">${ini(c.n)}</div>${sur(c.n)} '${String(sets[S.set].season).slice(2)}</div>`:`<div class="ph miss" ${miss(c)}><div class="pic" style="background:transparent">?</div>#${c.k}</div>`).join("")}</div>`],
+ ["Arcade Inventory","The /game cabinet's own language: an 8-bit inventory grid with a HUD, slots light up as you collect.",()=>`${overall()}${setTabs()}<div class="a8 ${gold()}"><div class="hud"><span>${short(sets[S.set].club).toUpperCase()} ${yr(sets[S.set].season)}</span><span>${have[S.set].size}/${sets[S.set].cards.length}${done(S.set)?" ★":""}</span></div><div class="inv">${cards().map(c=>c.on?`<div class="cell have">${sur(c.n).slice(0,8).toUpperCase()}<br>${c.o}</div>`:`<div class="cell" ${miss(c)}>${String(c.k).padStart(2,"0")}</div>`).join("")}</div></div>`],
+ ["Stamp Collection","Perforated stamps per player, a philatelist's page per club-season. Quiet, collectable, very era-friendly.",()=>`${overall()}${setTabs()}${setHead()}<div class="a9 ${gold()}">${cards().map(c=>c.on?`<div class="stamp"><div class="face"><b>${c.o}</b><br>${sur(c.n)}<br><span class="role">${c.r}</span></div></div>`:`<div class="stamp miss" ${miss(c)}><div class="face">#${c.k}<br><span class="role">${c.r}</span></div></div>`).join("")}</div>`],
+ ["Checklist Ledger","The collector's checklist: one dense table, ticks and counts. Fastest to scan; the most honest about what is missing.",()=>`${overall()}${setTabs()}${setHead()}<div class="a10 ${gold()}"><table><tr><th>#</th><th>Player</th><th>Pos</th><th class="hide-m">OVR</th><th class="hide-m">Played</th><th></th></tr>${cards().map(c=>c.on?`<tr><td>${c.k}</td><td>${c.n}</td><td>${c.r}</td><td class="hide-m">${c.o}</td><td class="hide-m">×${count(c.id)}</td><td class="tick">✓</td></tr>`:`<tr class="miss"><td>${c.k}</td><td>— — —</td><td>${c.r}</td><td class="hide-m">?</td><td class="hide-m">0</td><td><a ${miss(c)} style="color:var(--pri)">find</a></td></tr>`).join("")}</table></div>`],
+];
+
+/* ── Hall of Fame ── */
+const hHead = () => `<div class="head"><div><h3>Hall of Fame</h3><div class="mut">${ACH.filter(achOn).length} of ${ACH.length} unlocked · ${have.filter((_,i)=>done(i)).length} set${have.filter((_,i)=>done(i)).length===1?"":"s"} complete</div></div></div>`;
+const hDetail = () => { const a=ACH.find(x=>x[0]===S.badge); if(!a) return `<div class="detail mut">Tap one to see what it takes.</div>`; return `<div class="detail"><b>${a[3]} ${a[1]}</b> — ${a[2]}.<br><span class="mut">${achOn(a)?`Unlocked · ${achCtx(a)}`:`Locked${achCtx(a)?` · ${achCtx(a)}`:""}`}</span></div>`; };
+const bA = a => `data-act="badge" data-id="${a[0]}"`;
+const HALL = [
+ ["Trophy Cabinet","Glass shelves, a cup per achievement: lit and polished once earned, dark until then.",()=>`${hHead()}<div class="h1">${[0,1,2,3].map(r=>`<div class="sh">${ACH.slice(r*4,r*4+4).map(a=>`<div class="tr ${achOn(a)?"on":""}" ${bA(a)}><div class="cup">${a[3]}</div>${a[1]}</div>`).join("")}</div>`).join("")}</div>${hDetail()}`],
+ ["Badge Board","Enamel pins in a grid with a gold rim when unlocked — the classic achievements wall.",()=>`${hHead()}<div class="h2 h-g">${ACH.map(a=>`<div class="pin ${achOn(a)?"on":""}" ${bA(a)}><div><span class="ico">${a[3]}</span>${a[1]}</div></div>`).join("")}</div>${hDetail()}`],
+ ["Arcade High Score","A CRT score table: ‘ACHIEVEMENT UNLOCKED’ lines in phosphor green, locked ones dimmed. Matches the cabinet.",()=>`${hHead()}<div class="h3">${ACH.map((a,k)=>`<div class="r ${achOn(a)?"":"off"}" ${bA(a)}><span>${String(k+1).padStart(2,"0")}</span><span>${a[1].toUpperCase()}</span><span class="${achOn(a)?"blink":""}">${achOn(a)?"★ OK":"-- --"}</span></div>`).join("")}</div>${hDetail()}`],
+ ["Wall of Fame","Brass plaques on a club wall, engraved with what you did and where.",()=>`${hHead()}<div class="h4 h-g">${ACH.map(a=>`<div class="pl ${achOn(a)?"":"off"}" ${bA(a)}><b>${a[1]}</b>${achOn(a)?achCtx(a):a[2]}</div>`).join("")}</div>${hDetail()}`],
+ ["Medal Ribbons","A ribbon rack: each achievement a striped ribbon in its own colours. Compact; reads as a career at a glance.",()=>`${hHead()}<div class="h5"><div class="rack">${ACH.map((a,k)=>{const h=(k*47)%360;return `<div class="rb ${achOn(a)?"":"off"}" ${bA(a)} title="${a[1]}" style="background:linear-gradient(90deg,hsl(${h} 60% 40%) 0 30%,#fff 30% 40%,hsl(${(h+120)%360} 60% 45%) 40% 60%,#fff 60% 70%,hsl(${h} 60% 40%) 70%)"></div>`}).join("")}</div></div>${hDetail()}`],
+ ["Career Timeline","Achievements in the order you earned them, then the ones still ahead — your story as a coach.",()=>`${hHead()}<div class="h6">${ACH.filter(achOn).map((a,k)=>`<div class="ev" ${bA(a)}><span class="d">Oct ${8+k}</span><div><b>${a[3]} ${a[1]}</b><div class="mut">${achCtx(a)}</div></div></div>`).join("")}${ACH.filter(a=>!achOn(a)).map(a=>`<div class="ev off" ${bA(a)}><span class="d">next</span><div><b>${a[3]} ${a[1]}</b><div class="mut">${a[2]}</div></div></div>`).join("")}</div>${hDetail()}`],
+ ["Locker Room","A locker per achievement with a nameplate; earned lockers carry a gold plate.",()=>`${hHead()}<div class="h7 h-g">${ACH.map(a=>`<div class="lk ${achOn(a)?"on":""}" ${bA(a)}><div class="np">${a[1].toUpperCase()}</div><div style="font-size:24px">${achOn(a)?a[3]:"🔒"}</div></div>`).join("")}</div>${hDetail()}`],
+ ["Programme Honours","The honours page of a matchday programme: serif, dotted leaders, earned in ink and the rest pencilled in.",()=>`${hHead()}<div class="h8"><h4>HONOURS</h4>${ACH.map(a=>`<div class="hl ${achOn(a)?"":"off"}" ${bA(a)}><span>${a[1]}</span><span>${achOn(a)?achCtx(a):"—"}</span></div>`).join("")}</div>${hDetail()}`],
+ ["Constellation","Each achievement a star; earned ones light up and join the constellation. Beautiful, less scannable.",()=>{const pts=ACH.map((a,k)=>[10+((k*53)%80),12+((k*29)%76)]);const on=ACH.map(achOn);return `${hHead()}<div class="h9"><svg viewBox="0 0 100 100" preserveAspectRatio="none">${pts.slice(1).map((p,k)=>on[k]&&on[k+1]?`<line x1="${pts[k][0]}" y1="${pts[k][1]}" x2="${p[0]}" y2="${p[1]}" stroke="#9cf8" stroke-width=".4"/>`:"").join("")}</svg>${ACH.map((a,k)=>`<div class="st ${on[k]?"on":""}" ${bA(a)} style="left:${pts[k][0]}%;top:${pts[k][1]}%"><i></i>${a[1]}</div>`).join("")}</div>${hDetail()}`}],
+ ["Scarf Wall","Scarves hung on a rail, one per achievement, in your colours once earned. Terrace culture as a trophy wall.",()=>`${hHead()}<div class="h10">${ACH.map(a=>`<div class="sc ${achOn(a)?"":"off"}" ${bA(a)}><div class="cl"></div>${a[1]}</div>`).join("")}</div>${hDetail()}`],
+];
+
+/* ── Style + scouting (on the pre-match screen) ── */
+const me = () => sets[S.set===S.opp?0:S.set];
+const them = () => sets[S.opp];
+const oppTabs = () => `<div class="tabs"><span class="mut" style="align-self:center">Opponent:</span>${sets.map((s,i)=>`<button data-act="opp" data-i="${i}" aria-pressed="${S.opp===i}">${crest(s.teamId)}${short(s.club)} ${String(s.season).slice(2)}</button>`).join("")}</div>`;
+const vs = () => `<div class="s-vs"><div class="s-team">${crest(me().teamId,"lg")}${short(me().club)} ${yr(me().season)}</div><span class="mut">v</span><div class="s-team">${short(them().club)} ${yr(them().season)}${crest(them().teamId,"lg")}</div></div>`;
+const scoutLine = () => `They usually play <b>${sname(tendency(S.opp))}</b> — about 6 times in 10.`;
+const pickBtns = (cls="") => `<div class="picks ${cls}">${STY.map(s=>`<button class="pk" data-act="pick" data-k="${s[0]}" aria-pressed="${(S.my??"balanced")===s[0]}">${s[1]}<small>${s[2]}</small></button>`).join("")}</div>`;
+const kickBtn = () => `<div style="margin-top:10px"><button class="btn" data-act="kick">Kick off</button></div>`;
+const STYLE = [
+ ["Tactics Board","A chalkboard in the dressing room: the scout's note chalked at the top, your styles as magnets.",()=>`${oppTabs()}<div class="s1">${vs()}<div class="scout">📝 Scout: ${scoutLine()}</div>${pickBtns()}${kickBtn()}${resultLine()}</div>`],
+ ["Scout's Dossier","A manila folder: CONFIDENTIAL stamp, the opponent's tendencies as bars, then your call.",()=>{const t=tendency(S.opp);return `${oppTabs()}<div class="s2"><div class="row" style="justify-content:space-between"><b>SCOUTING REPORT</b><span class="stamp">CONFIDENTIAL</span></div>${vs()}<div class="bars" style="margin:10px 0">${odds(t).map(([k,p])=>`<div><span>${sname(k)}</span><i style="width:${p}%"></i><span>${p}%</span></div>`).join("")}</div>${pickBtns()}${kickBtn()}${resultLine()}</div>`}],
+ ["The Wheel","The rock-paper-scissors made visible: five styles round a wheel, each arrow ‘beats’, Balanced in the hub.",()=>{const order=["high-press","tiki-taka","direct","low-block","counter"];const pos=order.map((k,i)=>{const a=-Math.PI/2+i*2*Math.PI/5;return [50+38*Math.cos(a),50+38*Math.sin(a)]});const t=tendency(S.opp);return `${oppTabs()}${vs()}<div class="scout">${scoutLine()}</div><div class="s3"><div class="wheel"><svg viewBox="0 0 100 100"><defs><marker id="ar" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L6 3L0 6z" fill="currentColor"/></marker></defs>${pos.map((p,i)=>{const q=pos[(i+1)%5];return `<line x1="${p[0]+(q[0]-p[0])*.22}" y1="${p[1]+(q[1]-p[1])*.22}" x2="${p[0]+(q[0]-p[0])*.78}" y2="${p[1]+(q[1]-p[1])*.78}" stroke="currentColor" stroke-width=".8" marker-end="url(#ar)" opacity=".6"/>`}).join("")}</svg>${order.map((k,i)=>`<div class="node" style="left:${pos[i][0]}%;top:${pos[i][1]}%"><button class="pk" style="width:100%;text-align:center${k===t?";outline:2px dashed var(--acc)":""}" data-act="pick" data-k="${k}" aria-pressed="${S.my===k}">${sname(k)}</button></div>`).join("")}<div class="node" style="left:50%;top:50%"><button class="pk" style="width:100%;text-align:center" data-act="pick" data-k="balanced" aria-pressed="${(S.my??"balanced")==="balanced"}">Balanced</button></div></div><p class="mut" style="text-align:center;margin:4px 0 0">Arrow = beats. Dashed = their usual.</p></div>${kickBtn()}${resultLine()}`}],
+ ["Play a Card","Six style cards in your hand. Play one face down; at kick-off both cards turn over.",()=>`${oppTabs()}${vs()}<div class="scout">${scoutLine()}</div><div class="s4"><div class="table"><div class="card ${S.my?"":"back"}">${S.my?sname(S.my):"YOU"}</div><div class="card ${S.revealed?"":"back"}">${S.revealed?sname(S.revealed):"THEM"}</div></div><div class="hand">${STY.map(s=>`<div class="card" data-act="pick" data-k="${s[0]}" aria-pressed="${S.my===s[0]}">${s[1]}</div>`).join("")}</div></div>${kickBtn()}${resultLine()}`],
+ ["Radar Matchup","Their squad's shape as a radar — attack, creation, defence, physical — which is where the tendency comes from.",()=>{const m=DATA.means.find(x=>x.teamId===them().teamId&&x.season===them().season);const ks=["att","cre","def","phy"];const P=ks.map((k,i)=>{const a=-Math.PI/2+i*Math.PI/2;const r=(m[k]-30)/35*40;return `${50+r*Math.cos(a)},${50+r*Math.sin(a)}`});return `${oppTabs()}${vs()}<div class="s5"><svg viewBox="0 0 100 100"><polygon points="50,10 90,50 50,90 10,50" fill="none" stroke="currentColor" opacity=".25"/><polygon points="50,30 70,50 50,70 30,50" fill="none" stroke="currentColor" opacity=".15"/><polygon points="${P.join(" ")}" fill="var(--pri)" fill-opacity=".35" stroke="var(--pri)"/><text x="50" y="7" font-size="5" text-anchor="middle" fill="currentColor">ATT ${m.att}</text><text x="96" y="52" font-size="5" text-anchor="end" fill="currentColor">CRE ${m.cre}</text><text x="50" y="97" font-size="5" text-anchor="middle" fill="currentColor">DEF ${m.def}</text><text x="4" y="52" font-size="5" fill="currentColor">PHY ${m.phy}</text></svg></div><div class="scout">${scoutLine()}</div>${pickBtns("six")}${kickBtn()}${resultLine()}`}],
+ ["Teletext","Page 302: the scouting report in CEEFAX blocks, styles picked like page numbers. Perfect for the 90s era.",()=>`${oppTabs()}<div class="s6"><div><span class="t">P302 PITCHIQ SCOUT</span> <span class="y">${new Date().toDateString().slice(4,10)}</span></div><p class="c">${short(me().club).toUpperCase()} v ${short(them().club).toUpperCase()}</p><p class="y">THEY USUALLY PLAY ${sname(tendency(S.opp)).toUpperCase()}</p><p class="g">CHOOSE YOUR STYLE:</p>${pickBtns()}${kickBtn()}${resultLine()}</div>`],
+ ["Dugout Clipboard","A clipboard in the dugout: the scout's notes, then tick the plan. Practical and tactile.",()=>`${oppTabs()}<div class="s7">${vs()}<p style="font-style:italic">“${scoutLine().replace(/<[^>]+>/g,"")}”</p>${STY.map(s=>`<div class="ck" data-act="pick" data-k="${s[0]}"><i>${(S.my??"balanced")===s[0]?"✓":""}</i><b>${s[1]}</b> <span style="opacity:.6">— ${s[2]}</span></div>`).join("")}${kickBtn()}${resultLine()}</div>`],
+ ["Versus Screen","A fighting-game VS screen: crests either side, pick your style like a character, theirs is a ‘?’ until kick-off.",()=>`${oppTabs()}<div class="s8"><div class="row" style="justify-content:space-between">${crest(me().teamId,"lg")}<div class="vs">VS</div>${crest(them().teamId,"lg")}</div><div class="row" style="justify-content:space-between;margin:6px 0 10px"><b>${S.my?sname(S.my).toUpperCase():"SELECT"}</b><b>${S.revealed?sname(S.revealed).toUpperCase():"?"}</b></div><div class="mut" style="color:#fffa;margin-bottom:8px">Scout: ${scoutLine()}</div><div class="sel">${STY.map(s=>`<button class="pk" data-act="pick" data-k="${s[0]}" aria-pressed="${S.my===s[0]}">${s[1]}</button>`).join("")}</div>${kickBtn()}${resultLine()}</div>`],
+ ["Odds Board","A bookmaker's board pricing their style — 6/4 on their usual, 11/1 the rest — and you place your bet.",()=>{const t=tendency(S.opp);return `${oppTabs()}<div class="s9">${vs()}<p style="color:#aaa">What will ${short(them().club)} play?</p>${odds(t).sort((a,b)=>b[1]-a[1]).map(([k,p])=>`<div class="od"><span>${sname(k)}</span><b>${p===60?"4/6":"11/1"}</b><span style="color:#888">${p}%</span></div>`).join("")}<p style="color:#aaa;margin-top:10px">Your style:</p>${pickBtns()}${kickBtn()}${resultLine()}</div>`}],
+ ["Radio Build-up","The pre-match broadcast: lower third, the pundit reads the scout's line, you answer with your plan.",()=>`${oppTabs()}<div class="s10"><div class="lower">LIVE · PRE-MATCH · ${short(me().club).toUpperCase()} v ${short(them().club).toUpperCase()}</div><div class="feed"><p>🎙 “${short(them().club)} have been playing ${sname(tendency(S.opp))} most weeks — expect it again.”</p><p class="mut">How do you set up?</p>${pickBtns("six")}${kickBtn()}${resultLine()}</div></div>`],
+];
+
+const LISTS = {album:ALBUM, hall:HALL, style:STYLE};
+const INTRO = {
+ album:`Album (TASK-1819). Real squads as the Classic pool rates them — that pool is the set definition, ${DATA.stats.clubSeasons} club-seasons, ${DATA.stats.min}–${DATA.stats.max} cards each (median ${DATA.stats.median}). The sample career has Arsenal 2003/04 complete (gold) and the rest part-filled. Tap any empty slot to collect it — fill a set to see it turn gold.`,
+ hall:`Hall of Fame (TASK-1813). The 16 achievements from the design, with a sample career. Tap any to see its condition. “Collector” counts the album live — collect stickers on the Album tab and watch it move.`,
+ style:`Style + scouting (TASK-1825, owner: “Scouting report”). On the pre-match screen: the scout names the opponent's usual style (from its squad), you pick, Kick off reveals what they actually played (60% their usual, 8% each other) and the edge. Uses the real counter cycle. Change the opponent with the chips; your side is ${short(sets[S.set===S.opp?0:S.set].club)}.`,
+};
+
+function seg(id,list,key,apply){ const el=document.getElementById(id); el.innerHTML=list.map(([v,l])=>`<button data-v="${v}">${l}</button>`).join(""); const sync=()=>el.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===apply.get())); el.onclick=e=>{const b=e.target.closest("button");if(!b)return;apply.set(b.dataset.v);sync();render();}; sync(); }
+seg("surf",SURF,"surf",{get:()=>S.surf,set:v=>{S.surf=v;S.revealed=null}});
+seg("era",ERAS,"era",{get:()=>document.body.dataset.era,set:v=>document.body.dataset.era=v});
+seg("theme",THEMES,"theme",{get:()=>document.body.dataset.theme,set:v=>document.body.dataset.theme=v});
+
+function render(){
+  const list=LISTS[S.surf];
+  document.getElementById("intro").textContent=INTRO[S.surf];
+  const jump=document.getElementById("jump");
+  jump.innerHTML=`<option value="">Jump to…</option>`+list.map((c,k)=>`<option value="c${k+1}">${k+1}. ${c[0]}</option>`).join("");
+  document.getElementById("out").innerHTML=list.map((c,k)=>`<section class="concept" id="c${k+1}"><h2><b>${k+1}</b>${c[0]}</h2><p class="why">${c[1]}</p><div class="frames"><div><p class="tag">Desktop · 720</p><div class="frame d">${c[2]()}</div></div><div><p class="tag">Mobile · 375</p><div class="frame m">${c[2]()}</div></div></div></section>`).join("");
+}
+document.getElementById("jump").onchange=e=>{ if(e.target.value) document.getElementById(e.target.value).scrollIntoView(); };
+document.getElementById("out").onclick=e=>{
+  const t=e.target.closest("[data-act]"); if(!t) return;
+  const y=window.scrollY;
+  const a=t.dataset.act;
+  if(a==="set"){S.set=+t.dataset.i;}
+  else if(a==="collect"){collect(S.set,t.dataset.id);window.scrollTo(0,y);return;}
+  else if(a==="badge"){S.badge=t.dataset.id;}
+  else if(a==="opp"){S.opp=+t.dataset.i;S.revealed=null;}
+  else if(a==="pick"){S.my=t.dataset.k;S.revealed=null;}
+  else if(a==="kick"){kick();window.scrollTo(0,y);return;}
+  else if(a==="again"){S.revealed=null;}
+  render(); window.scrollTo(0,y);
+};
+/* ── MOTION gallery: the owner's three picks (Album #1, Hall #1, Style #2), 20 motion designs ──
+   Audit rules (motion-audit.test.ts): only transform / opacity / box-shadow, every animation finite,
+   one prefers-reduced-motion gate. Each design says what it does to the four moments:
+   a sticker landing, a set turning gold, a trophy lighting, the dossier + kick-off reveal. */
+const MO = [
+ ["Sticker Slap","Stickers slap down one by one with a tiny overshoot; the cabinet's cups pop lit; the dossier bars draw left to right and the stamp thuds.",
+  `ST{animation:mo-pop .42s var(--pop) both;animation-delay:calc(var(--i)*45ms)}CUP{animation:mo-pop .5s var(--pop) both;animation-delay:calc(var(--i)*90ms)}BAR{transform-origin:0 50%;animation:mo-grow .6s ease-out both;animation-delay:calc(var(--i)*80ms)}STAMP{animation:mo-thud .45s cubic-bezier(.2,1.6,.4,1) .5s both}RES{animation:mo-rise .4s ease-out both}`],
+ ["Pack Rip","Stickers fly out of a torn pack, up from below and fanned, and settle into their slots.",
+  `ST{animation:mo-fly .55s cubic-bezier(.2,.9,.2,1) both;animation-delay:calc(var(--i)*35ms)}CUP{animation:mo-rise .5s ease-out both;animation-delay:calc(var(--i)*70ms)}BAR{transform-origin:0 50%;animation:mo-grow .5s ease-out both;animation-delay:calc(var(--i)*60ms)}STAMP{animation:mo-thud .4s ease-out .4s both}RES{animation:mo-rise .4s ease-out both}`],
+ ["Page Turn","The album page swings open on its spine; trophies fade up behind the glass; the folder flaps open.",
+  `PAGE{transform-origin:0 50%;animation:mo-turn .7s cubic-bezier(.3,.7,.2,1) both}PAGE2{transform-origin:100% 50%;animation:mo-turn2 .7s cubic-bezier(.3,.7,.2,1) .1s both}CUP{animation:mo-fade .6s ease-out both;animation-delay:calc(var(--i)*60ms)}DOS{transform-origin:50% 0;animation:mo-flap .6s ease-out both}RES{animation:mo-rise .4s ease-out both}`],
+ ["Foil Sweep","A light sweep runs across a finished set, the gold foil catching the light. Earned cups glow in turn.",
+  `ST{animation:mo-fade .35s ease-out both;animation-delay:calc(var(--i)*30ms)}GOLD::after{animation:mo-sweep 1.1s ease-in-out .6s both}CUP{animation:mo-glow 1.2s ease-out both;animation-delay:calc(var(--i)*120ms)}BAR{transform-origin:0 50%;animation:mo-grow .6s ease-out both}STAMP{animation:mo-fade .3s ease-out .4s both}RES{animation:mo-rise .4s ease-out both}`],
+ ["Stamp Slam","Quiet until the CONFIDENTIAL stamp slams down and shakes the folder; the verdict slams the same way.",
+  `ST{animation:mo-fade .3s ease-out both}CUP{animation:mo-fade .3s ease-out both}STAMP{animation:mo-slam .5s cubic-bezier(.5,0,.75,0) .3s both}DOS{animation:mo-shake .3s ease-out .8s both}RES{animation:mo-slam .45s cubic-bezier(.5,0,.75,0) both}`],
+ ["Trophy Rise","Cups rise onto the shelves one at a time like a presentation; stickers rise with them.",
+  `ST{animation:mo-rise .45s ease-out both;animation-delay:calc(var(--i)*40ms)}CUP{animation:mo-lift .6s cubic-bezier(.2,1.3,.4,1) both;animation-delay:calc(var(--i)*110ms)}BAR{transform-origin:0 50%;animation:mo-grow .5s ease-out both}RES{animation:mo-lift .5s cubic-bezier(.2,1.3,.4,1) both}`],
+ ["Spotlight","Earned cups take a spotlight glow that blooms and holds; the gold set glows the same way.",
+  `CUP{animation:mo-glow 1.4s ease-out both;animation-delay:calc(var(--i)*150ms)}GOLDBOX{animation:mo-bloom 1.2s ease-out .3s both}ST{animation:mo-fade .4s ease-out both}BAR{transform-origin:0 50%;animation:mo-grow .6s ease-out both}RES{animation:mo-bloom .9s ease-out both}`],
+ ["Bar Chart Count","The dossier leads: the odds bars count up in order, then the stamp; stickers and cups grow up from their base.",
+  `BAR{transform-origin:0 50%;animation:mo-grow .9s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i)*140ms)}STAMP{animation:mo-thud .4s ease-out 1.1s both}ST{animation:mo-grow-y .5s ease-out both;transform-origin:50% 100%;animation-delay:calc(var(--i)*35ms)}CUP{animation:mo-grow-y .5s ease-out both;transform-origin:50% 100%;animation-delay:calc(var(--i)*80ms)}RES{animation:mo-rise .4s ease-out both}`],
+ ["Card Flip","Stickers turn over from their backs one by one; the verdict flips over like a turned card.",
+  `ST{animation:mo-flip .55s ease-out both;animation-delay:calc(var(--i)*50ms)}CUP{animation:mo-flip .55s ease-out both;animation-delay:calc(var(--i)*90ms)}BAR{transform-origin:0 50%;animation:mo-grow .5s ease-out both}RES{animation:mo-flip .6s ease-out both}`],
+ ["Confetti Set","A finished set bursts confetti over the page; unlocked cups pop; the reveal pops.",
+  `ST{animation:mo-fade .35s ease-out both;animation-delay:calc(var(--i)*25ms)}CONF{animation:mo-confetti 1.2s cubic-bezier(.2,.7,.3,1) both;animation-delay:calc(var(--i)*20ms + .5s)}CUP{animation:mo-pop .5s var(--pop) both;animation-delay:calc(var(--i)*90ms)}RES{animation:mo-pop .5s var(--pop) both}`],
+ ["Soft Cascade","The quiet one: everything rises 8px and fades in, in reading order. Nothing shouts.",
+  `ST{animation:mo-rise .5s ease-out both;animation-delay:calc(var(--i)*30ms)}CUP{animation:mo-rise .5s ease-out both;animation-delay:calc(var(--i)*60ms)}BAR{animation:mo-rise .5s ease-out both;animation-delay:calc(var(--i)*60ms)}STAMP{animation:mo-fade .5s ease-out .4s both}RES{animation:mo-rise .5s ease-out both}`],
+ ["Bounce In","Rubbery and playful: stickers and cups drop in and bounce twice.",
+  `ST{animation:mo-bounce .7s ease-out both;animation-delay:calc(var(--i)*40ms)}CUP{animation:mo-bounce .7s ease-out both;animation-delay:calc(var(--i)*80ms)}BAR{transform-origin:0 50%;animation:mo-grow .6s var(--pop) both}RES{animation:mo-bounce .7s ease-out both}`],
+ ["Shelf Slide","The cabinet's shelves slide in from the side, each a beat later; album pages slide in from opposite sides.",
+  `SHELF{animation:mo-slide .6s cubic-bezier(.2,.9,.2,1) both;animation-delay:calc(var(--i)*120ms)}PAGE{animation:mo-slide .6s cubic-bezier(.2,.9,.2,1) both}PAGE2{animation:mo-slide-r .6s cubic-bezier(.2,.9,.2,1) .1s both}DOS{animation:mo-slide .6s cubic-bezier(.2,.9,.2,1) both}RES{animation:mo-slide .4s ease-out both}`],
+ ["Ink Bleed","The dossier prints itself: lines fade in as if inked, bars draw, the stamp lands last.",
+  `DOSL{animation:mo-ink .5s ease-out both;animation-delay:calc(var(--i)*90ms)}BAR{transform-origin:0 50%;animation:mo-grow .7s ease-out both;animation-delay:calc(var(--i)*90ms + .2s)}STAMP{animation:mo-thud .4s ease-out 1s both}ST{animation:mo-ink .45s ease-out both;animation-delay:calc(var(--i)*35ms)}CUP{animation:mo-ink .45s ease-out both;animation-delay:calc(var(--i)*70ms)}RES{animation:mo-ink .45s ease-out both}`],
+ ["Gold Ripple","Each sticker lands with a ring that ripples out from it; cups and the verdict ripple too.",
+  `ST{animation:mo-ring .7s ease-out both;animation-delay:calc(var(--i)*45ms)}CUP{animation:mo-ring .7s ease-out both;animation-delay:calc(var(--i)*90ms)}BAR{transform-origin:0 50%;animation:mo-grow .6s ease-out both}RES{animation:mo-ring .8s ease-out both}`],
+ ["Rattle","Each shelf rattles as its cups are added; the folder rattles under the stamp. Physical, a bit cheeky.",
+  `ST{animation:mo-fade .3s ease-out both;animation-delay:calc(var(--i)*25ms)}SHELF{animation:mo-shake .4s ease-out both;animation-delay:calc(var(--i)*200ms + .2s)}CUP{animation:mo-pop .4s var(--pop) both;animation-delay:calc(var(--i)*60ms)}STAMP{animation:mo-slam .4s cubic-bezier(.5,0,.75,0) .3s both}DOS{animation:mo-shake .3s ease-out .7s both}RES{animation:mo-pop .45s var(--pop) both}`],
+ ["Progress Fill","The meters lead: the album's progress bar fills, then the stickers it counts appear.",
+  `PROG{transform-origin:0 50%;animation:mo-grow 1s cubic-bezier(.2,.8,.2,1) both}ST{animation:mo-fade .3s ease-out both;animation-delay:calc(var(--i)*30ms + .6s)}CUP{animation:mo-fade .4s ease-out both;animation-delay:calc(var(--i)*60ms)}BAR{transform-origin:0 50%;animation:mo-grow 1s cubic-bezier(.2,.8,.2,1) both}RES{animation:mo-rise .4s ease-out both}`],
+ ["Polaroid Drop","Stickers fall from above, slightly turned, and straighten as they stick.",
+  `ST{animation:mo-drop .6s cubic-bezier(.2,.9,.3,1.2) both;animation-delay:calc(var(--i)*45ms)}CUP{animation:mo-drop .6s cubic-bezier(.2,.9,.3,1.2) both;animation-delay:calc(var(--i)*90ms)}DOS{animation:mo-drop .6s cubic-bezier(.2,.9,.3,1.2) both}STAMP{animation:mo-thud .4s ease-out .7s both}RES{animation:mo-drop .5s ease-out both}`],
+ ["Glint","Nothing slides in; a glint runs over each cup and across the gold set once, in turn.",
+  `CUP{animation:mo-glint .9s ease-in-out both;animation-delay:calc(var(--i)*140ms)}GOLD::after{animation:mo-sweep 1s ease-in-out .3s both}STAMP{animation:mo-glint .8s ease-in-out .3s both}RES{animation:mo-glint .7s ease-in-out both}`],
+ ["Curtain","The cabinet doors and the album cover open from the middle to reveal what's inside.",
+  `CURT::before{animation:mo-door .8s cubic-bezier(.6,0,.2,1) .2s both}CURT::after{animation:mo-door .8s cubic-bezier(.6,0,.2,1) .2s both}ST{animation:mo-fade .4s ease-out .6s both}CUP{animation:mo-fade .4s ease-out .6s both}DOS{transform-origin:50% 0;animation:mo-flap .6s ease-out both}RES{animation:mo-rise .4s ease-out both}`],
+];
+const SEL = {ST:".a1 .st",PAGE:".a1 .page:first-child",PAGE2:".a1 .page:nth-child(2)",GOLD:".a1.gold",GOLDBOX:".a1.gold",CONF:".a1 .conf i",CUP:".h1 .tr",SHELF:".h1 .sh",BAR:".s2 .bars i",STAMP:".s2 .stamp",DOS:".s2",DOSL:".s2 > *",RES:".result",PROG:".head .bar-p i",CURT:".mv-curt"};
+function moCss(){ return MO.map((m,k)=>m[2].replace(/(GOLDBOX|GOLD|PAGE2|PAGE|SHELF|STAMP|DOSL|DOS|CONF|CUP|BAR|RES|PROG|CURT|ST)(::\w+)?\{/g,(_,g,ps)=>`[data-m="${k}"] ${SEL[g]}${ps??""}{`)).join("\n"); }
+const KEYS = `
+:root{--pop:cubic-bezier(.34,1.56,.64,1)}
+@keyframes mo-pop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
+@keyframes mo-fade{from{opacity:0}to{opacity:1}}
+@keyframes mo-rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes mo-grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes mo-grow-y{from{opacity:0;transform:scaleY(0)}to{opacity:1;transform:none}}
+@keyframes mo-thud{from{opacity:0;transform:scale(2) rotate(-6deg)}to{opacity:1;transform:rotate(-6deg)}}
+@keyframes mo-slam{0%{opacity:0;transform:scale(2.4) rotate(-10deg)}70%{opacity:1;transform:scale(.95) rotate(-6deg)}100%{opacity:1;transform:rotate(-6deg)}}
+@keyframes mo-fly{from{opacity:0;transform:translateY(120px) rotate(-14deg) scale(.7)}to{opacity:1;transform:none}}
+@keyframes mo-turn{from{opacity:0;transform:perspective(900px) rotateY(-80deg)}to{opacity:1;transform:none}}
+@keyframes mo-turn2{from{opacity:0;transform:perspective(900px) rotateY(80deg)}to{opacity:1;transform:none}}
+@keyframes mo-flap{from{opacity:0;transform:perspective(800px) rotateX(-70deg)}to{opacity:1;transform:none}}
+@keyframes mo-sweep{from{opacity:1;transform:translateX(-100%)}to{opacity:1;transform:translateX(100%)}}
+@keyframes mo-glow{0%{box-shadow:0 0 0 0 #ffd84d00}40%{box-shadow:0 0 24px 6px #ffd84d99}100%{box-shadow:0 0 12px 2px #ffd84d55}}
+@keyframes mo-bloom{0%{box-shadow:0 0 0 0 #ffd84d00}50%{box-shadow:0 0 30px 8px #ffd84d80}100%{box-shadow:0 0 10px 2px #ffd84d40}}
+@keyframes mo-shake{0%,100%{transform:none}20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-2px)}80%{transform:translateX(2px)}}
+@keyframes mo-lift{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}
+@keyframes mo-flip{from{opacity:0;transform:perspective(600px) rotateY(90deg)}to{opacity:1;transform:none}}
+@keyframes mo-confetti{0%{opacity:1;transform:translate(0,0) rotate(0)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(540deg)}}
+@keyframes mo-bounce{0%{opacity:0;transform:translateY(-40px)}50%{opacity:1;transform:translateY(0)}70%{transform:translateY(-10px)}85%{transform:translateY(0)}93%{transform:translateY(-3px)}100%{transform:none}}
+@keyframes mo-slide{from{opacity:0;transform:translateX(-60px)}to{opacity:1;transform:none}}
+@keyframes mo-slide-r{from{opacity:0;transform:translateX(60px)}to{opacity:1;transform:none}}
+@keyframes mo-ink{from{opacity:0;transform:scale(1.04)}to{opacity:1;transform:none}}
+@keyframes mo-ring{0%{opacity:0;box-shadow:0 0 0 0 #a3179a88}30%{opacity:1}100%{opacity:1;box-shadow:0 0 0 14px #a3179a00}}
+@keyframes mo-drop{from{opacity:0;transform:translateY(-60px) rotate(8deg)}to{opacity:1;transform:none}}
+@keyframes mo-glint{0%,100%{transform:none;box-shadow:none}50%{transform:scale(1.08);box-shadow:0 0 18px 4px #fff8}}
+@keyframes mo-door{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+.a1.gold{position:relative;overflow:hidden}
+.a1.gold::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(100deg,transparent 35%,#fff9 50%,transparent 65%);opacity:0}
+.a1 .conf{position:absolute;inset:0;pointer-events:none}
+.a1 .conf i{position:absolute;left:50%;top:40%;width:8px;height:12px;opacity:0}
+.mv-curt{position:relative}
+.mv-curt::before,.mv-curt::after{content:"";position:absolute;top:0;bottom:0;width:50%;z-index:2;background:linear-gradient(90deg,#3a2614,#6b4a24);pointer-events:none;transform:scaleX(0)}
+.mv-curt::before{left:0;transform-origin:0 50%}.mv-curt::after{right:0;transform-origin:100% 50%}
+.mv-stage{display:grid;gap:14px}
+.mv-stage>section{min-width:0}
+.mv-lbl{font:700 11px system-ui;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin:0 0 6px}
+@media (prefers-reduced-motion:reduce){[data-m] *,[data-m] *::before,[data-m] *::after{animation:none!important}}
+`;
+function motionStage(){
+  S.set=1; S.opp=2; S.my="high-press"; S.revealed=tendency(2);
+  const cs=cards().slice(0,12);
+  const album=`<section><p class="mv-lbl">Album · a full set</p><div class="mv-curt">${setHead()}<div class="a1 gold">${[0,1].map(p=>`<div class="page">${cs.filter((_,k)=>k%2===p).map(c=>`<div class="st have"><div><div class="ovr">${c.o}</div>${sur(c.n)}<div class="role">${c.r}</div></div></div>`).join("")}</div>`).join("")}<div class="conf">${Array.from({length:18},(_,k)=>`<i style="background:hsl(${k*40} 80% 55%);--dx:${Math.round(Math.cos(k)*160)}px;--dy:${Math.round(Math.sin(k*1.7)*120-40)}px"></i>`).join("")}</div></div></div></section>`;
+  const hall=`<section><p class="mv-lbl">Hall of Fame · unlocks</p><div class="mv-curt"><div class="h1">${[0,1].map(r=>`<div class="sh">${ACH.slice(r*4,r*4+4).map(a=>`<div class="tr ${achOn(a)?"on":""}"><div class="cup">${a[3]}</div>${a[1]}</div>`).join("")}</div>`).join("")}</div></div></section>`;
+  const t=tendency(S.opp);
+  const dossier=`<section><p class="mv-lbl">Pre-match · scouting and kick-off</p><div class="s2"><div class="row" style="justify-content:space-between"><b>SCOUTING REPORT</b><span class="stamp">CONFIDENTIAL</span></div>${vs()}<div class="bars" style="margin:10px 0">${odds(t).map(([k,p])=>`<div><span>${sname(k)}</span><i style="width:${p}%"></i><span>${p}%</span></div>`).join("")}</div>${pickBtns()}${resultLine()}</div></section>`;
+  return `<div class="mv-stage">${album}${hall}${dossier}</div>`;
+}
+function stagger(root){ for(const sel of [".a1 .st",".h1 .tr",".h1 .sh",".s2 .bars i",".a1 .conf i",".s2 > *"]) root.querySelectorAll(sel).forEach((el,k)=>el.style.setProperty("--i",k)); }
+function motionInit(){
+  document.getElementById("surf").style.display="none";
+  const st=document.createElement("style"); st.textContent=KEYS+moCss(); document.head.appendChild(st);
+  document.querySelector(".bar h1").textContent="Trophy Room · motion";
+  document.title="Trophy Room Motion";
+  document.getElementById("intro").textContent="20 motion designs on your three picks (Album #1 Panini Classic, Hall #1 Trophy Cabinet, Style #2 Scout's Dossier), with real data. Each plays once; press Replay to see it again. Only transform, opacity and box-shadow move, nothing loops, and reduced motion turns it all off.";
+  const jump=document.getElementById("jump");
+  jump.innerHTML=`<option value="">Jump to…</option>`+MO.map((m,k)=>`<option value="m${k+1}">${k+1}. ${m[0]}</option>`).join("");
+  const stage=motionStage();
+  document.getElementById("out").innerHTML=MO.map((m,k)=>`<section class="concept" id="m${k+1}"><h2><b>${k+1}</b>${m[0]} <button class="btn ghost" data-replay="${k}" style="margin-inline-start:8px;padding:4px 12px">Replay</button></h2><p class="why">${m[1]}</p><div class="frames"><div><p class="tag">Desktop · 720</p><div class="frame d" data-m="${k}">${stage}</div></div><div><p class="tag">Mobile · 375</p><div class="frame m" data-m="${k}">${stage}</div></div></div></section>`).join("");
+  document.querySelectorAll("[data-m]").forEach(stagger);
+  document.getElementById("out").onclick=e=>{ const b=e.target.closest("[data-replay]"); if(!b) return; document.querySelectorAll(`[data-m="${b.dataset.replay}"]`).forEach(f=>{ const h=f.innerHTML; f.innerHTML=""; void f.offsetWidth; f.innerHTML=h; stagger(f); }); };
+}
+
+if (MODE === "motion") motionInit(); else render();
+</script>
+</body>
+</html>
