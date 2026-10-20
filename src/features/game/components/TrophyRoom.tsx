@@ -69,25 +69,34 @@ export function TrophyRoom() {
         <h1 className="tr-title">🏆 {t("title")}</h1>
         <p className="tr-intro">{t("intro")}</p>
       </header>
-      <div role="tablist" className="tr-tabs">
-        <button
-          type="button"
-          role="tab"
-          aria-selected={tab === "album"}
-          onClick={() => choose("album")}
-        >
-          {t("tabAlbum")}
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={tab === "hall"}
-          onClick={() => choose("hall")}
-        >
-          {t("tabHall")}
-        </button>
+      <div
+        role="tablist"
+        className="tr-tabs"
+        onKeyDown={(e) => {
+          // Arrow keys move between the two tabs (WAI-ARIA tabs pattern).
+          if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+          e.preventDefault();
+          const next: Tab = tab === "album" ? "hall" : "album";
+          choose(next);
+          document.getElementById(`tr-tab-${next}`)?.focus();
+        }}
+      >
+        {(["album", "hall"] as const).map((k) => (
+          <button
+            key={k}
+            id={`tr-tab-${k}`}
+            type="button"
+            role="tab"
+            aria-selected={tab === k}
+            aria-controls="tr-panel"
+            tabIndex={tab === k ? 0 : -1}
+            onClick={() => choose(k)}
+          >
+            {t(k === "album" ? "tabAlbum" : "tabHall")}
+          </button>
+        ))}
       </div>
-      <div role="tabpanel">
+      <div role="tabpanel" id="tr-panel" aria-labelledby={`tr-tab-${tab}`}>
         {data == null ? (
           <p className="ta-empty-state" aria-busy="true">
             {t("loading")}

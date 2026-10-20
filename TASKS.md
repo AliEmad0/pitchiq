@@ -5519,7 +5519,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1822](#task-1822) | Dynamic event-driven match engine (drama, VAR, subs, injuries)  | ✅ Done    | P1       | XL  |
 | [TASK-1823](#task-1823) | Draft Room — 11 slots × 5 cards, free roam + pick timer         | ✅ Done    | P2       | L   |
 | [TASK-1824](#task-1824) | Squad chemistry (era / club / nation links) as a modifier       | 📋 Backlog | P3       | M   |
-| [TASK-1825](#task-1825) | Tactical style + mentality selection on the draft hub           | ✅ Done    | P3       | S   |
+| [TASK-1825](#task-1825) | Tactical style selection, scouted (mentality deferred)          | ✅ Done    | P3       | S   |
 | [TASK-1826](#task-1826) | Market value progression across a season                        | 📋 Backlog | P3       | M   |
 | [TASK-1827](#task-1827) | Onboarding — coach identity + tutorial match (local only)       | 📋 Backlog | P3       | M   |
 | [TASK-1828](#task-1828) | Weekly modifier ladder (local, seeded from the ISO week)        | 📋 Backlog | P3       | M   |
@@ -6657,7 +6657,7 @@ Built: `domain/draft-room.ts` (`roomDeals`), `view/room-state.ts` (the reducer),
 
 ### TASK-1825
 
-**Tactical style + mentality selection** · ✅ Done · `S` · `P3` · Type: Feature
+**Tactical style selection, scouted (mentality deferred)** · ✅ Done · `S` · `P3` · Type: Feature
 
 **Description** — Surface the six `TacticalStyle` values already shipped in TASK-1805 (`balanced`, `tiki-taka`, `high-press`, `low-block`, `counter`, `direct`) as a picker on the draft hub, replacing the currently seeded random style. The counter matrix and `tacticalStyleModifier` already exist — this is UI plus wiring, no engine work. Show the matchup edge against the opponent's style on the pre-match screen so the choice is legible rather than arbitrary. **Depends on:** TASK-1805, TASK-1807.
 
@@ -6671,6 +6671,8 @@ Built: `domain/draft-room.ts` (`roomDeals`), `view/room-state.ts` (the reducer),
 2. **Share code v3** = v2 plus one style token, written only when a style exists; v2 still decodes and replays under the old rule (a lossless upgrade, unlike v1 → v2).
 3. **Kick off rebuilds the match on the same seed** — a style changes no squad, so the opponent on the programme is the one he plays.
 4. The odds on the dossier come from the draw's own constants, never copied numbers.
+
+**Deferred:** the ticket's original title also named a **mentality** selection (an attacking or defensive stance). Neither the design nor the plan scoped it, and nothing for it shipped; it needs its own ticket and its own engine modifier.
 
 ### TASK-1826
 

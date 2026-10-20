@@ -104,6 +104,25 @@ describe("TrophyRoom", () => {
     expect(await screen.findAllByTestId("tc-cup")).toHaveLength(16);
   });
 
+  it("the tabs are wired for keyboards and screen readers", async () => {
+    renderWithIntl(<TrophyRoom />);
+    await screen.findByText(/Your album is empty/);
+    const album = screen.getByRole("tab", { name: "Album" });
+    const hall = screen.getByRole("tab", { name: "Hall of Fame" });
+    const panel = screen.getByRole("tabpanel");
+    expect(album).toHaveAttribute("aria-controls", panel.id);
+    expect(panel).toHaveAttribute("aria-labelledby", album.id);
+    expect(album).toHaveAttribute("tabindex", "0");
+    expect(hall).toHaveAttribute("tabindex", "-1");
+    album.focus();
+    await userEvent.keyboard("{ArrowRight}");
+    expect(hall).toHaveFocus();
+    expect(hall).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tabpanel")).toHaveAttribute("aria-labelledby", hall.id);
+    await userEvent.keyboard("{ArrowLeft}");
+    expect(album).toHaveFocus();
+  });
+
   it("speaks Arabic with Arabic digits", async () => {
     store.album = [entry(0)];
     render(
