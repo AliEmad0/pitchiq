@@ -24,6 +24,7 @@ import {
   localDay,
   matchEntry,
   recordFullTime,
+  runContext,
   scoreLine,
 } from "../view/trophy-record";
 import { SeasonFixturePlay } from "./SeasonFixturePlay";
@@ -261,7 +262,7 @@ function HistoricalSeason({ seasons, survival }: { seasons: number[]; survival: 
               survived: p.status === "survived",
             },
           },
-          context: `${nameOf(coach)} · ${p.position}/${data.schedule.clubs}`,
+          context: runContext(nameOf(coach), p.position, data.schedule.clubs),
         });
       return;
     }
@@ -276,7 +277,7 @@ function HistoricalSeason({ seasons, survival }: { seasons: number[]; survival: 
         day,
         cards: [],
         facts: { season },
-        context: `${nameOf(coach)} · ${position}/${data.schedule.clubs}`,
+        context: runContext(nameOf(coach), position, data.schedule.clubs),
       });
     }
   }

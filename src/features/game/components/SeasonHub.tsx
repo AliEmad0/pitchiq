@@ -25,6 +25,7 @@ import {
   localDay,
   matchEntry,
   recordFullTime,
+  runContext,
   scoreLine,
   type FullTimeEntry,
 } from "@/features/game/view/trophy-record";
@@ -408,7 +409,7 @@ export function SeasonHub({
           day,
           cards: [],
           facts: { season },
-          context: `${nameOf(after.coach)} · ${position}/${after.clubs}`,
+          context: runContext(nameOf(after.coach), position, after.clubs),
         });
       }
     },

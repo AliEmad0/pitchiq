@@ -182,3 +182,7 @@ export function leagueEnd(
     position,
   };
 }
+
+/** The line a finished run's unlock keeps — one wording, earned live or backfilled. */
+export const runContext = (name: string | null, position: number, clubs: number) =>
+  name == null || name === "" ? `${position}/${clubs}` : `${name} · ${position}/${clubs}`;

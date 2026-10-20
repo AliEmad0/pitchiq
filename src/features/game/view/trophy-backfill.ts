@@ -10,7 +10,7 @@ import { loadRun } from "@/features/game/storage/season-slot";
 import { loadSurvivalSave, type SavedSurvival } from "@/features/game/storage/survival-slot";
 import { type AlbumCard, isClaimed } from "@/features/game/storage/trophy-slot";
 import { loadWhatIfBests } from "@/features/game/storage/what-if-slot";
-import { fetchSeason, leagueEnd, recordFullTime } from "./trophy-record";
+import { fetchSeason, leagueEnd, recordFullTime, runContext } from "./trophy-record";
 
 /**
  * TASK-1813/1819 — fill the Trophy Room with what a coach did BEFORE it shipped, on open.
@@ -104,7 +104,7 @@ export async function backfillTrophies(today: string): Promise<void> {
         day: today,
         cards: [],
         facts: { season },
-        context: `#${position}`,
+        context: runContext(null, position, run.clubs),
       });
     }
   }
@@ -143,7 +143,11 @@ export async function backfillTrophies(today: string): Promise<void> {
               survived: p.status === "survived",
             },
           },
-          context: `#${p.position}`,
+          context: runContext(
+            data.squads?.find((c) => c.teamId === save.clubId)?.name ?? null,
+            p.position,
+            data.schedule.clubs,
+          ),
         });
     } else if (save.results.length >= data.schedule.fixtures.length) {
       const { season, position } = leagueEnd(
@@ -156,7 +160,11 @@ export async function backfillTrophies(today: string): Promise<void> {
         day: today,
         cards: [],
         facts: { season },
-        context: `#${position}`,
+        context: runContext(
+          data.squads?.find((c) => c.teamId === save.clubId)?.name ?? null,
+          position,
+          data.schedule.clubs,
+        ),
       });
     }
   }

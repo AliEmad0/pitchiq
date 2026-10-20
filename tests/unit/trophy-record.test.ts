@@ -30,7 +30,8 @@ vi.mock("@/features/game/storage/trophy-slot", () => ({
   },
 }));
 
-const { albumCards, recordFullTime } = await import("@/features/game/view/trophy-record");
+const { albumCards, recordFullTime, runContext } =
+  await import("@/features/game/view/trophy-record");
 
 /**
  * TASK-1813 / 1819 — the ONE entry point every full-time path calls: it adds the coach's cards
@@ -161,5 +162,12 @@ describe("albumCards", () => {
       { cardId: "1@2003", teamId: 42, name: "A", role: "CF", season: 2003, ovr: 90 },
       { cardId: "2@2003", teamId: 7, name: "B", role: "", season: 2003, ovr: 0 },
     ]);
+  });
+});
+
+describe("runContext", () => {
+  it("one wording for a finished run, live or backfilled", () => {
+    expect(runContext("Arsenal", 1, 20)).toBe("Arsenal · 1/20");
+    expect(runContext(null, 4, 22)).toBe("4/22");
   });
 });
