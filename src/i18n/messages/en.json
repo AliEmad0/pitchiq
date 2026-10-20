@@ -1396,5 +1396,40 @@
         "2": "NO WAY THROUGH FOR {coach}"
       }
     }
+  },
+  "gameWhatIf": {
+    "title": "What-If",
+    "subtitle": "Real Premier League collapses. Take over the side that was behind — at the real minute, at the real score — and rewrite it.",
+    "listHeading": "CONTINUE?",
+    "listAria": "Scenarios",
+    "deficit": "{score} at {minute}'",
+    "ended": "Ended {score}",
+    "youTake": "You take {club}",
+    "play": "Play",
+    "chipNone": "Not played",
+    "chipRewrote": "Rewritten",
+    "chipMatched": "Matched",
+    "chipRepeated": "Repeated",
+    "loading": "Rewinding the tape…",
+    "loadError": "The tape would not load.",
+    "retry": "Try again",
+    "back": "All scenarios",
+    "talkLive": "LIVE · {date}",
+    "talkRadio": "“…and it's {score} here at {minute}'. {club} need a miracle.”",
+    "talkLeft": "{minutes} minutes to rewrite it",
+    "talkHeading": "Your team talk, {club}",
+    "talkPitchAria": "{club} line-up",
+    "xiReal": "Real line-up",
+    "xiBest": "Best available",
+    "talkHint": "Choose how they go back out. Changes come next.",
+    "verdictFull": "FULL TIME",
+    "verdictHistory": "HISTORY {score}",
+    "verdictRewrote": "HISTORY REWRITTEN",
+    "verdictMatched": "HISTORY MATCHED",
+    "verdictRepeated": "HISTORY REPEATED",
+    "verdictRewroteLine": "You did better than the real {club}.",
+    "verdictMatchedLine": "Exactly what the real {club} managed.",
+    "verdictRepeatedLine": "The real {club} did better.",
+    "again": "Try again"
   }
 }

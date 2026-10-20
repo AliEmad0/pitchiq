@@ -5774,3 +5774,216 @@
     animation: none;
   }
 }
+
+/* ---- TASK-1816 What-If: the owner's picks — list #3 "Arcade Continue?", team talk #4
+   "VHS Rewind", verdict #3's LED board — all in #3's Arcade skin, with real crests.
+   Scoped to `.wi-root` and committed to one dark treatment in both app themes (the
+   `/game` cabinet rule). Pitch and board scores are `dir="ltr"` in the markup. */
+.wi-root {
+  --wi-bg: #05030b;
+  --wi-panel: #0d0818;
+  --wi-fg: #f3e8ff;
+  --wi-mut: #8fe9ff;
+  --wi-line: #2b1940;
+  --wi-pink: #ff4fd8;
+  --wi-cyan: #2fd4ec;
+  --wi-led: #ffd84d;
+  display: grid;
+  gap: 16px;
+  color: var(--wi-fg);
+}
+.wi-head {
+  display: grid;
+  gap: 6px;
+}
+.wi-title,
+.wi-h,
+.wi-radio {
+  margin: 0;
+  font-family: "Courier New", ui-monospace, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.wi-title {
+  color: var(--wi-pink);
+  font-size: clamp(28px, 6vw, 40px);
+  text-shadow:
+    0 0 8px var(--wi-pink),
+    0 0 22px color-mix(in srgb, var(--wi-pink) 40%, transparent);
+}
+.wi-sub,
+.wi-mut {
+  color: var(--wi-mut);
+}
+.wi-panel,
+.wi-board {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid var(--wi-line);
+  border-radius: 12px;
+  background: var(--wi-bg);
+}
+.wi-h {
+  color: var(--wi-pink);
+  font-size: 22px;
+  text-shadow: 0 0 6px var(--wi-pink);
+}
+.wi-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--wi-line);
+}
+.wi-row-main {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 560px) {
+  .wi-row {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+  .wi-row .wi-chip {
+    display: none;
+  }
+}
+.wi-chip {
+  display: inline-block;
+  padding: 4px 8px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font:
+    700 10px/1 system-ui,
+    sans-serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--wi-mut);
+}
+.wi-chip.wi-rewrote,
+.wi-board-verdict.wi-rewrote {
+  color: #4ade80;
+}
+.wi-chip.wi-matched,
+.wi-board-verdict.wi-matched {
+  color: #fbbf24;
+}
+.wi-chip.wi-repeated,
+.wi-board-verdict.wi-repeated {
+  color: #f87171;
+}
+.wi-btn {
+  justify-self: start;
+  padding: 8px 16px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--wi-pink);
+  color: #fff;
+  font:
+    700 13px system-ui,
+    sans-serif;
+  cursor: pointer;
+}
+.wi-btn.wi-ghost {
+  background: transparent;
+  border: 1px solid var(--wi-line);
+  color: var(--wi-fg);
+}
+.wi-btn:focus-visible,
+.wi-opt:focus-visible {
+  outline: 2px solid var(--wi-cyan);
+  outline-offset: 2px;
+}
+/* #4 VHS Rewind — the live-radio moment over the real XI. */
+.wi-vhs {
+  background: linear-gradient(180deg, #1b1b1b, var(--wi-bg));
+}
+.wi-radio {
+  font-size: clamp(18px, 3.6vw, 24px);
+  text-transform: none;
+  letter-spacing: 0;
+}
+.wi-talk-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.wi-pitch {
+  position: relative;
+  aspect-ratio: 3 / 2;
+  max-height: 340px;
+  border: 2px solid #ffffff55;
+  border-radius: 10px;
+  background: repeating-linear-gradient(90deg, #2f7d3b 0 10%, #2a7035 10% 20%);
+}
+.wi-dot {
+  position: absolute;
+  width: 72px;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font:
+    700 10px/1.1 system-ui,
+    sans-serif;
+  text-align: center;
+}
+.wi-dot i {
+  display: block;
+  width: 12px;
+  height: 12px;
+  margin: 0 auto 2px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: var(--wi-pink);
+}
+.wi-resp {
+  display: grid;
+  gap: 8px;
+}
+@media (min-width: 640px) {
+  .wi-resp {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+.wi-opt {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid var(--wi-line);
+  border-radius: 10px;
+  background: var(--wi-panel);
+  color: var(--wi-fg);
+  text-align: start;
+  cursor: pointer;
+}
+.wi-opt:hover {
+  border-color: var(--wi-pink);
+}
+/* #3's LED full-time board. */
+.wi-board {
+  background: #111;
+  color: var(--wi-led);
+  font-family: "Courier New", ui-monospace, monospace;
+  text-align: center;
+}
+.wi-board-row {
+  letter-spacing: 0.1em;
+}
+.wi-board-score {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  font-size: clamp(20px, 4.5vw, 30px);
+  font-weight: 700;
+}
+.wi-board-verdict {
+  margin: 0;
+  font-size: clamp(22px, 5vw, 32px);
+  text-shadow: 0 0 10px currentColor;
+}
+.wi-board-actions {
+  display: flex;
+  justify-content: center;
+}

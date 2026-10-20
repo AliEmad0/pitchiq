@@ -239,8 +239,9 @@ export const GAME_MODES: readonly GameMode[] = [
     emoji: "⏳",
     nameKey: "modeWhatIfName",
     descriptionKey: "modeWhatIfDesc",
-    href: null,
-    formats: planned,
+    href: "/game/whatif",
+    // A rescue is ONE real match; a season of them is not a thing, so `n/a`, not `planned`.
+    formats: { single: "live", season: "n/a" },
     accent: "#2dd4bf",
     ticket: "TASK-1816",
   },
