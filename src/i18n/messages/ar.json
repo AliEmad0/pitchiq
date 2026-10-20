@@ -1431,5 +1431,34 @@
     "verdictMatchedLine": "تماماً كما فعل {club} الحقيقي.",
     "verdictRepeatedLine": "{club} الحقيقي قدّم أفضل.",
     "again": "حاول مجدداً"
+  },
+  "gameStyle": {
+    "title": "تقرير الكشّاف",
+    "stamp": "سرّي",
+    "usually": "عادةً ما يلعبون بأسلوب {style}، في نحو {n} مباريات من كل ١٠.",
+    "oddsLabel": "ماذا سيلعب {team}",
+    "yourStyle": "أسلوبك",
+    "kickOff": "ضربة البداية",
+    "walkOut": "إلى أرض الملعب",
+    "played": "لعبوا بأسلوب {style}.",
+    "edgeWin": "أسلوبك {mine} يتفوّق على أسلوبهم {theirs}.",
+    "edgeLose": "أسلوبهم {theirs} يتفوّق على أسلوبك {mine}.",
+    "edgeNone": "لا أفضلية لأيّ طرف.",
+    "style": {
+      "balanced": "متوازن",
+      "tikiTaka": "تيكي تاكا",
+      "highPress": "الضغط العالي",
+      "lowBlock": "التكتل الدفاعي",
+      "counter": "الهجمات المرتدة",
+      "direct": "اللعب المباشر"
+    },
+    "blurb": {
+      "balanced": "لا أفضلية ولا مخاطرة",
+      "tikiTaka": "الاستحواذ على الكرة",
+      "highPress": "افتكاك الكرة في الأمام",
+      "lowBlock": "التراجع إلى الخلف",
+      "counter": "الضرب في المرتدات",
+      "direct": "الكرات الطويلة المبكرة"
+    }
   }
 }

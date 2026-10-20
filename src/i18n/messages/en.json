@@ -1431,5 +1431,34 @@
     "verdictMatchedLine": "Exactly what the real {club} managed.",
     "verdictRepeatedLine": "The real {club} did better.",
     "again": "Try again"
+  },
+  "gameStyle": {
+    "title": "Scouting report",
+    "stamp": "Confidential",
+    "usually": "They usually play {style} — about {n} times in 10.",
+    "oddsLabel": "What {team} will play",
+    "yourStyle": "Your style",
+    "kickOff": "Kick off",
+    "walkOut": "Walk out",
+    "played": "They played {style}.",
+    "edgeWin": "Your {mine} beats their {theirs}.",
+    "edgeLose": "Their {theirs} beats your {mine}.",
+    "edgeNone": "No edge either way.",
+    "style": {
+      "balanced": "Balanced",
+      "tikiTaka": "Tiki-Taka",
+      "highPress": "High Press",
+      "lowBlock": "Low Block",
+      "counter": "Counter",
+      "direct": "Direct"
+    },
+    "blurb": {
+      "balanced": "No edge, no risk",
+      "tikiTaka": "Keep the ball",
+      "highPress": "Win it high",
+      "lowBlock": "Sit deep",
+      "counter": "Hit on the break",
+      "direct": "Long and early"
+    }
   }
 }

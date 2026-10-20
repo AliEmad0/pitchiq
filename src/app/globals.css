@@ -6069,3 +6069,204 @@
     animation: none;
   }
 }
+
+/* ── TASK-1825 · Scout's Dossier (owner: Style #2) on the pre-match screen ──
+   A manila folder: the scout's line, the opponent's style odds as bars, the pick, Kick off,
+   the reveal, Walk out. Motion is the owner's hybrid #1 Sticker Slap (the bars draw,
+   staggered) + #5 Stamp Slam (stamp slams, folder shakes, verdict slams) — four different
+   elements, so no element carries two animations. */
+.sd-dossier {
+  --sd-paper: #d9c08a;
+  --sd-ink: #2b2111;
+  --sd-line: #a88f5c;
+  --sd-tilt: -6deg;
+  background: var(--sd-paper);
+  color: var(--sd-ink);
+  border-radius: 4px 14px 4px 4px;
+  padding: 16px;
+  font-family: Georgia, "Times New Roman", serif;
+  box-shadow: 0 6px 18px rgb(0 0 0 / 0.25);
+}
+.sd-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.sd-title {
+  margin: 0;
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.sd-stamp {
+  display: inline-block;
+  border: 2px solid #9b1c1c;
+  color: #9b1c1c;
+  padding: 2px 8px;
+  transform: rotate(var(--sd-tilt));
+  font:
+    800 12px/1.2 system-ui,
+    sans-serif;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  animation: sd-slam 0.5s cubic-bezier(0.5, 0, 0.75, 0) 0.3s both;
+}
+.sd-scout {
+  margin: 10px 0;
+  font-style: italic;
+}
+.sd-label {
+  margin: 12px 0 6px;
+  font:
+    700 11px/1 system-ui,
+    sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+.sd-odds {
+  display: grid;
+  gap: 4px;
+}
+.sd-row {
+  display: grid;
+  grid-template-columns: minmax(0, 7.5rem) minmax(0, 1fr) 2.75rem;
+  gap: 8px;
+  align-items: center;
+  font-size: 0.8125rem;
+}
+.sd-track {
+  display: block;
+  height: 8px;
+  border-radius: 2px;
+  background: rgb(43 33 17 / 0.12);
+  overflow: hidden;
+}
+.sd-bar {
+  display: block;
+  height: 100%;
+  background: var(--sd-ink);
+  transform-origin: 0 50%;
+  animation: sd-grow 0.6s ease-out both;
+  animation-delay: calc(var(--i, 0) * 80ms);
+}
+[dir="rtl"] .sd-bar {
+  transform-origin: 100% 50%;
+}
+.sd-pct {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+.sd-picks {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+.sd-pick {
+  border: 1px solid var(--sd-line);
+  background: #efe0bb;
+  color: var(--sd-ink);
+  border-radius: 8px;
+  padding: 8px;
+  text-align: start;
+  font:
+    600 0.8125rem/1.2 system-ui,
+    sans-serif;
+  cursor: pointer;
+}
+.sd-pick small {
+  display: block;
+  margin-top: 3px;
+  font-weight: 400;
+  opacity: 0.75;
+}
+.sd-pick[aria-pressed="true"] {
+  border-color: var(--sd-ink);
+  box-shadow: 0 0 0 2px var(--sd-ink);
+}
+.sd-pick:disabled {
+  cursor: default;
+}
+.sd-go {
+  margin-top: 12px;
+  width: 100%;
+}
+.sd-verdict {
+  --sd-tilt: 0deg;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font:
+    700 0.875rem/1.35 system-ui,
+    sans-serif;
+  background: rgb(255 255 255 / 0.4);
+  animation: sd-slam 0.45s cubic-bezier(0.5, 0, 0.75, 0) both;
+}
+.sd-verdict p {
+  margin: 0;
+}
+.sd-verdict.is-win {
+  background: #bbf7d0;
+  color: #14532d;
+}
+.sd-verdict.is-lose {
+  background: #fecaca;
+  color: #7f1d1d;
+}
+.sd-dossier.is-stamped {
+  animation: sd-shake 0.3s ease-out 0.8s both;
+}
+@media (max-width: 520px) {
+  .sd-picks {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@keyframes sd-grow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes sd-slam {
+  0% {
+    opacity: 0;
+    transform: scale(2.4) rotate(calc(var(--sd-tilt, 0deg) - 4deg));
+  }
+  70% {
+    opacity: 1;
+    transform: scale(0.95) rotate(var(--sd-tilt, 0deg));
+  }
+  to {
+    opacity: 1;
+    transform: rotate(var(--sd-tilt, 0deg));
+  }
+}
+@keyframes sd-shake {
+  0%,
+  100% {
+    transform: none;
+  }
+  20% {
+    transform: translateX(-4px);
+  }
+  40% {
+    transform: translateX(4px);
+  }
+  60% {
+    transform: translateX(-2px);
+  }
+  80% {
+    transform: translateX(2px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sd-bar,
+  .sd-stamp,
+  .sd-dossier.is-stamped,
+  .sd-verdict {
+    animation: none;
+  }
+}

@@ -75,6 +75,12 @@ register) — formal but not stiff.
 | Conference League        | دوري المؤتمر الأوروبي                                                                           | qualification legend; ≥2021 name                                  |
 | Cup Winners' Cup         | كأس الكؤوس الأوروبية                                                                            | qualification legend; era-name ≤1998                              |
 | Relegation               | الهبوط                                                                                          | qualification legend (`standings.qualRelegation`)                 |
+| Balanced                 | متوازن                                                                                          | tactical style (`gameStyle.style.*`, TASK-1825)                   |
+| Tiki-Taka                | تيكي تاكا                                                                                       | tactical style (`gameStyle.style.*`, TASK-1825)                   |
+| High Press               | الضغط العالي                                                                                    | tactical style (`gameStyle.style.*`, TASK-1825)                   |
+| Low Block                | التكتل الدفاعي                                                                                  | tactical style (`gameStyle.style.*`, TASK-1825)                   |
+| Counter                  | الهجمات المرتدة                                                                                 | tactical style (`gameStyle.style.*`, TASK-1825)                   |
+| Direct                   | اللعب المباشر                                                                                   | tactical style (`gameStyle.style.*`, TASK-1825)                   |
 
 ## Data stays in source form
 

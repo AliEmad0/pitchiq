@@ -4,7 +4,7 @@ import { usePathname } from "@/i18n/navigation";
 import { parseAsString, parseAsStringLiteral, useQueryState } from "nuqs";
 import type { SeasonSpec } from "@/features/game/domain/rule-packs";
 import { SeasonStart } from "./SeasonStart";
-import { useEffect, useMemo, useReducer, useState } from "react";
+import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import type { PlayerSeasonId } from "@/features/game/domain/card-id";
 import { FORMATIONS, type DraftPolicy, type PoolCard } from "@/features/game/domain/chaos-draft";
 import type { RivalRef } from "@/features/game/domain/share-code";
@@ -16,6 +16,7 @@ import {
 } from "@/features/game/view/rival-choice";
 import type { RivalSetup } from "@/features/game/view/match-session";
 import type { TacticalStyle } from "@/features/game/domain/opponent";
+import { scoutedStyle, STYLES, styleTendency } from "@/features/game/domain/style-scouting";
 import {
   formationKey,
   formationNameFromKey,
@@ -65,6 +66,9 @@ const DECISION_LIMIT = 20;
  * the round-based room in place of the free-build hub; preview, live and summary are
  * identical either way, because both paths hand up the same `(players, formation)`.
  */
+/** Where the last style pick is remembered — a per-browser convenience (TASK-1825). */
+const STYLE_KEY = "pitchiq.style";
+
 export function GamePlay({
   pool,
   initialPhase,
@@ -248,6 +252,36 @@ export function GamePlay({
   const [style, setStyle] = useState<TacticalStyle | undefined>(undefined);
   /** The style belonging to the RESTORE OFFER, held until he accepts it. */
   const [offerStyle, setOfferStyle] = useState<TacticalStyle | undefined>(undefined);
+  /**
+   * The Scout's Dossier (TASK-1825): the style on the programme, and both styles once Kick off
+   * has been pressed. Defaults to Balanced; the last pick in this browser is a convenience.
+   */
+  const [picked, setPicked] = useState<TacticalStyle>("balanced");
+  const [revealed, setRevealed] = useState<{ home: TacticalStyle; away: TacticalStyle } | null>(
+    null,
+  );
+  /**
+   * What `confirmSquad` started the match with, so Kick off can rebuild it with the pick.
+   *
+   * ⛔ Same seed, same squad, same rival: a style changes no squad (pinned by
+   * `match-style-identity.test.ts`), so the opponent on the programme is the one he plays.
+   */
+  const startArgs = useRef<{
+    players: PoolCard[];
+    formation: Formation;
+    seed: number;
+    picked: { setup: ChosenRival | null; difficulty: Difficulty } | null;
+  } | null>(null);
+  useEffect(() => {
+    try {
+      const last = window.localStorage.getItem(STYLE_KEY);
+      if (last != null && (STYLES as readonly string[]).includes(last)) {
+        setPicked(last as TacticalStyle);
+      }
+    } catch {
+      // Storage blocked: Balanced it is.
+    }
+  }, []);
   /**
    * The club being faced, and how it drafted (owner, 2026-08-19).
    *
@@ -473,6 +507,8 @@ export function GamePlay({
 
     const picked = chosen ?? null;
     setRival(picked);
+    setRevealed(null);
+    startArgs.current = { players, formation, seed, picked };
     driver.start(
       pool,
       players,
@@ -772,11 +808,36 @@ export function GamePlay({
 
   if (state.phase === "preview") {
     const onKickOff = () => dispatch({ type: "kickOff" });
+    /**
+     * Kick off on the dossier: rebuild the match with the coach's style, then reveal what the
+     * opponent actually plays. The match starts on Walk out.
+     */
+    const onScoutedKickOff = () => {
+      const args = startArgs.current;
+      if (args == null) return;
+      driver.start(
+        pool,
+        args.players,
+        args.formation,
+        args.seed,
+        { home: t("yourXi"), away: t("rivals") },
+        { ...rivalSetup(args.picked), style: picked },
+      );
+      setStyle(picked);
+      try {
+        window.localStorage.setItem(STYLE_KEY, picked);
+      } catch {
+        // A convenience only.
+      }
+      setRevealed({ home: picked, away: scoutedStyle(match.away.players, args.seed) });
+    };
     const onBack = () => {
       // ⚠️ Cleared in the handler, never in an effect. An effect gated on "phase is
       // not live" would race the restore effect on mount and wipe the record before
       // it could be read.
       void clearMatch();
+      setRevealed(null);
+      setStyle(undefined);
       dispatch({ type: "backToSetup" });
     };
     // TASK-1810: the owner-designed matchday programme, for packs that ask for it.
@@ -789,6 +850,24 @@ export function GamePlay({
         chemistry={chemistry}
         referee={referee}
         weather={weather}
+        scouting={
+          // A match with no hand-off args (a resumed or shared one) never shows a programme;
+          // this guard keeps the dossier off it if that ever changes.
+          startArgs.current == null
+            ? undefined
+            : {
+                opponentName: match.away.name,
+                tendency: styleTendency(match.away.players),
+                picked,
+                onPick: setPicked,
+                revealed,
+                onKickOff: onScoutedKickOff,
+                onWalkOut: () => {
+                  setRevealed(null);
+                  onKickOff();
+                },
+              }
+        }
         onKickOff={onKickOff}
         onBack={onBack}
       />
