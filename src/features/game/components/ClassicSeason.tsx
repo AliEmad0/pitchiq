@@ -102,12 +102,23 @@ function HistoricalSeason({ seasons, survival }: { seasons: number[]; survival: 
   const [playing, setPlaying] = useState<ReturnType<typeof nextClassicFixture>>(null);
   const lock = useRef(false);
   const returned = useRef(false);
+  /**
+   * TASK-1813/1819 — the results the Trophy Room has been handed, and a played fixture whose save
+   * is still to succeed. ⛔ Records go out only after a save SUCCEEDS (see `persist`): a fixture
+   * recorded before a failed save would claim its key, and the replay would never be recorded.
+   */
+  const recordedRef = useRef<SavedHistorical["results"] | null>(null);
+  const pendingPlayed = useRef<
+    { result: MatchResult; fixture: NonNullable<typeof playing> } | undefined
+  >(undefined);
   useEffect(() => {
     let live = true;
     (survival ? loadSurvivalSave() : loadClassicSave())
       .then((value) => {
         if (!live) return;
         setSaved(value);
+        // A loaded run's results were recorded when they were played (or by the backfill).
+        recordedRef.current = value?.results ?? null;
         if (value) {
           setSeason(value.season);
           setClubId(value.clubId);
@@ -269,15 +280,24 @@ function HistoricalSeason({ seasons, survival }: { seasons: number[]; survival: 
       });
     }
   }
-  async function persist(next: SavedHistorical) {
+  async function persist(
+    next: SavedHistorical,
+    played?: { result: MatchResult; fixture: NonNullable<typeof playing> },
+  ) {
     setSaved(next);
+    if (played != null) pendingPlayed.current = played;
     try {
       if (survival) await saveSurvival(next as SavedSurvival);
       else await saveClassic(next);
       setError(null);
     } catch {
       setError("save");
+      return;
     }
+    // Saved: hand the Trophy Room whatever is new since its last record.
+    recordHistorical(recordedRef.current ?? [], next.results, pendingPlayed.current);
+    recordedRef.current = next.results;
+    pendingPlayed.current = undefined;
   }
   async function transact(action: () => Promise<void>) {
     if (lock.current) return;
@@ -327,7 +347,6 @@ function HistoricalSeason({ seasons, survival }: { seasons: number[]; survival: 
             prepared.unavailable,
           );
       await persist({ ...saved, results: [...next.results], injuries: next.injuries });
-      recordHistorical(saved.results, next.results);
     });
   const remove = () => {
     if (!abandon) {
@@ -338,6 +357,7 @@ function HistoricalSeason({ seasons, survival }: { seasons: number[]; survival: 
       if (survival) await clearSurvival();
       else await clearClassic();
       setSaved(null);
+      recordedRef.current = null;
       setPlaying(null);
       setCards(undefined);
       setAbandon(false);
@@ -378,8 +398,10 @@ function HistoricalSeason({ seasons, survival }: { seasons: number[]; survival: 
                   played,
                 )
               : advanceClassic(data.schedule, current.teams, current.run, played);
-            await persist({ ...saved, results: [...next.results], injuries: next.injuries });
-            recordHistorical(saved.results, next.results, { result, fixture: playing });
+            await persist(
+              { ...saved, results: [...next.results], injuries: next.injuries },
+              { result, fixture: playing },
+            );
             setPlaying(null);
           });
         }}

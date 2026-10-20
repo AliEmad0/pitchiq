@@ -26,6 +26,7 @@ import {
   matchEntry,
   recordFullTime,
   scoreLine,
+  type FullTimeEntry,
 } from "@/features/game/view/trophy-record";
 import { buildSeasonTeams } from "@/features/game/view/season-league";
 import { clubLogo } from "@/utils/club-logo";
@@ -269,6 +270,7 @@ export function SeasonHub({
     void writes.current
       .then(
         () => {
+          for (const e of pendingRecords.current.splice(0)) void recordFullTime(e);
           if (live) setSaveError(false);
         },
         () => {
@@ -355,6 +357,13 @@ export function SeasonHub({
    * once it is complete. A PLAYED fixture carries its match facts; a simmed one only his cards,
    * so bulk sim can never farm a match badge. Keys make every record once-only.
    */
+  /**
+   * Trophy Room records waiting for the save that holds their week (TASK-1813/1819).
+   *
+   * ⛔ Sent only after `saveRun` succeeds: a week recorded before a failed save would claim its
+   * key, and the week the coach then replays would never be recorded.
+   */
+  const pendingRecords = useRef<FullTimeEntry[]>([]);
   const recordSteps = useCallback(
     (
       before: SeasonRun,
@@ -372,7 +381,7 @@ export function SeasonHub({
           away: r.awayGoals,
         });
         const key = `s:${after.seed}:${r.week}`;
-        void recordFullTime(
+        pendingRecords.current.push(
           played != null
             ? matchEntry({
                 key,
@@ -394,7 +403,7 @@ export function SeasonHub({
       }
       if (!isComplete(before) && isComplete(after)) {
         const { season, position } = leagueEnd(after.clubs, after.coach, after.results);
-        void recordFullTime({
+        pendingRecords.current.push({
           key: `r:${after.seed}`,
           day,
           cards: [],

@@ -1,5 +1,5 @@
 import { classicLineup } from "@/features/game/domain/classic-lineup";
-import { screen, waitFor } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { PlayerRole } from "@/data/schemas";
 import { describe, expect, it, vi } from "vitest";
@@ -8,8 +8,9 @@ import { formationByName } from "@/features/game/domain/formation";
 import { renderWithIntl } from "./_helpers/intl";
 
 vi.mock("@/utils/motion", () => ({ prefersReducedMotion: () => true }));
+const slotMock = vi.hoisted(() => ({ saveRun: vi.fn(async () => {}) }));
 vi.mock("@/features/game/storage/season-slot", () => ({
-  saveRun: vi.fn(async () => {}),
+  saveRun: slotMock.saveRun,
   loadRun: vi.fn(async () => null),
   clearRun: vi.fn(async () => {}),
 }));
@@ -191,4 +192,17 @@ describe("SeasonHub — the Trophy Room (TASK-1813/1819)", () => {
     expect(end).toHaveLength(1);
     expect(end[0]!.facts.season).toMatchObject({ kind: "league", complete: true });
   }, 60_000);
+});
+
+describe("SeasonHub — records only what was saved (TASK-1813/1819)", () => {
+  it("⛔ a week whose save failed is not recorded until the retried save succeeds", async () => {
+    recorded.length = 0;
+    await render();
+    slotMock.saveRun.mockRejectedValueOnce(new Error("disk full"));
+    await userEvent.click(screen.getByRole("button", { name: /sim week/i }));
+    const alert = await screen.findByRole("alert");
+    expect(recorded.filter((e) => e.key.startsWith("s:"))).toEqual([]);
+    await userEvent.click(within(alert).getByRole("button"));
+    await waitFor(() => expect(recorded.filter((e) => e.key.startsWith("s:"))).toHaveLength(1));
+  });
 });

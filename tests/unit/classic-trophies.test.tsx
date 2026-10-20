@@ -67,3 +67,26 @@ it("records every simmed coach fixture and the finished season, once", async () 
   expect(end).toHaveLength(1);
   expect(end[0]!.facts.season).toMatchObject({ kind: "league", complete: true });
 }, 180_000);
+
+it("⛔ a fixture whose save failed is not recorded", async () => {
+  recorded.length = 0;
+  const own = classicTeams(data, 42, "4-4-2 Flat")[data.clubIds.indexOf(42)];
+  storage.loadClassicSave.mockResolvedValue({
+    version: 1,
+    season: 2003,
+    clubId: 42,
+    formation: "4-4-2 Flat",
+    archiveKey: data.archiveKey,
+    seed: 888,
+    cardIds: own.players.map((p) => p.cardId),
+    results: [],
+  });
+  storage.saveClassic.mockReset();
+  storage.saveClassic.mockRejectedValueOnce(new Error("disk full"));
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => data }));
+  const user = userEvent.setup();
+  renderWithIntl(<ClassicSeason seasons={[2003]} />);
+  await user.click(await screen.findByRole("button", { name: "Sim fixture" }));
+  await screen.findByRole("alert");
+  expect(recorded.filter((e) => e.key.startsWith("c:888:"))).toEqual([]);
+}, 60_000);
