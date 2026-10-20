@@ -358,3 +358,18 @@ The turntable spins a **finite** 3 turns, then rests; never make it `infinite` (
 The wheel's centre **score** stays Western, matching the scoreline rule; xG figures are
 localized. A late **own goal** has no scorer, so `NAMELESS` in `match-headline.ts` limits
 the late arcs to wordings without `{player}`. Keep that list in step with both catalogs.
+
+### TASK-1816 What-If scenarios (2026-10-20)
+
+`/game/whatif` is force-static. `domain/what-if.ts` holds the frozen `SCENARIOS`; edit
+`adapter/what-if-derive.ts`, never the values, and its test re-derives every entry.
+`MatchSetup.startState` starts a match at a minute: `priorEvents` are the real goals and
+reds, and score and dismissals derive from them. Absent, the engine matches 250 pinned
+fingerprints. The team talk is a `response` plus a half-time-style `sub-offer` at
+`minute + 1`; `WhatIf` answers both before `MatchLive` mounts, whose optional `startMinute`
+skips the replayed first half-hour. ⛔ The boost lives only in `domain/what-if-boost.ts`
+(tempo ×2 plus a trailing lift and leader ease-off). Never move it into
+`BASELINE_MODIFIERS`. After changing the engine, re-run `what-if-difficulty.test.ts`; it
+pins the 15–45% band and the 22–28% mean. Real XIs match by folded exact name: absent beats
+wrong. The team-talk pitch (`TeamTalkPitch`) is real metres, left to right. The game-modes
+guard exempts season `n/a` modes, pinned to `daily` and `whatIf`.

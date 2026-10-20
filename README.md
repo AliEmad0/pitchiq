@@ -263,3 +263,14 @@ drafted mode, season fixtures and the daily challenge, in English and Arabic. xG
 links are untouched, and the report costs no server time. The record drops in with a ripple,
 spins up while the spokes grow minute by minute, then turns three times and rests. That motion switches
 off under reduced motion. See the [design](docs/superpowers/specs/2026-10-13-task-1815-post-match-report-design.md).
+
+### What-If scenarios (TASK-1816 — ✅ Done)
+
+Step into a real Premier League collapse and rewrite it. `/game/whatif` lists seven real
+comebacks — Spurs 3–5 Man United, Newcastle 4–4 Arsenal, "Crystanbul" and more — and drops
+you into the side that was behind at the exact minute and score of its biggest deficit, with
+that season's real squad and, where the archive allows, its real starting XI. A team talk at
+the start whistle sets how they go back out; then you coach the rest, under that season's
+substitution rules, and the full-time board tells you whether you rewrote history, matched it
+or repeated it. A What-If-only boost makes a rescue land about one time in four. Everything
+is prerendered — no server time. See the [design](docs/superpowers/specs/2026-10-20-task-1816-what-if-design.md).
