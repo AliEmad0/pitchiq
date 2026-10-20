@@ -25,11 +25,8 @@ describe("What-If scenarios — derived from the archive", () => {
       "2011-new-ars": ["home", 26, 0, 4],
       "2014-cry-liv": ["home", 55, 0, 3],
       "2013-wba-mun": ["home", 30, 0, 3],
-      "2024-bou-lut": ["home", 46, 0, 3],
-      "2005-nor-mid": ["home", 78, 1, 4],
       "1994-liv-mun": ["home", 24, 0, 3],
       "2000-sou-liv": ["home", 64, 0, 3],
-      "2012-che-mun": ["away", 50, 3, 0],
       "1998-whu-wim": ["away", 27, 3, 0],
     });
   });

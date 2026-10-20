@@ -7,6 +7,7 @@ import type { GamePlayer } from "../domain/player";
 import { premierLeagueSubstitutions } from "../domain/substitution-rules";
 import { type GameTeam, makeGameTeam } from "../domain/team";
 import type { Scenario } from "../domain/what-if";
+import { WHAT_IF_TEMPO, whatIfBoost } from "../domain/what-if-boost";
 
 export type XiSource = "real" | "best";
 export interface WhatIfSession {
@@ -164,4 +165,20 @@ export function buildWhatIfSession(
       },
     },
   };
+}
+
+/**
+ * The session the player actually gets: the scenario plus the What-If boost (doubled tempo
+ * and the trailing-side lift). `buildWhatIfSession` stays unboosted so the difficulty test
+ * can measure both.
+ */
+export function buildBoostedSession(
+  s: Scenario,
+  data: ClassicData,
+  seed: number,
+): WhatIfSession | null {
+  const session = buildWhatIfSession(s, data, seed, [whatIfBoost(s.side, s.startMinute)]);
+  if (session == null) return null;
+  session.setup.targetGoalsPerMatch *= WHAT_IF_TEMPO;
+  return session;
 }
