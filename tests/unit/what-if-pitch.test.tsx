@@ -71,6 +71,13 @@ describe("TeamTalkPitch", () => {
     }
   });
 
+  it("⛔ a man sent off before the start is not on the pitch", () => {
+    render(<TeamTalkPitch team={team} label="Newcastle line-up" dismissed={new Set([3])} />);
+    const dots = screen.getAllByTestId("wi-pitch-player");
+    expect(dots).toHaveLength(10);
+    expect(screen.queryByText("CB2")).toBeNull();
+  });
+
   it("is a picture, pinned LTR, labelled, with surnames", () => {
     render(<TeamTalkPitch team={team} label="Newcastle line-up" />);
     const pitch = screen.getByRole("img", { name: "Newcastle line-up" });

@@ -24,14 +24,18 @@ export interface Scenario {
   dismissedBefore: { home: string[]; away: string[] };
   subsBefore: { home: number; away: number };
   /**
-   * The real goals and red cards up to `startMinute`, in order. The engine's start state is
-   * built from these, so the starting score and every goal-counting view agree.
+   * The real goals, red cards and substitutions up to `startMinute`, in order. The engine's
+   * start state is built from these, so the starting score and every goal-counting view
+   * agree, and the XI on the pitch is the one that was really on it.
    */
   before: {
     minute: number;
     side: Side;
-    kind: "goal" | "red";
+    kind: "goal" | "red" | "sub";
+    /** The scorer / the man sent off / the man who came ON. */
     player: string | null;
+    /** For a substitution, the man who went OFF; otherwise null. */
+    off: string | null;
     ownGoal: boolean;
   }[];
   realXi: { home: string[]; away: string[] };
@@ -108,6 +112,7 @@ export const SCENARIOS: readonly Scenario[] = [
         side: "home",
         kind: "goal",
         player: "Dean Richards",
+        off: null,
         ownGoal: false,
       },
       {
@@ -115,6 +120,15 @@ export const SCENARIOS: readonly Scenario[] = [
         side: "home",
         kind: "goal",
         player: "Les Ferdinand",
+        off: null,
+        ownGoal: false,
+      },
+      {
+        minute: 40,
+        side: "away",
+        kind: "sub",
+        player: "Ole Gunnar Solskjær",
+        off: "Nicky Butt",
         ownGoal: false,
       },
       {
@@ -122,6 +136,15 @@ export const SCENARIOS: readonly Scenario[] = [
         side: "home",
         kind: "goal",
         player: "Christian Ziege",
+        off: null,
+        ownGoal: false,
+      },
+      {
+        minute: 45,
+        side: "away",
+        kind: "sub",
+        player: "Mikaël Silvestre",
+        off: "Denis Irwin",
         ownGoal: false,
       },
     ],
@@ -187,6 +210,7 @@ export const SCENARIOS: readonly Scenario[] = [
         side: "away",
         kind: "goal",
         player: "Theo Walcott",
+        off: null,
         ownGoal: false,
       },
       {
@@ -194,6 +218,7 @@ export const SCENARIOS: readonly Scenario[] = [
         side: "away",
         kind: "goal",
         player: "Johan Djourou",
+        off: null,
         ownGoal: false,
       },
       {
@@ -201,6 +226,7 @@ export const SCENARIOS: readonly Scenario[] = [
         side: "away",
         kind: "goal",
         player: "Robin van Persie",
+        off: null,
         ownGoal: false,
       },
       {
@@ -208,6 +234,7 @@ export const SCENARIOS: readonly Scenario[] = [
         side: "away",
         kind: "goal",
         player: "Robin van Persie",
+        off: null,
         ownGoal: false,
       },
     ],
@@ -273,6 +300,7 @@ export const SCENARIOS: readonly Scenario[] = [
         side: "away",
         kind: "goal",
         player: "Joe Allen",
+        off: null,
         ownGoal: false,
       },
       {
@@ -280,6 +308,7 @@ export const SCENARIOS: readonly Scenario[] = [
         side: "away",
         kind: "goal",
         player: "Damien Delaney",
+        off: null,
         ownGoal: false,
       },
       {
@@ -287,6 +316,7 @@ export const SCENARIOS: readonly Scenario[] = [
         side: "away",
         kind: "goal",
         player: "Luis Suarez",
+        off: null,
         ownGoal: false,
       },
     ],
@@ -352,6 +382,7 @@ export const SCENARIOS: readonly Scenario[] = [
         side: "away",
         kind: "goal",
         player: "Shinji Kagawa",
+        off: null,
         ownGoal: false,
       },
       {
@@ -359,6 +390,7 @@ export const SCENARIOS: readonly Scenario[] = [
         side: "away",
         kind: "goal",
         player: "Jonas Olsson",
+        off: null,
         ownGoal: false,
       },
       {
@@ -366,6 +398,7 @@ export const SCENARIOS: readonly Scenario[] = [
         side: "away",
         kind: "goal",
         player: "Alexander Büttner",
+        off: null,
         ownGoal: false,
       },
     ],
@@ -431,6 +464,7 @@ export const SCENARIOS: readonly Scenario[] = [
         side: "away",
         kind: "goal",
         player: "Steve Bruce",
+        off: null,
         ownGoal: false,
       },
       {
@@ -438,6 +472,7 @@ export const SCENARIOS: readonly Scenario[] = [
         side: "away",
         kind: "goal",
         player: "Ryan Giggs",
+        off: null,
         ownGoal: false,
       },
       {
@@ -445,6 +480,7 @@ export const SCENARIOS: readonly Scenario[] = [
         side: "away",
         kind: "goal",
         player: "Denis Irwin",
+        off: null,
         ownGoal: false,
       },
     ],
@@ -510,6 +546,7 @@ export const SCENARIOS: readonly Scenario[] = [
         side: "away",
         kind: "goal",
         player: "Michael Owen",
+        off: null,
         ownGoal: false,
       },
       {
@@ -517,6 +554,23 @@ export const SCENARIOS: readonly Scenario[] = [
         side: "away",
         kind: "goal",
         player: "Sami Hyypiä",
+        off: null,
+        ownGoal: false,
+      },
+      {
+        minute: 61,
+        side: "home",
+        kind: "sub",
+        player: "Matthew Le Tissier",
+        off: "Hassan Kachloul",
+        ownGoal: false,
+      },
+      {
+        minute: 61,
+        side: "home",
+        kind: "sub",
+        player: "Tahar El-Khalej",
+        off: "Jason Dodd",
         ownGoal: false,
       },
       {
@@ -524,6 +578,7 @@ export const SCENARIOS: readonly Scenario[] = [
         side: "away",
         kind: "goal",
         player: "Michael Owen",
+        off: null,
         ownGoal: false,
       },
     ],
@@ -589,6 +644,7 @@ export const SCENARIOS: readonly Scenario[] = [
         side: "home",
         kind: "goal",
         player: "John Hartson",
+        off: null,
         ownGoal: false,
       },
       {
@@ -596,6 +652,7 @@ export const SCENARIOS: readonly Scenario[] = [
         side: "home",
         kind: "goal",
         player: "Ian Wright",
+        off: null,
         ownGoal: false,
       },
       {
@@ -603,6 +660,7 @@ export const SCENARIOS: readonly Scenario[] = [
         side: "home",
         kind: "goal",
         player: "Ian Wright",
+        off: null,
         ownGoal: false,
       },
     ],

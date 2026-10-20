@@ -73,6 +73,34 @@ describe("buildWhatIfSession", () => {
     expect(setup.away.name).toMatch(/Man/);
   }, 60_000);
 
+  it("⛔ real substitutions before the start are APPLIED where they seat, and only those are charged", async () => {
+    // Review finding #2: Spurs v Man United 2001 starts at 45' with two real United changes —
+    // Silvestre for Irwin (45', LB for LB) and Solskjær for Butt (40', a striker for the
+    // holding midfielder: three strikers no supported shape can seat legally). They used to
+    // be charged while the men really taken off still played. Now the legal change is
+    // applied and charged; the one that cannot be seated is skipped and NOT charged.
+    const s = byId("2001-tot-mun");
+    const { setup, xiSource } = buildWhatIfSession(s, await data(s.season), 1)!;
+    expect(xiSource.away).toBe("real");
+    const xi = setup.away.players.map((p) => p.name);
+    expect(xi).toContain("Mikaël Silvestre");
+    expect(xi).not.toContain("Denis Irwin");
+    expect(xi).toContain("Nicky Butt");
+    expect((setup.away.bench ?? []).map((p) => p.name)).not.toContain("Denis Irwin");
+    expect(setup.startState!.subsUsed.away).toBe(1);
+  }, 60_000);
+
+  it("a substitution that cannot be applied is not charged", async () => {
+    const s = byId("2001-tot-mun");
+    const ghost: Scenario = {
+      ...s,
+      before: s.before.map((e) => (e.kind === "sub" ? { ...e, off: "Nobody Real" } : e)),
+    };
+    const { setup } = buildWhatIfSession(ghost, await data(s.season), 1)!;
+    expect(setup.startState!.subsUsed.away).toBe(0);
+    expect(setup.away.players.map((p) => p.name)).toContain("Nicky Butt");
+  }, 60_000);
+
   it("a real red card before the start resolves to a player on that side's XI", async () => {
     const s = byId("2011-new-ars");
     const victim = s.realXi.home[1]!;
@@ -80,13 +108,50 @@ describe("buildWhatIfSession", () => {
       ...s,
       before: [
         ...s.before,
-        { minute: 20, side: "home", kind: "red", player: victim, ownGoal: false },
+        { minute: 20, side: "home", kind: "red", player: victim, off: null, ownGoal: false },
       ],
     };
     const { setup } = buildWhatIfSession(withRed, await data(s.season), 1)!;
     const red = setup.startState!.priorEvents.find((e) => e.kind === "card")!;
     expect(red).toMatchObject({ card: "red", side: "home" });
     expect(setup.home.players.find((p) => p.playerId === red.playerId)?.name).toBe(victim);
+  }, 60_000);
+
+  it("⛔ a real red card for a man we cannot place still leaves the side a man down", async () => {
+    // Review finding #3: the red used to be dropped silently, so a match that was really
+    // 11 v 10 played 11 v 11. The numbers are history; when the man cannot be named, the
+    // side's lowest-rated outfielder makes way.
+    const s = byId("2011-new-ars");
+    const withRed: Scenario = {
+      ...s,
+      before: [
+        ...s.before,
+        { minute: 20, side: "home", kind: "red", player: "Nobody Real", off: null, ownGoal: false },
+      ],
+    };
+    const { setup } = buildWhatIfSession(withRed, await data(s.season), 1)!;
+    const reds = setup.startState!.priorEvents.filter((e) => e.kind === "card");
+    expect(reds).toHaveLength(1);
+    const id = reds[0]!.playerId!;
+    const man = setup.home.players.find((p) => p.playerId === id)!;
+    expect(man.role).not.toBe("GK");
+    const outfield = setup.home.players.filter((p) => p.role !== "GK");
+    expect(man.ratings!.overall).toBe(Math.min(...outfield.map((p) => p.ratings!.overall)));
+  }, 60_000);
+
+  it("every shipped scenario resolves exactly its real number of red cards", async () => {
+    for (const s of SCENARIOS) {
+      const { setup } = buildWhatIfSession(s, await data(s.season), 1)!;
+      const reds = setup.startState!.priorEvents.filter((e) => e.kind === "card");
+      expect(
+        reds.filter((e) => e.side === "home"),
+        s.id,
+      ).toHaveLength(s.sentOffBefore.home);
+      expect(
+        reds.filter((e) => e.side === "away"),
+        s.id,
+      ).toHaveLength(s.sentOffBefore.away);
+    }
   }, 60_000);
 
   it("passed modifiers land in setup.modifiers; the baseline list is untouched", async () => {

@@ -24,7 +24,16 @@ const X_FRONT = 82;
  * width by `slot.col`, the lowest col at the TOP — facing right, a side's left flank is the
  * top of the picture. ⛔ `dir="ltr"`: a pitch is not text (the PitchDraft rule).
  */
-export function TeamTalkPitch({ team, label }: { team: GameTeam; label: string }) {
+export function TeamTalkPitch({
+  team,
+  label,
+  dismissed,
+}: {
+  team: GameTeam;
+  label: string;
+  /** Players sent off before the start minute — they are not on the pitch. */
+  dismissed?: ReadonlySet<number>;
+}) {
   const slots = team.formation.slots;
   const rows = Math.max(...slots.map((s) => s.row));
   const arcHalf = Math.sqrt(R * R - (BOX_D - SPOT) ** 2);
@@ -85,6 +94,7 @@ export function TeamTalkPitch({ team, label }: { team: GameTeam; label: string }
           <path data-mark="corner" d={`M ${L} 1 A 1 1 0 0 1 ${L - 1} 0`} />
         </g>
         {team.players.map((p, i) => {
+          if (dismissed?.has(p.playerId)) return null;
           const slot = slots[i]!;
           const line = slots.filter((s) => s.row === slot.row).sort((a, b) => a.col - b.col);
           const x = X_KEEPER + ((slot.row - 1) / Math.max(1, rows - 1)) * (X_FRONT - X_KEEPER);

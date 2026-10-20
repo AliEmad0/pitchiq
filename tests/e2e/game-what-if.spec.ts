@@ -19,9 +19,11 @@ test.describe("What-If (TASK-1816)", () => {
     await expect(talk.getByTestId("wi-pitch-player")).toHaveCount(11);
     await page.getByRole("button", { name: /Aggressive overload/ }).click();
 
+    // Newcastle have used no changes, so the team-talk bench is always offered — wait for it
+    // rather than peeking once (a peek before paint skipped the close and stalled the test).
     const bench = page.getByRole("dialog", { name: "The bench" });
-    if (await bench.isVisible())
-      await bench.getByRole("button", { name: /close/i }).first().click();
+    await expect(bench).toBeVisible();
+    await bench.getByRole("button", { name: /close/i }).first().click();
 
     // Coach windows wait 20 seconds each; run them out on the browser clock.
     const fullTime = page.getByRole("button", { name: "Full time", exact: true });

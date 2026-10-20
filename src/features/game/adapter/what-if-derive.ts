@@ -74,12 +74,19 @@ export async function deriveScenario(
     dismissedBefore: { home: names("home"), away: names("away") },
     subsBefore: count((e) => e.type === "subst"),
     before: before
-      .filter((e) => isGoal(e.type, e.detail) || reds(e))
+      .filter((e) => isGoal(e.type, e.detail) || reds(e) || e.type === "subst")
       .map((e) => ({
         minute: e.minute,
         side: sideOf(e.teamId),
-        kind: isGoal(e.type, e.detail) ? ("goal" as const) : ("red" as const),
+        kind: isGoal(e.type, e.detail)
+          ? ("goal" as const)
+          : e.type === "subst"
+            ? ("sub" as const)
+            : ("red" as const),
+        // ⚠️ In the archive's `subst` events `player` came ON and `assist` went OFF —
+        // verified against the starting XIs (Solskjær on for Butt, Spurs v Man United 2001).
         player: e.player,
+        off: e.type === "subst" ? e.assist : null,
         ownGoal: isGoal(e.type, e.detail) && /own goal/i.test(e.detail ?? ""),
       })),
     realXi: {

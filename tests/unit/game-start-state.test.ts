@@ -87,11 +87,24 @@ describe("startState — starting part-way through", () => {
     }
   });
 
-  it("the first decisions are the team talk at minute+1: a response, then halftime sub-offers", () => {
+  it("the first decisions are the team talk AT the start minute: a response, then halftime sub-offers", () => {
     const { decisions } = playLogged(whatIf(7));
-    expect(decisions[0]).toMatchObject({ kind: "response", minute: 27, side: "home" });
-    expect(decisions[1]).toMatchObject({ kind: "sub-offer", minute: 27, halftime: true });
+    expect(decisions[0]).toMatchObject({ kind: "response", minute: 26, side: "home" });
+    expect(decisions[1]).toMatchObject({ kind: "sub-offer", minute: 26, halftime: true });
     expect(decisions[1]!.kind === "sub-offer" && decisions[1]!.legalOn.length).toBeGreaterThan(0);
+  });
+
+  it("⛔ no two decisions share kind/minute/side — even when the start falls in the sub window", () => {
+    // Review finding #1: the team talk used to be raised at minute+1, the same minute normal
+    // play then raised its own sub-offer (55'–85') or a response to a goal — a repeat the
+    // driver's duplicate guard cannot tell apart.
+    for (const minute of [26, 55, 64]) {
+      for (let seed = 1; seed <= 40; seed++) {
+        const { decisions } = playLogged(whatIf(seed, { minute }));
+        const keys = decisions.map((d) => `${d.kind}:${d.minute}:${d.side}`);
+        expect(new Set(keys).size, `start ${minute}, seed ${seed}`).toBe(keys.length);
+      }
+    }
   });
 
   it("a player sent off before the start never plays: not in events, not offered", () => {
@@ -128,8 +141,8 @@ describe("startState — starting part-way through", () => {
   it("⛔ replays byte-for-byte with a team-talk answer, and the answers encode", () => {
     const setup = whatIf(11);
     const first = drive(runMatch(setup), (d) =>
-      d.kind === "response" && d.minute === 27
-        ? { kind: "response", minute: 27, side: d.side, choice: "overload" }
+      d.kind === "response" && d.minute === 26
+        ? { kind: "response", minute: 26, side: d.side, choice: "overload" }
         : (() => {
             const a = defaultAnswer(d);
             return a.kind === "sub-offer" ? { ...a, reason: undefined } : a;
@@ -138,8 +151,8 @@ describe("startState — starting part-way through", () => {
     const { answers } = playLogged(setup);
     expect(() => encodeTokens(answers)).not.toThrow();
     const again = drive(runMatch(setup), (d) =>
-      d.kind === "response" && d.minute === 27
-        ? { kind: "response", minute: 27, side: d.side, choice: "overload" }
+      d.kind === "response" && d.minute === 26
+        ? { kind: "response", minute: 26, side: d.side, choice: "overload" }
         : (() => {
             const a = defaultAnswer(d);
             return a.kind === "sub-offer" ? { ...a, reason: undefined } : a;

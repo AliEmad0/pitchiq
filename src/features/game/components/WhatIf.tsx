@@ -193,7 +193,9 @@ export function WhatIf({ cards }: { cards: readonly WhatIfCard[] }) {
   const { home, away, seed } = session.setup;
   const card = cardOf(s.id);
   const crests = { home: card.home.id, away: card.away.id };
-  const firstMinute = s.startMinute + 1;
+  // The team talk is raised AT the start minute, where no play happens (see `simulate.ts`),
+  // so these two can never be confused with an in-play decision.
+  const talkMinute = s.startMinute;
   const pending: MatchDecision | null = driver.pending;
 
   // ---------------------------------------------------------------- full time (#3's LED board)
@@ -252,11 +254,11 @@ export function WhatIf({ cards }: { cards: readonly WhatIfCard[] }) {
 
   // ---------------------------------------------------------------- the team talk (#4)
   const talkResponse =
-    pending?.kind === "response" && pending.minute === firstMinute && pending.side === s.side
+    pending?.kind === "response" && pending.minute === talkMinute && pending.side === s.side
       ? pending
       : null;
   const talkBench =
-    pending?.kind === "sub-offer" && pending.minute === firstMinute && pending.halftime === true
+    pending?.kind === "sub-offer" && pending.minute === talkMinute && pending.halftime === true
       ? pending
       : null;
 
@@ -280,7 +282,17 @@ export function WhatIf({ cards }: { cards: readonly WhatIfCard[] }) {
               {session.xiSource[s.side] === "real" ? t("xiReal") : t("xiBest")}
             </span>
           </div>
-          <TeamTalkPitch team={team} label={t("talkPitchAria", { club: coach })} />
+          <TeamTalkPitch
+            team={team}
+            label={t("talkPitchAria", { club: coach })}
+            dismissed={
+              new Set(
+                (session.setup.startState?.priorEvents ?? [])
+                  .filter((e) => e.kind === "card" && e.side === s.side && e.playerId != null)
+                  .map((e) => e.playerId!),
+              )
+            }
+          />
           <h3 className="wi-h">{t("talkHeading", { club: coach })}</h3>
           <p className="wi-mut">{t("talkHint")}</p>
           {talkResponse != null ? (
