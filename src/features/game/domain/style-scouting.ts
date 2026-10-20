@@ -24,6 +24,9 @@ export const STYLES: readonly TacticalStyle[] = [
   "direct",
 ];
 
+/** What the scout reads: any card or player with a role and (possibly missing) ratings. */
+export type Scoutable = { role: string | null; ratings: PlayerRatings | null };
+
 /** How often a side plays its tendency; each other style gets an equal share of the rest. */
 export const TENDENCY_P = 0.6;
 
@@ -46,14 +49,12 @@ const BALANCED_SPREAD = 3;
  * against the side's own mean, so an all-star XI and a relegation XI built the same way share
  * a tendency. Reading raw levels would make every strong drafted XI look identical.
  */
-export function styleTendency(
-  players: readonly { role: string | null; ratings: PlayerRatings }[],
-): TacticalStyle {
-  const out = players.filter((p) => p.role !== "GK");
+export function styleTendency(players: readonly Scoutable[]): TacticalStyle {
+  // Unrated men carry no shape, so they are left out rather than read as zeros.
+  const out = players.flatMap((p) => (p.role !== "GK" && p.ratings != null ? [p.ratings] : []));
   if (out.length === 0) return "balanced";
   const lift = {} as Record<Dim, number>;
-  for (const d of DIMS)
-    lift[d] = out.reduce((a, p) => a + p.ratings[d], 0) / out.length - MEDIAN[d];
+  for (const d of DIMS) lift[d] = out.reduce((a, rt) => a + rt[d], 0) / out.length - MEDIAN[d];
   const mean = DIMS.reduce((a, d) => a + lift[d], 0) / DIMS.length;
   const shape = Object.fromEntries(DIMS.map((d) => [d, lift[d] - mean])) as Record<Dim, number>;
   const ranked = [...DIMS].sort((a, b) => shape[b] - shape[a]);
@@ -74,10 +75,7 @@ export function styleTendency(
  * The style a side actually plays in one match: its tendency with probability `TENDENCY_P`,
  * otherwise one of the other five uniformly. Seeded, on its own stream.
  */
-export function scoutedStyle(
-  players: readonly { role: string | null; ratings: PlayerRatings }[],
-  seed: number,
-): TacticalStyle {
+export function scoutedStyle(players: readonly Scoutable[], seed: number): TacticalStyle {
   const tendency = styleTendency(players);
   const r = mulberry32(seed ^ 0x5c0e7ed1)();
   if (r < TENDENCY_P) return tendency;
