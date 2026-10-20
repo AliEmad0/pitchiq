@@ -23,6 +23,17 @@ export interface Scenario {
   sentOffBefore: { home: number; away: number };
   dismissedBefore: { home: string[]; away: string[] };
   subsBefore: { home: number; away: number };
+  /**
+   * The real goals and red cards up to `startMinute`, in order. The engine's start state is
+   * built from these, so the starting score and every goal-counting view agree.
+   */
+  before: {
+    minute: number;
+    side: Side;
+    kind: "goal" | "red";
+    player: string | null;
+    ownGoal: boolean;
+  }[];
   realXi: { home: string[]; away: string[] };
 }
 
@@ -87,6 +98,29 @@ export const SCENARIOS: readonly Scenario[] = [
       home: 0,
       away: 2,
     },
+    before: [
+      {
+        minute: 15,
+        side: "home",
+        kind: "goal",
+        player: "Dean Richards",
+        ownGoal: false,
+      },
+      {
+        minute: 25,
+        side: "home",
+        kind: "goal",
+        player: "Les Ferdinand",
+        ownGoal: false,
+      },
+      {
+        minute: 45,
+        side: "home",
+        kind: "goal",
+        player: "Christian Ziege",
+        ownGoal: false,
+      },
+    ],
     realXi: {
       home: [
         "Teddy Sheringham",
@@ -143,6 +177,36 @@ export const SCENARIOS: readonly Scenario[] = [
       home: 0,
       away: 0,
     },
+    before: [
+      {
+        minute: 1,
+        side: "away",
+        kind: "goal",
+        player: "Theo Walcott",
+        ownGoal: false,
+      },
+      {
+        minute: 3,
+        side: "away",
+        kind: "goal",
+        player: "Johan Djourou",
+        ownGoal: false,
+      },
+      {
+        minute: 10,
+        side: "away",
+        kind: "goal",
+        player: "Robin van Persie",
+        ownGoal: false,
+      },
+      {
+        minute: 26,
+        side: "away",
+        kind: "goal",
+        player: "Robin van Persie",
+        ownGoal: false,
+      },
+    ],
     realXi: {
       home: [
         "Michael Williamson",
@@ -199,6 +263,29 @@ export const SCENARIOS: readonly Scenario[] = [
       home: 0,
       away: 0,
     },
+    before: [
+      {
+        minute: 18,
+        side: "away",
+        kind: "goal",
+        player: "Joe Allen",
+        ownGoal: false,
+      },
+      {
+        minute: 53,
+        side: "away",
+        kind: "goal",
+        player: "Damien Delaney",
+        ownGoal: false,
+      },
+      {
+        minute: 55,
+        side: "away",
+        kind: "goal",
+        player: "Luis Suarez",
+        ownGoal: false,
+      },
+    ],
     realXi: {
       home: [
         "Mile Jedinak",
@@ -255,6 +342,29 @@ export const SCENARIOS: readonly Scenario[] = [
       home: 0,
       away: 0,
     },
+    before: [
+      {
+        minute: 6,
+        side: "away",
+        kind: "goal",
+        player: "Shinji Kagawa",
+        ownGoal: false,
+      },
+      {
+        minute: 9,
+        side: "away",
+        kind: "goal",
+        player: "Jonas Olsson",
+        ownGoal: false,
+      },
+      {
+        minute: 30,
+        side: "away",
+        kind: "goal",
+        player: "Alexander Büttner",
+        ownGoal: false,
+      },
+    ],
     realXi: {
       home: [
         "Gareth McAuley",
@@ -311,6 +421,29 @@ export const SCENARIOS: readonly Scenario[] = [
       home: 2,
       away: 0,
     },
+    before: [
+      {
+        minute: 9,
+        side: "away",
+        kind: "goal",
+        player: "Tahith Chong",
+        ownGoal: false,
+      },
+      {
+        minute: 31,
+        side: "away",
+        kind: "goal",
+        player: "Chiedozie Ogbene",
+        ownGoal: false,
+      },
+      {
+        minute: 46,
+        side: "away",
+        kind: "goal",
+        player: "Ross Barkley",
+        ownGoal: false,
+      },
+    ],
     realXi: {
       home: [
         "Neto",
@@ -367,6 +500,43 @@ export const SCENARIOS: readonly Scenario[] = [
       home: 3,
       away: 2,
     },
+    before: [
+      {
+        minute: 17,
+        side: "home",
+        kind: "goal",
+        player: "Damien Francis",
+        ownGoal: false,
+      },
+      {
+        minute: 34,
+        side: "away",
+        kind: "goal",
+        player: "Jimmy Floyd Hasselbaink",
+        ownGoal: false,
+      },
+      {
+        minute: 49,
+        side: "away",
+        kind: "goal",
+        player: "Franck Queudrue",
+        ownGoal: false,
+      },
+      {
+        minute: 55,
+        side: "away",
+        kind: "goal",
+        player: "Franck Queudrue",
+        ownGoal: false,
+      },
+      {
+        minute: 78,
+        side: "away",
+        kind: "goal",
+        player: "Jimmy Floyd Hasselbaink",
+        ownGoal: false,
+      },
+    ],
     realXi: {
       home: [
         "Dean Ashton",
@@ -423,6 +593,29 @@ export const SCENARIOS: readonly Scenario[] = [
       home: 0,
       away: 0,
     },
+    before: [
+      {
+        minute: 9,
+        side: "away",
+        kind: "goal",
+        player: "Steve Bruce",
+        ownGoal: false,
+      },
+      {
+        minute: 20,
+        side: "away",
+        kind: "goal",
+        player: "Ryan Giggs",
+        ownGoal: false,
+      },
+      {
+        minute: 24,
+        side: "away",
+        kind: "goal",
+        player: "Denis Irwin",
+        ownGoal: false,
+      },
+    ],
     realXi: {
       home: [
         "Jamie Redknapp",
@@ -479,6 +672,29 @@ export const SCENARIOS: readonly Scenario[] = [
       home: 2,
       away: 0,
     },
+    before: [
+      {
+        minute: 24,
+        side: "away",
+        kind: "goal",
+        player: "Michael Owen",
+        ownGoal: false,
+      },
+      {
+        minute: 55,
+        side: "away",
+        kind: "goal",
+        player: "Sami Hyypiä",
+        ownGoal: false,
+      },
+      {
+        minute: 64,
+        side: "away",
+        kind: "goal",
+        player: "Michael Owen",
+        ownGoal: false,
+      },
+    ],
     realXi: {
       home: [
         "Hassan Kachloul",
@@ -535,6 +751,29 @@ export const SCENARIOS: readonly Scenario[] = [
       home: 0,
       away: 0,
     },
+    before: [
+      {
+        minute: 36,
+        side: "home",
+        kind: "goal",
+        player: "Jonny Evans",
+        ownGoal: false,
+      },
+      {
+        minute: 46,
+        side: "home",
+        kind: "goal",
+        player: "Juan Mata",
+        ownGoal: false,
+      },
+      {
+        minute: 50,
+        side: "home",
+        kind: "goal",
+        player: "David Luiz",
+        ownGoal: false,
+      },
+    ],
     realXi: {
       home: [
         "Florent Malouda",
@@ -591,6 +830,29 @@ export const SCENARIOS: readonly Scenario[] = [
       home: 0,
       away: 0,
     },
+    before: [
+      {
+        minute: 7,
+        side: "home",
+        kind: "goal",
+        player: "John Hartson",
+        ownGoal: false,
+      },
+      {
+        minute: 14,
+        side: "home",
+        kind: "goal",
+        player: "Ian Wright",
+        ownGoal: false,
+      },
+      {
+        minute: 27,
+        side: "home",
+        kind: "goal",
+        player: "Ian Wright",
+        ownGoal: false,
+      },
+    ],
     realXi: {
       home: [
         "John Moncur",

@@ -73,6 +73,15 @@ export async function deriveScenario(
     sentOffBefore: count(reds),
     dismissedBefore: { home: names("home"), away: names("away") },
     subsBefore: count((e) => e.type === "subst"),
+    before: before
+      .filter((e) => isGoal(e.type, e.detail) || reds(e))
+      .map((e) => ({
+        minute: e.minute,
+        side: sideOf(e.teamId),
+        kind: isGoal(e.type, e.detail) ? ("goal" as const) : ("red" as const),
+        player: e.player,
+        ownGoal: isGoal(e.type, e.detail) && /own goal/i.test(e.detail ?? ""),
+      })),
     realXi: {
       home: lineup.home.startXI.map((p) => p.name),
       away: lineup.away.startXI.map((p) => p.name),
