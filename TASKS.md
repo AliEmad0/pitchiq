@@ -5512,7 +5512,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1815](#task-1815) | Post-match analytics — xG timeline + retro newspaper headlines  | ✅ Done    | P3       | M   |
 | [TASK-1816](#task-1816) | "What-If" historical scenario mode (rule pack)                  | ✅ Done    | P3       | M   |
 | [TASK-1817](#task-1817) | Daily seeded challenge — client-only (streaks, PB, seed replay) | ✅ Done    | P3       | M   |
-| [TASK-1818](#task-1818) | Rogue-like / Mystery Market mode (local run history)            | 📋 Backlog | P3       | L   |
+| [TASK-1818](#task-1818) | Rogue-like / Mystery Market mode (local run history)            | ✅ Done    | P3       | L   |
 | [TASK-1819](#task-1819) | Retro sticker album & collection book (IndexedDB)               | ✅ Done    | P3       | S   |
 | [TASK-1820](#task-1820) | Rating model — absolute/cross-position stats + GK pipeline      | ✅ Done    | P2       | L   |
 | [TASK-1821](#task-1821) | Tier-Anchored Hybrid rating engine (anchors + delta + team)     | ✅ Done    | P2       | L   |
@@ -5523,7 +5523,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1826](#task-1826) | Market value progression across a season                        | ✅ Done    | P3       | M   |
 | [TASK-1827](#task-1827) | Onboarding — coach identity + tutorial match (local only)       | ✅ Done    | P3       | M   |
 | [TASK-1828](#task-1828) | Weekly modifier ladder (local, seeded from the ISO week)        | ✅ Done    | P3       | M   |
-| [TASK-1829](#task-1829) | Card crafting — duplicates → trait badges (local)               | 📋 Backlog | P3       | S   |
+| [TASK-1829](#task-1829) | Card crafting — duplicates → trait badges (local)               | ✅ Done    | P3       | S   |
 | [TASK-1830](#task-1830) | Segmented interactive match engine (live decisions, replayable) | ✅ Done    | P1       | L   |
 | [TASK-1831](#task-1831) | The full formation set — 20 shapes in three families            | ✅ Done    | P2       | M   |
 | [TASK-1832](#task-1832) | The game hub — `/game` as the mode-selection gate               | ✅ Done    | P2       | M   |
@@ -6354,9 +6354,17 @@ Mean **26.1%** — the owner's "1 in 4". Unboosted, every rescue succeeded **0�
 
 ### TASK-1818
 
-**Rogue-like / Mystery Market mode** · 📋 Backlog · `P3` · `L` · Type: Feature
+**Rogue-like / Mystery Market mode** · ✅ Done · `P3` · `L` · Type: Feature
 
 **Description** — A permadeath run mode (Hades / Slay-the-Spire shape) as a **rule pack**: start with a bottom-tier XI; each win offers **pick-1-of-3** mystery rewards (a historical card / a tactical consumable / a stat modifier); **3 losses ends the run**. Rewards are modifier / draft-pool mutations over the shared draft + engine. Run history + scores are **strictly local** (IndexedDB) — no global ranking (Option A). **Depends on:** TASK-1810, TASK-1811, TASK-1812.
+
+**Shipped (2026-10-21)** — owner: "opening a high-stakes loot pack … a huge boost with a risky catch." Built with TASK-1829 ([design](docs/superpowers/specs/2026-10-21-task-1829-1818-crafting-market-design.md)). `/game/market`, force-static; the last locked mode, so every mode on the gate is now live.
+
+- **The run:** start with the weakest legal XI in the pool. Each win lifts the opponent window `TIER_STEP` ranks. A win opens a pack, a draw does nothing, and three defeats end the run. The best run is kept (IndexedDB v8 `market`).
+- **The pack:** three face-down cards on the app's own `CardBack`. Open, then keep one. The six frozen rewards each pair a boon with a catch: Marquee Signing (Hot-Head), Wonderkid (your best is sold), Gegenpress (legs go after 70'), Iron Curtain (blunter attack), Talisman Tonic (more cards), Physio (opponents a tier stronger).
+- ⛔ Seeded from `(seed, round)`. Results are stored, never replayed.
+- Measured: an autopilot that never coaches wins a median of 2, with a best of about 10–11 over 120 runs. The bands are pinned in `market.test.ts`.
+- With no locked mode left, `game-mode-tile` guards the "locked is not focusable" rule with a synthetic mode, and the `game-hub` E2E checks it only while a locked mode exists.
 
 ### TASK-1819
 
@@ -6753,9 +6761,16 @@ Built: `domain/draft-room.ts` (`roomDeals`), `view/room-state.ts` (the reducer),
 
 ### TASK-1829
 
-**Card crafting — duplicates into trait badges** · 📋 Backlog · `P3` · `S` · Type: Feature
+**Card crafting — duplicates into trait badges** · ✅ Done · `P3` · `S` · Type: Feature
 
 **Description** — Duplicate cards accumulated in the collection ([TASK-1819](#task-1819)) can be consumed to mint **trait badges** that attach to a card via the `traits?` seam ([TASK-1814](#task-1814)). Strictly local and strictly one-way: crafting spends duplicates, it does not create tradeable goods. **Trading between players is out of scope** — see [TASK-1906](#task-1906). **Depends on:** TASK-1814, TASK-1819.
+
+**Shipped (2026-10-21)** — with TASK-1818 ([design](docs/superpowers/specs/2026-10-21-task-1829-1818-crafting-market-design.md)).
+
+- The **Workshop** under the album: spend **3 duplicate stickers** of one card to mint **one trait badge** (Talisman / Rock / Engine / Hot-Head; a keeper only Rock). One badge per card, and the sticker always survives.
+- ⛔ **Atomic** (`idbSpendAndPut`, IndexedDB **v8** `badges`): a refused craft writes nothing, and two racing crafts produce exactly one badge.
+- ⛔ **Badges play only where results are stored:** season runs, the weekly ladder and the Mystery Market. Single matches, the daily and share links replay on another browser that has none of your badges.
+- ⛔ They apply to the **coach's side only**, so a rival fielding the same card never inherits the badge.
 
 ### TASK-1830
 

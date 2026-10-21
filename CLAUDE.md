@@ -414,3 +414,14 @@ Traits (`domain/traits.ts`) are read from ratings, never assigned, and play only
 only with traits, absent is byte-identical, and the daily derives it from the day
 (`DAILY_PERSONALITY_FROM`). Season and ladder fixtures always play with traits because they store
 results. What-If and Classic stay without traits.
+
+### TASK-1829/1818 Card crafting and the Mystery Market (2026-10-21)
+
+`/game/market` (force-static) is the roguelike (`domain/market.ts`). A run is seeded from
+`(seed, round)` and its results are stored, never replayed. ⛔ `REWARDS` is FROZEN, because packs
+are drawn from it by index. Every reward is a boon with a catch. Difficulty is pinned in
+`market.test.ts`; re-measure after any engine change. Crafting (`domain/crafting.ts`) spends 3
+duplicates for one badge per card, atomically via `idbSpendAndPut` (IndexedDB v8). ⛔ Badges play
+only in stored-result modes (season, ladder, market) and only on the coach's side
+(`personalityModifier`'s `crafted.side`). Every gate mode is now live: tests that need a locked
+mode build a synthetic one.

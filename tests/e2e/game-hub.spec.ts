@@ -29,10 +29,14 @@ test.describe("the game hub", () => {
      * rule it guards — a locked mode had simply become a button. Every mode that ships
      * would break it again.
      */
-    const locked = GAME_MODES.find((m) => !isPlayable(m))!;
-    const lockedName = en.game[locked.nameKey as keyof typeof en.game] as string;
-    await expect(page.getByText(lockedName).first()).toBeVisible();
-    await expect(page.getByRole("button", { name: lockedName })).toHaveCount(0);
+    // ⚠️ Since TASK-1818 (2026-10-21) every mode is live, so there may be no locked tile to check;
+    // the unit test keeps the rule guarded with a synthetic one. The next new mode re-arms this.
+    const locked = GAME_MODES.find((m) => !isPlayable(m));
+    if (locked != null) {
+      const lockedName = en.game[locked.nameKey as keyof typeof en.game] as string;
+      await expect(page.getByText(lockedName).first()).toBeVisible();
+      await expect(page.getByRole("button", { name: lockedName })).toHaveCount(0);
+    }
 
     // Mode, then format.
     await page.getByRole("button", { name: /Tactical H2H/ }).click();

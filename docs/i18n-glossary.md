@@ -88,6 +88,8 @@ register) — formal but not stiff.
 | Talisman / Rock          | التميمة / الصخرة                                                                                | traits (`gameTraits.name.*`, TASK-1814)                           |
 | Engine / Hot-Head        | المحرك / المتهور                                                                                | traits (`gameTraits.name.*`, TASK-1814)                           |
 | Coach (name prefix)      | المدرب                                                                                          | onboarding (`gameOnboarding`, TASK-1827)                          |
+| Mystery Market           | السوق الغامض                                                                                    | game mode (`gameMarket`, TASK-1818)                               |
+| Workshop / badge         | الورشة / شارة                                                                                   | crafting (`gameCraft`, TASK-1829)                                 |
 
 ## Data stays in source form
 

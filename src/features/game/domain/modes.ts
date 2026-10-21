@@ -98,8 +98,6 @@ export const MODE_GROUPS: readonly ModeGroup[] = [
   { id: "challenges", labelKey: "groupChallenges" },
 ];
 
-const planned: Record<GameFormat, ModeStatus> = { single: "planned", season: "planned" };
-
 export const GAME_MODES: readonly GameMode[] = [
   {
     // ⚠️ The existing /game/draft loop, renamed — no new engine code. The name is chosen to
@@ -255,8 +253,9 @@ export const GAME_MODES: readonly GameMode[] = [
     emoji: "🎲",
     nameKey: "modeMysteryName",
     descriptionKey: "modeMysteryDesc",
-    href: null,
-    formats: planned,
+    href: "/game/market",
+    // A run IS the long format, so a separate season would be a second one — `n/a`, linked in.
+    formats: { single: "live", season: "n/a" },
     accent: "#c084fc",
     ticket: "TASK-1818",
   },

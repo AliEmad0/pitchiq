@@ -52,6 +52,7 @@ import { ClubCrest } from "./ClubCrest";
 import { DraftRoom } from "./DraftRoom";
 import { SeasonFixturePlay } from "./SeasonFixturePlay";
 import { SquadValuation } from "./SquadValuation";
+import { useCraftedTraits } from "@/features/game/view/use-crafted-traits";
 import { StancePicker } from "./StancePicker";
 
 export interface LadderClub {
@@ -97,6 +98,8 @@ export function WeeklyLadder({ pool, clubs }: { pool: PoolCard[]; clubs: readonl
   const [playing, setPlaying] = useState<SeasonFixture | null>(null);
   const [saveError, setSaveError] = useState(false);
   const [msLeft, setMsLeft] = useState<number | null>(null);
+  // TASK-1829 — the coach's crafted badges play in every ladder fixture he plays.
+  const crafted = useCraftedTraits();
   /** ⛔ Claimed synchronously so a repeated Return cannot commit a matchday twice. */
   const committing = useRef(false);
 
@@ -291,6 +294,7 @@ export function WeeklyLadder({ pool, clubs }: { pool: PoolCard[]; clubs: readonl
         }}
         captaincies={{}}
         referees={[]}
+        crafted={crafted}
         onReturn={(result: MatchResult | null) => {
           if (result == null) {
             setPlaying(null);
@@ -301,7 +305,7 @@ export function WeeklyLadder({ pool, clubs }: { pool: PoolCard[]; clubs: readonl
           const day = nextWeek(record.run);
           let run: SeasonRun;
           try {
-            run = finishLadderDay(record.run, teams, rule.conditions, result, stance);
+            run = finishLadderDay(record.run, teams, rule.conditions, result, stance, crafted);
           } catch {
             committing.current = false;
             setPlaying(null);
@@ -463,7 +467,7 @@ export function WeeklyLadder({ pool, clubs }: { pool: PoolCard[]; clubs: readonl
                     disabled={!canPlay}
                     onClick={() => {
                       if (teams == null) return;
-                      const fx = ladderFixture(run, teams, rule.conditions, stance);
+                      const fx = ladderFixture(run, teams, rule.conditions, stance, crafted);
                       if (fx != null) setPlaying(fx);
                     }}
                   >

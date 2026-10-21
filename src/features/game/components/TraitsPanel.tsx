@@ -2,7 +2,12 @@
 
 import { useTranslations } from "next-intl";
 import type { GameTeam } from "@/features/game/domain/team";
-import { type TraitId, TRAITS, traitsOf } from "@/features/game/domain/traits";
+import {
+  type CraftedTraits,
+  type TraitId,
+  TRAITS,
+  traitsWith,
+} from "@/features/game/domain/traits";
 
 /** Catalog keys (next-intl keys avoid dashes). */
 const KEY: Record<TraitId, string> = {
@@ -16,11 +21,21 @@ const KEY: Record<TraitId, string> = {
  * TASK-1814 — who carries a personality on each side, before kick-off. Traits are read from the
  * cards' ratings (`traitsOf`), so this panel can never disagree with what the engine plays.
  */
-export function TraitsPanel({ home, away }: { home: GameTeam; away: GameTeam }) {
+export function TraitsPanel({
+  home,
+  away,
+  crafted,
+}: {
+  home: GameTeam;
+  away: GameTeam;
+  /** TASK-1829 — the coach's crafted badges, on his side only. */
+  crafted?: { side: "home" | "away"; traits: CraftedTraits };
+}) {
   const t = useTranslations("gameTraits");
-  const side = (team: GameTeam) => {
+  const side = (team: GameTeam, which: "home" | "away") => {
+    const mine = crafted?.side === which ? crafted.traits : undefined;
     const holders = [...team.players, ...(team.bench ?? [])].flatMap((p) =>
-      traitsOf(p).map((trait) => ({ p, trait })),
+      traitsWith(p, mine).map((trait) => ({ p, trait })),
     );
     holders.sort((a, b) => TRAITS.indexOf(a.trait) - TRAITS.indexOf(b.trait));
     return (
@@ -45,8 +60,8 @@ export function TraitsPanel({ home, away }: { home: GameTeam; away: GameTeam }) 
     <section className="tp-panel" aria-label={t("title")} data-testid="traits-panel">
       <h3 className="tp-title">{t("title")}</h3>
       <div className="tp-grid">
-        {side(home)}
-        {side(away)}
+        {side(home, "home")}
+        {side(away, "away")}
       </div>
       <dl className="tp-legend">
         {TRAITS.map((trait) => (

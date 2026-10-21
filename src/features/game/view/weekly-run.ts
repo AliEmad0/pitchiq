@@ -13,7 +13,7 @@ import {
   type SeasonRun,
 } from "@/features/game/domain/season";
 import { simulate } from "@/features/game/domain/simulate";
-import { personalityModifier } from "@/features/game/domain/traits";
+import { type CraftedTraits, personalityModifier } from "@/features/game/domain/traits";
 import type { GameTeam } from "@/features/game/domain/team";
 import { LADDER_CLUBS, LADDER_DAYS, ladderFixtures } from "@/features/game/domain/weekly";
 import type { SeasonFixture } from "./season-match";
@@ -50,6 +50,8 @@ export function ladderFixture(
   teams: readonly GameTeam[],
   conditions: MatchConditions,
   stance?: Mentality,
+  /** TASK-1829 — the coach's crafted badges. */
+  crafted?: CraftedTraits,
 ): SeasonFixture | null {
   const day = nextWeek(run);
   const fixtures = ladderFixtures()[day];
@@ -59,7 +61,11 @@ export function ladderFixture(
   const coachSide: Side = h === run.coach ? "home" : "away";
   const counter = mentalityModifier(coachSide, stance);
   // TASK-1814 — traits play in every ladder fixture; results are stored, never replayed.
-  const traits = personalityModifier(teams[h]!, teams[a]!);
+  const traits = personalityModifier(
+    teams[h]!,
+    teams[a]!,
+    crafted == null ? undefined : { side: coachSide, traits: crafted },
+  );
   return {
     setup: {
       home: teams[h]!,
@@ -84,11 +90,12 @@ export function finishLadderDay(
   conditions: MatchConditions,
   played: MatchResult | null,
   stance?: Mentality,
+  crafted?: CraftedTraits,
 ): LadderRun {
   const day = nextWeek(run);
   const fixtures = ladderFixtures()[day];
   if (fixtures == null) throw new Error("the ladder week is already complete");
-  const coachFixture = ladderFixture(run, teams, conditions, stance);
+  const coachFixture = ladderFixture(run, teams, conditions, stance, crafted);
   if (played != null && played.seed !== coachFixture?.setup.seed) {
     throw new Error("result does not belong to the next ladder fixture");
   }

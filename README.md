@@ -303,3 +303,12 @@ takes about 30 seconds, and your first team talk decides it. Matches now carry *
 read from the players' own ratings — a Talisman who lifts a side chasing the game, a Rock who
 shuts it down, a tireless Engine, a Hot-Head who picks up cards — and a late goal swings the
 momentum for five minutes. See the [design](docs/superpowers/specs/2026-10-21-task-1827-1814-onboarding-traits-design.md).
+
+### Mystery Market and card crafting (TASK-1818, TASK-1829 — ✅ Done)
+
+`/game/market` is a roguelike run: start with the weakest XI in the market, beat a stronger side
+each round, and every win opens a **mystery pack** of three face-down rewards — each a big boost
+with a catch (a star signing who is a Hot-Head, a wonderkid who costs you your best player, a
+pressing plan whose legs go after 70'…). Three defeats and the run is over. Back in the album,
+the **Workshop** turns three duplicate stickers into a trait badge for that card, which plays in
+your season runs, the Weekly Ladder and the Market. See the [design](docs/superpowers/specs/2026-10-21-task-1829-1818-crafting-market-design.md).

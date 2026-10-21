@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
-import { GAME_MODES, isPlayable } from "@/features/game/domain/modes";
+import { GAME_MODES, type GameMode, isPlayable } from "@/features/game/domain/modes";
 import en from "@/i18n/messages/en.json";
 import { renderWithIntl } from "./_helpers/intl";
 
@@ -14,7 +14,14 @@ const h2h = GAME_MODES.find((m) => m.id === "h2h")!;
  * had become a control, so it failed for a reason that had nothing to do with the rule.
  * A locked example must come from the registry, or every mode that ships breaks it.
  */
-const locked = GAME_MODES.find((m) => !isPlayable(m))!;
+const locked: GameMode = GAME_MODES.find((m) => !isPlayable(m)) ?? {
+  // ⭐ Every mode shipped on 2026-10-21 (TASK-1818). The RULE still needs guarding — the next mode
+  // added to the registry starts locked — so the example becomes a synthetic one: a real mode's
+  // identity with nothing live.
+  ...GAME_MODES.find((m) => m.id === "mystery")!,
+  href: null,
+  formats: { single: "planned", season: "planned" },
+};
 
 describe("ModeTile", () => {
   it("renders a live mode as a button", () => {

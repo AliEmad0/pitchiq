@@ -8,6 +8,7 @@ import { useMatchDriver } from "@/features/game/view/use-match-driver";
 import { buildMatchViewModel } from "@/features/game/view/match-view-model";
 import { playReducer } from "@/features/game/view/play-machine";
 import { MatchProgramme } from "./MatchProgramme";
+import type { CraftedTraits } from "@/features/game/domain/traits";
 import { MatchLive } from "./MatchLive";
 import { MatchSummary } from "./MatchSummary";
 
@@ -17,12 +18,15 @@ export function SeasonFixturePlay({
   crests,
   captaincies,
   referees,
+  crafted,
   onReturn,
 }: {
   fixture: SeasonFixture;
   crests: { home: number; away: number };
   captaincies: Record<number, number>;
   referees: readonly string[];
+  /** TASK-1829 — the coach's crafted badges, for the Personalities panel. */
+  crafted?: CraftedTraits;
   onReturn: (result: MatchResult | null) => void;
 }) {
   const t = useTranslations("game");
@@ -66,6 +70,7 @@ export function SeasonFixturePlay({
           weather={driver.events.find((e) => e.kind === "weather")?.weather ?? null}
           backLabel={t("seasonReturn")}
           traits
+          crafted={crafted}
           onBack={() => onReturn(null)}
           onKickOff={() => dispatch({ type: "kickOff" })}
         />

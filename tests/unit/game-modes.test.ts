@@ -109,9 +109,10 @@ describe("formatHref (TASK-1811)", () => {
     // The exceptions are `n/a` rather than missing, and each is pinned by name so a new one
     // is a deliberate edit: a season-long "one challenge a day" is a contradiction
     // (TASK-1841), a What-If rescue is ONE real match, not a league (TASK-1816), and the weekly
-    // ladder already IS a league week (TASK-1828).
+    // ladder already IS a league week (TASK-1828), and a Mystery Market run is its own long format
+    // (TASK-1818).
     const exempt = GAME_MODES.filter((m) => m.formats.season === "n/a").map((m) => m.id);
-    expect(exempt.sort()).toEqual(["daily", "weekly", "whatIf"]);
+    expect(exempt.sort()).toEqual(["daily", "mystery", "weekly", "whatIf"]);
     const shipped = GAME_MODES.filter((m) => m.formats.single === "live" && !exempt.includes(m.id));
     expect(shipped.map((m) => m.id).sort()).toEqual(
       ["budget", "captains", "chaos", "chemistry", "h2h", "legacy", "nation"].sort(),

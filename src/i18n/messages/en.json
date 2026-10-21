@@ -987,7 +987,7 @@
     "modeWhatIfName": "What-If Scenarios",
     "modeWhatIfDesc": "Step into a famous match and rewrite it.",
     "modeMysteryName": "Mystery Market",
-    "modeMysteryDesc": "Survive a run. Three losses and it's over.",
+    "modeMysteryDesc": "A roguelike run: start with the weakest XI, open a mystery pack after every win, three defeats and you're out.",
     "collectionRecords": "Records",
     "collectionHallOfFame": "Hall of Fame",
     "collectionAlbum": "Sticker Album",
@@ -1647,5 +1647,74 @@
     },
     "swingName": "Late swing",
     "swingDesc": "A goal from 75' lifts the scorers and rattles the other side for five minutes."
+  },
+  "gameMarket": {
+    "title": "Mystery Market",
+    "subtitle": "Start with the weakest XI in the market. Win to open a pack of three mystery rewards — every one a big boost with a catch. {lives} defeats and the run is over.",
+    "noBest": "No run finished yet.",
+    "best": "Best run: {wins} wins in {rounds} matches",
+    "start": "Start a run",
+    "again": "Start a new run",
+    "over": "Run over",
+    "overLine": "{wins} wins in {rounds} matches.",
+    "saveError": "This run could not be saved. Try again before playing on.",
+    "yourSide": "Your XI",
+    "opponent": "Round {n} rivals",
+    "livesAria": "{n} lives left",
+    "wins": "{n} wins",
+    "round": "Round {n}",
+    "matchesLeft": "{n} more",
+    "squad": "Your XI",
+    "nextHome": "Next match at home.",
+    "nextAway": "Next match away.",
+    "play": "Play round {n}",
+    "packTitle": "You won — a mystery pack",
+    "packHint": "Three rewards, face down. Every one has a catch.",
+    "packPick": "Keep ONE. Choose carefully.",
+    "open": "Open the pack",
+    "forced": {
+      "hotHead": "Hot-Head",
+      "talisman": "Talisman"
+    },
+    "reward": {
+      "marquee": {
+        "name": "Marquee Signing",
+        "boon": "An 85+ star replaces your weakest player",
+        "catch": "He's a Hot-Head — fouls and cards"
+      },
+      "wonderkid": {
+        "name": "Wonderkid",
+        "boon": "A player well above your average joins",
+        "catch": "Your best outfielder is sold"
+      },
+      "gegenpress": {
+        "name": "Gegenpress",
+        "boon": "Big attacking lift for 2 matches",
+        "catch": "Legs go after 70' — attack collapses late"
+      },
+      "ironCurtain": {
+        "name": "Iron Curtain",
+        "boon": "Tighter defence for the rest of the run",
+        "catch": "Blunter attack for the rest of the run"
+      },
+      "talismanTonic": {
+        "name": "Talisman Tonic",
+        "boon": "Your best player becomes a Talisman",
+        "catch": "The pressure shows — more cards, all run"
+      },
+      "physio": {
+        "name": "Physio",
+        "boon": "Win back a life",
+        "catch": "Every opponent from now on is a tier stronger"
+      }
+    }
+  },
+  "gameCraft": {
+    "title": "Workshop",
+    "rule": "Spend {cost} duplicate stickers of one card to give it a trait badge — one per card. Badges play in season runs, the Weekly Ladder and the Mystery Market.",
+    "none": "No card has {cost} duplicates yet. Every match you play adds a sticker.",
+    "dups": "{n} duplicates",
+    "crafted": "Badges you've crafted",
+    "failed": "That badge couldn't be crafted. Try again."
   }
 }
