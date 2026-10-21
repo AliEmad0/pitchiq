@@ -1,5 +1,5 @@
 const DB_NAME = "pitchiq-game";
-export const DB_VERSION = 5;
+export const DB_VERSION = 6;
 
 /**
  * Every object store in the database.
@@ -20,7 +20,16 @@ export const DB_VERSION = 5;
  * opens a REAL v3 database first and then upgrades it — the earlier tests wrote and read at
  * the current version, so they never exercised an upgrade at all.
  */
-const STORES = ["match", "daily", "season", "whatIf", "album", "trophies", "trophyLog"] as const;
+const STORES = [
+  "match",
+  "daily",
+  "season",
+  "whatIf",
+  "album",
+  "trophies",
+  "trophyLog",
+  "weekly",
+] as const;
 export type StoreName = (typeof STORES)[number];
 
 /**

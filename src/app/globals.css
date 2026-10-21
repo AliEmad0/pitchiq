@@ -6534,3 +6534,149 @@
     animation: none;
   }
 }
+
+/* ==========================================================================
+   TASK-1828 — the Weekly Ladder (`wl-`), in the season hub's dark "Cockpit"
+   palette so the two league surfaces read as one family. TASK-1826's squad
+   valuation (`sv-`) lives in both. ⛔ NO new animation: the standing rule is a
+   20-design gallery before any motion, so these surfaces are static for now.
+   ========================================================================== */
+.wl {
+  --sh-panel2: #04121a;
+  --sh-panel: #071e2b;
+  --sh-line: #0d3648;
+  --sh-accent: #25e0d0;
+  --sh-dim: #8fa8b6;
+  --sh-faint: #5d7d8c;
+  --cta: #a3e635;
+  --sd-ink: #e8eff6;
+  --sd-line: #0d3648;
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 14px;
+  background: var(--sh-panel2);
+  color: #e8eff6;
+}
+.wl-rule {
+  margin-top: 6px;
+  color: var(--sh-accent);
+}
+.wl-meta {
+  margin-top: 4px;
+  color: var(--sh-dim);
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+}
+.wl-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: 1.4fr 1fr;
+}
+@media (max-width: 860px) {
+  .wl-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.wl .sh-blk {
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--sh-panel);
+  border: 1px solid var(--sh-line);
+  min-width: 0;
+}
+.wl table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.wl th,
+.wl td {
+  padding: 6px 4px;
+  text-align: start;
+  border-bottom: 1px solid var(--sh-line);
+}
+.wl tr.me td {
+  color: var(--sh-accent);
+  font-weight: 800;
+}
+.wl-rivals {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 8px;
+}
+.wl-rivals li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--sh-panel);
+  border: 1px solid var(--sh-line);
+}
+.wl-next,
+.wl-final {
+  font-size: 1.125rem;
+  font-weight: 800;
+}
+.wl .sd-pick {
+  background: var(--sh-panel2);
+  color: #e8eff6;
+}
+.wl .sd-pick[aria-pressed="true"] {
+  border-color: var(--sh-accent);
+  box-shadow: 0 0 0 2px var(--sh-accent);
+}
+.wl .lg-kick {
+  width: 100%;
+  color: #04121a;
+}
+.wl .lg-kick:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.sv-panel {
+  margin-top: 6px;
+}
+.sv-total {
+  font-size: 1.25rem;
+  font-variant-numeric: tabular-nums;
+}
+.sv-up {
+  color: #4ade80;
+}
+.sv-down {
+  color: #f87171;
+}
+.sv-note {
+  font-size: 0.75rem;
+  opacity: 0.75;
+}
+.sv-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 48px;
+  margin: 8px 0;
+}
+.sv-bar {
+  flex: 1;
+  height: 100%;
+  border-radius: 2px 2px 0 0;
+  background: var(--sh-accent, #25e0d0);
+  transform-origin: 50% 100%;
+}
+.sv-movers {
+  display: grid;
+  gap: 4px;
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+}
+.sv-movers li {
+  display: flex;
+  gap: 6px;
+  overflow-wrap: anywhere;
+}
+.sv-movers li > span:first-child {
+  flex: 1;
+}

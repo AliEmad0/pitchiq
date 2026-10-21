@@ -4,7 +4,7 @@ import { hashEvents } from "@/features/game/domain/hash";
 import type { DecisionAnswer, MatchDecision } from "@/features/game/domain/match-decisions";
 import type { MatchEvent } from "@/features/game/domain/match-types";
 import { decodeMatch } from "@/features/game/domain/share-code";
-import { buildSession } from "@/features/game/view/match-session";
+import { buildSession, type RivalSetup } from "@/features/game/view/match-session";
 import { buildShareCode, replayShared, shareUrl } from "@/features/game/view/share-link";
 import { poolFixture } from "./_helpers/game-pool";
 
@@ -29,8 +29,8 @@ const coachAnswer = (d: MatchDecision): DecisionAnswer => {
 };
 
 /** Play a match to full time exactly as `GamePlay` does, and keep what it would keep. */
-function senderPlays(seed: number) {
-  const session = buildSession(pool, squad(), FORMATION, seed, NAMES);
+function senderPlays(seed: number, rival: RivalSetup = {}) {
+  const session = buildSession(pool, squad(), FORMATION, seed, NAMES, rival);
   const events: MatchEvent[] = [];
   const answers: DecisionAnswer[] = [];
   let step = session.stream.advance();
@@ -45,6 +45,27 @@ function senderPlays(seed: number) {
 }
 
 describe("a shared code replays to the sender's match", () => {
+  it("⛔ the coach's stance and style ride in the code: the receiver plays the same match", () => {
+    const rival = { style: "counter" as const, mentality: "attacking" as const };
+    const sent = senderPlays(778, rival);
+    const code = buildShareCode({
+      cardIds: squad().map((c) => c.cardId),
+      formationKey: formationKey(FORMATION),
+      seed: 778,
+      answers: sent.answers,
+      fingerprint: hashEvents(sent.events),
+      ...rival,
+    });
+    expect(code.startsWith("v4.")).toBe(true);
+    const received = replayShared(pool, decodeMatch(code)!, NAMES)!;
+    expect(hashEvents(received.events)).toBe(hashEvents(sent.events));
+    expect(received.drifted).toBe(false);
+    // And the stance genuinely changes the match, so the check above is not vacuous.
+    expect(hashEvents(senderPlays(778, { style: "counter" }).events)).not.toBe(
+      hashEvents(sent.events),
+    );
+  });
+
   it("round-trips encode → URL → decode → replay", () => {
     const seed = 777;
     const sent = senderPlays(seed);

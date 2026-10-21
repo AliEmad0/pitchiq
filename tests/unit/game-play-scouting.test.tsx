@@ -75,6 +75,31 @@ describe("GamePlay — the Scout's Dossier", () => {
     expect(playerNames()).toEqual(before);
   });
 
+  it("⭐ the stance picked beside the style is saved with the match (identity)", async () => {
+    const user = userEvent.setup();
+    await reachProgramme(user);
+    const stances = screen.getAllByTestId("sd-stance");
+    expect(stances).toHaveLength(3);
+    await user.click(screen.getByRole("button", { name: /^Defensive/ }));
+    await user.click(screen.getByRole("button", { name: "Kick off" }));
+    // Locked once the opponent's style is revealed, like the style picks.
+    expect(screen.getAllByTestId("sd-stance").every((b) => (b as HTMLButtonElement).disabled)).toBe(
+      true,
+    );
+    await user.click(await screen.findByRole("button", { name: "Walk out" }));
+    await vi.waitFor(() => expect(slot.saved).not.toBeNull());
+    expect((slot.saved as { mentality?: string }).mentality).toBe("defensive");
+  });
+
+  it("no stance picked = no stance saved (Balanced adds nothing)", async () => {
+    const user = userEvent.setup();
+    await reachProgramme(user);
+    await user.click(screen.getByRole("button", { name: "Kick off" }));
+    await user.click(await screen.findByRole("button", { name: "Walk out" }));
+    await vi.waitFor(() => expect(slot.saved).not.toBeNull());
+    expect((slot.saved as { mentality?: string }).mentality).toBeUndefined();
+  });
+
   it("remembers the last pick in this browser", async () => {
     const user = userEvent.setup();
     await reachProgramme(user);

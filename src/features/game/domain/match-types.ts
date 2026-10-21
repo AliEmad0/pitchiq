@@ -239,6 +239,8 @@ export interface SideState {
 
 export interface MatchState {
   minute: number;
+  /** TASK-1828 — `MatchSetup.conditions.varScale`; absent = 1. */
+  varScale?: number;
   home: SideState;
   away: SideState;
   events: MatchEvent[];
@@ -290,6 +292,19 @@ export interface MatchSetup {
     subsUsed: { home: number; away: number };
     teamTalk: Side;
   };
+  /**
+   * TASK-1828 — the weekly ladder's ruleset: force the weather, the referee, or scale how often
+   * VAR reviews. ⛔ The forced draws still CONSUME their random numbers, so the rest of the match
+   * keeps the same stream. Absent = byte-identical to before (golden-pinned).
+   */
+  conditions?: MatchConditions;
+}
+
+export interface MatchConditions {
+  weather?: Weather;
+  referee?: RefereeStyle;
+  /** Multiplier on both VAR review chances (goal and red). */
+  varScale?: number;
 }
 
 export interface MatchResult {

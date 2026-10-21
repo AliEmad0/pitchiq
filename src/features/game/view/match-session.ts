@@ -2,6 +2,11 @@ import { chaosMatchup, type DraftPolicy, type PoolCard } from "@/features/game/d
 import type { Formation } from "@/features/game/domain/formation";
 import { chemistry, type Linkable } from "@/features/game/domain/chemistry";
 import { chemistryModifier } from "@/features/game/domain/chemistry-modifier";
+import {
+  type Mentality,
+  mentalityModifier,
+  mentalityTarget,
+} from "@/features/game/domain/mentality";
 import { opponentSetup, type TacticalStyle } from "@/features/game/domain/opponent";
 import { runMatch } from "@/features/game/domain/simulate";
 import { type GameTeam, makeGameTeam } from "@/features/game/domain/team";
@@ -58,6 +63,13 @@ export interface RivalSetup {
    * every save and v2 code made before this field existed was played under.
    */
   style?: TacticalStyle;
+  /**
+   * The coach's stance, picked on the Scout's Dossier beside the style (owner, 2026-10-21).
+   *
+   * ⛔ IDENTITY, exactly like `style`: live, resume and share must all pass it. Absent (and
+   * `"balanced"`) adds no modifier, so every match made before it existed replays unchanged.
+   */
+  mentality?: Mentality;
 }
 
 export interface MatchSession {
@@ -157,8 +169,12 @@ export function buildSession(
         opponent: matchup.opponent,
         season: 0,
         seed,
-        targetGoalsPerMatch: DEFAULT_RATE,
-        modifiers: chemistryMods,
+        // The coach's stance sets the tempo; balanced/absent is exactly DEFAULT_RATE.
+        targetGoalsPerMatch: mentalityTarget(DEFAULT_RATE, rival.mentality),
+        modifiers: [
+          ...chemistryMods,
+          ...[mentalityModifier("home", rival.mentality)].filter((m) => m != null),
+        ],
       }),
     ),
     "home",

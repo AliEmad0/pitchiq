@@ -1,3 +1,4 @@
+import type { Mentality } from "@/features/game/domain/mentality";
 import type { TacticalStyle } from "@/features/game/domain/opponent";
 import type { PlayerSeasonId } from "@/features/game/domain/card-id";
 import type { DecisionAnswer } from "@/features/game/domain/match-decisions";
@@ -56,6 +57,8 @@ export interface SavedMatch {
    * played under the shipped uniform draw — and replays under it.
    */
   style?: TacticalStyle;
+  /** The coach's stance, picked beside the style. ⛔ IDENTITY too; absent = no stance. */
+  mentality?: Mentality;
 }
 
 const KEY = "current";

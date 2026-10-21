@@ -1,4 +1,5 @@
 import type { SeasonInjury } from "./season-availability";
+import type { ValueLine } from "./market-value";
 /**
  * TASK-1811 — the season spine.
  *
@@ -131,6 +132,11 @@ export function seasonTable(clubs: number, results: readonly SeasonResult[]): Ta
  */
 export interface SeasonRun {
   injuries?: SeasonInjury[];
+  /**
+   * TASK-1826 — one line per COACH fixture, the raw output his squad's values fold from.
+   * Absent on runs saved before it existed: those values simply start flat.
+   */
+  market?: ValueLine[];
   seed: number;
   clubs: number;
   /** Which index in the league is the coach's own club. */

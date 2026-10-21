@@ -230,8 +230,10 @@ export const GAME_MODES: readonly GameMode[] = [
     emoji: "🗓️",
     nameKey: "modeWeeklyName",
     descriptionKey: "modeWeeklyDesc",
-    href: null,
-    formats: planned,
+    href: "/game/weekly",
+    // The ladder IS a league week, so a separate "season" format would be a second one; `n/a`
+    // like the daily, and the tile links straight in.
+    formats: { single: "live", season: "n/a" },
     accent: "#a3e635",
     ticket: "TASK-1828",
   },

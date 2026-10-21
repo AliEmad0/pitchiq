@@ -284,3 +284,13 @@ cabinet of sixteen retro achievements, from Off the Mark to The Invincibles. Bef
 **Scout's Dossier** tells you the opponent's usual style; you pick yours, then see what they
 really played and who had the edge. All in your browser — no account, no server time. See the
 [design](docs/superpowers/specs/2026-10-20-task-1813-1819-1825-trophy-room-design.md).
+
+### Weekly Ladder, squad values and mentality (TASK-1828, TASK-1826 — ✅ Done)
+
+`/game/weekly` is a league tournament that lasts a week. Everyone gets the same draft, the same
+seven rival clubs and the same rule for the week (a monsoon, a strict referee, triple VAR…).
+Draft once, then a matchday opens every day; miss one and catch up, but anything unplayed when
+the week ends is a no-show. Titles and title streaks are your personal bests. Season hubs and the
+ladder show a **squad valuation** that moves with goals, assists, clean sheets and results — an
+in-game number, never a real fee. And the Scout's Dossier now asks for a **stance** beside your
+style: attack and open the game up, or defend and shut it down. See the [design](docs/superpowers/specs/2026-10-21-task-1828-1826-mentality-design.md).

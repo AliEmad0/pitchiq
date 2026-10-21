@@ -1,5 +1,6 @@
 import { parseCardId, type PlayerSeasonId } from "./card-id";
 import { readTokens } from "./decision-tokens";
+import type { Mentality } from "./mentality";
 import type { TacticalStyle } from "./opponent";
 
 /**
@@ -64,6 +65,25 @@ export const SHARE_VERSION = "v2";
  * So v2 keeps decoding, and a code is written as v3 only when a style exists.
  */
 export const SHARE_VERSION_STYLED = "v3";
+
+/**
+ * The coach's stance (mentality, owner 2026-10-21) — `v4` is `v3` plus one stance segment.
+ *
+ * ⭐ LOSSLESS like v3: a stance of Balanced adds nothing to the match, so a code is written as v4
+ * only for Attacking or Defensive and every v2/v3 code decodes exactly as before. ⚠️ In v4 the
+ * style segment may be `_`, meaning "no style" (the shipped uniform draw) — a stance never
+ * forces a style into a code that did not carry one.
+ */
+export const SHARE_VERSION_STANCE = "v4";
+const NO_STYLE = "_";
+const MENTALITY_TOKEN: Record<Exclude<Mentality, "balanced">, string> = {
+  attacking: "a",
+  defensive: "d",
+};
+const MENTALITY_OF: Record<string, Exclude<Mentality, "balanced">> = {
+  a: "attacking",
+  d: "defensive",
+};
 const STYLE_TOKEN: Record<TacticalStyle, string> = {
   balanced: "b",
   "tiki-taka": "t",
@@ -127,6 +147,8 @@ export type ShareableMatch = {
    * Present only in v3 codes.
    */
   style?: TacticalStyle;
+  /** The coach's stance. Absent or Balanced = no stance; only v4 codes carry one. */
+  mentality?: Mentality;
 };
 
 const SQUAD_SIZE = 11;
@@ -171,8 +193,13 @@ export function encodeMatch(match: ShareableMatch): string {
       return `${b36(playerId)}-${b36(season)}`;
     })
     .join("_");
+  const stance = match.mentality == null || match.mentality === "balanced" ? null : match.mentality;
   const fields = [
-    match.style == null ? SHARE_VERSION : SHARE_VERSION_STYLED,
+    stance != null
+      ? SHARE_VERSION_STANCE
+      : match.style == null
+        ? SHARE_VERSION
+        : SHARE_VERSION_STYLED,
     b36(match.seed),
     match.formationSlug,
     cards,
@@ -184,7 +211,9 @@ export function encodeMatch(match: ShareableMatch): string {
         ? `${NATION_RIVAL}${match.rival.teamId}${POLICY_TOKEN[match.rival.policy]}`
         : `${b36(match.rival.teamId)}${POLICY_TOKEN[match.rival.policy]}`,
   ];
-  if (match.style != null) fields.push(STYLE_TOKEN[match.style]);
+  if (stance != null) {
+    fields.push(match.style == null ? NO_STYLE : STYLE_TOKEN[match.style], MENTALITY_TOKEN[stance]);
+  } else if (match.style != null) fields.push(STYLE_TOKEN[match.style]);
   return fields.join(".");
 }
 
@@ -198,20 +227,29 @@ export function decodeMatch(code: string | null | undefined): ShareableMatch | n
   if (typeof code !== "string" || code.length === 0 || code.length > 400) return null;
   const parts = code.split(".");
   const version = parts[0];
-  // v2 = seven fields; v3 = the same seven plus the style. Nothing else is a code.
-  if (
+  // v2 = seven fields; v3 = the same seven plus the style; v4 = v3 plus the stance.
+  const expected =
     version === SHARE_VERSION
-      ? parts.length !== 7
+      ? 7
       : version === SHARE_VERSION_STYLED
-        ? parts.length !== 8
-        : true
-  ) {
-    return null;
-  }
+        ? 8
+        : version === SHARE_VERSION_STANCE
+          ? 9
+          : -1;
+  if (parts.length !== expected) return null;
   let style: TacticalStyle | undefined;
+  let mentality: Mentality | undefined;
   if (version === SHARE_VERSION_STYLED) {
     style = STYLE_OF[parts[7]!];
     if (style === undefined) return null;
+  }
+  if (version === SHARE_VERSION_STANCE) {
+    if (parts[7] !== NO_STYLE) {
+      style = STYLE_OF[parts[7]!];
+      if (style === undefined) return null;
+    }
+    mentality = MENTALITY_OF[parts[8]!];
+    if (mentality === undefined) return null;
   }
 
   const [, seedRaw, formationSlug, cardsRaw, tokens, fpRaw, rivalRaw] = parts as [
@@ -267,9 +305,16 @@ export function decodeMatch(code: string | null | undefined): ShareableMatch | n
     cardIds.push(`${playerId}@${season}`);
   }
 
-  return style === undefined
-    ? { cardIds, formationSlug, seed, tokens, fingerprint, rival }
-    : { cardIds, formationSlug, seed, tokens, fingerprint, rival, style };
+  return {
+    cardIds,
+    formationSlug,
+    seed,
+    tokens,
+    fingerprint,
+    rival,
+    ...(style === undefined ? {} : { style }),
+    ...(mentality === undefined ? {} : { mentality }),
+  };
 }
 
 /**

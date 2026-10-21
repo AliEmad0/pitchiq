@@ -6,6 +6,7 @@ import {
   seasonFixtures,
   type SeasonRun,
 } from "@/features/game/domain/season";
+import { absentLine, valueLine } from "@/features/game/domain/market-value";
 import { runMatch, simulate } from "@/features/game/domain/simulate";
 import type { MatchResult, MatchSetup, Side } from "@/features/game/domain/match-types";
 import type { GameTeam } from "@/features/game/domain/team";
@@ -16,6 +17,8 @@ export interface SeasonFixture {
   setup: MatchSetup;
   coachSide: Side;
 }
+
+const other = (s: Side): Side => (s === "home" ? "away" : "home");
 
 /** Preserve the league's teams, home advantage, and fixture seed without re-drafting. */
 export function seasonFixture(run: SeasonRun, teams: readonly GameTeam[]): SeasonFixture | null {
@@ -72,18 +75,34 @@ export function finishSeasonWeek(
             seed,
           })
         : simulate({ home: teams[h]!, away: teams[a]!, seed, targetGoalsPerMatch: 2.7 });
-    const withInjuries =
-      h === run.coach || a === run.coach
-        ? {
-            ...next,
-            injuries: carryInjuries(
-              run.injuries ?? [],
-              result.events,
-              h === run.coach ? "home" : "away",
-              fixture?.setup[h === run.coach ? "home" : "away"] ?? teams[run.coach],
-            ),
-          }
-        : next;
+    const coachHere = h === run.coach || a === run.coach;
+    const coachSide: Side = h === run.coach ? "home" : "away";
+    const coachTeam = fixture?.setup[coachSide];
+    const withInjuries = coachHere
+      ? {
+          ...next,
+          // TASK-1826 — the raw output his squad's values fold from, captured once here.
+          market: [
+            ...(next.market ?? []),
+            // No fixture = a forfeit: nobody appeared, and the 0–3 still counts as a loss.
+            coachTeam == null
+              ? absentLine(week, result.score[coachSide], result.score[other(coachSide)])
+              : valueLine(
+                  week,
+                  result,
+                  coachSide,
+                  [...coachTeam.players, ...(coachTeam.bench ?? [])],
+                  coachTeam.players,
+                ),
+          ],
+          injuries: carryInjuries(
+            run.injuries ?? [],
+            result.events,
+            h === run.coach ? "home" : "away",
+            fixture?.setup[h === run.coach ? "home" : "away"] ?? teams[run.coach],
+          ),
+        }
+      : next;
     return recordResult(withInjuries, {
       week,
       home: h,

@@ -13,6 +13,7 @@ import {
   disallowReason,
   penaltyBiasFor,
   pickReferee,
+  refereeOf,
   resolveAltercation,
 } from "./discipline";
 import {
@@ -160,7 +161,7 @@ function* scoreGoal(
   state.events.push(goalEvent);
   state[side].score += 1;
 
-  if (reviewable && rng != null && rng() < VAR_REVIEW_CHANCE) {
+  if (reviewable && rng != null && rng() < VAR_REVIEW_CHANCE * (state.varScale ?? 1)) {
     // Beat two, SAME minute: the booth doubts it and the referee is sent to the monitor.
     state.events.push({ minute, kind: "var", side, playerId, varOutcome: "review-goal" });
     // Beat three, a MINUTE LATER: his decision. The delay is the suspense — the goal is
@@ -235,7 +236,7 @@ function showCard(
     card = "red";
     // A sending-off is the decision most worth stopping the match to be sure about. He
     // goes to the monitor — and can come back unconvinced, in which case it is a booking.
-    if (rng() < VAR_RED_REVIEW_CHANCE) {
+    if (rng() < VAR_RED_REVIEW_CHANCE * (state.varScale ?? 1)) {
       state.events.push({ minute, kind: "var", side, playerId: id, varOutcome: "review-red" });
       if (rng() < REF_AGREES_VAR) {
         // NOT `red-upgraded` — that means the booth turned a BOOKING into a red. This is
@@ -303,8 +304,13 @@ export function* runMatch(
   const altercationRate = ALTERCATION_PER_MATCH / FULL_TIME;
   const varPenaltyRate = VAR_PENALTY_PER_MATCH / 2 / FULL_TIME;
 
-  const referee = pickReferee(rng());
-  const weather = pickWeather(rng());
+  // ⛔ Both draws are made even when the week's conditions override them (TASK-1828), so the
+  // stream every later minute reads is unchanged.
+  const drawnReferee = pickReferee(rng());
+  const drawnWeather = pickWeather(rng());
+  const forced = setup.conditions;
+  const referee = forced?.referee == null ? drawnReferee : refereeOf(forced.referee);
+  const weather = forced?.weather ?? drawnWeather;
   const slip = slipFactor(weather);
   const ownGoalRate = OWN_GOAL_PER_MATCH / 2 / FULL_TIME;
   const crowdRate = CROWD_PER_MATCH / FULL_TIME;
@@ -337,6 +343,7 @@ export function* runMatch(
     ],
     booked: new Map(),
     dismissed: new Set(),
+    ...(forced?.varScale == null ? {} : { varScale: forced.varScale }),
   };
   const sides: Side[] = ["home", "away"];
 

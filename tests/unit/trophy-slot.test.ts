@@ -67,8 +67,8 @@ describe("the trophy slots", () => {
     expect(results.filter(Boolean)).toHaveLength(1);
   });
 
-  it("⛔ an existing v4 database (with a What-If best) survives the v5 upgrade", async () => {
-    expect(DB_VERSION).toBe(5);
+  it("⛔ an existing v4 database (with a What-If best) survives the v5+ upgrade", async () => {
+    expect(DB_VERSION).toBeGreaterThanOrEqual(5);
     await new Promise<void>((resolve, reject) => {
       const req = indexedDB.open("pitchiq-game", 4);
       req.onupgradeneeded = () => {
