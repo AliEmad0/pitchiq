@@ -53,14 +53,35 @@ const VERDICT_KEY = { rewrote: "Rewrote", matched: "Matched", repeated: "Repeate
  * live screen mounts, so the coach's choices ride the decision stream like every other answer.
  * ⛔ Each fetch effect owns its AbortController (the TASK-1811 effect-lifecycle rule).
  */
-export function WhatIf({ cards }: { cards: readonly WhatIfCard[] }) {
+/** TASK-1827 — the first-run tutorial: one fixed scenario on one fixed seed, with tips. */
+export interface WhatIfTutorial {
+  scenarioId: string;
+  seed: number;
+  onFinish: (r: { score: { home: number; away: number }; verdict: Verdict }) => void;
+}
+
+export function WhatIf({
+  cards,
+  tutorial,
+}: {
+  cards: readonly WhatIfCard[];
+  /** Present = skip the list and play the tutorial match. Absent = the mode as it shipped. */
+  tutorial?: WhatIfTutorial;
+}) {
   const t = useTranslations("gameWhatIf");
   const tGame = useTranslations("game");
   const locale = useLocale();
   const ld = (v: string | number) => localizeDigits(v, locale);
   const driver = useMatchDriver();
   const { startSession } = driver;
-  const [stage, setStage] = useState<Stage>({ kind: "list" });
+  const tutorialScenario =
+    tutorial == null ? undefined : SCENARIOS.find((x) => x.id === tutorial.scenarioId);
+  const [stage, setStage] = useState<Stage>(() =>
+    tutorialScenario != null
+      ? { kind: "loading", scenario: tutorialScenario, attempt: 0 }
+      : { kind: "list" },
+  );
+  const tutorialSeed = tutorial?.seed;
   const [bests, setBests] = useState<Record<string, WhatIfBest>>({});
   const [unlocked, setUnlocked] = useState<AchievementId[]>([]);
   const cardOf = useCallback((id: string) => cards.find((c) => c.id === id)!, [cards]);
@@ -91,7 +112,7 @@ export function WhatIf({ cards }: { cards: readonly WhatIfCard[] }) {
         if (!res.ok) throw new Error(String(res.status));
         const data = (await res.json()) as ClassicData;
         if (ac.signal.aborted) return;
-        const session = buildBoostedSession(scenario, data, randomSeed());
+        const session = buildBoostedSession(scenario, data, tutorialSeed ?? randomSeed());
         if (session == null) throw new Error("session");
         startSession(buildFixtureSession({ setup: session.setup, coachSide: scenario.side }));
         setStage({ kind: "match", scenario, session });
@@ -101,7 +122,7 @@ export function WhatIf({ cards }: { cards: readonly WhatIfCard[] }) {
     })();
     return () => ac.abort();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on the attempt, not the object
-  }, [loadingKey, startSession]);
+  }, [loadingKey, startSession, tutorialSeed]);
 
   const score = (h: number, a: number) => ld(`${h}–${a}`);
   const coachName = (s: Scenario) => cardOf(s.id)[s.side].name;
@@ -226,6 +247,16 @@ export function WhatIf({ cards }: { cards: readonly WhatIfCard[] }) {
           </h2>
           <p className="wi-mut">{t(`verdict${VERDICT_KEY[verdict]}Line`, { club: coach })}</p>
           <div className="wi-board-actions">
+            {tutorial != null ? (
+              <button
+                type="button"
+                className="wi-btn"
+                data-testid="wi-continue"
+                onClick={() => tutorial.onFinish({ score: result.score, verdict })}
+              >
+                {t("tutorialContinue")}
+              </button>
+            ) : null}
             <button
               type="button"
               className="wi-btn"
@@ -299,6 +330,11 @@ export function WhatIf({ cards }: { cards: readonly WhatIfCard[] }) {
           />
           <h3 className="wi-h">{t("talkHeading", { club: coach })}</h3>
           <p className="wi-mut">{t("talkHint")}</p>
+          {tutorial != null ? (
+            <p className="wi-tip" data-testid="wi-tip">
+              {t("tipTalk")}
+            </p>
+          ) : null}
           {talkResponse != null ? (
             <div className="wi-resp">
               {(["overload", "stabilize", "hold"] as const).map((choice) => {
@@ -357,35 +393,42 @@ export function WhatIf({ cards }: { cards: readonly WhatIfCard[] }) {
 
   // ---------------------------------------------------------------- live
   return (
-    <WhatIfLive
-      scenario={s}
-      session={session}
-      crests={crests}
-      driver={driver}
-      onFullTime={() => {
-        if (driver.result == null) return;
-        const score = driver.result.score;
-        const { home, away, seed } = session.setup;
-        setUnlocked([]);
-        void (async () => {
-          await recordWhatIf(s, score);
-          // TASK-1813 — History Rewritten / Alternate History read the bests. No cards: the XI
-          // is history's, not drafted (TASK-1819).
-          const rewritten = Object.values(await loadWhatIfBests()).filter(
-            (b) => b.verdict === "rewrote",
-          ).length;
-          const fresh = await recordFullTime({
-            key: `w:${s.id}:${seed}`,
-            day: localDay(),
-            cards: [],
-            facts: { whatIfRewritten: rewritten },
-            context: scoreLine(home.name, away.name, score),
-          });
-          if (fresh.length > 0) setUnlocked(fresh);
-        })();
-        setStage({ kind: "summary", scenario: s, session });
-      }}
-    />
+    <>
+      {tutorial != null ? (
+        <p className="wi-tip wi-tip-live" data-testid="wi-tip">
+          {t("tipLive")}
+        </p>
+      ) : null}
+      <WhatIfLive
+        scenario={s}
+        session={session}
+        crests={crests}
+        driver={driver}
+        onFullTime={() => {
+          if (driver.result == null) return;
+          const score = driver.result.score;
+          const { home, away, seed } = session.setup;
+          setUnlocked([]);
+          void (async () => {
+            await recordWhatIf(s, score);
+            // TASK-1813 — History Rewritten / Alternate History read the bests. No cards: the XI
+            // is history's, not drafted (TASK-1819).
+            const rewritten = Object.values(await loadWhatIfBests()).filter(
+              (b) => b.verdict === "rewrote",
+            ).length;
+            const fresh = await recordFullTime({
+              key: `w:${s.id}:${seed}`,
+              day: localDay(),
+              cards: [],
+              facts: { whatIfRewritten: rewritten },
+              context: scoreLine(home.name, away.name, score),
+            });
+            if (fresh.length > 0) setUnlocked(fresh);
+          })();
+          setStage({ kind: "summary", scenario: s, session });
+        }}
+      />
+    </>
   );
 }
 

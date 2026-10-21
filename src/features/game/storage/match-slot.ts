@@ -59,6 +59,8 @@ export interface SavedMatch {
   style?: TacticalStyle;
   /** The coach's stance, picked beside the style. ⛔ IDENTITY too; absent = no stance. */
   mentality?: Mentality;
+  /** Played with traits (TASK-1814). ⛔ IDENTITY; absent = a match from before traits existed. */
+  personality?: boolean;
 }
 
 const KEY = "current";

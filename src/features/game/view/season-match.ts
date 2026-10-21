@@ -8,6 +8,7 @@ import {
 } from "@/features/game/domain/season";
 import { absentLine, valueLine } from "@/features/game/domain/market-value";
 import { runMatch, simulate } from "@/features/game/domain/simulate";
+import { personalityModifier } from "@/features/game/domain/traits";
 import type { MatchResult, MatchSetup, Side } from "@/features/game/domain/match-types";
 import type { GameTeam } from "@/features/game/domain/team";
 import type { MatchSession } from "./match-session";
@@ -35,6 +36,10 @@ export function seasonFixture(run: SeasonRun, teams: readonly GameTeam[]): Seaso
       away: a === run.coach ? own : teams[a]!,
       seed: fixtureSeed(run.seed, week, index),
       targetGoalsPerMatch: 2.7,
+      // TASK-1814 — season fixtures store their RESULTS, never a replay, so traits need no flag.
+      modifiers: [
+        personalityModifier(h === run.coach ? own : teams[h]!, a === run.coach ? own : teams[a]!),
+      ],
     },
     coachSide: h === run.coach ? "home" : "away",
   };
@@ -74,7 +79,13 @@ export function finishSeasonWeek(
             events: [],
             seed,
           })
-        : simulate({ home: teams[h]!, away: teams[a]!, seed, targetGoalsPerMatch: 2.7 });
+        : simulate({
+            home: teams[h]!,
+            away: teams[a]!,
+            seed,
+            targetGoalsPerMatch: 2.7,
+            modifiers: [personalityModifier(teams[h]!, teams[a]!)],
+          });
     const coachHere = h === run.coach || a === run.coach;
     const coachSide: Side = h === run.coach ? "home" : "away";
     const coachTeam = fixture?.setup[coachSide];

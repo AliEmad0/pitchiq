@@ -9,6 +9,7 @@ import { prefersReducedMotion } from "@/utils/motion";
 import { ClubCrest } from "./ClubCrest";
 import { PlayerCard } from "./PlayerCard";
 import { ScoutingDossier, type ScoutingDossierProps } from "./ScoutingDossier";
+import { TraitsPanel } from "./TraitsPanel";
 
 interface Props {
   coachSide?: "home" | "away";
@@ -36,6 +37,8 @@ interface Props {
    * owns Kick off / Walk out. Absent (season fixtures) = the programme exactly as it shipped.
    */
   scouting?: ScoutingDossierProps;
+  /** TASK-1814 — the match plays with traits: show who carries one. Absent = as it shipped. */
+  traits?: boolean;
   onKickOff: () => void;
   onBack: () => void;
 }
@@ -91,6 +94,7 @@ export function MatchProgramme({
   crests,
   chemistry,
   scouting,
+  traits,
   onKickOff,
   onBack,
 }: Props) {
@@ -251,6 +255,7 @@ export function MatchProgramme({
 
       {/* ---- 6 · kick off ---- */}
       {/* ⚠️ FULL WIDTH, and the only --cta on the page. */}
+      {traits === true ? <TraitsPanel home={home} away={away} /> : null}
       {scouting != null ? <ScoutingDossier {...scouting} /> : null}
       <div className="lg-prog-go">
         <button type="button" onClick={onBack} className="lg-ghost">

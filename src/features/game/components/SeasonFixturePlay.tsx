@@ -65,6 +65,7 @@ export function SeasonFixturePlay({
           referee={driver.events.find((e) => e.kind === "referee")?.refStyle ?? null}
           weather={driver.events.find((e) => e.kind === "weather")?.weather ?? null}
           backLabel={t("seasonReturn")}
+          traits
           onBack={() => onReturn(null)}
           onKickOff={() => dispatch({ type: "kickOff" })}
         />

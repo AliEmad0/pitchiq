@@ -6680,3 +6680,232 @@
 .sv-movers li > span:first-child {
   flex: 1;
 }
+
+/* ==========================================================================
+   TASK-1827 — onboarding (`ob-`), the gate's coach banner (`cb-`) and the
+   crest badge; TASK-1814 — the personalities panel (`tp-`). Static: no new
+   animation without the owner's gallery round.
+   ========================================================================== */
+.crest-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  border-radius: 9999px;
+  box-shadow: inset 0 0 0 3px rgb(255 255 255 / 0.25);
+  line-height: 1;
+}
+.ob-root {
+  display: grid;
+  gap: 12px;
+  max-width: 40rem;
+  margin-inline: auto;
+  padding: 24px;
+  border-radius: 16px;
+  background: #04121a;
+  color: #e8eff6;
+}
+.ob-kicker {
+  color: #25e0d0;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.ob-title {
+  font-size: 1.75rem;
+  font-weight: 900;
+  line-height: 1.15;
+}
+.ob-sub,
+.ob-hook-line {
+  color: #b9c9d4;
+}
+.ob-hook-line {
+  font-size: 1.0625rem;
+  color: #e8eff6;
+}
+.ob-label {
+  margin-top: 6px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+.ob-input {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #0d3648;
+  background: #071e2b;
+  color: inherit;
+  font-size: 1rem;
+}
+.ob-crests {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(56px, 1fr));
+  gap: 8px;
+}
+.ob-crest {
+  display: flex;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  background: #071e2b;
+  cursor: pointer;
+}
+.ob-crest[aria-checked="true"] {
+  border-color: #25e0d0;
+}
+.ob-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+.ob-go {
+  flex: 1 1 12rem;
+  padding: 14px 18px;
+  border-radius: 10px;
+  background: #25e0d0;
+  color: #04121a;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.ob-skip {
+  color: #8fa8b6;
+  font-size: 0.875rem;
+  text-decoration: underline;
+}
+.ob-brief {
+  max-width: 48rem;
+  margin: 0 auto 12px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #071e2b;
+  color: #e8eff6;
+  font-weight: 700;
+}
+.ob-hook {
+  justify-items: center;
+  text-align: center;
+}
+.ob-next {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+}
+.ob-card {
+  display: grid;
+  gap: 2px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #0d3648;
+  background: #071e2b;
+  text-align: start;
+}
+.ob-card span {
+  color: #8fa8b6;
+  font-size: 0.8125rem;
+}
+.wi-tip {
+  margin: 10px 0;
+  padding: 10px 12px;
+  border-inline-start: 4px solid #25e0d0;
+  border-radius: 8px;
+  background: rgb(37 224 208 / 0.1);
+  font-size: 0.875rem;
+}
+.wi-tip-live {
+  max-width: 64rem;
+  margin-inline: auto;
+}
+.cb-new {
+  display: grid;
+  gap: 2px;
+  margin-bottom: 16px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: #25e0d0;
+  color: #04121a;
+}
+.cb-new span {
+  font-size: 0.875rem;
+}
+.cb-back {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  font-weight: 700;
+}
+.cb-replay {
+  margin-inline-start: auto;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  text-decoration: underline;
+}
+.tp-panel {
+  margin-top: 16px;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+.tp-title {
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+.tp-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+}
+.tp-team {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.tp-side li {
+  font-size: 0.8125rem;
+  overflow-wrap: anywhere;
+}
+.tp-none {
+  font-size: 0.8125rem;
+  opacity: 0.7;
+}
+.tp-chip {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  color: #04121a;
+  background: #cbd5e1;
+}
+.tp-talisman {
+  background: #fbbf24;
+}
+.tp-rock {
+  background: #93c5fd;
+}
+.tp-engine {
+  background: #86efac;
+}
+.tp-hotHead {
+  background: #fca5a5;
+}
+.tp-swing {
+  background: #c4b5fd;
+}
+.tp-legend {
+  display: grid;
+  gap: 4px;
+  margin-top: 10px;
+  font-size: 0.75rem;
+}
+.tp-legend > div {
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+}

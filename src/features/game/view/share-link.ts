@@ -41,6 +41,8 @@ export function buildShareCode(args: {
   style?: TacticalStyle;
   /** The coach's stance. Attacking/Defensive write a v4 code; Balanced or absent change nothing. */
   mentality?: Mentality;
+  /** Played with traits (TASK-1814) — writes a v5 code. */
+  personality?: boolean;
 }): string {
   return encodeMatch({
     cardIds: [...args.cardIds] as PlayerSeasonId[],
@@ -51,6 +53,7 @@ export function buildShareCode(args: {
     rival: args.rival ?? null,
     ...(args.style == null ? {} : { style: args.style }),
     ...(args.mentality == null ? {} : { mentality: args.mentality }),
+    ...(args.personality === true ? { personality: true } : {}),
   });
 }
 
@@ -87,13 +90,14 @@ export function replayShared(
     // ⚠️ `keep`, and no expected event count — see the drift table in the design doc.
     { onDrift: "keep", expectedFingerprint: shared.fingerprint },
     // ⛔ The code's style and stance are identity: they join whatever rival the caller resolved.
-    shared.style == null && shared.mentality == null
-      ? rival
-      : {
-          ...rival,
-          ...(shared.style == null ? {} : { style: shared.style }),
-          ...(shared.mentality == null ? {} : { mentality: shared.mentality }),
-        },
+    // ⛔ Personality is set from the CODE alone, never left to the caller: an older code carries
+    // none and must replay without traits even if the caller would start new matches with them.
+    {
+      ...rival,
+      ...(shared.style == null ? {} : { style: shared.style }),
+      ...(shared.mentality == null ? {} : { mentality: shared.mentality }),
+      personality: shared.personality === true,
+    },
   );
 }
 

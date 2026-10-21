@@ -85,6 +85,9 @@ register) — formal but not stiff.
 | no-show                  | خسارة بالغياب                                                                                   | an unplayed ladder matchday, 0–3 (TASK-1828)                      |
 | Squad valuation          | قيمة التشكيلة                                                                                   | in-game value, never a real fee (`gameValue`, TASK-1826)          |
 | Attacking / Defensive    | هجومي / دفاعي                                                                                   | stance (`gameStyle.stance.*`, mentality)                          |
+| Talisman / Rock          | التميمة / الصخرة                                                                                | traits (`gameTraits.name.*`, TASK-1814)                           |
+| Engine / Hot-Head        | المحرك / المتهور                                                                                | traits (`gameTraits.name.*`, TASK-1814)                           |
+| Coach (name prefix)      | المدرب                                                                                          | onboarding (`gameOnboarding`, TASK-1827)                          |
 
 ## Data stays in source form
 

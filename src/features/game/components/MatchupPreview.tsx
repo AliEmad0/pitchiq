@@ -3,6 +3,7 @@ import { useTranslations } from "next-intl";
 import type { RefereeStyle, Weather } from "@/features/game/domain/match-types";
 import type { GameTeam } from "@/features/game/domain/team";
 import { MiniPitch } from "./MiniPitch";
+import { TraitsPanel } from "./TraitsPanel";
 
 interface Props {
   home: GameTeam;
@@ -16,6 +17,8 @@ interface Props {
    */
   referee: RefereeStyle | null;
   weather: Weather | null;
+  /** TASK-1814 — the match plays with traits; show who carries one. */
+  traits?: boolean;
   onKickOff: () => void;
   onBack: () => void;
 }
@@ -59,7 +62,7 @@ const WEATHER_IMPACT_KEY: Record<Weather, string> = {
  * Not trivia: a strict referee books far more and rain makes the game scrappier, so each
  * condition carries a line on what it DOES rather than only what it is.
  */
-export function MatchupPreview({ home, away, referee, weather, onKickOff, onBack }: Props) {
+export function MatchupPreview({ home, away, referee, weather, traits, onKickOff, onBack }: Props) {
   const t = useTranslations("game");
 
   return (
@@ -96,6 +99,8 @@ export function MatchupPreview({ home, away, referee, weather, onKickOff, onBack
           ) : null}
         </div>
       </dl>
+
+      {traits === true ? <TraitsPanel home={home} away={away} /> : null}
 
       <div className="mt-6 flex items-center gap-3">
         <button

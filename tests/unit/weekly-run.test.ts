@@ -88,8 +88,12 @@ describe("a ladder matchday", () => {
     const att = ladderFixture(run, teams, {}, "attacking")!;
     expect(att.setup.seed).toBe(plain.setup.seed);
     expect(att.setup.targetGoalsPerMatch).toBeGreaterThan(plain.setup.targetGoalsPerMatch);
-    expect(att.setup.modifiers).toHaveLength(1);
-    expect(ladderFixture(run, teams, {}, "balanced")!.setup).toEqual(plain.setup);
+    // Traits always (TASK-1814), plus the counter edge only for Attacking.
+    expect(plain.setup.modifiers).toHaveLength(1);
+    expect(att.setup.modifiers).toHaveLength(2);
+    const bal = ladderFixture(run, teams, {}, "balanced")!.setup;
+    expect(bal.modifiers).toHaveLength(1);
+    expect(bal.targetGoalsPerMatch).toBe(plain.setup.targetGoalsPerMatch);
   });
 });
 

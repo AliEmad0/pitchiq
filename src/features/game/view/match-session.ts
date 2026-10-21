@@ -9,6 +9,7 @@ import {
 } from "@/features/game/domain/mentality";
 import { opponentSetup, type TacticalStyle } from "@/features/game/domain/opponent";
 import { runMatch } from "@/features/game/domain/simulate";
+import { personalityModifier } from "@/features/game/domain/traits";
 import { type GameTeam, makeGameTeam } from "@/features/game/domain/team";
 import { createStream } from "./match-stream";
 
@@ -70,6 +71,14 @@ export interface RivalSetup {
    * `"balanced"`) adds no modifier, so every match made before it existed replays unchanged.
    */
   mentality?: Mentality;
+  /**
+   * TASK-1814 — play the match with personality traits and the late-goal momentum swing.
+   *
+   * ⛔ IDENTITY, like `style`: live, resume and share must all pass it. Absent = the match as it
+   * shipped before traits existed, byte for byte. Only the FLAG travels; the traits themselves
+   * are derived from the two XIs every path already carries.
+   */
+  personality?: boolean;
 }
 
 export interface MatchSession {
@@ -174,6 +183,7 @@ export function buildSession(
         modifiers: [
           ...chemistryMods,
           ...[mentalityModifier("home", rival.mentality)].filter((m) => m != null),
+          ...(rival.personality === true ? [personalityModifier(home, away)] : []),
         ],
       }),
     ),

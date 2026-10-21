@@ -261,6 +261,13 @@ export function GamePlay({
   /** The stance picked on the dossier, beside the style. Balanced by default. */
   const [stance, setStance] = useState<Mentality>("balanced");
   /**
+   * TASK-1814 — does THIS match play with traits? Every new match does; a restored or shared one
+   * takes it from its record or code, because a match made before traits existed must replay
+   * without them. ⛔ IDENTITY, exactly like `style`.
+   */
+  const [personality, setPersonality] = useState(false);
+  const [offerPersonality, setOfferPersonality] = useState(false);
+  /**
    * The Scout's Dossier (TASK-1825): the style on the programme, and both styles once Kick off
    * has been pressed. Defaults to Balanced; the last pick in this browser is a convenience.
    */
@@ -517,13 +524,14 @@ export function GamePlay({
     setRival(picked);
     setRevealed(null);
     startArgs.current = { players, formation, seed, picked };
+    setPersonality(true);
     driver.start(
       pool,
       players,
       formation,
       seed,
       { home: t("yourXi"), away: t("rivals") },
-      rivalSetup(picked),
+      { ...rivalSetup(picked), personality: true },
     );
     setSquad({
       cardIds: players.map((p) => p.cardId),
@@ -599,6 +607,7 @@ export function GamePlay({
       setRival(picked);
       setStyle(decoded.style);
       setMentality(decoded.mentality);
+      setPersonality(decoded.personality === true);
       driver.adopt({ ...replayed, pending: null });
       setSquad({
         cardIds: decoded.cardIds,
@@ -651,6 +660,7 @@ export function GamePlay({
           ...(picked == null ? { policy: opponent, budget, chemistry } : rivalSetup(picked)),
           ...(record.style == null ? {} : { style: record.style }),
           ...(record.mentality == null ? {} : { mentality: record.mentality }),
+          personality: record.personality === true,
         },
       );
       if (!live) return;
@@ -662,6 +672,7 @@ export function GamePlay({
       setOfferRival(picked);
       setOfferStyle(record.style);
       setOfferMentality(record.mentality);
+      setOfferPersonality(record.personality === true);
       setOffer(restored);
     })();
     return () => {
@@ -692,6 +703,7 @@ export function GamePlay({
       rival: rivalRef(rival) ?? undefined,
       ...(style == null ? {} : { style }),
       ...(mentality == null ? {} : { mentality }),
+      ...(personality ? { personality: true } : {}),
     });
     // ⚠️ `rival` is deliberately in the deps: a resumed match adopts its club AFTER the
     // first save, so leaving it out would persist the next write against the wrong opponent.
@@ -706,6 +718,7 @@ export function GamePlay({
     rival,
     style,
     mentality,
+    personality,
     seasonRequested,
   ]);
 
@@ -743,6 +756,7 @@ export function GamePlay({
     setRival(offerRival);
     setStyle(offerStyle);
     setMentality(offerMentality);
+    setPersonality(offerPersonality);
     driver.adopt(offer);
     // ⚠️ Taken from the RECORD, never reconstructed from the session: a resumed match must
     // keep saving under the same identity, and `GameTeam` holds cards rather than the
@@ -876,6 +890,7 @@ export function GamePlay({
         {
           ...rivalSetup(args.picked),
           style: picked,
+          personality: true,
           ...(stance === "balanced" ? {} : { mentality: stance }),
         },
       );
@@ -909,6 +924,7 @@ export function GamePlay({
         chemistry={chemistry}
         referee={referee}
         weather={weather}
+        traits={personality}
         scouting={
           // A match with no hand-off args (a resumed or shared one) never shows a programme;
           // this guard keeps the dossier off it if that ever changes.
@@ -938,6 +954,7 @@ export function GamePlay({
         away={match.away}
         referee={referee}
         weather={weather}
+        traits={personality}
         onKickOff={onKickOff}
         onBack={onBack}
       />
@@ -959,6 +976,7 @@ export function GamePlay({
             rival: rivalRef(rival),
             style,
             mentality,
+            personality,
           });
     const cardData =
       squad == null || code == null
