@@ -17,9 +17,13 @@ test.describe("Trophy Room (TASK-1813/1819)", () => {
     await expect(page.getByTestId("tc-cup").first()).not.toHaveClass(/is-lit/);
   });
 
-  test("#hall opens the cabinet, in Arabic too", async ({ page }) => {
-    await page.goto("/ar/game/trophies#hall");
+  test("#hall opens the cabinet directly", async ({ page }) => {
+    // ⚠️ No Arabic variant: `/ar/*` is 301'd to English while Arabic is parked (TASK-1843).
+    await page.goto("/game/trophies#hall");
     await expect(page.getByTestId("tc-cup")).toHaveCount(16, { timeout: 30_000 });
-    await expect(page.getByRole("heading", { level: 1 })).toContainText("غرفة الكؤوس");
+    await expect(page.getByRole("tab", { name: "Hall of Fame" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
   });
 });
