@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { CoachBanner } from "@/features/game/components/CoachBanner";
 import { ModeGate } from "@/features/game/components/ModeGate";
 
 // force-static like every /game/* route. The gate loads NO data — it renders from
@@ -29,6 +30,8 @@ export default async function GameHubPage({ params }: Props) {
 
   return (
     <main className="mx-auto w-full max-w-5xl px-4 py-10">
+      {/* TASK-1827 — first run: the 30-second rescue; afterwards, a greeting. */}
+      <CoachBanner />
       <ModeGate />
     </main>
   );

@@ -403,3 +403,14 @@ values are derived by folding. ⛔ Mentality sets TEMPO via the goal target (`me
 one-sided attack/defence shift cancels in `edgeShare`, which was measured. Attacking also gives the
 opponent `COUNTER_EDGE`, or it is a free win. It is identity like style; share code v4 is written
 only for Attacking/Defensive, and Balanced is stored as no stance.
+
+### TASK-1827/1814 Onboarding and personality traits (2026-10-21)
+
+`/game/start` (force-static) is the first run: name and crest (IndexedDB v7 `profile`), then the
+tutorial What-If `TUTORIAL` (`2000-sou-liv`, seed 2400), then the hook. ⛔ The seed is pinned by
+measurement (Overload wins, Hold loses); re-measure it before any engine or What-If boost change.
+Traits (`domain/traits.ts`) are read from ratings, never assigned, and play only through
+`personalityModifier`. ⛔ `RivalSetup.personality` is identity like style: share code v5 is written
+only with traits, absent is byte-identical, and the daily derives it from the day
+(`DAILY_PERSONALITY_FROM`). Season and ladder fixtures always play with traits because they store
+results. What-If and Classic stay without traits.

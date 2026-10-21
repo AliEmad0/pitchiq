@@ -43,6 +43,8 @@ async function reachProgramme(user: ReturnType<typeof userEvent.setup>) {
   await user.click(await screen.findByRole("button", { name: "Auto-fill" }));
   await user.click(screen.getByRole("button", { name: "Play match" }));
   await screen.findByRole("region", { name: "Scouting report" });
+  // TASK-1814 — the programme names who carries a personality.
+  expect(screen.getByTestId("traits-panel")).toBeInTheDocument();
 }
 
 describe("GamePlay — the Scout's Dossier", () => {
@@ -62,6 +64,9 @@ describe("GamePlay — the Scout's Dossier", () => {
     await user.click(screen.getByRole("button", { name: "Walk out" }));
     await vi.waitFor(() => expect(slot.saved).not.toBeNull());
     expect(slot.saved!.style).toBe("high-press");
+    // TASK-1814 — every new match plays with traits, and the save says so (identity).
+    expect((slot.saved as { personality?: boolean }).personality).toBe(true);
+    expect(screen.queryByTestId("traits-panel")).toBeNull(); // the programme is gone by now
   });
 
   it("⛔ the rebuild at Kick off keeps the opponent the programme showed", async () => {

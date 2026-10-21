@@ -3,7 +3,13 @@ import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useReducer, useState } from "react";
 import type { PlayerSeasonId } from "@/features/game/domain/card-id";
 import type { PoolCard } from "@/features/game/domain/chaos-draft";
-import { dayFormation, dayKey, dayNumber, daySeeds } from "@/features/game/domain/daily";
+import {
+  dailyPersonality,
+  dayFormation,
+  dayKey,
+  dayNumber,
+  daySeeds,
+} from "@/features/game/domain/daily";
 import { matchStrip, shareText } from "@/features/game/domain/daily-share";
 import { computeStats } from "@/features/game/domain/daily-stats";
 import type { AchievementId } from "@/features/game/domain/achievements";
@@ -132,6 +138,8 @@ export function DailyChallenge({ pool }: { pool: PoolCard[] }) {
         eventCount: record.eventCount,
       },
       { home: t("yourXi"), away: t("rivals") },
+      // ⛔ The RECORD's day decides, never today's: it replays under the rule it was played under.
+      { personality: dailyPersonality(record.day) },
     );
     // Null means the pool or the engine moved under it. A stale save is not the coach's
     // problem — the day simply reopens at the draft room.
@@ -247,10 +255,14 @@ export function DailyChallenge({ pool }: { pool: PoolCard[] }) {
           const byId = new Map(pool.map((c) => [c.cardId, c]));
           const players = cardIds.map((id) => byId.get(id)).filter((c): c is PoolCard => c != null);
           setSquad({ cardIds });
-          driver.start(pool, players, formation, seeds.match, {
-            home: t("yourXi"),
-            away: t("rivals"),
-          });
+          driver.start(
+            pool,
+            players,
+            formation,
+            seeds.match,
+            { home: t("yourXi"), away: t("rivals") },
+            { personality: dailyPersonality(today) },
+          );
           dispatch({ type: "confirmSquad", seed: seeds.match });
         }}
       />
@@ -269,6 +281,7 @@ export function DailyChallenge({ pool }: { pool: PoolCard[] }) {
         weather={
           (driver.events.find((e) => e.kind === "weather")?.weather ?? null) as Weather | null
         }
+        traits={dailyPersonality(today)}
         onKickOff={() => {
           // ⚠️ THE COMMIT POINT. The day is spent here and its key frozen for the session.
           const anchor = dayKey(new Date());

@@ -13,6 +13,7 @@ import {
   type SeasonRun,
 } from "@/features/game/domain/season";
 import { simulate } from "@/features/game/domain/simulate";
+import { personalityModifier } from "@/features/game/domain/traits";
 import type { GameTeam } from "@/features/game/domain/team";
 import { LADDER_CLUBS, LADDER_DAYS, ladderFixtures } from "@/features/game/domain/weekly";
 import type { SeasonFixture } from "./season-match";
@@ -57,6 +58,8 @@ export function ladderFixture(
   const [h, a] = fixtures[index]!;
   const coachSide: Side = h === run.coach ? "home" : "away";
   const counter = mentalityModifier(coachSide, stance);
+  // TASK-1814 — traits play in every ladder fixture; results are stored, never replayed.
+  const traits = personalityModifier(teams[h]!, teams[a]!);
   return {
     setup: {
       home: teams[h]!,
@@ -64,7 +67,7 @@ export function ladderFixture(
       seed: fixtureSeed(run.seed, day, index),
       targetGoalsPerMatch: mentalityTarget(RATE, stance),
       conditions,
-      ...(counter == null ? {} : { modifiers: [counter] }),
+      modifiers: counter == null ? [traits] : [traits, counter],
     },
     coachSide,
   };
@@ -121,6 +124,7 @@ export function finishLadderDay(
         seed,
         targetGoalsPerMatch: RATE,
         conditions,
+        modifiers: [personalityModifier(teams[h]!, teams[a]!)],
       });
     }
     const row: SeasonResult = {

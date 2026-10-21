@@ -30,8 +30,8 @@ describe("weekly slot", () => {
     expect(await allWeekly()).toEqual([]);
   });
 
-  it("⛔ an existing v5 database (with an album card) survives the v6 upgrade", async () => {
-    expect(DB_VERSION).toBe(6);
+  it("⛔ an existing v5 database (with an album card) survives the v6+ upgrade", async () => {
+    expect(DB_VERSION).toBeGreaterThanOrEqual(6);
     await new Promise<void>((resolve, reject) => {
       const req = indexedDB.open("pitchiq-game", 5);
       req.onupgradeneeded = () => {

@@ -114,3 +114,16 @@ export const DAILY_SHAPES: readonly string[] = [
 export function dayFormation(key: string): Formation {
   return formationByName(DAILY_SHAPES[daySeeds(key).formation % DAILY_SHAPES.length]!);
 }
+
+/**
+ * TASK-1814 — the first day whose challenge plays with personality traits.
+ *
+ * ⛔ DERIVED from the day, never stored: a record replays under exactly the rule its own day was
+ * played under, so a challenge from before this date resumes without traits and one after with
+ * them. Moving this date re-maps stored history, like editing `DAILY_SHAPES` — it is not a knob.
+ */
+export const DAILY_PERSONALITY_FROM = "2026-10-22";
+
+export function dailyPersonality(key: string): boolean {
+  return key >= DAILY_PERSONALITY_FROM;
+}

@@ -45,6 +45,23 @@ function senderPlays(seed: number, rival: RivalSetup = {}) {
 }
 
 describe("a shared code replays to the sender's match", () => {
+  it("⛔ TASK-1814 — a match played with traits replays with traits from its v5 code", () => {
+    const rival = { style: "counter" as const, personality: true };
+    const sent = senderPlays(780, rival);
+    const code = buildShareCode({
+      cardIds: squad().map((c) => c.cardId),
+      formationKey: formationKey(FORMATION),
+      seed: 780,
+      answers: sent.answers,
+      fingerprint: hashEvents(sent.events),
+      ...rival,
+    });
+    expect(code.startsWith("v5.")).toBe(true);
+    const received = replayShared(pool, decodeMatch(code)!, NAMES, { personality: false })!;
+    expect(received.drifted).toBe(false);
+    expect(hashEvents(received.events)).toBe(hashEvents(sent.events));
+  });
+
   it("⛔ the coach's stance and style ride in the code: the receiver plays the same match", () => {
     const rival = { style: "counter" as const, mentality: "attacking" as const };
     const sent = senderPlays(778, rival);

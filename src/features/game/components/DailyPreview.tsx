@@ -6,6 +6,7 @@ import type { GameTeam } from "@/features/game/domain/team";
 import { localizeDigits } from "@/utils/format";
 import { prefersReducedMotion } from "@/utils/motion";
 import { PlayerCard } from "./PlayerCard";
+import { TraitsPanel } from "./TraitsPanel";
 
 // ⚠️ The same maps `MatchupPreview` uses — the engine's own style names, not invented ones.
 const REFEREE_KEY: Record<RefereeStyle, string> = {
@@ -33,6 +34,8 @@ interface Props {
   away: GameTeam;
   referee: RefereeStyle | null;
   weather: Weather | null;
+  /** TASK-1814 — the day plays with traits; show who carries one. */
+  traits?: boolean;
   onKickOff: () => void;
 }
 
@@ -48,7 +51,7 @@ const avgOf = (team: GameTeam): number => {
  * ⚠️ There is no "back to the squad". The daily's picks are final by design, so a control
  * offering a return to a draft that cannot be re-run would be a dead promise.
  */
-export function DailyPreview({ home, away, referee, weather, onKickOff }: Props) {
+export function DailyPreview({ home, away, referee, weather, traits, onKickOff }: Props) {
   const t = useTranslations("game");
   const locale = useLocale();
   const reduced = prefersReducedMotion();
@@ -96,6 +99,8 @@ export function DailyPreview({ home, away, referee, weather, onKickOff }: Props)
         {side(home, t("yourXi"), "home")}
         {side(away, away.name, "away")}
       </div>
+
+      {traits === true ? <TraitsPanel home={home} away={away} /> : null}
 
       <div className="dh-slotbar dh-slotbar-kick">
         <p className="dh-insert">{t("dailyKickInsert")}</p>

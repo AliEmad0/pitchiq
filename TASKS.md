@@ -5508,7 +5508,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1811](#task-1811) | Season-mode engine (ghost-of-real-season, Survival, Legacy)     | ✅ Done    | P3       | L   |
 | [TASK-1812](#task-1812) | Persistence, records, shareable seeded matches                  | 📋 Backlog | P3       | M   |
 | [TASK-1813](#task-1813) | Hall of Fame & retro achievements (IndexedDB, provenance-aware) | ✅ Done    | P3       | M   |
-| [TASK-1814](#task-1814) | Momentum engine + data-derived personality traits (modifiers)   | 📋 Backlog | P3       | L   |
+| [TASK-1814](#task-1814) | Momentum engine + data-derived personality traits (modifiers)   | ✅ Done    | P3       | L   |
 | [TASK-1815](#task-1815) | Post-match analytics — xG timeline + retro newspaper headlines  | ✅ Done    | P3       | M   |
 | [TASK-1816](#task-1816) | "What-If" historical scenario mode (rule pack)                  | ✅ Done    | P3       | M   |
 | [TASK-1817](#task-1817) | Daily seeded challenge — client-only (streaks, PB, seed replay) | ✅ Done    | P3       | M   |
@@ -5521,7 +5521,7 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1824](#task-1824) | Squad chemistry (era / club / nation links) as a modifier       | 📋 Backlog | P3       | M   |
 | [TASK-1825](#task-1825) | Tactical style + mentality, scouted                             | ✅ Done    | P3       | S   |
 | [TASK-1826](#task-1826) | Market value progression across a season                        | ✅ Done    | P3       | M   |
-| [TASK-1827](#task-1827) | Onboarding — coach identity + tutorial match (local only)       | 📋 Backlog | P3       | M   |
+| [TASK-1827](#task-1827) | Onboarding — coach identity + tutorial match (local only)       | ✅ Done    | P3       | M   |
 | [TASK-1828](#task-1828) | Weekly modifier ladder (local, seeded from the ISO week)        | ✅ Done    | P3       | M   |
 | [TASK-1829](#task-1829) | Card crafting — duplicates → trait badges (local)               | 📋 Backlog | P3       | S   |
 | [TASK-1830](#task-1830) | Segmented interactive match engine (live decisions, replayable) | ✅ Done    | P1       | L   |
@@ -6264,9 +6264,25 @@ targets and relegation start, era-authentic substitution rules, and squad rotati
 
 ### TASK-1814
 
-**Momentum engine + personality traits** · 📋 Backlog · `P3` · `L` · Type: Feature
+**Momentum engine + personality traits** · ✅ Done · `P3` · `L` · Type: Feature
 
 **Description** — Fills TASK-1803's reserved seams as **modifiers**: a momentum contributor (a late goal boosts the scoring side and pushes the trailing side into a short panic/higher-mispass state) and **data-derived personality traits** on the card (`Big Match Player`, `Hot-Headed`, …) that shift ratings/aggression contextually (finals, derbies, late-trailing). Also the mid-match crisis prompt ("Henry fatigued at 75' — risk injury or sub?"). All deterministic weight deltas; the PRNG stays the sole entropy source. **Depends on:** TASK-1803. **Fills:** the `traits?` seam shaped by TASK-1802.
+
+**Shipped (2026-10-21)** — with TASK-1827 ([design](docs/superpowers/specs/2026-10-21-task-1827-1814-onboarding-traits-design.md)).
+
+- **Data-derived traits** (`domain/traits.ts`, `traitsOf`), read off a card's own ratings. Each is on 6–14% of the real pool:
+  - **Talisman**: outfield, overall ≥ 91; lifts a trailing side's attack after 70'.
+  - **Rock**: defender, defence ≥ 85; stiffens a leading side after 75'.
+  - **Engine**: physical ≥ 80; keeps pressing after 60'.
+  - **Hot-Head**: discipline ≤ 15; more fouls and cards.
+- **Late swing:** a goal from 75' lifts the scorers and panics the conceding side for 5 minutes. A VAR-disallowed goal stops at its verdict.
+- ⭐ One pure modifier (`personalityModifier`); the engine is untouched. Measured over 800 matches: goals per match move under 2%, cards after 75' rise about 17%.
+- ⛔ **Identity** (`RivalSetup.personality`, `SavedMatch.personality`, **share code v5**). Absent is byte-identical, so every older save and link replays as played.
+  - The daily turns traits on from 2026-10-22, derived from the day.
+  - Season fixtures and the ladder store results, so they play with traits now.
+  - What-If and Classic stay without traits.
+- A **Personalities** panel shows on every pre-match screen of a match that plays with traits.
+- Not in scope: the mid-match crisis prompt (needs a new decision kind and token head), and trait badges on `PlayerCard` (owner's card gallery).
 
 ### TASK-1815
 
@@ -6702,9 +6718,18 @@ Built: `domain/draft-room.ts` (`roomDeals`), `view/room-state.ts` (the reducer),
 
 ### TASK-1827
 
-**Onboarding — coach identity + tutorial match** · 📋 Backlog · `P3` · `M` · Type: Feature
+**Onboarding — coach identity + tutorial match** · ✅ Done · `P3` · `M` · Type: Feature
 
 **Description** — First-run flow: pick a coach name and a crest, then a short scripted tutorial match that teaches the momentum bar, VAR, and substitutions. **Entirely local** — identity lives in IndexedDB, there is no account and no sign-up (that is [TASK-1902](#task-1902)). The tutorial match runs on a **fixed seed** so every player meets the same teaching moments in the same order; it is a normal `simulate()` run with a hand-chosen seed, not a special code path. **Depends on:** TASK-1806, TASK-1812.
+
+**Shipped (2026-10-21)** — owner: "jump straight into a quick, punchy 30-second rescue … PitchIQ isn't a tedious full-season sim, it's an exciting tactical game where your decisions rewrite football history." Built with TASK-1814 ([design](docs/superpowers/specs/2026-10-21-task-1827-1814-onboarding-traits-design.md)). `/game/start`, force-static.
+
+- Three steps: a coach name and one of eight crests (skippable); the tutorial rescue; the hook (what you did, and links to What-If, the daily and the weekly ladder).
+- **The tutorial is a What-If on a fixed seed, not a special path.** `TUTORIAL` = `2000-sou-liv` at seed 2400: Southampton 0–3 Liverpool at 64'. That leaves 26 minutes, about 30 seconds of play.
+  - ⛔ The seed was chosen by measurement: an Overload team talk wins it and a Hold loses it, so the first decision visibly rewrites history. Pinned by `onboarding.test.tsx`.
+  - Tips sit on the team-talk screen and above the live match.
+- The gate shows a first-run banner when no profile exists, and greets a returning coach by name and crest. There is no forced redirect.
+- IndexedDB **v7** `profile`. No account ([TASK-1902](#task-1902)).
 
 ### TASK-1828
 

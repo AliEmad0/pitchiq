@@ -294,3 +294,12 @@ the week ends is a no-show. Titles and title streaks are your personal bests. Se
 ladder show a **squad valuation** that moves with goals, assists, clean sheets and results — an
 in-game number, never a real fee. And the Scout's Dossier now asks for a **stance** beside your
 style: attack and open the game up, or defend and shut it down. See the [design](docs/superpowers/specs/2026-10-21-task-1828-1826-mentality-design.md).
+
+### First match and personalities (TASK-1827, TASK-1814 — ✅ Done)
+
+New to PitchIQ? `/game/start` asks for a coach name and a crest, then drops you into a real
+rescue: Southampton 0–3 Liverpool with 26 minutes left (it finished 3–3 — can you win it?). It
+takes about 30 seconds, and your first team talk decides it. Matches now carry **personalities**
+read from the players' own ratings — a Talisman who lifts a side chasing the game, a Rock who
+shuts it down, a tireless Engine, a Hot-Head who picks up cards — and a late goal swings the
+momentum for five minutes. See the [design](docs/superpowers/specs/2026-10-21-task-1827-1814-onboarding-traits-design.md).

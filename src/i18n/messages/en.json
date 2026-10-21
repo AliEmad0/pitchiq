@@ -1430,7 +1430,10 @@
     "verdictRewroteLine": "You did better than the real {club}.",
     "verdictMatchedLine": "Exactly what the real {club} managed.",
     "verdictRepeatedLine": "The real {club} did better.",
-    "again": "Try again"
+    "again": "Try again",
+    "tipTalk": "Tip: you're three down with time running out. Overload throws bodies forward — you need goals, not a tidy defeat. You can also make a change from the bench.",
+    "tipLive": "Decisions pop up as the match plays — answer within 20 seconds or your assistant does it for you. Watch for a late goal: it swings the momentum.",
+    "tutorialContinue": "Continue"
   },
   "gameStyle": {
     "title": "Scouting report",
@@ -1588,5 +1591,61 @@
     "disclaimer": "An in-game valuation from ratings and form in this run — not a real transfer fee.",
     "trend": "Squad value after each match",
     "empty": "Values move with every match: goals, assists, clean sheets and results."
+  },
+  "gameOnboarding": {
+    "metaTitle": "Your first match",
+    "kicker": "Welcome to PitchIQ",
+    "title": "Every decision rewrites football history.",
+    "subtitle": "Pick a name and a crest, then save a real Premier League match in 30 seconds.",
+    "nameLabel": "Coach name",
+    "namePlaceholder": "Coach",
+    "defaultName": "Coach",
+    "crestLabel": "Your crest",
+    "crest": {
+      "lion": "Lion",
+      "eagle": "Eagle",
+      "wolf": "Wolf",
+      "dragon": "Dragon",
+      "anchor": "Anchor",
+      "castle": "Castle",
+      "star": "Star",
+      "bolt": "Bolt"
+    },
+    "start": "Take charge",
+    "skip": "Skip — show me the modes",
+    "brief": "Coach {coach}, it's 26 August 2000. Southampton are 0–3 down to Liverpool with 26 minutes left. It really finished 3–3 — can you win it?",
+    "hookWon": "You just rewrote history.",
+    "hookLost": "History held — this time.",
+    "hookScore": "{home} {score} {away}. The real match finished 3–3.",
+    "hookLine": "That's PitchIQ: no tedious full-season grind — real football history, and your decisions change how it ends.",
+    "nextWhatIf": "More rescues",
+    "nextWhatIfDesc": "Step into other famous collapses and rewrite them.",
+    "nextDaily": "Daily challenge",
+    "nextDailyDesc": "One draft, one match, the same for everyone today.",
+    "nextWeekly": "Weekly Ladder",
+    "nextWeeklyDesc": "A league that lasts a week — a matchday a day.",
+    "allModes": "See every mode",
+    "bannerNew": "New here? Take charge of your first match →",
+    "bannerNewDesc": "A real Premier League rescue — it takes 30 seconds.",
+    "bannerBack": "Welcome back, Coach {coach}",
+    "bannerReplay": "Replay the first match"
+  },
+  "gameTraits": {
+    "title": "Personalities",
+    "none": "No standout personalities.",
+    "name": {
+      "talisman": "Talisman",
+      "rock": "Rock",
+      "engine": "Engine",
+      "hotHead": "Hot-Head"
+    },
+    "desc": {
+      "talisman": "A 91+ star: his side attacks harder when it trails after 70'.",
+      "rock": "An 85+ defender: his side holds firmer when leading after 75'.",
+      "engine": "Tireless legs: his side keeps pressing after 60'.",
+      "hotHead": "Low discipline: more fouls and cards for his side."
+    },
+    "swingName": "Late swing",
+    "swingDesc": "A goal from 75' lifts the scorers and rattles the other side for five minutes."
   }
 }

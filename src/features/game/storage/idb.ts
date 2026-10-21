@@ -1,5 +1,5 @@
 const DB_NAME = "pitchiq-game";
-export const DB_VERSION = 6;
+export const DB_VERSION = 7;
 
 /**
  * Every object store in the database.
@@ -29,6 +29,7 @@ const STORES = [
   "trophies",
   "trophyLog",
   "weekly",
+  "profile",
 ] as const;
 export type StoreName = (typeof STORES)[number];
 
