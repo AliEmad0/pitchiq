@@ -1613,7 +1613,7 @@
     },
     "start": "Take charge",
     "skip": "Skip — show me the modes",
-    "brief": "Coach {coach}, it's 26 August 2000. Southampton are 0–3 down to Liverpool with 26 minutes left. It really finished 3–3 — can you win it?",
+    "brief": "{coach}, it's 26 August 2000. Southampton are 0–3 down to Liverpool with 26 minutes left. It really finished 3–3 — can you win it?",
     "hookWon": "You just rewrote history.",
     "hookLost": "History held — this time.",
     "hookScore": "{home} {score} {away}. The real match finished 3–3.",
@@ -1627,7 +1627,7 @@
     "allModes": "See every mode",
     "bannerNew": "New here? Take charge of your first match →",
     "bannerNewDesc": "A real Premier League rescue — it takes 30 seconds.",
-    "bannerBack": "Welcome back, Coach {coach}",
+    "bannerBack": "Welcome back, {coach}",
     "bannerReplay": "Replay the first match"
   },
   "gameTraits": {

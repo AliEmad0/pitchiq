@@ -6,6 +6,7 @@ import { expect, test } from "./_helpers/test";
  * (The league logic is covered by the unit suites, which drive every matchday path.)
  */
 test.describe("Weekly Ladder (TASK-1828)", () => {
+  // ⚠️ No Arabic test: `/ar/*` is 301'd to English while Arabic is parked (TASK-1843).
   test("the gate links in; the week's rule and seven rivals show; the draft opens", async ({
     page,
   }) => {
@@ -18,11 +19,5 @@ test.describe("Weekly Ladder (TASK-1828)", () => {
     await expect(page.getByTestId("weekly-rivals").locator("li")).toHaveCount(7);
     await page.getByTestId("weekly-draft").click();
     await expect(page.getByTestId("weekly-intro")).toHaveCount(0);
-  });
-
-  test("Arabic: the ladder speaks Arabic", async ({ page }) => {
-    await page.goto("/ar/game/weekly");
-    await expect(page.getByTestId("weekly-intro")).toBeVisible({ timeout: 30_000 });
-    await expect(page.getByRole("heading", { level: 1 })).toContainText("السلّم الأسبوعي");
   });
 });
