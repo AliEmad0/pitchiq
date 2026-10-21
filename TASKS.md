@@ -5519,10 +5519,10 @@ A text/stat retro football simulation built **inside PitchIQ** (`src/features/ga
 | [TASK-1822](#task-1822) | Dynamic event-driven match engine (drama, VAR, subs, injuries)  | ✅ Done    | P1       | XL  |
 | [TASK-1823](#task-1823) | Draft Room — 11 slots × 5 cards, free roam + pick timer         | ✅ Done    | P2       | L   |
 | [TASK-1824](#task-1824) | Squad chemistry (era / club / nation links) as a modifier       | 📋 Backlog | P3       | M   |
-| [TASK-1825](#task-1825) | Tactical style selection, scouted (mentality deferred)          | ✅ Done    | P3       | S   |
-| [TASK-1826](#task-1826) | Market value progression across a season                        | 📋 Backlog | P3       | M   |
+| [TASK-1825](#task-1825) | Tactical style + mentality, scouted                             | ✅ Done    | P3       | S   |
+| [TASK-1826](#task-1826) | Market value progression across a season                        | ✅ Done    | P3       | M   |
 | [TASK-1827](#task-1827) | Onboarding — coach identity + tutorial match (local only)       | 📋 Backlog | P3       | M   |
-| [TASK-1828](#task-1828) | Weekly modifier ladder (local, seeded from the ISO week)        | 📋 Backlog | P3       | M   |
+| [TASK-1828](#task-1828) | Weekly modifier ladder (local, seeded from the ISO week)        | ✅ Done    | P3       | M   |
 | [TASK-1829](#task-1829) | Card crafting — duplicates → trait badges (local)               | 📋 Backlog | P3       | S   |
 | [TASK-1830](#task-1830) | Segmented interactive match engine (live decisions, replayable) | ✅ Done    | P1       | L   |
 | [TASK-1831](#task-1831) | The full formation set — 20 shapes in three families            | ✅ Done    | P2       | M   |
@@ -6657,7 +6657,7 @@ Built: `domain/draft-room.ts` (`roomDeals`), `view/room-state.ts` (the reducer),
 
 ### TASK-1825
 
-**Tactical style selection, scouted (mentality deferred)** · ✅ Done · `S` · `P3` · Type: Feature
+**Tactical style + mentality, scouted** · ✅ Done · `S` · `P3` · Type: Feature
 
 **Description** — Surface the six `TacticalStyle` values already shipped in TASK-1805 (`balanced`, `tiki-taka`, `high-press`, `low-block`, `counter`, `direct`) as a picker on the draft hub, replacing the currently seeded random style. The counter matrix and `tacticalStyleModifier` already exist — this is UI plus wiring, no engine work. Show the matchup edge against the opponent's style on the pre-match screen so the choice is legible rather than arbitrary. **Depends on:** TASK-1805, TASK-1807.
 
@@ -6674,11 +6674,31 @@ Built: `domain/draft-room.ts` (`roomDeals`), `view/room-state.ts` (the reducer),
 
 **Deferred:** the ticket's original title also named a **mentality** selection (an attacking or defensive stance). Neither the design nor the plan scoped it, and nothing for it shipped; it needs its own ticket and its own engine modifier.
 
+**Mentality shipped (2026-10-21)** — the deferred half, built with TASK-1826 and TASK-1828 ([design](docs/superpowers/specs/2026-10-21-task-1828-1826-mentality-design.md)). Three stances on the Scout's Dossier beside the style: **Attacking**, **Balanced** and **Defensive**.
+
+- ⛔ **Measured, not assumed:** an attack-up/defence-down shift on one side does NOTHING. The engine normalises both sides' chance shares to sum to 1, so the shift cancels. A stance therefore sets the match's **tempo**: the goal target is ×1.3 for Attacking and ×0.72 for Defensive.
+- Attacking also hands the opponent a counter edge (`COUNTER_EDGE` 4). Without it, an open game magnified home advantage and Attacking was a free win.
+- Over 1,500 real-engine matches each, both stances land within 0.02 points a game of Balanced. Goals move about +30% / −25% at both ends, and draws move 22% / 25% / 30%.
+- Identity like style (`RivalSetup.mentality`, `SavedMatch.mentality`). **Share code v4** = v3 plus a stance token, written only for Attacking or Defensive, so v2 and v3 codes decode unchanged. Balanced or absent is byte-identical.
+
 ### TASK-1826
 
-**Market value progression** · 📋 Backlog · `P3` · `M` · Type: Feature
+**Market value progression** · ✅ Done · `P3` · `M` · Type: Feature
 
 **Description** — Within a season run, each card carries a value that moves with performance (goals, assists, clean sheets, ratings, honours) so a squad has a visible economy across matchweeks. **Values are synthesised, never sourced** — the repo holds no transfer-fee data and real fee data is not ours to ship. Derive from the existing rating dimensions plus in-run output, and label the number as an in-game valuation so it is never mistaken for a real market price. Persisted in IndexedDB with the rest of the run ([TASK-1812](#task-1812)). Buying and selling against other coaches is **not** in scope — that is [TASK-1906](#task-1906) and needs a server. **Depends on:** TASK-1811, TASK-1812.
+
+**Shipped (2026-10-21)** — with TASK-1828 and mentality ([design](docs/superpowers/specs/2026-10-21-task-1828-1826-mentality-design.md)). A **Squad valuation** panel in every Legacy-style season hub and in the weekly ladder shows the total, the change, one bar per fixture, and the top risers and fallers. It is labelled an in-game valuation, never a real fee.
+
+- `domain/market-value.ts`: base `2.0 × 1.075^(OVR − 60)` £m, clamped to £0.5m–£40m and kept in integer tenths. It moves multiplicatively:
+  - goals, assists and appearances
+  - clean sheets, for keepers and the back line only
+  - wins and losses
+  - **rust**, for each fixture out of the side
+
+  The factor is clamped to 0.5–3.
+
+- ⛔ **Only raw output is stored.** `SeasonRun.market` holds one `ValueLine` per coach fixture, captured once in `finishSeasonWeek` from the real events, live or simmed. Values are derived by folding, so retuning a weight re-values every run and never rewrites a save. Old saves start flat.
+- Not in scope: Classic and Survival (a different controller), and buying or selling ([TASK-1906](#task-1906)).
 
 ### TASK-1827
 
@@ -6688,9 +6708,23 @@ Built: `domain/draft-room.ts` (`roomDeals`), `view/room-state.ts` (the reducer),
 
 ### TASK-1828
 
-**Weekly modifier ladder** · 📋 Backlog · `P3` · `M` · Type: Feature
+**Weekly modifier ladder** · ✅ Done · `P3` · `M` · Type: Feature
 
 **Description** — A rotating weekly ruleset (rain week, strict-referee week, heightened-VAR week) built as a **rule pack** over the existing modifier stack, with local streaks and personal bests. The week's seed derives from the **ISO week number**, computed as a `setup` input and baked into the shareable seed — never read inside the engine, per the standing determinism rule. Same shape as the daily challenge ([TASK-1817](#task-1817)); no global ranking (that is [TASK-1904](#task-1904)). **Depends on:** TASK-1810, TASK-1817.
+
+**Shipped (2026-10-21)** — owner: "a cumulative, multi-day league tournament … a true marathon compared to the quick sprint of the daily." Built with TASK-1826 and mentality ([design](docs/superpowers/specs/2026-10-21-task-1828-1826-mentality-design.md)). `/game/weekly`, force-static.
+
+- **One eight-club league per ISO week (UTC), the same for everyone.** The week supplies:
+  - the shape (the daily's frozen `DAILY_SHAPES`)
+  - the deal (standout, one per player, final picks)
+  - seven real rival clubs, each fielding its best XI from club history (`buildLeagueTeams`, as a Legacy season does)
+  - one ruleset from the **frozen** `WEEKLY_RULES`: Monsoon, Iron Ref, VAR ×3, Big Freeze, Home Comforts, Gale, Open
+- **Engine:** `MatchSetup.conditions` (weather / referee / `varScale`). The overridden draws still consume their random numbers, so forcing the value a match would have drawn anyway is byte-identical, and absent conditions change nothing.
+- **A matchday a day:** Monday opens matchday 1. Missed days are caught up in order within the week. Anything unplayed when the week ends is a 0–3 no-show, closed on the next visit.
+- Each matchday is **stored whole** (the coach's played result plus three simmed fixtures under the same rules), never re-derived. There is a stance per matchday.
+- Personal bests (titles, title streak in consecutive ISO weeks, best finish, best points) are derived, never stored.
+- IndexedDB **v6** `weekly` store. Each played fixture records into the Trophy Room under `l:<week>:<matchday>`.
+- No global ranking ([TASK-1904](#task-1904)). A refresh mid-fixture restarts it, as in season play.
 
 ### TASK-1829
 

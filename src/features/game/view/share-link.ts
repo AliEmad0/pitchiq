@@ -1,3 +1,4 @@
+import type { Mentality } from "@/features/game/domain/mentality";
 import type { TacticalStyle } from "@/features/game/domain/opponent";
 import type { PlayerSeasonId } from "@/features/game/domain/card-id";
 import type { PoolCard } from "@/features/game/domain/chaos-draft";
@@ -38,6 +39,8 @@ export function buildShareCode(args: {
   rival?: RivalRef | null;
   /** The coach's tactical style (TASK-1825). Absent = the shipped draw; the code stays v2. */
   style?: TacticalStyle;
+  /** The coach's stance. Attacking/Defensive write a v4 code; Balanced or absent change nothing. */
+  mentality?: Mentality;
 }): string {
   return encodeMatch({
     cardIds: [...args.cardIds] as PlayerSeasonId[],
@@ -47,6 +50,7 @@ export function buildShareCode(args: {
     fingerprint: args.fingerprint,
     rival: args.rival ?? null,
     ...(args.style == null ? {} : { style: args.style }),
+    ...(args.mentality == null ? {} : { mentality: args.mentality }),
   });
 }
 
@@ -82,8 +86,14 @@ export function replayShared(
     names,
     // ⚠️ `keep`, and no expected event count — see the drift table in the design doc.
     { onDrift: "keep", expectedFingerprint: shared.fingerprint },
-    // ⛔ The code's style is identity: it joins whatever rival the caller resolved.
-    shared.style == null ? rival : { ...rival, style: shared.style },
+    // ⛔ The code's style and stance are identity: they join whatever rival the caller resolved.
+    shared.style == null && shared.mentality == null
+      ? rival
+      : {
+          ...rival,
+          ...(shared.style == null ? {} : { style: shared.style }),
+          ...(shared.mentality == null ? {} : { mentality: shared.mentality }),
+        },
   );
 }
 

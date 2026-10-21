@@ -81,6 +81,10 @@ register) — formal but not stiff.
 | Low Block                | التكتل الدفاعي                                                                                  | tactical style (`gameStyle.style.*`, TASK-1825)                   |
 | Counter                  | الهجمات المرتدة                                                                                 | tactical style (`gameStyle.style.*`, TASK-1825)                   |
 | Direct                   | اللعب المباشر                                                                                   | tactical style (`gameStyle.style.*`, TASK-1825)                   |
+| Weekly Ladder            | السلّم الأسبوعي                                                                                 | game mode (`gameWeekly`, TASK-1828)                               |
+| no-show                  | خسارة بالغياب                                                                                   | an unplayed ladder matchday, 0–3 (TASK-1828)                      |
+| Squad valuation          | قيمة التشكيلة                                                                                   | in-game value, never a real fee (`gameValue`, TASK-1826)          |
+| Attacking / Defensive    | هجومي / دفاعي                                                                                   | stance (`gameStyle.stance.*`, mentality)                          |
 
 ## Data stays in source form
 

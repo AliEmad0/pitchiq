@@ -389,3 +389,17 @@ shipped uniform draw, pinned by `tests/unit/fixtures/session-legacy-golden.json`
 `capture-session-golden.ts` to make that golden pass. Share code v3 is written only with a
 style; v2 still decodes. The style is picked on the pre-match Scout's Dossier; Kick off rebuilds
 the match on the same seed. Season fixtures play no style.
+
+### TASK-1828/1826 Weekly Ladder, market value, mentality (2026-10-21)
+
+`/game/weekly` (force-static) is one eight-club league per ISO week, derived entirely from the week
+key (`domain/weekly.ts`, UTC getters only, no clock in `domain/`). ⛔ `WEEKLY_RULES` is FROZEN like
+`DAILY_SHAPES` (golden-pinned). The rules reach the engine as `MatchSetup.conditions`; overridden
+draws still consume their rng, so absent = byte-identical. Each matchday is stored whole (IndexedDB
+v6 `weekly`); an unplayed matchday becomes a 0–3 no-show when the week is closed on a later visit.
+⛔ Market values (`domain/market-value.ts`) are synthesised and labelled in-game. Only raw
+`ValueLine`s are stored (`SeasonRun.market`, captured in `finishSeasonWeek`/`finishLadderDay`), and
+values are derived by folding. ⛔ Mentality sets TEMPO via the goal target (`mentalityTarget`). A
+one-sided attack/defence shift cancels in `edgeShare`, which was measured. Attacking also gives the
+opponent `COUNTER_EDGE`, or it is a free win. It is identity like style; share code v4 is written
+only for Attacking/Defensive, and Balanced is stored as no stance.

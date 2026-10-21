@@ -41,6 +41,8 @@ import {
 } from "@/features/game/view/season-match";
 import type { MatchResult } from "@/features/game/domain/match-types";
 import { SeasonFixturePlay } from "./SeasonFixturePlay";
+import { SquadValuation } from "./SquadValuation";
+import { isValueLine } from "@/features/game/domain/market-value";
 
 export interface SeasonHubProps {
   captaincies?: Record<number, number>;
@@ -229,6 +231,8 @@ export function SeasonHub({
           coach: saved.coach,
           results: saved.results,
           injuries: saved.injuries,
+          // TASK-1826 — untrusted on read; a malformed line is dropped and values start flatter.
+          ...(Array.isArray(saved.market) ? { market: saved.market.filter(isValueLine) } : {}),
         });
       }
       setBlocked(
@@ -768,6 +772,7 @@ export function SeasonHub({
                 </label>
               ))}
             </div>
+            <SquadValuation cards={roster} lines={run.market ?? []} />
           </div>
         </section>
       </div>

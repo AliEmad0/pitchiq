@@ -983,7 +983,7 @@
     "modeDailyName": "Daily Challenge",
     "modeDailyDesc": "One fixture a day. Same for everyone.",
     "modeWeeklyName": "Weekly Ladder",
-    "modeWeeklyDesc": "A rotating ruleset that changes every week.",
+    "modeWeeklyDesc": "A week-long league tournament: one draft, a matchday every day, this week's rules.",
     "modeWhatIfName": "What-If Scenarios",
     "modeWhatIfDesc": "Step into a famous match and rewrite it.",
     "modeMysteryName": "Mystery Market",
@@ -1459,6 +1459,17 @@
       "lowBlock": "Sit deep",
       "counter": "Hit on the break",
       "direct": "Long and early"
+    },
+    "stanceLabel": "Your stance",
+    "stance": {
+      "attacking": "Attacking",
+      "balanced": "Balanced",
+      "defensive": "Defensive"
+    },
+    "stanceBlurb": {
+      "attacking": "Open game — more goals both ends",
+      "balanced": "Play it as it comes",
+      "defensive": "Tight game — fewer goals, more draws"
     }
   },
   "gameTrophies": {
@@ -1516,5 +1527,66 @@
     "unlockedOn": "Unlocked {day} · {context}",
     "unlockedDay": "Unlocked {day}",
     "locked": "Locked"
+  },
+  "gameWeekly": {
+    "title": "Weekly Ladder · Week {n}",
+    "stats": "Titles {titles} · Title streak {streak} · Best finish {best} · Best points {points}",
+    "closes": "Week closes in {time}",
+    "intro": "Draft one {shape} squad and take it through an eight-club league. A new matchday opens every day — {days} in all. Miss one and catch up later this week; anything unplayed when the week ends is a 0–3 no-show.",
+    "rivals": "This week's league",
+    "draft": "Draft your squad",
+    "table": "League table",
+    "club": "Club",
+    "played": "P",
+    "gd": "GD",
+    "pts": "Pts",
+    "matchday": "Matchday {n} of {of}",
+    "home": "Home",
+    "away": "Away",
+    "play": "Play matchday {n}",
+    "catchUp": "{count} matchdays open — catch up before the week ends.",
+    "locked": "Matchday {n} opens tomorrow.",
+    "final": "Week over",
+    "champions": "Champions! {points} points.",
+    "finished": "Finished {position} with {points} points.",
+    "rivalsError": "The rival squads did not load.",
+    "retry": "Retry",
+    "saveError": "This week could not be saved. Try again before playing on.",
+    "rule": {
+      "monsoon": {
+        "name": "Monsoon Week",
+        "desc": "Heavy rain at every ground — slips, scrappy tackles, more cards."
+      },
+      "ironRef": {
+        "name": "Iron Ref Week",
+        "desc": "A strict referee takes every match. Mind the bookings."
+      },
+      "var": {
+        "name": "VAR Week",
+        "desc": "The booth is watching — three times the video reviews."
+      },
+      "freeze": {
+        "name": "Big Freeze",
+        "desc": "Snow on every pitch. Keep your feet."
+      },
+      "home": {
+        "name": "Home Comforts",
+        "desc": "Referees who hear the crowd — the home side gets the calls."
+      },
+      "gale": {
+        "name": "Gale Week",
+        "desc": "Wind at every ground."
+      },
+      "open": {
+        "name": "Open Week",
+        "desc": "No special rules — just football."
+      }
+    }
+  },
+  "gameValue": {
+    "title": "Squad valuation",
+    "disclaimer": "An in-game valuation from ratings and form in this run — not a real transfer fee.",
+    "trend": "Squad value after each match",
+    "empty": "Values move with every match: goals, assists, clean sheets and results."
   }
 }

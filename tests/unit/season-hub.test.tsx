@@ -99,6 +99,14 @@ describe("SeasonHub", async () => {
     expect(screen.getByTestId("season-week")).toHaveTextContent(/0.*38/);
   });
 
+  it("TASK-1826 — the squad valuation starts flat and moves once a week is played", async () => {
+    await render();
+    const before = screen.getByTestId("sv-total").textContent;
+    expect(screen.getByTestId("squad-valuation")).toHaveTextContent(/not a real transfer fee/);
+    await userEvent.click(screen.getByRole("button", { name: /sim week/i }));
+    await waitFor(() => expect(screen.getByTestId("sv-total").textContent).not.toBe(before));
+  });
+
   it("⛔ the header carries BOTH crests — the owner's hybrid, 12 + 6", async () => {
     await render();
     expect(screen.getByTestId("season-watermark")).toBeInTheDocument();

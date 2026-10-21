@@ -1,9 +1,11 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
+import type { Mentality } from "@/features/game/domain/mentality";
 import { styleEdge, type TacticalStyle } from "@/features/game/domain/opponent";
 import { STYLES, TENDENCY_P } from "@/features/game/domain/style-scouting";
 import { localizeDigits } from "@/utils/format";
+import { StancePicker } from "./StancePicker";
 
 /** Catalog keys for the six styles (next-intl keys avoid dashes). */
 const KEY: Record<TacticalStyle, string> = {
@@ -21,6 +23,9 @@ export interface ScoutingDossierProps {
   tendency: TacticalStyle;
   picked: TacticalStyle;
   onPick: (s: TacticalStyle) => void;
+  /** The coach's stance (mentality). Both present = the stance picker shows beneath the styles. */
+  stance?: Mentality;
+  onStance?: (m: Mentality) => void;
   /** Both styles once Kick off is pressed; null before. */
   revealed: { home: TacticalStyle; away: TacticalStyle } | null;
   onKickOff: () => void;
@@ -42,6 +47,8 @@ export function ScoutingDossier({
   tendency,
   picked,
   onPick,
+  stance,
+  onStance,
   revealed,
   onKickOff,
   onWalkOut,
@@ -98,6 +105,9 @@ export function ScoutingDossier({
           </button>
         ))}
       </div>
+      {stance != null && onStance != null ? (
+        <StancePicker value={stance} onChange={onStance} disabled={revealed != null} />
+      ) : null}
       {revealed == null ? (
         <button type="button" className="lg-kick sd-go" onClick={onKickOff}>
           {t("kickOff")}

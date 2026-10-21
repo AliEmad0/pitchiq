@@ -30,6 +30,11 @@ const REFEREES: Record<RefereeStyle, Omit<Referee, "style">> = {
 
 const STYLES: RefereeStyle[] = ["strict", "lenient", "crowd-influenced"];
 
+/** One referee by style — the weekly ladder forces one (TASK-1828). */
+export function refereeOf(style: RefereeStyle): Referee {
+  return { style, ...REFEREES[style] };
+}
+
 export function pickReferee(r: number): Referee {
   const style = STYLES[Math.min(STYLES.length - 1, Math.floor(r * STYLES.length))];
   return { style, ...REFEREES[style] };

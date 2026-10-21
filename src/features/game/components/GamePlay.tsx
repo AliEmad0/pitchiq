@@ -15,6 +15,7 @@ import {
   type Difficulty,
 } from "@/features/game/view/rival-choice";
 import type { RivalSetup } from "@/features/game/view/match-session";
+import type { Mentality } from "@/features/game/domain/mentality";
 import type { TacticalStyle } from "@/features/game/domain/opponent";
 import { scoutedStyle, STYLES, styleTendency } from "@/features/game/domain/style-scouting";
 import { localDay, matchEntry, scoreLine } from "@/features/game/view/trophy-record";
@@ -254,6 +255,11 @@ export function GamePlay({
   const [style, setStyle] = useState<TacticalStyle | undefined>(undefined);
   /** The style belonging to the RESTORE OFFER, held until he accepts it. */
   const [offerStyle, setOfferStyle] = useState<TacticalStyle | undefined>(undefined);
+  /** The coach's stance for THIS match, and the restore offer's — identity, exactly like `style`. */
+  const [mentality, setMentality] = useState<Mentality | undefined>(undefined);
+  const [offerMentality, setOfferMentality] = useState<Mentality | undefined>(undefined);
+  /** The stance picked on the dossier, beside the style. Balanced by default. */
+  const [stance, setStance] = useState<Mentality>("balanced");
   /**
    * The Scout's Dossier (TASK-1825): the style on the programme, and both styles once Kick off
    * has been pressed. Defaults to Balanced; the last pick in this browser is a convenience.
@@ -592,6 +598,7 @@ export function GamePlay({
       // waiting to be answered.
       setRival(picked);
       setStyle(decoded.style);
+      setMentality(decoded.mentality);
       driver.adopt({ ...replayed, pending: null });
       setSquad({
         cardIds: decoded.cardIds,
@@ -643,6 +650,7 @@ export function GamePlay({
         {
           ...(picked == null ? { policy: opponent, budget, chemistry } : rivalSetup(picked)),
           ...(record.style == null ? {} : { style: record.style }),
+          ...(record.mentality == null ? {} : { mentality: record.mentality }),
         },
       );
       if (!live) return;
@@ -653,6 +661,7 @@ export function GamePlay({
       }
       setOfferRival(picked);
       setOfferStyle(record.style);
+      setOfferMentality(record.mentality);
       setOffer(restored);
     })();
     return () => {
@@ -682,10 +691,23 @@ export function GamePlay({
       eventCount: events.length,
       rival: rivalRef(rival) ?? undefined,
       ...(style == null ? {} : { style }),
+      ...(mentality == null ? {} : { mentality }),
     });
     // ⚠️ `rival` is deliberately in the deps: a resumed match adopts its club AFTER the
     // first save, so leaving it out would persist the next write against the wrong opponent.
-  }, [state.phase, match, squad, answers, events, result, shared, rival, style, seasonRequested]);
+  }, [
+    state.phase,
+    match,
+    squad,
+    answers,
+    events,
+    result,
+    shared,
+    rival,
+    style,
+    mentality,
+    seasonRequested,
+  ]);
 
   /**
    * TASK-1813/1819 — at full time, record the coach's OWN match in the Trophy Room: his cards
@@ -720,6 +742,7 @@ export function GamePlay({
     // save and share from here on has to name the same one.
     setRival(offerRival);
     setStyle(offerStyle);
+    setMentality(offerMentality);
     driver.adopt(offer);
     // ⚠️ Taken from the RECORD, never reconstructed from the session: a resumed match must
     // keep saving under the same identity, and `GameTeam` holds cards rather than the
@@ -850,9 +873,15 @@ export function GamePlay({
         args.formation,
         args.seed,
         { home: t("yourXi"), away: t("rivals") },
-        { ...rivalSetup(args.picked), style: picked },
+        {
+          ...rivalSetup(args.picked),
+          style: picked,
+          ...(stance === "balanced" ? {} : { mentality: stance }),
+        },
       );
       setStyle(picked);
+      // Balanced adds nothing to the match, so it is stored as no stance at all.
+      setMentality(stance === "balanced" ? undefined : stance);
       try {
         window.localStorage.setItem(STYLE_KEY, picked);
       } catch {
@@ -867,6 +896,7 @@ export function GamePlay({
       void clearMatch();
       setRevealed(null);
       setStyle(undefined);
+      setMentality(undefined);
       dispatch({ type: "backToSetup" });
     };
     // TASK-1810: the owner-designed matchday programme, for packs that ask for it.
@@ -889,6 +919,8 @@ export function GamePlay({
                 tendency: styleTendency(match.away.players),
                 picked,
                 onPick: setPicked,
+                stance,
+                onStance: setStance,
                 revealed,
                 onKickOff: onScoutedKickOff,
                 onWalkOut: () => {
@@ -926,6 +958,7 @@ export function GamePlay({
             fingerprint: hashEvents(events),
             rival: rivalRef(rival),
             style,
+            mentality,
           });
     const cardData =
       squad == null || code == null
@@ -970,6 +1003,7 @@ export function GamePlay({
           setDrifted(false);
           setRival(null);
           setStyle(undefined);
+          setMentality(undefined);
           dispatch({ type: "newMatch" });
         }}
       />
