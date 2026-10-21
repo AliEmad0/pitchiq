@@ -84,8 +84,18 @@ describe("the first run", () => {
     await userEvent.type(screen.getByLabelText("Coach name"), "Ali");
     await userEvent.click(screen.getByRole("radio", { name: "Wolf" }));
     await userEvent.click(screen.getByTestId("ob-start"));
-    expect(await screen.findByTestId("ob-match")).toHaveTextContent(/Coach Ali.*0–3/);
+    expect(await screen.findByTestId("ob-match")).toHaveTextContent(/Ali, it.s 26 August 2000/);
     expect((await loadProfile())!).toMatchObject({ name: "Ali", crest: "wolf" });
+  });
+});
+
+describe("the default name (found live, 2026-10-21)", () => {
+  it('⛔ never reads "Coach Coach": the name stands alone in the brief', async () => {
+    renderWithIntl(<Onboarding card={card} />);
+    await userEvent.click(screen.getByTestId("ob-start"));
+    const brief = await screen.findByTestId("ob-match");
+    expect(brief).toHaveTextContent(/^Coach, it.s 26 August 2000/);
+    expect(brief.textContent).not.toMatch(/Coach Coach/);
   });
 });
 
@@ -96,7 +106,7 @@ describe("the gate banner", () => {
     first.unmount();
     await saveProfile({ name: "Ali", crest: "star", createdAt: "x", tutorialDone: true });
     renderWithIntl(<CoachBanner />);
-    expect(await screen.findByTestId("coach-banner")).toHaveTextContent("Welcome back, Coach Ali");
+    expect(await screen.findByTestId("coach-banner")).toHaveTextContent("Welcome back, Ali");
   });
 });
 

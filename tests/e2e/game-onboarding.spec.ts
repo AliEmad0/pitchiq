@@ -15,7 +15,7 @@ test.describe("Onboarding (TASK-1827)", () => {
     await page.getByLabel("Coach name").fill("Tester");
     await page.getByRole("radio", { name: "Wolf" }).click();
     await page.getByTestId("ob-start").click();
-    await expect(page.getByTestId("ob-match")).toContainText("Coach Tester", { timeout: 30_000 });
+    await expect(page.getByTestId("ob-match")).toContainText("Tester, it", { timeout: 30_000 });
     await expect(page.getByTestId("wi-tip").first()).toBeVisible({ timeout: 30_000 });
   });
 
