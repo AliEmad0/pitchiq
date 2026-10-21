@@ -8,8 +8,11 @@ import {
   loadUnlocks,
   type Unlock,
 } from "@/features/game/storage/trophy-slot";
+import type { Badge } from "@/features/game/domain/crafting";
+import { loadBadges } from "@/features/game/storage/badge-slot";
 import { backfillTrophies } from "@/features/game/view/trophy-backfill";
 import { localDay } from "@/features/game/view/trophy-record";
+import { CraftWorkshop } from "./CraftWorkshop";
 import { StickerAlbum } from "./StickerAlbum";
 import { TrophyCabinet } from "./TrophyCabinet";
 
@@ -23,7 +26,13 @@ type Tab = "album" | "hall";
 export function TrophyRoom() {
   const t = useTranslations("gameTrophies");
   const [tab, setTab] = useState<Tab>("album");
-  const [data, setData] = useState<{ album: AlbumEntry[]; unlocks: Unlock[] } | null>(null);
+  const [data, setData] = useState<{
+    album: AlbumEntry[];
+    unlocks: Unlock[];
+    badges: Badge[];
+  } | null>(null);
+  /** Bumped after a craft so the room re-reads the album and the badges. */
+  const [refresh, setRefresh] = useState(0);
 
   useEffect(() => {
     const sync = () => setTab(window.location.hash === "#hall" ? "hall" : "album");
@@ -36,8 +45,12 @@ export function TrophyRoom() {
     let live = true;
     void (async () => {
       const read = async () => {
-        const [album, unlocks] = await Promise.all([loadAlbum(), loadUnlocks()]);
-        if (live) setData({ album, unlocks });
+        const [album, unlocks, badges] = await Promise.all([
+          loadAlbum(),
+          loadUnlocks(),
+          loadBadges(),
+        ]);
+        if (live) setData({ album, unlocks, badges });
       };
       // What is already stored shows at once; the backfill (which may fetch set lists) then
       // fills in older saves and the room re-reads.
@@ -53,6 +66,18 @@ export function TrophyRoom() {
       live = false;
     };
   }, []);
+
+  // TASK-1829 — after a craft, re-read the album (counts fell) and the badges (one was minted).
+  useEffect(() => {
+    if (refresh === 0) return;
+    let live = true;
+    void Promise.all([loadAlbum(), loadBadges()]).then(([album, badges]) => {
+      if (live) setData((prev) => (prev == null ? prev : { ...prev, album, badges }));
+    });
+    return () => {
+      live = false;
+    };
+  }, [refresh]);
 
   const choose = (next: Tab) => {
     setTab(next);
@@ -111,6 +136,11 @@ export function TrophyRoom() {
             hidden={tab !== "album"}
           >
             <StickerAlbum album={data.album} />
+            <CraftWorkshop
+              album={data.album}
+              badges={data.badges}
+              onCrafted={() => setRefresh((n) => n + 1)}
+            />
           </div>
           <div
             role="tabpanel"

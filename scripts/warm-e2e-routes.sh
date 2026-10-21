@@ -53,6 +53,7 @@ ROUTES=(
   "/game/daily"
   "/game/weekly"
   "/game/start"
+  "/game/market"
   "/game/whatif"
   "/game/classic"
   "/ar/game/classic"

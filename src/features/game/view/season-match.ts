@@ -8,7 +8,7 @@ import {
 } from "@/features/game/domain/season";
 import { absentLine, valueLine } from "@/features/game/domain/market-value";
 import { runMatch, simulate } from "@/features/game/domain/simulate";
-import { personalityModifier } from "@/features/game/domain/traits";
+import { type CraftedTraits, personalityModifier } from "@/features/game/domain/traits";
 import type { MatchResult, MatchSetup, Side } from "@/features/game/domain/match-types";
 import type { GameTeam } from "@/features/game/domain/team";
 import type { MatchSession } from "./match-session";
@@ -22,7 +22,12 @@ export interface SeasonFixture {
 const other = (s: Side): Side => (s === "home" ? "away" : "home");
 
 /** Preserve the league's teams, home advantage, and fixture seed without re-drafting. */
-export function seasonFixture(run: SeasonRun, teams: readonly GameTeam[]): SeasonFixture | null {
+export function seasonFixture(
+  run: SeasonRun,
+  teams: readonly GameTeam[],
+  /** TASK-1829 — the coach's crafted badges (results are stored, so they need no flag). */
+  crafted?: CraftedTraits,
+): SeasonFixture | null {
   const week = nextWeek(run);
   const fixtures = seasonFixtures(run.clubs)[week];
   const index = fixtures?.findIndex(([h, a]) => h === run.coach || a === run.coach) ?? -1;
@@ -38,7 +43,13 @@ export function seasonFixture(run: SeasonRun, teams: readonly GameTeam[]): Seaso
       targetGoalsPerMatch: 2.7,
       // TASK-1814 — season fixtures store their RESULTS, never a replay, so traits need no flag.
       modifiers: [
-        personalityModifier(h === run.coach ? own : teams[h]!, a === run.coach ? own : teams[a]!),
+        personalityModifier(
+          h === run.coach ? own : teams[h]!,
+          a === run.coach ? own : teams[a]!,
+          crafted == null
+            ? undefined
+            : { side: h === run.coach ? "home" : "away", traits: crafted },
+        ),
       ],
     },
     coachSide: h === run.coach ? "home" : "away",
@@ -61,8 +72,9 @@ export function finishSeasonWeek(
   run: SeasonRun,
   teams: readonly GameTeam[],
   played: MatchResult | null,
+  crafted?: CraftedTraits,
 ): SeasonRun {
-  const fixture = seasonFixture(run, teams);
+  const fixture = seasonFixture(run, teams, crafted);
   const week = nextWeek(run);
   const fixtures = seasonFixtures(run.clubs)[week];
   if (
@@ -130,8 +142,9 @@ export function simulateSeasonWeek(
   run: SeasonRun,
   teams: readonly GameTeam[],
   forfeit = false,
+  crafted?: CraftedTraits,
 ): SeasonRun {
-  const fixture = seasonFixture(run, teams);
+  const fixture = seasonFixture(run, teams, crafted);
   if (!fixture && !forfeit) throw new Error("No available season XI");
-  return finishSeasonWeek(run, teams, fixture ? simulate(fixture.setup) : null);
+  return finishSeasonWeek(run, teams, fixture ? simulate(fixture.setup) : null, crafted);
 }

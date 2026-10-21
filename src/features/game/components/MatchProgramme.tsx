@@ -10,6 +10,7 @@ import { ClubCrest } from "./ClubCrest";
 import { PlayerCard } from "./PlayerCard";
 import { ScoutingDossier, type ScoutingDossierProps } from "./ScoutingDossier";
 import { TraitsPanel } from "./TraitsPanel";
+import type { CraftedTraits } from "@/features/game/domain/traits";
 
 interface Props {
   coachSide?: "home" | "away";
@@ -39,6 +40,8 @@ interface Props {
   scouting?: ScoutingDossierProps;
   /** TASK-1814 — the match plays with traits: show who carries one. Absent = as it shipped. */
   traits?: boolean;
+  /** TASK-1829 — the coach's crafted badges, shown on his side of the panel. */
+  crafted?: CraftedTraits;
   onKickOff: () => void;
   onBack: () => void;
 }
@@ -95,6 +98,7 @@ export function MatchProgramme({
   chemistry,
   scouting,
   traits,
+  crafted,
   onKickOff,
   onBack,
 }: Props) {
@@ -255,7 +259,13 @@ export function MatchProgramme({
 
       {/* ---- 6 · kick off ---- */}
       {/* ⚠️ FULL WIDTH, and the only --cta on the page. */}
-      {traits === true ? <TraitsPanel home={home} away={away} /> : null}
+      {traits === true ? (
+        <TraitsPanel
+          home={home}
+          away={away}
+          crafted={crafted == null ? undefined : { side: coachSide, traits: crafted }}
+        />
+      ) : null}
       {scouting != null ? <ScoutingDossier {...scouting} /> : null}
       <div className="lg-prog-go">
         <button type="button" onClick={onBack} className="lg-ghost">

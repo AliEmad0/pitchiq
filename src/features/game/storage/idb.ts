@@ -1,5 +1,5 @@
 const DB_NAME = "pitchiq-game";
-export const DB_VERSION = 7;
+export const DB_VERSION = 8;
 
 /**
  * Every object store in the database.
@@ -30,6 +30,8 @@ const STORES = [
   "trophyLog",
   "weekly",
   "profile",
+  "badges",
+  "market",
 ] as const;
 export type StoreName = (typeof STORES)[number];
 
@@ -161,4 +163,57 @@ export async function idbDel(store: StoreName, key: string): Promise<void> {
 export async function idbGetAll<T>(store: StoreName): Promise<T[]> {
   if (!available()) return [];
   return (await run<T[] | undefined>(store, "readonly", (s) => s.getAll())) ?? [];
+}
+
+/**
+ * TASK-1829 — spend from one store and write to another in ONE readwrite transaction.
+ *
+ * ⛔ Crafting must be atomic: spending duplicates in one transaction and minting the badge in a
+ * second would let a crash or a double-click spend the cards and mint nothing, or mint twice.
+ * `spend` returns the new value, or `null` to refuse — a refusal aborts the whole transaction, so
+ * nothing is written. Resolves true when both writes landed.
+ */
+export async function idbSpendAndPut<T>(
+  spend: { store: StoreName; key: string; update: (old: T | undefined) => T | null },
+  put: { store: StoreName; key: string; value: unknown; ifAbsent?: boolean },
+): Promise<boolean> {
+  if (!available()) return false;
+  const db = await open();
+  return await new Promise<boolean>((resolve, reject) => {
+    const tx = db.transaction([spend.store, put.store], "readwrite");
+    let refused = false;
+    const from = tx.objectStore(spend.store);
+    const to = tx.objectStore(put.store);
+    const doSpend = () => {
+      const req = from.get(spend.key);
+      req.onsuccess = () => {
+        const next = spend.update(req.result as T | undefined);
+        if (next == null) {
+          refused = true;
+          tx.abort();
+          return;
+        }
+        from.put(next, spend.key);
+        to.put(put.value, put.key);
+      };
+    };
+    if (put.ifAbsent === true) {
+      const has = to.get(put.key);
+      has.onsuccess = () => {
+        if (has.result !== undefined) {
+          refused = true;
+          tx.abort();
+        } else doSpend();
+      };
+    } else doSpend();
+    tx.oncomplete = () => {
+      db.close();
+      resolve(true);
+    };
+    tx.onabort = () => {
+      db.close();
+      if (refused) resolve(false);
+      else reject(tx.error);
+    };
+  });
 }

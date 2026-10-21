@@ -6909,3 +6909,186 @@
   gap: 6px;
   align-items: baseline;
 }
+
+/* ==========================================================================
+   TASK-1818 — the Mystery Market (`mm-`) and TASK-1829 — the crafting
+   workshop (`cw-`). Static: the pack's reveal is a state change until the
+   owner's gallery round picks a motion (the standing rule).
+   ========================================================================== */
+.mm-root {
+  display: grid;
+  gap: 12px;
+  padding: 20px;
+  border-radius: 16px;
+  background: #140b22;
+  color: #f1eafe;
+}
+.mm-title {
+  font-size: 1.75rem;
+  font-weight: 900;
+}
+.mm-sub,
+.mm-best {
+  color: #c9b8ec;
+  font-size: 0.875rem;
+}
+.mm-h {
+  font-size: 1.125rem;
+  font-weight: 800;
+}
+.mm-go {
+  padding: 14px 18px;
+  border-radius: 10px;
+  background: #c084fc;
+  color: #140b22;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.mm-go:disabled {
+  opacity: 0.45;
+}
+.mm-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.mm-lives {
+  color: #f43f5e;
+  font-size: 1.25rem;
+  letter-spacing: 2px;
+}
+.mm-lost {
+  opacity: 0.25;
+}
+.mm-effects {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.mm-effects li {
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: #2a1846;
+  font-size: 0.75rem;
+}
+.mm-squad {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: 4px 12px;
+  font-size: 0.875rem;
+}
+.mm-role {
+  display: inline-block;
+  min-width: 2.5rem;
+  color: #c9b8ec;
+  font-size: 0.75rem;
+}
+.mm-ovr {
+  font-weight: 800;
+}
+.mm-forced {
+  color: #fbbf24;
+  font-size: 0.75rem;
+}
+.mm-pack {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+@media (max-width: 560px) {
+  .mm-pack {
+    grid-template-columns: 1fr;
+  }
+}
+.mm-facedown {
+  display: flex;
+  justify-content: center;
+  height: 154px;
+  overflow: hidden;
+}
+.mm-back-scale {
+  width: 176px;
+  height: 256px;
+  transform: scale(0.6);
+  transform-origin: top center;
+}
+.mm-reward {
+  display: grid;
+  gap: 6px;
+  min-height: 154px;
+  padding: 14px;
+  border-radius: 12px;
+  border: 2px solid #3b2463;
+  background: #1f1236;
+  text-align: start;
+  color: inherit;
+}
+.mm-reward:hover,
+.mm-reward:focus-visible {
+  border-color: #c084fc;
+}
+.mm-reward-name {
+  font-size: 1rem;
+}
+.mm-boon {
+  color: #86efac;
+  font-size: 0.8125rem;
+}
+.mm-catch {
+  color: #fca5a5;
+  font-size: 0.8125rem;
+}
+.cw-root {
+  margin-top: 18px;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+.cw-title {
+  font-weight: 800;
+}
+.cw-sub,
+.cw-none {
+  font-size: 0.8125rem;
+  opacity: 0.8;
+}
+.cw-label {
+  margin-top: 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.cw-list {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+.cw-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+}
+.cw-name {
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+}
+.cw-dup {
+  opacity: 0.7;
+  font-size: 0.75rem;
+}
+.cw-traits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.cw-pick {
+  cursor: pointer;
+}
+.cw-pick:disabled {
+  opacity: 0.5;
+}

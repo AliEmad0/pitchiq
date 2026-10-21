@@ -87,15 +87,37 @@ function liveLateGoal(events: readonly MatchEvent[], minute: number): MatchEvent
   return null;
 }
 
-/** Traits and the late swing for one match, as a single modifier. */
-export function personalityModifier(home: GameTeam, away: GameTeam): Modifier {
+/** TASK-1829 — crafted badges: cardId → one extra trait on top of the data-derived ones. */
+export type CraftedTraits = ReadonlyMap<string, TraitId>;
+
+/** A card's traits: its data-derived ones plus any crafted badge (never duplicated). */
+export function traitsWith(p: Rated & { cardId: string }, crafted?: CraftedTraits): TraitId[] {
+  const own = traitsOf(p);
+  const extra = crafted?.get(p.cardId);
+  return extra == null || own.includes(extra) ? own : [...own, extra];
+}
+
+/**
+ * Traits and the late swing for one match, as a single modifier. `crafted` adds badges (TASK-1829);
+ * absent, the match is exactly the TASK-1814 one.
+ */
+export function personalityModifier(
+  home: GameTeam,
+  away: GameTeam,
+  /**
+   * ⛔ Badges are the COACH'S, so they name his side: a rival fielding the same card (both sides
+   * can draft from one pool) must never inherit a badge he did not craft.
+   */
+  crafted?: { side: Side; traits: CraftedTraits },
+): Modifier {
   const teams = { home, away };
   return ({ state, side }) => {
     const minute = state.minute;
     const me = state[side];
     const them = state[other(side)];
     const players = onPitch(teams[side], state, side);
-    const count = (t: TraitId) => players.filter((p) => traitsOf(p).includes(t)).length;
+    const mine = crafted != null && crafted.side === side ? crafted.traits : undefined;
+    const count = (t: TraitId) => players.filter((p) => traitsWith(p, mine).includes(t)).length;
     let attack = 0;
     let defense = 0;
     let foul = 0;

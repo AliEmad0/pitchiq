@@ -112,8 +112,11 @@ describe("ModeGate", () => {
         .find((a) => a.getAttribute("href")?.endsWith(mode.href!));
       expect(link, `no direct link for ${mode.id}`).toBeDefined();
     }
-    // And the roster must still contain locked modes, or the assertion above is vacuous.
-    expect(playable.length).toBeLessThan(GAME_MODES.length);
+    // ⭐ Since TASK-1818 (2026-10-21) EVERY mode is live, so this counts all of them — and a gate
+    // that dropped any mode's control still fails above. The "locked tile is inert" half of the
+    // rule is guarded in `game-mode-tile.test.tsx` with a synthetic locked mode, and re-arms here
+    // the day a new mode is registered as planned.
+    expect(expanders.length + direct.length).toBe(playable.length);
   });
 });
 

@@ -42,6 +42,7 @@ import {
 import type { MatchResult } from "@/features/game/domain/match-types";
 import { SeasonFixturePlay } from "./SeasonFixturePlay";
 import { SquadValuation } from "./SquadValuation";
+import { useCraftedTraits } from "@/features/game/view/use-crafted-traits";
 import { isValueLine } from "@/features/game/domain/market-value";
 
 export interface SeasonHubProps {
@@ -99,6 +100,8 @@ export function SeasonHub({
 }: SeasonHubProps) {
   const t = useTranslations("game");
   const reduced = prefersReducedMotion();
+  // TASK-1829 — the coach's crafted badges play in his season fixtures.
+  const crafted = useCraftedTraits();
 
   /**
    * ⚠️ The league is built ONCE. `buildLeagueTeams` is deterministic, but rebuilding it on
@@ -432,7 +435,7 @@ export function SeasonHub({
         if (isComplete(next)) break;
         const canField = availableSeasonTeam(teams[coachIndex], next.injuries, roster);
         if (!canField && (count !== 1 || n > 0)) break;
-        next = simulateSeasonWeek(next, teams, !canField);
+        next = simulateSeasonWeek(next, teams, !canField, crafted);
       }
       if (next === run) return;
       recordSteps(run, next);
@@ -440,13 +443,25 @@ export function SeasonHub({
       setRun(next);
       setAnimate(!reduced);
     },
-    [clubs, run, teams, reduced, loaded, blocked, saveError, coachIndex, roster, recordSteps],
+    [
+      clubs,
+      run,
+      teams,
+      reduced,
+      loaded,
+      blocked,
+      saveError,
+      coachIndex,
+      roster,
+      recordSteps,
+      crafted,
+    ],
   );
 
   const play = () => {
     if (!loaded || blocked || saveError || savingRef.current || playingRef.current || clubs < 2)
       return;
-    const fixture = seasonFixture(run, teams);
+    const fixture = seasonFixture(run, teams, crafted);
     if (fixture == null) return;
     playingRef.current = true;
     setPlaying(fixture);
@@ -459,7 +474,7 @@ export function SeasonHub({
         seasonTable(clubs, run.results).map((row, i) => [row.club, i]),
       );
       savingRef.current = true;
-      const after = finishSeasonWeek(run, teams, result);
+      const after = finishSeasonWeek(run, teams, result, crafted);
       if (playing != null) recordSteps(run, after, { result, fixture: playing });
       setRun(after);
       setAnimate(!reduced);
@@ -509,6 +524,7 @@ export function SeasonHub({
           }}
           captaincies={captaincies}
           referees={referees}
+          crafted={crafted}
           onReturn={returnFromFixture}
         />
       ) : null}
