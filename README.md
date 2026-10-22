@@ -302,7 +302,8 @@ rescue: Southampton 0–3 Liverpool with 26 minutes left (it finished 3–3 — 
 takes about 30 seconds, and your first team talk decides it. Matches now carry **personalities**
 read from the players' own ratings — a Talisman who lifts a side chasing the game, a Rock who
 shuts it down, a tireless Engine, a Hot-Head who picks up cards — and a late goal swings the
-momentum for five minutes. See the [design](docs/superpowers/specs/2026-10-21-task-1827-1814-onboarding-traits-design.md).
+momentum for five minutes. Around 75' a tiring player brings a **crisis call**: push him on,
+or take him off — a push can end in an injury that a season carries into the next match. See the [design](docs/superpowers/specs/2026-10-21-task-1827-1814-onboarding-traits-design.md).
 
 ### Mystery Market and card crafting (TASK-1818, TASK-1829 — ✅ Done)
 

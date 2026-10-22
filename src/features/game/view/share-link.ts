@@ -43,6 +43,8 @@ export function buildShareCode(args: {
   mentality?: Mentality;
   /** Played with traits (TASK-1814) — writes a v5 code. */
   personality?: boolean;
+  /** Played with the crisis prompt — writes a v6 code. */
+  crisis?: boolean;
 }): string {
   return encodeMatch({
     cardIds: [...args.cardIds] as PlayerSeasonId[],
@@ -54,6 +56,7 @@ export function buildShareCode(args: {
     ...(args.style == null ? {} : { style: args.style }),
     ...(args.mentality == null ? {} : { mentality: args.mentality }),
     ...(args.personality === true ? { personality: true } : {}),
+    ...(args.crisis === true ? { crisis: true } : {}),
   });
 }
 
@@ -97,6 +100,7 @@ export function replayShared(
       ...(shared.style == null ? {} : { style: shared.style }),
       ...(shared.mentality == null ? {} : { mentality: shared.mentality }),
       personality: shared.personality === true,
+      crisis: shared.crisis === true,
     },
   );
 }

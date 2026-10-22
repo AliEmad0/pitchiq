@@ -85,6 +85,10 @@ export function encodeTokens(answers: readonly DecisionAnswer[]): string {
       case "injury-sub":
         out.push(a.on == null ? "i" : `i${b36(a.on)}`);
         break;
+      case "crisis":
+        // `c` + `p`ush or `r`est, and for a rest optionally who came on.
+        out.push(a.choice === "push" ? "cp" : a.on == null ? "cr" : `cr${b36(a.on)}`);
+        break;
       case "dismissal":
         // `g` is its OWN head, not a third field on `d`. A dismissal either substitutes or
         // reassigns, and separate heads make a stream that tries to do both ungrammatical
@@ -148,7 +152,7 @@ export function readTokens(encoded: string): TokenReader | null {
       for (let i = 0; i < n; i++) flat.push(NOOP);
       continue;
     }
-    if (!/^[szoihdg][0-9a-z-]*$/.test(tok)) return null;
+    if (!/^[szoihdgc][0-9a-z-]*$/.test(tok)) return null;
     if (!wellFormed(tok)) return null;
     flat.push(tok);
   }
@@ -177,6 +181,9 @@ function wellFormed(tok: string): boolean {
   if (head === "s") return pair(rest, true);
   if (head === "d") return pair(rest, false);
   if (head === "i") return rest === "" || unb36(rest) !== null;
+  // A crisis call: `cp` (push on), `cr` (rest) or `cr<on>` (rest, with who came on).
+  if (head === "c")
+    return rest === "p" || rest === "r" || (rest[0] === "r" && unb36(rest.slice(1)) !== null);
   // An emergency keeper is always a specific player: `g` alone says nothing.
   if (head === "g") return unb36(rest) !== null;
   return rest === "";
@@ -212,6 +219,13 @@ function materialise(tok: string, d: MatchDecision): DecisionAnswer | null {
     if (rest === "") return { kind: "injury-sub", ...base };
     const on = unb36(rest);
     return on === null ? null : { kind: "injury-sub", ...base, on };
+  }
+  if (head === "c") {
+    if (d.kind !== "crisis") return null;
+    if (rest === "p") return { kind: "crisis", ...base, choice: "push" };
+    if (rest === "r") return { kind: "crisis", ...base, choice: "rest" };
+    const on = unb36(rest.slice(1));
+    return on === null ? null : { kind: "crisis", ...base, choice: "rest", on };
   }
   if (head === "g") {
     if (d.kind !== "dismissal") return null;

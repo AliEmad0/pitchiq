@@ -201,6 +201,7 @@ export function marketMatch(
       away,
       seed: fixtureSeed(run.seed, run.round, 0),
       targetGoalsPerMatch: 2.7,
+      crisis: true,
       modifiers: [
         personalityModifier(home, away, { side: coachSide, traits }),
         buffModifier(run, coachSide),

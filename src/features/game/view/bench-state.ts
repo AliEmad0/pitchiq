@@ -36,6 +36,8 @@ export function declineOf(d: MatchDecision): DecisionAnswer {
   if (d.kind === "response") return { kind: "response", ...base, choice: "hold" };
   if (d.kind === "injury-sub") return { kind: "injury-sub", ...base, on: undefined };
   if (d.kind === "dismissal") return { kind: "dismissal", ...base };
+  // Manual mode never changes a man the coach did not choose to change.
+  if (d.kind === "crisis") return { kind: "crisis", ...base, choice: "push" };
   return { kind: "sub-offer", ...base };
 }
 

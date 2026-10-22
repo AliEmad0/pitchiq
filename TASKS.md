@@ -6284,6 +6284,21 @@ targets and relegation start, era-authentic substitution rules, and squad rotati
 - A **Personalities** panel shows on every pre-match screen of a match that plays with traits.
 - Not in scope: the mid-match crisis prompt (needs a new decision kind and token head), and trait badges on `PlayerCard` (owner's card gallery).
 
+**Crisis prompt shipped (2026-10-22)** — the "Henry fatigued at 75' — risk injury or sub?" half that the first PR left out.
+
+- Once per side, at a seeded minute from 70' to 78', the side's least-fit outfielder is flagged (lowest physical rating). The coach either **pushes on** (attack +10 while he lasts, with about a 31% chance he breaks down with a moderate injury) or **takes him off** (a stamina substitution, then defence +4 for the rest of the match).
+- ⛔ The crisis draws come from a **separate seeded stream**, so the main stream is untouched and a match without the flag is byte-identical.
+- Measured over 1,500 matches, late goals come out level: the engine shares a fixed goal total, so both boosts buy a similar edge. The real price of a push is the injury, which seasons, the ladder and the Market carry into the next fixture.
+- Identity like traits (`RivalSetup.crisis`, `SavedMatch.crisis`, **share code v6**, token head `c`).
+- It is on for:
+  - new single matches
+  - seasons, the ladder and the Market
+  - the daily from 2026-10-24, derived from the day
+
+  What-If, the tutorial and Classic stay off. A lapsed or manual-mode crisis keeps the man on.
+
+- ⛔ A crisis is raised **only when a substitution is possible**. With none left there is nothing to decide, and a forced push would risk a breakdown the coach never chose. The season tests caught this: a side with an empty bench lost its man for the next week as well.
+
 ### TASK-1815
 
 **Post-match analytics — xG timeline + retro headlines** · ✅ Done · `P3` · `M` · Type: Feature

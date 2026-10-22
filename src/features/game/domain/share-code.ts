@@ -82,6 +82,13 @@ export const SHARE_VERSION_STANCE = "v4";
  * what it was played under.
  */
 export const SHARE_VERSION_PERSONALITY = "v5";
+/**
+ * The crisis prompt (TASK-1814 follow-up) — `v6` = v5's ten fields with the traits slot allowed
+ * to be `_`, plus `c`. Lossless again: written only for a match that raised crisis prompts.
+ */
+export const SHARE_VERSION_CRISIS = "v6";
+const NO_PERSONALITY = "_";
+const CRISIS_TOKEN = "c";
 const NO_STANCE = "_";
 const PERSONALITY_TOKEN = "p";
 const NO_STYLE = "_";
@@ -160,6 +167,8 @@ export type ShareableMatch = {
   mentality?: Mentality;
   /** Played with traits and the late swing (TASK-1814). Only v5 codes carry it. */
   personality?: boolean;
+  /** Played with the crisis prompt. Only v6 codes carry it. */
+  crisis?: boolean;
 };
 
 const SQUAD_SIZE = 11;
@@ -206,14 +215,17 @@ export function encodeMatch(match: ShareableMatch): string {
     .join("_");
   const stance = match.mentality == null || match.mentality === "balanced" ? null : match.mentality;
   const personality = match.personality === true;
+  const crisis = match.crisis === true;
   const fields = [
-    personality
-      ? SHARE_VERSION_PERSONALITY
-      : stance != null
-        ? SHARE_VERSION_STANCE
-        : match.style == null
-          ? SHARE_VERSION
-          : SHARE_VERSION_STYLED,
+    crisis
+      ? SHARE_VERSION_CRISIS
+      : personality
+        ? SHARE_VERSION_PERSONALITY
+        : stance != null
+          ? SHARE_VERSION_STANCE
+          : match.style == null
+            ? SHARE_VERSION
+            : SHARE_VERSION_STYLED,
     b36(match.seed),
     match.formationSlug,
     cards,
@@ -225,7 +237,14 @@ export function encodeMatch(match: ShareableMatch): string {
         ? `${NATION_RIVAL}${match.rival.teamId}${POLICY_TOKEN[match.rival.policy]}`
         : `${b36(match.rival.teamId)}${POLICY_TOKEN[match.rival.policy]}`,
   ];
-  if (personality) {
+  if (crisis) {
+    fields.push(
+      match.style == null ? NO_STYLE : STYLE_TOKEN[match.style],
+      stance == null ? NO_STANCE : MENTALITY_TOKEN[stance],
+      personality ? PERSONALITY_TOKEN : NO_PERSONALITY,
+      CRISIS_TOKEN,
+    );
+  } else if (personality) {
     fields.push(
       match.style == null ? NO_STYLE : STYLE_TOKEN[match.style],
       stance == null ? NO_STANCE : MENTALITY_TOKEN[stance],
@@ -257,7 +276,9 @@ export function decodeMatch(code: string | null | undefined): ShareableMatch | n
           ? 9
           : version === SHARE_VERSION_PERSONALITY
             ? 10
-            : -1;
+            : version === SHARE_VERSION_CRISIS
+              ? 11
+              : -1;
   if (parts.length !== expected) return null;
   let style: TacticalStyle | undefined;
   let mentality: Mentality | undefined;
@@ -266,6 +287,21 @@ export function decodeMatch(code: string | null | undefined): ShareableMatch | n
     if (style === undefined) return null;
   }
   let personality = false;
+  let crisis = false;
+  if (version === SHARE_VERSION_CRISIS) {
+    if (parts[10] !== CRISIS_TOKEN) return null;
+    if (parts[9] !== PERSONALITY_TOKEN && parts[9] !== NO_PERSONALITY) return null;
+    crisis = true;
+    personality = parts[9] === PERSONALITY_TOKEN;
+    if (parts[7] !== NO_STYLE) {
+      style = STYLE_OF[parts[7]!];
+      if (style === undefined) return null;
+    }
+    if (parts[8] !== NO_STANCE) {
+      mentality = MENTALITY_OF[parts[8]!];
+      if (mentality === undefined) return null;
+    }
+  }
   if (version === SHARE_VERSION_PERSONALITY) {
     if (parts[9] !== PERSONALITY_TOKEN) return null;
     personality = true;
@@ -350,6 +386,7 @@ export function decodeMatch(code: string | null | undefined): ShareableMatch | n
     ...(style === undefined ? {} : { style }),
     ...(mentality === undefined ? {} : { mentality }),
     ...(personality ? { personality: true } : {}),
+    ...(crisis ? { crisis: true } : {}),
   };
 }
 

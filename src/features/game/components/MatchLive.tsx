@@ -43,6 +43,7 @@ import {
   stepSim,
 } from "@/features/game/domain/pitch-sim";
 import { BenchDialog } from "./BenchDialog";
+import { CrisisPanel } from "./CrisisPanel";
 import { ClubCrest } from "./ClubCrest";
 import { EventOverlay } from "./EventOverlay";
 import { MatchPitch } from "./MatchPitch";
@@ -279,7 +280,12 @@ export function MatchLive({
    * the rest of the match.
    */
   const emergency = emergencyKeeperOf(pending);
-  const amber = benchLabel(offer) === "available" || emergency != null;
+  /**
+   * The crisis prompt (TASK-1814 follow-up). ⚠️ Amber like the emergency keeper: it is a call
+   * the coach must SEE, so it waits its 20 seconds instead of being answered away.
+   */
+  const crisis = pending?.kind === "crisis" ? pending : null;
+  const amber = benchLabel(offer) === "available" || emergency != null || crisis != null;
   /** The coach asked, and this offer is the first chance to honour it. */
   const wantsOpen = offer != null && shouldOpenPrompt(coach, offer);
   /** He has asked and is still waiting for a break in play. */
@@ -738,6 +744,16 @@ export function MatchLive({
         awayCaption={captionOf("away", awayArmband)}
         title={t("lineups")}
       />
+
+      {crisis != null && !benchOpen ? (
+        <CrisisPanel
+          decision={crisis}
+          onAnswer={(move) => {
+            onAnswer(move);
+            onCoachMove?.(move);
+          }}
+        />
+      ) : null}
 
       {benchOpen ? (
         <BenchDialog

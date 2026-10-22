@@ -28,7 +28,8 @@ export type MatchEventKind =
   | "keeper" // the goalkeeper leaves his line
   | "shorthanded" // a player lost with nobody left to replace him
   | "weather" // the conditions, set at kick-off
-  | "crowd"; // the home support turns on the visitors
+  | "crowd" // the home support turns on the visitors
+  | "crisis"; // TASK-1814 follow-up — a tiring man, and the coach's call on him
 
 /** How an open-play goal was actually scored. Set-piece goals carry their own words. */
 export type GoalStyle =
@@ -163,6 +164,8 @@ export interface MatchEvent {
   subOnPlayerId?: number;
   subReason?: SubReason;
   injurySeverity?: InjurySeverity;
+  /** `crisis`: what the coach decided about the tiring man. */
+  crisisChoice?: CrisisChoice;
   keeperOutcome?: KeeperOutcome;
   goalStyle?: GoalStyle; // open-play goal
   /**
@@ -229,6 +232,10 @@ export interface SideState {
   broughtOn: Set<number>;
   /** Minute a knock's debuff expires. A treated player carries on, but hurting. */
   knockUntil?: number;
+  /** The tiring man the coach pushed on with (`crisis`), while he is still on the pitch. */
+  crisisPush?: number;
+  /** The coach rested his tiring man (`crisis`): fresh legs for the rest of the match. */
+  crisisRested?: boolean;
   /**
    * Sense of injustice, 0–1. Raised when the referee's bias goes against this side;
    * drives BOTH a fired-up response and reckless tackling, which is how a wronged team
@@ -298,7 +305,15 @@ export interface MatchSetup {
    * keeps the same stream. Absent = byte-identical to before (golden-pinned).
    */
   conditions?: MatchConditions;
+  /**
+   * The mid-match crisis prompt: once per side, between 70' and 78', the side's least-fit
+   * outfielder is flagged and the coach decides — push on or take him off. ⛔ Its timing and risk
+   * come from a SEPARATE seeded stream, so the main stream is untouched; absent = byte-identical.
+   */
+  crisis?: boolean;
 }
+
+export type CrisisChoice = "push" | "rest";
 
 export interface MatchConditions {
   weather?: Weather;

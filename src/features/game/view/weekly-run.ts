@@ -73,6 +73,7 @@ export function ladderFixture(
       seed: fixtureSeed(run.seed, day, index),
       targetGoalsPerMatch: mentalityTarget(RATE, stance),
       conditions,
+      crisis: true,
       modifiers: counter == null ? [traits] : [traits, counter],
     },
     coachSide,
@@ -132,6 +133,7 @@ export function finishLadderDay(
         targetGoalsPerMatch: RATE,
         conditions,
         modifiers: [personalityModifier(teams[h]!, teams[a]!)],
+        crisis: true,
       });
     }
     const row: SeasonResult = {

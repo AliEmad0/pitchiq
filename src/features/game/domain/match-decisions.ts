@@ -1,4 +1,4 @@
-import type { MatchEvent, MatchEventKind, Side, SubReason } from "./match-types";
+import type { CrisisChoice, MatchEvent, MatchEventKind, Side, SubReason } from "./match-types";
 import type { GamePlayer } from "./player";
 
 /**
@@ -113,11 +113,25 @@ export interface DismissalDecision extends DecisionBase {
   emergencyKeepers: GamePlayer[];
 }
 
+/**
+ * The mid-match crisis (TASK-1814 follow-up): `player` is out on his feet. Push on — more drive,
+ * a real risk he breaks down — or take him off. `legalOn` empty = no substitution is possible,
+ * and "rest" will then keep him on.
+ */
+export interface CrisisDecision extends DecisionBase {
+  kind: "crisis";
+  player: number;
+  /** His name, so a prompt can say who without the squads in hand. */
+  name: string;
+  legalOn: GamePlayer[];
+}
+
 export type MatchDecision =
   | SubOfferDecision
   | ResponseDecision
   | InjurySubDecision
-  | DismissalDecision;
+  | DismissalDecision
+  | CrisisDecision;
 
 export type DecisionKind = MatchDecision["kind"];
 
@@ -156,7 +170,19 @@ export interface DismissalAnswer extends AnswerBase {
   inGoal?: number;
 }
 
-export type DecisionAnswer = SubAnswer | ResponseAnswer | InjurySubAnswer | DismissalAnswer;
+export interface CrisisAnswer extends AnswerBase {
+  kind: "crisis";
+  choice: CrisisChoice;
+  /** "rest" only: who comes on. Absent = the engine picks. */
+  on?: number;
+}
+
+export type DecisionAnswer =
+  | SubAnswer
+  | ResponseAnswer
+  | InjurySubAnswer
+  | DismissalAnswer
+  | CrisisAnswer;
 
 /**
  * How the engine answers when nobody is coaching — i.e. exactly what it does today.
@@ -180,6 +206,14 @@ export function defaultAnswer(d: MatchDecision): DecisionAnswer {
       return { kind: "response", minute: d.minute, side: d.side, choice: "hold" };
     case "injury-sub":
       return { kind: "injury-sub", minute: d.minute, side: d.side, on: undefined };
+    case "crisis":
+      // Nobody coaching rests a man who is out on his feet, when a change is possible.
+      return {
+        kind: "crisis",
+        minute: d.minute,
+        side: d.side,
+        choice: d.legalOn.length > 0 ? "rest" : "push",
+      };
     case "dismissal": {
       /**
        * ⛔ A SIDE THAT HAS LOST ITS KEEPER PUTS ONE IN GOAL (owner-reported, 2026-08-21).

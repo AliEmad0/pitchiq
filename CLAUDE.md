@@ -425,3 +425,13 @@ duplicates for one badge per card, atomically via `idbSpendAndPut` (IndexedDB v8
 only in stored-result modes (season, ladder, market) and only on the coach's side
 (`personalityModifier`'s `crafted.side`). Every gate mode is now live: tests that need a locked
 mode build a synthetic one.
+
+### Crisis prompt (TASK-1814 follow-up, 2026-10-22)
+
+`MatchSetup.crisis` raises one `crisis` decision per side between 70' and 78'. It names the
+least-fit outfielder; the coach pushes on (attack, breakdown risk) or rests him (a substitution,
+then defence). ⛔ Its draws use a separate seeded stream, so absent is byte-identical. It is
+identity like `personality`: `RivalSetup.crisis`, share code v6, token head `c`. The daily is
+date-gated (`DAILY_CRISIS_FROM`). Measured, both calls are level in the match; the real cost of a
+push is the injury. ⛔ A crisis is raised only when a substitution is possible. A lapse or manual
+mode answers "push". A "rest" in the feed is always a real substitution.

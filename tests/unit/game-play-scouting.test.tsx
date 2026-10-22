@@ -66,6 +66,7 @@ describe("GamePlay — the Scout's Dossier", () => {
     expect(slot.saved!.style).toBe("high-press");
     // TASK-1814 — every new match plays with traits, and the save says so (identity).
     expect((slot.saved as { personality?: boolean }).personality).toBe(true);
+    expect((slot.saved as { crisis?: boolean }).crisis).toBe(true);
     expect(screen.queryByTestId("traits-panel")).toBeNull(); // the programme is gone by now
   });
 

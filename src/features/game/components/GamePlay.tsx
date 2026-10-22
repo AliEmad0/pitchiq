@@ -267,6 +267,9 @@ export function GamePlay({
    */
   const [personality, setPersonality] = useState(false);
   const [offerPersonality, setOfferPersonality] = useState(false);
+  /** The crisis prompt (TASK-1814 follow-up) — identity exactly like `personality`. */
+  const [crisis, setCrisis] = useState(false);
+  const [offerCrisis, setOfferCrisis] = useState(false);
   /**
    * The Scout's Dossier (TASK-1825): the style on the programme, and both styles once Kick off
    * has been pressed. Defaults to Balanced; the last pick in this browser is a convenience.
@@ -525,13 +528,14 @@ export function GamePlay({
     setRevealed(null);
     startArgs.current = { players, formation, seed, picked };
     setPersonality(true);
+    setCrisis(true);
     driver.start(
       pool,
       players,
       formation,
       seed,
       { home: t("yourXi"), away: t("rivals") },
-      { ...rivalSetup(picked), personality: true },
+      { ...rivalSetup(picked), personality: true, crisis: true },
     );
     setSquad({
       cardIds: players.map((p) => p.cardId),
@@ -608,6 +612,7 @@ export function GamePlay({
       setStyle(decoded.style);
       setMentality(decoded.mentality);
       setPersonality(decoded.personality === true);
+      setCrisis(decoded.crisis === true);
       driver.adopt({ ...replayed, pending: null });
       setSquad({
         cardIds: decoded.cardIds,
@@ -661,6 +666,7 @@ export function GamePlay({
           ...(record.style == null ? {} : { style: record.style }),
           ...(record.mentality == null ? {} : { mentality: record.mentality }),
           personality: record.personality === true,
+          crisis: record.crisis === true,
         },
       );
       if (!live) return;
@@ -673,6 +679,7 @@ export function GamePlay({
       setOfferStyle(record.style);
       setOfferMentality(record.mentality);
       setOfferPersonality(record.personality === true);
+      setOfferCrisis(record.crisis === true);
       setOffer(restored);
     })();
     return () => {
@@ -704,6 +711,7 @@ export function GamePlay({
       ...(style == null ? {} : { style }),
       ...(mentality == null ? {} : { mentality }),
       ...(personality ? { personality: true } : {}),
+      ...(crisis ? { crisis: true } : {}),
     });
     // ⚠️ `rival` is deliberately in the deps: a resumed match adopts its club AFTER the
     // first save, so leaving it out would persist the next write against the wrong opponent.
@@ -719,6 +727,7 @@ export function GamePlay({
     style,
     mentality,
     personality,
+    crisis,
     seasonRequested,
   ]);
 
@@ -757,6 +766,7 @@ export function GamePlay({
     setStyle(offerStyle);
     setMentality(offerMentality);
     setPersonality(offerPersonality);
+    setCrisis(offerCrisis);
     driver.adopt(offer);
     // ⚠️ Taken from the RECORD, never reconstructed from the session: a resumed match must
     // keep saving under the same identity, and `GameTeam` holds cards rather than the
@@ -891,6 +901,7 @@ export function GamePlay({
           ...rivalSetup(args.picked),
           style: picked,
           personality: true,
+          crisis: true,
           ...(stance === "balanced" ? {} : { mentality: stance }),
         },
       );
@@ -977,6 +988,7 @@ export function GamePlay({
             style,
             mentality,
             personality,
+            crisis,
           });
     const cardData =
       squad == null || code == null
