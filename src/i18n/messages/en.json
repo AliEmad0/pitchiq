@@ -1584,7 +1584,8 @@
         "name": "Open Week",
         "desc": "No special rules — just football."
       }
-    }
+    },
+    "back": "Back to the ladder"
   },
   "gameValue": {
     "title": "Squad valuation",
@@ -1707,7 +1708,8 @@
         "boon": "Win back a life",
         "catch": "Every opponent from now on is a tier stronger"
       }
-    }
+    },
+    "back": "Back to the run"
   },
   "gameCraft": {
     "title": "Workshop",
