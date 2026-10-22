@@ -314,3 +314,6 @@ with a catch (a star signing who is a Hot-Head, a wonderkid who costs you your b
 pressing plan whose legs go after 70'…). Three defeats and the run is over. Back in the album,
 the **Workshop** turns three duplicate stickers into a trait badge for that card, which plays in
 your season runs, the Weekly Ladder and the Market. See the [design](docs/superpowers/specs/2026-10-21-task-1829-1818-crafting-market-design.md).
+
+**Still to come:** a **Records** page on the `/game` hub (TASK-1812's last piece) that reads your
+stored seasons, ladder weeks and Market runs back as career records.

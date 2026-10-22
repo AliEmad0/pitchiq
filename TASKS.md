@@ -6125,6 +6125,17 @@ targets and relegation start, era-authentic substitution rules, and squad rotati
 > Design: [`docs/superpowers/specs/2026-08-16-task-1812-share-replay-design.md`](../docs/superpowers/specs/2026-08-16-task-1812-share-replay-design.md);
 > plan: [`docs/superpowers/plans/2026-08-16-task-1812-share-replay.md`](../docs/superpowers/plans/2026-08-16-task-1812-share-replay.md).
 >
+> ### 📍 Status check 2026-10-23 — one piece left: the Records page
+>
+> The dependencies have landed: TASK-1810 and TASK-1811 are ✅ Done, and runs **are** persisted
+> now — season saves (`season-current`, Classic, Survival), the Weekly Ladder (`weekly`) and the
+> Mystery Market all store their results in IndexedDB, and the Trophy Room (TASK-1813) covers
+> badges and the Hall of Fame. So the "do not scaffold a run model" warning below no longer
+> applies. **What is still unbuilt is the Records surface itself**: `COLLECTION_SURFACES` in
+> `domain/modes.ts` still lists `records` as `planned`, and there is no page that reads those
+> stores back as career records (best season, biggest win, longest unbeaten run, ladder
+> finishes). That page closes this ticket.
+>
 > ⚠️ **The declared dependencies are real for one third of this ticket, and only that
 > third — which is why the ticket is still `📋 Backlog`.**
 >
@@ -6151,8 +6162,8 @@ targets and relegation start, era-authentic substitution rules, and squad rotati
 > auto mode — a side with no bench keeper left plays on without one (3 in 600 seeds);
 > (2) **Steve Stone vs Ian Woan** appear to share a face but their files genuinely differ —
 > needs a human eye; (3) **middleware is 63% of Fluid CPU**, inherent to next-intl's
-> `as-needed` prefixing, and wants its own ticket; (4) the **30+30 concept galleries** for
-> `/game/chaos` and `/game/draft` were requested and are **not started**. `TASK-1810` (XL) and
+> `as-needed` prefixing, and wants its own ticket; (4) ~~the 30+30 concept galleries for
+> `/game/chaos` and `/game/draft`~~ — ✅ shipped as "Match Night" and "The Market" (TASK-1834/1835). `TASK-1810` (XL) and
 > `TASK-1811` (L) are both still Backlog, and _"persist **runs**/records"_ needs them — a
 > **run** is a season/Survival campaign, which 1811 builds, so there is nothing to persist
 > yet. **Do not scaffold a run model to satisfy this ticket.** The mode gate's `records`
@@ -7665,7 +7676,7 @@ Today a player who moved clubs mid-season collapses to **one record per season**
 
 ### TASK-M08
 
-**Global search across all seasons (find historical players/teams)** · Todo · `P2` · `M` · Type: Bugfix / Feature
+**Global search across all seasons (find historical players/teams)** · ✅ Done · `P2` · `M` · Type: Bugfix / Feature
 
 **Description**
 The ⌘K global search (TASK-907) is **scoped to the active season**, so a historical player/club can't be found unless the dashboard happens to be on a season they played. Reproduced: with the season switcher on **2025-26**, searching "Thierry Henry" → **"No results found"**, even though Henry is in the 2011-12 Arsenal squad data. The search should find any player/team from **any** committed season (1992-93 → 2025-26).
@@ -7700,7 +7711,7 @@ The ⌘K global search (TASK-907) is **scoped to the active season**, so a histo
 
 ### TASK-M09
 
-**Preserve the active season across all entity navigation** · Todo · `P2` · `S` · Type: Bugfix
+**Preserve the active season across all entity navigation** · ✅ Done · `P2` · `S` · Type: Bugfix
 
 **Description**
 Clicking a player or team **drops the season context** — every internal entity link is bare (`/players/<id>`, `/teams/<id>`), so the target page falls back to `currentDataSeason()` (2025-26). Reproduced: from the **2011-12** Arsenal squad, clicking **Thierry Henry** lands on `/players/<id>` defaulting to 2025-26 → the "No 2025-26 data for Thierry Henry … most recent season is 2011-12" empty-state card, instead of his 2011-12 page. Every link should carry the season the user is currently viewing, since the entity demonstrably has data there (you're seeing them in that season's table/squad/leaderboard).
@@ -9284,10 +9295,10 @@ mistake it for unfinished work.
 
 This board and the pipeline repo's have diverged into two documents with **colliding ticket numbers that mean different things**:
 
-| Number     | This board                            | Pipeline board                     |
-| ---------- | ------------------------------------- | ---------------------------------- |
-| `TASK-M91` | PFA POTY + Team of the Season (Todo)  | Player enrichment crawl (Done)     |
-| `TASK-M92` | Surface honours/transfers/caps (Todo) | Repoint market-value source (Done) |
+| Number     | This board                               | Pipeline board                     |
+| ---------- | ---------------------------------------- | ---------------------------------- |
+| `TASK-M91` | PFA POTY + Team of the Season (✅ Done)  | Player enrichment crawl (Done)     |
+| `TASK-M92` | Surface honours/transfers/caps (✅ Done) | Repoint market-value source (Done) |
 
 Anyone reading "M74 is done" gets the wrong answer depending on which repo they opened. Either merge into one board, or give the pipeline its own prefix (`TASK-P##`) and renumber. New tickets were started at **M81** to avoid deepening it.
 
