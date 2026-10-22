@@ -61,6 +61,8 @@ export interface SavedMatch {
   mentality?: Mentality;
   /** Played with traits (TASK-1814). ⛔ IDENTITY; absent = a match from before traits existed. */
   personality?: boolean;
+  /** Played with the crisis prompt. ⛔ IDENTITY; absent = a match from before it existed. */
+  crisis?: boolean;
 }
 
 const KEY = "current";

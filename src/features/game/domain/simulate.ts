@@ -288,6 +288,19 @@ function noteBias(state: MatchState, referee: Referee, benefited: Side, minute: 
   state.events.push({ minute, kind: "bias", side: wronged, refStyle: referee.style });
 }
 
+/**
+ * The crisis prompt (`MatchSetup.crisis`): its window, the drive a pushed man adds, and the chance
+ * he breaks down. Measured in `crisis.test.ts`: both calls buy a similar edge in the match (the
+ * engine shares a fixed goal total), so the real price of a push is the breakdown — a moderate
+ * injury, which a season, the ladder and the Market carry into the next fixture.
+ */
+export const CRISIS_FROM = 70;
+export const CRISIS_TO = 78;
+export const CRISIS_PUSH_ATTACK = 10;
+/** Resting him brings fresh legs: a steadier finish for the rest of the match. */
+export const CRISIS_REST_DEFENSE = 4;
+export const CRISIS_BREAK_P = 0.4;
+
 export function* runMatch(
   setup: MatchSetup,
 ): Generator<MatchDecision, MatchResult, DecisionAnswer> {
@@ -467,6 +480,30 @@ export function* runMatch(
             canChange(side, state.minute, off, on),
           ),
         );
+
+  /**
+   * The crisis prompt (`setup.crisis`): when it comes, and whether a man pushed on breaks down.
+   *
+   * ⛔ Drawn from its OWN stream, seeded off the match seed, and only when the flag is set — so
+   * the main `rng` is never consumed and a match without the flag is byte-identical.
+   */
+  const crisisAt: Partial<Record<Side, number>> = {};
+  const crisisRisk: Partial<Record<Side, { roll: number; delay: number }>> = {};
+  const crisisBreak: Partial<Record<Side, { minute: number; player: number }>> = {};
+  if (setup.crisis === true) {
+    const crng = mulberry32((setup.seed ^ 0x0c215151) >>> 0);
+    for (const side of ["home", "away"] as const) {
+      crisisAt[side] = CRISIS_FROM + Math.floor(crng() * (CRISIS_TO - CRISIS_FROM + 1));
+      crisisRisk[side] = { roll: crng(), delay: 2 + Math.floor(crng() * 7) };
+    }
+    // Pushing a tiring man on buys drive for as long as he lasts.
+    modifiers.push(({ state: s, side }) => {
+      if (s[side].crisisRested === true) return { defense: CRISIS_REST_DEFENSE };
+      const id = s[side].crisisPush;
+      if (id == null || !squads[side].some((p) => p.playerId === id)) return {};
+      return { attack: CRISIS_PUSH_ATTACK };
+    });
+  }
 
   /** Has a stoppage-kind event already landed this minute? */
   const stoppageThisMinute = (m: number): boolean =>
@@ -782,6 +819,88 @@ export function* runMatch(
                 change.on == null ? undefined : benches[side].find((p) => p.playerId === change.on);
               if (extraOff) substitute(side, m, extraOff, "tactical", extraOn);
             }
+          }
+        }
+      }
+
+      // ── the crisis prompt (`setup.crisis`) — touches no main-stream rng ──
+      if (crisisAt[side] === m) {
+        const tiring = squads[side]
+          .filter((pl) => pl.role !== "GK")
+          .sort(
+            (a, b) =>
+              (a.ratings?.physical ?? 50) - (b.ratings?.physical ?? 50) || a.playerId - b.playerId,
+          )[0];
+        // ⛔ Only when a change is POSSIBLE. With no sub left there is nothing to decide, and a
+        // forced "push" would still risk a breakdown the coach never chose (found by the season
+        // tests: an empty bench then lost its man for the next fixture too).
+        const crisisOn = tiring == null ? [] : legalOnFor(side, tiring);
+        if (tiring != null && crisisOn.length > 0) {
+          const answer = yield {
+            kind: "crisis",
+            minute: m,
+            side,
+            player: tiring.playerId,
+            name: tiring.name,
+            legalOn: crisisOn,
+            events: [...state.events],
+          };
+          const wantsRest = answer.kind === "crisis" && answer.choice === "rest";
+          // The call is announced first, then carried out — and corrected if no change was
+          // possible, so the feed never claims a substitution that did not happen.
+          const call: MatchEvent = {
+            minute: m,
+            kind: "crisis",
+            side,
+            playerId: tiring.playerId,
+            crisisChoice: wantsRest ? "rest" : "push",
+          };
+          state.events.push(call);
+          const on =
+            wantsRest && answer.kind === "crisis" && answer.on != null
+              ? benches[side].find((pl) => pl.playerId === answer.on)
+              : undefined;
+          const rested = wantsRest && substitute(side, m, tiring, "stamina", on);
+          if (rested) state[side].crisisRested = true;
+          if (!rested) {
+            call.crisisChoice = "push";
+            state[side].crisisPush = tiring.playerId;
+            const risk = crisisRisk[side]!;
+            if (risk.roll < CRISIS_BREAK_P) {
+              crisisBreak[side] = { minute: m + risk.delay, player: tiring.playerId };
+            }
+          }
+        }
+      }
+      const breakdown = crisisBreak[side];
+      if (breakdown != null && breakdown.minute === m) {
+        delete crisisBreak[side];
+        const hurt = squads[side].find((pl) => pl.playerId === breakdown.player);
+        if (hurt != null) {
+          state[side].crisisPush = undefined;
+          state.events.push({
+            minute: m,
+            kind: "injury",
+            side,
+            playerId: hurt.playerId,
+            injurySeverity: "moderate",
+          });
+          const forced = yield {
+            kind: "injury-sub",
+            minute: m,
+            side,
+            off: hurt.playerId,
+            legalOn: legalOnFor(side, hurt),
+            events: [...state.events],
+          };
+          const replacement =
+            forced.kind === "injury-sub" && forced.on != null
+              ? benches[side].find((pl) => pl.playerId === forced.on)
+              : undefined;
+          if (!substitute(side, m, hurt, "injury", replacement)) {
+            squads[side] = squads[side].filter((pl) => pl.playerId !== hurt.playerId);
+            state[side].sentOff += 1;
+            state.events.push({ minute: m, kind: "shorthanded", side, playerId: hurt.playerId });
           }
         }
       }

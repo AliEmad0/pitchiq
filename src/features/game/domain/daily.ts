@@ -127,3 +127,14 @@ export const DAILY_PERSONALITY_FROM = "2026-10-22";
 export function dailyPersonality(key: string): boolean {
   return key >= DAILY_PERSONALITY_FROM;
 }
+
+/**
+ * The first day whose challenge raises the mid-match crisis prompt (TASK-1814 follow-up). Derived
+ * from the day for the reason `DAILY_PERSONALITY_FROM` is: every stored day replays under its own
+ * rule. Not a knob.
+ */
+export const DAILY_CRISIS_FROM = "2026-10-24";
+
+export function dailyCrisis(key: string): boolean {
+  return key >= DAILY_CRISIS_FROM;
+}

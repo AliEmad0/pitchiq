@@ -1106,7 +1106,8 @@
     "seasonSaveFailed": "Your latest squad and results could not be saved. Retry before continuing.",
     "seasonRetrySave": "Retry save",
     "seasonPosition": "Position {n}",
-    "seasonRotationHint": "Rotate within your fixed squad. Your original XI and up to seven reserves are saved; changes apply to future fixtures."
+    "seasonRotationHint": "Rotate within your fixed squad. Your original XI and up to seven reserves are saved; changes apply to future fixtures.",
+    "decisionCrisisTitle": "Decision: fatigue"
   },
   "commentary": {
     "armbandHandover": "The armband goes to {name}.",
@@ -1244,7 +1245,11 @@
       "wind": "💨 A swirling wind — crosses and clearances are anyone's guess",
       "snow": "❄️ Snow coming down and the lines are disappearing"
     },
-    "crowd": "📣 The home crowd are all over the visitors — every touch is being whistled ({minuteFmt}')"
+    "crowd": "📣 The home crowd are all over the visitors — every touch is being whistled ({minuteFmt}')",
+    "crisis": {
+      "push": "🔋 {player} is out on his feet — the manager keeps him on and asks for one more push ({minuteFmt}')",
+      "rest": "🔋 {player} is out on his feet — the manager takes him off ({minuteFmt}')"
+    }
   },
   "gameClassic": {
     "title": "Around the season",
@@ -1718,5 +1723,15 @@
     "dups": "{n} duplicates",
     "crafted": "Badges you've crafted",
     "failed": "That badge couldn't be crafted. Try again."
+  },
+  "gameCrisis": {
+    "title": "He's out on his feet",
+    "left": "{seconds}s",
+    "body": "{name} is running on empty at {minute}'. Your call.",
+    "push": "Push on",
+    "pushHint": "More drive while he lasts — but about 1 in 3 break down, and in a season the injury carries over",
+    "rest": "Take him off",
+    "restHint": "Fresh legs from the bench and a steadier finish",
+    "restNone": "No change possible — he has to stay on"
   }
 }

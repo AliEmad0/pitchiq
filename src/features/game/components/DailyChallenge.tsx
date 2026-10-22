@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useReducer, useState } from "react";
 import type { PlayerSeasonId } from "@/features/game/domain/card-id";
 import type { PoolCard } from "@/features/game/domain/chaos-draft";
 import {
+  dailyCrisis,
   dailyPersonality,
   dayFormation,
   dayKey,
@@ -139,7 +140,7 @@ export function DailyChallenge({ pool }: { pool: PoolCard[] }) {
       },
       { home: t("yourXi"), away: t("rivals") },
       // ⛔ The RECORD's day decides, never today's: it replays under the rule it was played under.
-      { personality: dailyPersonality(record.day) },
+      { personality: dailyPersonality(record.day), crisis: dailyCrisis(record.day) },
     );
     // Null means the pool or the engine moved under it. A stale save is not the coach's
     // problem — the day simply reopens at the draft room.
@@ -261,7 +262,7 @@ export function DailyChallenge({ pool }: { pool: PoolCard[] }) {
             formation,
             seeds.match,
             { home: t("yourXi"), away: t("rivals") },
-            { personality: dailyPersonality(today) },
+            { personality: dailyPersonality(today), crisis: dailyCrisis(today) },
           );
           dispatch({ type: "confirmSquad", seed: seeds.match });
         }}

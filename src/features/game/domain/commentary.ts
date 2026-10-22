@@ -278,6 +278,14 @@ export function commentate(result: MatchResult, home: GameTeam, away: GameTeam):
         };
         break;
       }
+      case "crisis": {
+        const player = nameOf(event, home, away);
+        commentary = {
+          key: `commentary.crisis.${event.crisisChoice ?? "push"}`,
+          values: { player: player ?? undefined, minute: event.minute },
+        };
+        break;
+      }
       case "weather":
         commentary = { key: `commentary.weather.${event.weather ?? "clear"}`, values: {} };
         break;

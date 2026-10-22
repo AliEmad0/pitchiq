@@ -2,6 +2,7 @@
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { DecisionAnswer, MatchDecision } from "@/features/game/domain/match-decisions";
+import { CrisisPanel } from "./CrisisPanel";
 
 interface Props {
   decision: MatchDecision;
@@ -16,6 +17,8 @@ export function fallbackFor(d: MatchDecision): DecisionAnswer {
   if (d.kind === "response") return { kind: "response", ...base, choice: "hold" };
   if (d.kind === "injury-sub") return { kind: "injury-sub", ...base, on: undefined };
   if (d.kind === "dismissal") return { kind: "dismissal", ...base };
+  // A lapsed crisis keeps him on: nothing is changed that the coach did not choose.
+  if (d.kind === "crisis") return { kind: "crisis", ...base, choice: "push" };
   return { kind: "sub-offer", ...base };
 }
 
@@ -64,7 +67,9 @@ export function DecisionPrompt({ decision, limit, onAnswer }: Props) {
         ? t("decisionInjuryTitle")
         : decision.kind === "dismissal"
           ? t("decisionDismissalTitle")
-          : t("decisionSubTitle");
+          : decision.kind === "crisis"
+            ? t("decisionCrisisTitle")
+            : t("decisionSubTitle");
 
   return (
     <div
@@ -84,7 +89,9 @@ export function DecisionPrompt({ decision, limit, onAnswer }: Props) {
         ) : null}
       </div>
 
-      {decision.kind === "response" ? (
+      {decision.kind === "crisis" ? (
+        <CrisisPanel decision={decision} onAnswer={answer} />
+      ) : decision.kind === "response" ? (
         <>
           <p className="text-muted-foreground mt-1 text-sm">{t("decisionResponseBody")}</p>
           <div className="mt-4 grid gap-2">
@@ -131,7 +138,7 @@ function SquadChoice({
   decision,
   onAnswer,
 }: {
-  decision: Exclude<MatchDecision, { kind: "response" }>;
+  decision: Exclude<MatchDecision, { kind: "response" } | { kind: "crisis" }>;
   onAnswer: (a: DecisionAnswer) => void;
 }) {
   const t = useTranslations("game");

@@ -41,6 +41,8 @@ export function seasonFixture(
       away: a === run.coach ? own : teams[a]!,
       seed: fixtureSeed(run.seed, week, index),
       targetGoalsPerMatch: 2.7,
+      // The crisis prompt plays wherever results are stored rather than replayed.
+      crisis: true,
       // TASK-1814 — season fixtures store their RESULTS, never a replay, so traits need no flag.
       modifiers: [
         personalityModifier(
@@ -97,6 +99,7 @@ export function finishSeasonWeek(
             seed,
             targetGoalsPerMatch: 2.7,
             modifiers: [personalityModifier(teams[h]!, teams[a]!)],
+            crisis: true,
           });
     const coachHere = h === run.coach || a === run.coach;
     const coachSide: Side = h === run.coach ? "home" : "away";

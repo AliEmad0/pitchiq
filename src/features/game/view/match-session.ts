@@ -79,6 +79,11 @@ export interface RivalSetup {
    * are derived from the two XIs every path already carries.
    */
   personality?: boolean;
+  /**
+   * The mid-match crisis prompt (TASK-1814 follow-up). ⛔ IDENTITY like `personality`: live,
+   * resume and share must all pass it; absent = no prompt and a byte-identical match.
+   */
+  crisis?: boolean;
 }
 
 export interface MatchSession {
@@ -171,8 +176,8 @@ export function buildSession(
       : [];
 
   const stream = createStream(
-    runMatch(
-      opponentSetup({
+    runMatch({
+      ...opponentSetup({
         home,
         homeStyle: matchup.homeStyle,
         opponent: matchup.opponent,
@@ -186,7 +191,9 @@ export function buildSession(
           ...(rival.personality === true ? [personalityModifier(home, away)] : []),
         ],
       }),
-    ),
+      // The crisis prompt is identity too: absent = no prompt, and the main stream untouched.
+      ...(rival.crisis === true ? { crisis: true } : {}),
+    }),
     "home",
   );
 
