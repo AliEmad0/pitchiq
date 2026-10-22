@@ -445,3 +445,10 @@ The pack's phases are `data-ph` arrive → closed → reveal → open → keep, 
 ⛔ Face-down cards are `CardBack`, and the flip is footprint → scaler → flipper. One reduce gate
 skips the timers and deals the hand face up. Galleries live in `design/polish-gallery/` and
 `design/pack-motion-gallery/`.
+
+### TASKS board status (2026-10-23)
+
+Open game work: TASK-1812's **Records** surface (still `planned` in `COLLECTION_SURFACES`;
+runs are already stored by seasons, the ladder and the Market, so read those stores, do not
+add a run model) and TASK-1824's remainder (role-compatibility links, chemistry beyond the
+Chemistry Draft). Phase 19 (TASK-1901–1910) is blocked on the platform decision.
