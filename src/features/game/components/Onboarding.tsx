@@ -20,6 +20,10 @@ type Step = "identity" | "match" | "hook";
  * Three steps, nothing else: a name and a crest (one screen, skippable), the tutorial rescue
  * (`TUTORIAL`, a What-If on a fixed seed with tips), and the hook — what you just did, and where
  * to do it again. Everything lives in this browser; there is no account.
+ *
+ * Dressed as the owner's "Kick-off Tunnel" (polish gallery O1, 2026-10-22): a full-bleed dark
+ * hero lit from the tunnel, one centred card for name and crest, a pill CTA, and a hook that
+ * leads with the scoreline on a result board above three next-step tiles.
  */
 export function Onboarding({ card }: { card: WhatIfCard }) {
   const t = useTranslations("gameOnboarding");
@@ -60,38 +64,40 @@ export function Onboarding({ card }: { card: WhatIfCard }) {
 
   if (step === "identity") {
     return (
-      <section className="ob-root" data-testid="ob-identity">
+      <section className="ob-root kt-hero" data-testid="ob-identity">
         <p className="ob-kicker">{t("kicker")}</p>
         <h1 className="ob-title">{t("title")}</h1>
         <p className="ob-sub">{t("subtitle")}</p>
-        <label className="ob-label" htmlFor="ob-name">
-          {t("nameLabel")}
-        </label>
-        <input
-          id="ob-name"
-          className="ob-input"
-          value={name}
-          maxLength={NAME_MAX}
-          placeholder={t("namePlaceholder")}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <p className="ob-label">{t("crestLabel")}</p>
-        <div className="ob-crests" role="radiogroup" aria-label={t("crestLabel")}>
-          {CRESTS.map((c) => (
-            <button
-              key={c.id}
-              type="button"
-              role="radio"
-              aria-checked={crest === c.id}
-              aria-label={t(`crest.${c.id}`)}
-              className="ob-crest"
-              onClick={() => setCrest(c.id)}
-            >
-              <CrestBadge crest={c} size={44} />
-            </button>
-          ))}
+        <div className="kt-form" data-testid="kt-form">
+          <label className="ob-label" htmlFor="ob-name">
+            {t("nameLabel")}
+          </label>
+          <input
+            id="ob-name"
+            className="ob-input"
+            value={name}
+            maxLength={NAME_MAX}
+            placeholder={t("namePlaceholder")}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <p className="ob-label">{t("crestLabel")}</p>
+          <div className="ob-crests" role="radiogroup" aria-label={t("crestLabel")}>
+            {CRESTS.map((c) => (
+              <button
+                key={c.id}
+                type="button"
+                role="radio"
+                aria-checked={crest === c.id}
+                aria-label={t(`crest.${c.id}`)}
+                className="ob-crest"
+                onClick={() => setCrest(c.id)}
+              >
+                <CrestBadge crest={c} size={44} />
+              </button>
+            ))}
+          </div>
         </div>
-        <div className="ob-actions">
+        <div className="ob-actions kt-actions">
           <button
             type="button"
             className="ob-go"
@@ -119,8 +125,8 @@ export function Onboarding({ card }: { card: WhatIfCard }) {
 
   if (step === "match") {
     return (
-      <div data-testid="ob-match">
-        <p className="ob-brief">
+      <div className="kt-match" data-testid="ob-match">
+        <p className="ob-brief kt-brief">
           {t("brief", { coach: profile?.name ?? (cleanName(name) || t("defaultName")) })}
         </p>
         <WhatIf
@@ -142,9 +148,17 @@ export function Onboarding({ card }: { card: WhatIfCard }) {
   const won = outcome?.verdict === "rewrote";
   const c = crestOf(profile?.crest ?? crest);
   return (
-    <section className="ob-root ob-hook" data-testid="ob-hook" data-verdict={outcome?.verdict}>
-      <CrestBadge crest={c} size={64} />
+    <section
+      className="ob-root ob-hook kt-hero"
+      data-testid="ob-hook"
+      data-verdict={outcome?.verdict}
+    >
+      <CrestBadge crest={c} size={72} />
       <h1 className="ob-title">{won ? t("hookWon") : t("hookLost")}</h1>
+      {/* The result board: the scoreline the coach just wrote, before the words about it. */}
+      <p className="kt-score" data-testid="kt-score" dir="ltr">
+        {outcome?.score.home ?? 0}–{outcome?.score.away ?? 0}
+      </p>
       <p className="ob-sub">
         {t("hookScore", {
           home: card.home.name,
@@ -153,7 +167,7 @@ export function Onboarding({ card }: { card: WhatIfCard }) {
         })}
       </p>
       <p className="ob-hook-line">{t("hookLine")}</p>
-      <ul className="ob-next">
+      <ul className="ob-next kt-next">
         <li>
           <Link href="/game/whatif" className="ob-card" data-testid="ob-next-whatif">
             <b>{t("nextWhatIf")}</b>

@@ -1,0 +1,248 @@
+{
+  "clubs": [
+    {
+      "id": 42,
+      "name": "Arsenal"
+    },
+    {
+      "id": 40,
+      "name": "Liverpool"
+    },
+    {
+      "id": 63,
+      "name": "Leeds United"
+    },
+    {
+      "id": 41,
+      "name": "Southampton"
+    },
+    {
+      "id": 65,
+      "name": "Nottingham Forest"
+    },
+    {
+      "id": 55,
+      "name": "Brentford"
+    },
+    {
+      "id": 747,
+      "name": "Barnsley"
+    },
+    {
+      "id": 1355,
+      "name": "Portsmouth"
+    },
+    {
+      "id": 1333,
+      "name": "Wimbledon"
+    },
+    {
+      "id": 1356,
+      "name": "Blackpool"
+    }
+  ],
+  "xi": [
+    {
+      "id": "1000153",
+      "name": "Bart Verbruggen",
+      "role": "GK",
+      "club": "Brighton & Hove Albion",
+      "teamId": 51,
+      "ovr": 84
+    },
+    {
+      "id": "1001893",
+      "name": "Trai Hume",
+      "role": "RB",
+      "club": "Sunderland",
+      "teamId": 746,
+      "ovr": 81
+    },
+    {
+      "id": "1001545",
+      "name": "Virgil van Dijk",
+      "role": "CB",
+      "club": "Liverpool",
+      "teamId": 40,
+      "ovr": 86
+    },
+    {
+      "id": "1001105",
+      "name": "Micky van de Ven",
+      "role": "CB",
+      "club": "Tottenham Hotspur",
+      "teamId": 47,
+      "ovr": 83
+    },
+    {
+      "id": "1001180",
+      "name": "Nico O'Reilly",
+      "role": "LB",
+      "club": "Manchester City",
+      "teamId": 50,
+      "ovr": 80
+    },
+    {
+      "id": "1000448",
+      "name": "Enzo Fernández",
+      "role": "CM",
+      "club": "Chelsea",
+      "teamId": 49,
+      "ovr": 85
+    },
+    {
+      "id": "1000431",
+      "name": "Elliot Anderson",
+      "role": "CM",
+      "club": "Nottingham Forest",
+      "teamId": 65,
+      "ovr": 82
+    },
+    {
+      "id": "1000884",
+      "name": "Kiernan Dewsbury-Hall",
+      "role": "CM",
+      "club": "Everton",
+      "teamId": 45,
+      "ovr": 79
+    },
+    {
+      "id": "1000692",
+      "name": "Jarrod Bowen",
+      "role": "RW",
+      "club": "West Ham United",
+      "teamId": 48,
+      "ovr": 87
+    },
+    {
+      "id": "1001477",
+      "name": "Igor Thiago",
+      "role": "ST",
+      "club": "Brentford",
+      "teamId": 55,
+      "ovr": 89
+    },
+    {
+      "id": "1000649",
+      "name": "Jaidon Anthony",
+      "role": "LW",
+      "club": "Burnley",
+      "teamId": 44,
+      "ovr": 84
+    }
+  ],
+  "marketXi": [
+    {
+      "id": "1000679",
+      "name": "James Trafford",
+      "role": "GK",
+      "club": "Manchester City",
+      "teamId": 50,
+      "ovr": 61
+    },
+    {
+      "id": "1001402",
+      "name": "Séamus Coleman",
+      "role": "RB",
+      "club": "Everton",
+      "teamId": 45,
+      "ovr": 58
+    },
+    {
+      "id": "1000460",
+      "name": "Ethan Pinnock",
+      "role": "CB",
+      "club": "Brentford",
+      "teamId": 55,
+      "ovr": 60
+    },
+    {
+      "id": "1000603",
+      "name": "Igor Julio",
+      "role": "CB",
+      "club": "Brighton & Hove Albion",
+      "teamId": 51,
+      "ovr": 59
+    },
+    {
+      "id": "1001852",
+      "name": "Souza",
+      "role": "LB",
+      "club": "Tottenham Hotspur",
+      "teamId": 47,
+      "ovr": 57
+    },
+    {
+      "id": "1001332",
+      "name": "Romain Esse",
+      "role": "RM",
+      "club": "Crystal Palace",
+      "teamId": 52,
+      "ovr": 62
+    },
+    {
+      "id": "1001803",
+      "name": "Trey Nyoni",
+      "role": "CM",
+      "club": "Liverpool",
+      "teamId": 40,
+      "ovr": 60
+    },
+    {
+      "id": "1000105",
+      "name": "Andy Irving",
+      "role": "CM",
+      "club": "West Ham United",
+      "teamId": 48,
+      "ovr": 58
+    },
+    {
+      "id": "1001874",
+      "name": "Nilson Angulo",
+      "role": "LM",
+      "club": "Sunderland",
+      "teamId": 746,
+      "ovr": 61
+    },
+    {
+      "id": "1001863",
+      "name": "Lorenzo Lucca",
+      "role": "ST",
+      "club": "Nottingham Forest",
+      "teamId": 65,
+      "ovr": 63
+    },
+    {
+      "id": "1000137",
+      "name": "Ashley Barnes",
+      "role": "ST",
+      "club": "Burnley",
+      "teamId": 44,
+      "ovr": 59
+    }
+  ],
+  "marquee": {
+    "id": "1000457",
+    "name": "Erling Haaland",
+    "role": "ST",
+    "club": "Manchester City",
+    "teamId": 50,
+    "ovr": 88
+  },
+  "wonderkid": {
+    "id": "1001840",
+    "name": "Enzo Le Fée",
+    "role": "CM",
+    "club": "Sunderland",
+    "teamId": 746,
+    "ovr": 66
+  },
+  "cover": {
+    "id": "1000505",
+    "name": "Frank Onyeka",
+    "role": "CM",
+    "club": "Brentford",
+    "teamId": 55,
+    "ovr": 55
+  }
+}

@@ -7157,3 +7157,850 @@
 .cr-choice:focus-visible {
   border-color: #f59e0b;
 }
+
+/* ── Kick-off tunnel (polish) ── */
+/* Owner pick O1 (2026-10-22): the first run is a tunnel lit from the pitch end. One dark
+   treatment in both themes, like the rest of the onboarding. No motion: none was picked. */
+.ob-root.kt-hero {
+  max-width: 42rem;
+  padding: 32px 20px;
+  justify-items: center;
+  text-align: center;
+  background: radial-gradient(120% 80% at 50% 0%, #2b1a4a, #07060c 70%);
+  color: #fff;
+  border: 1px solid #2b1a4a;
+}
+.kt-hero .ob-kicker {
+  color: #f0abfc;
+  letter-spacing: 0.3em;
+}
+.kt-hero .ob-title {
+  max-width: 34rem;
+  font-size: clamp(1.875rem, 6vw, 2.5rem);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+}
+.kt-hero .ob-sub {
+  color: rgb(255 255 255 / 0.8);
+}
+.kt-form {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  max-width: 35rem;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid rgb(255 255 255 / 0.15);
+  background: rgb(255 255 255 / 0.06);
+  text-align: start;
+}
+.kt-form .ob-label {
+  margin-top: 0;
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+.kt-form .ob-input {
+  margin-bottom: 8px;
+  border-color: rgb(255 255 255 / 0.25);
+  background: rgb(0 0 0 / 0.4);
+}
+.kt-form .ob-crest {
+  background: transparent;
+  border-radius: 9999px;
+}
+.kt-form .ob-crest[aria-checked="true"] {
+  border-color: #e879f9;
+}
+.kt-actions {
+  flex-direction: column;
+  width: 100%;
+  max-width: 35rem;
+}
+.kt-actions .ob-go,
+.kt-hero .ob-go {
+  flex: none;
+  width: 100%;
+  border-radius: 9999px;
+  background: #e879f9;
+  color: #1b1030;
+  font-size: 1rem;
+}
+.kt-hero .ob-skip {
+  color: rgb(255 255 255 / 0.7);
+}
+.kt-brief {
+  background: #1b1030;
+  border: 1px solid #2b1a4a;
+  text-align: center;
+}
+.kt-score {
+  margin: 2px 0;
+  font-size: clamp(2.75rem, 12vw, 3.375rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+}
+.kt-hero .ob-hook-line {
+  color: #fff;
+}
+.kt-next {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  max-width: 35rem;
+  margin: 6px 0;
+}
+@media (max-width: 600px) {
+  .kt-next {
+    grid-template-columns: 1fr;
+  }
+}
+.kt-next .ob-card {
+  height: 100%;
+  border-radius: 12px;
+  border-color: rgb(255 255 255 / 0.16);
+  background: rgb(255 255 255 / 0.07);
+}
+.kt-next .ob-card span {
+  color: rgb(255 255 255 / 0.75);
+}
+
+/* ── Valuation stock ticker (polish) ── */
+/* TASK-1826 polish — the owner's V1 Stock Ticker: one dark trading-terminal treatment in both
+   app themes. Static: the gallery round picked a layout, not a motion, so no keyframes here. */
+.vt-root {
+  background: #07090d;
+  color: #d1fae5;
+  border: 1px solid #1f2937;
+  border-radius: 10px;
+  padding: 12px;
+  font-family: ui-monospace, "Cascadia Mono", monospace;
+  font-variant-numeric: tabular-nums;
+  min-width: 0;
+}
+.vt-hd {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+  color: #6b7280;
+  font-size: 0.75rem;
+  border-bottom: 1px solid #1f2937;
+  padding-bottom: 6px;
+}
+.vt-px {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin: 10px 0;
+}
+.vt-px strong {
+  font-size: 2.5rem;
+  line-height: 1;
+  color: inherit;
+}
+.vt-chg {
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+.vt-chg-up,
+.vt-chg-flat {
+  background: #14532d;
+  color: #86efac;
+}
+.vt-chg-down {
+  background: #7f1d1d;
+  color: #fecaca;
+}
+.vt-step {
+  display: inline-flex;
+  gap: 4px;
+  margin-inline-start: auto;
+}
+.vt-step button {
+  min-width: 32px;
+  min-height: 32px;
+  border: 1px solid #374151;
+  border-radius: 6px;
+  background: #111827;
+  color: inherit;
+}
+.vt-step button:disabled {
+  opacity: 0.35;
+}
+.vt-chart {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  height: 120px;
+  padding: 0 4px;
+  border-bottom: 1px solid #374151;
+  border-inline-start: 1px solid #374151;
+}
+.vt-bar {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: flex-end;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.vt-bar i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 2px 2px 0 0;
+  background: #10b981;
+  opacity: 0.35;
+  transform-origin: 50% 100%;
+}
+.vt-bar.vt-dn i {
+  background: #ef4444;
+}
+.vt-bar.vt-on i,
+.vt-bar:hover i,
+.vt-bar:focus-visible i {
+  opacity: 1;
+}
+.vt-bar:focus-visible {
+  outline: 2px solid #86efac;
+  outline-offset: 1px;
+}
+.vt-xl {
+  display: flex;
+  justify-content: space-between;
+  color: #6b7280;
+  font-size: 0.625rem;
+  margin: 2px 0 10px;
+}
+.vt-tk {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.vt-tk h5 {
+  margin: 0 0 4px;
+  color: #6b7280;
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.vt-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 10px;
+  padding: 4px 0;
+  border-bottom: 1px dashed #1f2937;
+  font-size: 0.8125rem;
+}
+.vt-name {
+  overflow-wrap: anywhere;
+}
+.vt-up {
+  color: #4ade80;
+}
+.vt-down {
+  color: #f87171;
+}
+.vt-none {
+  color: #6b7280;
+}
+.vt-disc {
+  color: #6b7280;
+  font-size: 0.6875rem;
+  margin: 10px 0 0;
+}
+@media (max-width: 640px) {
+  .vt-tk {
+    grid-template-columns: 1fr;
+  }
+  .vt-px strong {
+    font-size: 1.875rem;
+  }
+}
+
+/* ── Ladder broadcast scoreboard (polish) ──
+   The owner's Ladder #1 pick: a TV graphics package. A red/yellow strap carries the
+   week, its rule and the closing clock; the table is a stack of lower-third rows; the
+   next fixture is a "Coming up" VS card. One dark treatment in both app themes, like
+   the other game surfaces. Static — no motion was picked for this screen. */
+.wl.lb {
+  background: #0b1220;
+  color: #e7eefc;
+  border: 1px solid #1e2a44;
+  container-type: inline-size;
+}
+.lb-strap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  border-radius: 6px;
+  overflow: hidden;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.lb-strap-title {
+  display: flex;
+  margin: 0;
+  font-size: inherit;
+}
+.lb-strap-title > span,
+.lb-rl,
+.lb-cl {
+  padding: 8px 12px;
+}
+.lb-brand {
+  background: #e11d48;
+  color: #fff;
+}
+.lb-wk {
+  background: #1e293b;
+  color: #fff;
+}
+.lb-rl {
+  background: #facc15;
+  color: #111;
+  flex: 1;
+}
+.lb-cl {
+  background: #111827;
+  color: #93c5fd;
+  font-variant-numeric: tabular-nums;
+}
+.lb-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 14px;
+}
+@container (max-width: 600px) {
+  .lb-grid {
+    grid-template-columns: 1fr;
+  }
+  .lb-rl {
+    flex-basis: 100%;
+  }
+}
+.lb-lt {
+  min-width: 0;
+}
+.wl.lb .lb-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 3px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.wl.lb .lb-table th,
+.wl.lb .lb-table td {
+  padding: 6px 4px;
+  border: 0;
+  text-align: center;
+}
+.wl.lb .lb-row td {
+  background: #16213a;
+}
+.wl.lb .lb-row td:first-child {
+  border-start-start-radius: 3px;
+  border-end-start-radius: 3px;
+}
+.wl.lb .lb-row td:last-child {
+  border-start-end-radius: 3px;
+  border-end-end-radius: 3px;
+}
+.wl.lb .lb-table .lb-nm {
+  text-align: start;
+  width: 100%;
+  overflow-wrap: anywhere;
+}
+.wl.lb .lb-table .lb-cr {
+  width: 28px;
+}
+.wl.lb .lb-table .lb-cr > * {
+  display: inline-grid;
+  vertical-align: middle;
+}
+.wl.lb .lb-hd th {
+  color: #94a3b8;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+}
+.wl.lb .lb-row .lb-ps {
+  width: 34px;
+  background: #334155;
+  color: #fff;
+}
+.wl.lb .lb-row .lb-pt {
+  width: 46px;
+  background: #e11d48;
+  color: #fff;
+}
+.wl.lb .lb-row.me td {
+  color: #fff;
+  box-shadow:
+    inset 0 2px 0 #facc15,
+    inset 0 -2px 0 #facc15;
+}
+.wl.lb .lb-row.me td:first-child {
+  box-shadow:
+    inset 2px 0 0 #facc15,
+    inset 0 2px 0 #facc15,
+    inset 0 -2px 0 #facc15;
+}
+.wl.lb .lb-row.me td:last-child {
+  box-shadow:
+    inset -2px 0 0 #facc15,
+    inset 0 2px 0 #facc15,
+    inset 0 -2px 0 #facc15;
+}
+.wl.lb .lb-row.me .lb-ps {
+  background: #facc15;
+  color: #111;
+}
+.lb-side-col {
+  min-width: 0;
+}
+.lb-card {
+  background: #16213a;
+  color: #e7eefc;
+  border-radius: 6px;
+  padding: 12px;
+  margin: 0 0 10px;
+}
+.lb-cu {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #facc15;
+  margin: 0 0 6px;
+}
+.lb-vs {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 6px;
+  font-weight: 800;
+  text-align: center;
+}
+.lb-side {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+.lb-v {
+  font-size: 22px;
+  color: #e11d48;
+  text-transform: uppercase;
+}
+.lb-crest-blank {
+  display: inline-block;
+  border-radius: 50%;
+  background: #334155;
+}
+.lb-stance {
+  margin-top: 10px;
+}
+.wl.lb .lb-stance .sd-label {
+  font-size: 11px;
+  color: #94a3b8;
+  margin: 0 0 4px;
+}
+.wl.lb .lb-stance .sd-picks {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.wl.lb .lb-stance .sd-pick {
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 7px 4px;
+  font-weight: 700;
+  font-size: 12px;
+  color: inherit;
+}
+.wl.lb .lb-stance .sd-pick[aria-pressed="true"] {
+  background: #facc15;
+  color: #111;
+  box-shadow: none;
+}
+.wl.lb .lb-stance .sd-pick small {
+  display: block;
+  font-weight: 400;
+  font-size: 10px;
+  opacity: 0.8;
+}
+.lb-go {
+  display: block;
+  width: 100%;
+  margin: 10px 0 0;
+  background: #e11d48;
+  color: #fff;
+  border: 0;
+  border-radius: 4px;
+  padding: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.lb-go:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.lb-go:focus-visible {
+  outline: 2px solid #facc15;
+  outline-offset: 2px;
+}
+.lb-note {
+  margin: 8px 0 0;
+  font-size: 12px;
+  opacity: 0.8;
+}
+.lb-final {
+  font-size: 18px;
+  font-weight: 800;
+  margin: 4px 0;
+}
+.lb-tick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  background: #111827;
+  color: #cbd5e1;
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.lb-tick strong {
+  color: #facc15;
+}
+.lb-intro {
+  color: #cbd5e1;
+}
+.lb-rivals {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 3px;
+}
+.lb-rivals li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 3px;
+  background: #16213a;
+  font-weight: 700;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* ── Pack three-card table + Triple Flip (polish) ──
+   The owner's picks (2026-10-22): layout Pack #1 "Three-Card Table", motion #1 "Triple Flip".
+   Each card is footprint (.pk-slot) → mover (.pk-mv: rise, hop, halo, sink) → scaler (.pk-sc,
+   a static scale of the real 176×256 card) → flipper (.pk-fl). The mover and the flipper each
+   own their own `transform`, so neither animation overwrites the scale between them. Face text
+   is sized as VISIBLE px divided by the scale, so it reads the same at every card size. */
+.pk-table {
+  --pk-s: 0.92;
+  --pk-nm: 14px;
+  --pk-bn: 12px;
+  --pk-ic: 28px;
+  position: relative;
+  overflow: hidden;
+  margin-top: 12px;
+  padding: 20px;
+  border-radius: 20px;
+  background: radial-gradient(#1f6f43, #0f3d24);
+  color: #fff;
+  text-align: center;
+}
+@media (max-width: 600px) {
+  .pk-table {
+    --pk-s: 0.6;
+    --pk-nm: 12px;
+    --pk-bn: 10.5px;
+    --pk-ic: 20px;
+    padding: 14px 10px;
+  }
+}
+@media (max-width: 360px) {
+  .pk-table {
+    --pk-s: 0.52;
+    --pk-nm: 11px;
+    --pk-bn: 9.5px;
+  }
+}
+.pk-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+.pk-hint {
+  margin: 4px 0 0;
+  opacity: 0.85;
+  font-size: 0.875rem;
+}
+.pk-row {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  margin: 16px 0;
+}
+@media (max-width: 600px) {
+  .pk-row {
+    gap: 6px;
+    margin: 12px 0;
+  }
+}
+.pk-slot {
+  position: relative;
+  flex: none;
+  width: calc(176px * var(--pk-s));
+  height: calc(256px * var(--pk-s));
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+.pk-table[data-ph="open"] .pk-slot {
+  cursor: pointer;
+}
+.pk-slot:focus-visible {
+  outline: 3px solid #fde68a;
+  outline-offset: 4px;
+  border-radius: 12px;
+}
+.pk-mv {
+  position: absolute;
+  inset: 0;
+  border-radius: calc(14px * var(--pk-s));
+}
+.pk-sc {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 176px;
+  height: 256px;
+  transform: scale(var(--pk-s));
+  transform-origin: 0 0;
+  perspective: 900px;
+}
+.pk-fl {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transform: rotateY(0);
+}
+.pk-table:is([data-ph="reveal"], [data-ph="open"], [data-ph="keep"]) .pk-fl {
+  transform: rotateY(180deg);
+}
+.pk-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.pk-front {
+  transform: rotateY(180deg);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 10px;
+  background: #fff;
+  color: #111;
+  border: 3px solid #fde68a;
+  text-align: start;
+}
+.pk-front .pk-ic {
+  font-size: calc(var(--pk-ic) / var(--pk-s));
+  line-height: 1.1;
+  text-align: center;
+}
+.pk-front .pk-nm {
+  font-size: calc(var(--pk-nm) / var(--pk-s));
+  line-height: 1.2;
+  text-align: center;
+}
+.pk-front .pk-bn,
+.pk-front .pk-ct {
+  font-size: calc(var(--pk-bn) / var(--pk-s));
+  font-weight: 600;
+  line-height: 1.25;
+}
+.pk-front .pk-bn {
+  color: #15803d;
+}
+.pk-front .pk-ct {
+  margin-top: auto;
+  color: #b91c1c;
+}
+.pk-go {
+  position: relative;
+  z-index: 1;
+  padding: 11px 22px;
+  border: 0;
+  border-radius: 999px;
+  background: #fde68a;
+  color: #3b2a10;
+  font-weight: 900;
+}
+.pk-gone {
+  pointer-events: none;
+}
+.pk-gone .pk-mv {
+  opacity: 0;
+}
+.pk-kept {
+  z-index: 2;
+}
+.pk-kept .pk-mv {
+  transform: scale(1.06);
+  box-shadow:
+    0 0 0 3px #fde68a,
+    0 0 26px 6px rgba(253, 230, 138, 0.5);
+}
+.pk-table[data-ph="open"] .pk-mv {
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+.pk-table[data-ph="open"] .pk-slot:hover .pk-mv,
+.pk-table[data-ph="open"] .pk-slot:focus-visible .pk-mv {
+  transform: translateY(-6px);
+  box-shadow: 0 14px 26px -12px rgba(0, 0, 0, 0.7);
+}
+@keyframes pk-rise {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes pk-go-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes pk-hop {
+  0%,
+  100% {
+    transform: none;
+  }
+  45% {
+    transform: translateY(-16px) scale(1.04);
+  }
+}
+@keyframes pk-flip {
+  from {
+    transform: rotateY(0);
+  }
+  to {
+    transform: rotateY(180deg);
+  }
+}
+@keyframes pk-keep {
+  0% {
+    transform: none;
+    box-shadow: 0 0 0 0 rgba(253, 230, 138, 0);
+  }
+  55% {
+    transform: scale(1.12);
+    box-shadow:
+      0 0 0 4px #fde68a,
+      0 0 40px 12px rgba(253, 230, 138, 0.7);
+  }
+  100% {
+    transform: scale(1.06);
+    box-shadow:
+      0 0 0 3px #fde68a,
+      0 0 26px 6px rgba(253, 230, 138, 0.5);
+  }
+}
+@keyframes pk-out {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(34px) scale(0.9);
+  }
+}
+.pk-table[data-ph="arrive"] .pk-mv {
+  animation: pk-rise 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) calc(var(--i) * 80ms) both;
+}
+.pk-table[data-ph="closed"] .pk-go {
+  animation: pk-go-in 0.3s ease both;
+}
+.pk-table[data-ph="reveal"] .pk-mv {
+  animation: pk-hop 0.7s cubic-bezier(0.3, 0.7, 0.3, 1) both;
+}
+.pk-table[data-ph="reveal"] .pk-fl {
+  animation: pk-flip 0.6s cubic-bezier(0.45, 0.05, 0.2, 1) 0.06s both;
+}
+.pk-table[data-ph="keep"] .pk-kept .pk-mv {
+  animation: pk-keep 0.6s ease both;
+}
+.pk-table[data-ph="keep"] .pk-gone .pk-mv {
+  animation: pk-out 0.45s ease-in both;
+}
+/* The Three-Card Table hub: a status panel and a squad panel. */
+.pk-hub {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  gap: 16px;
+  margin-top: 12px;
+}
+@media (max-width: 600px) {
+  .pk-hub {
+    grid-template-columns: 1fr;
+  }
+}
+.pk-bx {
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--card);
+  min-width: 0;
+}
+.pk-play {
+  width: 100%;
+  margin-top: 10px;
+}
+/* ONE gate for every animated pack selector: reduced motion lands straight on the end state. */
+@media (prefers-reduced-motion: reduce) {
+  .pk-table .pk-mv,
+  .pk-table .pk-fl,
+  .pk-table .pk-go {
+    animation: none !important;
+    transition: none !important;
+  }
+}
