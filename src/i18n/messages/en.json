@@ -1590,13 +1590,27 @@
         "desc": "No special rules — just football."
       }
     },
-    "back": "Back to the ladder"
+    "back": "Back to the ladder",
+    "strapBrand": "Weekly Ladder",
+    "strapWeek": "Week {n}",
+    "strapCloses": "Closes {time}",
+    "comingUp": "Coming up · {matchday}"
   },
   "gameValue": {
     "title": "Squad valuation",
     "disclaimer": "An in-game valuation from ratings and form in this run — not a real transfer fee.",
     "trend": "Squad value after each match",
-    "empty": "Values move with every match: goals, assists, clean sheets and results."
+    "empty": "Values move with every match: goals, assists, clean sheets and results.",
+    "symbol": "PIQ:SQUAD",
+    "runStart": "Run start",
+    "afterMatch": "After match {n} · {result}",
+    "result": { "w": "Win", "d": "Draw", "l": "Defeat" },
+    "start": "Start",
+    "matchShort": "M{n}",
+    "prev": "Previous match",
+    "next": "Next match",
+    "gainers": "Top gainers",
+    "losers": "Top losers"
   },
   "gameOnboarding": {
     "metaTitle": "Your first match",
@@ -1678,6 +1692,7 @@
     "packHint": "Three rewards, face down. Every one has a catch.",
     "packPick": "Keep ONE. Choose carefully.",
     "open": "Open the pack",
+    "faceDown": "Face-down reward",
     "forced": {
       "hotHead": "Hot-Head",
       "talisman": "Talisman"

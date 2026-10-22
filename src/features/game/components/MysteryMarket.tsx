@@ -2,7 +2,6 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { pickBack } from "@/features/game/domain/card-design";
 import type { PoolCard } from "@/features/game/domain/chaos-draft";
 import { formationByName } from "@/features/game/domain/formation";
 import type { EnrichedCard } from "@/features/game/domain/player-card";
@@ -37,7 +36,7 @@ import {
 } from "@/features/game/view/trophy-record";
 import { useCraftedTraits } from "@/features/game/view/use-crafted-traits";
 import { localizeDigits } from "@/utils/format";
-import { CardBack } from "./PlayerCard";
+import { PackTable } from "./PackTable";
 import { SeasonFixturePlay } from "./SeasonFixturePlay";
 
 /**
@@ -48,8 +47,7 @@ import { SeasonFixturePlay } from "./SeasonFixturePlay";
  * Hub → match (the shared season match screens) → after a win, THE PACK: three face-down cards
  * on the app's own `CardBack`, opened together, each showing its boon and its catch; you keep one.
  *
- * ⚠️ No new motion: the reveal is a state change, not an animation, until the owner's gallery
- * round picks one (the standing rule).
+ * The pack is `PackTable`: the owner's Three-Card Table layout with the Triple Flip reveal.
  */
 export function MysteryMarket({ pool }: { pool: PoolCard[] }) {
   const t = useTranslations("gameMarket");
@@ -60,7 +58,6 @@ export function MysteryMarket({ pool }: { pool: PoolCard[] }) {
   const [run, setRun] = useState<MarketRun | null>(null);
   const [best, setBest] = useState<MarketBest | null>(null);
   const [playing, setPlaying] = useState<SeasonFixture | null>(null);
-  const [opened, setOpened] = useState(false);
   const [saveError, setSaveError] = useState(false);
   const committing = useRef(false);
   const ids = useMemo(() => new Map<string, PoolCard>(pool.map((c) => [c.cardId, c])), [pool]);
@@ -132,7 +129,6 @@ export function MysteryMarket({ pool }: { pool: PoolCard[] }) {
             committing.current = false;
             if (!ok) return;
             setPlaying(null);
-            setOpened(false);
             const { home, away } = fixture.setup;
             void recordFullTime(
               matchEntry({
@@ -192,48 +188,17 @@ export function MysteryMarket({ pool }: { pool: PoolCard[] }) {
     return (
       <div className="mm-root" data-testid="market-pack">
         {header}
-        <h2 className="mm-h">{t("packTitle")}</h2>
-        <p className="mm-sub">{opened ? t("packPick") : t("packHint")}</p>
-        <div className="mm-pack">
-          {pack.map((id, i) =>
-            opened ? (
-              <button
-                key={id}
-                type="button"
-                className="mm-reward"
-                data-testid="market-reward"
-                data-reward={id}
-                onClick={() => {
-                  void persist(takeReward(pool, run, id));
-                }}
-              >
-                <b className="mm-reward-name">{t(`reward.${id}.name`)}</b>
-                <span className="mm-boon">＋ {t(`reward.${id}.boon`)}</span>
-                <span className="mm-catch">− {t(`reward.${id}.catch`)}</span>
-              </button>
-            ) : (
-              <div key={id} className="mm-facedown" aria-hidden="true">
-                <div className="mm-back-scale">
-                  {(() => {
-                    // Any pool card lends its seeded back — the app's own artwork, never a hand-drawn panel.
-                    const c = pool[(run.seed + run.round * 7 + i) % pool.length] as EnrichedCard;
-                    return <CardBack card={c} back={pickBack(c)} />;
-                  })()}
-                </div>
-              </div>
-            ),
+        <PackTable
+          key={`${run.seed}:${run.round}`}
+          pack={pack}
+          // Any pool card lends its seeded back — the app's own artwork, never a hand-drawn panel.
+          backs={pack.map(
+            (_, i) => pool[(run.seed + run.round * 7 + i) % pool.length] as EnrichedCard,
           )}
-        </div>
-        {!opened ? (
-          <button
-            type="button"
-            className="mm-go"
-            data-testid="market-open"
-            onClick={() => setOpened(true)}
-          >
-            {t("open")}
-          </button>
-        ) : null}
+          onTake={(id) => {
+            void persist(takeReward(pool, run, id));
+          }}
+        />
         {saveError ? <p role="alert">{t("saveError")}</p> : null}
       </div>
     );
@@ -245,60 +210,66 @@ export function MysteryMarket({ pool }: { pool: PoolCard[] }) {
   return (
     <div className="mm-root" data-testid="market-hub">
       {header}
-      <div className="mm-status">
-        <span
-          className="mm-lives"
-          data-testid="market-lives"
-          aria-label={t("livesAria", { n: n(run.lives) })}
-        >
-          {"♥".repeat(run.lives)}
-          <span className="mm-lost">{"♥".repeat(LIVES - run.lives)}</span>
-        </span>
-        <span data-testid="market-wins">{t("wins", { n: n(run.wins) })}</span>
-        <span>{t("round", { n: n(run.round + 1) })}</span>
+      <div className="pk-hub">
+        <section className="pk-bx">
+          <div className="mm-status">
+            <span
+              className="mm-lives"
+              data-testid="market-lives"
+              aria-label={t("livesAria", { n: n(run.lives) })}
+            >
+              {"♥".repeat(run.lives)}
+              <span className="mm-lost">{"♥".repeat(LIVES - run.lives)}</span>
+            </span>
+            <span data-testid="market-wins">{t("wins", { n: n(run.wins) })}</span>
+            <span>{t("round", { n: n(run.round + 1) })}</span>
+          </div>
+          {live.length > 0 || Object.keys(run.forced).length > 0 ? (
+            <ul className="mm-effects" data-testid="market-effects">
+              {live.map((b, i) => (
+                <li key={`${b.id}:${i}`}>
+                  {t(`reward.${b.id}.name`)}
+                  {b.until == null ? "" : ` · ${t("matchesLeft", { n: n(b.until - run.round) })}`}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+          <p className="mm-sub">{t(sideFor(run.round) === "home" ? "nextHome" : "nextAway")}</p>
+          <button
+            type="button"
+            className="mm-go pk-play"
+            data-testid="market-play"
+            disabled={saveError}
+            onClick={() => {
+              const m = marketMatch(pool, run, names(run), crafted);
+              setPlaying(m);
+            }}
+          >
+            {t("play", { n: n(run.round + 1) })}
+          </button>
+        </section>
+        <section className="pk-bx">
+          <h2 className="mm-h">{t("squad")}</h2>
+          <ol className="mm-squad">
+            {run.xi.map((id, i) => {
+              const c = ids.get(id)!;
+              const forced = run.forced[id];
+              return (
+                <li key={id}>
+                  <span className="mm-role">{shape.slots[i]!.role}</span> {c.name}{" "}
+                  <span className="mm-ovr">{n(c.ratings?.overall ?? 0)}</span>
+                  {forced != null ? (
+                    <span className="mm-forced">
+                      {" "}
+                      · {t(`forced.${forced === "hot-head" ? "hotHead" : forced}`)}
+                    </span>
+                  ) : null}
+                </li>
+              );
+            })}
+          </ol>
+        </section>
       </div>
-      {live.length > 0 || Object.keys(run.forced).length > 0 ? (
-        <ul className="mm-effects" data-testid="market-effects">
-          {live.map((b, i) => (
-            <li key={`${b.id}:${i}`}>
-              {t(`reward.${b.id}.name`)}
-              {b.until == null ? "" : ` · ${t("matchesLeft", { n: n(b.until - run.round) })}`}
-            </li>
-          ))}
-        </ul>
-      ) : null}
-      <h2 className="mm-h">{t("squad")}</h2>
-      <ol className="mm-squad">
-        {run.xi.map((id, i) => {
-          const c = ids.get(id)!;
-          const forced = run.forced[id];
-          return (
-            <li key={id}>
-              <span className="mm-role">{shape.slots[i]!.role}</span> {c.name}{" "}
-              <span className="mm-ovr">{n(c.ratings?.overall ?? 0)}</span>
-              {forced != null ? (
-                <span className="mm-forced">
-                  {" "}
-                  · {t(`forced.${forced === "hot-head" ? "hotHead" : forced}`)}
-                </span>
-              ) : null}
-            </li>
-          );
-        })}
-      </ol>
-      <p className="mm-sub">{t(sideFor(run.round) === "home" ? "nextHome" : "nextAway")}</p>
-      <button
-        type="button"
-        className="mm-go"
-        data-testid="market-play"
-        disabled={saveError}
-        onClick={() => {
-          const m = marketMatch(pool, run, names(run), crafted);
-          setPlaying(m);
-        }}
-      >
-        {t("play", { n: n(run.round + 1) })}
-      </button>
       {saveError ? <p role="alert">{t("saveError")}</p> : null}
     </div>
   );

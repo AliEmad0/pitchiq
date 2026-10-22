@@ -435,3 +435,13 @@ identity like `personality`: `RivalSetup.crisis`, share code v6, token head `c`.
 date-gated (`DAILY_CRISIS_FROM`). Measured, both calls are level in the match; the real cost of a
 push is the injury. ⛔ A crisis is raised only when a substitution is possible. A lapse or manual
 mode answers "push". A "rest" in the feed is always a real substitution.
+
+### Polish round: ladder, valuation, first match, pack (2026-10-22)
+
+Owner picks: Ladder Broadcast Scoreboard (`LadderBroadcast.tsx`, `.lb-`), valuation Stock Ticker
+(`.vt-`), first-match Kick-off Tunnel (`.kt-`), and the Market pack as a Three-Card Table with the
+Triple Flip motion (`PackTable.tsx`, `.pk-`). Presentation only; testids and data are unchanged.
+The pack's phases are `data-ph` arrive → closed → reveal → open → keep, timed in the component.
+⛔ Face-down cards are `CardBack`, and the flip is footprint → scaler → flipper. One reduce gate
+skips the timers and deals the hand face up. Galleries live in `design/polish-gallery/` and
+`design/pack-motion-gallery/`.

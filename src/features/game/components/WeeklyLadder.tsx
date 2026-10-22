@@ -50,6 +50,7 @@ import {
 import { localizeDigits } from "@/utils/format";
 import { ClubCrest } from "./ClubCrest";
 import { DraftRoom } from "./DraftRoom";
+import { LadderCoachBadge, LadderComingUp, LadderStrap, useCoachCrest } from "./LadderBroadcast";
 import { SeasonFixturePlay } from "./SeasonFixturePlay";
 import { SquadValuation } from "./SquadValuation";
 import { useCraftedTraits } from "@/features/game/view/use-crafted-traits";
@@ -100,6 +101,7 @@ export function WeeklyLadder({ pool, clubs }: { pool: PoolCard[]; clubs: readonl
   const [msLeft, setMsLeft] = useState<number | null>(null);
   // TASK-1829 — the coach's crafted badges play in every ladder fixture he plays.
   const crafted = useCraftedTraits();
+  const coachCrest = useCoachCrest();
   /** ⛔ Claimed synchronously so a repeated Return cannot commit a matchday twice. */
   const committing = useRef(false);
 
@@ -259,18 +261,23 @@ export function WeeklyLadder({ pool, clubs }: { pool: PoolCard[]; clubs: readonl
     })),
     week,
   );
-  const ruleLine = (
-    <p className="wl-rule" data-testid="weekly-rule">
-      <strong>{t(`rule.${rule.id}.name`)}</strong> — {t(`rule.${rule.id}.desc`)}
-    </p>
-  );
+  // ── the broadcast strap and the ticker beneath it (owner's pick, Ladder #1) ──
   const header = (
     <header className="wl-head">
-      <h1 className="text-2xl font-extrabold tracking-tight">
-        {t("title", { n: n(weekNumber(week)) })}
-      </h1>
-      {ruleLine}
-      <p className="wl-meta" data-testid="weekly-stats">
+      <LadderStrap
+        brand={t("strapBrand")}
+        week={t("strapWeek", { n: n(weekNumber(week)) })}
+        rule={t(`rule.${rule.id}.name`)}
+        closes={msLeft == null ? null : t("strapCloses", { time: clock(msLeft, n) })}
+      />
+    </header>
+  );
+  const ticker = (
+    <div className="lb-tick">
+      <p data-testid="weekly-rule">
+        <strong>{t(`rule.${rule.id}.name`)}</strong> — {t(`rule.${rule.id}.desc`)}
+      </p>
+      <p data-testid="weekly-stats">
         {t("stats", {
           titles: n(stats.titles),
           streak: n(stats.titleStreak),
@@ -278,8 +285,7 @@ export function WeeklyLadder({ pool, clubs }: { pool: PoolCard[]; clubs: readonl
           points: n(stats.bestPoints),
         })}
       </p>
-      {msLeft != null ? <p className="wl-meta">{t("closes", { time: clock(msLeft, n) })}</p> : null}
-    </header>
+    </div>
   );
 
   // ── a fixture in progress: the shared season match screens ──
@@ -338,8 +344,9 @@ export function WeeklyLadder({ pool, clubs }: { pool: PoolCard[]; clubs: readonl
   if (record == null) {
     if (drafting) {
       return (
-        <div className="wl mx-auto w-full max-w-5xl">
+        <div className="wl lb mx-auto w-full max-w-5xl">
           {header}
+          {ticker}
           <DraftRoom
             pool={pool}
             formation={formation}
@@ -361,11 +368,12 @@ export function WeeklyLadder({ pool, clubs }: { pool: PoolCard[]; clubs: readonl
       );
     }
     return (
-      <div className="wl mx-auto w-full max-w-5xl" data-testid="weekly-intro">
+      <div className="wl lb mx-auto w-full max-w-5xl" data-testid="weekly-intro">
         {header}
-        <p className="mt-2">{t("intro", { shape: formation.name, days: n(LADDER_DAYS) })}</p>
-        <h2 className="sh-ttl sh-gap">{t("rivals")}</h2>
-        <ul className="wl-rivals" data-testid="weekly-rivals">
+        {ticker}
+        <p className="lb-intro">{t("intro", { shape: formation.name, days: n(LADDER_DAYS) })}</p>
+        <h2 className="lb-cu">{t("rivals")}</h2>
+        <ul className="lb-rivals" data-testid="weekly-rivals">
           {rivalIds.map((id) => (
             <li key={id}>
               <ClubCrest teamId={id} size={22} className="wl-crest" />
@@ -376,7 +384,7 @@ export function WeeklyLadder({ pool, clubs }: { pool: PoolCard[]; clubs: readonl
         <button
           type="button"
           data-testid="weekly-draft"
-          className="lg-kick mt-4"
+          className="lb-go"
           onClick={() => setDrafting(true)}
         >
           {t("draft")}
@@ -399,7 +407,7 @@ export function WeeklyLadder({ pool, clubs }: { pool: PoolCard[]; clubs: readonl
   const standing = ladderStanding(COACH, run.results);
 
   return (
-    <div className="wl mx-auto w-full max-w-5xl" data-testid="weekly-hub">
+    <div className="wl lb mx-auto w-full max-w-5xl" data-testid="weekly-hub">
       {header}
       {poolError ? (
         <p role="alert">
@@ -411,60 +419,81 @@ export function WeeklyLadder({ pool, clubs }: { pool: PoolCard[]; clubs: readonl
       ) : null}
       {saveError ? <p role="alert">{t("saveError")}</p> : null}
 
-      <div className="wl-grid">
-        <div className="sh-tbl sh-blk">
-          <div className="sh-ttl">{t("table")}</div>
-          <table data-testid="weekly-table">
+      <div className="lb-grid">
+        <div className="lb-lt">
+          <h2 className="sr-only">{t("table")}</h2>
+          <table data-testid="weekly-table" className="lb-table">
             <thead>
-              <tr>
-                <th>#</th>
-                <th>{t("club")}</th>
+              <tr className="lb-hd">
+                <th className="lb-ps">#</th>
+                <th aria-hidden="true" />
+                <th className="lb-nm">{t("club")}</th>
                 <th>{t("played")}</th>
                 <th>{t("gd")}</th>
-                <th>{t("pts")}</th>
+                <th className="lb-pt">{t("pts")}</th>
               </tr>
             </thead>
             <tbody>
               {table.map((row, i) => (
-                <tr key={row.club} className={row.club === COACH ? "me" : undefined}>
-                  <td>{n(i + 1)}</td>
-                  <td>{teamName(row.club)}</td>
+                <tr key={row.club} className={row.club === COACH ? "lb-row me" : "lb-row"}>
+                  <td className="lb-ps">{n(i + 1)}</td>
+                  <td className="lb-cr">
+                    {row.club === COACH ? (
+                      <LadderCoachBadge crest={coachCrest} size={20} />
+                    ) : (
+                      <ClubCrest teamId={record.rivalIds[row.club - 1]!} size={20} />
+                    )}
+                  </td>
+                  <td className="lb-nm">{teamName(row.club)}</td>
                   <td>{n(row.played)}</td>
-                  <td>{n(row.goalDifference)}</td>
-                  <td>{n(row.points)}</td>
+                  <td>{n((row.goalDifference > 0 ? "+" : "") + row.goalDifference)}</td>
+                  <td className="lb-pt">{n(row.points)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
 
-        <div className="sh-side sh-blk">
+        <div className="lb-side-col">
           {done ? (
-            <div data-testid="weekly-final">
-              <div className="sh-ttl">{t("final")}</div>
-              <p className="wl-final">
+            <div className="lb-card" data-testid="weekly-final">
+              <div className="lb-cu">{t("final")}</div>
+              <p className="lb-final">
                 {standing.position === 1
                   ? t("champions", { points: n(standing.points) })
                   : t("finished", { position: n(standing.position), points: n(standing.points) })}
               </p>
             </div>
           ) : (
-            <>
-              <div className="sh-ttl">{t("matchday", { n: n(day + 1), of: n(LADDER_DAYS) })}</div>
-              <p className="wl-next" data-testid="weekly-next">
-                {opp == null ? null : (
+            <LadderComingUp
+              label={t("comingUp", {
+                matchday: t("matchday", { n: n(day + 1), of: n(LADDER_DAYS) }),
+              })}
+              venue={nextFx != null && nextFx[0] === COACH ? t("home") : t("away")}
+              home={
+                <>
+                  <LadderCoachBadge crest={coachCrest} size={40} />
+                  <span>{tg("yourXi")}</span>
+                </>
+              }
+              away={
+                opp == null ? null : (
                   <>
-                    {nextFx![0] === COACH ? t("home") : t("away")} · {teamName(opp)}
+                    <ClubCrest teamId={record.rivalIds[opp - 1]!} size={40} />
+                    <span>{teamName(opp)}</span>
                   </>
-                )}
-              </p>
+                )
+              }
+            >
               {day < open ? (
                 <>
-                  <StancePicker value={stance} onChange={setStance} />
+                  <div className="lb-stance">
+                    <StancePicker value={stance} onChange={setStance} />
+                  </div>
                   <button
                     type="button"
                     data-testid="weekly-play"
-                    className="lg-kick mt-3"
+                    className="lb-go"
                     disabled={!canPlay}
                     onClick={() => {
                       if (teams == null) return;
@@ -475,19 +504,22 @@ export function WeeklyLadder({ pool, clubs }: { pool: PoolCard[]; clubs: readonl
                     {t("play", { n: n(day + 1) })}
                   </button>
                   {open - day > 1 ? (
-                    <p className="wl-meta">{t("catchUp", { count: n(open - day) })}</p>
+                    <p className="lb-note">{t("catchUp", { count: n(open - day) })}</p>
                   ) : null}
                 </>
               ) : (
-                <p className="wl-meta" data-testid="weekly-locked">
+                <p className="lb-note" data-testid="weekly-locked">
                   {t("locked", { n: n(day + 1) })}
                 </p>
               )}
-            </>
+            </LadderComingUp>
           )}
-          <SquadValuation cards={teams?.[COACH]?.players ?? []} lines={run.market ?? []} />
+          <div className="lb-card">
+            <SquadValuation cards={teams?.[COACH]?.players ?? []} lines={run.market ?? []} />
+          </div>
         </div>
       </div>
+      {ticker}
     </div>
   );
 }

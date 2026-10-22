@@ -1,0 +1,55 @@
+{
+  "note": "Gallery-only extras. The copy (title, hint, rewards' name/boon/catch) is read from src/i18n/messages/en.json gameMarket by build.py. Risk tiers are a gallery device for the designs that single out the riskiest card.",
+  "icons": {
+    "marquee": "⭐",
+    "wonderkid": "🌱",
+    "gegenpress": "⚡",
+    "ironCurtain": "🛡️",
+    "talismanTonic": "🧪",
+    "physio": "➕"
+  },
+  "risk": {
+    "marquee": 3,
+    "wonderkid": 3,
+    "physio": 3,
+    "gegenpress": 2,
+    "talismanTonic": 2,
+    "ironCurtain": 1
+  },
+  "rewards": ["marquee", "wonderkid", "gegenpress", "ironCurtain", "talismanTonic", "physio"],
+  "backs": {
+    "K01": {
+      "root": "repeating-linear-gradient(90deg,#141922 0 7px,#1b2333 7px 8px)",
+      "ov": "radial-gradient(60% 50% at 50% 40%,rgba(231,193,91,.18),transparent)",
+      "ovSize": "auto",
+      "wm": "#e7c15b",
+      "glow": "#e7c15b"
+    },
+    "K02": {
+      "root": "radial-gradient(#d59e30,#8a5f16)",
+      "ov": "radial-gradient(rgba(255,255,255,.5) 1px,transparent 1.4px)",
+      "ovSize": "9px 9px",
+      "wm": "#241802",
+      "glow": "#f2c14e"
+    },
+    "K07": {
+      "root": "radial-gradient(120% 90% at 50% 0,#3a1030,#0a0710)",
+      "ov": "radial-gradient(rgba(224,33,138,.4) 1px,transparent 1.4px)",
+      "ovSize": "11px 11px",
+      "wm": "#e0218a",
+      "glow": "#e0218a"
+    },
+    "K09": {
+      "root": "#0b1018",
+      "ov": "linear-gradient(90deg,rgba(46,197,182,.16) 1px,transparent 0),linear-gradient(0deg,rgba(46,197,182,.16) 1px,transparent 0)",
+      "ovSize": "18px 18px",
+      "wm": "#2ec5b6",
+      "glow": "#2ec5b6"
+    }
+  },
+  "brand": "φ",
+  "wordmark": "PitchIQ",
+  "season": "2025/26",
+  "best": { "wins": 4, "rounds": 7 },
+  "lives": 3
+}

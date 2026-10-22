@@ -6299,6 +6299,15 @@ targets and relegation start, era-authentic substitution rules, and squad rotati
 
 - ⛔ A crisis is raised **only when a substitution is possible**. With none left there is nothing to decide, and a forced push would risk a breakdown the coach never chose. The season tests caught this: a side with an empty bench lost its man for the next week as well.
 
+**Polish round shipped (2026-10-22)** — the design-gallery round for four screens that shipped without one (galleries in `design/polish-gallery/` and `design/pack-motion-gallery/`). Owner picks:
+
+- Weekly Ladder → **Broadcast Scoreboard** (`LadderBroadcast.tsx`: strap with the closing clock, rule ticker, lower-third table rows, "Coming up" VS card).
+- Squad valuation → **Stock Ticker** (`SquadValuation.tsx`: price + change badge, tappable bars to step through the run, gainers/losers).
+- First match → **Kick-off Tunnel** (`Onboarding.tsx`: one centred name + crest card, a scoreline board on the result).
+- Mystery Market pack → **Three-Card Table** with motion **#1 Triple Flip** (`PackTable.tsx`: cards rise in, all three hop and flip together, the kept card gets a gold halo, the others sink). Face-down cards are the app's own `CardBack`, layered footprint → scaler → flipper; one reduced-motion gate skips straight to the face-up hand.
+
+Presentation only: every testid, data flow and stored shape is unchanged.
+
 ### TASK-1815
 
 **Post-match analytics — xG timeline + retro headlines** · ✅ Done · `P3` · `M` · Type: Feature
