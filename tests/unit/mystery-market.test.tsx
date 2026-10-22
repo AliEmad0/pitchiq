@@ -83,6 +83,14 @@ describe("MysteryMarket", () => {
     await waitFor(async () => expect((await loadMarketRun())!.pendingPack).toBe(false));
   });
 
+  it('⛔ the match screens say "Back to the run", never "Return to season" (found live)', async () => {
+    await saveMarketRun(startRun(pool, 11));
+    renderWithIntl(<MysteryMarket pool={pool} />);
+    await userEvent.click(await screen.findByTestId("market-play"));
+    expect(await screen.findByRole("button", { name: "Back to the run" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Return to season" })).toBeNull();
+  });
+
   it("a finished run shows its result and offers a new one", async () => {
     let run = startRun(pool, 9);
     for (let i = 0; i < 3; i++) run = recordMatch(run, 0, 2);

@@ -295,6 +295,7 @@ export function WeeklyLadder({ pool, clubs }: { pool: PoolCard[]; clubs: readonl
         captaincies={{}}
         referees={[]}
         crafted={crafted}
+        returnLabel={t("back")}
         onReturn={(result: MatchResult | null) => {
           if (result == null) {
             setPlaying(null);

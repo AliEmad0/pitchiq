@@ -19,6 +19,7 @@ export function SeasonFixturePlay({
   captaincies,
   referees,
   crafted,
+  returnLabel,
   onReturn,
 }: {
   fixture: SeasonFixture;
@@ -27,6 +28,11 @@ export function SeasonFixturePlay({
   referees: readonly string[];
   /** TASK-1829 — the coach's crafted badges, for the Personalities panel. */
   crafted?: CraftedTraits;
+  /**
+   * The way back, in the HOST's words. ⛔ Absent = "Return to season", which is only true for a
+   * season: the ladder and the Market reuse this screen, and a shared label lied on both.
+   */
+  returnLabel?: string;
   onReturn: (result: MatchResult | null) => void;
 }) {
   const t = useTranslations("game");
@@ -68,7 +74,7 @@ export function SeasonFixturePlay({
           crests={crests}
           referee={driver.events.find((e) => e.kind === "referee")?.refStyle ?? null}
           weather={driver.events.find((e) => e.kind === "weather")?.weather ?? null}
-          backLabel={t("seasonReturn")}
+          backLabel={returnLabel ?? t("seasonReturn")}
           traits
           crafted={crafted}
           onBack={() => onReturn(null)}
@@ -91,7 +97,7 @@ export function SeasonFixturePlay({
         cardData={null}
         locale={locale}
         crests={crests}
-        newMatchLabel={t("seasonReturn")}
+        newMatchLabel={returnLabel ?? t("seasonReturn")}
         report={{ result: driver.result, home, away, coachSide: fixture.coachSide }}
         onNewMatch={() => onReturn(driver.result)}
       />

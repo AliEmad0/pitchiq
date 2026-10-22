@@ -116,6 +116,7 @@ export function MysteryMarket({ pool }: { pool: PoolCard[] }) {
         captaincies={{}}
         referees={[]}
         crafted={crafted}
+        returnLabel={t("back")}
         onReturn={(result: MatchResult | null) => {
           if (result == null) {
             setPlaying(null);
