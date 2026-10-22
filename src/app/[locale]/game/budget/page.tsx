@@ -52,6 +52,8 @@ export default async function BudgetDraftPage({ params }: Props) {
         pool={pool}
         initialPhase="setup"
         draft={BUDGET_PACK.draft}
+        // TASK-1824: every drafted XI plays chemistry with role fit.
+        scoreChemistry
         screens={BUDGET_PACK.screens}
         opponent={BUDGET_PACK.opponent}
         budget={budgetOf()}

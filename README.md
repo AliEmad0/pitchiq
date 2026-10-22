@@ -209,6 +209,14 @@ Production is hosted on **Vercel** with the GitHub integration: every push to `m
 - **Production:** merge to `main` → check the Deployments tab; the deploy should reach `Ready` within ~3 minutes.
 - **Smoke test:** on either environment, `curl $DEPLOY_URL/api/health` should return HTTP 200 with `{ status: "ok", commit, uptime, data: { lastRefresh, datasets }, ts }` — confirms the committed data is reachable from the deployed function. Also worth hitting: `/api/standings?season=2024`, `/api/leaderboards/scorers?season=2024`, `/api/fixtures?mode=last&season=2024`, `/fixtures/{id}/opengraph-image` (binary PNG, 1200×630). `/api/health` is the canonical uptime-monitor target — an uptime monitor wanting to alert on stale data can check `data.lastRefresh` against now.
 
+### Squad chemistry in every draft (TASK-1824)
+
+Legacy, Captain's Draft, Budget Cap, Nationality and the Chemistry Draft all score your XI on
+**chemistry** as you place it: lines between neighbours who share a club, a season or a country,
+a live 0–100 meter, and what each candidate would add. A player out of his own position wears a
+red mark and costs the side eight points, and the meter says so. Older saved and shared matches
+replay exactly as they were played.
+
 ### Season game development (TASK-1811 — ✅ Done)
 
 **Every drafted mode now has a Full Season** (2026-10-12): Tactical H2H, Chaos, Captain's

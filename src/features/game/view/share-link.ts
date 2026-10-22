@@ -45,6 +45,10 @@ export function buildShareCode(args: {
   personality?: boolean;
   /** Played with the crisis prompt — writes a v6 code. */
   crisis?: boolean;
+  /** Played with chemistry (TASK-1824) — writes a v7 code. */
+  chemistry?: boolean;
+  /** Chemistry with role fit — the v7 `hf` segment. */
+  fit?: boolean;
 }): string {
   return encodeMatch({
     cardIds: [...args.cardIds] as PlayerSeasonId[],
@@ -57,6 +61,8 @@ export function buildShareCode(args: {
     ...(args.mentality == null ? {} : { mentality: args.mentality }),
     ...(args.personality === true ? { personality: true } : {}),
     ...(args.crisis === true ? { crisis: true } : {}),
+    ...(args.chemistry === true ? { chemistry: true } : {}),
+    ...(args.fit === true ? { fit: true } : {}),
   });
 }
 
@@ -101,6 +107,11 @@ export function replayShared(
       ...(shared.mentality == null ? {} : { mentality: shared.mentality }),
       personality: shared.personality === true,
       crisis: shared.crisis === true,
+      // ⛔ Before v7 chemistry never travelled, so an older code says nothing and the caller's
+      // value stands — the ROUTE's historical meaning (on for the Chemistry Draft, off elsewhere).
+      // A v7 code says it outright. Fit is the code's alone: no older code ever played it.
+      chemistry: shared.chemistry ?? rival?.chemistry === true,
+      fit: shared.fit === true,
     },
   );
 }

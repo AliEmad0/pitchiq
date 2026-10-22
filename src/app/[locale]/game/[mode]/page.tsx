@@ -105,6 +105,8 @@ export default async function ModePage({ params }: Props) {
           pool={await buildPool(pack.pool)}
           initialPhase="setup"
           draft={pack.draft}
+          // TASK-1824: every drafted XI plays chemistry with role fit.
+          scoreChemistry
           screens={pack.screens}
         />
       )}

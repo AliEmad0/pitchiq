@@ -164,6 +164,8 @@ export default async function ModeClubPage({ params }: Props) {
         pool={pool}
         initialPhase="setup"
         draft={pack.draft}
+        // TASK-1824: every drafted XI plays chemistry with role fit.
+        scoreChemistry
         screens={pack.screens}
         opponent={pack.opponent}
         rivals={rivals}

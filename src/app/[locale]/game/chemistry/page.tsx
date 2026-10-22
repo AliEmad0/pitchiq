@@ -65,6 +65,7 @@ export default async function ChemistryDraftPage({ params }: Props) {
         screens={CHEMISTRY_PACK.screens}
         opponent={CHEMISTRY_PACK.opponent}
         chemistry={scoresChemistry()}
+        scoreChemistry={scoresChemistry()}
         captaincies={captaincies}
         referees={referees}
         // Every mode has a season (owner, 2026-10-12): a 38-week league against Premier

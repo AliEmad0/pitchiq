@@ -87,6 +87,18 @@ export const SHARE_VERSION_PERSONALITY = "v5";
  * to be `_`, plus `c`. Lossless again: written only for a match that raised crisis prompts.
  */
 export const SHARE_VERSION_CRISIS = "v6";
+/**
+ * TASK-1824 — chemistry everywhere. `v7` = v6's eleven fields with the crisis slot allowed to be
+ * `_`, plus a chemistry segment: `h` (links) or `hf` (links + role fit).
+ *
+ * ⚠️ Before v7 the chemistry flag never travelled — the Chemistry Draft route implied it. So an
+ * older code carries NO chemistry field, and the receiving route supplies what it always meant.
+ * Written only for a match that played chemistry.
+ */
+export const SHARE_VERSION_CHEMISTRY = "v7";
+const NO_CRISIS = "_";
+const CHEM_LINKS = "h";
+const CHEM_FIT = "hf";
 const NO_PERSONALITY = "_";
 const CRISIS_TOKEN = "c";
 const NO_STANCE = "_";
@@ -169,6 +181,13 @@ export type ShareableMatch = {
   personality?: boolean;
   /** Played with the crisis prompt. Only v6 codes carry it. */
   crisis?: boolean;
+  /**
+   * Played with chemistry (TASK-1824). Only v7 codes carry it; ABSENT means "whatever the route
+   * implies", which is how every code made before v7 must be read.
+   */
+  chemistry?: boolean;
+  /** Chemistry scored with role fit. Only v7 `hf` codes carry it. */
+  fit?: boolean;
 };
 
 const SQUAD_SIZE = 11;
@@ -216,16 +235,19 @@ export function encodeMatch(match: ShareableMatch): string {
   const stance = match.mentality == null || match.mentality === "balanced" ? null : match.mentality;
   const personality = match.personality === true;
   const crisis = match.crisis === true;
+  const chem = match.chemistry === true;
   const fields = [
-    crisis
-      ? SHARE_VERSION_CRISIS
-      : personality
-        ? SHARE_VERSION_PERSONALITY
-        : stance != null
-          ? SHARE_VERSION_STANCE
-          : match.style == null
-            ? SHARE_VERSION
-            : SHARE_VERSION_STYLED,
+    chem
+      ? SHARE_VERSION_CHEMISTRY
+      : crisis
+        ? SHARE_VERSION_CRISIS
+        : personality
+          ? SHARE_VERSION_PERSONALITY
+          : stance != null
+            ? SHARE_VERSION_STANCE
+            : match.style == null
+              ? SHARE_VERSION
+              : SHARE_VERSION_STYLED,
     b36(match.seed),
     match.formationSlug,
     cards,
@@ -237,7 +259,15 @@ export function encodeMatch(match: ShareableMatch): string {
         ? `${NATION_RIVAL}${match.rival.teamId}${POLICY_TOKEN[match.rival.policy]}`
         : `${b36(match.rival.teamId)}${POLICY_TOKEN[match.rival.policy]}`,
   ];
-  if (crisis) {
+  if (chem) {
+    fields.push(
+      match.style == null ? NO_STYLE : STYLE_TOKEN[match.style],
+      stance == null ? NO_STANCE : MENTALITY_TOKEN[stance],
+      personality ? PERSONALITY_TOKEN : NO_PERSONALITY,
+      crisis ? CRISIS_TOKEN : NO_CRISIS,
+      match.fit === true ? CHEM_FIT : CHEM_LINKS,
+    );
+  } else if (crisis) {
     fields.push(
       match.style == null ? NO_STYLE : STYLE_TOKEN[match.style],
       stance == null ? NO_STANCE : MENTALITY_TOKEN[stance],
@@ -278,7 +308,9 @@ export function decodeMatch(code: string | null | undefined): ShareableMatch | n
             ? 10
             : version === SHARE_VERSION_CRISIS
               ? 11
-              : -1;
+              : version === SHARE_VERSION_CHEMISTRY
+                ? 12
+                : -1;
   if (parts.length !== expected) return null;
   let style: TacticalStyle | undefined;
   let mentality: Mentality | undefined;
@@ -288,6 +320,25 @@ export function decodeMatch(code: string | null | undefined): ShareableMatch | n
   }
   let personality = false;
   let crisis = false;
+  let chemistry: boolean | undefined;
+  let fit = false;
+  if (version === SHARE_VERSION_CHEMISTRY) {
+    if (parts[11] !== CHEM_LINKS && parts[11] !== CHEM_FIT) return null;
+    if (parts[10] !== CRISIS_TOKEN && parts[10] !== NO_CRISIS) return null;
+    if (parts[9] !== PERSONALITY_TOKEN && parts[9] !== NO_PERSONALITY) return null;
+    chemistry = true;
+    fit = parts[11] === CHEM_FIT;
+    crisis = parts[10] === CRISIS_TOKEN;
+    personality = parts[9] === PERSONALITY_TOKEN;
+    if (parts[7] !== NO_STYLE) {
+      style = STYLE_OF[parts[7]!];
+      if (style === undefined) return null;
+    }
+    if (parts[8] !== NO_STANCE) {
+      mentality = MENTALITY_OF[parts[8]!];
+      if (mentality === undefined) return null;
+    }
+  }
   if (version === SHARE_VERSION_CRISIS) {
     if (parts[10] !== CRISIS_TOKEN) return null;
     if (parts[9] !== PERSONALITY_TOKEN && parts[9] !== NO_PERSONALITY) return null;
@@ -387,6 +438,8 @@ export function decodeMatch(code: string | null | undefined): ShareableMatch | n
     ...(mentality === undefined ? {} : { mentality }),
     ...(personality ? { personality: true } : {}),
     ...(crisis ? { crisis: true } : {}),
+    ...(chemistry === true ? { chemistry: true } : {}),
+    ...(fit ? { fit: true } : {}),
   };
 }
 
