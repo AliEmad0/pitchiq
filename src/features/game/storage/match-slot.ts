@@ -63,6 +63,13 @@ export interface SavedMatch {
   personality?: boolean;
   /** Played with the crisis prompt. ⛔ IDENTITY; absent = a match from before it existed. */
   crisis?: boolean;
+  /**
+   * Played with chemistry (TASK-1824). ⛔ IDENTITY. ABSENT = a save from before the flag was
+   * stored, which played whatever its route implied (on only for the Chemistry Draft).
+   */
+  chemistry?: boolean;
+  /** Chemistry scored with role fit. ⛔ IDENTITY; absent = links only. */
+  fit?: boolean;
 }
 
 const KEY = "current";

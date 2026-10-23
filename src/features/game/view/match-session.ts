@@ -1,6 +1,11 @@
 import { chaosMatchup, type DraftPolicy, type PoolCard } from "@/features/game/domain/chaos-draft";
 import type { Formation } from "@/features/game/domain/formation";
-import { chemistry, type Linkable } from "@/features/game/domain/chemistry";
+import {
+  chemistry,
+  fitChemistry,
+  type Fittable,
+  type Linkable,
+} from "@/features/game/domain/chemistry";
 import { chemistryModifier } from "@/features/game/domain/chemistry-modifier";
 import {
   type Mentality,
@@ -56,6 +61,14 @@ export interface RivalSetup {
    * codec needs no version bump.
    */
   chemistry?: boolean;
+  /**
+   * TASK-1824 — score chemistry WITH role fit: each man out of position costs
+   * `OFF_POSITION_PENALTY`. Only meaningful beside `chemistry: true`.
+   *
+   * ⛔ IDENTITY, and a SEPARATE flag from `chemistry` on purpose: every Chemistry Draft match
+   * saved or shared before it existed played links only, and must keep replaying that way.
+   */
+  fit?: boolean;
   /**
    * The coach's tactical style, picked on the pre-match screen (TASK-1825).
    *
@@ -169,8 +182,14 @@ export function buildSession(
     rival.chemistry === true
       ? [
           chemistryModifier({
-            home: chemistry(xi as readonly Linkable[], formation),
-            away: chemistry(away.players as readonly Linkable[], away.formation),
+            home:
+              rival.fit === true
+                ? fitChemistry(xi as readonly Fittable[], formation)
+                : chemistry(xi as readonly Linkable[], formation),
+            away:
+              rival.fit === true
+                ? fitChemistry(away.players as readonly Fittable[], away.formation)
+                : chemistry(away.players as readonly Linkable[], away.formation),
           }),
         ]
       : [];

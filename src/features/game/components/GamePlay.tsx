@@ -88,6 +88,7 @@ export function GamePlay({
   budget,
   nation,
   chemistry,
+  scoreChemistry,
   season,
   clubs,
   seasonCoachId,
@@ -132,6 +133,16 @@ export function GamePlay({
    * it off `constraints`, the same way the budget page reads its cap.
    */
   chemistry?: boolean;
+  /**
+   * TASK-1824 — NEW matches on this page play chemistry WITH role fit, and the draft shows the
+   * links, the meter and the out-of-position warnings.
+   *
+   * ⛔ Not the same question as `chemistry`. `chemistry` is what this ROUTE has always implied,
+   * and it decides how a save or share code from before the flag was stored replays (on only for
+   * the Chemistry Draft). This one decides what a match started today plays. Splitting them is
+   * what keeps every older Legacy, Budget and Chemistry match replaying exactly as it did.
+   */
+  scoreChemistry?: boolean;
   /**
    * The pack's season league (TASK-1811). Absent = the mode has no season. Every shipped pack
    * declares one since the owner asked for a season on every mode (2026-10-12).
@@ -271,6 +282,14 @@ export function GamePlay({
   const [crisis, setCrisis] = useState(false);
   const [offerCrisis, setOfferCrisis] = useState(false);
   /**
+   * TASK-1824 — does THIS match play chemistry, and with role fit? ⛔ IDENTITY like `crisis`: a
+   * new match takes it from `scoreChemistry`, a restored or shared one from its record or code,
+   * falling back to the route's historical `chemistry` when the record predates the field.
+   */
+  const [chem, setChem] = useState({ on: false, fit: false });
+  const [offerChem, setOfferChem] = useState({ on: false, fit: false });
+  const newChem = scoreChemistry === true;
+  /**
    * The Scout's Dossier (TASK-1825): the style on the programme, and both styles once Kick off
    * has been pressed. Defaults to Balanced; the last pick in this browser is a convenience.
    */
@@ -350,6 +369,8 @@ export function GamePlay({
           budget,
           chemistry,
         };
+  /** What a match started TODAY plays — see `scoreChemistry`. */
+  const newChemSetup = newChem ? { chemistry: true, fit: true } : { chemistry, fit: false };
 
   /** The rival as a share code carries it. */
   const rivalRef = (
@@ -529,13 +550,14 @@ export function GamePlay({
     startArgs.current = { players, formation, seed, picked };
     setPersonality(true);
     setCrisis(true);
+    setChem({ on: newChemSetup.chemistry === true, fit: newChemSetup.fit });
     driver.start(
       pool,
       players,
       formation,
       seed,
       { home: t("yourXi"), away: t("rivals") },
-      { ...rivalSetup(picked), personality: true, crisis: true },
+      { ...rivalSetup(picked), ...newChemSetup, personality: true, crisis: true },
     );
     setSquad({
       cardIds: players.map((p) => p.cardId),
@@ -613,6 +635,7 @@ export function GamePlay({
       setMentality(decoded.mentality);
       setPersonality(decoded.personality === true);
       setCrisis(decoded.crisis === true);
+      setChem({ on: decoded.chemistry ?? chemistry === true, fit: decoded.fit === true });
       driver.adopt({ ...replayed, pending: null });
       setSquad({
         cardIds: decoded.cardIds,
@@ -667,6 +690,9 @@ export function GamePlay({
           ...(record.mentality == null ? {} : { mentality: record.mentality }),
           personality: record.personality === true,
           crisis: record.crisis === true,
+          // ⛔ A save from before the flag was stored played the route's historical meaning.
+          chemistry: record.chemistry ?? chemistry === true,
+          fit: record.fit === true,
         },
       );
       if (!live) return;
@@ -680,6 +706,7 @@ export function GamePlay({
       setOfferMentality(record.mentality);
       setOfferPersonality(record.personality === true);
       setOfferCrisis(record.crisis === true);
+      setOfferChem({ on: record.chemistry ?? chemistry === true, fit: record.fit === true });
       setOffer(restored);
     })();
     return () => {
@@ -712,6 +739,9 @@ export function GamePlay({
       ...(mentality == null ? {} : { mentality }),
       ...(personality ? { personality: true } : {}),
       ...(crisis ? { crisis: true } : {}),
+      // Written explicitly, true or false: an absent field means "older than the flag".
+      chemistry: chem.on,
+      ...(chem.fit ? { fit: true } : {}),
     });
     // ⚠️ `rival` is deliberately in the deps: a resumed match adopts its club AFTER the
     // first save, so leaving it out would persist the next write against the wrong opponent.
@@ -728,6 +758,7 @@ export function GamePlay({
     mentality,
     personality,
     crisis,
+    chem,
     seasonRequested,
   ]);
 
@@ -767,6 +798,7 @@ export function GamePlay({
     setMentality(offerMentality);
     setPersonality(offerPersonality);
     setCrisis(offerCrisis);
+    setChem(offerChem);
     driver.adopt(offer);
     // ⚠️ Taken from the RECORD, never reconstructed from the session: a resumed match must
     // keep saving under the same identity, and `GameTeam` holds cards rather than the
@@ -863,7 +895,8 @@ export function GamePlay({
             captain={captain}
             budget={budget}
             nation={nation}
-            chemistry={chemistry}
+            // ⚠️ Season fixtures do not play chemistry, so the draft for one must not promise it.
+            chemistry={newChem && !seasonRequested}
           />
         ) : (
           <DraftHub pool={pool} onConfirm={confirmSquad} />
@@ -902,6 +935,8 @@ export function GamePlay({
           style: picked,
           personality: true,
           crisis: true,
+          chemistry: chem.on,
+          fit: chem.fit,
           ...(stance === "balanced" ? {} : { mentality: stance }),
         },
       );
@@ -932,7 +967,8 @@ export function GamePlay({
         home={match.home}
         away={match.away}
         crests={crests}
-        chemistry={chemistry}
+        chemistry={chem.on}
+        fit={chem.fit}
         referee={referee}
         weather={weather}
         traits={personality}
@@ -989,6 +1025,8 @@ export function GamePlay({
             mentality,
             personality,
             crisis,
+            chemistry: chem.on,
+            fit: chem.fit,
           });
     const cardData =
       squad == null || code == null

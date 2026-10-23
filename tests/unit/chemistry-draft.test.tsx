@@ -132,7 +132,7 @@ async function draftAll(user: ReturnType<typeof userEvent.setup>) {
 describe("chemistry draft", () => {
   it("⭐ draws a connector per ADJACENT PAIR, tiered by the link", async () => {
     const user = userEvent.setup();
-    render(<GamePlay pool={mates} draft={DRAFT} chemistry />);
+    render(<GamePlay pool={mates} draft={DRAFT} chemistry scoreChemistry />);
     await lock(user);
 
     // One connector per adjacent pair — the graph is drawn whole, so an unlinked pair is
@@ -152,7 +152,7 @@ describe("chemistry draft", () => {
   it("⛔ a pitch of STRANGERS draws every connector unlinked", async () => {
     // The other half of the control: the tier must reflect the cards, not merely exist.
     const user = userEvent.setup();
-    render(<GamePlay pool={strangers} draft={DRAFT} chemistry />);
+    render(<GamePlay pool={strangers} draft={DRAFT} chemistry scoreChemistry />);
     await lock(user);
     await draftAll(user);
     const tiers = screen.getAllByTestId("chem-link").map((l) => l.getAttribute("data-tier"));
@@ -161,7 +161,7 @@ describe("chemistry draft", () => {
 
   it("⭐ the meter reports the score and the tier breakdown", async () => {
     const user = userEvent.setup();
-    render(<GamePlay pool={mates} draft={DRAFT} chemistry />);
+    render(<GamePlay pool={mates} draft={DRAFT} chemistry scoreChemistry />);
     await lock(user);
     const meter = screen.getByTestId("chem-meter");
     expect(meter).toHaveTextContent("0");
@@ -180,7 +180,7 @@ describe("chemistry draft", () => {
      * are a full-pitch overlay, so this is the highest-risk version of it yet.
      */
     const user = userEvent.setup();
-    render(<GamePlay pool={mates} draft={DRAFT} chemistry />);
+    render(<GamePlay pool={mates} draft={DRAFT} chemistry scoreChemistry />);
     await lock(user);
     const layer = screen.getByTestId("chem-links");
     expect(layer).toHaveStyle({ pointerEvents: "none" });
@@ -211,7 +211,7 @@ describe("chemistry draft", () => {
      * points per player, so it has to visibly buy something).
      */
     const user = userEvent.setup();
-    render(<GamePlay pool={mates} draft={DRAFT} chemistry />);
+    render(<GamePlay pool={mates} draft={DRAFT} chemistry scoreChemistry />);
     await lock(user);
     // Six placed, so the next slot certainly has filled neighbours to link to.
     await draftFirst(user, 6);
@@ -225,7 +225,7 @@ describe("chemistry draft", () => {
 
   it("⛔ a card that links NOTHING offers zero — the other half of the signal", async () => {
     const user = userEvent.setup();
-    render(<GamePlay pool={strangers} draft={DRAFT} chemistry />);
+    render(<GamePlay pool={strangers} draft={DRAFT} chemistry scoreChemistry />);
     await lock(user);
     await draftFirst(user, 6);
     const veil = await openNext(user);
@@ -238,7 +238,7 @@ describe("chemistry draft", () => {
     // An honest zero rather than a misleading promise: chemistry is about neighbours, and on
     // an empty pitch a card has none.
     const user = userEvent.setup();
-    render(<GamePlay pool={mates} draft={DRAFT} chemistry />);
+    render(<GamePlay pool={mates} draft={DRAFT} chemistry scoreChemistry />);
     await lock(user);
     const veil = await openNext(user);
     for (const d of within(veil).getAllByTestId("chem-delta")) {
@@ -257,7 +257,7 @@ describe("chemistry draft", () => {
 
   it("⚠️ each connector NAMES its link, so colour is not the only channel", async () => {
     const user = userEvent.setup();
-    render(<GamePlay pool={mates} draft={DRAFT} chemistry />);
+    render(<GamePlay pool={mates} draft={DRAFT} chemistry scoreChemistry />);
     await lock(user);
     await draftAll(user);
     const first = screen.getAllByTestId("chem-link")[0]!;

@@ -6714,6 +6714,28 @@ Built: `domain/draft-room.ts` (`roomDeals`), `view/room-state.ts` (the reducer),
     the inertness control test pins that. Making cohesion a general property of every draft is
     the part of this ticket that remains.
 
+**Chemistry everywhere + role fit shipped (2026-10-23)** — the owner asked for live feedback as he
+places players in Legacy or Budget Cap: connection lines, a live score, and a warning when a
+mismatch hurts the side.
+
+- **Every PitchDraft mode plays chemistry now**: Legacy, Captain's Draft, Budget Cap, Nationality
+  and the Chemistry Draft. The pages pass `scoreChemistry`; the draft shows the connectors, the
+  meter and the per-card deltas it already had.
+- **Role compatibility is the missing link, built as a PENALTY.** A man whose primary role is not
+  the slot's (he stands there only through `altRoles`) costs `OFF_POSITION_PENALTY` = 8 points
+  (`fitChemistry`). He wears a red mark carrying his own role, the meter states the cost in words
+  (`chem-off-warn`), and a candidate who would be out of position says so and shows a red loss.
+- ⛔ **`chemistry()` is untouched.** The Chemistry Draft's stored matches derive their modifier from
+  it, so fit is a SEPARATE score behind its own identity flag (`RivalSetup.fit`).
+- ⛔ **The flag finally travels.** Before this, chemistry was implied by the route and never stored.
+  Saves now write `chemistry`/`fit`, and share code **v7** carries `h` / `hf`. An older save or
+  code carries nothing and replays under the route's historical meaning (`GamePlay`'s `chemistry`
+  prop): links-only on the Chemistry Draft, none anywhere else. So no existing match changes.
+- Season drafts show no meter, because season fixtures do not play chemistry.
+- ⬜ **Still open:** the "subtle glowing" connector motion the owner described waits for the
+  20-design animation gallery (standing rule); chemistry in DraftHub (`/game/draft`), Chaos and
+  the daily; and chemistry in season fixtures.
+
 ### TASK-1825
 
 **Tactical style + mentality, scouted** · ✅ Done · `S` · `P3` · Type: Feature

@@ -1,7 +1,7 @@
 "use client";
 import { useTranslations } from "next-intl";
 import type { RefereeStyle, Weather } from "@/features/game/domain/match-types";
-import { teamChemistry } from "@/features/game/domain/chemistry";
+import { teamChemistry, teamFitChemistry } from "@/features/game/domain/chemistry";
 import { decadeSpan, squadAverage, starOf, taleOfTheTape } from "@/features/game/domain/matchup";
 import type { EnrichedCard } from "@/features/game/domain/player-card";
 import type { GameTeam } from "@/features/game/domain/team";
@@ -33,6 +33,8 @@ interface Props {
    * owner request 2026-08-28). Absent = the tape is exactly the four bars it always was.
    */
   chemistry?: boolean;
+  /** Score it with role fit (TASK-1824) — the same figure the engine plays. */
+  fit?: boolean;
   /**
    * The Scout's Dossier (TASK-1825). Present = the coach picks a style here, and the dossier
    * owns Kick off / Walk out. Absent (season fixtures) = the programme exactly as it shipped.
@@ -96,6 +98,7 @@ export function MatchProgramme({
   weather,
   crests,
   chemistry,
+  fit,
   scouting,
   traits,
   crafted,
@@ -119,7 +122,11 @@ export function MatchProgramme({
     // links is to see his number against theirs before kick-off. Both sides are scored by
     // the same `teamChemistry`, or the comparison would be dishonest.
     ...(chemistry === true
-      ? [{ key: "progChemistry", h: teamChemistry(home), a: teamChemistry(away) }]
+      ? [
+          fit === true
+            ? { key: "progChemistry", h: teamFitChemistry(home), a: teamFitChemistry(away) }
+            : { key: "progChemistry", h: teamChemistry(home), a: teamChemistry(away) },
+        ]
       : []),
   ];
 

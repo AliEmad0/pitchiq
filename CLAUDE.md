@@ -450,5 +450,15 @@ skips the timers and deals the hand face up. Galleries live in `design/polish-ga
 
 Open game work: TASK-1812's **Records** surface (still `planned` in `COLLECTION_SURFACES`;
 runs are already stored by seasons, the ladder and the Market, so read those stores, do not
-add a run model) and TASK-1824's remainder (role-compatibility links, chemistry beyond the
-Chemistry Draft). Phase 19 (TASK-1901–1910) is blocked on the platform decision.
+add a run model) and TASK-1824's remainder (the connector glow motion after its gallery;
+chemistry in DraftHub, Chaos, the daily and season fixtures). Phase 19 (TASK-1901–1910) is blocked on the platform decision.
+
+### TASK-1824 chemistry everywhere + role fit (2026-10-23)
+
+Every PitchDraft page passes `scoreChemistry`: new matches play chemistry WITH role fit
+(`fitChemistry` = links − `OFF_POSITION_PENALTY` 8 per man off his primary role, floored at 0).
+⛔ `chemistry()` stays frozen; the Chemistry Draft's old matches derive from it. ⛔ GamePlay's
+`chemistry` prop now means only the ROUTE's historical meaning, used when a save or code predates
+the stored flag. Saves write `chemistry`/`fit`; share code v7 carries `h`/`hf`. Season drafts hide
+the meter because season fixtures do not play chemistry. The connector glow motion still needs
+the 20-design gallery.

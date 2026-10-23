@@ -1,4 +1,5 @@
 import type { Formation } from "./formation";
+import type { PlayerRole } from "./player";
 import { adjacentPairs } from "./pitch-adjacency";
 import type { GameTeam } from "./team";
 
@@ -168,4 +169,64 @@ export function chemistry(
  */
 export function teamChemistry(team: GameTeam): number {
   return chemistry(team.players as readonly Linkable[], team.formation);
+}
+
+/** A card that can also be judged on position — `role` is its PRIMARY one. */
+export interface Fittable extends Linkable {
+  role?: PlayerRole | null;
+}
+
+/**
+ * TASK-1824 — what one man out of position costs the side, in chemistry points.
+ *
+ * My call (2026-10-23): eight points is roughly a lost club link on a typical shape — enough to
+ * read as a real warning on the meter, small enough that a strong card at a neighbouring role
+ * is still often worth it. The engine pays it back through the same `CHEM_EFFECT`.
+ */
+export const OFF_POSITION_PENALTY = 8;
+
+/**
+ * Off position = his PRIMARY role is not the slot's. `canPlay` already decided he may stand
+ * there (through `altRoles`); this only asks whether it is his own job.
+ *
+ * ⚠️ A card with no recorded role is never off position — absent is not a mismatch, the same
+ * rule a missing nationality follows.
+ */
+export function offPosition(card: Fittable, slotRole: PlayerRole): boolean {
+  return card.role != null && card.role !== slotRole;
+}
+
+/** The XI indexes standing out of position. Empty slots are never listed. */
+export function offPositionSlots(
+  cards: readonly (Fittable | null | undefined)[],
+  formation: Formation,
+): number[] {
+  const out: number[] = [];
+  formation.slots.forEach((slot, i) => {
+    const c = cards[i];
+    if (c != null && offPosition(c, slot.role)) out.push(i);
+  });
+  return out;
+}
+
+/**
+ * Chemistry with role fit: the link score minus `OFF_POSITION_PENALTY` per man out of
+ * position, floored at zero.
+ *
+ * ⛔ A SEPARATE score, never folded into `chemistry`. The Chemistry Draft's stored matches and
+ * share links derive their modifier from `chemistry` inside `buildSession`, so changing that
+ * function would replay every one of them into a different match. Only a match that declares
+ * `fit` reads this one.
+ */
+export function fitChemistry(
+  cards: readonly (Fittable | null | undefined)[],
+  formation: Formation,
+): number {
+  const links = chemistry(cards, formation);
+  return Math.max(0, links - OFF_POSITION_PENALTY * offPositionSlots(cards, formation).length);
+}
+
+/** `teamChemistry` with role fit — for the programme's tale of the tape. */
+export function teamFitChemistry(team: GameTeam): number {
+  return fitChemistry(team.players as readonly Fittable[], team.formation);
 }

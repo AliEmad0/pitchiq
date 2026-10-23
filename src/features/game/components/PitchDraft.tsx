@@ -6,7 +6,14 @@ import { priceLabel } from "@/features/game/domain/price-band";
 import { pickBack } from "@/features/game/domain/card-design";
 import type { PlayerSeasonId } from "@/features/game/domain/card-id";
 import { BENCH_SHAPE, FORMATIONS, type PoolCard } from "@/features/game/domain/chaos-draft";
-import { chemistry, chemistryBreakdown, linkTier } from "@/features/game/domain/chemistry";
+import {
+  OFF_POSITION_PENALTY,
+  chemistryBreakdown,
+  fitChemistry,
+  linkTier,
+  offPosition,
+  offPositionSlots,
+} from "@/features/game/domain/chemistry";
 import { continentOf, ringOf, type Ring } from "@/features/game/domain/continents";
 import { canField, redealHands, roomDeals } from "@/features/game/domain/draft-room";
 import { canPlay } from "@/features/game/domain/eligibility";
@@ -463,8 +470,14 @@ export function PitchDraft({
           .slice(0, shape.slots.length)
           .map((id) => (id != null ? byId.get(id) : undefined))
       : null;
-  const chemScore = placedXi == null ? 0 : chemistry(placedXi, shape);
+  /**
+   * ⭐ TASK-1824 — the meter shows chemistry WITH role fit, because that is what the engine
+   * plays for every match this draft starts: each man out of position costs
+   * `OFF_POSITION_PENALTY`. Showing the bare link score would be a number the match ignores.
+   */
+  const chemScore = placedXi == null ? 0 : fitChemistry(placedXi, shape);
   const chemCounts = placedXi == null ? null : chemistryBreakdown(placedXi, shape);
+  const offSlots = placedXi == null ? [] : offPositionSlots(placedXi, shape);
 
   /**
    * What a candidate would ADD to the open slot, in chemistry points.
@@ -483,7 +496,8 @@ export function PitchDraft({
     withCard[slot] = candidate;
     const without = [...placedXi];
     without[slot] = undefined;
-    return chemistry(withCard, shape) - chemistry(without, shape);
+    // Fit included, so a strong card in the wrong position can honestly read as a LOSS.
+    return fitChemistry(withCard, shape) - fitChemistry(without, shape);
   };
 
   /**
@@ -617,6 +631,19 @@ export function PitchDraft({
                   .filter(Boolean)
                   .join(" · ")}
           </p>
+          {/* ⚠️ The mismatch warning: says WHO costs what, so the fix is obvious. */}
+          {offSlots.length > 0 ? (
+            <p
+              data-testid="chem-off-warn"
+              role="status"
+              className="mt-2 rounded-md bg-red-500/15 px-2 py-1 text-center text-[11px] font-semibold text-red-300"
+            >
+              {t("chemOffWarn", {
+                count: offSlots.length,
+                points: OFF_POSITION_PENALTY * offSlots.length,
+              })}
+            </p>
+          ) : null}
         </div>
       ) : null}
 
@@ -724,6 +751,16 @@ export function PitchDraft({
               >
                 <span className="pd-disc">{card ? (card.ratings?.overall ?? 0) : s.role}</span>
                 {card ? <span className="pd-tag">{card.name}</span> : null}
+                {/* TASK-1824 — a man out of position wears a red mark carrying both roles. */}
+                {placedXi != null && card && offPosition(card, s.role) ? (
+                  <span
+                    data-testid="chem-off"
+                    className="chem-off"
+                    title={t("chemOffBadge", { own: card.role ?? "", slot: s.role })}
+                  >
+                    {card.role}
+                  </span>
+                ) : null}
               </button>
             );
           })}
@@ -990,11 +1027,26 @@ export function PitchDraft({
                       <span
                         data-testid="chem-delta"
                         data-delta={chemDelta(veil.slot, c)}
-                        className={`chem-delta${chemDelta(veil.slot, c) > 0 ? " chem-delta-up" : ""}`}
+                        className={`chem-delta${
+                          chemDelta(veil.slot, c) > 0
+                            ? " chem-delta-up"
+                            : chemDelta(veil.slot, c) < 0
+                              ? " chem-delta-down"
+                              : ""
+                        }`}
                       >
                         {chemDelta(veil.slot, c) > 0
                           ? t("chemDelta", { points: chemDelta(veil.slot, c) })
-                          : t("chemDeltaNone")}
+                          : chemDelta(veil.slot, c) < 0
+                            ? t("chemDeltaDown", { points: -chemDelta(veil.slot, c) })
+                            : t("chemDeltaNone")}
+                      </span>
+                    ) : null}
+                    {placedXi != null &&
+                    veil.slot < shape.slots.length &&
+                    offPosition(c, shape.slots[veil.slot]!.role) ? (
+                      <span data-testid="chem-off-tag" className="chem-off-tag">
+                        {t("chemOffTag", { slot: shape.slots[veil.slot]!.role })}
                       </span>
                     ) : null}
                     {handRing != null && handRing !== "nation" ? (
