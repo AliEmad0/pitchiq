@@ -1,6 +1,7 @@
 "use client";
 import { useTranslations } from "next-intl";
 import { pickBack } from "@/features/game/domain/card-design";
+import { offPosition, teamFitChemistry, type Fittable } from "@/features/game/domain/chemistry";
 import { displayName } from "@/features/game/domain/display-name";
 import type { EnrichedCard } from "@/features/game/domain/player-card";
 import type { GameTeam } from "@/features/game/domain/team";
@@ -12,6 +13,12 @@ interface Props {
   opponent: GameTeam;
   exiting: boolean;
   reduced: boolean;
+  /**
+   * TASK-1824 — both sides' chemistry beside their averages, and a red mark on any man out of
+   * his own position. ⚠️ The SAME `teamFitChemistry` for both, from the same two teams
+   * `buildSession` will rebuild from this seed — so the board shows the figure the engine plays.
+   */
+  chemistry?: boolean;
   onReroll: () => void;
   onPlay: () => void;
 }
@@ -34,10 +41,20 @@ const avgOf = (team: GameTeam) => {
  * ⚠️ `players[i]` pairs with `formation.slots[i]` — `chaosDraft` fills in slot order on
  * every policy path, and the old DraftScreen leaned on the same alignment.
  */
-export function DraftScreen({ home, opponent, exiting, reduced, onReroll, onPlay }: Props) {
+export function DraftScreen({
+  home,
+  opponent,
+  exiting,
+  reduced,
+  chemistry = false,
+  onReroll,
+  onPlay,
+}: Props) {
   const t = useTranslations("game");
   const avgHome = avgOf(home);
   const avgAway = avgOf(opponent);
+  const chemHome = chemistry ? teamFitChemistry(home) : null;
+  const chemAway = chemistry ? teamFitChemistry(opponent) : null;
 
   const dots = (team: GameTeam, side: "home" | "away") => {
     const maxRow = Math.max(...team.formation.slots.map((s) => s.row));
@@ -56,6 +73,15 @@ export function DraftScreen({ home, opponent, exiting, reduced, onReroll, onPlay
         >
           <b>{player.ratings?.overall ?? "–"}</b>
           <i>{displayName(player.name)}</i>
+          {chemistry && offPosition(player as Fittable, slot.role) ? (
+            <span
+              data-testid="chem-off"
+              className="chem-off"
+              title={t("chemOffBadge", { own: player.role ?? "", slot: slot.role })}
+            >
+              {player.role}
+            </span>
+          ) : null}
         </span>
       );
     });
@@ -93,6 +119,11 @@ export function DraftScreen({ home, opponent, exiting, reduced, onReroll, onPlay
           <span className="mn-board-label">{t("yourXi")}</span>
           <span className="mn-board-num">{avgHome}</span>
           <span className="mn-tag mn-tag-home">{home.formation.name}</span>
+          {chemHome != null ? (
+            <span data-testid="mn-chem-home" className="mn-chem">
+              {t("mnChemistry", { score: chemHome })}
+            </span>
+          ) : null}
         </div>
         <span className="mn-vs" aria-hidden>
           {t("mnVersus")}
@@ -101,6 +132,11 @@ export function DraftScreen({ home, opponent, exiting, reduced, onReroll, onPlay
           <span className="mn-board-label">{opponent.name}</span>
           <span className="mn-board-num mn-board-num-away">{avgAway}</span>
           <span className="mn-tag mn-tag-away">{opponent.formation.name}</span>
+          {chemAway != null ? (
+            <span data-testid="mn-chem-away" className="mn-chem">
+              {t("mnChemistry", { score: chemAway })}
+            </span>
+          ) : null}
         </div>
       </div>
 

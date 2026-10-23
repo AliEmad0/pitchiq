@@ -7,6 +7,7 @@ import {
   type SeasonRun,
 } from "@/features/game/domain/season";
 import { absentLine, valueLine } from "@/features/game/domain/market-value";
+import { teamChemistryModifier } from "@/features/game/domain/chemistry-modifier";
 import { runMatch, simulate } from "@/features/game/domain/simulate";
 import { type CraftedTraits, personalityModifier } from "@/features/game/domain/traits";
 import type { MatchResult, MatchSetup, Side } from "@/features/game/domain/match-types";
@@ -44,7 +45,9 @@ export function seasonFixture(
       // The crisis prompt plays wherever results are stored rather than replayed.
       crisis: true,
       // TASK-1814 — season fixtures store their RESULTS, never a replay, so traits need no flag.
+      // TASK-1824 — chemistry with role fit, for both sides; stored results need no flag.
       modifiers: [
+        teamChemistryModifier(h === run.coach ? own : teams[h]!, a === run.coach ? own : teams[a]!),
         personalityModifier(
           h === run.coach ? own : teams[h]!,
           a === run.coach ? own : teams[a]!,
@@ -98,7 +101,10 @@ export function finishSeasonWeek(
             away: teams[a]!,
             seed,
             targetGoalsPerMatch: 2.7,
-            modifiers: [personalityModifier(teams[h]!, teams[a]!)],
+            modifiers: [
+              teamChemistryModifier(teams[h]!, teams[a]!),
+              personalityModifier(teams[h]!, teams[a]!),
+            ],
             crisis: true,
           });
     const coachHere = h === run.coach || a === run.coach;

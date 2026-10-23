@@ -1,5 +1,11 @@
 "use client";
 import { useLocale, useTranslations } from "next-intl";
+import {
+  OFF_POSITION_PENALTY,
+  offPositionSlots,
+  teamFitChemistry,
+  type Fittable,
+} from "@/features/game/domain/chemistry";
 import type { EnrichedCard } from "@/features/game/domain/player-card";
 import type { RefereeStyle, Weather } from "@/features/game/domain/match-types";
 import type { GameTeam } from "@/features/game/domain/team";
@@ -36,6 +42,11 @@ interface Props {
   weather: Weather | null;
   /** TASK-1814 — the day plays with traits; show who carries one. */
   traits?: boolean;
+  /**
+   * TASK-1824 — the day plays chemistry: both sides' scores on the board (the SAME
+   * `teamFitChemistry` the engine plays), and the warning if his XI has a man out of position.
+   */
+  chemistry?: boolean;
   onKickOff: () => void;
 }
 
@@ -51,11 +62,22 @@ const avgOf = (team: GameTeam): number => {
  * ⚠️ There is no "back to the squad". The daily's picks are final by design, so a control
  * offering a return to a draft that cannot be re-run would be a dead promise.
  */
-export function DailyPreview({ home, away, referee, weather, traits, onKickOff }: Props) {
+export function DailyPreview({
+  home,
+  away,
+  referee,
+  weather,
+  traits,
+  chemistry = false,
+  onKickOff,
+}: Props) {
   const t = useTranslations("game");
   const locale = useLocale();
   const reduced = prefersReducedMotion();
   const n = (v: number) => localizeDigits(v, locale);
+  const offCount = chemistry
+    ? offPositionSlots(home.players as readonly Fittable[], home.formation).length
+    : 0;
 
   const side = (team: GameTeam, label: string, tone: "home" | "away") => (
     <div className={`dh-side dh-side-${tone}`}>
@@ -77,6 +99,11 @@ export function DailyPreview({ home, away, referee, weather, traits, onKickOff }
           <span className="dh-vs-label">{t("yourXi")}</span>
           <span className="dh-vs-num">{n(avgOf(home))}</span>
           <span className="dh-vs-tag">{home.formation.name}</span>
+          {chemistry ? (
+            <span data-testid="daily-chem-home" className="mn-chem">
+              {t("mnChemistry", { score: n(teamFitChemistry(home)) })}
+            </span>
+          ) : null}
         </div>
         <span className="dh-vs-mid" aria-hidden>
           {t("mnVersus")}
@@ -85,6 +112,11 @@ export function DailyPreview({ home, away, referee, weather, traits, onKickOff }
           <span className="dh-vs-label">{away.name}</span>
           <span className="dh-vs-num dh-vs-away">{n(avgOf(away))}</span>
           <span className="dh-vs-tag dh-vs-tag-away">{away.formation.name}</span>
+          {chemistry ? (
+            <span data-testid="daily-chem-away" className="mn-chem">
+              {t("mnChemistry", { score: n(teamFitChemistry(away)) })}
+            </span>
+          ) : null}
         </div>
       </div>
 
@@ -99,6 +131,16 @@ export function DailyPreview({ home, away, referee, weather, traits, onKickOff }
         {side(home, t("yourXi"), "home")}
         {side(away, away.name, "away")}
       </div>
+
+      {chemistry && offCount > 0 ? (
+        <p
+          data-testid="chem-off-warn"
+          role="status"
+          className="mx-auto mt-2 max-w-md rounded-md bg-red-500/15 px-2 py-1 text-center text-[11px] font-semibold text-red-300"
+        >
+          {t("chemOffWarn", { count: offCount, points: OFF_POSITION_PENALTY * offCount })}
+        </p>
+      ) : null}
 
       {traits === true ? <TraitsPanel home={home} away={away} /> : null}
 

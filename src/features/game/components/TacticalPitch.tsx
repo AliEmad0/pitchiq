@@ -3,7 +3,9 @@ import { useTranslations } from "next-intl";
 import type { PlayerSeasonId } from "@/features/game/domain/card-id";
 import type { PoolCard } from "@/features/game/domain/chaos-draft";
 import type { Formation } from "@/features/game/domain/formation";
+import type { ChemFlash, ChemView } from "@/features/game/view/chemistry-view";
 import type { SquadError } from "@/features/game/view/draft-state";
+import { ChemistryLinks, ChemistryMarks } from "./ChemistryLayer";
 
 interface Props {
   formation: Formation;
@@ -20,6 +22,11 @@ interface Props {
   errors: readonly SquadError[];
   onSelectSlot: (index: number) => void;
   reduced: boolean;
+  /**
+   * TASK-1824 — draw the chemistry links and the glow on this pitch. Absent = the pitch renders
+   * exactly as it did before (the inertness control).
+   */
+  chemistry?: { view: ChemView; flash: ChemFlash | null } | null;
 }
 
 /**
@@ -45,6 +52,7 @@ export function TacticalPitch({
   errors,
   onSelectSlot,
   reduced,
+  chemistry = null,
 }: Props) {
   const t = useTranslations("game");
   const byId = new Map(cards.map((c) => [c.cardId, c]));
@@ -53,12 +61,25 @@ export function TacticalPitch({
 
   // Attack-first DOM order (a teamsheet reads top-down), positions from the grid:
   // row 1 is the goalkeeper line at the foot of the pitch.
+  /** One place for the grid → pitch arithmetic, so the links and the chips cannot drift. */
+  const at = (index: number) => {
+    const slot = formation.slots[index]!;
+    const rowWidth = formation.slots.filter((s) => s.row === slot.row).length;
+    return {
+      x: (slot.col / (rowWidth + 1)) * 100,
+      y: maxRow === 1 ? 50 : 86 - ((slot.row - 1) / (maxRow - 1)) * 72,
+    };
+  };
+
   const order = formation.slots
     .map((slot, index) => ({ slot, index }))
     .sort((a, b) => b.slot.row - a.slot.row || a.slot.col - b.slot.col);
 
   return (
     <div role="group" aria-label={t("draftPitchAria")} className="tp-pitch">
+      {chemistry != null ? (
+        <ChemistryLinks links={chemistry.view.links} flash={chemistry.flash} at={at} />
+      ) : null}
       <span className="tp-line tp-half" aria-hidden />
       <span className="tp-line tp-circle" aria-hidden />
       <span className="tp-line tp-spot" aria-hidden />
@@ -67,9 +88,7 @@ export function TacticalPitch({
       <span className="tp-line tp-box tp-box-bottom" aria-hidden />
       <span className="tp-line tp-six tp-six-bottom" aria-hidden />
       {order.map(({ slot, index }) => {
-        const rowWidth = formation.slots.filter((s) => s.row === slot.row).length;
-        const left = (slot.col / (rowWidth + 1)) * 100;
-        const top = maxRow === 1 ? 50 : 86 - ((slot.row - 1) / (maxRow - 1)) * 72;
+        const { x: left, y: top } = at(index);
         const held = slots[index];
         const card = held != null ? byId.get(held) : undefined;
         const overall = card?.ratings?.overall;
@@ -121,6 +140,15 @@ export function TacticalPitch({
               ) : (
                 <span className="tp-role">{slot.role}</span>
               )}
+              {chemistry != null ? (
+                <ChemistryMarks
+                  slot={index}
+                  card={card}
+                  role={slot.role}
+                  flash={chemistry.flash}
+                  links={chemistry.view.links}
+                />
+              ) : null}
             </span>
             {card ? <span className="tp-name">{card.name}</span> : null}
           </button>

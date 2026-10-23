@@ -1,3 +1,4 @@
+import { teamChemistryModifier } from "@/features/game/domain/chemistry-modifier";
 import { absentLine, valueLine } from "@/features/game/domain/market-value";
 import type { MatchConditions, MatchResult, Side } from "@/features/game/domain/match-types";
 import {
@@ -74,7 +75,12 @@ export function ladderFixture(
       targetGoalsPerMatch: mentalityTarget(RATE, stance),
       conditions,
       crisis: true,
-      modifiers: counter == null ? [traits] : [traits, counter],
+      // TASK-1824 — chemistry with role fit leads, as in every other mode.
+      modifiers: [
+        teamChemistryModifier(teams[h]!, teams[a]!),
+        traits,
+        ...(counter == null ? [] : [counter]),
+      ],
     },
     coachSide,
   };
@@ -132,7 +138,10 @@ export function finishLadderDay(
         seed,
         targetGoalsPerMatch: RATE,
         conditions,
-        modifiers: [personalityModifier(teams[h]!, teams[a]!)],
+        modifiers: [
+          teamChemistryModifier(teams[h]!, teams[a]!),
+          personalityModifier(teams[h]!, teams[a]!),
+        ],
         crisis: true,
       });
     }

@@ -35,19 +35,25 @@ describe("ModeGate", () => {
     }
   });
 
-  it("TASK-1813/1819 — the album and the Hall of Fame are live links into the Trophy Room", () => {
+  it("TASK-1813/1819/1812 — every collection surface is a live link to its own room", () => {
     renderWithIntl(<ModeGate />);
+    // The album and the Hall of Fame live in the Trophy Room; Records has its own page.
+    const ROOM: Record<string, RegExp> = {
+      album: /\/game\/trophies/,
+      hallOfFame: /\/game\/trophies#hall/,
+      records: /\/game\/records$/,
+    };
     for (const surface of COLLECTION_SURFACES.filter((c) => c.status === "live")) {
       const link = screen.getByRole("link", {
         name: new RegExp(escapeRegExp(label(surface.nameKey))),
       });
-      expect(link.getAttribute("href")).toMatch(/\/game\/trophies/);
+      expect(link.getAttribute("href")).toMatch(ROOM[surface.id]!);
     }
     expect(
       COLLECTION_SURFACES.filter((c) => c.status === "live")
         .map((c) => c.id)
         .sort(),
-    ).toEqual(["album", "hallOfFame"]);
+    ).toEqual(["album", "hallOfFame", "records"]);
   });
 
   it("opens a mode on click and collapses it on a second click", async () => {

@@ -1,3 +1,4 @@
+import { teamChemistryModifier } from "./chemistry-modifier";
 import { chaosDraft, type PoolCard } from "./chaos-draft";
 import { canPlay } from "./eligibility";
 import { formationByName } from "./formation";
@@ -203,6 +204,8 @@ export function marketMatch(
       targetGoalsPerMatch: 2.7,
       crisis: true,
       modifiers: [
+        // TASK-1824 — chemistry with role fit; the run stores results, so no flag.
+        teamChemistryModifier(home, away),
         personalityModifier(home, away, { side: coachSide, traits }),
         buffModifier(run, coachSide),
       ],

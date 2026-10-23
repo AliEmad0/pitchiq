@@ -211,12 +211,21 @@ Production is hosted on **Vercel** with the GitHub integration: every push to `m
 
 ### Squad chemistry in every draft (TASK-1824)
 
-Legacy, Captain's Draft, Budget Cap, Nationality and the Chemistry Draft all score your XI on
-**chemistry** as you place it: lines between neighbours who share a club, a season or a country,
+Every draft — Tactical H2H, Chaos, Legacy, Captain's Draft, Budget Cap, Nationality, the
+Chemistry Draft and the daily challenge — scores your XI on **chemistry** as you place it, and
+seasons, the Weekly Ladder and the Mystery Market play it too: lines between neighbours who share a club, a season or a country,
 a live 0–100 meter, and what each candidate would add. A player out of his own position wears a
 red mark and costs the side eight points, and the meter says so. Each placement flares its new
 links and rings the neighbours it joins; a misplaced player sends a red shockwave across the meter. Older saved and shared matches
 replay exactly as they were played.
+
+### Records (TASK-1812 — ✅ Done)
+
+`/game/records` reads your career back as a matchday programme: your crest on the cover, eight
+records (win rate, biggest win, longest unbeaten run, best season, ladder titles, Market best run,
+daily streak, history rewritten), and every result as a fixture list you can filter by mode. It
+fills from now on, and on first open from whatever your current runs, daily challenges and ladder
+weeks already hold.
 
 ### Season game development (TASK-1811 — ✅ Done)
 
