@@ -38,8 +38,11 @@ type Phase = "generating" | "draft" | "exiting";
 export function ChaosDraft({
   pool,
   onConfirm,
+  chemistry = false,
 }: {
   pool: PoolCard[];
+  /** TASK-1824 — show both sides' chemistry on the versus board. Absent = unchanged. */
+  chemistry?: boolean;
   onConfirm: (
     players: PoolCard[],
     formation: Formation,
@@ -104,6 +107,7 @@ export function ChaosDraft({
       opponent={opponentTeam}
       exiting={phase === "exiting"}
       reduced={reduced}
+      chemistry={chemistry}
       onReroll={reroll}
       onPlay={play}
     />

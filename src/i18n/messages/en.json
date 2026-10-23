@@ -1049,6 +1049,7 @@
     "chemNoLinksYet": "No links yet — place two neighbours who share a club or a country.",
     "chemDelta": "+{points} chemistry",
     "chemDeltaNone": "No new link here",
+    "mnChemistry": "Chemistry {score}",
     "chemDeltaDown": "−{points} chemistry",
     "chemOffTag": "Out of position at {slot}",
     "chemOffBadge": "Plays {own}, standing at {slot} — out of position",

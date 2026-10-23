@@ -13,9 +13,11 @@ import {
   isComplete,
   validateSquad,
 } from "@/features/game/view/draft-state";
+import { chemistryView } from "@/features/game/view/chemistry-view";
 import { randomSeed } from "@/features/game/view/seed";
 import { prefersReducedMotion } from "@/utils/motion";
 import { CardPool } from "./CardPool";
+import { ChemistryMeter, useChemistryFlash } from "./ChemistryLayer";
 import { DraftRoom } from "./DraftRoom";
 import { FormationPicker } from "./FormationPicker";
 import { TacticalPitch } from "./TacticalPitch";
@@ -49,6 +51,11 @@ interface Props {
    * legal squad.
    */
   onConfirm: (players: PoolCard[], formation: Formation) => void;
+  /**
+   * TASK-1824 — score this XI on chemistry with role fit, and show it: links, glow, the meter
+   * and the out-of-position marks. Absent = the hub renders exactly as before.
+   */
+  chemistry?: boolean;
 }
 
 /** The stadium-board readout over the market: slots filled and the XI's average. */
@@ -74,7 +81,7 @@ function DraftTicker({ filled, total, avg }: { filled: number; total: number; av
   );
 }
 
-export function DraftHub({ pool, onConfirm }: Props) {
+export function DraftHub({ pool, onConfirm, chemistry = false }: Props) {
   const t = useTranslations("game");
   const reduced = prefersReducedMotion();
   const [state, dispatch] = useReducer(
@@ -104,6 +111,17 @@ export function DraftHub({ pool, onConfirm }: Props) {
       .filter((r): r is number => r != null);
     return ratings.length ? Math.round(ratings.reduce((a, b) => a + b, 0) / ratings.length) : 0;
   }, [placed, byId]);
+
+  /** Derived from the slots on every render, like the average — never held in state. */
+  const xi = useMemo(
+    () => state.slots.map((id) => (id != null ? byId.get(id) : undefined)),
+    [state.slots, byId],
+  );
+  const chem = useMemo(
+    () => (chemistry ? chemistryView(xi, state.formation) : null),
+    [chemistry, xi, state.formation],
+  );
+  const flash = useChemistryFlash(chemistry, state.slots, xi, state.formation, chem?.score ?? 0);
 
   const selectedSlot = state.selection?.kind === "slot" ? state.selection.index : null;
   const selectedCard = state.selection?.kind === "card" ? state.selection.cardId : null;
@@ -168,6 +186,7 @@ export function DraftHub({ pool, onConfirm }: Props) {
       <p className="text-muted-foreground mb-4 mt-1 text-sm">{t("draftSubtitle")}</p>
 
       <DraftTicker filled={placed.length} total={state.formation.slots.length} avg={avg} />
+      {chem != null ? <ChemistryMeter view={chem} flash={flash} className="mb-4" /> : null}
 
       {/* The market and the pitch stand side by side at ONE height — the pool scrolls
           vertically inside its column, never the page sideways (owner spec, TASK-1834). */}
@@ -190,6 +209,7 @@ export function DraftHub({ pool, onConfirm }: Props) {
           errors={errors}
           onSelectSlot={(index) => dispatch({ type: "selectSlot", index })}
           reduced={reduced}
+          chemistry={chem != null ? { view: chem, flash } : null}
         />
       </div>
 

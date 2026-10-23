@@ -5,6 +5,7 @@ import {
   matchFacts,
 } from "@/features/game/domain/achievements";
 import type { AlbumSeason } from "@/features/game/domain/album";
+import { careerEntry } from "@/features/game/domain/records";
 import type { MatchResult, Side } from "@/features/game/domain/match-types";
 import { seasonTable } from "@/features/game/domain/season";
 import type { GamePlayer } from "@/features/game/domain/player";
@@ -17,6 +18,7 @@ import {
   loadAlbum,
   unlock,
 } from "@/features/game/storage/trophy-slot";
+import { logCareer } from "@/features/game/storage/career-slot";
 
 /** What one full-time screen hands the Trophy Room (TASK-1813 / 1819). */
 export interface FullTimeEntry {
@@ -102,6 +104,9 @@ async function completedSets(
 export async function recordFullTime(entry: FullTimeEntry): Promise<AchievementId[]> {
   try {
     if (!(await claimLog(entry.key))) return [];
+    // TASK-1812 — the Records page's career log, written by the one path every full time takes.
+    const logged = careerEntry(entry, Date.now());
+    if (logged != null) await logCareer(logged);
     if (entry.cards.length > 0) await addCards(entry.cards, entry.day);
     const album = await loadAlbum();
     const sets = entry.cards.length > 0 ? await completedSets(entry.cards, album) : [];

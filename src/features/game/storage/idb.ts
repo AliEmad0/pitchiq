@@ -1,5 +1,5 @@
 const DB_NAME = "pitchiq-game";
-export const DB_VERSION = 8;
+export const DB_VERSION = 9;
 
 /**
  * Every object store in the database.
@@ -32,6 +32,8 @@ const STORES = [
   "profile",
   "badges",
   "market",
+  // TASK-1812 — the career log behind the Records page (v9).
+  "career",
 ] as const;
 export type StoreName = (typeof STORES)[number];
 

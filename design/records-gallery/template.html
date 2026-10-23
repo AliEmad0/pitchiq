@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Records Gallery</title>
+<!--
+  TASK-1812 — the Records page (/game/records), the "📊 Records" collection surface on the
+  /game arcade gate. 30 LAYOUT concepts, each in a DESKTOP (1000px) and a MOBILE (380px) frame.
+  Sample data is shaped exactly like what the app will hold: a career log of full-time results
+  kept from now on, the finished runs (seasons, Classic/Survival, ladder weeks, Market runs), and
+  what can be derived from the stores that already exist (daily streaks, What-If rescues).
+  Three data states — Full career, Sparse (a new coach, 3 matches), Empty — because a new coach
+  sees the last two first. Playable: filter by mode, tap a record or a match to see its line.
+  LAYOUT ONLY — no motion this round beyond hover. Built from template.html by build.py.
+-->
+<style>
+:root{--ui:#0f0d17;--ui-fg:#ece9f5;--ui-mut:#8f8aa3;--ui-line:#2a2638}
+body[data-theme=light]{--bg:#f6f5f9;--fg:#15121e;--card:#fff;--card2:#f0eef5;--mut:#5d5a70;--line:#e2dfea;--pri:#a3179a;--pri-fg:#fff;--up:#15803d;--down:#c0262d;--draw:#a16207;--gold:#a77a08;--pitch:#2f7d3b;--paper:#f4efe3;--ink:#1d1a14}
+body[data-theme=dark]{--bg:#0e0c15;--fg:#f2f0f8;--card:#1a1726;--card2:#221e31;--mut:#a29eb5;--line:#302b42;--pri:#d946c8;--pri-fg:#fff;--up:#4ade80;--down:#f87171;--draw:#facc15;--gold:#f2c14e;--pitch:#1d5428;--paper:#201c16;--ink:#ece3cf}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--ui);color:var(--ui-fg);font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+button{font:inherit;color:inherit}
+.top-sticky{position:sticky;top:0;z-index:10}
+.bar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:9px 16px;background:#14111ef5;border-bottom:1px solid var(--ui-line)}
+.bar h1{font-size:15px;margin:0 6px 0 0}
+.seg{display:flex;border:1px solid var(--ui-line);border-radius:8px;overflow:hidden;flex-wrap:wrap}
+.seg button{background:none;border:0;color:var(--ui-mut);padding:6px 10px;cursor:pointer}
+.seg button[aria-pressed=true]{background:#2b2640;color:#fff}
+.nav{display:flex;gap:6px;align-items:center}
+.nav button,.pickbar button{background:#1d1929;color:#fff;border:1px solid var(--ui-line);border-radius:8px;padding:5px 10px;cursor:pointer}
+select{background:#1d1929;color:#fff;border:1px solid var(--ui-line);border-radius:8px;padding:5px 8px;font:inherit;max-width:280px}
+.pickbar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;padding:7px 16px;background:#1b1628f2;border-bottom:1px solid var(--ui-line);font-size:13px}
+.pickbar b{color:#fff}.pickbar .p{color:#86efac}
+main{padding:16px;max-width:1500px;margin:0 auto}
+.chead{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;margin:4px 0 6px}
+.chead h2{margin:0;font-size:18px}
+.chead h2 b{display:inline-block;min-width:38px;color:#fff;background:#2b2640;border-radius:6px;padding:1px 8px;margin-right:8px;text-align:center}
+.why{color:var(--ui-mut);margin:0 0 10px;max-width:980px}
+.pickbtn{background:#86efac;color:#052e16;border:0;border-radius:999px;padding:7px 16px;font-weight:800;cursor:pointer}
+.pickbtn.on{background:#14532d;color:#bbf7d0;outline:2px solid #86efac}
+.stage{overflow:hidden}
+.frames{display:flex;gap:24px;align-items:flex-start;width:1404px;transform-origin:0 0}
+.tag{font:11px/1 system-ui;color:var(--ui-mut);margin:0 0 6px}
+.fr{background:var(--bg);color:var(--fg);border-radius:14px;border:1px solid var(--ui-line);padding:16px;overflow:hidden;font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+.fr.d{width:1000px}.fr.m{width:380px;padding:16px}
+.intro{color:var(--ui-mut);max-width:980px;margin:0 0 10px}
+
+/* ════ eras (src/utils/era.ts) — the accent re-skins per era, as data-era does in the app ════ */
+.fr[data-era=retro90s]{--acc:#ef4444}
+.fr[data-era=goldenMillennium]{--acc:#f6c000}
+.fr[data-era=modern]{--acc:#35e0ff}
+
+/* ── shared atoms ── */
+.fr .mut{color:var(--mut)}
+.fr .num{font-variant-numeric:tabular-nums}
+.fr .cr{object-fit:contain;flex:none;vertical-align:middle}
+.fr .badge{display:inline-grid;place-items:center;border-radius:50%;flex:none;vertical-align:middle;line-height:1}
+.fr button{cursor:pointer}
+.fr .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.fr .res{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:5px;font:800 11px ui-monospace,monospace;color:#fff;flex:none}
+.fr .res.W{background:#16a34a}.fr .res.D{background:#a16207}.fr .res.L{background:#dc2626}
+.fr .tabs{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
+.fr .tabs button{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:4px 10px;font-size:12px}
+.fr .tabs button[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:#111;font-weight:700}
+.fr .det{display:block;margin-top:4px;font-size:12px;color:var(--mut)}
+.fr .emp{border:1px dashed var(--line);border-radius:12px;padding:28px 16px;text-align:center}
+.fr .emp b{display:block;font-size:17px;margin-bottom:6px}
+.fr .cta{display:inline-block;margin-top:12px;background:var(--acc);color:#111;border:0;border-radius:999px;padding:8px 18px;font-weight:800}
+.fr .hit{all:unset;display:block;cursor:pointer;width:100%;box-sizing:border-box}
+.fr .hit:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.fr .hit:hover{filter:brightness(1.08)}
+.fr .grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.fr.m .grid{grid-template-columns:1fr 1fr}
+.fr .clip{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+
+/*CONCEPT-CSS*/
+</style>
+</head>
+<body data-theme="dark">
+<div class="top-sticky"><div class="bar">
+  <h1>PitchIQ · Records Gallery</h1>
+  <div class="nav"><button id="prev" aria-label="Previous concept">◀</button><select id="concept"></select><button id="next" aria-label="Next concept">▶</button></div>
+  <div class="seg" id="state"></div>
+  <div class="seg" id="theme"></div>
+  <div class="seg" id="era"></div>
+</div>
+<div class="pickbar" id="pickbar"></div></div>
+<main id="main"></main>
+<script>
+const DATA = /*DATA*/{};
+const CRESTS = /*CRESTS*/{};
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+
+/* ───────── sample career (seeded, so every reload is the same coach) ───────── */
+function rng(a) { return () => { a |= 0; a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+const MODE = Object.fromEntries(DATA.modes.map((m) => [m.id, m]));
+const CTX = { season: ["Legacy · Arsenal", "Chemistry Draft"], classic: ["Classic · Arsenal 1998/99", "Survival · Southampton 2004/05"], ladder: ["Weekly Ladder"], market: ["Mystery Market"], daily: ["Daily challenge"], whatif: ["What-If · rescue"], single: ["Tactical H2H", "Budget Cap", "Chaos Draft", "Nationality · Egypt"] };
+const FULL_LOG = (() => {
+  const r = rng(1812), out = [], order = ["season", "season", "classic", "ladder", "single", "daily", "season", "market", "whatif", "ladder", "single", "daily"];
+  const start = Date.UTC(2026, 9, 1);
+  for (let k = 0; k < 46; k++) {
+    const mode = order[k % order.length];
+    const club = DATA.clubs[Math.floor(r() * DATA.clubs.length)];
+    let gf = Math.floor(r() * 4), ga = Math.floor(r() * 3);
+    if (k === 17) { gf = 6; ga = 0; }
+    if (k === 30) { gf = 0; ga = 4; }
+    const day = new Date(start + Math.floor((k / 46) * 22) * 864e5).toISOString().slice(0, 10);
+    const ctx = CTX[mode][Math.floor(r() * CTX[mode].length)];
+    const step = mode === "season" || mode === "classic" ? ` · MW ${1 + Math.floor(r() * 38)}` : mode === "ladder" ? ` · Day ${1 + (k % 7)}` : mode === "market" ? ` · Round ${1 + (k % 9)}` : "";
+    out.push({ id: k, mode, day, opp: club, gf, ga, res: gf > ga ? "W" : gf === ga ? "D" : "L", ctx: ctx + step });
+  }
+  // Longest unbeaten: a deliberate 11-match run.
+  for (let k = 19; k < 30; k++) { const e = out[k]; if (e.res === "L") { e.gf = e.ga + 1; e.res = "W"; } }
+  return out;
+})();
+const SPARSE_LOG = [
+  { id: 900, mode: "single", day: "2026-10-23", opp: DATA.clubs[1], gf: 2, ga: 1, res: "W", ctx: "Tactical H2H" },
+  { id: 901, mode: "daily", day: "2026-10-23", opp: DATA.clubs[4], gf: 1, ga: 1, res: "D", ctx: "Daily challenge" },
+  { id: 902, mode: "whatif", day: "2026-10-23", opp: DATA.clubs[3], gf: 3, ga: 3, res: "D", ctx: "What-If · Southampton 3–3 Liverpool" },
+];
+
+/* ───────── the derivation the page will run on the stores ───────── */
+function view() {
+  const st = G.state;
+  const log = st === "full" ? FULL_LOG : st === "sparse" ? SPARSE_LOG : [];
+  const runs = st === "full" ? DATA.runs : [];
+  const daily = st === "full" ? DATA.daily : st === "sparse" ? { played: 1, won: 0, current: 1, best: 1 } : { played: 0, won: 0, current: 0, best: 0 };
+  const whatif = st === "full" ? DATA.whatif : st === "sparse" ? { played: 1, rewritten: 0 } : { played: 0, rewritten: 0 };
+  const chron = [...log].sort((a, b) => a.id - b.id);
+  const recent = [...chron].reverse();
+  const t = { p: log.length, w: 0, d: 0, l: 0, gf: 0, ga: 0 };
+  for (const e of log) { t[e.res.toLowerCase()]++; t.gf += e.gf; t.ga += e.ga; }
+  t.pct = t.p ? Math.round((t.w / t.p) * 100) : 0;
+  const big = log.filter((e) => e.gf > e.ga).sort((a, b) => b.gf - b.ga - (a.gf - a.ga) || b.gf - a.gf)[0] || null;
+  let run = 0, best = 0, bestEnd = null;
+  for (const e of chron) { if (e.res === "L") run = 0; else { run++; if (run > best) { best = run; bestEnd = e; } } }
+  const seasons = runs.filter((r) => (r.mode === "season" || r.mode === "classic") && !r.survived);
+  const bestSeason = [...seasons].sort((a, b) => a.pos - b.pos || b.pts - a.pts)[0] || null;
+  const survival = runs.find((r) => r.survived) || null;
+  const weeks = runs.filter((r) => r.mode === "ladder");
+  let ts = 0, tsBest = 0; for (const w of weeks) { ts = w.pos === 1 ? ts + 1 : 0; tsBest = Math.max(tsBest, ts); }
+  const ladder = { weeks: weeks.length, titles: weeks.filter((w) => w.pos === 1).length, bestFinish: weeks.length ? Math.min(...weeks.map((w) => w.pos)) : null, bestPts: weeks.length ? Math.max(...weeks.map((w) => w.pts)) : null, streak: tsBest };
+  const mk = runs.filter((r) => r.mode === "market").sort((a, b) => b.wins - a.wins || a.rounds - b.rounds)[0] || null;
+  const modes = DATA.modes.map((m) => {
+    const es = log.filter((e) => e.mode === m.id);
+    const o = { ...m, p: es.length, w: 0, d: 0, l: 0 };
+    for (const e of es) o[e.res.toLowerCase()]++;
+    o.best = m.id === "season" && bestSeason ? `${ord(bestSeason.pos)} · ${bestSeason.pts} pts` : m.id === "classic" && survival ? `Survived · ${survival.title.split("· ")[1]}` : m.id === "ladder" && ladder.titles ? `${ladder.titles} titles` : m.id === "market" && mk ? `${mk.wins} wins` : m.id === "daily" && daily.best ? `best streak ${daily.best}` : m.id === "whatif" && whatif.rewritten ? `${whatif.rewritten} rescues` : "—";
+    return o;
+  });
+  const line = (e) => `${e.ctx} · ${fmtDay(e.day)} · Your XI ${e.gf}–${e.ga} ${e.opp.name}`;
+  const recs = [
+    { k: "pct", label: "Win rate", value: t.p ? `${t.pct}%` : "—", sub: t.p ? `${t.w}W ${t.d}D ${t.l}L` : "No matches yet", line: t.p ? `${t.p} matches played since ${fmtDay(chron[0].day)}` : "" },
+    { k: "big", label: "Biggest win", value: big ? `${big.gf}–${big.ga}` : "—", sub: big ? `v ${big.opp.name}` : "Win a match", line: big ? line(big) : "", club: big?.opp },
+    { k: "unb", label: "Longest unbeaten", value: best ? String(best) : "—", sub: best ? "matches" : "—", line: bestEnd ? `Ended ${fmtDay(bestEnd.day)} · ${bestEnd.ctx}` : "" },
+    { k: "season", label: "Best season", value: bestSeason ? ord(bestSeason.pos) : "—", sub: bestSeason ? `${bestSeason.pts} pts · ${bestSeason.title}` : "Finish a season", line: bestSeason ? `${bestSeason.title} · ${bestSeason.w}W ${bestSeason.d}D ${bestSeason.l}L · ${bestSeason.pts} pts` : "" },
+    { k: "ladder", label: "Ladder titles", value: ladder.weeks ? String(ladder.titles) : "—", sub: ladder.weeks ? `best ${ord(ladder.bestFinish)} · streak ${ladder.streak}` : "Play a week", line: ladder.weeks ? `${ladder.weeks} weeks · best ${ladder.bestPts} pts in a week` : "" },
+    { k: "market", label: "Market best run", value: mk ? `${mk.wins}` : "—", sub: mk ? `wins in ${mk.rounds} rounds` : "Start a run", line: mk ? `${mk.title} · ${fmtDay(mk.day)}` : "" },
+    { k: "daily", label: "Daily streak", value: daily.played ? `${daily.current}` : "—", sub: daily.played ? `best ${daily.best} · ${daily.won}/${daily.played} won` : "Play today's", line: daily.played ? `${daily.played} daily challenges played` : "" },
+    { k: "whatif", label: "History rewritten", value: whatif.played ? `${whatif.rewritten}` : "—", sub: whatif.played ? `of ${whatif.played} rescues` : "Try a What-If", line: whatif.played ? `${whatif.rewritten} famous results turned around` : "" },
+  ];
+  const f = R.filter;
+  const list = recent.filter((e) => f === "all" || e.mode === f);
+  return { empty: log.length === 0 && runs.length === 0, st, log, chron, recent, list, runs, t, big, best, bestSeason, survival, ladder, mk, daily, whatif, modes, recs, form: recent.slice(0, 10), line };
+}
+const ord = (n) => n + (n % 100 >= 11 && n % 100 <= 13 ? "th" : ["th", "st", "nd", "rd"][n % 10] || "th");
+const fmtDay = (d) => new Date(d + "T12:00:00Z").toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+
+/* ───────── shared bits every concept composes ───────── */
+const CRESTS_COACH = { lion: { emoji: "🦁", color: "#c2410c" } };
+const coach = (size = 40) => { const c = CRESTS_COACH[DATA.coach.crest]; return `<span class="badge" style="width:${size}px;height:${size}px;background:${c.color};font-size:${Math.round(size * 0.55)}px" aria-label="Lion">${c.emoji}</span>`; };
+const crest = (club, size = 20) => (club && CRESTS[club.id] ? `<img class="cr" src="${CRESTS[club.id]}" width="${size}" height="${size}" alt="">` : "");
+const res = (r) => `<span class="res ${r}" aria-label="${{ W: "Win", D: "Draw", L: "Loss" }[r]}">${r}</span>`;
+const form = (V, n = 10) => V.form.slice(0, n).map((e) => res(e.res)).join("");
+function tabs(V) {
+  const used = new Set(V.log.map((e) => e.mode));
+  const opts = [["all", "All"], ...DATA.modes.filter((m) => used.has(m.id)).map((m) => [m.id, `${m.emoji} ${m.label}`])];
+  return `<div class="tabs" role="group" aria-label="Filter by mode">${opts.map(([v, l]) => `<button data-act="f" data-v="${v}" aria-pressed="${R.filter === v}">${esc(l)}</button>`).join("")}</div>`;
+}
+/** A tappable match: its one-line detail opens under it. */
+const sel = (id) => R.sel === id;
+const det = (txt, id) => (sel(id) && txt ? `<span class="det">${esc(txt)}</span>` : "");
+const recDet = (r) => det(r.line, "r:" + r.k);
+function empty(V, title = "No records yet", body = "Play a match — every full-time result from now on is kept here, and your seasons, ladder weeks and Market runs become records.") {
+  return `<div class="emp"><b>${esc(title)}</b><span class="mut">${esc(body)}</span><br><button class="cta">Play a match</button></div>`;
+}
+const sparseNote = (V) => (V.st === "sparse" ? `<p class="mut" style="font-size:12px;margin:8px 0 0">Your first records — they fill in as you finish seasons, ladder weeks and Market runs.</p>` : "");
+const head = (V, m) => `<div class="row" style="gap:12px">${coach(m ? 40 : 52)}<div style="min-width:0"><div style="font-weight:800;font-size:${m ? 18 : 22}px">Coach ${esc(DATA.coach.name)}</div><div class="mut" style="font-size:12px">${V.t.p} matches · since ${V.chron[0] ? fmtDay(V.chron[0].day) : "today"}</div></div></div>`;
+
+const C = [];
+/*CONCEPTS*/
+
+/* ═════════════════ GALLERY CHROME ═════════════════ */
+const G = { idx: 0, theme: "dark", era: "modern", state: "full", picks: [] };
+const R = { filter: "all", sel: null };
+try { const s = JSON.parse(localStorage.getItem("pq-records") || "null"); if (s) { G.picks = s.picks || []; G.theme = s.theme || "dark"; G.era = s.era || "modern"; } } catch {}
+const save = () => { try { localStorage.setItem("pq-records", JSON.stringify({ picks: G.picks, theme: G.theme, era: G.era })); } catch {} };
+const summary = () => (G.picks.length ? "Records " + [...G.picks].sort((a, b) => a - b).map((n) => `#${n} ${C[n - 1].name}`).join(" + ") : "Records — no pick yet");
+function renderPickbar() {
+  document.getElementById("pickbar").innerHTML = `<b>Pick:</b> <span class="p">${esc(summary())}</span> <button id="copy">Copy</button><button id="clear">Clear</button>`;
+}
+function render() {
+  document.body.dataset.theme = G.theme;
+  const i = G.idx, c = C[i];
+  document.getElementById("concept").innerHTML = C.map((x, j) => `<option value="${j}" ${j === i ? "selected" : ""}>#${j + 1} · ${x.name}</option>`).join("");
+  const V = view();
+  const picked = G.picks.includes(i + 1);
+  const f = (m) => `<div><div class="tag">${m ? "MOBILE · 380px" : "DESKTOP · 1000px"}</div><div class="fr ${m ? "m" : "d"} K${i + 1}" data-era="${G.era}">${c.render(V, m)}</div></div>`;
+  document.getElementById("main").innerHTML = `<p class="intro">/game/records — the career, read back as records. Tap a record or a match for its line; filter the log by mode. Switch Full / Sparse / Empty in the bar: a new coach sees the last two first.</p>
+    <div class="chead"><h2><b>#${i + 1}</b>${esc(c.name)}</h2><button class="pickbtn ${picked ? "on" : ""}" id="pick">${picked ? "✓ Picked" : "Pick this one"}</button></div>
+    <p class="why">${esc(c.idea)}</p>
+    <div class="stage" id="stage"><div class="frames" id="frames">${f(false)}${f(true)}</div></div>`;
+  fit(); renderPickbar();
+}
+function fit() {
+  const st = document.getElementById("stage"), fr = document.getElementById("frames"); if (!st) return;
+  const narrow = window.innerWidth < 900;
+  fr.style.flexDirection = narrow ? "column" : "row"; fr.style.width = narrow ? "1000px" : "1404px";
+  const w = narrow ? 1000 : 1404; const z = Math.min(1, st.clientWidth / w);
+  fr.style.transform = `scale(${z})`; st.style.height = fr.offsetHeight * z + "px";
+}
+window.addEventListener("resize", fit);
+function seg(id, list, get, set) {
+  const el = document.getElementById(id);
+  const sync = () => el.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.v === get()));
+  el.innerHTML = list.map(([v, l]) => `<button data-v="${v}">${l}</button>`).join("");
+  el.onclick = (e) => { const b = e.target.closest("button"); if (!b) return; set(b.dataset.v); sync(); save(); render(); };
+  sync();
+}
+seg("state", [["full", "Full career"], ["sparse", "Sparse"], ["empty", "Empty"]], () => G.state, (v) => { G.state = v; R.filter = "all"; R.sel = null; });
+seg("theme", [["light", "Light"], ["dark", "Dark"]], () => G.theme, (v) => (G.theme = v));
+seg("era", [["retro90s", "90s"], ["goldenMillennium", "2000s"], ["modern", "Modern"]], () => G.era, (v) => (G.era = v));
+document.getElementById("concept").onchange = (e) => { G.idx = +e.target.value; R.sel = null; render(); };
+const step = (d) => { G.idx = (G.idx + d + C.length) % C.length; R.sel = null; render(); window.scrollTo({ top: 0 }); };
+document.getElementById("prev").onclick = () => step(-1);
+document.getElementById("next").onclick = () => step(1);
+document.addEventListener("keydown", (e) => { if (e.target.tagName === "SELECT") return; if (e.key === "ArrowRight") step(1); if (e.key === "ArrowLeft") step(-1); });
+document.getElementById("pickbar").addEventListener("click", (e) => {
+  if (e.target.id === "copy") { const t = summary(); (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => (e.target.textContent = "Copied"), () => prompt("Copy your pick:", t)); }
+  if (e.target.id === "clear") { G.picks = []; save(); render(); }
+});
+document.getElementById("main").addEventListener("click", (e) => {
+  if (e.target.id === "pick") { const n = G.idx + 1; G.picks = G.picks.includes(n) ? G.picks.filter((x) => x !== n) : [...G.picks, n]; save(); render(); return; }
+  const t = e.target.closest("[data-act]"); if (!t) return;
+  if (t.dataset.act === "f") { R.filter = t.dataset.v; R.sel = null; }
+  if (t.dataset.act === "s") R.sel = R.sel === t.dataset.v ? null : t.dataset.v;
+  render();
+});
+render();
+</script>
+</body>
+</html>

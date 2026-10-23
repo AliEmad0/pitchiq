@@ -1,3 +1,5 @@
+import { teamChemistryModifier } from "@/features/game/domain/chemistry-modifier";
+import { personalityModifier } from "@/features/game/domain/traits";
 import { describe, expect, it } from "vitest";
 import {
   buildFixtureSession,
@@ -43,11 +45,18 @@ describe("played season fixtures", () => {
     expect(run.results).toEqual([]);
     expect(finished.results).toHaveLength(2);
     const [h, a] = seasonFixtures(4)[0]![1]!;
+    // ⚠️ The SAME setup the season plays — chemistry with fit (TASK-1824), traits, the crisis.
+    // The bare form this used to compare against passed only because the fixture's dice agreed.
     const other = simulate({
       home: teams[h]!,
       away: teams[a]!,
       seed: fixtureSeed(run.seed, 0, 1),
       targetGoalsPerMatch: 2.7,
+      modifiers: [
+        teamChemistryModifier(teams[h]!, teams[a]!),
+        personalityModifier(teams[h]!, teams[a]!),
+      ],
+      crisis: true,
     });
     expect(finished.results[0]).toMatchObject({ homeGoals: 7, awayGoals: 2, seed: played.seed });
     expect(finished.results[1]).toMatchObject({

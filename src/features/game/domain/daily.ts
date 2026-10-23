@@ -138,3 +138,14 @@ export const DAILY_CRISIS_FROM = "2026-10-24";
 export function dailyCrisis(key: string): boolean {
   return key >= DAILY_CRISIS_FROM;
 }
+
+/**
+ * The first day whose challenge plays squad chemistry with role fit (TASK-1824). Derived from the
+ * day like the two gates above, so every stored day replays under its own rule — a challenge
+ * from before this date resumes with no chemistry at all. Not a knob.
+ */
+export const DAILY_CHEMISTRY_FROM = "2026-10-24";
+
+export function dailyChemistry(key: string): boolean {
+  return key >= DAILY_CHEMISTRY_FROM;
+}

@@ -1,4 +1,6 @@
+import { teamFitChemistry } from "./chemistry";
 import type { Modifier } from "./match-types";
+import type { GameTeam } from "./team";
 
 /**
  * TASK-1810 PR 5 — chemistry, as something the match can feel.
@@ -92,4 +94,15 @@ export function chemistryModifier(
     const power = state[side].power;
     return { attack: power.attack * scale, defense: power.defense * scale };
   };
+}
+
+/**
+ * TASK-1824 — chemistry for the STORED-RESULT modes: season fixtures, the Weekly Ladder and the
+ * Mystery Market. Both sides scored with role fit, exactly as a drafted single match scores them.
+ *
+ * ⭐ No identity flag is needed here, unlike `RivalSetup.chemistry`: these modes store their
+ * results and never replay them, so a match played before this existed keeps its stored score.
+ */
+export function teamChemistryModifier(home: GameTeam, away: GameTeam): Modifier {
+  return chemistryModifier({ home: teamFitChemistry(home), away: teamFitChemistry(away) });
 }

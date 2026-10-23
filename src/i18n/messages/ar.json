@@ -1049,6 +1049,7 @@
     "chemNoLinksYet": "لا روابط بعد — ضَع متجاورين يشتركان في نادٍ أو بلد.",
     "chemDelta": "+{points} انسجام",
     "chemDeltaNone": "لا رابط جديد هنا",
+    "mnChemistry": "الانسجام {score}",
     "chemDeltaDown": "−{points} انسجام",
     "chemOffTag": "خارج مركزه في {slot}",
     "chemOffBadge": "مركزه {own} ويقف في {slot} — خارج مركزه",

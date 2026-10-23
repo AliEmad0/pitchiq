@@ -883,7 +883,7 @@ export function GamePlay({
     return (
       <>
         {setup === "reveal" ? (
-          <ChaosDraft pool={pool} onConfirm={confirmSquad} />
+          <ChaosDraft pool={pool} onConfirm={confirmSquad} chemistry={newChem} />
         ) : draft != null ? (
           <PitchDraft
             pool={pool}
@@ -895,11 +895,12 @@ export function GamePlay({
             captain={captain}
             budget={budget}
             nation={nation}
-            // ⚠️ Season fixtures do not play chemistry, so the draft for one must not promise it.
-            chemistry={newChem && !seasonRequested}
+            // TASK-1824 — season fixtures play chemistry too (stored results need no flag), so a
+            // season draft shows it as well.
+            chemistry={newChem}
           />
         ) : (
-          <DraftHub pool={pool} onConfirm={confirmSquad} />
+          <DraftHub pool={pool} onConfirm={confirmSquad} chemistry={newChem} />
         )}
         {offer != null ? (
           <ResumeDialog

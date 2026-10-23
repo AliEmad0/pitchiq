@@ -46,6 +46,8 @@ export default async function ChaosDraftPage({ params }: Props) {
         initialPhase="setup"
         setup="reveal"
         screens="legacy"
+        // TASK-1824: every drafted XI plays chemistry with role fit.
+        scoreChemistry
         captaincies={captaincies}
         referees={referees}
         // Every mode has a season (owner, 2026-10-12): a 38-week league against Premier

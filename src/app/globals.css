@@ -8194,3 +8194,27 @@
     transition: none !important;
   }
 }
+
+/* ── Chemistry on the H2H hub, the Chaos board and the daily (TASK-1824 remainder) ──
+   The links, halos, rings, waves and marks reuse PitchDraft's `.chem-*` rules (and their one
+   reduce gate) unchanged; this block only seats them on three more pitches. No keyframes here. */
+/* The connector SVG sits at z-index 1, so each pitch's positions must stand above it. */
+.tp-pitch .tp-slot,
+.dh-pitch .dh-spot {
+  z-index: 2;
+}
+/* Rings and marks are absolutely placed against the chip they belong to. */
+.tp-pitch .tp-chip {
+  position: relative;
+}
+/* The chemistry figure beside each average on the Chaos board and the daily preview. */
+.mn-chem {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #7dd3fc;
+}

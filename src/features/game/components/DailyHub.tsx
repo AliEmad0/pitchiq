@@ -13,9 +13,16 @@ import {
 import { roomDeals } from "@/features/game/domain/draft-room";
 import type { Formation } from "@/features/game/domain/formation";
 import type { EnrichedCard } from "@/features/game/domain/player-card";
+import { chemistryView } from "@/features/game/view/chemistry-view";
 import { createRoomState, isRoomComplete, roomReducer } from "@/features/game/view/room-state";
 import { localizeDigits } from "@/utils/format";
 import { prefersReducedMotion } from "@/utils/motion";
+import {
+  ChemistryLinks,
+  ChemistryMarks,
+  ChemistryMeter,
+  useChemistryFlash,
+} from "./ChemistryLayer";
 import { CardBack, PlayerCard } from "./PlayerCard";
 
 /** How many days the heat calendar shows. Four clean weeks. */
@@ -32,6 +39,11 @@ interface Props {
   stats: DailyStats;
   history: readonly DailyOutcome[];
   onComplete: (cardIds: PlayerSeasonId[]) => void;
+  /**
+   * TASK-1824 — the day plays chemistry (`dailyChemistry`): show the links, the glow, the meter
+   * and the out-of-position marks as the picks land. Absent = the hub renders as before.
+   */
+  chemistry?: boolean;
 }
 
 /** hh:mm:ss, zero-padded, in the reader's digits. */
@@ -66,6 +78,7 @@ export function DailyHub({
   stats,
   history,
   onComplete,
+  chemistry = false,
 }: Props) {
   const t = useTranslations("game");
   const locale = useLocale();
@@ -126,6 +139,25 @@ export function DailyHub({
 
   const heat = useMemo(() => recentOutcomes(history, today, HEAT_DAYS), [history, today]);
   const rows = Math.max(...formation.slots.map((s) => s.row));
+  /** Derived from the picks on every render — never a second copy in state. */
+  const xi = useMemo(
+    () => room.picks.map((id) => (id != null ? byId.get(id) : undefined)),
+    [room.picks, byId],
+  );
+  const chem = useMemo(
+    () => (chemistry ? chemistryView(xi, formation) : null),
+    [chemistry, xi, formation],
+  );
+  const flash = useChemistryFlash(chemistry, room.picks, xi, formation, chem?.score ?? 0);
+  /** The pitch arithmetic, shared by the spots and the links so they cannot drift. */
+  const at = (i: number) => {
+    const s = formation.slots[i]!;
+    const inRow = formation.slots.filter((x) => x.row === s.row).length;
+    return {
+      x: rows === 1 ? 50 : 8 + ((s.row - 1) / (rows - 1)) * 76,
+      y: (s.col / (inRow + 1)) * 100,
+    };
+  };
 
   const pick = (index: number, cardId: PlayerSeasonId) => {
     setLastFilled(index);
@@ -198,19 +230,18 @@ export function DailyHub({
 
       {/* ── the pitch: every pick lands here, the newest one flipping in ── */}
       <div className="dh-cabinet">
+        {chem != null ? <ChemistryMeter view={chem} flash={flash} className="mb-3" /> : null}
         <div className="dh-pitch" role="img" aria-label={t("dailyPitchAria")}>
+          {chem != null ? <ChemistryLinks links={chem.links} flash={flash} at={at} /> : null}
           <span className="dh-line dh-mid" aria-hidden />
           <span className="dh-line dh-circle" aria-hidden />
           <span className="dh-line dh-box dh-box-left" aria-hidden />
           <span className="dh-line dh-box dh-box-right" aria-hidden />
           {formation.slots.map((s, i) => {
-            const inRow = formation.slots.filter((x) => x.row === s.row).length;
             const held = room.picks[i];
             const card = held != null ? byId.get(held) : undefined;
-            const style = {
-              left: `${rows === 1 ? 50 : 8 + ((s.row - 1) / (rows - 1)) * 76}%`,
-              top: `${(s.col / (inRow + 1)) * 100}%`,
-            };
+            const p = at(i);
+            const style = { left: `${p.x}%`, top: `${p.y}%` };
             return (
               <span key={`${s.row}-${s.col}`} className="dh-spot" style={style}>
                 {card ? (
@@ -220,6 +251,15 @@ export function DailyHub({
                 ) : (
                   <span className="dh-empty">{s.role}</span>
                 )}
+                {chem != null ? (
+                  <ChemistryMarks
+                    slot={i}
+                    card={card}
+                    role={s.role}
+                    flash={flash}
+                    links={chem.links}
+                  />
+                ) : null}
               </span>
             );
           })}

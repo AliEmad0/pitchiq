@@ -1,0 +1,111 @@
+{
+  "coach": { "name": "Ali", "crest": "lion", "since": "2026-10-01" },
+  "clubs": [
+    { "id": 42, "name": "Arsenal" },
+    { "id": 40, "name": "Liverpool" },
+    { "id": 63, "name": "Leeds United" },
+    { "id": 41, "name": "Southampton" },
+    { "id": 65, "name": "Nottingham Forest" },
+    { "id": 55, "name": "Brentford" },
+    { "id": 747, "name": "Barnsley" },
+    { "id": 1355, "name": "Portsmouth" },
+    { "id": 1333, "name": "Wimbledon" },
+    { "id": 1356, "name": "Blackpool" }
+  ],
+  "modes": [
+    { "id": "season", "label": "Seasons", "emoji": "🏆" },
+    { "id": "classic", "label": "Classic & Survival", "emoji": "📜" },
+    { "id": "ladder", "label": "Weekly Ladder", "emoji": "🪜" },
+    { "id": "market", "label": "Mystery Market", "emoji": "🎲" },
+    { "id": "daily", "label": "Daily", "emoji": "📅" },
+    { "id": "whatif", "label": "What-If", "emoji": "⏳" },
+    { "id": "single", "label": "Single matches", "emoji": "⚽" }
+  ],
+  "runs": [
+    {
+      "mode": "season",
+      "title": "Legacy · Arsenal",
+      "day": "2026-10-04",
+      "pos": 2,
+      "of": 20,
+      "pts": 81,
+      "w": 24,
+      "d": 9,
+      "l": 5,
+      "unbeaten": false
+    },
+    {
+      "mode": "season",
+      "title": "Chemistry Draft",
+      "day": "2026-10-12",
+      "pos": 1,
+      "of": 20,
+      "pts": 88,
+      "w": 27,
+      "d": 7,
+      "l": 4,
+      "unbeaten": false
+    },
+    {
+      "mode": "classic",
+      "title": "Classic · Arsenal 1998/99",
+      "day": "2026-10-15",
+      "pos": 1,
+      "of": 20,
+      "pts": 79,
+      "w": 23,
+      "d": 10,
+      "l": 5,
+      "unbeaten": false
+    },
+    {
+      "mode": "classic",
+      "title": "Survival · Southampton 2004/05",
+      "day": "2026-10-18",
+      "pos": 16,
+      "of": 20,
+      "pts": 41,
+      "w": 4,
+      "d": 5,
+      "l": 7,
+      "survived": true
+    },
+    {
+      "mode": "ladder",
+      "title": "Ladder 2026-W41",
+      "day": "2026-10-11",
+      "pos": 3,
+      "of": 8,
+      "pts": 12,
+      "w": 3,
+      "d": 3,
+      "l": 1
+    },
+    {
+      "mode": "ladder",
+      "title": "Ladder 2026-W42",
+      "day": "2026-10-18",
+      "pos": 1,
+      "of": 8,
+      "pts": 17,
+      "w": 5,
+      "d": 2,
+      "l": 0
+    },
+    {
+      "mode": "ladder",
+      "title": "Ladder 2026-W43",
+      "day": "2026-10-23",
+      "pos": 1,
+      "of": 8,
+      "pts": 16,
+      "w": 5,
+      "d": 1,
+      "l": 1
+    },
+    { "mode": "market", "title": "Market run", "day": "2026-10-21", "wins": 9, "rounds": 11 },
+    { "mode": "market", "title": "Market run", "day": "2026-10-22", "wins": 4, "rounds": 7 }
+  ],
+  "daily": { "played": 19, "won": 12, "current": 6, "best": 9 },
+  "whatif": { "played": 8, "rewritten": 3 }
+}
