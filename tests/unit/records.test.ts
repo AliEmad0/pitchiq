@@ -137,6 +137,14 @@ describe("the records summary", () => {
     // W D W | L | W — the first three are unbeaten.
     expect(s.longestUnbeaten).toBe(3);
     expect(s.form.map((f) => f.result)).toEqual(["W", "D", "W", "L", "W"]);
+    // The fixture list reads newest first.
+    expect(s.recent.map((m) => m.key)).toEqual([
+      "k:4:1",
+      "s:9:1",
+      "s:9:0",
+      "m:/game/draft:2",
+      "m:/game/draft:1",
+    ]);
   });
 
   it("⭐ the best run is the best FINISH, champions first", () => {
@@ -175,6 +183,8 @@ describe("the records summary", () => {
     expect(s.ladder).toMatchObject({ weeks: 1, titles: 1, bestFinish: 1 });
     expect(s.marketBest).toEqual({ wins: 7, rounds: 9 });
     expect(s.whatIfRewritten).toBe(1);
+    expect(s.whatIfPlayed).toBe(2);
+    expect(s.since).toBe("2026-10-22");
     // A daily match counts in the career totals as well — it is a match he played.
     expect(s.totals.played).toBe(2);
   });

@@ -151,6 +151,12 @@ export interface RecordsSummary {
   ladder: LadderStats;
   marketBest: { wins: number; rounds: number } | null;
   whatIfRewritten: number;
+  /** What-If rescues tried — the "of N" beside the rewrites. */
+  whatIfPlayed: number;
+  /** Every logged match, NEWEST first — the page's fixture list. */
+  recent: CareerMatch[];
+  /** The earliest day anything was played (log or daily), for "since …". */
+  since: string | null;
 }
 
 const resultOf = (gf: number, ga: number): "W" | "D" | "L" =>
@@ -244,5 +250,12 @@ export function recordsSummary(
     ladder,
     marketBest: input.marketBest,
     whatIfRewritten: input.whatIf.filter((w) => w.verdict === "rewrote").length,
+    whatIfPlayed: input.whatIf.length,
+    recent: [...matches].reverse(),
+    since:
+      [
+        ...log.map((e) => e.day),
+        ...input.daily.filter((d) => d.done).map((d) => d.day),
+      ].sort()[0] ?? null,
   };
 }

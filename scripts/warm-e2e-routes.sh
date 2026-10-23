@@ -61,6 +61,7 @@ ROUTES=(
   "/api/game/classic/2010"
   "/api/game/album/2003"
   "/game/trophies"
+  "/game/records"
   "/game/budget"
   "/game/legacy"
   "/game/legacy/40"

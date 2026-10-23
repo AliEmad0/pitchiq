@@ -8218,3 +8218,196 @@
   text-transform: uppercase;
   color: #7dd3fc;
 }
+
+/* ── Records — owner pick #1 Career Programme (TASK-1812) ──
+   A matchday programme about the coach: a cover band, eight records as the feature page, the
+   career log as the fixture list. App tokens throughout, so it follows the theme. No motion. */
+.rc-root {
+  display: block;
+}
+.rc-cover {
+  background: linear-gradient(135deg, #7f1d1d, #1e1b4b);
+  color: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.rc-cover .rc-mut {
+  color: #e5e7eb;
+}
+.rc-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.rc-name {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+.rc-issue {
+  margin-top: 10px;
+  font:
+    800 11px/1 ui-monospace,
+    monospace;
+  letter-spacing: 0.14em;
+  opacity: 0.8;
+}
+.rc-mut {
+  color: var(--muted-foreground);
+}
+.rc-feat {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+@media (max-width: 640px) {
+  .rc-feat {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .rc-name {
+    font-size: 18px;
+  }
+}
+.rc-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: start;
+  min-width: 0;
+  background: var(--card);
+  color: var(--card-foreground);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+}
+.rc-card:not(:disabled) {
+  cursor: pointer;
+}
+.rc-card:not(:disabled):hover {
+  border-color: var(--ring);
+}
+.rc-k {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted-foreground);
+}
+.rc-v {
+  font-size: 24px;
+  font-weight: 900;
+  font-family: Georgia, serif;
+  font-variant-numeric: tabular-nums;
+}
+.rc-s {
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.rc-line {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px dashed var(--border);
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.rc-h {
+  font-family: Georgia, serif;
+  font-size: 18px;
+  font-weight: 700;
+  margin: 16px 0 8px;
+  border-bottom: 3px double var(--border);
+  padding-bottom: 4px;
+}
+.rc-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.rc-tab {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 12px;
+}
+.rc-tab[aria-selected="true"] {
+  background: var(--foreground);
+  color: var(--background);
+}
+.rc-log {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.rc-m {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  min-width: 0;
+}
+.rc-res {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  font:
+    800 11px ui-monospace,
+    monospace;
+  color: #fff;
+}
+.rc-res-w {
+  background: #16a34a;
+}
+.rc-res-d {
+  background: #64748b;
+}
+.rc-res-l {
+  background: #dc2626;
+}
+.rc-score {
+  flex: none;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.rc-ctx {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rc-when {
+  margin-inline-start: auto;
+  flex: none;
+  font-size: 12px;
+}
+@media (max-width: 420px) {
+  .rc-when {
+    display: none;
+  }
+}
+.rc-note {
+  margin-top: 12px;
+  font-size: 11px;
+}
+.rc-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  padding: 16px;
+}
+.rc-cta {
+  border-radius: 999px;
+  padding: 6px 14px;
+  background: var(--foreground);
+  color: var(--background);
+  font-weight: 700;
+  font-size: 14px;
+}

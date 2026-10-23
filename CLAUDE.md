@@ -448,10 +448,7 @@ skips the timers and deals the hand face up. Galleries live in `design/polish-ga
 
 ### TASKS board status (2026-10-23)
 
-Open game work: TASK-1812's **Records** surface (still `planned` in `COLLECTION_SURFACES`;
-runs are already stored by seasons, the ladder and the Market, so read those stores, do not
-add a run model) and TASK-1824's remainder (chemistry in DraftHub, Chaos, the daily and season
-fixtures). Phase 19 (TASK-1901–1910) is blocked on the platform decision.
+Every game ticket is ✅ Done. Phase 19 (TASK-1901–1910) is blocked on the platform decision.
 
 ### TASK-1824 chemistry everywhere + role fit (2026-10-23)
 
@@ -459,9 +456,20 @@ Every PitchDraft page passes `scoreChemistry`: new matches play chemistry WITH r
 (`fitChemistry` = links − `OFF_POSITION_PENALTY` 8 per man off his primary role, floored at 0).
 ⛔ `chemistry()` stays frozen; the Chemistry Draft's old matches derive from it. ⛔ GamePlay's
 `chemistry` prop now means only the ROUTE's historical meaning, used when a save or code predates
-the stored flag. Saves write `chemistry`/`fit`; share code v7 carries `h`/`hf`. Season drafts hide
-the meter because season fixtures do not play chemistry. Glow = owner pick #15 Halo Rings + #18
+the stored flag. Saves write `chemistry`/`fit`; share code v7 carries `h`/`hf`. Glow = owner pick #15 Halo Rings + #18
 Shockwave Warning: `.chem-halo` (a blurred second SVG line; ONLY opacity animates, the one thing
 that moves on a line and passes the audit), `.chem-ring`, `.chem-wave`, `.chem-meter-down`. Each
 base rule is its own end state, so one reduce gate just drops the animations. ⛔ No `infinite`:
 the old teammates `chem-pulse` loop was removed. PitchDraft finds the placement by diffing picks.
+
+### TASK-1824 closed + TASK-1812 Records (2026-10-23)
+
+Chemistry now plays everywhere. DraftHub, Chaos and PitchDraft take `scoreChemistry`, and their
+shared UI is `ChemistryLayer.tsx`. The daily is gated by `DAILY_CHEMISTRY_FROM`. Season fixtures,
+their rival sims, the ladder and the Market use `teamChemistryModifier` with no flag, because
+stored results never replay. Season drafts show the meter.
+Records (`/game/records`, pick #1 Career Programme): IndexedDB v9 `career` is the career log.
+⛔ It is written only in `recordFullTime`, keyed like `trophyLog` and refused twice (`add`).
+⛔ `d:` and `l:` keys are skipped, because the daily and ladder stores hold full history; logging
+them would double-count. `backfillCareer` seeds the log from the current runs on first open.
+`recordsSummary` is pure and orders by `at`, because store keys are not chronological.

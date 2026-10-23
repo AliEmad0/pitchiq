@@ -267,7 +267,8 @@ export const COLLECTION_SURFACES: readonly CollectionSurface[] = [
     id: "records",
     emoji: "📊",
     nameKey: "collectionRecords",
-    status: "planned",
+    status: "live",
+    href: "/game/records",
     ticket: "TASK-1812",
   },
   {
