@@ -1,0 +1,580 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Chemistry Glow Gallery</title>
+<!--
+  MOTION gallery for TASK-1824: the chemistry layer on the PitchDraft pitch (Legacy, Captain's,
+  Budget Cap, Nationality, Chemistry Draft). 20 designs, each playing in a DESKTOP (1000px) and a
+  MOBILE (380px) frame:
+    1. a player is placed → his links light up by tier (countrymen / club legends amber,
+       teammates green — the app's real .chem-link colours)
+    2. the Chemistry meter rises
+    3. a man is placed OUT OF POSITION → red mark, the meter drops, the warning appears
+    4. idle → a resting glow on the linked lines (finite, then still)
+
+  Every design obeys the app's motion audit (build.py re-checks):
+    · @keyframes animate ONLY transform / opacity / box-shadow
+    · every animation is finite
+    · prefers-reduced-motion: reduce (and the toggle) removes every animation and transition;
+      tier COLOUR survives the gate, because the colour is the information.
+
+  ⚠️ Port note: the connectors here are positioned DIVS (wrapper rotated statically, inner line
+  animated), not the app's SVG <line>s — box-shadow and a scaleX draw-in do not apply to SVG
+  strokes. Shipping a pick means drawing the same adjacentPairs geometry as divs (or adding an
+  HTML glow layer over the SVG). Geometry, tiers and scores here use the app's real rules.
+
+  Built from template.html by build.py. Standalone: no network, no external fonts or scripts.
+-->
+<style>
+:root{--ui:#0f0d17;--ui-fg:#ece9f5;--ui-mut:#8f8aa3;--ui-line:#2a2638;--rate:1}
+body[data-theme=light]{--bg:#f6f5f9;--fg:#15121e;--card:#fff;--mut:#5d5a70;--line:#e2dfea}
+body[data-theme=dark]{--bg:#0e0c15;--fg:#f2f0f8;--card:#1a1726;--mut:#a29eb5;--line:#302b42}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--ui);color:var(--ui-fg);font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+button{font:inherit;color:inherit}
+.top-sticky{position:sticky;top:0;z-index:10}
+.bar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:9px 16px;background:#14111ef5;border-bottom:1px solid var(--ui-line)}
+.bar h1{font-size:15px;margin:0 6px 0 0}
+.seg{display:flex;border:1px solid var(--ui-line);border-radius:8px;overflow:hidden;flex-wrap:wrap}
+.seg button{background:none;border:0;color:var(--ui-mut);padding:6px 10px;cursor:pointer}
+.seg button[aria-pressed=true]{background:#2b2640;color:#fff}
+.nav{display:flex;gap:6px;align-items:center}
+.nav button,.ctl button,.pickbar button{background:#1d1929;color:#fff;border:1px solid var(--ui-line);border-radius:8px;padding:5px 10px;cursor:pointer}
+.ctl button.pri{background:#86efac;color:#052e16;border-color:#86efac;font-weight:800}
+select{background:#1d1929;color:#fff;border:1px solid var(--ui-line);border-radius:8px;padding:5px 8px;font:inherit;max-width:280px}
+.pickbar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;padding:7px 16px;background:#1b1628f2;border-bottom:1px solid var(--ui-line);font-size:13px}
+.pickbar b{color:#fff}.pickbar .p{color:var(--ui-mut)}.pickbar .p.on{color:#86efac}
+main{padding:16px;max-width:1500px;margin:0 auto}
+.chead{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;margin:4px 0 6px}
+.chead h2{margin:0;font-size:18px}
+.chead h2 b{display:inline-block;min-width:38px;color:#fff;background:#2b2640;border-radius:6px;padding:1px 8px;margin-right:8px;text-align:center}
+.why{color:var(--ui-mut);margin:0 0 4px;max-width:980px}
+.tl{color:#c4b5fd;font-size:12px;margin:0 0 8px}
+.pickbtn{background:#86efac;color:#052e16;border:0;border-radius:999px;padding:7px 16px;font-weight:800;cursor:pointer}
+.pickbtn.on{background:#14532d;color:#bbf7d0;outline:2px solid #86efac}
+.ctl{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 10px;color:var(--ui-mut);font-size:12px}
+.stage{overflow:hidden}
+.frames{display:flex;gap:24px;align-items:flex-start;width:1404px;transform-origin:0 0}
+.tag{font:11px/1 system-ui;color:var(--ui-mut);margin:0 0 6px}
+.fr{background:var(--bg);color:var(--fg);border-radius:14px;border:1px solid var(--ui-line);padding:16px;overflow:hidden;font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+.fr.d{width:1000px}.fr.m{width:380px;padding:12px}
+.intro{color:var(--ui-mut);max-width:980px;margin:0 0 10px}
+.rmnote{display:none;background:#3b2f0b;color:#fde68a;border-radius:8px;padding:6px 10px;margin:0 0 10px;font-size:12px}
+body.rm .rmnote{display:block}
+
+/* ════════ eras (src/utils/era.ts) — a light re-skin of the frame, as data-era does in the app ════════ */
+.fr[data-era=retro90s]{--acc:#ef4444;--pitchA:#1b7a46;--pitchB:#156b3c;font-family:"Trebuchet MS",system-ui,sans-serif}
+.fr[data-era=goldenMillennium]{--acc:#f6c000;--pitchA:#16683f;--pitchB:#115634}
+.fr[data-era=modern]{--acc:#35e0ff;--pitchA:#14603f;--pitchB:#0f4c32}
+
+/* ════════ the meter (PitchDraft chem-meter) ════════ */
+.meter{position:relative;border:1px solid var(--line);background:color-mix(in srgb,var(--card) 70%,transparent);border-radius:10px;padding:10px 14px;margin:0 auto 12px;max-width:448px;text-align:center}
+.fr.m .meter{padding:8px 10px;margin-bottom:8px}
+.mrow{display:flex;align-items:baseline;justify-content:center;gap:8px}
+.mnum{display:inline-block;font:800 36px/1 ui-monospace,Menlo,monospace;letter-spacing:-.02em}
+.fr.m .mnum{font-size:28px}
+.mlab{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;opacity:.7}
+.mbar{position:relative;margin-top:10px;height:10px;border-radius:999px;background:#12222c;overflow:hidden}
+.mfill{position:absolute;inset:0;border-radius:inherit;background:#38bdf8;transform-origin:0 50%;transform:scaleX(var(--f,0));transition:transform calc(420ms / var(--rate)) cubic-bezier(.2,.8,.2,1)}
+.msheen{position:absolute;top:0;bottom:0;left:0;width:30%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);opacity:0}
+.mtxt{margin:6px 0 0;font:11px/1.35 ui-monospace,Menlo,monospace;opacity:.75}
+.fr.m .mtxt{font-size:10px}
+.mdelta{position:absolute;right:12px;top:8px;border-radius:999px;padding:2px 8px;font:800 11px ui-monospace,monospace;opacity:0;pointer-events:none}
+.mdelta.up{background:linear-gradient(160deg,#7dd3fc,#0284c7);color:#06202e}
+.mdelta.dn{background:linear-gradient(160deg,#fca5a5,#dc2626);color:#2a0606}
+.warn{display:none;margin:8px 0 0;border-radius:6px;background:rgba(239,68,68,.15);color:#fca5a5;padding:4px 8px;font-size:11px;font-weight:600}
+body[data-theme=light] .warn{color:#b91c1c}
+.warn.show{display:block}
+
+/* ════════ the pitch (PitchDraft .pd-pitch, LTR) ════════ */
+.pitch{position:relative;width:100%;aspect-ratio:105/68;border-radius:12px;border:2px solid rgba(255,255,255,.3);background:repeating-linear-gradient(90deg,var(--pitchA) 0 8.33%,var(--pitchB) 8.33% 16.66%);box-shadow:0 22px 60px rgba(0,0,0,.45);overflow:hidden}
+.pitch::before{content:"";position:absolute;top:0;bottom:0;left:50%;width:2px;background:rgba(255,255,255,.3);pointer-events:none}
+.pitch::after{content:"";position:absolute;left:50%;top:50%;height:30%;aspect-ratio:1;transform:translate(-50%,-50%);border:2px solid rgba(255,255,255,.3);border-radius:50%;pointer-events:none}
+.box{position:absolute;top:50%;transform:translateY(-50%);height:58%;width:15%;border:2px solid rgba(255,255,255,.3);pointer-events:none}
+.box.l{left:-1px;border-left:0;border-radius:0 4px 4px 0}.box.r{right:-1px;border-right:0;border-radius:4px 0 0 4px}
+.fx{position:absolute;inset:0;pointer-events:none;z-index:4;opacity:0}
+.flash{background:radial-gradient(ellipse at 50% 30%,rgba(255,255,240,.55),rgba(255,255,240,.1) 60%,transparent)}
+.dim{background:rgba(0,0,0,.55)}
+.sweep{opacity:0;inset:0 auto 0 0;width:12%;background:linear-gradient(90deg,transparent,rgba(190,255,240,.35),transparent)}
+
+/* a connector: footprint (.lw — positioned + rotated, static) → line (.ln — animated) */
+.links{position:absolute;inset:0;z-index:1;pointer-events:none}
+.lw{position:absolute;height:0;transform-origin:0 0}
+.ln{position:absolute;left:0;top:calc(var(--h) / -2);width:100%;height:var(--h);border-radius:999px;background:var(--c);transform-origin:var(--o,0) 50%}
+.ln.b{display:none}
+.lw[data-tier=none]{--c:rgba(159,179,200,.22);--g:rgba(159,179,200,0);--h:1.5px;--ti:0}
+.lw[data-tier=nation]{--c:rgba(246,192,0,.55);--g:rgba(246,192,0,.55);--h:2px;--ti:.45}
+.lw[data-tier=club]{--c:rgba(246,192,0,.9);--g:rgba(246,192,0,.75);--h:2.5px;--ti:.7}
+.lw[data-tier=teammates]{--c:#34d399;--g:rgba(52,211,153,.85);--h:3px;--ti:1}
+.hl{position:absolute;inset:-3px -2px;border-radius:999px;box-shadow:0 0 10px 3px var(--g);opacity:0}
+/* at rest teammates keep a low static glow — the app's teammates drop-shadow, gate-proof */
+.lw[data-tier=teammates] .hl{opacity:.45}
+.sp{position:absolute;left:0;top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:#fff;box-shadow:0 0 10px 4px var(--g);opacity:0}
+
+/* a position (PitchDraft .pd-spot / .pd-disc) */
+.spot{position:absolute;z-index:2;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:4px;width:96px;padding:0;border:0;background:none;cursor:default}
+.fr.m .spot{width:58px;gap:2px}
+.spot.open{cursor:pointer}
+.disc{position:relative;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font:800 11px ui-monospace,monospace;color:#cfe3d7;background:rgba(8,20,15,.62);border:2px dashed rgba(255,255,255,.38)}
+.fr.m .disc{width:28px;height:28px;font-size:8px}
+.spot.open:hover .disc{border-color:var(--acc)}
+.filled .disc{border-style:solid;border-color:rgba(0,0,0,.35);background:linear-gradient(160deg,#f2d98a,#b7892a);color:#241a05;font-size:16px;font-weight:900}
+.fr.m .filled .disc{font-size:11px}
+.ring{position:absolute;inset:-2px;border-radius:50%;pointer-events:none;opacity:0}
+.ptag{max-width:96px;font-size:10.5px;font-weight:700;line-height:1.2;color:#f2f7f4;text-shadow:0 1px 3px rgba(0,0,0,.9);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fr.m .ptag{font-size:8px;max-width:58px}
+.off{position:absolute;top:-6px;right:-12px;z-index:3;border-radius:999px;padding:1px 5px;background:#dc2626;color:#fff;font:800 9px/1.3 ui-monospace,monospace;box-shadow:0 0 0 2px rgba(12,24,32,.85)}
+.fr.m .off{font-size:7px;padding:0 3px;right:-9px;top:-5px}
+.burst{position:absolute;left:50%;top:50%;width:4px;height:4px;margin:-2px;border-radius:50%;background:#fff;opacity:0;pointer-events:none}
+.wave{position:absolute;left:50%;top:50%;width:44px;height:44px;margin:-22px;border-radius:50%;pointer-events:none;opacity:0;box-shadow:0 0 0 3px var(--wc,#7dd3fc)}
+.fr.m .wave{width:28px;height:28px;margin:-14px}
+.spotl{position:absolute;left:50%;top:50%;width:150px;height:150px;margin:-75px;border-radius:50%;background:radial-gradient(circle,rgba(255,250,215,.35),transparent 65%);opacity:0;pointer-events:none}
+
+/* the hand ("Play it yourself") */
+.hand{display:none;margin:10px 0 0;gap:8px;justify-content:center;flex-wrap:wrap}
+.hand.show{display:flex}
+.hcard{position:relative;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:10px;padding:8px 12px;min-width:150px;text-align:left;cursor:pointer}
+.fr.m .hcard{min-width:0;flex:1;padding:6px 8px;font-size:12px}
+.hcard b{display:block}
+.hcard .meta{font-size:11px;color:var(--mut)}
+.hcard .dl{display:inline-block;margin-top:4px;border-radius:999px;padding:1px 7px;font:800 10px ui-monospace,monospace;background:rgba(12,24,32,.92);color:#9fb3c8}
+.hcard .dl.up{background:linear-gradient(160deg,#7dd3fc,#0284c7);color:#06202e}
+.hcard .dl.dn{background:linear-gradient(160deg,#fca5a5,#dc2626);color:#2a0606}
+.hcard .ot{display:inline-block;margin-left:4px;border-radius:999px;padding:1px 6px;background:#dc2626;color:#fff;font:800 9px ui-monospace,monospace;text-transform:uppercase}
+.hhint{width:100%;text-align:center;font-size:12px;color:var(--mut)}
+.again{display:none;margin:10px auto 0;background:#86efac;color:#052e16;border:0;border-radius:999px;padding:6px 14px;font-weight:800;cursor:pointer}
+.again.show{display:block}
+
+/* ════════ shared defaults — used by every design unless it overrides ════════ */
+@keyframes d-arrive{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
+@keyframes d-off{0%{opacity:0;transform:scale(.3)}60%{opacity:1;transform:scale(1.25)}100%{opacity:1;transform:none}}
+@keyframes d-glow{0%{opacity:0}35%{opacity:var(--ti)}100%{opacity:calc(var(--ti) * .5)}}
+@keyframes d-warn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+@keyframes d-bub{0%{opacity:0;transform:translateY(4px)}20%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0;transform:translateY(-10px)}}
+@keyframes d-mpop{0%,100%{transform:none}40%{transform:scale(1.12)}}
+@keyframes d-mdrop{0%,100%{transform:none}40%{transform:scale(.9)}}
+.spot.arr .disc{animation:d-arrive calc(320ms / var(--rate)) cubic-bezier(.2,.8,.2,1) both}
+.spot.arr .off{animation:d-off calc(420ms / var(--rate)) ease calc(200ms / var(--rate)) both}
+.lw.lit .hl{animation:d-glow calc(900ms / var(--rate)) ease both}
+.warn.show{animation:d-warn calc(320ms / var(--rate)) ease both}
+.mdelta.go{animation:d-bub calc(1400ms / var(--rate)) ease both}
+.meter.up .mnum{animation:d-mpop calc(420ms / var(--rate)) ease both}
+.meter.down .mnum{animation:d-mdrop calc(420ms / var(--rate)) ease both}
+
+/* ════════ 20 DESIGNS ════════ */
+/* G1 Ember Rise */
+@keyframes g1-glow{0%{opacity:0}30%{opacity:var(--ti)}100%{opacity:calc(var(--ti) * .35)}}
+@keyframes g1-breath{0%,100%{opacity:calc(var(--ti) * .35)}50%{opacity:calc(var(--ti) * .7)}}
+.G1 .lw.lit .hl{animation:g1-glow calc(1100ms / var(--rate)) ease-out both}
+.G1 .idle .lw:not([data-tier=none]) .hl{animation:g1-breath calc(2200ms / var(--rate)) ease-in-out 2 both}
+
+/* G2 Neon Trace */
+@keyframes g2-draw{from{transform:scaleX(0)}to{transform:none}}
+@keyframes g2-flash{0%{opacity:0}55%{opacity:0}70%{opacity:1}100%{opacity:calc(var(--ti) * .5)}}
+.G2 .lw.lit .ln{animation:g2-draw calc(480ms / var(--rate)) cubic-bezier(.5,0,.2,1) both}
+.G2 .lw.lit .hl{animation:g2-flash calc(900ms / var(--rate)) ease both}
+
+/* G3 Spark Run */
+@keyframes g3-run{0%{opacity:0;transform:translateX(var(--s0))}15%{opacity:1}85%{opacity:1}100%{opacity:0;transform:translateX(var(--s1))}}
+@keyframes g3-glow{0%,40%{opacity:0}100%{opacity:calc(var(--ti) * .55)}}
+.G3 .lw.lit .sp{animation:g3-run calc(620ms / var(--rate)) ease-in-out both}
+.G3 .lw.lit .hl{animation:g3-glow calc(900ms / var(--rate)) ease both}
+
+/* G4 Ripple Out */
+@keyframes g4-wave{from{opacity:.9;transform:scale(.6)}to{opacity:0;transform:scale(5)}}
+@keyframes g4-glow{0%{opacity:0}40%{opacity:var(--ti)}100%{opacity:calc(var(--ti) * .45)}}
+.G4 .spot.arr .wave{animation:g4-wave calc(900ms / var(--rate)) ease-out both}
+.G4 .lw.lit .hl{animation:g4-glow calc(700ms / var(--rate)) ease calc(var(--k) * 110ms / var(--rate)) both}
+
+/* G5 Heartbeat */
+@keyframes g5-beat{0%,100%{transform:none}12%{transform:scaleY(2.4)}24%{transform:none}38%{transform:scaleY(1.8)}50%{transform:none}}
+@keyframes g5-hl{0%{opacity:0}12%{opacity:var(--ti)}24%{opacity:calc(var(--ti) * .3)}38%{opacity:var(--ti)}100%{opacity:calc(var(--ti) * .45)}}
+@keyframes g5-m{0%,100%{transform:none}12%{transform:scale(1.14)}24%{transform:none}38%{transform:scale(1.08)}50%{transform:none}}
+.G5 .lw.lit .ln{animation:g5-beat calc(1000ms / var(--rate)) ease both}
+.G5 .lw.lit .hl{animation:g5-hl calc(1000ms / var(--rate)) ease both}
+.G5 .meter.up .mnum{animation:g5-m calc(1000ms / var(--rate)) ease both}
+
+/* G6 Constellation */
+@keyframes g6-burst{from{opacity:1;transform:rotate(var(--a)) translateX(0)}to{opacity:0;transform:rotate(var(--a)) translateX(30px)}}
+@keyframes g6-tw{0%,100%{opacity:calc(var(--ti) * .4)}50%{opacity:var(--ti)}}
+.G6 .spot.arr .burst{animation:g6-burst calc(600ms / var(--rate)) ease-out both}
+.G6 .lw.lit .hl{animation:d-glow calc(800ms / var(--rate)) ease both}
+.G6 .idle .lw:not([data-tier=none]) .hl{animation:g6-tw calc(900ms / var(--rate)) ease-in-out calc(var(--r) * 900ms / var(--rate)) 3 both}
+
+/* G7 Scanner Sweep */
+@keyframes g7-sweep{0%{opacity:0;transform:translateX(-100%)}10%{opacity:1}90%{opacity:1}100%{opacity:0;transform:translateX(900%)}}
+@keyframes g7-glow{0%{opacity:0}30%{opacity:var(--ti)}100%{opacity:calc(var(--ti) * .45)}}
+.G7 .pitch.scan .sweep{animation:g7-sweep calc(1100ms / var(--rate)) linear both}
+.G7 .lw.lit .hl{animation:g7-glow calc(600ms / var(--rate)) ease calc(var(--x) * 1000ms / var(--rate)) both}
+
+/* G8 Domino Chain */
+@keyframes g8-pop{0%{transform:scaleY(1)}40%{transform:scaleY(2.6)}100%{transform:none}}
+.G8 .lw.lit .ln{animation:g8-pop calc(300ms / var(--rate)) ease calc(var(--k) * 140ms / var(--rate)) both}
+.G8 .lw.lit .hl{animation:d-glow calc(700ms / var(--rate)) ease calc(var(--k) * 140ms / var(--rate)) both}
+
+/* G9 Stadium Flash */
+@keyframes g9-flash{0%{opacity:0}15%{opacity:1}100%{opacity:0}}
+.G9 .pitch.flashing .flash{animation:g9-flash calc(520ms / var(--rate)) ease-out both}
+.G9 .lw.lit .hl{animation:d-glow calc(900ms / var(--rate)) ease calc(200ms / var(--rate)) both}
+.G9 .meter.up .mnum{animation:d-mpop calc(420ms / var(--rate)) ease calc(200ms / var(--rate)) both}
+
+/* G10 Soft Bloom */
+@keyframes g10-bloom{from{opacity:0}to{opacity:calc(var(--ti) * .4)}}
+.G10 .lw.lit .hl{animation:g10-bloom calc(1400ms / var(--rate)) ease both}
+.G10 .spot.arr .disc{animation:d-arrive calc(500ms / var(--rate)) ease both}
+
+/* G11 Pulse Wave */
+@keyframes g11-run{0%{opacity:0;transform:translateX(var(--s0)) scaleX(2.5)}20%{opacity:1}80%{opacity:1}100%{opacity:0;transform:translateX(var(--s1)) scaleX(2.5)}}
+.G11 .lw .sp{width:10px;height:5px;margin:-2.5px 0 0 -5px;border-radius:999px}
+.G11 .lw.lit .sp{animation:g11-run calc(520ms / var(--rate)) linear 2 both}
+.G11 .lw.lit .hl{animation:d-glow calc(1100ms / var(--rate)) ease both}
+
+/* G12 Tier Steps */
+@keyframes g12-p{0%,100%{opacity:calc(var(--ti) * .4)}50%{opacity:var(--ti)}}
+.G12 .lw.lit .hl{animation:g12-p calc(420ms / var(--rate)) ease-in-out both}
+.G12 .lw.lit[data-tier=nation] .hl{animation-iteration-count:1}
+.G12 .lw.lit[data-tier=club] .hl{animation-iteration-count:2}
+.G12 .lw.lit[data-tier=teammates] .hl{animation-iteration-count:3}
+
+/* G13 Magnet Snap */
+@keyframes g13-snap{0%{opacity:0;transform:translate(var(--mx),var(--my)) scale(.8)}65%{opacity:1;transform:translate(calc(var(--mx) * -.12),calc(var(--my) * -.12)) scale(1.06)}100%{opacity:1;transform:none}}
+@keyframes g13-taut{0%{transform:scaleX(.55)}60%{transform:scaleX(1.06)}80%{transform:scaleX(.98)}100%{transform:none}}
+.G13 .spot.arr .disc{animation:g13-snap calc(440ms / var(--rate)) cubic-bezier(.3,.7,.3,1) both}
+.G13 .lw.lit .ln{animation:g13-taut calc(520ms / var(--rate)) ease calc(200ms / var(--rate)) both}
+.G13 .lw.lit .hl{animation:d-glow calc(800ms / var(--rate)) ease calc(200ms / var(--rate)) both}
+
+/* G14 Electric Arc */
+@keyframes g14-arc{0%{opacity:0}10%{opacity:1}18%{opacity:.15}26%{opacity:1}34%{opacity:.4}42%{opacity:1}100%{opacity:1}}
+@keyframes g14-hl{0%,42%{opacity:0}60%{opacity:var(--ti)}100%{opacity:calc(var(--ti) * .5)}}
+.G14 .lw.lit .ln{animation:g14-arc calc(700ms / var(--rate)) steps(1,end) both}
+.G14 .lw.lit .hl{animation:g14-hl calc(900ms / var(--rate)) ease both}
+
+/* G15 Halo Rings */
+@keyframes g15-ring{0%{opacity:0;box-shadow:0 0 0 0 var(--rc)}40%{opacity:1;box-shadow:0 0 0 4px var(--rc),0 0 14px 4px var(--rc)}100%{opacity:1;box-shadow:0 0 0 2px var(--rc)}}
+.G15 .lw.lit .hl{animation:d-glow calc(700ms / var(--rate)) ease both}
+.G15 .spot.nb .ring{animation:g15-ring calc(900ms / var(--rate)) ease both}
+
+/* G16 Gold Thread */
+@keyframes g16-half{from{transform:scaleX(0)}to{transform:scaleX(.5)}}
+@keyframes g16-join{0%,60%{opacity:0;transform:translateX(var(--mid)) scale(.4)}75%{opacity:1;transform:translateX(var(--mid)) scale(1.6)}100%{opacity:0;transform:translateX(var(--mid)) scale(.6)}}
+.G16 .lw.lit .ln{--o:0;animation:g16-half calc(420ms / var(--rate)) ease-out both}
+.G16 .lw.lit .ln.b{display:block;--o:100%}
+/* once both halves meet, one whole line takes over */
+.G16 .lw.lit.done .ln{animation:none}
+.G16 .lw.lit.done .ln.b{display:none}
+.G16 .lw.lit .sp{animation:g16-join calc(560ms / var(--rate)) ease both}
+.G16 .lw.lit .hl{animation:d-glow calc(900ms / var(--rate)) ease calc(300ms / var(--rate)) both}
+
+/* G17 Breathing Field */
+@keyframes g17-b{0%,100%{opacity:calc(var(--ti) * .3)}50%{opacity:var(--ti)}}
+.G17 .lw.lit .hl{animation:g10-bloom calc(700ms / var(--rate)) ease both}
+.G17 .idle .lw:not([data-tier=none]) .hl{animation:g17-b calc(1800ms / var(--rate)) ease-in-out 3 both}
+
+/* G18 Shockwave Warning */
+@keyframes g18-wave{from{opacity:1;transform:scale(.8)}to{opacity:0;transform:scale(6)}}
+@keyframes g18-shake{0%,100%{transform:none}15%{transform:translateX(-6px)}30%{transform:translateX(5px)}45%{transform:translateX(-4px)}60%{transform:translateX(3px)}75%{transform:translateX(-1px)}}
+@keyframes g18-red{0%{box-shadow:0 0 0 0 rgba(239,68,68,0)}30%{box-shadow:0 0 0 3px rgba(239,68,68,.8),0 0 18px 4px rgba(239,68,68,.5)}100%{box-shadow:0 0 0 0 rgba(239,68,68,0)}}
+.G18 .spot.offarr .wave{--wc:#ef4444;animation:g18-wave calc(800ms / var(--rate)) ease-out both}
+.G18 .meter.down .mnum{animation:g18-shake calc(500ms / var(--rate)) ease both}
+.G18 .meter.down{animation:g18-red calc(900ms / var(--rate)) ease both}
+.G18 .warn.show{animation:g18-shake calc(500ms / var(--rate)) ease calc(150ms / var(--rate)) both}
+.G18 .lw.lit .hl{animation:d-glow calc(800ms / var(--rate)) ease both}
+
+/* G19 Ticker Count */
+@keyframes g19-in{0%{opacity:0;transform:translateY(60%)}100%{opacity:1;transform:none}}
+@keyframes g19-dn{0%{opacity:0;transform:translateY(-60%)}100%{opacity:1;transform:none}}
+@keyframes g19-sheen{0%{opacity:0;transform:translateX(-100%)}20%{opacity:1}100%{opacity:0;transform:translateX(340%)}}
+@keyframes g19-bub{0%{opacity:0;transform:translateY(6px) scale(.8)}20%{opacity:1;transform:scale(1.1)}70%{opacity:1;transform:translateY(-6px)}100%{opacity:0;transform:translateY(-22px)}}
+.G19 .meter.up .mnum{animation:g19-in calc(300ms / var(--rate)) ease both}
+.G19 .meter.down .mnum{animation:g19-dn calc(300ms / var(--rate)) ease both}
+.G19 .meter.up .msheen,.G19 .meter.down .msheen{animation:g19-sheen calc(800ms / var(--rate)) ease both}
+.G19 .mdelta.go{animation:g19-bub calc(1500ms / var(--rate)) ease both}
+.G19 .lw.lit .hl{animation:d-glow calc(800ms / var(--rate)) ease both}
+
+/* G20 Spotlight */
+@keyframes g20-dim{0%{opacity:0}20%{opacity:1}75%{opacity:1}100%{opacity:0}}
+@keyframes g20-spot{0%{opacity:0;transform:scale(.6)}25%{opacity:1;transform:none}75%{opacity:1}100%{opacity:0}}
+.G20 .pitch.spotting .dim{animation:g20-dim calc(1300ms / var(--rate)) ease both}
+.G20 .spot.arr .spotl{animation:g20-spot calc(1300ms / var(--rate)) ease both}
+.G20 .spot.arr{z-index:5}
+.G20 .lw.lit{z-index:5}
+.G20 .links{z-index:5}
+.G20 .lw.lit .hl{animation:d-glow calc(1000ms / var(--rate)) ease calc(250ms / var(--rate)) both}
+
+/* ════════ reduced motion: the gate (the toggle simulates it) ════════ */
+@media (prefers-reduced-motion: reduce){
+  .fr *,.fr *::before,.fr *::after{animation:none !important;transition:none !important}
+  .lw[data-tier=teammates] .hl{opacity:.45}
+}
+body.rm .fr *,body.rm .fr *::before,body.rm .fr *::after{animation:none !important;transition:none !important}
+</style>
+</head>
+<body data-theme="dark">
+<div class="top-sticky"><div class="bar">
+  <h1>PitchIQ · Chemistry Glow Gallery</h1>
+  <div class="nav"><button id="prev" aria-label="Previous design">◀</button><select id="concept" aria-label="Design"></select><button id="next" aria-label="Next design">▶</button></div>
+  <div class="seg" id="theme"></div>
+  <div class="seg" id="era"></div>
+  <div class="seg" id="motion"></div>
+  <div class="seg" id="speed"></div>
+</div>
+<div class="pickbar" id="pickbar"></div></div>
+<main id="main"></main>
+<script>
+const DATA = /*DATA*/{};
+const T = DATA.copy;
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+/** The app's ICU strings, enough of them: {x} and {count, plural, one {…} other {…}} with #. */
+function msg(s, o = {}) {
+  s = s.replace(/\{(\w+), plural, one \{([^}]*)\} other \{([^}]*)\}\}/g, (_, k, one, other) => (o[k] === 1 ? one : other).replace(/#/g, o[k]));
+  return s.replace(/\{(\w+)\}/g, (_, k) => (k in o ? o[k] : `{${k}}`));
+}
+
+/* ═════════ the app's real rules (pitch-adjacency.ts, chemistry.ts) ═════════ */
+const SHAPE = DATA.shape;
+const SLOTS = []; // {role, row, col, inRow}
+SHAPE.forEach((line, r) => line.forEach((role, c) => SLOTS.push({ role, row: r + 1, col: c + 1, inRow: line.length })));
+const ROWS = SHAPE.length;
+const ADJACENCY_BAND = 0.26, CHEM_ANCHOR = 40, MAX_STRENGTH = 3, OFF_POSITION_PENALTY = 8;
+const xOf = (s) => s.col / (s.inRow + 1);
+const PAIRS = [];
+for (let i = 0; i < SLOTS.length; i++) for (let j = i + 1; j < SLOTS.length; j++) {
+  const a = SLOTS[i], b = SLOTS[j];
+  const same = a.row === b.row && Math.abs(a.col - b.col) === 1;
+  const near = Math.abs(a.row - b.row) === 1 && Math.abs(xOf(a) - xOf(b)) <= ADJACENCY_BAND + 1e-9;
+  if (same || near) PAIRS.push([i, j]);
+}
+const STRENGTH = { none: 0, nation: 1, club: 2, teammates: 3 };
+function linkTier(a, b) {
+  if (a.teamId === b.teamId) return a.season === b.season ? "teammates" : "club";
+  return a.nat && a.nat === b.nat ? "nation" : "none";
+}
+const tierOf = (xi, [i, j]) => (xi[i] && xi[j] ? linkTier(xi[i], xi[j]) : "none");
+const offOf = (xi) => SLOTS.map((s, i) => (xi[i] && xi[i].role !== s.role ? i : -1)).filter((i) => i >= 0);
+function score(xi) {
+  const total = PAIRS.reduce((t, p) => t + STRENGTH[tierOf(xi, p)], 0);
+  const links = Math.min(100, Math.round(((total / (PAIRS.length * MAX_STRENGTH)) * 100 / CHEM_ANCHOR) * 100));
+  return Math.max(0, links - OFF_POSITION_PENALTY * offOf(xi).length);
+}
+function counts(xi) { const o = { none: 0, nation: 0, club: 0, teammates: 0 }; PAIRS.forEach((p) => o[tierOf(xi, p)]++); return o; }
+function breakdown(xi) {
+  const c = counts(xi);
+  if (c.teammates + c.club + c.nation === 0) return T.chemNoLinksYet;
+  return [c.teammates ? msg(T.chemTeammates, { count: c.teammates }) : null, c.club ? msg(T.chemClubLegends, { count: c.club }) : null, c.nation ? msg(T.chemCountrymen, { count: c.nation }) : null].filter(Boolean).join(" · ");
+}
+const START = () => SLOTS.map((_, i) => (DATA.placed[i] ? { ...DATA.placed[i] } : null));
+
+/* ═════════ designs ═════════ */
+const D = [];
+D.push({ name: DATA.designs[0].name, idea: DATA.designs[0].idea });
+D.push({ name: DATA.designs[1].name, idea: DATA.designs[1].idea });
+D.push({ name: DATA.designs[2].name, idea: DATA.designs[2].idea });
+D.push({ name: DATA.designs[3].name, idea: DATA.designs[3].idea });
+D.push({ name: DATA.designs[4].name, idea: DATA.designs[4].idea });
+D.push({ name: DATA.designs[5].name, idea: DATA.designs[5].idea });
+D.push({ name: DATA.designs[6].name, idea: DATA.designs[6].idea });
+D.push({ name: DATA.designs[7].name, idea: DATA.designs[7].idea });
+D.push({ name: DATA.designs[8].name, idea: DATA.designs[8].idea });
+D.push({ name: DATA.designs[9].name, idea: DATA.designs[9].idea });
+D.push({ name: DATA.designs[10].name, idea: DATA.designs[10].idea });
+D.push({ name: DATA.designs[11].name, idea: DATA.designs[11].idea });
+D.push({ name: DATA.designs[12].name, idea: DATA.designs[12].idea });
+D.push({ name: DATA.designs[13].name, idea: DATA.designs[13].idea });
+D.push({ name: DATA.designs[14].name, idea: DATA.designs[14].idea });
+D.push({ name: DATA.designs[15].name, idea: DATA.designs[15].idea });
+D.push({ name: DATA.designs[16].name, idea: DATA.designs[16].idea });
+D.push({ name: DATA.designs[17].name, idea: DATA.designs[17].idea });
+D.push({ name: DATA.designs[18].name, idea: DATA.designs[18].idea });
+D.push({ name: DATA.designs[19].name, idea: DATA.designs[19].idea });
+
+/* ═════════ state ═════════ */
+const G = { idx: 0, theme: "dark", era: "modern", rm: false, rate: 1, picks: [] };
+try { Object.assign(G, JSON.parse(localStorage.getItem("pq-chem-glow") || "{}"), { idx: 0, rm: false, rate: 1 }); } catch {}
+const save = () => { try { localStorage.setItem("pq-chem-glow", JSON.stringify({ picks: G.picks, theme: G.theme, era: G.era })); } catch {} };
+const RM = () => G.rm || matchMedia("(prefers-reduced-motion: reduce)").matches;
+const hold = (ms) => (RM() ? Math.min(ms, 250) : ms / G.rate);
+
+const frameHtml = (m) => `<div><div class="tag">${m ? "MOBILE · 380px" : "DESKTOP · 1000px"}</div><div class="fr ${m ? "m" : "d"} G${G.idx + 1}" data-era="${G.era}">
+  <div class="meter"><div class="mrow"><span class="mnum">0</span><span class="mlab">${esc(T.chemScore)}</span></div>
+    <div class="mbar"><div class="mfill"></div><div class="msheen"></div></div><p class="mtxt"></p><p class="warn" role="status"></p><span class="mdelta"></span></div>
+  <div class="pitch" dir="ltr"><span class="box l"></span><span class="box r"></span><div class="links"></div><div class="spots"></div>
+    <div class="fx flash"></div><div class="fx dim"></div><div class="fx sweep"></div></div>
+  <div class="hand"></div><button class="again">↺ Start again</button></div></div>`;
+
+const FR = [];
+const clearT = (F) => { F.timers.forEach(clearTimeout); F.timers.forEach(clearInterval); F.timers = []; };
+const later = (F, ms, fn) => F.timers.push(setTimeout(fn, ms));
+const restart = (el, cls) => { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); };
+
+function drawSpots(F) {
+  const pitch = F.root.querySelector(".pitch");
+  const W = pitch.clientWidth, H = pitch.clientHeight;
+  F.W = W; F.H = H;
+  const pos = (s) => ({ x: (s.row / (ROWS + 1)) * W, y: (s.col / (s.inRow + 1)) * H });
+  F.pos = SLOTS.map(pos);
+  F.root.querySelector(".spots").innerHTML = SLOTS.map((s, i) => {
+    const c = F.xi[i], p = F.pos[i];
+    const bursts = [0, 60, 120, 180, 240, 300].map((a) => `<span class="burst" style="--a:${a}deg"></span>`).join("");
+    return `<button class="spot ${c ? "filled" : ""} ${!c && F.manual ? "open" : ""}" data-i="${i}" style="left:${p.x}px;top:${p.y}px" ${!c && F.manual ? "" : "tabindex=-1"} aria-label="${c ? `${esc(c.name)}, ${s.role}` : `${s.role}, empty`}">
+      <span class="disc">${c ? c.ovr : s.role}<span class="ring"></span><span class="wave"></span>${bursts}<span class="spotl"></span>${c && c.role !== s.role ? `<span class="off show" title="${esc(msg(T.chemOffBadge, { own: c.role, slot: s.role }))}">${c.role}</span>` : ""}</span>
+      ${c ? `<span class="ptag">${esc(c.name)}</span>` : ""}</button>`;
+  }).join("");
+}
+function drawLinks(F, lit = new Set(), from = -1) {
+  const xi = F.xi;
+  let k = 0;
+  F.root.querySelector(".links").innerHTML = PAIRS.map((p, n) => {
+    const [i, j] = p, a = F.pos[i], b = F.pos[j];
+    const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy), ang = Math.atan2(dy, dx);
+    const tier = tierOf(xi, p);
+    const isLit = lit.has(n) && tier !== "none";
+    const fromB = from === j; // the placed man sits at the b end: trace/spark start there
+    const kk = isLit ? k++ : 0;
+    const vars = `--k:${kk};--r:${((n * 37) % 10) / 10};--x:${((a.x + b.x) / 2 / F.W).toFixed(3)};--s0:${fromB ? len : 0}px;--s1:${fromB ? 0 : len}px;--o:${fromB ? "100%" : "0"};--mid:${len / 2}px`;
+    return `<div class="lw ${isLit ? "lit" : ""}" data-tier="${tier}" style="left:${a.x}px;top:${a.y}px;width:${len}px;transform:rotate(${ang}rad);${vars}"><div class="ln"></div><div class="ln b"></div><div class="hl"></div><div class="sp"></div></div>`;
+  }).join("");
+  if (F.root.classList.contains("G16")) later(F, hold(460), () => F.root.querySelectorAll(".lw.lit").forEach((l) => l.classList.add("done")));
+}
+function setMeter(F, to, dir) {
+  const m = F.root.querySelector(".meter"), num = m.querySelector(".mnum");
+  const from = F.score; F.score = to;
+  m.querySelector(".mfill").style.setProperty("--f", to / 100);
+  m.querySelector(".mtxt").textContent = breakdown(F.xi);
+  const off = offOf(F.xi);
+  const w = m.querySelector(".warn");
+  if (off.length) { w.textContent = msg(T.chemOffWarn, { count: off.length, points: OFF_POSITION_PENALTY * off.length }); if (!w.classList.contains("show")) w.classList.add("show"); }
+  else w.classList.remove("show");
+  if (dir == null) { num.textContent = to; return; }
+  const dl = m.querySelector(".mdelta"); const d = to - from;
+  dl.className = `mdelta ${d >= 0 ? "up" : "dn"}`; dl.textContent = d >= 0 ? msg(T.chemDelta, { points: d }) : msg(T.chemDeltaDown, { points: -d });
+  restart(dl, "go");
+  m.classList.remove("up", "down"); void m.offsetWidth; m.classList.add(d >= 0 ? "up" : "down");
+  if (RM()) { num.textContent = to; return; }
+  const steps = Math.max(1, Math.abs(d)), t0 = performance.now(), span = 420 / G.rate;
+  const tick = () => { const f = Math.min(1, (performance.now() - t0) / span); num.textContent = Math.round(from + d * f); if (f < 1) F.raf = requestAnimationFrame(tick); };
+  cancelAnimationFrame(F.raf); F.raf = requestAnimationFrame(tick); void steps;
+}
+/** Place a card: the disc arrives, his new links light, the meter moves. */
+function place(F, slot, card) {
+  F.xi[slot] = { ...card };
+  const lit = new Set(PAIRS.map((p, n) => (p.includes(slot) ? n : -1)).filter((n) => n >= 0));
+  const pitch = F.root.querySelector(".pitch");
+  pitch.classList.remove("idle");
+  drawSpots(F); drawLinks(F, lit, slot);
+  const el = F.root.querySelector(`.spot[data-i="${slot}"]`);
+  el.classList.add("arr");
+  const p = F.pos[slot];
+  el.style.setProperty("--mx", `${(F.W / 2 - p.x) * 0.25}px`); el.style.setProperty("--my", `${-p.y * 0.25 - 20}px`);
+  const off = card.role !== SLOTS[slot].role;
+  if (off) el.classList.add("offarr");
+  // the neighbours he links to (G15's rings)
+  PAIRS.forEach(([i, j]) => { if (i !== slot && j !== slot) return; const o = i === slot ? j : i; const t = tierOf(F.xi, [i, j]); if (t === "none") return;
+    const nb = F.root.querySelector(`.spot[data-i="${o}"]`); nb.style.setProperty("--rc", t === "teammates" ? "rgba(52,211,153,.85)" : "rgba(246,192,0,.8)"); nb.classList.add("nb"); });
+  ["scan", "flashing", "spotting"].forEach((c) => restart(pitch, c));
+  setMeter(F, score(F.xi), true);
+}
+function goIdle(F) { F.root.querySelector(".pitch").classList.add("idle"); drawLinks(F); }
+
+function run(F, auto) {
+  clearT(F); cancelAnimationFrame(F.raf);
+  F.xi = START(); F.manual = !auto; F.score = 0;
+  F.root.querySelector(".hand").className = "hand"; F.root.querySelector(".again").className = "again";
+  F.root.querySelector(".pitch").className = "pitch";
+  F.root.querySelector(".meter").className = "meter";
+  drawSpots(F); drawLinks(F); setMeter(F, score(F.xi));
+  if (!auto) { showHint(F); return; }
+  let t = hold(700);
+  for (const s of DATA.script) { later(F, t, () => place(F, s.slot, s.card)); t += hold(1700); }
+  later(F, t + hold(400), () => goIdle(F));
+}
+function showHint(F) {
+  const h = F.root.querySelector(".hand");
+  const left = SLOTS.map((_, i) => i).filter((i) => !F.xi[i]);
+  h.className = "hand show";
+  h.innerHTML = `<p class="hhint">${left.length ? "Tap an empty position on the pitch to see its hand." : "Squad complete."}</p>`;
+  if (!left.length) { F.root.querySelector(".again").className = "again show"; later(F, hold(900), () => goIdle(F)); }
+}
+function openHand(F, slot) {
+  const h = F.root.querySelector(".hand");
+  const opts = DATA.hands[slot] || [];
+  h.className = "hand show";
+  h.innerHTML = `<p class="hhint">${SLOTS[slot].role} — pick one:</p>` + opts.map((c, k) => {
+    const xi = F.xi.slice(); xi[slot] = c; const d = score(xi) - F.score;
+    const off = c.role !== SLOTS[slot].role;
+    return `<button class="hcard" data-slot="${slot}" data-k="${k}"><b>${esc(c.name)} · ${c.ovr}</b><span class="meta">${c.role} · ${esc(c.club)} ${c.season} · ${c.nat.toUpperCase()}</span>
+      <span class="dl ${d > 0 ? "up" : d < 0 ? "dn" : ""}">${d > 0 ? esc(msg(T.chemDelta, { points: d })) : d < 0 ? esc(msg(T.chemDeltaDown, { points: -d })) : esc(T.chemDeltaNone)}</span>${off ? `<span class="ot">${esc(msg(T.chemOffTag, { slot: SLOTS[slot].role }))}</span>` : ""}</button>`;
+  }).join("");
+}
+
+/* ═════════ gallery chrome ═════════ */
+function summary() { return G.picks.length ? `Chemistry glow ${[...G.picks].sort((a, b) => a - b).map((n) => `#${n} ${D[n - 1].name}`).join(" + ")}` : "Chemistry glow —"; }
+function renderPickbar() {
+  const p = [...G.picks].sort((a, b) => a - b);
+  document.getElementById("pickbar").innerHTML = `<b>Picks:</b> <span class="p ${p.length ? "on" : ""}">${p.length ? `Chemistry glow ${p.map((n) => `#${n}`).join(" + ")}` : "Chemistry glow #—"}</span>${p.length > 1 ? `<span class="p">(hybrid)</span>` : ""} <button id="copy">Copy</button><button id="clear">Clear</button>`;
+}
+function render() {
+  document.body.dataset.theme = G.theme; document.body.classList.toggle("rm", G.rm);
+  document.documentElement.style.setProperty("--rate", G.rate);
+  const i = G.idx, d = D[i], picked = G.picks.includes(i + 1);
+  document.getElementById("concept").innerHTML = D.map((x, j) => `<option value="${j}" ${j === i ? "selected" : ""}>#${j + 1} · ${x.name}</option>`).join("");
+  document.getElementById("main").innerHTML = `<p class="intro">The chemistry layer on the draft pitch (Legacy, Captain's, Budget Cap, Nationality, Chemistry Draft — TASK-1824). Each design plays the whole moment: <b>Vieira</b> is placed and his links light up by tier → the meter rises → <b>Zola</b> adds a club link → <b>Silvestre</b>, a centre-back, is put at right-back: red mark, the score DROPS, the warning appears → idle glow. Scores, links and copy use the app's real rules and strings. "Play it yourself" lets you fill the three empty spots from small hands, one with an out-of-position option. Pick several numbers for a hybrid.</p>
+    <p class="rmnote">Reduced motion is ON — what a visitor with <code>prefers-reduced-motion: reduce</code> sees: no animation and no transition. Tier colours stay, and teammates keep their static glow, because the colour is the information.</p>
+    <div class="chead"><h2><b>#${i + 1}</b>${esc(d.name)}</h2><button class="pickbtn ${picked ? "on" : ""}" id="pick">${picked ? "✓ Picked" : "Pick this one"}</button></div>
+    <p class="why">${esc(d.idea)}</p>
+    <p class="tl">Countrymen & club legends amber · teammates green (strongest) · transform / opacity / box-shadow only, all finite</p>
+    <div class="ctl"><button class="pri" data-g="replay">▶ Replay</button><button data-g="manual">Play it yourself</button></div>
+    <div class="stage" id="stage"><div class="frames" id="frames">${frameHtml(false)}${frameHtml(true)}</div></div>`;
+  FR.length = 0;
+  document.querySelectorAll(".fr").forEach((root) => FR.push({ root, timers: [], xi: [], score: 0 }));
+  fit();
+  FR.forEach((F) => run(F, true));
+  renderPickbar();
+}
+function fit() {
+  const st = document.getElementById("stage"), fr = document.getElementById("frames"); if (!st) return;
+  const narrow = window.innerWidth < 900;
+  fr.style.flexDirection = narrow ? "column" : "row"; fr.style.width = narrow ? "1000px" : "1404px";
+  const w = narrow ? 1000 : 1404, z = Math.min(1, st.clientWidth / w);
+  fr.style.transform = `scale(${z})`; st.style.height = fr.offsetHeight * z + "px";
+}
+window.addEventListener("resize", fit);
+
+function seg(id, list, get, set) {
+  const el = document.getElementById(id);
+  const sync = () => el.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.v === String(get()))));
+  el.innerHTML = list.map(([v, l]) => `<button data-v="${v}">${l}</button>`).join("");
+  el.onclick = (e) => { const b = e.target.closest("button"); if (!b) return; set(b.dataset.v); sync(); };
+  sync();
+}
+seg("theme", [["light", "Light"], ["dark", "Dark"]], () => G.theme, (v) => { G.theme = v; save(); document.body.dataset.theme = v; });
+seg("era", [["retro90s", "90s"], ["goldenMillennium", "2000s"], ["modern", "Modern"]], () => G.era, (v) => { G.era = v; save(); document.querySelectorAll(".fr").forEach((f) => (f.dataset.era = v)); });
+seg("motion", [["full", "Full motion"], ["reduced", "Reduced motion"]], () => (G.rm ? "reduced" : "full"), (v) => { G.rm = v === "reduced"; render(); });
+seg("speed", [["1", "1×"], ["0.5", "½×"], ["0.25", "¼×"]], () => G.rate, (v) => { G.rate = +v; render(); });
+document.getElementById("concept").onchange = (e) => { G.idx = +e.target.value; render(); };
+const step = (d) => { G.idx = (G.idx + d + D.length) % D.length; render(); window.scrollTo({ top: 0 }); };
+document.getElementById("prev").onclick = () => step(-1);
+document.getElementById("next").onclick = () => step(1);
+document.addEventListener("keydown", (e) => { if (e.target.tagName === "SELECT") return; if (e.key === "ArrowRight") step(1); if (e.key === "ArrowLeft") step(-1); });
+
+document.getElementById("pickbar").addEventListener("click", (e) => {
+  if (e.target.id === "copy") { const t = summary(); (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => (e.target.textContent = "Copied"), () => prompt("Copy your picks:", t)); }
+  if (e.target.id === "clear") { G.picks = []; save(); render(); }
+});
+document.getElementById("main").addEventListener("click", (e) => {
+  if (e.target.id === "pick") { const n = G.idx + 1; G.picks = G.picks.includes(n) ? G.picks.filter((x) => x !== n) : [...G.picks, n]; save(); renderPickbar(); e.target.className = `pickbtn ${G.picks.includes(n) ? "on" : ""}`; e.target.textContent = G.picks.includes(n) ? "✓ Picked" : "Pick this one"; return; }
+  const g = e.target.closest("[data-g]");
+  if (g) { FR.forEach((F) => run(F, g.dataset.g === "replay")); return; }
+  const fr = e.target.closest(".fr"); if (!fr) return;
+  const F = FR.find((x) => x.root === fr); if (!F || !F.manual) return;
+  if (e.target.closest(".again")) { run(F, false); return; }
+  const hc = e.target.closest(".hcard");
+  if (hc) { const slot = +hc.dataset.slot; place(F, slot, DATA.hands[slot][+hc.dataset.k]); F.root.querySelectorAll(".spot").forEach((s) => { const i = +s.dataset.i; if (!F.xi[i]) { s.classList.add("open"); s.removeAttribute("tabindex"); } }); showHint(F); return; }
+  const s = e.target.closest(".spot.open"); if (s) openHand(F, +s.dataset.i);
+});
+
+render();
+</script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 "use client";
 import { useLocale, useTranslations } from "next-intl";
-import { useCallback, useEffect, useMemo, useReducer, useState } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { budgetView, canAfford, shortfall, type BudgetView } from "@/features/game/domain/budget";
 import { priceLabel } from "@/features/game/domain/price-band";
 import { pickBack } from "@/features/game/domain/card-design";
@@ -480,6 +480,46 @@ export function PitchDraft({
   const offSlots = placedXi == null ? [] : offPositionSlots(placedXi, shape);
 
   /**
+   * TASK-1824 — the owner's motion pick, #15 Halo Rings + #18 Shockwave Warning (2026-10-23).
+   *
+   * The LAST placement, and nothing more: which slot, whether he is out of position, and
+   * whether the score fell. `n` re-keys every animated element so the same moment can play
+   * again on the next placement. Presentation only — derived from the picks, never fed back.
+   *
+   * ⚠️ Detected by diffing the picks rather than hooked into the pick handler, because a pick
+   * reaches the reducer from several places (round, review swap, drop) and the motion must
+   * answer to what LANDED on the pitch, not to which button was pressed.
+   */
+  const prevPicks = useRef(state.picks);
+  const prevScore = useRef(chemScore);
+  const [flash, setFlash] = useState<{
+    slot: number;
+    n: number;
+    off: boolean;
+    down: boolean;
+  } | null>(null);
+  useEffect(() => {
+    const before = prevPicks.current;
+    const was = prevScore.current;
+    prevPicks.current = state.picks;
+    prevScore.current = chemScore;
+    if (placedXi == null) return;
+    const slot = state.picks.findIndex(
+      (id, k) => k < shape.slots.length && id != null && id !== before[k],
+    );
+    if (slot < 0) return;
+    const placed = byId.get(state.picks[slot]!);
+    setFlash((f) => ({
+      slot,
+      n: (f?.n ?? 0) + 1,
+      off: placed != null && offPosition(placed, shape.slots[slot]!.role),
+      down: chemScore < was,
+    }));
+    // Only a change of picks is a placement; the score moves WITH it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.picks]);
+
+  /**
    * What a candidate would ADD to the open slot, in chemistry points.
    *
    * The trade-off made visible, and the reason the mode is a decision rather than "pick the
@@ -601,10 +641,13 @@ export function PitchDraft({
       {locked && chemCounts != null ? (
         <div
           data-testid="chem-meter"
-          className="border-border bg-muted/30 mx-auto mb-4 w-full max-w-md rounded-lg border px-4 py-3"
+          // #18 — re-mounted on a drop so the red flash and the shake play every time.
+          key={flash?.down ? `down-${flash.n}` : "meter"}
+          data-down={flash?.down ? "" : undefined}
+          className={`${flash?.down ? "chem-meter-down " : ""}border-border bg-muted/30 mx-auto mb-4 w-full max-w-md rounded-lg border px-4 py-3`}
         >
           <div className="flex items-baseline justify-center gap-2">
-            <span className="font-mono text-4xl leading-none font-extrabold tracking-tight">
+            <span className="chem-num font-mono text-4xl leading-none font-extrabold tracking-tight">
               {chemScore}
             </span>
             <span className="text-[10px] font-bold tracking-[0.09em] uppercase opacity-70">
@@ -672,6 +715,32 @@ export function PitchDraft({
               aria-hidden="true"
               style={{ pointerEvents: "none" }}
             >
+              {/* ⭐ #15 — the glow is a SECOND, blurred line under each linked pair, and only its
+                  OPACITY ever moves: the one property that animates on an SVG line and passes
+                  the motion audit. Teammates keep a low glow at rest; a pair the last placement
+                  just made flares and settles. Replaces the old endless teammates pulse. */}
+              {chemLinks.map(({ i, j, tier }) => {
+                if (tier === "none") return null;
+                const lit = flash != null && (i === flash.slot || j === flash.slot);
+                if (!lit && tier !== "teammates") return null;
+                const a = shape.slots[i]!;
+                const b = shape.slots[j]!;
+                const ra = shape.slots.filter((x) => x.row === a.row).length + 1;
+                const rb = shape.slots.filter((x) => x.row === b.row).length + 1;
+                return (
+                  <line
+                    key={lit ? `h${i}-${j}-${flash!.n}` : `h${i}-${j}`}
+                    data-testid="chem-halo"
+                    data-tier={tier}
+                    data-lit={lit ? "" : undefined}
+                    className={`chem-halo${lit ? " chem-halo-lit" : ""}`}
+                    x1={(a.row / (rows + 1)) * 100}
+                    y1={(a.col / ra) * 100}
+                    x2={(b.row / (rows + 1)) * 100}
+                    y2={(b.col / rb) * 100}
+                  />
+                );
+              })}
               {chemLinks.map(({ i, j, tier, title }) => {
                 const a = shape.slots[i]!;
                 const b = shape.slots[j]!;
@@ -749,7 +818,31 @@ export function PitchDraft({
                   card && (card.ratings?.overall ?? 0) < 80 ? " pd-silver" : ""
                 }`}
               >
-                <span className="pd-disc">{card ? (card.ratings?.overall ?? 0) : s.role}</span>
+                <span className="pd-disc">
+                  {card ? (card.ratings?.overall ?? 0) : s.role}
+                  {/* #15 — each neighbour the last placement LINKED TO wears a ring in that
+                      link's colour, and keeps it until the next placement. */}
+                  {(() => {
+                    if (flash == null || placedXi == null || i === flash.slot) return null;
+                    const link = chemLinks.find(
+                      (l) =>
+                        l.tier !== "none" &&
+                        ((l.i === flash.slot && l.j === i) || (l.j === flash.slot && l.i === i)),
+                    );
+                    return link == null ? null : (
+                      <span
+                        key={`r${flash.n}`}
+                        data-testid="chem-ring"
+                        data-tier={link.tier}
+                        className="chem-ring"
+                      />
+                    );
+                  })()}
+                  {/* #18 — a red shockwave from a man placed out of position. */}
+                  {flash != null && flash.off && i === flash.slot && placedXi != null ? (
+                    <span key={`w${flash.n}`} data-testid="chem-wave" className="chem-wave" />
+                  ) : null}
+                </span>
                 {card ? <span className="pd-tag">{card.name}</span> : null}
                 {/* TASK-1824 — a man out of position wears a red mark carrying both roles. */}
                 {placedXi != null && card && offPosition(card, s.role) ? (

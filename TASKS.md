@@ -6732,9 +6732,14 @@ mismatch hurts the side.
   code carries nothing and replays under the route's historical meaning (`GamePlay`'s `chemistry`
   prop): links-only on the Chemistry Draft, none anywhere else. So no existing match changes.
 - Season drafts show no meter, because season fixtures do not play chemistry.
-- ⬜ **Still open:** the "subtle glowing" connector motion the owner described waits for the
-  20-design animation gallery (standing rule); chemistry in DraftHub (`/game/draft`), Chaos and
-  the daily; and chemistry in season fixtures.
+- ✅ **The glow shipped (2026-10-23)** — owner pick from the 20-design gallery
+  (`design/chem-glow-gallery/`): **#15 Halo Rings + #18 Shockwave Warning**. A placement flares
+  its new links (a blurred halo line under each, opacity only) and rings each neighbour it linked
+  to in that link's colour; a man placed out of position sends a red shockwave, the meter flashes
+  red and its number and warning shake. ⛔ The old endless teammates pulse is gone — teammates
+  now rest on a static halo.
+- ⬜ **Still open:** chemistry in DraftHub (`/game/draft`), Chaos and the daily; and chemistry in
+  season fixtures.
 
 ### TASK-1825
 

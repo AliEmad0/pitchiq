@@ -132,3 +132,91 @@ describe("role fit on the draft", () => {
     expect(screen.queryByTestId("chem-off-warn")).toBeNull();
   });
 });
+
+/**
+ * TASK-1824 glow — the owner's pick, #15 Halo Rings + #18 Shockwave Warning. Two halves, as the
+ * key-event overlay taught (CLAUDE.md): the component must render the layers, and the CSS must
+ * animate and gate them. Either half alone stays green with the other deleted.
+ */
+describe("the chemistry glow", () => {
+  it("⭐ a placement flares its new links and rings the neighbours it linked to", async () => {
+    const user = userEvent.setup();
+    render(<GamePlay pool={mates} draft={DRAFT} chemistry scoreChemistry />);
+    await lock(user);
+    expect(screen.queryAllByTestId("chem-halo")).toHaveLength(0);
+    await draftAll(user);
+    // The last placement lit at least one teammate link and ringed its far end.
+    const lit = screen.getAllByTestId("chem-halo").filter((h) => h.hasAttribute("data-lit"));
+    expect(lit.length).toBeGreaterThan(0);
+    expect(screen.getAllByTestId("chem-ring").length).toBe(lit.length);
+  });
+
+  it("⭐ a man placed out of position sends the shockwave", async () => {
+    const user = userEvent.setup();
+    render(<GamePlay pool={mates} draft={DRAFT} chemistry scoreChemistry />);
+    await lock(user);
+    await draftAll(user);
+    // Re-place the right-back: every card there is a CB covering, so this one is off.
+    const rb = screen
+      .getAllByRole("button")
+      .find(
+        (b) => b.classList.contains("pd-spot") && /RB/.test(b.getAttribute("aria-label") ?? ""),
+      )!;
+    await user.click(rb);
+    const veil = screen.getByTestId("pd-veil");
+    const other = within(veil)
+      .getAllByTestId("pd-candidate")
+      .find((c) => !within(c).queryByTestId("pd-current-mark"))!;
+    await user.click(within(other).getByRole("button", { name: /^Choose / }));
+    expect(screen.getByTestId("chem-wave")).toBeInTheDocument();
+  });
+
+  it("⛔ THE CONTROL — no chemistry, no glow layers at all", async () => {
+    const user = userEvent.setup();
+    render(<GamePlay pool={mates} draft={DRAFT} />);
+    await lock(user);
+    await draftAll(user);
+    for (const id of ["chem-halo", "chem-ring", "chem-wave"]) {
+      expect(screen.queryAllByTestId(id)).toHaveLength(0);
+    }
+  });
+});
+
+describe("the chemistry glow — CSS", async () => {
+  const { readFileSync } = await import("node:fs");
+  const css = readFileSync("src/app/globals.css", "utf8");
+  const rule = (sel: string) => {
+    const at = css.indexOf(`${sel} {`);
+    return at < 0 ? "" : css.slice(at, css.indexOf("}", at));
+  };
+
+  it("animates every layer — the RULE, not merely the selector", () => {
+    for (const sel of [
+      ".chem-halo-lit",
+      ".chem-ring",
+      ".chem-wave",
+      ".chem-meter-down",
+      ".chem-off",
+    ]) {
+      expect(rule(sel), sel).toMatch(/animation:\s*chem-/);
+    }
+  });
+
+  it("⛔ nothing on the chemistry surface loops forever", () => {
+    expect(css).not.toMatch(/animation:\s*chem-[^;]*infinite/);
+  });
+
+  it("⛔ one reduced-motion gate stops every layer", () => {
+    const gate = css.slice(css.indexOf(".chem-halo-lit,\n  .chem-ring,"));
+    const block = gate.slice(0, gate.indexOf("}"));
+    for (const sel of [".chem-ring", ".chem-wave", ".chem-meter-down", ".chem-off"]) {
+      expect(block).toContain(sel);
+    }
+    expect(block).toContain("animation: none");
+    // …and that block really sits inside a reduce media query.
+    const before = css.slice(0, css.indexOf(".chem-halo-lit,\n  .chem-ring,"));
+    expect(before.lastIndexOf("@media (prefers-reduced-motion: reduce)")).toBeGreaterThan(
+      before.lastIndexOf("\n}\n@media (prefers-reduced-motion: no-preference)"),
+    );
+  });
+});
