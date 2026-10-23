@@ -2976,26 +2976,166 @@
   stroke-opacity: 1;
   stroke-width: 3;
   filter: drop-shadow(0 0 3px rgb(52 211 153 / 70%));
-  animation: chem-pulse 2.4s ease-in-out infinite;
 }
-/* ⛔ Pulses ELEMENT `opacity`, never `stroke-opacity`, for two independent reasons — the
-   second one is a real defect and only CI's motion audit (TASK-1706) surfaced it.
-   1. `stroke-opacity` is not on the audit's keyframe allowlist. It is a paint property like
-      the allowlisted `fill`, so it is not the layout hazard the message guesses at — but
-      `opacity` composites instead of repainting, so it is the better answer anyway.
-   2. ⛔ `.chem-link` TRANSITIONS `stroke-opacity` (220ms). A running animation always beats a
-      transition on the same property, so pulsing `stroke-opacity` meant a pair turning
-      teammates had its 220ms fade-in silently overridden and snapped straight into the pulse.
-      Animating a different property lets both do their job.
-   Fading the element also carries the drop-shadow with it, so the whole link breathes rather
-   than the stroke sliding under a fixed glow. */
-@keyframes chem-pulse {
-  0%,
+/* ⛔ The old teammates pulse (`chem-pulse 2.4s … infinite`) is GONE (TASK-1824 glow, owner
+   pick #15 + #18): an endless loop broke the owner's finite-motion rule. The resting glow is now
+   the static `.chem-halo` under the line, and the motion is a one-shot flare per placement. */
+
+/* ---- the chemistry glow (TASK-1824, owner pick #15 Halo Rings + #18 Shockwave Warning) ----
+   ⭐ A blurred SECOND line under each linked pair. Only its `opacity` animates — the one
+   property that moves on an SVG line and passes the motion audit — and the blur is static.
+   `--ti` is each tier's intensity, so teammates flare hardest. The base rule IS the end state,
+   so the reduced-motion gate only has to drop the animation. */
+.chem-halo {
+  vector-effect: non-scaling-stroke;
+  stroke-linecap: round;
+  filter: blur(2px);
+  pointer-events: none;
+  /* At rest only teammates render a halo, at this low steady glow. */
+  opacity: calc(var(--ti) * 0.45);
+}
+.chem-halo[data-tier="nation"] {
+  stroke: #f6c000;
+  stroke-width: 6;
+  --ti: 0.45;
+}
+.chem-halo[data-tier="club"] {
+  stroke: #f6c000;
+  stroke-width: 7;
+  --ti: 0.7;
+}
+.chem-halo[data-tier="teammates"] {
+  stroke: #34d399;
+  stroke-width: 8;
+  --ti: 1;
+}
+.chem-halo-lit {
+  opacity: calc(var(--ti) * 0.5);
+  animation: chem-halo-in 750ms ease both;
+}
+@keyframes chem-halo-in {
+  0% {
+    opacity: 0;
+  }
+  35% {
+    opacity: var(--ti);
+  }
+  100% {
+    opacity: calc(var(--ti) * 0.5);
+  }
+}
+/* #15 — a ring on each neighbour the placement linked to, in that link's colour; it holds. */
+.pd-disc {
+  position: relative;
+}
+.chem-ring {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  pointer-events: none;
+  --rc: rgb(246 192 0 / 80%);
+  box-shadow: 0 0 0 2px var(--rc);
+  animation: chem-ring-in 900ms ease both;
+}
+.chem-ring[data-tier="teammates"] {
+  --rc: rgb(52 211 153 / 85%);
+}
+@keyframes chem-ring-in {
+  0% {
+    opacity: 0;
+    box-shadow: 0 0 0 0 var(--rc);
+  }
+  40% {
+    opacity: 1;
+    box-shadow:
+      0 0 0 4px var(--rc),
+      0 0 14px 4px var(--rc);
+  }
   100% {
     opacity: 1;
+    box-shadow: 0 0 0 2px var(--rc);
   }
-  50% {
-    opacity: 0.65;
+}
+/* #18 — the shockwave from a man placed out of position. Transient: it ends invisible. */
+.chem-wave {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  box-shadow: 0 0 0 3px #ef4444;
+  animation: chem-wave 800ms ease-out both;
+}
+@keyframes chem-wave {
+  from {
+    opacity: 1;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 0;
+    transform: scale(6);
+  }
+}
+/* #18 — when the score FALLS: the meter flashes red, the number and the warning shake. */
+.chem-meter-down {
+  animation: chem-meter-red 900ms ease both;
+}
+.chem-meter-down .chem-num {
+  display: inline-block;
+  animation: chem-shake 500ms ease both;
+}
+.chem-meter-down [data-testid="chem-off-warn"] {
+  animation: chem-shake 500ms ease 150ms both;
+}
+.chem-off {
+  animation: chem-off-pop 420ms ease 200ms both;
+}
+@keyframes chem-meter-red {
+  0% {
+    box-shadow: 0 0 0 0 rgb(239 68 68 / 0%);
+  }
+  30% {
+    box-shadow:
+      0 0 0 3px rgb(239 68 68 / 80%),
+      0 0 18px 4px rgb(239 68 68 / 50%);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgb(239 68 68 / 0%);
+  }
+}
+@keyframes chem-shake {
+  0%,
+  100% {
+    transform: none;
+  }
+  15% {
+    transform: translateX(-6px);
+  }
+  30% {
+    transform: translateX(5px);
+  }
+  45% {
+    transform: translateX(-4px);
+  }
+  60% {
+    transform: translateX(3px);
+  }
+  75% {
+    transform: translateX(-1px);
+  }
+}
+@keyframes chem-off-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.25);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
   }
 }
 
@@ -3254,9 +3394,16 @@
   .chem-link {
     transition: none;
   }
-  /* ⚠️ Only the PULSE is decoration — the colour is the information, so it survives the
-     gate. Killing the animation must never flatten a teammate link into a grey one. */
-  .chem-link[data-tier="teammates"] {
+  /* ⚠️ EVERY glow layer (TASK-1824 #15 + #18). Each base rule is its own end state, so
+     dropping the animation leaves the halo, the ring and the mark where they settle, and the
+     transient wave and shakes simply do not happen. */
+  .chem-halo-lit,
+  .chem-ring,
+  .chem-wave,
+  .chem-meter-down,
+  .chem-meter-down .chem-num,
+  .chem-meter-down [data-testid="chem-off-warn"],
+  .chem-off {
     animation: none;
   }
   .pd-bench-slot:hover {

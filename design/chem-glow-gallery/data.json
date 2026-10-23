@@ -1,0 +1,260 @@
+{
+  "note": "Gallery-only data. The copy (meter, deltas, warning, link names) is read from src/i18n/messages/en.json `game.chem*` by build.py. Players are real Premier League player-seasons chosen so the real link rule (chemistry.ts linkTier) produces every tier.",
+  "shape": [["GK"], ["LB", "CB", "CB", "RB"], ["LM", "CM", "CM", "RM"], ["CF", "CF"]],
+  "placed": {
+    "0": {
+      "name": "Seaman",
+      "role": "GK",
+      "club": "Arsenal",
+      "teamId": 1,
+      "season": 2003,
+      "nat": "eng",
+      "ovr": 84
+    },
+    "1": {
+      "name": "A. Cole",
+      "role": "LB",
+      "club": "Arsenal",
+      "teamId": 1,
+      "season": 2003,
+      "nat": "eng",
+      "ovr": 86
+    },
+    "2": {
+      "name": "Campbell",
+      "role": "CB",
+      "club": "Arsenal",
+      "teamId": 1,
+      "season": 2003,
+      "nat": "eng",
+      "ovr": 87
+    },
+    "3": {
+      "name": "Terry",
+      "role": "CB",
+      "club": "Chelsea",
+      "teamId": 8,
+      "season": 2004,
+      "nat": "eng",
+      "ovr": 90
+    },
+    "5": {
+      "name": "Pires",
+      "role": "LM",
+      "club": "Arsenal",
+      "teamId": 1,
+      "season": 2003,
+      "nat": "fra",
+      "ovr": 88
+    },
+    "7": {
+      "name": "Makélélé",
+      "role": "CM",
+      "club": "Chelsea",
+      "teamId": 8,
+      "season": 2004,
+      "nat": "fra",
+      "ovr": 86
+    },
+    "8": {
+      "name": "Ljungberg",
+      "role": "RM",
+      "club": "Arsenal",
+      "teamId": 1,
+      "season": 2003,
+      "nat": "swe",
+      "ovr": 84
+    },
+    "9": {
+      "name": "Henry",
+      "role": "CF",
+      "club": "Arsenal",
+      "teamId": 1,
+      "season": 2003,
+      "nat": "fra",
+      "ovr": 94
+    }
+  },
+  "script": [
+    {
+      "slot": 6,
+      "card": {
+        "name": "Vieira",
+        "role": "CM",
+        "club": "Arsenal",
+        "teamId": 1,
+        "season": 2003,
+        "nat": "fra",
+        "ovr": 91
+      }
+    },
+    {
+      "slot": 10,
+      "card": {
+        "name": "Zola",
+        "role": "CF",
+        "club": "Chelsea",
+        "teamId": 8,
+        "season": 1998,
+        "nat": "ita",
+        "ovr": 87
+      }
+    },
+    {
+      "slot": 4,
+      "card": {
+        "name": "Silvestre",
+        "role": "CB",
+        "club": "Man Utd",
+        "teamId": 12,
+        "season": 2003,
+        "nat": "fra",
+        "ovr": 83
+      }
+    }
+  ],
+  "hands": {
+    "6": [
+      {
+        "name": "Vieira",
+        "role": "CM",
+        "club": "Arsenal",
+        "teamId": 1,
+        "season": 2003,
+        "nat": "fra",
+        "ovr": 91
+      },
+      {
+        "name": "Lampard",
+        "role": "CM",
+        "club": "Chelsea",
+        "teamId": 8,
+        "season": 2004,
+        "nat": "eng",
+        "ovr": 89
+      }
+    ],
+    "10": [
+      {
+        "name": "Zola",
+        "role": "CF",
+        "club": "Chelsea",
+        "teamId": 8,
+        "season": 1998,
+        "nat": "ita",
+        "ovr": 87
+      },
+      {
+        "name": "Bergkamp",
+        "role": "CF",
+        "club": "Arsenal",
+        "teamId": 1,
+        "season": 2003,
+        "nat": "ned",
+        "ovr": 88
+      }
+    ],
+    "4": [
+      {
+        "name": "Lauren",
+        "role": "RB",
+        "club": "Arsenal",
+        "teamId": 1,
+        "season": 2003,
+        "nat": "cmr",
+        "ovr": 80
+      },
+      {
+        "name": "Silvestre",
+        "role": "CB",
+        "club": "Man Utd",
+        "teamId": 12,
+        "season": 2003,
+        "nat": "fra",
+        "ovr": 83
+      }
+    ]
+  },
+  "designs": [
+    {
+      "name": "Ember Rise",
+      "idea": "The quiet baseline: each new link's glow fades up from nothing, flares once, and settles to a low ember. Idle: two slow breaths, then still."
+    },
+    {
+      "name": "Neon Trace",
+      "idea": "Links are DRAWN outward from the man you just placed, like neon tubing lighting from one end, with a bright flash where each one lands."
+    },
+    {
+      "name": "Spark Run",
+      "idea": "A spark runs along every new link from the placed player to his neighbour, then the line glows in its tier colour behind it."
+    },
+    {
+      "name": "Ripple Out",
+      "idea": "A ring ripples out from the placed disc; links light in order of distance as the ripple reaches them."
+    },
+    {
+      "name": "Heartbeat",
+      "idea": "New links thump twice like a heartbeat (thicken and glow), and the meter thumps with them — teammates beat strongest."
+    },
+    {
+      "name": "Constellation",
+      "idea": "A tiny star-burst at the placed disc; at rest the linked lines twinkle out of step, like a constellation coming out, then hold."
+    },
+    {
+      "name": "Scanner Sweep",
+      "idea": "A soft vertical light bar sweeps the pitch left to right whenever the score changes; each line lights as the bar passes it."
+    },
+    {
+      "name": "Domino Chain",
+      "idea": "Links light one after another in a quick chain, each with a small pop — the side clicking together."
+    },
+    {
+      "name": "Stadium Flash",
+      "idea": "A brief floodlight flash over the pitch on each placement, then the new links glow and the meter pops."
+    },
+    {
+      "name": "Soft Bloom",
+      "idea": "The most restrained option: no movement at all, just a slow bloom of glow on new links. Only teammates keep a faint glow at rest."
+    },
+    {
+      "name": "Pulse Wave",
+      "idea": "A bright pulse travels the length of each new link twice, like current flowing between the two men."
+    },
+    {
+      "name": "Tier Steps",
+      "idea": "Intensity IS the tier: a countryman link pulses once, a club link twice, a teammate link three times."
+    },
+    {
+      "name": "Magnet Snap",
+      "idea": "The placed man snaps into his spot with a little overshoot, and his links snap taut from slack with an elastic finish."
+    },
+    {
+      "name": "Electric Arc",
+      "idea": "New links flicker on like an electric arc striking, then burn steady — the mismatch's link stays dead grey."
+    },
+    {
+      "name": "Halo Rings",
+      "idea": "The lines glow steadily; the NEIGHBOURS he links to get a ring that pulses in the tier colour, so you see who he connects with."
+    },
+    {
+      "name": "Gold Thread",
+      "idea": "Each link is stitched from both ends at once and meets in the middle with a small flash."
+    },
+    {
+      "name": "Breathing Field",
+      "idea": "On placement a gentle fade; at rest every linked line breathes in unison three times, strongest on teammates, then settles."
+    },
+    {
+      "name": "Shockwave Warning",
+      "idea": "Built around the mismatch: the out-of-position man sends a red shockwave, the score shakes, and the warning shakes in."
+    },
+    {
+      "name": "Ticker Count",
+      "idea": "Built around the score: the number slides in like a ticker, a sheen runs across the bar, and a +N / −N bubble floats off it."
+    },
+    {
+      "name": "Spotlight",
+      "idea": "The pitch dims for a beat and a spotlight lands on the man you placed while his links glow, then the lights come back up."
+    }
+  ]
+}
